@@ -17,10 +17,11 @@ declare(strict_types=1);
 namespace League\CommonMark\Node;
 
 use Dflydev\DotAccessData\Data;
+use League\CommonMark\Exception\InvalidArgumentException;
 
 abstract class Node
 {
-    /** @psalm-readonly */
+    /** @psalm-readonly-allow-private-mutation */
     public Data $data;
 
     /** @psalm-readonly-allow-private-mutation */
@@ -242,20 +243,24 @@ abstract class Node
         $this->parent   = null;
         $this->previous = null;
         $this->next     = null;
-        // But save a copy of the children since we'll need that in a moment
-        $children = $this->children();
-        $this->detachChildren();
+        // But save a copy of the children since we'll need that in a moment.
+        // Those children still belong to the node being cloned, so only this copy's own links may be dropped.
+        $children         = $this->children();
+        $this->firstChild = $this->lastChild = null;
 
         // The original children get cloned and re-added
         foreach ($children as $child) {
             $this->appendChild(clone $child);
         }
+
+        // The data belongs to a single node, so the two nodes each need their own copy
+        $this->data = clone $this->data;
     }
 
     public static function assertInstanceOf(Node $node): void
     {
         if (! $node instanceof static) {
-            throw new \InvalidArgumentException(\sprintf('Incompatible node type: expected %s, got %s', static::class, \get_class($node)));
+            throw new InvalidArgumentException(\sprintf('Incompatible node type: expected %s, got %s', static::class, \get_class($node)));
         }
     }
 }

@@ -1,15 +1,15 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Nette Framework (https://nette.org)
  * Copyright (c) 2004 David Grudl (https://davidgrudl.com)
  */
 
-declare(strict_types=1);
-
 namespace Nette\Utils;
 
 use Nette;
+use function array_pop, chmod, decoct, dirname, end, fclose, file_exists, file_get_contents, file_put_contents, fopen, implode, is_dir, is_file, is_link, mkdir, preg_match, preg_split, realpath, rename, rmdir, rtrim, sprintf, str_replace, stream_copy_to_stream, stream_is_local, strtr, uniqid, unlink, usleep;
+use const DIRECTORY_SEPARATOR;
 
 
 /**
@@ -17,15 +17,13 @@ use Nette;
  */
 final class FileSystem
 {
-	use Nette\StaticClass;
-
 	/**
 	 * Creates a directory if it does not exist, including parent directories.
 	 * @throws Nette\IOException  on error occurred
 	 */
-	public static function createDir(string $dir, int $mode = 0777): void
+	public static function createDir(string $dir, int $mode = 0o777): void
 	{
-		if (!is_dir($dir) && !@mkdir($dir, $mode, true) && !is_dir($dir)) { // @ - dir may already exist
+		if (!is_dir($dir) && !@mkdir($dir, $mode, recursive: true) && !is_dir($dir)) { // @ - dir may already exist
 			throw new Nette\IOException(sprintf(
 				"Unable to create directory '%s' with mode %s. %s",
 				self::normalizePath($dir),
@@ -52,14 +50,15 @@ final class FileSystem
 		} elseif (is_dir($origin)) {
 			static::createDir($target);
 			foreach (new \FilesystemIterator($target) as $item) {
+				\assert($item instanceof \SplFileInfo);
 				static::delete($item->getPathname());
 			}
 
 			foreach ($iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($origin, \RecursiveDirectoryIterator::SKIP_DOTS), \RecursiveIteratorIterator::SELF_FIRST) as $item) {
 				if ($item->isDir()) {
-					static::createDir($target . '/' . $iterator->getSubPathName());
+					static::createDir($target . '/' . $iterator->getSubPathname());
 				} else {
-					static::copy($item->getPathname(), $target . '/' . $iterator->getSubPathName());
+					static::copy($item->getPathname(), $target . '/' . $iterator->getSubPathname());
 				}
 			}
 		} else {
@@ -112,6 +111,7 @@ final class FileSystem
 			}
 		} elseif (is_dir($path)) {
 			foreach (new \FilesystemIterator($path) as $item) {
+				\assert($item instanceof \SplFileInfo);
 				static::delete($item->getPathname());
 			}
 
@@ -208,10 +208,10 @@ final class FileSystem
 
 
 	/**
-	 * Writes the string to a file.
+	 * Writes the string to a file. Creates the parent directory if it does not exist. Pass null as $mode to skip chmod.
 	 * @throws Nette\IOException  on error occurred
 	 */
-	public static function write(string $file, string $content, ?int $mode = 0666): void
+	public static function write(string $file, string $content, ?int $mode = 0o666): void
 	{
 		static::createDir(dirname($file));
 		if (@file_put_contents($file, $content) === false) { // @ is escalated to exception
@@ -234,11 +234,41 @@ final class FileSystem
 
 
 	/**
+	 * Writes the string to a file atomically: the content is written to a temporary file, which then replaces
+	 * the target, so a concurrent reader never sees the file partially written or truncated.
+	 * Creates the parent directory if it does not exist. Pass null as $mode to skip chmod.
+	 * @throws Nette\IOException  on error occurred
+	 */
+	public static function writeAtomic(string $file, string $content, ?int $mode = 0o666): void
+	{
+		$file = realpath($file) ?: $file; // writes through a symlink to its target, as write() does
+		$tmp = $file . '.' . uniqid('', more_entropy: true) . '.tmp';
+		try {
+			static::write($tmp, $content, $mode);
+			// plain rename() is atomic; static::rename() must not be used here, it deletes the target first
+			for ($i = 0; !@rename($tmp, $file); $i++) { // @ is escalated to exception
+				if (!Helpers::IsWindows || $i >= 20) {
+					throw new Nette\IOException(sprintf(
+						"Unable to write file '%s'. %s",
+						self::normalizePath($file),
+						Helpers::getLastError(),
+					));
+				}
+				usleep(5_000); // on Windows, rename fails while the target is open in another process
+			}
+		} catch (\Throwable $e) {
+			@unlink($tmp);
+			throw $e;
+		}
+	}
+
+
+	/**
 	 * Sets file permissions to `$fileMode` or directory permissions to `$dirMode`.
 	 * Recursively traverses and sets permissions on the entire contents of the directory as well.
 	 * @throws Nette\IOException  on error occurred
 	 */
-	public static function makeWritable(string $path, int $dirMode = 0777, int $fileMode = 0666): void
+	public static function makeWritable(string $path, int $dirMode = 0o777, int $fileMode = 0o666): void
 	{
 		if (is_file($path)) {
 			if (!@chmod($path, $fileMode)) { // @ is escalated to exception
@@ -251,6 +281,7 @@ final class FileSystem
 			}
 		} elseif (is_dir($path)) {
 			foreach (new \FilesystemIterator($path) as $item) {
+				\assert($item instanceof \SplFileInfo);
 				static::makeWritable($item->getPathname(), $dirMode, $fileMode);
 			}
 
@@ -273,7 +304,20 @@ final class FileSystem
 	 */
 	public static function isAbsolute(string $path): bool
 	{
-		return (bool) preg_match('#([a-z]:)?[/\\\\]|[a-z][a-z0-9+.-]*://#Ai', $path);
+		return (bool) preg_match('#([a-z]:)?[/\\\]|[a-z][a-z0-9+.-]*://#Ai', $path);
+	}
+
+
+	/**
+	 * Determines whether the string is a valid cross-platform filename without any path information.
+	 */
+	public static function isValidFilename(string $name): bool
+	{
+		[$stem] = explode('.', $name, 2);
+		return $name !== '' && $name !== '.' && $name !== '..'
+			&& !preg_match('#[\x00-\x1F<>:"|?*\\\/]#', $name) // control and reserved characters
+			&& !str_ends_with($name, '.') && !str_ends_with($name, ' ') // trailing dots/spaces
+			&& !preg_match('#^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$#i', $stem); // Windows reserved device names
 	}
 
 
@@ -282,7 +326,7 @@ final class FileSystem
 	 */
 	public static function normalizePath(string $path): string
 	{
-		$parts = $path === '' ? [] : preg_split('~[/\\\\]+~', $path);
+		$parts = $path === '' ? [] : preg_split('~[/\\\]+~', $path);
 		$res = [];
 		foreach ($parts as $part) {
 			if ($part === '..' && $res && end($res) !== '..' && end($res) !== '') {
@@ -304,6 +348,19 @@ final class FileSystem
 	public static function joinPaths(string ...$paths): string
 	{
 		return self::normalizePath(implode('/', $paths));
+	}
+
+
+	/**
+	 * Resolves a path against a base path. If the path is absolute, returns it directly, if it's relative, joins it with the base path.
+	 */
+	public static function resolvePath(string $basePath, string $path): string
+	{
+		return match (true) {
+			self::isAbsolute($path) => self::platformSlashes($path),
+			$path === '' => self::platformSlashes($basePath),
+			default => self::joinPaths($basePath, $path),
+		};
 	}
 
 

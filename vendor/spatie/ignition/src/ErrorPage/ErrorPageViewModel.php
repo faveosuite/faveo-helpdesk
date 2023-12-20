@@ -2,11 +2,11 @@
 
 namespace Spatie\Ignition\ErrorPage;
 
+use Spatie\ErrorSolutions\Contracts\Solution;
+use Spatie\ErrorSolutions\Solutions\SolutionTransformer;
 use Spatie\FlareClient\Report;
 use Spatie\FlareClient\Truncation\ReportTrimmer;
 use Spatie\Ignition\Config\IgnitionConfig;
-use Spatie\Ignition\Contracts\Solution;
-use Spatie\Ignition\Solutions\SolutionTransformer;
 use Throwable;
 
 class ErrorPageViewModel
@@ -94,14 +94,14 @@ class ErrorPageViewModel
     {
         $jsonOptions = JSON_PARTIAL_OUTPUT_ON_ERROR | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT;
 
-        return (string)json_encode($data, $jsonOptions);
+        return (string) json_encode($data, $jsonOptions);
     }
 
     public function getAssetContents(string $asset): string
     {
         $assetPath = __DIR__."/../../resources/compiled/{$asset}";
 
-        return (string)file_get_contents($assetPath);
+        return (string) file_get_contents($assetPath);
     }
 
     /**
@@ -115,7 +115,7 @@ class ErrorPageViewModel
     public function updateConfigEndpoint(): string
     {
         // TODO: Should be based on Ignition config
-        return  '/_ignition/update-config';
+        return '/_ignition/update-config';
     }
 
     public function customHtmlHead(): string

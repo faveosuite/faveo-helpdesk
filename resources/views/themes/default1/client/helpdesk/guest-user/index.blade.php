@@ -16,7 +16,7 @@
 @section('breadcrumb')
 {{--    <div class="site-hero clearfix">--}}
         <ol class="breadcrumb float-sm-right ">
-            <li class="breadcrumb-item"> <i class="fas fa-home"> </i> {!! Lang::get('lang.you_are_here') !!} : &nbsp;</li>
+            <li class="breadcrumb-item"> <i class="fa-solid fa-home"> </i> {!! Lang::get('lang.you_are_here') !!} : &nbsp;</li>
 
             <li><a href="{!! URL::route('/') !!}">{!! Lang::get('lang.home') !!}</a></li>
         </ol>
@@ -24,10 +24,10 @@
 @stop
 @section('content')
 @if(!Session::has('error') && count($errors)>0)
-    <div class="alert alert-danger alert-dismissable">
-        <i class="fa fa-ban"></i>
+    <div class="alert alert-danger alert-dismissible">
+        <i class="fa-solid fa-ban"></i>
         <b>{!! Lang::get('lang.alert') !!} !</b>
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         <ul>
             @foreach ($errors->all() as $error)
             <li>{{ $error }}</li>

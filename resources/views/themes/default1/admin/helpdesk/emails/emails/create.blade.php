@@ -20,7 +20,7 @@ class="nav-link active"
 @stop
 <!-- header -->
 @section('PageHeader')
-<h1>{{Lang::get('lang.add_an_email')}}</h1> 
+<h3>{{Lang::get('lang.add_an_email')}}</h3> 
 @stop
 <!-- /header -->
 <!-- breadcrumbs -->
@@ -35,8 +35,8 @@ class="nav-link active"
 <form id="form">
     <div id="head"></div>    
     <div id="alert" style="display:none;">
-        <div class="alert alert-danger alert-dismissable">
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <div class="alert alert-danger alert-dismissible">
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
             <div id="alert-message"></div>
         </div>
     </div>
@@ -48,28 +48,28 @@ class="nav-link active"
         <div class="card-body">
             <div class="row">
                 <!-- email address -->
-                <div class="col-sm-6 form-group {!! $errors->has('email_address') ? 'has-error' : '' !!}" id = "email_address_error">
-                    {!! Form::label('email_address',Lang::get('lang.email_address')) !!} <span class="text-red"> *</span>
+                <div class="col-sm-6 mb-3 {!! $errors->has('email_address') ? 'has-error' : '' !!}" id = "email_address_error">
+                    {!! html()->label(Lang::get('lang.email_address'), 'email_address') !!} <span class="text-red"> *</span>
                     {!! $errors->first('email_address', '<spam class="help-block">:message</spam>') !!}
-                    {!! Form::text('email_address',null,['class' => 'form-control', 'id' => 'email_address']) !!}
+                    {!! html()->text('email_address', null)->class('form-control')->id('email_address') !!}
                 </div>
                 <!-- user name -->
-                <div class="col-sm-6 form-group {{ $errors->has('user_name') ? 'has-error' : '' }}" id="user_name_error">
-                    {!! Form::label('user_name',Lang::get('lang.user_name')) !!}
+                <div class="col-sm-6 mb-3 {{ $errors->has('user_name') ? 'has-error' : '' }}" id="user_name_error">
+                    {!! html()->label(Lang::get('lang.user_name'), 'user_name') !!}
                     {!! $errors->first('user_name', '<spam class="help-block">:message</spam>') !!}
-                    {!! Form::text('user_name',null,['class' => 'form-control']) !!}
+                    {!! html()->text('user_name', null)->class('form-control') !!}
                 </div>
                 <!-- Email name -->
-                <div class="col-sm-6 form-group {!! $errors->has('email_name') ? 'has-error' : ''!!}" id="email_name_error">
-                    {!! Form::label('email_name',Lang::get('lang.from_name')) !!} <span class="text-red"> *</span>
+                <div class="col-sm-6 mb-3 {!! $errors->has('email_name') ? 'has-error' : ''!!}" id="email_name_error">
+                    {!! html()->label(Lang::get('lang.from_name'), 'email_name') !!} <span class="text-red"> *</span>
                     {!! $errors->first('email_name', '<spam class="help-block">:message</spam>') !!}
-                    {!! Form::text('email_name',null,['class' => 'form-control', 'id' => 'email_name']) !!}
+                    {!! html()->text('email_name', null)->class('form-control')->id('email_name') !!}
                 </div>
                 <!-- password -->
-                <div class="col-sm-6 form-group {!! $errors->has('password') ? 'has-error' : ''!!}" id="password_error">
-                    {!! Form::label('password',Lang::get('lang.password')) !!} <span class="text-red"> *</span>
+                <div class="col-sm-6 mb-3 {!! $errors->has('password') ? 'has-error' : ''!!}" id="password_error">
+                    {!! html()->label(Lang::get('lang.password'), 'password') !!} <span class="text-red"> *</span>
                     {!! $errors->first('password', '<spam class="help-block">:message</spam>') !!}
-                    {!! Form::password('password',['class' => 'form-control', 'id' => 'password']) !!}
+                    {!! html()->password('password')->class('form-control')->id('password') !!}
                 </div>
             </div>
         
@@ -82,28 +82,28 @@ class="nav-link active"
                 <div class="card-body">
                     <div class="row">
                         <!-- department -->
-                        <div class="col-sm-4 form-group {!! $errors->has('department') ? 'has-error' : ''!!}" id="department_error">
-                            {!! Form::label('department',Lang::get('lang.department')) !!}
+                        <div class="col-sm-4 mb-3 {!! $errors->has('department') ? 'has-error' : ''!!}" id="department_error">
+                            {!! html()->label(Lang::get('lang.department'), 'department') !!}
                             {!! $errors->first('department', '<spam class="help-block">:message</spam>') !!}
-                            {!!Form::select('department', [''=>'--System Default--','departments'=>$departments->pluck('name','id')->toArray()],null,['class' => 'form-control select', 'id' => 'department' ]) !!}
+                            {!! html()->select('department', [''=>'--System Default--','departments'=>$departments->pluck('name','id')->toArray()], null)->class('form-control select')->id('department') !!}
                         </div>
                         <!-- Priority -->
-                        <div class="col-sm-4 form-group {!! $errors->has('priority') ? 'has-error' : ''!!}" id="priority_error">
-                            {!! Form::label('priority',Lang::get('lang.priority')) !!}
+                        <div class="col-sm-4 mb-3 {!! $errors->has('priority') ? 'has-error' : ''!!}" id="priority_error">
+                            {!! html()->label(Lang::get('lang.priority'), 'priority') !!}
                             {!! $errors->first('priority', '<spam class="help-block">:message</spam>') !!}
-                            {!!Form::select('priority', [''=>'--System Default--','Priorities'=>$priority->pluck('priority_desc','priority_id')->toArray()],null,['class' => 'form-control select', 'id' => 'priority']) !!}
+                            {!! html()->select('priority', [''=>'--System Default--','Priorities'=>$priority->pluck('priority_desc','priority_id')->toArray()], null)->class('form-control select')->id('priority') !!}
                         </div>
                         <!-- Help topic -->
-                        <div class="col-sm-4 form-group {!! $errors->has('help_topic') ? 'has-error' : ''!!}" id="help_topic_error">
-                            {!! Form::label('help_topic',Lang::get('lang.help_topic')) !!}
+                        <div class="col-sm-4 mb-3 {!! $errors->has('help_topic') ? 'has-error' : ''!!}" id="help_topic_error">
+                            {!! html()->label(Lang::get('lang.help_topic'), 'help_topic') !!}
                             {!! $errors->first('help_topic', '<spam class="help-block">:message</spam>') !!}
-                            {!!Form::select('help_topic', [''=>'--System Default--','Help Topics'=>$helps->pluck('topic','id')->toArray()],null,['class' => 'form-control select', 'id' => 'help_topic']) !!}
+                            {!! html()->select('help_topic', [''=>'--System Default--','Help Topics'=>$helps->pluck('topic','id')->toArray()], null)->class('form-control select')->id('help_topic') !!}
                         </div>
                         <!-- status -->
-                        <div class="col-sm-2 form-group">
-                            {!! Form::label('auto_response',Lang::get('lang.auto_response')) !!}
+                        <div class="col-sm-2 mb-3">
+                            {!! html()->label(Lang::get('lang.auto_response'), 'auto_response') !!}
                         </div>
-                        <div class="col-sm-3 form-group">
+                        <div class="col-sm-3 mb-3">
 
                             <input type="checkbox" name="auto_response" id="auto_response"> {{Lang::get('lang.disable_for_this_email_address')}}
                         </div>
@@ -119,38 +119,38 @@ class="nav-link active"
 
                 <div class="card-body">
                     <div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <!-- status -->
-                            {!! Form::label('fetching_status',Lang::get('lang.status')) !!}
+                            {!! html()->label(Lang::get('lang.status'), 'fetching_status') !!}
                             <input type="checkbox" name="fetching_status" id="fetching_status"> {{Lang::get('lang.enable')}}
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-sm-2 form-group {!! $errors->has('fetching_protocol') ? 'has-error' : ''!!}" id="fetching_protocol_error">
-                            {!! Form::label('fetching_protocol',Lang::get('lang.protocol')) !!}
+                        <div class="col-sm-2 mb-3 {!! $errors->has('fetching_protocol') ? 'has-error' : ''!!}" id="fetching_protocol_error">
+                            {!! html()->label(Lang::get('lang.protocol'), 'fetching_protocol') !!}
                             {!! $errors->first('fetching_protocol', '<spam class="help-block">:message</spam>') !!}
-                            {!!Form::select('fetching_protocol',['imap' => 'IMAP', 'pop' => 'POP3'],null,['class' => 'form-control select', 'id' => 'fetching_protocol']) !!}
+                            {!! html()->select('fetching_protocol', ['imap' => 'IMAP', 'pop' => 'POP3'], null)->class('form-control select')->id('fetching_protocol') !!}
                         </div>
-                        <div class="col-sm-2 form-group  {!! $errors->has('fetching_host') ? 'has-error' : ''!!}" id="fetching_host_error">
-                            {!! Form::label('fetching_host',Lang::get('lang.host_name')) !!}
+                        <div class="col-sm-2 mb-3  {!! $errors->has('fetching_host') ? 'has-error' : ''!!}" id="fetching_host_error">
+                            {!! html()->label(Lang::get('lang.host_name'), 'fetching_host') !!}
                             {!! $errors->first('fetching_host', '<spam class="help-block">:message</spam>') !!}
-                            {!! Form::text('fetching_host',null,['class' => 'form-control', 'id' => 'fetching_host']) !!}
+                            {!! html()->text('fetching_host', null)->class('form-control')->id('fetching_host') !!}
                         </div>
-                        <div class="col-sm-2 form-group {!! $errors->has('fetching_port') ? 'has-error' : ''!!}" id="fetching_port_error">
-                            {!! Form::label('fetching_port',Lang::get('lang.port_number')) !!}
+                        <div class="col-sm-2 mb-3 {!! $errors->has('fetching_port') ? 'has-error' : ''!!}" id="fetching_port_error">
+                            {!! html()->label(Lang::get('lang.port_number'), 'fetching_port') !!}
                             {!! $errors->first('fetching_port', '<spam class="help-block">:message</spam>') !!}
-                            {!! Form::text('fetching_port',null,['class' => 'form-control', 'id' => 'fetching_port']) !!}
+                            {!! html()->text('fetching_port', null)->class('form-control')->id('fetching_port') !!}
                         </div>
-                        <div class="col-sm-2 form-group {!! $errors->has('fetching_encryption') ? 'has-error' : ''!!}" id="fetching_encryption_error">
-                            {!! Form::label('fetching_encryption',Lang::get('lang.encryption')) !!}
+                        <div class="col-sm-2 mb-3 {!! $errors->has('fetching_encryption') ? 'has-error' : ''!!}" id="fetching_encryption_error">
+                            {!! html()->label(Lang::get('lang.encryption'), 'fetching_encryption') !!}
                             {!! $errors->first('fetching_encryption', '<spam class="help-block">:message</spam>') !!}
-                            {!!Form::select('fetching_encryption',[''=>'-----Select-----','ssl' => 'SSL', 'tls' => 'TLS', 'starttls' => 'STARTTLS'],null,['class' => 'form-control select', 'id' => 'fetching_encryption']) !!}
+                            {!! html()->select('fetching_encryption', [''=>'-----Select-----','ssl' => 'SSL', 'tls' => 'TLS', 'starttls' => 'STARTTLS'], null)->class('form-control select')->id('fetching_encryption') !!}
                         </div>
-                        <div class="col-sm-2 form-group {!! $errors->has('imap_authentication') ? 'has-error' : ''!!}" id="imap_authentication_error">
-                            {!! Form::label('fetching_authentication',Lang::get('lang.authentication')) !!}
-                            {!!Form::select('imap_authentication',['normal' => 'Normal Password'],null,['class' => 'form-control select', 'id' => 'imap_authentication']) !!}
+                        <div class="col-sm-2 mb-3 {!! $errors->has('imap_authentication') ? 'has-error' : ''!!}" id="imap_authentication_error">
+                            {!! html()->label(Lang::get('lang.authentication'), 'fetching_authentication') !!}
+                            {!! html()->select('imap_authentication', ['normal' => 'Normal Password'], null)->class('form-control select')->id('imap_authentication') !!}
                         </div>
-                        <div class="col-sm-2 form-group">
+                        <div class="col-sm-2 mb-3">
                             <br>
                             <input type="checkbox" name="imap_validate" id="imap_validate">&nbsp; {!! Lang::get('lang.validate_certificates_from_tls_or_ssl_server') !!}
                         </div>
@@ -166,57 +166,57 @@ class="nav-link active"
                 <div class="card-body">
                     <div>
                         <!-- status -->
-                        <div class="form-group">
-                            {!! Form::label('sending_status',Lang::get('lang.status')) !!} 
+                        <div class="mb-3">
+                            {!! html()->label(Lang::get('lang.status'), 'sending_status') !!} 
                             <input type="checkbox" name="sending_status" id="sending_status"> {!! Lang::get('lang.enable') !!} 
                         </div>
                     </div>
                     <div class="row">
                         <!-- Encryption -->
-                        <div class="col-sm-2 form-group {!! $errors->has('sending_protocol') ? 'has-error' : ''!!}" id="sending_protocol_error">
-                            {!! Form::label('sending_protocol',Lang::get('lang.transfer_protocol')) !!}
+                        <div class="col-sm-2 mb-3 {!! $errors->has('sending_protocol') ? 'has-error' : ''!!}" id="sending_protocol_error">
+                            {!! html()->label(Lang::get('lang.transfer_protocol'), 'sending_protocol') !!}
                             {!! $errors->first('sending_protocol', '<spam class="help-block">:message</spam>') !!} 
-                            {!!Form::select('sending_protocol',[''=>'Select','Drives'=>$services],null,['class' => 'form-control select','id'=>'service']) !!}
+                            {!! html()->select('sending_protocol', [''=>'Select','Drives'=>$services], null)->class('form-control select')->id('service') !!}
                         </div> 
                         <!-- sending hoost -->
-                        <div class="col-sm-2 form-group {!! $errors->has('sending_host') ? 'has-error' : ''!!}" id="sending_host_error">
-                            {!! Form::label('sending_host',Lang::get('lang.host_name')) !!}
+                        <div class="col-sm-2 mb-3 {!! $errors->has('sending_host') ? 'has-error' : ''!!}" id="sending_host_error">
+                            {!! html()->label(Lang::get('lang.host_name'), 'sending_host') !!}
                             {!! $errors->first('sending_host', '<spam class="help-block">:message</spam>') !!} 
-                            {!! Form::text('sending_host',null,['class' => 'form-control']) !!}
+                            {!! html()->text('sending_host', null)->class('form-control') !!}
                         </div> 
                         <!-- sending port -->
-                        <div class="col-sm-2 form-group {!! $errors->has('sending_port') ? 'has-error' : ''!!}" id="sending_port_error">
-                            {!! Form::label('sending_port',Lang::get('lang.port_number')) !!}
+                        <div class="col-sm-2 mb-3 {!! $errors->has('sending_port') ? 'has-error' : ''!!}" id="sending_port_error">
+                            {!! html()->label(Lang::get('lang.port_number'), 'sending_port') !!}
                             {!! $errors->first('sending_port', '<spam class="help-block">:message</spam>') !!}
-                            {!! Form::text('sending_port',null,['class' => 'form-control']) !!}
+                            {!! html()->text('sending_port', null)->class('form-control') !!}
                         </div>
                         <!-- Encryption -->
-                        <div class="col-sm-2 form-group {!! $errors->has('sending_encryption') ? 'has-error' : ''!!}" id="sending_encryption_error">
-                            {!! Form::label('sending_encryption',Lang::get('lang.encryption')) !!}
+                        <div class="col-sm-2 mb-3 {!! $errors->has('sending_encryption') ? 'has-error' : ''!!}" id="sending_encryption_error">
+                            {!! html()->label(Lang::get('lang.encryption'), 'sending_encryption') !!}
                             {!! $errors->first('sending_encryption', '<spam class="help-block">:message</spam>') !!} 
-                            {!!Form::select('sending_encryption',[''=>'-----Select-----','ssl' => 'SSL', 'tls' => 'TLS', 'starttls' => 'STARTTLS'],null,['class' => 'form-control select']) !!}
+                            {!! html()->select('sending_encryption', [''=>'-----Select-----','ssl' => 'SSL', 'tls' => 'TLS', 'starttls' => 'STARTTLS'], null)->class('form-control select') !!}
                         </div> 
-                        <div class="col-sm-2 form-group {!! $errors->has('smtp_authentication') ? 'has-error' : ''!!}" id="smtp_authentication_error">
-                            {!! Form::label('sending_authentication',Lang::get('lang.authentication')) !!}
-                            {!!Form::select('smtp_authentication',['normal' => 'Normal Password'],null,['class' => 'form-control select', 'id' => 'smtp_authentication']) !!}
+                        <div class="col-sm-2 mb-3 {!! $errors->has('smtp_authentication') ? 'has-error' : ''!!}" id="smtp_authentication_error">
+                            {!! html()->label(Lang::get('lang.authentication'), 'sending_authentication') !!}
+                            {!! html()->select('smtp_authentication', ['normal' => 'Normal Password'], null)->class('form-control select')->id('smtp_authentication') !!}
                         </div>
-                        <div class="col-sm-2 form-group">
+                        <div class="col-sm-2 mb-3">
                             <br>
                             <input type="checkbox" name="smtp_validate" id="smtp_validate">&nbsp; {!! Lang::get('lang.validate_certificates_from_tls_or_ssl_server') !!}
                         </div>
                     </div>
                     <div id="response"></div>
                     <!-- Internal notes -->
-                    <div class="form-group">
-                        {!! Form::label('internal_notes',Lang::get('lang.internal_notes')) !!}
-                        {!! Form::textarea('internal_notes',null,['class' => 'form-control','size' => '30x10']) !!}
+                    <div class="mb-3">
+                        {!! html()->label(Lang::get('lang.internal_notes'), 'internal_notes') !!}
+                        {!! html()->textarea('internal_notes', null)->class('form-control')->attributes(['size' => '30x10']) !!}
                     </div>
                 </div>    
             </div>
         </div> 
         
         <div class="card-footer">
-            {!! Form::button('<i id="spin" class="fas fa-spinner" style="display:none;"></i>' . Lang::get("lang.create").'' ,['class'=>'btn btn-primary', 'type' => 'submit'])!!}
+            {!! html()->button('<i id="spin" class="fa-solid fa-spinner d-none"></i>' . Lang::get("lang.create").'')->class('btn btn-primary')->attributes(['type' => 'submit']) !!}
         </div>
     </div>
 </form>
@@ -226,7 +226,7 @@ class="nav-link active"
         <div class="modal-content">
             <div class="modal-header">
                 <div id="head" class="text-center">
-                    <button type="button" class="close" id="close" data-dismiss="modal" aria-label="Close" style="display:none;"><span aria-hidden="true">×</span></button>
+                    <button type="button" class="btn-close" id="close" data-bs-dismiss="modal" aria-label="Close" ></button>
                     <img src="{{asset("lb-faveo/media/images/gifloader.gif")}}" >
                     <br/>
                     <br/>
@@ -242,7 +242,6 @@ class="nav-link active"
     </div>
 </div>
 
-<button style="display:none" data-toggle="modal" data-target="#loadingpopup" id="click"></button>
 
 <script type="text/javascript">
     //submit form
@@ -258,33 +257,41 @@ class="nav-link active"
             },
             beforeSend: function () {
                 $('#alert').empty();
-                $("#click").trigger("click");
+                $('#loadingpopup').addClass('show').css('display', 'block');
+                $('body').addClass('modal-open').append('<div class="modal-backdrop fade show"></div>');
             },
             success: function (json) {
                 console.log(json);
-                $("#close").trigger("click");
-                var res = "";
-                $.each(json.result, function (idx, topic) {
-                    if (idx === "success") {
-                        res = "<div class='alert alert-success'>" + topic + "</div>";
-                    }
-                    if (idx === "fails") {
-                        res = "<div class='alert alert-danger'>" + topic + "</div>";
-                    }
-                });
-
-                $("#head").html(res);
-                $('html, body').animate({scrollTop: $("#form").offset().top}, 500);
+                setTimeout(function () {
+                    $('#loadingpopup').removeClass('show').css('display', 'none');
+                    $('body').removeClass('modal-open');
+                    $('.modal-backdrop').remove();
+                    var res = "";
+                    $.each(json.result, function (idx, topic) {
+                        if (idx === "success") {
+                            res = "<div class='alert alert-success alert-dismissible'><button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>" + topic + "</div>";
+                        }
+                        if (idx === "fails") {
+                            res = "<div class='alert alert-danger alert-dismissible'><button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>" + topic + "</div>";
+                        }
+                    });
+                    $("#head").html(res);
+                    $('html, body').animate({scrollTop: $("#form").offset().top}, 500);
+                }, 1000);
             },
             error: function (json) {
                 console.log(json);
-                $("#close").trigger("click");
-                var res = "";
-                $.each(json.responseJSON.errors, function (idx, topic) {
-                    res += "<li>" + topic + "</li>";
-                });
-                $("#head").html("<div class='alert alert-danger'><strong>Whoops!</strong> There were some problems with your input.<br><br><ul>" + res + "</ul></div>");
-                $('html, body').animate({scrollTop: $("#form").offset().top}, 500);
+                setTimeout(function () {
+                    $('#loadingpopup').removeClass('show').css('display', 'none');
+                    $('body').removeClass('modal-open');
+                    $('.modal-backdrop').remove();
+                    var res = "";
+                    $.each(json.responseJSON.errors, function (idx, topic) {
+                        res += "<li>" + topic + "</li>";
+                    });
+                    $("#head").html("<div class='alert alert-danger alert-dismissible'><button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button><strong>Whoops!</strong> There were some problems with your input.<br><br><ul>" + res + "</ul></div>");
+                    $('html, body').animate({scrollTop: $("#form").offset().top}, 500);
+                }, 1000);
             }
         });
         return false;

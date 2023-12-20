@@ -27,7 +27,7 @@ class QueryParser extends AbstractParser
      */
     public function __construct(
         Service $api,
-        XmlParser $xmlParser = null,
+        ?XmlParser $xmlParser = null,
         $honorResultWrapper = true
     ) {
         parent::__construct($api);
@@ -40,7 +40,17 @@ class QueryParser extends AbstractParser
         ResponseInterface $response
     ) {
         $output = $this->api->getOperation($command->getName())->getOutput();
-        $xml = $this->parseXml($response->getBody(), $response);
+        // Read the full payload, even in non-seekable streams
+        $rawBody = AbstractParser::getBodyContents($response);
+        // Just parse when the body is not empty
+        $xml = !empty($rawBody)
+            ? $this->parseXml($rawBody, $response)
+            : null;
+
+        // Empty request bodies should not be deserialized.
+        if (is_null($xml)) {
+            return new Result();
+        }
 
         if ($this->honorResultWrapper && $output['resultWrapper']) {
             $xml = $xml->{$output['resultWrapper']};

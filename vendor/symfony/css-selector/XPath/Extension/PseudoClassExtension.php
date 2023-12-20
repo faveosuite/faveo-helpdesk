@@ -30,6 +30,7 @@ class PseudoClassExtension extends AbstractExtension
     {
         return [
             'root' => $this->translateRoot(...),
+            'scope' => $this->translateScopePseudo(...),
             'first-child' => $this->translateFirstChild(...),
             'last-child' => $this->translateLastChild(...),
             'first-of-type' => $this->translateFirstOfType(...),
@@ -43,6 +44,11 @@ class PseudoClassExtension extends AbstractExtension
     public function translateRoot(XPathExpr $xpath): XPathExpr
     {
         return $xpath->addCondition('not(parent::*)');
+    }
+
+    public function translateScopePseudo(XPathExpr $xpath): XPathExpr
+    {
+        return $xpath->addCondition('1');
     }
 
     public function translateFirstChild(XPathExpr $xpath): XPathExpr
@@ -101,7 +107,7 @@ class PseudoClassExtension extends AbstractExtension
     {
         $element = $xpath->getElement();
 
-        return $xpath->addCondition(sprintf('count(preceding-sibling::%s)=0 and count(following-sibling::%s)=0', $element, $element));
+        return $xpath->addCondition(\sprintf('count(preceding-sibling::%s)=0 and count(following-sibling::%s)=0', $element, $element));
     }
 
     public function translateEmpty(XPathExpr $xpath): XPathExpr

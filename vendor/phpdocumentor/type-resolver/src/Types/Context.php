@@ -28,7 +28,7 @@ use function trim;
  * own application it is possible to generate a Context class using the ContextFactory; this will analyze the file in
  * which an associated class resides for its namespace and imports.
  *
- * @see ContextFactory::createFromClassReflector()
+ * @see ContextFactory::createFromReflector()
  * @see ContextFactory::createForNamespace()
  *
  * @psalm-immutable
@@ -36,13 +36,13 @@ use function trim;
 final class Context
 {
     /** @var string The current namespace. */
-    private string $namespace;
+    private $namespace;
 
     /**
      * @var string[] List of namespace aliases => Fully Qualified Namespace.
      * @psalm-var array<string, string>
      */
-    private array $namespaceAliases;
+    private $namespaceAliases;
 
     /**
      * Initializes the new context and normalizes all passed namespaces to be in Qualified Namespace Name (QNN)

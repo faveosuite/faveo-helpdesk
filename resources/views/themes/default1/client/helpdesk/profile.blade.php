@@ -6,7 +6,7 @@ class="nav-item active"
 @section('breadcrumb')
     {{--<div class="site-hero clearfix">--}}
     <ol class="breadcrumb float-sm-right ">
-        <li class="breadcrumb-item"> <i class="fas fa-home"> </i> {!! Lang::get('lang.you_are_here') !!} : &nbsp;</li>
+        <li class="breadcrumb-item"> <i class="fa-solid fa-home"> </i> {!! Lang::get('lang.you_are_here') !!} : &nbsp;</li>
         <li><a href="{!! URL::route('client.profile') !!}">{!! Lang::get('lang.my_profile') !!}</a></li>
     </ol>
 
@@ -25,17 +25,17 @@ class="nav-item active"
         <div class="entry-content clearfix">
 
             @if(Session::has('success1'))
-            <div class="alert alert-success alert-dismissable">
-                <i class="fa fa-check-circle"></i>
-                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <div class="alert alert-success alert-dismissible">
+                <i class="fa-solid fa-circle-check"></i>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
                 {{Session::get('success1')}}
             </div>
             @endif
             @if (count($errors) > 0)
-            <div class="alert alert-danger alert-dismissable">
-                <i class="fa fa-ban"></i>
+            <div class="alert alert-danger alert-dismissible">
+                <i class="fa-solid fa-ban"></i>
                 <b>{!! Lang::get('lang.alert') !!} !</b>
-                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
                 @foreach ($errors->all() as $error)
                 <li>{{ $error }}</li>
                 @endforeach
@@ -43,27 +43,27 @@ class="nav-item active"
             @endif
             <!-- fail message -->
             @if(Session::has('fails1'))
-            <div class="alert alert-danger alert-dismissable">
-                <i class="fa fa-ban"></i>
+            <div class="alert alert-danger alert-dismissible">
+                <i class="fa-solid fa-ban"></i>
                 <b>{!! Lang::get('lang.alert') !!}!</b>
-                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
                 {{Session::get('fails1')}}
             </div>
             @endif
 
              @if(Session::has('success2'))
-            <div class="alert alert-success alert-dismissable">
-                <i class="fa fa-check-circle"></i>
-                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <div class="alert alert-success alert-dismissible">
+                <i class="fa-solid fa-circle-check"></i>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
                 {{Session::get('success2')}}
             </div>
             @endif
             <!-- fail message -->
             @if(Session::has('fails2'))
-            <div class="alert alert-danger alert-dismissable">
-                <i class="fa fa-ban"></i>
+            <div class="alert alert-danger alert-dismissible">
+                <i class="fa-solid fa-ban"></i>
                 <b>{!! Lang::get('lang.alert') !!} !</b>
-                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
                 {{Session::get('fails2')}}
             </div>
             @endif
@@ -72,7 +72,7 @@ class="nav-item active"
 
                 <div class="col-md-6">
 
-                     {!! Form::model($user,['url'=>'client-profile-edit', 'id' => 'client-profile', 'method' => 'PATCH','files'=>true]) !!}
+                     {!! html()->modelForm($user, 'PATCH', url('client-profile-edit'))->acceptsFiles()->attributes(['id' => 'client-profile'])->open() !!}
 
                     <div id="form-border" class="comment-respond form-border" style="background : #fff">
 
@@ -85,84 +85,84 @@ class="nav-item active"
 
                             <div>
 
-                                <div class="form-group {{ $errors->has('first_name') ? 'has-error' : '' }}">
+                                <div class="mb-3 {{ $errors->has('first_name') ? 'has-error' : '' }}">
                                     <!-- first name -->
-                                    {!! Form::label('first_name',Lang::get('lang.first_name')) !!}<span class="text-red"> *</span>
+                                    {!! html()->label(Lang::get('lang.first_name'), 'first_name') !!}<span class="text-red"> *</span>
 
-                                    {!! Form::text('first_name',null,['class' => 'form-control']) !!}
+                                    {!! html()->text('first_name', null)->class('form-control') !!}
                                 </div>
-                                <div class="form-group {{ $errors->has('last_name') ? 'has-error' : '' }}">
+                                <div class="mb-3 {{ $errors->has('last_name') ? 'has-error' : '' }}">
                                     <!-- last name -->
-                                    {!! Form::label('last_name',Lang::get('lang.last_name')) !!}
+                                    {!! html()->label(Lang::get('lang.last_name'), 'last_name') !!}
 
-                                    {!! Form::text('last_name',null,['class' => 'form-control']) !!}
+                                    {!! html()->text('last_name', null)->class('form-control') !!}
                                 </div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <!-- gender -->
-                                    {!! Form::label('gender',Lang::get('lang.gender')) !!}
+                                    {!! html()->label(Lang::get('lang.gender'), 'gender') !!}
                                     <div class="row">
                                         <div class="col-sm-3">
-                                            {!! Form::radio('gender','1',true) !!}&nbsp;&nbsp;{{Lang::get('lang.male')}}
+                                            {!! html()->radio('gender', true, '1') !!}&nbsp;&nbsp;{{Lang::get('lang.male')}}
                                         </div>
                                         <div class="col-sm-3">
-                                            {!! Form::radio('gender','0') !!}&nbsp;&nbsp;{{Lang::get('lang.female')}}
+                                            {!! html()->radio('gender', null, '0') !!}&nbsp;&nbsp;{{Lang::get('lang.female')}}
                                         </div>
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <!-- email -->
-                                    {!! Form::label('email',Lang::get('lang.email_address')) !!}
+                                    {!! html()->label(Lang::get('lang.email_address'), 'email') !!}
                                     <div>
                                         {{$user->email}}
                                     </div>
                                 </div>
-                                <div class="form-group {{ $errors->has('company') ? 'has-error' : '' }}">
+                                <div class="mb-3 {{ $errors->has('company') ? 'has-error' : '' }}">
                                     <!-- company -->
-                                    {!! Form::label('company',Lang::get('lang.company')) !!}
+                                    {!! html()->label(Lang::get('lang.company'), 'company') !!}
 
-                                    {!! Form::text('company',null,['class' => 'form-control']) !!}
+                                    {!! html()->text('company', null)->class('form-control') !!}
                                 </div>
                                 <div class="row">
-                                    <div class="col-sm-2 form-group {{ $errors->has('country_code') ? 'has-error' : '' }}">
+                                    <div class="col-sm-2 mb-3 {{ $errors->has('country_code') ? 'has-error' : '' }}">
                                         <!-- phone extensionn -->
-                                        {!! Form::label('country_code',Lang::get('lang.country-code')) !!}
-                                        {!! Form::text('country_code',null,['class' => 'form-control', 'placeholder' => $phonecode, 'title' => Lang::get('lang.enter-country-phone-code'), 'id' => 'code']) !!}
+                                        {!! html()->label(Lang::get('lang.country-code'), 'country_code') !!}
+                                        {!! html()->text('country_code', null)->class('form-control')->placeholder($phonecode)->id('code')->attributes(['title' => Lang::get('lang.enter-country-phone-code')]) !!}
 
                                     </div>
-                                    <div class="col-sm-2 form-group {{ $errors->has('ext') ? 'has-error' : '' }}">
+                                    <div class="col-sm-2 mb-3 {{ $errors->has('ext') ? 'has-error' : '' }}">
                                         <!-- phone extensionn -->
-                                        {!! Form::label('ext',Lang::get('lang.ext')) !!}
+                                        {!! html()->label(Lang::get('lang.ext'), 'ext') !!}
 
-                                        {!! Form::text('ext',null,['class' => 'form-control']) !!}
+                                        {!! html()->text('ext', null)->class('form-control') !!}
                                     </div>
-                                    <div class="col-sm-8 form-group {{ $errors->has('phone_number') ? 'has-error' : '' }}">
+                                    <div class="col-sm-8 mb-3 {{ $errors->has('phone_number') ? 'has-error' : '' }}">
                                         <!-- phone number -->
-                                        {!! Form::label('phone_number',Lang::get('lang.phone')) !!}
+                                        {!! html()->label(Lang::get('lang.phone'), 'phone_number') !!}
 
-                                        {!! Form::text('phone_number',null,['class' => 'form-control']) !!}
+                                        {!! html()->text('phone_number', null)->class('form-control') !!}
                                     </div>
                                 </div>
-                                <div class="form-group {{ $errors->has('mobile') ? 'has-error' : '' }}">
+                                <div class="mb-3 {{ $errors->has('mobile') ? 'has-error' : '' }}">
                                     <!-- mobile -->
-                                    {!! Form::label('mobile',Lang::get('lang.mobile_number')) !!}
+                                    {!! html()->label(Lang::get('lang.mobile_number'), 'mobile') !!}
 
-                                    {!! Form::input('number', 'mobile',null,['class' => 'form-control', 'id' => 'mobile']) !!}
+                                    {!! html()->number('mobile', null)->class('form-control')->id('mobile') !!}
                                 </div>
-                                <div class="form-group {{ $errors->has('profile_pic') ? 'has-error' : '' }}">
+                                <div class="mb-3 {{ $errors->has('profile_pic') ? 'has-error' : '' }}">
                                     <!-- profile pic -->
-                                    {!! Form::label('profile_pic',Lang::get('lang.profile_pic')) !!}
+                                    {!! html()->label(Lang::get('lang.profile_pic'), 'profile_pic') !!}
 
-                                    {!! Form::file('profile_pic') !!}
+                                    {!! html()->file('profile_pic') !!}
                                 </div>
 
-                                {!! Form::token() !!}
-                                {!! Form::close() !!}
+                                {!! html()->token() !!}
+                                {!! html()->closeModelForm() !!}
 
-                                <div class="form-group" style="padding-bottom: 10px;">
+                                <div class="mb-3" style="padding-bottom: 10px;">
 
 
-                                    <button type="submit" class="btn btn-primary float-right" style="background-color: #337ab7 !important; border-color: #337ab7 !important; color: white;">
-                                        <i class="fas fa-sync"></i> {{ Lang::get('lang.update') }}
+                                    <button type="submit" class="btn btn-primary float-end" style="background-color: #337ab7 !important; border-color: #337ab7 !important; color: white;">
+                                        <i class="fa-solid fa-arrows-rotate"></i> {{ Lang::get('lang.update') }}
                                     </button>                                </div>
                             </div>
                         </section>
@@ -171,7 +171,7 @@ class="nav-item active"
 
                 <div class="col-md-6">
 
-                    {!! Form::model($user,['url'=>'client-profile-password' , 'method' => 'PATCH']) !!}
+                    {!! html()->modelForm($user, 'PATCH', url('client-profile-password'))->open() !!}
 
                     <div id="form-border" class="comment-respond form-border" style="background : #fff">
 
@@ -183,30 +183,30 @@ class="nav-item active"
                             </h2>
 
                             <div>
-                                 {!! Form::label('old_password',Lang::get('lang.old_password')) !!}<span class="text-red"> *</span>
-                                <div class="form-group has-feedback {{ $errors->has('old_password') ? 'has-error' : '' }}" style="display: -webkit-box;">
-                                    {!! Form::password('old_password',['class' => 'form-control']) !!}
-                                    <span class="fa fa-lock form-control-feedback" style="top: 9px;left: -25px;color: #6c757d !important;"></span> <!--change the "glyphicon glyphicon-lock form-control-feedback" to "fa fa-lock form-control-feedback" bcoz bs5 has removed the Glyphicons icon font that was included in earlier versions of Bootstrap-->
+                                 {!! html()->label(Lang::get('lang.old_password'), 'old_password') !!}<span class="text-red"> *</span>
+                                <div class="mb-3 has-feedback {{ $errors->has('old_password') ? 'has-error' : '' }}" style="display: -webkit-box;">
+                                    {!! html()->password('old_password')->class('form-control') !!}
+                                    <span class="fa-solid fa-lock form-control-feedback" style="top: 9px;left: -25px;color: #6c757d !important;"></span> <!--change the "glyphicon glyphicon-lock form-control-feedback" to "fa-solid fa-lock form-control-feedback" bcoz bs5 has removed the Glyphicons icon font that was included in earlier versions of Bootstrap-->
                                 </div>
                                 <!-- new password -->
-                                  {!! Form::label('new_password',Lang::get('lang.new_password')) !!}<span class="text-red"> *</span>
-                                <div class="form-group has-feedback {{ $errors->has('new_password') ? 'has-error' : '' }}" style="display: -webkit-box;">
-                                    {!! Form::password('new_password',['class' => 'form-control']) !!}
-                                    <span class="fa fa-lock form-control-feedback" style="top: 9px;left: -25px;color: #6c757d !important;"></span>
+                                  {!! html()->label(Lang::get('lang.new_password'), 'new_password') !!}<span class="text-red"> *</span>
+                                <div class="mb-3 has-feedback {{ $errors->has('new_password') ? 'has-error' : '' }}" style="display: -webkit-box;">
+                                    {!! html()->password('new_password')->class('form-control') !!}
+                                    <span class="fa-solid fa-lock form-control-feedback" style="top: 9px;left: -25px;color: #6c757d !important;"></span>
                                 </div>
                                 <!-- cofirm password -->
-                                 {!! Form::label('confirm_password',Lang::get('lang.confirm_password')) !!}<span class="text-red"> *</span>
-                                <div class="form-group has-feedback {{ $errors->has('confirm_password') ? 'has-error' : '' }}" style="display: -webkit-box;">
-                                    {!! Form::password('confirm_password',['class' => 'form-control']) !!}
-                                    <span class="fa fa-lock form-control-feedback" style="top: 9px;left: -25px;color: #6c757d !important;"></span>
+                                 {!! html()->label(Lang::get('lang.confirm_password'), 'confirm_password') !!}<span class="text-red"> *</span>
+                                <div class="mb-3 has-feedback {{ $errors->has('confirm_password') ? 'has-error' : '' }}" style="display: -webkit-box;">
+                                    {!! html()->password('confirm_password')->class('form-control') !!}
+                                    <span class="fa-solid fa-lock form-control-feedback" style="top: 9px;left: -25px;color: #6c757d !important;"></span>
                                 </div>
 
-                                {!! Form::close() !!}
+                                {!! html()->closeModelForm() !!}
 
-                                <div class="form-group" style="padding-bottom: 10px;">
+                                <div class="mb-3" style="padding-bottom: 10px;">
 
-                                    <button type="submit" class="btn btn-primary float-right" style="background-color: #337ab7 !important; border-color: #337ab7 !important; color: white;">
-                                        <i class="fas fa-sync"></i> {{ Lang::get('lang.update') }}
+                                    <button type="submit" class="btn btn-primary float-end" style="background-color: #337ab7 !important; border-color: #337ab7 !important; color: white;">
+                                        <i class="fa-solid fa-arrows-rotate"></i> {{ Lang::get('lang.update') }}
                                     </button>
                                 </div>
                             </div>
@@ -224,7 +224,7 @@ class="nav-item active"
             <div class="modal-content">
                 <div class="modal-header">
                     <span style="font-size:1.2em">{{Lang::get('lang.verify-number')}}</span>
-                    <button type="button" class="close closemodal" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    <button type="button" class="btn-close closemodal" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
                 </div>
                 <div class="modal-body">
                     <div id="custom-alert-body2">
@@ -233,34 +233,34 @@ class="nav-item active"
                             <div id="loader2" style="display:none">
                                 <center><img src="{{asset('lb-faveo/media/images/gifloader.gif')}}"></center>
                             </div>
-                            <div id="verify-success" style="display:none" class="alert alert-success alert-dismissable">
-                                <i class="fa  fa-check-circle"> </i>
+                            <div id="verify-success" style="display:none" class="alert alert-success alert-dismissible">
+                                <i class="fa  fa-circle-check"> </i>
                                 <span id = "success_message"></span>
                             </div>
-                            <div id="verify-fail" style="display:none" class="alert alert-danger alert-dismissable">
-                                <i class="fa fa-ban"> </i> <b> {!! Lang::get('lang.alert') !!}! </b>
+                            <div id="verify-fail" style="display:none" class="alert alert-danger alert-dismissible">
+                                <i class="fa-solid fa-ban"> </i> <b> {!! Lang::get('lang.alert') !!}! </b>
                                 <span id = "error_message"></span>
                             </div>
                             </div>
                         </div>
                     </div>
                     <div id="verify-number-form">
-                    {!! Form::open(['id'=>'verify-otp','method' => 'POST'] )!!}
+                    {!! html()->form('POST', url()->current())->attributes(['id' => 'verify-otp'])->open() !!}
                         <div class="row">
                             <div class="col-md-8">
                                 {{ Lang::get('lang.get-verify-message') }}
                             </div>
                             <div class="col-md-4">
-                                {!! Form::text('token','',['class' => 'form-control', 'required' => true, 'placeholder' => Lang::get('lang.enter-otp'), 'id' => 'otp']) !!}
+                                {!! html()->text('token', '')->class('form-control')->required()->placeholder(Lang::get('lang.enter-otp'))->id('otp') !!}
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer" style="justify-content: space-between;">
-                    <button type="button" id="close-last" class="btn btn-default closemodal float-left">{{Lang::get('lang.close')}}</button>
-                    <div id="last-submit"><input  type="submit" id="merge-btn" class="btn btn-primary float-right" value="{!! Lang::get('lang.verify') !!}"></input></div>
+                    <button type="button" id="close-last" class="btn btn-secondary closemodal float-start">{{Lang::get('lang.close')}}</button>
+                    <div id="last-submit"><input  type="submit" id="merge-btn" class="btn btn-primary float-end" value="{!! Lang::get('lang.verify') !!}"></input></div>
                 </div>
-                {!! Form::close() !!}
+                {!! html()->closeModelForm() !!}
             </div>
         </div>
     </div>

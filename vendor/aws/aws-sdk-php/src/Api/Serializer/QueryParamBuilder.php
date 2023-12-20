@@ -98,7 +98,8 @@ class QueryParamBuilder
         if (!$this->isFlat($shape)) {
             $locationName = $shape->getMember()['locationName'] ?: 'member';
             $prefix .= ".$locationName";
-        } elseif ($name = $this->queryName($items)) {
+            // flattened lists can also model a `locationName`
+        } elseif ($name = $shape['locationName'] ?? $this->queryName($items)) {
             $parts = explode('.', $prefix);
             $parts[count($parts) - 1] = $name;
             $prefix = implode('.', $parts);
@@ -147,7 +148,10 @@ class QueryParamBuilder
         $timestampFormat = !empty($shape['timestampFormat'])
             ? $shape['timestampFormat']
             : 'iso8601';
-        $query[$prefix] = TimestampShape::format($value, $timestampFormat);
+        $query[$prefix] = TimestampShape::formatAsString(
+            $value,
+            $timestampFormat
+        );
     }
 
     protected function format_boolean(Shape $shape, $value, $prefix, array &$query)

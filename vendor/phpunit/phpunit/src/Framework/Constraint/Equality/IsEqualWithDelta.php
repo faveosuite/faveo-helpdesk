@@ -12,6 +12,7 @@ namespace PHPUnit\Framework\Constraint;
 use function sprintf;
 use function trim;
 use PHPUnit\Framework\ExpectationFailedException;
+use PHPUnit\Util\Exporter;
 use SebastianBergmann\Comparator\ComparisonFailure;
 use SebastianBergmann\Comparator\Factory as ComparatorFactory;
 
@@ -20,17 +21,10 @@ use SebastianBergmann\Comparator\Factory as ComparatorFactory;
  */
 final class IsEqualWithDelta extends Constraint
 {
-    /**
-     * @var mixed
-     */
-    private $value;
+    private readonly mixed $value;
+    private readonly float $delta;
 
-    /**
-     * @var float
-     */
-    private $delta;
-
-    public function __construct($value, float $delta)
+    public function __construct(mixed $value, float $delta)
     {
         $this->value = $value;
         $this->delta = $delta;
@@ -48,7 +42,7 @@ final class IsEqualWithDelta extends Constraint
      *
      * @throws ExpectationFailedException
      */
-    public function evaluate($other, string $description = '', bool $returnResult = false): ?bool
+    public function evaluate(mixed $other, string $description = '', bool $returnResult = false): bool
     {
         // If $this->value and $other are identical, they are also equal.
         // This is the most common path and will allow us to skip
@@ -62,13 +56,13 @@ final class IsEqualWithDelta extends Constraint
         try {
             $comparator = $comparatorFactory->getComparatorFor(
                 $this->value,
-                $other
+                $other,
             );
 
             $comparator->assertEquals(
                 $this->value,
                 $other,
-                $this->delta
+                $this->delta,
             );
         } catch (ComparisonFailure $f) {
             if ($returnResult) {
@@ -77,7 +71,7 @@ final class IsEqualWithDelta extends Constraint
 
             throw new ExpectationFailedException(
                 trim($description . "\n" . $f->getMessage()),
-                $f
+                $f,
             );
         }
 
@@ -86,15 +80,13 @@ final class IsEqualWithDelta extends Constraint
 
     /**
      * Returns a string representation of the constraint.
-     *
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
      */
     public function toString(): string
     {
         return sprintf(
-            'is equal to %s with delta <%F>>',
-            $this->exporter()->export($this->value),
-            $this->delta
+            'is equal to %s with delta <%F>',
+            Exporter::export($this->value),
+            $this->delta,
         );
     }
 }

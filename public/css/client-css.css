@@ -1,0 +1,215 @@
+.card-title {
+    float: left;
+    font-size: 1rem;
+    font-weight: 400;
+    margin: 0;
+}
+
+.card-header > .card-tools {
+    float: right;
+    margin-right: -.625rem;
+}
+
+.btn-tool {
+    background-color: transparent;
+    color: rgba(31, 45, 61, .8);;
+    font-size: .875rem;
+    margin: -.75rem 0;
+    padding: .25rem .5rem;
+}
+
+.range_btn {
+    font-size: 13px;
+}
+
+.btn-primary {
+    background-color: #337ab7 !important;
+    border-color: #337ab7 !important;
+}
+
+::-ms-reveal {
+    display: none;
+}
+
+
+.btn .caret {
+    margin-left: 0;
+}
+.caret {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    margin-left: 2px;
+    vertical-align: middle;
+    border-top: 4px dashed;
+    border-top: 4px solid\9;
+    border-right: 4px solid transparent;
+    border-left: 4px solid transparent;
+}
+.caret {
+    border-top: 4px solid !important;
+}
+.btn-light:hover {
+    border-color: #c6c7c8;
+}
+.v-select input::placeholder { opacity: 0.3 !important; }
+
+::placeholder { opacity: 0.7 !important; }
+
+.userContent{
+    width:70%;
+    margin-left: 16%;
+}
+.boxChange{
+    display: flex;
+    justify-content: space-between;
+}
+
+.userIcon {
+    left: 71px;
+    top: 3px;
+    position: absolute;
+}
+
+*:focus-visible {
+    outline: none !important;
+}
+
+.VueTables .table-responsive > table {
+    border-collapse: collapse !important;
+}
+
+#app-client-panel .VuePagination__pagination {
+    margin-top: -5px !important;
+    margin-right: 0px !important;
+    float: right !important;
+/display: flex !important;/
+padding-left: 5px;
+}
+
+@media (min-width: 1200px) {
+
+    .container {
+        max-width: 1170px;
+    }
+}
+
+.footer_align {
+    direction: rtl;
+}
+
+.text-small {
+    font-size: 14px;
+}
+
+a:hover {
+    text-decoration: none !important;
+    color: #1e2125 !important;
+}
+
+.center-of-page {
+    left: 12% !important;
+    top: 40% !important;
+}
+
+.btn-default {
+    background-color: #f8f9fa;
+    border-color: #ddd;
+    color: #444;
+}
+
+.form-helper h3 {
+    text-align: center;
+}
+
+.form-helper {
+    margin-bottom: 50px !important;
+    display: inline-block;
+}
+
+.card {
+    box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
+    margin-bottom: 1rem;
+}
+
+.mb2 { margin-bottom: 2px; position: relative; left: 4px; }
+
+#faveo-form-client-panel .c-form-radio{ padding-left: 1.9rem !important; margin-left: 0px !important; }
+#faveo-form-client-panel .c-form-checkbox { padding-left: 0.8rem !important; }
+
+.btn { box-shadow: none !important; }
+
+.btn-check:checked+.btn, .btn.active, .btn.show, .btn:first-child:active, :not(.btn-check)+.btn:active {
+    color: #000;
+    background-color: #c6c7c8;
+    border-color: #babbbc;
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+}
+
+table {
+    --bs-table-bg: transparent;
+    --bs-table-accent-bg: transparent;
+    --bs-table-striped-color: #212529;
+    --bs-table-striped-bg: rgba(0, 0, 0, 0.05);
+    --bs-table-active-color: #212529;
+    --bs-table-active-bg: rgba(0, 0, 0, 0.1);
+    --bs-table-hover-color: #212529;
+    --bs-table-hover-bg: rgba(0, 0, 0, 0.075);
+    margin-bottom: 1rem;
+    color: #212529;
+    vertical-align: top;
+    border-color: #dee2e6;
+}
+
+#comment_body img {max-width: unset;}
+.custom-input {
+    position: relative;
+    top: 1px !important;
+}
+
+.check_align {
+    top: -3px !important;
+}
+
+#copyright_link{
+    color: #3c8dbc;
+}
+.customDot{
+    margin-right: 5px;
+    margin-left: -3px;
+}
+
+/* whenever someone tries to hide powered by Faveo from custom css
+     then this piece of code will restrict it from hiding
+  */
+.site-info.col-md-6 > p.text-muted > a:last-child{
+    visibility: visible;
+    display: contents;
+}
+.footer-content p, .footer-content li { margin-bottom: 0rem !important; }
+
+caption {
+    caption-side: top !important;
+}
+
+#client_logo_title {
+    font-size: 32px !important;
+    font-weight : 600 !important;
+    text-decoration: none !important;
+}
+
+#logo{
+    margin-bottom: 10px !important;
+}
+
+.VuePagination__count {
+    display: contents !important;
+}
+
+.form-group{
+    margin-bottom: 1rem;
+}
+
+.check-my-ticket-section{
+    margin-bottom : 42px !important;
+}

@@ -36,14 +36,16 @@ trait CollectsResources
             : $resource->toBase();
 
         return ($resource instanceof AbstractPaginator || $resource instanceof AbstractCursorPaginator)
-                    ? $resource->setCollection($this->collection)
-                    : $this->collection;
+            ? $resource->setCollection($this->collection)
+            : $this->collection;
     }
 
     /**
      * Get the resource that this resource collects.
      *
-     * @return string|null
+     * @return class-string<\Illuminate\Http\Resources\Json\JsonResource>|null
+     *
+     * @throws \LogicException
      */
     protected function collects()
     {
@@ -68,6 +70,8 @@ trait CollectsResources
      * Get the JSON serialization options that should be applied to the resource response.
      *
      * @return int
+     *
+     * @throws \ReflectionException
      */
     public function jsonOptions()
     {
@@ -78,8 +82,8 @@ trait CollectsResources
         }
 
         return (new ReflectionClass($collects))
-                  ->newInstanceWithoutConstructor()
-                  ->jsonOptions();
+            ->newInstanceWithoutConstructor()
+            ->jsonOptions();
     }
 
     /**

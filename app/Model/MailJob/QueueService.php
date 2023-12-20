@@ -53,9 +53,9 @@ class QueueService extends Model
     {
         $id = $this->attributes['id'];
         $status = $this->attributes['status'];
-        $html = '<a href='.url('queue/'.$id.'/activate')." class='btn btn-primary'>".Lang::get('lang.activate').'</a>';
+        $html = '<a href='.url('queue/'.$id.'/activate')." class='btn btn-primary btn-sm'>".Lang::get('lang.activate').'</a>';
         if ($status == 1) {
-            $html = "<a href='#' class='btn btn-primary' disabled>".Lang::get('lang.activate').'</a>';
+            $html = "<a href='#' class='btn btn-primary btn-sm' disabled>".Lang::get('lang.activate').'</a>';
         }
 
         return $html;

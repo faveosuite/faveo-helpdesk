@@ -4,6 +4,7 @@ namespace Illuminate\Database\Console\Seeds;
 
 use Illuminate\Console\Command;
 use Illuminate\Console\ConfirmableTrait;
+use Illuminate\Console\Prohibitable;
 use Illuminate\Database\ConnectionResolverInterface as Resolver;
 use Illuminate\Database\Eloquent\Model;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -13,7 +14,7 @@ use Symfony\Component\Console\Input\InputOption;
 #[AsCommand(name: 'db:seed')]
 class SeedCommand extends Command
 {
-    use ConfirmableTrait;
+    use ConfirmableTrait, Prohibitable;
 
     /**
      * The console command name.
@@ -21,17 +22,6 @@ class SeedCommand extends Command
      * @var string
      */
     protected $name = 'db:seed';
-
-    /**
-     * The name of the console command.
-     *
-     * This name is used to identify the command during lazy loading.
-     *
-     * @var string|null
-     *
-     * @deprecated
-     */
-    protected static $defaultName = 'db:seed';
 
     /**
      * The console command description.
@@ -51,7 +41,6 @@ class SeedCommand extends Command
      * Create a new database seed command instance.
      *
      * @param  \Illuminate\Database\ConnectionResolverInterface  $resolver
-     * @return void
      */
     public function __construct(Resolver $resolver)
     {
@@ -67,8 +56,9 @@ class SeedCommand extends Command
      */
     public function handle()
     {
-        if (! $this->confirmToProceed()) {
-            return 1;
+        if ($this->isProhibited() ||
+            ! $this->confirmToProceed()) {
+            return Command::FAILURE;
         }
 
         $this->components->info('Seeding database.');
@@ -107,8 +97,8 @@ class SeedCommand extends Command
         }
 
         return $this->laravel->make($class)
-                        ->setContainer($this->laravel)
-                        ->setCommand($this);
+            ->setContainer($this->laravel)
+            ->setCommand($this);
     }
 
     /**

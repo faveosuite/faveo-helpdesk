@@ -15,23 +15,29 @@ use Psr\Container\ContainerInterface;
 use Symfony\Contracts\Service\Attribute\Required;
 use Symfony\Contracts\Service\Attribute\SubscribedService;
 
+trigger_deprecation('symfony/contracts', 'v3.5', '"%s" is deprecated, use "ServiceMethodsSubscriberTrait" instead.', ServiceSubscriberTrait::class);
+
 /**
- * Implementation of ServiceSubscriberInterface that determines subscribed services from
- * method return types. Service ids are available as "ClassName::methodName".
+ * Implementation of ServiceSubscriberInterface that determines subscribed services
+ * from methods that have the #[SubscribedService] attribute.
+ *
+ * Service ids are available as "ClassName::methodName" so that the implementation
+ * of subscriber methods can be just `return $this->container->get(__METHOD__);`.
+ *
+ * @property ContainerInterface $container
  *
  * @author Kevin Bond <kevinbond@gmail.com>
+ *
+ * @deprecated since symfony/contracts v3.5, use ServiceMethodsSubscriberTrait instead
  */
 trait ServiceSubscriberTrait
 {
-    /** @var ContainerInterface */
-    protected $container;
-
     public static function getSubscribedServices(): array
     {
         $services = method_exists(get_parent_class(self::class) ?: '', __FUNCTION__) ? parent::getSubscribedServices() : [];
 
         foreach ((new \ReflectionClass(self::class))->getMethods() as $method) {
-            if (self::class !== $method->getDeclaringClass()->name) {
+            if (self::class !== $method->class) {
                 continue;
             }
 
@@ -40,18 +46,18 @@ trait ServiceSubscriberTrait
             }
 
             if ($method->isStatic() || $method->isAbstract() || $method->isGenerator() || $method->isInternal() || $method->getNumberOfRequiredParameters()) {
-                throw new \LogicException(sprintf('Cannot use "%s" on method "%s::%s()" (can only be used on non-static, non-abstract methods with no parameters).', SubscribedService::class, self::class, $method->name));
+                throw new \LogicException(\sprintf('Cannot use "%s" on method "%s::%s()" (can only be used on non-static, non-abstract methods with no parameters).', SubscribedService::class, self::class, $method->name));
             }
 
             if (!$returnType = $method->getReturnType()) {
-                throw new \LogicException(sprintf('Cannot use "%s" on methods without a return type in "%s::%s()".', SubscribedService::class, $method->name, self::class));
+                throw new \LogicException(\sprintf('Cannot use "%s" on methods without a return type in "%s::%s()".', SubscribedService::class, $method->name, self::class));
             }
 
-            /* @var SubscribedService $attribute */
+            /** @var SubscribedService $attribute */
             $attribute = $attribute->newInstance();
             $attribute->key ??= self::class.'::'.$method->name;
             $attribute->type ??= $returnType instanceof \ReflectionNamedType ? $returnType->getName() : (string) $returnType;
-            $attribute->nullable = $returnType->allowsNull();
+            $attribute->nullable = $attribute->nullable ?: $returnType->allowsNull();
 
             if ($attribute->attributes) {
                 $services[] = $attribute;
@@ -66,12 +72,13 @@ trait ServiceSubscriberTrait
     #[Required]
     public function setContainer(ContainerInterface $container): ?ContainerInterface
     {
-        $this->container = $container;
-
+        $ret = null;
         if (method_exists(get_parent_class(self::class) ?: '', __FUNCTION__)) {
-            return parent::setContainer($container);
+            $ret = parent::setContainer($container);
         }
 
-        return null;
+        $this->container = $container;
+
+        return $ret;
     }
 }

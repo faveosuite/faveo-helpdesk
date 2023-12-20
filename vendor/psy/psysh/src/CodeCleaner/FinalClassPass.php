@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -20,7 +20,7 @@ use Psy\Exception\FatalErrorException;
  */
 class FinalClassPass extends CodeCleanerPass
 {
-    private $finalClasses;
+    private array $finalClasses = [];
 
     /**
      * @param array $nodes
@@ -30,6 +30,8 @@ class FinalClassPass extends CodeCleanerPass
     public function beforeTraverse(array $nodes)
     {
         $this->finalClasses = [];
+
+        return null;
     }
 
     /**
@@ -46,7 +48,7 @@ class FinalClassPass extends CodeCleanerPass
                 $extends = (string) $node->extends;
                 if ($this->isFinalClass($extends)) {
                     $msg = \sprintf('Class %s may not inherit from final class (%s)', $node->name, $extends);
-                    throw new FatalErrorException($msg, 0, \E_ERROR, null, $node->getLine());
+                    throw new FatalErrorException($msg, 0, \E_ERROR, null, $node->getStartLine());
                 }
             }
 
@@ -54,6 +56,8 @@ class FinalClassPass extends CodeCleanerPass
                 $this->finalClasses[\strtolower($node->name)] = true;
             }
         }
+
+        return null;
     }
 
     /**

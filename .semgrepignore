@@ -1,0 +1,8 @@
+# Paths Semgrep never scans.
+# Mirrors the Paid repository, plus storage/ (runtime artifacts) — and note that
+# vendor/ matters more here because it is committed in this repository.
+public/
+vendor/
+node_modules/
+storage/
+bootstrap/cache/

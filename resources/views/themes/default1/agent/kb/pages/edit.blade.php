@@ -35,14 +35,14 @@ class="nav-item menu-open"
 
 @section('content')
 
-{!! Form::model($page,['url' => 'page/'.$page->id, 'method' => 'PATCH','files'=>true]) !!}
+{!! html()->modelForm($page, 'PATCH', url('page/'.$page->id))->acceptsFiles()->open() !!}
 
 @if(Session::has('errors'))
 <?php //dd($errors); ?>
-<div class="alert alert-danger alert-dismissable">
-    <i class="fa fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     <br/>
     @if($errors->first('name'))
     <li class="error-message-padding">{!! $errors->first('name', ':message') !!}</li>
@@ -74,17 +74,17 @@ class="nav-item menu-open"
 
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-6 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                        {!! Form::label('name',Lang::get('lang.name')) !!}<span class="text-red"> *</span>
+                    <div class="col-md-6 mb-3 {{ $errors->has('name') ? 'has-error' : '' }}">
+                        {!! html()->label(Lang::get('lang.name'), 'name') !!}<span class="text-red"> *</span>
 
-                        {!! Form::text('name',null,['class' => 'form-control']) !!}
+                        {!! html()->text('name', null)->class('form-control') !!}
                     </div>
                     
-                    <div class="col-sm-12 form-group {{ $errors->has('description') ? 'has-error' : '' }}">
-                        {!! Form::label('description',Lang::get('lang.description')) !!}
+                    <div class="col-sm-12 mb-3 {{ $errors->has('description') ? 'has-error' : '' }}">
+                        {!! html()->label(Lang::get('lang.description'), 'description') !!}
 
-                        <div class="form-group" style="background-color:white">
-                            {!! Form::textarea('description',null,['class' => 'form-control color','size' => '110x15','id'=>'myNicEditor','placeholder'=>'Enter the description']) !!}
+                        <div class="mb-3" style="background-color:white">
+                            {!! html()->textarea('description', null)->class('form-control color')->id('myNicEditor')->placeholder('Enter the description')->attributes(['size' => '110x15']) !!}
                         </div>
                     </div>
                 </div>
@@ -102,28 +102,28 @@ class="nav-item menu-open"
 
             <div class="card-body">
                 
-                <div class="form-group {{ $errors->has('status') ? 'has-error' : '' }}">
-                    {!! Form::label('status',Lang::get('lang.status')) !!}
+                <div class="mb-3 {{ $errors->has('status') ? 'has-error' : '' }}">
+                    {!! html()->label(Lang::get('lang.status'), 'status') !!}
 
                     <div class="row">
                         <div class="col-sm-5">
-                            {!! Form::radio('status',1,true) !!} {{Lang::get('lang.published')}}
+                            {!! html()->radio('status', true, 1) !!} {{Lang::get('lang.published')}}
                         </div>
                         <div class="col-sm-5">
-                            {!! Form::radio('status',0,null) !!} {{Lang::get('lang.draft')}}
+                            {!! html()->radio('status', null, 0) !!} {{Lang::get('lang.draft')}}
                         </div>
                     </div>
                 </div>
 
-                <div class="form-group {{ $errors->has('visibility') ? 'has-error' : '' }}">
-                    {!! Form::label('visibility',Lang::get('lang.visibility')) !!}
+                <div class="mb-3 {{ $errors->has('visibility') ? 'has-error' : '' }}">
+                    {!! html()->label(Lang::get('lang.visibility'), 'visibility') !!}
 
                     <div class="row">
                         <div class="col-sm-5">
-                            {!! Form::radio('visibility','1',true) !!} {{Lang::get('lang.public')}}
+                            {!! html()->radio('visibility', true, '1') !!} {{Lang::get('lang.public')}}
                         </div>
                         <div class="col-sm-5">
-                            {!! Form::radio('visibility','0',null) !!} {{Lang::get('lang.private')}}
+                            {!! html()->radio('visibility', null, '0') !!} {{Lang::get('lang.private')}}
                         </div>
                     </div>
                 </div>
@@ -131,7 +131,7 @@ class="nav-item menu-open"
 
             <div class="card-footer">
 
-                {!! Form::submit(Lang::get('lang.publish'),['class'=>'btn btn-primary'])!!}
+                {!! html()->submit(Lang::get('lang.publish'))->class('btn btn-primary') !!}
             </div>
         </div>
     </div>    

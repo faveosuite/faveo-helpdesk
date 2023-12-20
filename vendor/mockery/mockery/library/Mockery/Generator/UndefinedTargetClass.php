@@ -1,94 +1,169 @@
 <?php
+
 /**
- * Mockery
+ * Mockery (https://docs.mockery.io/en/stable/)
  *
- * LICENSE
- *
- * This source file is subject to the new BSD license that is bundled
- * with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://github.com/padraic/mockery/blob/master/LICENSE
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to padraic@php.net so we can send you a copy immediately.
- *
- * @category   Mockery
- * @package    Mockery
- * @copyright  Copyright (c) 2010 Pádraic Brady (http://blog.astrumfutura.com)
- * @license    http://github.com/padraic/mockery/blob/master/LICENSE New BSD License
+ * @copyright https://github.com/mockery/mockery/blob/HEAD/COPYRIGHT.md
+ * @license   https://github.com/mockery/mockery/blob/HEAD/LICENSE BSD 3-Clause License
+ * @see       https://github.com/mockery/mockery for the canonical source repository
  */
 
 namespace Mockery\Generator;
 
+use Override;
+
+use ReturnTypeWillChange;
+
+use function array_pop;
+use function explode;
+use function implode;
+use function ltrim;
+
 class UndefinedTargetClass implements TargetClassInterface
 {
+    /**
+     * @var class-string
+     */
     private $name;
 
+    /**
+     * @param class-string $name
+     */
     public function __construct($name)
     {
         $this->name = $name;
     }
 
+    /**
+     * @return class-string
+     */
+    #[ReturnTypeWillChange]
+    public function __toString()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param  class-string $name
+     * @return self
+     */
+    #[Override]
     public static function factory($name)
     {
         return new self($name);
     }
 
+    /**
+     * @return list<class-string>
+     */
+    #[Override]
+    public function getAttributes()
+    {
+        return [];
+    }
+
+    /**
+     * @return list<self>
+     */
+    #[Override]
+    public function getInterfaces()
+    {
+        return [];
+    }
+
+    /**
+     * @return list<Method>
+     */
+    #[Override]
+    public function getMethods()
+    {
+        return [];
+    }
+
+    /**
+     * @return class-string
+     */
+    #[Override]
     public function getName()
     {
         return $this->name;
     }
 
-    public function isAbstract()
-    {
-        return false;
-    }
-
-    public function isFinal()
-    {
-        return false;
-    }
-
-    public function getMethods()
-    {
-        return array();
-    }
-
-    public function getInterfaces()
-    {
-        return array();
-    }
-
+    /**
+     * @return string
+     */
+    #[Override]
     public function getNamespaceName()
     {
-        $parts = explode("\\", ltrim($this->getName(), "\\"));
+        $parts = explode('\\', ltrim($this->getName(), '\\'));
         array_pop($parts);
-        return implode("\\", $parts);
+
+        return implode('\\', $parts);
     }
 
-    public function inNamespace()
-    {
-        return $this->getNamespaceName() !== '';
-    }
-
+    /**
+     * @return string
+     */
+    #[Override]
     public function getShortName()
     {
-        $parts = explode("\\", $this->getName());
+        $parts = explode('\\', $this->getName());
+
         return array_pop($parts);
     }
 
-    public function implementsInterface($interface)
-    {
-        return false;
-    }
-
+    /**
+     * @return bool
+     */
+    #[Override]
     public function hasInternalAncestor()
     {
         return false;
     }
 
-    public function __toString()
+    /**
+     * @param  class-string $interface
+     * @return bool
+     */
+    #[Override]
+    public function implementsInterface($interface)
     {
-        return $this->name;
+        return false;
+    }
+
+    /**
+     * @return bool
+     */
+    #[Override]
+    public function inNamespace()
+    {
+        return $this->getNamespaceName() !== '';
+    }
+
+    /**
+     * @return bool
+     */
+    #[Override]
+    public function isAbstract()
+    {
+        return false;
+    }
+
+    /**
+     * @return bool
+     */
+    #[Override]
+    public function isFinal()
+    {
+        return false;
+    }
+
+    /**
+     * @return bool
+     */
+    #[Override]
+    public function isReadOnly()
+    {
+        return false;
     }
 }

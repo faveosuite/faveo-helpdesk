@@ -20,7 +20,7 @@ use const PREG_SPLIT_OFFSET_CAPTURE;
  * Base class for writing simple lexers, i.e. for creating small DSLs.
  *
  * @template T of UnitEnum|string|int
- * @template V of string|int
+ * @template V of string|int|float|bool
  */
 abstract class AbstractLexer
 {
@@ -49,21 +49,21 @@ abstract class AbstractLexer
     /**
      * The next token in the input.
      *
-     * @var mixed[]|null
-     * @psalm-var Token<T, V>|null
+     * @var Token<T, V>|null
      */
     public Token|null $lookahead;
 
     /**
      * The last matched/seen token.
      *
-     * @var mixed[]|null
-     * @psalm-var Token<T, V>|null
+     * @var Token<T, V>|null
      */
     public Token|null $token;
 
     /**
      * Composed regex for input parsing.
+     *
+     * @var non-empty-string|null
      */
     private string|null $regex = null;
 
@@ -138,7 +138,7 @@ abstract class AbstractLexer
      *
      * @return bool
      *
-     * @psalm-assert-if-true !=null $this->lookahead
+     * @phpstan-assert-if-true !=null $this->lookahead
      */
     public function isNextToken(int|string|UnitEnum $type)
     {
@@ -152,7 +152,7 @@ abstract class AbstractLexer
      *
      * @return bool
      *
-     * @psalm-assert-if-true !=null $this->lookahead
+     * @phpstan-assert-if-true !=null $this->lookahead
      */
     public function isNextTokenAny(array $types)
     {
@@ -164,7 +164,8 @@ abstract class AbstractLexer
      *
      * @return bool
      *
-     * @psalm-assert-if-true !null $this->lookahead
+     * @phpstan-impure
+     * @phpstan-assert-if-true !null $this->lookahead
      */
     public function moveNext()
     {
@@ -203,8 +204,7 @@ abstract class AbstractLexer
     /**
      * Moves the lookahead token forward.
      *
-     * @return mixed[]|null The next token or NULL if there are no more tokens ahead.
-     * @psalm-return Token<T, V>|null
+     * @return Token<T, V>|null The next token or NULL if there are no more tokens ahead.
      */
     public function peek()
     {
@@ -218,8 +218,9 @@ abstract class AbstractLexer
     /**
      * Peeks at the next token, returns it and immediately resets the peek.
      *
-     * @return mixed[]|null The next token or NULL if there are no more tokens ahead.
-     * @psalm-return Token<T, V>|null
+     * @return Token<T, V>|null The next token or NULL if there are no more tokens ahead.
+     *
+     * @phpstan-impure
      */
     public function glimpse()
     {

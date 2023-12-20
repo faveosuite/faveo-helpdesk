@@ -3,9 +3,13 @@
 namespace Laravel\Dusk\Console;
 
 use Illuminate\Console\Command;
+use Symfony\Component\Console\Attribute\AsCommand;
 
+#[AsCommand(name: 'dusk:install')]
 class InstallCommand extends Command
 {
+    use Concerns\InteractsWithTestingFrameworks;
+
     /**
      * The name and signature of the console command.
      *
@@ -50,11 +54,39 @@ class InstallCommand extends Command
         }
 
         $stubs = [
-            'ExampleTest.stub' => base_path('tests/Browser/ExampleTest.php'),
             'HomePage.stub' => base_path('tests/Browser/Pages/HomePage.php'),
             'DuskTestCase.stub' => base_path('tests/DuskTestCase.php'),
             'Page.stub' => base_path('tests/Browser/Pages/Page.php'),
         ];
+
+        if ($this->usingPest()) {
+            $stubs['ExampleTest.pest.stub'] = base_path('tests/Browser/ExampleTest.php');
+
+            $contents = file_get_contents(base_path('tests/Pest.php'));
+
+            if (str_contains($contents, 'uses(')) {
+                $contents = str_replace('<?php', <<<EOT
+                    <?php
+
+                    uses(
+                        Tests\DuskTestCase::class,
+                        // Illuminate\Foundation\Testing\DatabaseMigrations::class,
+                    )->in('Browser');
+                    EOT, $contents);
+            } else {
+                $contents = str_replace('<?php', <<<EOT
+                    <?php
+
+                    pest()->extend(Tests\DuskTestCase::class)
+                    //  ->use(Illuminate\Foundation\Testing\DatabaseMigrations::class)
+                        ->in('Browser');
+                    EOT, $contents);
+            }
+
+            file_put_contents(base_path('tests/Pest.php'), $contents);
+        } else {
+            $stubs['ExampleTest.stub'] = base_path('tests/Browser/ExampleTest.php');
+        }
 
         foreach ($stubs as $stub => $file) {
             if (! is_file($file)) {
@@ -62,21 +94,35 @@ class InstallCommand extends Command
             }
         }
 
-        $this->info('Dusk scaffolding installed successfully.');
+        $baseTestCase = file_get_contents(base_path('tests/DuskTestCase.php'));
 
-        $this->comment('Downloading ChromeDriver binaries...');
+        if (! trait_exists(\Tests\CreatesApplication::class)) {
+            file_put_contents(base_path('tests/DuskTestCase.php'), str_replace(<<<'EOT'
+                {
+                    use CreatesApplication;
 
-        $driverCommandArgs = ['--all' => true];
-
-        if ($this->option('proxy')) {
-            $driverCommandArgs['--proxy'] = $this->option('proxy');
+                EOT, <<<'EOT'
+                {
+                EOT,
+                $baseTestCase,
+            ));
         }
 
-        if ($this->option('ssl-no-verify')) {
-            $driverCommandArgs['--ssl-no-verify'] = true;
-        }
+        $this->components->info('Dusk scaffolding installed successfully.');
 
-        $this->call('dusk:chrome-driver', $driverCommandArgs);
+        $this->components->task('Downloading ChromeDriver binaries...', function () {
+            $driverCommandArgs = [];
+
+            if ($this->option('proxy')) {
+                $driverCommandArgs['--proxy'] = $this->option('proxy');
+            }
+
+            if ($this->option('ssl-no-verify')) {
+                $driverCommandArgs['--ssl-no-verify'] = true;
+            }
+
+            $this->call('dusk:chrome-driver', $driverCommandArgs);
+        });
     }
 
     /**

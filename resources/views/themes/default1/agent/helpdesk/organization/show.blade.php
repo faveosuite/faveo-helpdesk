@@ -21,7 +21,7 @@ class="nav-link active"
 
 <!-- header -->
 @section('PageHeader')
-<h1>{!! Lang::get('lang.organization_profile') !!}</h1>
+<h3>{!! Lang::get('lang.organization_profile') !!}</h3>
 @stop
 <!-- /header -->
 
@@ -39,23 +39,23 @@ class="nav-link active"
     <?php $org_hd = App\Model\helpdesk\Agent_panel\Organization::where('id', '=', $orgs->id)->first(); ?>
     
     <div class="col-sm-12">
-        <div id="alert-success" class="alert alert-success alert-dismissable" style="display:none;">
-            <i class="fas  fa-check-circle"> </i> <b> Success <span id="get-success"></span></b>
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <div id="alert-success" class="alert alert-success alert-dismissible d-none">
+            <i class="fa-solid  fa-circle-check"> </i> <b> Success <span id="get-success"></span></b>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         </div>
 
         @if(Session::has('success'))
-        <div id="success-alert" class="alert alert-success alert-dismissable" style="margin-top: 15px;">
-            <i class="fas fa-check-circle"> </i>
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <div id="success-alert" class="alert alert-success alert-dismissible" style="margin-top: 15px;">
+            <i class="fa-solid fa-circle-check"> </i>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
             {{Session::get('success')}}
         </div>
         @endif
         <!-- failure message -->
         @if(Session::has('fails'))
-        <div class="alert alert-danger alert-dismissable" style="margin-top: 15px;">
-            <i class="fas fa-ban"> </i> <b> {!! Lang::get('lang.alert') !!} ! </b>
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <div class="alert alert-danger alert-dismissible" style="margin-top: 15px;">
+            <i class="fa-solid fa-ban"> </i> <b> {!! Lang::get('lang.alert') !!} ! </b>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
             {{Session::get('fails')}}
         </div>
         @endif
@@ -72,7 +72,7 @@ class="nav-link active"
 
                 <a href="{{route('organizations.edit', $orgs->id)}}" class="btn btn-primary btn-block has-tooltip">
 
-                    <i class="fas fa-edit"></i> {!! Lang::get('lang.edit') !!}
+                    <i class="fa-solid fa-pen-to-square"></i> {!! Lang::get('lang.edit') !!}
                 </a> 
 
                 <ul class="list-group list-group-unbordered mb-3">
@@ -80,14 +80,14 @@ class="nav-link active"
                     <li class="list-group-item">
 
                         <label>{!! Lang::get('lang.website') !!}</label> 
-                        <a class="float-right" title="{{$orgs->website}}">{!! Str::limit($orgs->website,15) !!}</a>
+                        <a class="float-end" title="{{$orgs->website}}">{!! Str::limit($orgs->website,15) !!}</a>
                     </li>
 
                     @if($orgs->phone)
                     <li class="list-group-item">
 
                         <label>{!! Lang::get('lang.phone') !!}</label> 
-                        <a class="float-right" title="{{$orgs->phone}}">{!! Str::limit($orgs->phone,15) !!}</a>
+                        <a class="float-end" title="{{$orgs->phone}}">{!! Str::limit($orgs->phone,15) !!}</a>
                     </li>
                     @endif
 
@@ -110,8 +110,8 @@ class="nav-link active"
                     @endif
                 </ul>
 
-                <button data-toggle="modal" data-target="#assign_head" id="button_select" class="btn btn-primary btn-block">
-                    <i class="fas fa-plus"> </i> {!! Lang::get('lang.select_organization_manager') !!}
+                <button data-bs-toggle="modal" data-bs-target="#assign_head" id="button_select" class="btn btn-primary btn-block">
+                    <i class="fa-solid fa-plus"> </i> {!! Lang::get('lang.select_organization_manager') !!}
                 </button>
             </div>
         </div>
@@ -142,7 +142,7 @@ class="nav-link active"
 
                             <a href="javascript:;" class="nav-link text-dark"> {!! Lang::get('lang.e-mail') !!}  
 
-                                <span class="float-right" title="{{$users->email}}">{!! Str::limit($users->email,15) !!}</span>
+                                <span class="float-end" title="{{$users->email}}">{!! Str::limit($users->email,15) !!}</span>
                             </a>
                         </li>
 
@@ -150,7 +150,7 @@ class="nav-link active"
 
                             <a href="javascript:;" class="nav-link text-dark"> {!! Lang::get('lang.phone') !!}  
 
-                                <span class="float-right" title="{{$users->phone_number}}">{!! Str::limit($users->phone_number,15) !!}</span>
+                                <span class="float-end" title="{{$users->phone_number}}">{!! Str::limit($users->phone_number,15) !!}</span>
                             </a>
                         </li>
                     </ul>
@@ -167,7 +167,7 @@ class="nav-link active"
             ?>
             <div class="card-header">
                 <h3 class="card-title">{!! Lang::get('lang.users_of') !!} {{$orgs->name}}</h3>
-                <div class="card-tools">
+                <div class="card-tools d-flex">
                     <?php echo $user_orgs->setPath(route('organizations.show', $orgs->id))->render(); ?>
                 </div>
             </div>   
@@ -189,9 +189,9 @@ class="nav-link active"
                             <td><a href="{!! route('user.show',$user_detail->id) !!}">{!! $user_detail->email !!}</a></td>
                             <td>{!! $user_detail->phone_number !!}</td>
                             @if($user_detail->active == 1)
-                            <td><span class="badge badge-success">{!! Lang::get('lang.active') !!}</span></td>
+                            <td><span class="badge text-bg-success">{!! Lang::get('lang.active') !!}</span></td>
                             @elseif($user_detail->active == 0)
-                            <td><span class="badge badge-warning">{!! Lang::get('lang.inactive') !!}</span></td>
+                            <td><span class="badge text-bg-warning">{!! Lang::get('lang.inactive') !!}</span></td>
                             @endif
                             <td>{!! $user_detail->ban !!}</td>
                         </tr>
@@ -223,13 +223,13 @@ class="nav-link active"
                 <div class="nav-tabs-custom">
                     <ul class="nav nav-tabs">
                         <li class="nav-item">
-                            <a href="#tab_1" data-toggle="tab"  class="nav-link active">{!! Lang::get('lang.open_tickets') !!} ({{$open}})</a>
+                            <a href="#tab_1" data-bs-toggle="tab"  class="nav-link active">{!! Lang::get('lang.open_tickets') !!} ({{$open}})</a>
                         </li>
                         <li class="nav-item">
-                            <a href="#tab_2" data-toggle="tab"  class="nav-link">{!! Lang::get('lang.closed_tickets') !!} ({{$counted}})</a>
+                            <a href="#tab_2" data-bs-toggle="tab"  class="nav-link">{!! Lang::get('lang.closed_tickets') !!} ({{$counted}})</a>
                         </li>
                         <li class="nav-item">
-                            <a href="#tab_3" data-toggle="tab"  class="nav-link">{!! Lang::get('lang.deleted_tickets') !!} ({{$deleted}})</a>
+                            <a href="#tab_3" data-bs-toggle="tab"  class="nav-link">{!! Lang::get('lang.deleted_tickets') !!} ({{$deleted}})</a>
                         </li>
                     </ul>
 
@@ -239,13 +239,13 @@ class="nav-link active"
                             <?php $open = count(App\Model\helpdesk\Ticket\Tickets::whereIn('user_id', $user_orga_relation_id)->where('status', '=', '1')->get()); ?>
                             
                             <div>
-                                {!! Form::open(['route'=>'select_all','method'=>'post']) !!}
+                                {!! html()->form('POST', route('select_all'))->open() !!}
                                 <div class="mailbox-controls p-0 mt-2 mb-2">
                                     <!-- Check all button -->
-                                    <a class="btn btn-default btn-sm checkbox-toggle"><i class="far fa-square"></i></a>
-                                    <input type="submit" class="btn btn-default text-orange btn-sm" name="submit" value="{!! Lang::get('lang.delete') !!}">
-                                    <input type="submit" class="btn btn-default text-yellow btn-sm" name="submit" value="{!! Lang::get('lang.close') !!}">
-                                    <div class="float-right">
+                                    <a class="btn btn-secondary btn-sm checkbox-toggle"><i class="fa-regular fa-square"></i></a>
+                                    <input type="submit" class="btn btn-secondary text-orange btn-sm" name="submit" value="{!! Lang::get('lang.delete') !!}">
+                                    <input type="submit" class="btn btn-secondary text-yellow btn-sm" name="submit" value="{!! Lang::get('lang.close') !!}">
+                                    <div class="float-end">
                                         <?php
                                         $counted = count(App\Model\helpdesk\Ticket\Tickets::whereIn('user_id', $user_orga_relation_id)->where('status', '=', '1')->get());
                                         if ($counted < 20) {
@@ -316,9 +316,9 @@ class="nav-link active"
                                                     $assigned = $assigned_to->first_name . " " . $assigned_to->last_name;
                                                 }
                                                 ?>
-                                                <td class="mailbox-name"><a href="{!! route('ticket.thread',[$ticket->id]) !!}" title="{!! $title->title !!}">{{$string}}   </a> ({!! $count!!}) <i class="fa fa-comment"></i>
-                                                    @if($collab > 0)&nbsp;<i class="fas fa-users"></i>@endif 
-                                                    @if($attach > 0)&nbsp;<i class="fas fa-paperclip"></i>@endif</td>
+                                                <td class="mailbox-name"><a href="{!! route('ticket.thread',[$ticket->id]) !!}" title="{!! $title->title !!}">{{$string}}   </a> ({!! $count!!}) <i class="fa-solid fa-comment"></i>
+                                                    @if($collab > 0)&nbsp;<i class="fa-solid fa-users"></i>@endif 
+                                                    @if($attach > 0)&nbsp;<i class="fa-solid fa-paperclip"></i>@endif</td>
                                                 <td class="mailbox-Id"><a href="{!! route('ticket.thread',[$ticket->id]) !!}" title="{!! $title->title !!}">#{!! $ticket->ticket_number !!}</a></td>
                                                 <?php $priority = App\Model\helpdesk\Ticket\Ticket_Priority::where('priority_id', '=', $ticket->priority_id)->first(); ?>
                                                 <td class="mailbox-priority">@if($priority != null)<spam class="btn btn-{{$priority->priority_color}} btn-xs">{{$priority->priority}}</spam>@endif</td>
@@ -330,11 +330,11 @@ class="nav-link active"
                                         @endforeach
                                         </tbody>
                                     </table><!-- /.table -->
-                                    <div class="float-right">
+                                    <div class="float-end">
                                         <?php echo $tickets->setPath(url('/organizations/' . $orgs->id))->render(); ?>&nbsp;
                                     </div>
                                 </div><!-- /.mail-box-messages -->
-                                {!! Form::close() !!}
+                                {!! html()->closeModelForm() !!}
 
                                 {{-- end deleted tickets --}}
                             </div>
@@ -344,13 +344,13 @@ class="nav-link active"
                             <?php $closed = count(App\Model\helpdesk\Ticket\Tickets::whereIn('user_id', $user_orga_relation_id)->where('status', 2)->get()); ?>
                             
                             <div>
-                                {!! Form::open(['route'=>'select_all','method'=>'post']) !!}
+                                {!! html()->form('POST', route('select_all'))->open() !!}
                                 <div class="mailbox-controls p-0 mt-2 mb-2">
                                     <!-- Check all button -->
-                                    <a class="btn btn-default btn-sm checkbox-toggle"><i class="far fa-square"></i></a>
-                                    <input type="submit" class="btn btn-default text-orange btn-sm" name="submit" value="{!! Lang::get('lang.delete') !!}">
-                                    <input type="submit" class="btn btn-default text-yellow btn-sm" name="submit" value="{!! Lang::get('lang.close') !!}">
-                                    <div class="float-right">
+                                    <a class="btn btn-secondary btn-sm checkbox-toggle"><i class="fa-regular fa-square"></i></a>
+                                    <input type="submit" class="btn btn-secondary text-orange btn-sm" name="submit" value="{!! Lang::get('lang.delete') !!}">
+                                    <input type="submit" class="btn btn-secondary text-yellow btn-sm" name="submit" value="{!! Lang::get('lang.close') !!}">
+                                    <div class="float-end">
                                         <?php
                                         $counted = count(App\Model\helpdesk\Ticket\Tickets::whereIn('user_id', $user_orga_relation_id)->where('status', '=', '2')->get());
                                         if ($counted < 20) {
@@ -421,9 +421,9 @@ class="nav-link active"
                                                     $assigned = $assigned_to->first_name . " " . $assigned_to->last_name;
                                                 }
                                                 ?>
-                                                <td class="mailbox-name"><a href="{!! route('ticket.thread',[$ticket->id]) !!}" title="{!! $title->title !!}">{{$string}}   </a> ({!! $count!!}) <i class="fa fa-comment"></i>
-                                                    @if($collab > 0)&nbsp;<i class="fas fa-users"></i>@endif 
-                                                    @if($attach > 0)&nbsp;<i class="fas fa-paperclip"></i>@endif</td>
+                                                <td class="mailbox-name"><a href="{!! route('ticket.thread',[$ticket->id]) !!}" title="{!! $title->title !!}">{{$string}}   </a> ({!! $count!!}) <i class="fa-solid fa-comment"></i>
+                                                    @if($collab > 0)&nbsp;<i class="fa-solid fa-users"></i>@endif 
+                                                    @if($attach > 0)&nbsp;<i class="fa-solid fa-paperclip"></i>@endif</td>
                                                 <td class="mailbox-Id"><a href="{!! route('ticket.thread',[$ticket->id]) !!}" title="{!! $title->title !!}">#{!! $ticket->ticket_number !!}</a></td>
                                                 <?php $priority = App\Model\helpdesk\Ticket\Ticket_Priority::where('priority_id', '=', $ticket->priority_id)->first(); ?>
                                                 <td class="mailbox-priority">@if($priority != null)<spam class="btn btn-{{$priority->priority_color}} btn-xs">{{$priority->priority}}</spam>@endif</td>
@@ -436,11 +436,11 @@ class="nav-link active"
                                         </tbody>
                                     </table><!-- /.table -->
 
-                                    <div class="float-right">
+                                    <div class="float-end">
                                         <?php echo $tickets->setPath(url('/organizations/' . $orgs->id))->render(); ?>&nbsp;
                                     </div>
                                 </div><!-- /.mail-box-messages -->
-                                {!! Form::close() !!}
+                                {!! html()->closeModelForm() !!}
 
                                 {{-- end deleted tickets --}}
                             </div>
@@ -450,13 +450,13 @@ class="nav-link active"
                             <?php $deleted = count(App\Model\helpdesk\Ticket\Tickets::whereIn('user_id', $user_orga_relation_id)->where('status', '=', '5')->get()); ?>
                             <div>
 
-                                {!! Form::open(['route'=>'select_all','method'=>'post']) !!}
+                                {!! html()->form('POST', route('select_all'))->open() !!}
                                 <div class="mailbox-controls p-0 mt-2 mb-2">
                                     <!-- Check all button -->
-                                    <a class="btn btn-default btn-sm checkbox-toggle"><i class="far fa-square"></i></a>
-                                    <input type="submit" class="btn btn-default text-orange btn-sm" name="submit" value="{!! Lang::get('lang.delete') !!}">
-                                    <input type="submit" class="btn btn-default text-yellow btn-sm" name="submit" value="{!! Lang::get('lang.close') !!}">
-                                    <div class="float-right">
+                                    <a class="btn btn-secondary btn-sm checkbox-toggle"><i class="fa-regular fa-square"></i></a>
+                                    <input type="submit" class="btn btn-secondary text-orange btn-sm" name="submit" value="{!! Lang::get('lang.delete') !!}">
+                                    <input type="submit" class="btn btn-secondary text-yellow btn-sm" name="submit" value="{!! Lang::get('lang.close') !!}">
+                                    <div class="float-end">
                                         <?php
                                         $counted = count(App\Model\helpdesk\Ticket\Tickets::whereIn('user_id', $user_orga_relation_id)->where('status', '=', '5')->get());
                                         if ($counted < 20) {
@@ -527,9 +527,9 @@ class="nav-link active"
                                                     $assigned = $assigned_to->first_name . " " . $assigned_to->last_name;
                                                 }
                                                 ?>
-                                                <td class="mailbox-name"><a href="{!! route('ticket.thread',[$ticket->id]) !!}" title="{!! $title->title !!}">{{$string}}   </a> ({!! $count!!}) <i class="fa fa-comment"></i>
-                                                    @if($collab > 0)&nbsp;<i class="fas fa-users"></i>@endif 
-                                                    @if($attach > 0)&nbsp;<i class="fas fa-paperclip"></i>@endif</td>
+                                                <td class="mailbox-name"><a href="{!! route('ticket.thread',[$ticket->id]) !!}" title="{!! $title->title !!}">{{$string}}   </a> ({!! $count!!}) <i class="fa-solid fa-comment"></i>
+                                                    @if($collab > 0)&nbsp;<i class="fa-solid fa-users"></i>@endif 
+                                                    @if($attach > 0)&nbsp;<i class="fa-solid fa-paperclip"></i>@endif</td>
                                                 <td class="mailbox-Id"><a href="{!! route('ticket.thread',[$ticket->id]) !!}" title="{!! $title->title !!}">#{!! $ticket->ticket_number !!}</a></td>
                                                 <?php $priority = App\Model\helpdesk\Ticket\Ticket_Priority::where('priority_id', '=', $ticket->priority_id)->first(); ?>
                                                 <td class="mailbox-priority">@if($priority != null)<spam class="btn btn-{{$priority->priority_color}} btn-xs">{{$priority->priority}}</spam>@endif</td>
@@ -542,11 +542,11 @@ class="nav-link active"
                                         </tbody>
                                     </table><!-- /.table -->
 
-                                    <div class="float-right">
+                                    <div class="float-end">
                                         <?php echo $tickets->setPath(url('/organizations/' . $orgs->id))->render(); ?>&nbsp;
                                     </div>
                                 </div><!-- /.mail-box-messages -->
-                                {!! Form::close() !!}
+                                {!! html()->closeModelForm() !!}
                             </div><!-- /.tab-pane -->
                         </div><!-- /.tab-content -->
                     </div><!-- nav-tabs-custom -->
@@ -563,11 +563,11 @@ class="nav-link active"
             </div>
             <div class="card-body">
                 <form id="foo">
-                    <div  class="form-group">
+                    <div  class="mb-3">
                         <div class="row">
                             <div class='col-sm-3'>
-                                {!! Form::label('date', Lang::get("lang.start_date").':') !!}
-                                {!! Form::text('start_date',null,['class'=>'form-control','id'=>'datepicker4'])!!}
+                                {!! html()->label(Lang::get("lang.start_date").':', 'date') !!}
+                                {!! html()->text('start_date', null)->class('form-control')->id('datepicker4') !!}
                             </div>
                             <?php
                             $start_date = App\Model\helpdesk\Ticket\Tickets::where('id', '=', '1')->first();
@@ -593,8 +593,8 @@ class="nav-link active"
                                 });
                             </script>
                             <div class='col-sm-3'>
-                                {!! Form::label('start_time', Lang::get("lang.end_date").':') !!}
-                                {!! Form::text('end_date',null,['class'=>'form-control','id'=>'datetimepicker3'])!!}
+                                {!! html()->label(Lang::get("lang.end_date").':', 'start_time') !!}
+                                {!! html()->text('end_date', null)->class('form-control')->id('datetimepicker3') !!}
                             </div>
                             <script type="text/javascript">
                                 $(function() {
@@ -608,7 +608,7 @@ class="nav-link active"
                                 });
                             </script>
                             <div class='col-sm-2'>
-                                {!! Form::label('filter', 'Filter:',['style' => 'visibility:hidden;']) !!}<br>
+                                {!! html()->label('Filter:', 'filter')->attributes(['style' => 'visibility:hidden;']) !!}<br>
                                 <input type="submit" value="{!! Lang::get('lang.submit') !!}" class="btn btn-primary">
                             </div>
                             
@@ -908,10 +908,10 @@ class="nav-link active"
 <div class="modal fade" id="assign_head">
     <div class="modal-dialog">
         <div class="modal-content">
-            {!! Form::model($orgs->id, ['id'=>'org_head','method' => 'PATCH'] )!!}
+            {!! html()->modelForm($orgs->id, 'PATCH', url()->current())->attributes(['id' => 'org_head'])->open() !!}
             <div class="modal-header">
-                <h4 class="modal-title">{!! Lang::get('lang.assign') !!}</h4>
-                <button type="button" class="close" data-dismiss="modal" id="dismiss" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">{!! Lang::get('lang.assign') !!}</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" id="dismiss" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
                 <div class="row">
@@ -937,10 +937,10 @@ class="nav-link active"
                 </div>
             </div>
             <div class="modal-footer justify-content-between">
-                <button type="button" class="btn btn-default" data-dismiss="modal" id="dismis4">{!! Lang::get('lang.close') !!}</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="dismis4">{!! Lang::get('lang.close') !!}</button>
                 <button type="submit" class="btn btn-success" id="submt2">{!! Lang::get('lang.assign') !!}</button>
             </div>
-            {!! Form::close()!!}
+            {!! html()->closeModelForm() !!}
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
@@ -956,23 +956,23 @@ class="nav-link active"
                                             dataType: "html",
                                             data: $(this).serialize(),
                                             beforeSend: function() {
-                                                $("#assign_body").hide();
-                                                $("#assign_loader").show();
+                                                $("#assign_body").addClass('d-none');
+                                                $("#assign_loader").removeClass('d-none');
                                             },
                                             success: function(response) {
-                                                $("#assign_loader").hide();
-                                                $("#assign_body").show();
+                                                $("#assign_loader").addClass('d-none');
+                                                $("#assign_body").removeClass('d-none');
 
                                                 if (response == 1) {
                                                     message = "Organization head added Successfully."
                                                     $("#dismiss").trigger("click");
                                                     $("#refresh1").load("../organizations/{!! $orgs->id !!}  #refresh1");
                                                     // $("#refresh2").load("../thread/1  #refresh2");
-                                                    // $("#show").show();
-                                                    $("#alert-success").show();
+                                                    // $("#show").removeClass('d-none');
+                                                    $("#alert-success").removeClass('d-none');
                                                     $('#get-success').html(message);
                                                     setInterval(function() {
-                                                        $("#alert-success").hide();
+                                                        $("#alert-success").addClass('d-none');
                                                     }, 4000);
                                                 }
                                             }

@@ -16,6 +16,19 @@ class LaravelLivewireRequestContextProvider extends LaravelRequestContextProvide
         parent::__construct($request);
     }
 
+    protected function getComponentClass(string $componentName): ?string
+    {
+        // Livewire v4
+        if (class_exists(\Livewire\Finder\Finder::class)) {
+            return app(\Livewire\Finder\Finder::class)
+                ->resolveClassComponentClassName($componentName);
+        }
+
+        // Livewire v3
+        return app(\Livewire\Mechanisms\ComponentRegistry::class)
+            ->getClass($componentName);
+    }
+
     /** @return array<string, string> */
     public function getRequest(): array
     {
@@ -37,9 +50,35 @@ class LaravelLivewireRequestContextProvider extends LaravelRequestContextProvide
         return $properties;
     }
 
-    /** @return array<string, mixed> */
+    /** @return array<int, mixed> */
     protected function getLivewireInformation(): array
     {
+        if ($this->request->has('components')) {
+            $data = [];
+
+            $components = $this->request->input('components');
+
+            if (! is_array($components)) {
+                return [];
+            }
+
+            foreach ($components as $component) {
+                $snapshot = json_decode($component['snapshot'], true);
+
+                $class = $this->getComponentClass($snapshot['memo']['name']);
+
+                $data[] = [
+                    'component_class' => $class ?? null,
+                    'data' => $snapshot['data'],
+                    'memo' => $snapshot['memo'],
+                    'updates' => $this->resolveUpdates($component['updates']),
+                    'calls' => $component['calls'],
+                ];
+            }
+
+            return $data;
+        }
+
         /** @phpstan-ignore-next-line */
         $componentId = $this->request->input('fingerprint.id');
 
@@ -51,17 +90,25 @@ class LaravelLivewireRequestContextProvider extends LaravelRequestContextProvide
         }
 
         try {
-            $componentClass = $this->livewireManager->getClass($componentAlias);
+            $componentClass = $this->getComponentClass($componentAlias);
         } catch (Exception $e) {
             $componentClass = null;
         }
 
+        /** @phpstan-ignore-next-line */
+        $updates = $this->request->input('updates') ?? [];
+
+        /** @phpstan-ignore-next-line */
+        $updates = $this->request->input('updates') ?? [];
+
         return [
-            'component_class' => $componentClass,
-            'component_alias' => $componentAlias,
-            'component_id' => $componentId,
-            'data' => $this->resolveData(),
-            'updates' => $this->resolveUpdates(),
+            [
+                'component_class' => $componentClass,
+                'component_alias' => $componentAlias,
+                'component_id' => $componentId,
+                'data' => $this->resolveData(),
+                'updates' => $this->resolveUpdates($updates),
+            ],
         ];
     }
 
@@ -86,7 +133,7 @@ class LaravelLivewireRequestContextProvider extends LaravelRequestContextProvide
     }
 
     /** @return array<string, mixed> */
-    protected function resolveUpdates(): array
+    protected function resolveUpdates(array $updates): array
     {
         /** @phpstan-ignore-next-line */
         $updates = $this->request->input('updates') ?? [];

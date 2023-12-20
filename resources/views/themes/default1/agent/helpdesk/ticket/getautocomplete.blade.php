@@ -1,6 +1,6 @@
 <?php
 
-$term = $_GET["term"];
+$term = request('term');   // $_GET is not populated when the request is dispatched internally
 $users = app\User::where('email', 'LIKE', '%' . $term . '%')->where('active', '=', 1)->where('role', '=', 'user')->get();
 $json = [];
 

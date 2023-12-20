@@ -22,6 +22,31 @@ use phpDocumentor\Reflection\Type;
  */
 final class Callable_ implements Type
 {
+    /** @var Type|null */
+    private $returnType;
+    /** @var CallableParameter[] */
+    private $parameters;
+
+    /**
+     * @param CallableParameter[] $parameters
+     */
+    public function __construct(array $parameters = [], ?Type $returnType = null)
+    {
+        $this->parameters = $parameters;
+        $this->returnType = $returnType;
+    }
+
+    /** @return CallableParameter[] */
+    public function getParameters(): array
+    {
+        return $this->parameters;
+    }
+
+    public function getReturnType(): ?Type
+    {
+        return $this->returnType;
+    }
+
     /**
      * Returns a rendered output of the Type as it would be used in a DocBlock.
      */

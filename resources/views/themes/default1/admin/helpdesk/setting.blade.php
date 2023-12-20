@@ -3,7 +3,7 @@
 @stop
 <!-- header -->
 @section('PageHeader')
-<h1>{!! Lang::get('lang.admin_panel') !!}</h1>
+<h3>{!! Lang::get('lang.admin_panel') !!}</h3>
 @stop
 <!-- /header -->
 <!-- breadcrumbs -->
@@ -46,9 +46,9 @@
 @section('content')
 <!-- failure message -->
 @if(Session::has('fails'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fas fa-ban"> </i> <b> {!! Lang::get('lang.alert') !!}! </b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"> </i> <b> {!! Lang::get('lang.alert') !!}! </b>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('fails')}}
 </div>
 @endif
@@ -66,7 +66,7 @@
                     <div class="settingdivblue">
                         <a href="{{ url('agents') }}">
                             <span class="fa-stack fa-2x">
-                                <i class="fas fa-user fa-stack-1x"></i>
+                                <i class="fa-solid fa-user fa-stack-1x"></i>
                             </span>
                         </a>
                     </div>
@@ -79,7 +79,7 @@
                         <div class="settingdivblue">
                             <a href="{{ url('departments') }}">
                                 <span class="fa-stack fa-2x">
-                                    <i class="fas fa-sitemap fa-stack-1x"></i>
+                                    <i class="fa-solid fa-sitemap fa-stack-1x"></i>
                                 </span>
                             </a>
                         </div>
@@ -92,7 +92,7 @@
                         <div class="settingdivblue">
                             <a href="{{ url('teams') }}">
                                 <span class="fa-stack fa-2x">
-                                    <i class="fas fa-users fa-stack-1x"></i>
+                                    <i class="fa-solid fa-users fa-stack-1x"></i>
                                 </span>
                             </a>
                         </div>
@@ -105,7 +105,7 @@
                         <div class="settingdivblue">
                             <a href="{{ url('groups') }}">
                                 <span class="fa-stack fa-2x">
-                                    <i class="fas fa-object-group fa-stack-1x"></i>
+                                    <i class="fa-solid fa-object-group fa-stack-1x"></i>
                                 </span>
                             </a>
                         </div>
@@ -131,7 +131,7 @@
                     <div class="settingdivblue">
                         <a href="{{ url('emails') }}">
                             <span class="fa-stack fa-2x">
-                                <i class="fas fa-envelope fa-stack-1x"></i>
+                                <i class="fa-solid fa-envelope fa-stack-1x"></i>
                             </span>
                         </a>
                     </div>
@@ -145,7 +145,7 @@
                     <div class="settingdivblue">
                         <a href="{{ url('banlist') }}">
                             <span class="fa-stack fa-2x">
-                                <i class="fas fa-ban fa-stack-1x"></i>
+                                <i class="fa-solid fa-ban fa-stack-1x"></i>
                             </span>
                         </a>
                     </div>
@@ -159,7 +159,7 @@
                     <div class="settingdivblue">
                         <a href="{{ url('template-sets') }}">
                             <span class="fa-stack fa-2x">
-                                <i class="fas fa-reply fa-stack-1x"></i>
+                                <i class="fa-solid fa-reply fa-stack-1x"></i>
                             </span>
                         </a>
                     </div>
@@ -173,7 +173,7 @@
                     <div class="settingdivblue">
                         <a href="{{url('getemail')}}">
                             <span class="fa-stack fa-2x">
-                                <i class="fas fa-at fa-stack-1x"></i>
+                                <i class="fa-solid fa-at fa-stack-1x"></i>
                             </span>
                         </a>
                     </div>
@@ -186,7 +186,7 @@
                     <div class="settingdivblue">
                         <a href="{{url('queue')}}">
                             <span class="fa-stack fa-2x">
-                                <i class="fas fa-upload fa-stack-1x"></i>
+                                <i class="fa-solid fa-upload fa-stack-1x"></i>
                             </span>
                         </a>
                     </div>
@@ -200,7 +200,7 @@
                     <div class="settingdivblue">
                         <a href="{{ url('getdiagno') }}">
                             <span class="fa-stack fa-2x">
-                                <i class="fas fa-plus fa-stack-1x"></i>
+                                <i class="fa-solid fa-plus fa-stack-1x"></i>
                             </span>
                         </a>
                     </div>
@@ -228,7 +228,7 @@
                     <div class="settingdivblue">
                         <a href="{{url('helptopic')}}">
                             <span class="fa-stack fa-2x">
-                                <i class="fas fa-file-alt fa-stack-1x"></i>
+                                <i class="fa-solid fa-file-lines fa-stack-1x"></i>
                             </span>
                         </a>
                     </div>
@@ -242,7 +242,7 @@
                     <div class="settingdivblue">
                         <a href="{{url('sla')}}">
                             <span class="fa-stack fa-2x">
-                                <i class="fas fa-clock fa-stack-1x"></i>
+                                <i class="fa-solid fa-clock fa-stack-1x"></i>
                             </span>
                         </a>
                     </div>
@@ -257,7 +257,7 @@
                     <div class="settingdivblue">
                         <a href="{{url('forms')}}">
                             <span class="fa-stack fa-2x">
-                                <i class="fas fa-file-alt fa-stack-1x"></i>
+                                <i class="fa-solid fa-file-lines fa-stack-1x"></i>
                             </span>
                         </a>
                     </div>
@@ -271,7 +271,7 @@
                     <div class="settingdivblue">
                         <a href="{{url('workflow')}}">
                             <span class="fa-stack fa-2x">
-                                <i class="fas fa-sitemap fa-stack-1x"></i>
+                                <i class="fa-solid fa-sitemap fa-stack-1x"></i>
                             </span>
                         </a>
                     </div>
@@ -285,7 +285,7 @@
                         <a href="{{url('ticket/priority')}}">
                             <span class="fa-stack fa-2x">
                                 
-                                <i class="fas fa-asterisk fa-stack-1x"></i>
+                                <i class="fa-solid fa-asterisk fa-stack-1x"></i>
                             </span>
                         </a>
                     </div>
@@ -299,7 +299,7 @@
                     <div class="settingdivblue">
                         <a href="{{url('url/settings')}}">
                             <span class="fa-stack fa-2x">
-                                <i class="fas fa-server fa-stack-1x"></i>
+                                <i class="fa-solid fa-server fa-stack-1x"></i>
                             </span>
                         </a>
                     </div>
@@ -327,7 +327,7 @@
                     <div class="settingdivblue">
                         <a href="{{url('getticket')}}">
                             <span class="fa-stack fa-2x">
-                                <i class="fas fa-file-alt fa-stack-1x"></i>
+                                <i class="fa-solid fa-file-lines fa-stack-1x"></i>
                             </span>
                         </a>
                     </div>
@@ -342,7 +342,7 @@
                     <div class="settingdivblue">
                         <a href="{{url('getresponder')}}">
                             <span class="fa-stack fa-2x">
-                                <i class="fas fa-reply-all fa-stack-1x"></i>
+                                <i class="fa-solid fa-reply-all fa-stack-1x"></i>
                             </span>
                         </a>
                     </div>
@@ -357,7 +357,7 @@
                     <div class="settingdivblue">
                         <a href="{{url('getalert')}}">
                             <span class="fa-stack fa-2x">
-                                <i class="fas fa-bell fa-stack-1x"></i>
+                                <i class="fa-solid fa-bell fa-stack-1x"></i>
                             </span>
                         </a>
                     </div>
@@ -371,7 +371,7 @@
                     <div class="settingdivblue">
                         <a href="{{url('setting-status')}}">
                             <span class="fa-stack fa-2x">
-                                <i class="fas fa-plus-square fa-stack-1x"></i>
+                                <i class="fa-solid fa-plus-square fa-stack-1x"></i>
                             </span>
                         </a>
                     </div>
@@ -384,7 +384,7 @@
                     <div class="settingdivblue">
                         <a href="{{url('getratings')}}">
                             <span class="fa-stack fa-2x">
-                                <i class="fas fa-star fa-stack-1x"></i>
+                                <i class="fa-solid fa-star fa-stack-1x"></i>
                             </span>
                         </a>
                     </div>
@@ -397,7 +397,7 @@
                     <div class="settingdivblue">
                         <a href="{{url('close-workflow')}}">
                             <span class="fa-stack fa-2x">    
-                                <i class="fas fa-sitemap fa-stack-1x"></i>
+                                <i class="fa-solid fa-sitemap fa-stack-1x"></i>
                             </span>
                         </a>
                     </div>
@@ -424,7 +424,7 @@
                     <div class="settingdivblue">
                         <a href="{!! url('getcompany') !!}">
                             <span class="fa-stack fa-2x">
-                                <i class="fas fa-building fa-stack-1x"></i>
+                                <i class="fa-solid fa-building fa-stack-1x"></i>
                             </span>
                         </a>
                     </div>
@@ -438,7 +438,7 @@
                     <div class="settingdivblue">
                         <a href="{{url('getsystem')}}">
                             <span class="fa-stack fa-2x">
-                                <i class="fas fa-laptop fa-stack-1x"></i>
+                                <i class="fa-solid fa-laptop fa-stack-1x"></i>
                             </span>
                         </a>
                     </div>
@@ -454,7 +454,7 @@
                     <div class="settingdivblue">
                         <a href="{{ url('social/media') }}">
                             <span class="fa-stack fa-2x">
-                                <i class="fas fa-globe fa-stack-1x"></i>
+                                <i class="fa-solid fa-globe fa-stack-1x"></i>
                             </span>
                         </a>
                     </div>
@@ -467,7 +467,7 @@
                     <div class="settingdivblue">
                         <a href="{{url('languages')}}">
                             <span class="fa-stack fa-2x">
-                                <i class="fas fa-language fa-stack-1x"></i>
+                                <i class="fa-solid fa-language fa-stack-1x"></i>
                             </span>
                         </a>
                     </div>
@@ -480,7 +480,7 @@
                     <div class="settingdivblue">
                         <a href="{{url('job-scheduler')}}">
                             <span class="fa-stack fa-2x">
-                                <i class="fas  fa-hourglass fa-stack-1x"></i>
+                                <i class="fa-solid  fa-hourglass fa-stack-1x"></i>
                             </span>
                         </a>
                     </div>
@@ -493,7 +493,7 @@
                     <div class="settingdivblue">
                         <a href="{{url('security')}}">
                             <span class="fa-stack fa-2x">
-                                <i class="fas fa-lock fa-stack-1x"></i>
+                                <i class="fa-solid fa-lock fa-stack-1x"></i>
                             </span>
                         </a>
                     </div>
@@ -507,7 +507,7 @@
                     <div class="settingdivblue">
                         <a href="{{url('settings-notification')}}">
                             <span class="fa-stack fa-2x">
-                                <i class="fas fa-bell fa-stack-1x"></i>
+                                <i class="fa-solid fa-bell fa-stack-1x"></i>
                             </span>
                         </a>
                     </div>
@@ -535,7 +535,7 @@
                     <div class="settingdivblue">
                         <a href="{{ route('err.debug.settings') }}">
                             <span class="fa-stack fa-2x">
-                                <i class="fas fa-bug fa-stack-1x"></i>
+                                <i class="fa-solid fa-bug fa-stack-1x"></i>
                             </span>
                         </a>
                     </div>
@@ -547,7 +547,7 @@
                                 <div class="settingdivblue">
                                     <a href="{{ url('clockwork/app') }}">
                     <span class="fa-stack fa-2x">
-                        <i class="fa fa-server fa-stack-1x"></i>
+                        <i class="fa-solid fa-server fa-stack-1x"></i>
                     </span>
                                     </a>
                                 </div>
@@ -576,7 +576,7 @@
                     <div class="settingdivblue">
                         <a href="{{ url('widgets') }}">
                             <span class="fa-stack fa-2x">
-                                <i class="fas fa-list-alt fa-stack-1x"></i>
+                                <i class="fa-solid fa-list-alt fa-stack-1x"></i>
                             </span>
                         </a>
                     </div>
@@ -590,7 +590,7 @@
                     <div class="settingdivblue">
                         <a href="{{ url('social-buttons') }}">
                             <span class="fa-stack fa-2x">
-                                <i class="fas fa-cubes fa-stack-1x"></i>
+                                <i class="fa-solid fa-cubes fa-stack-1x"></i>
                             </span>
                         </a>
                     </div>
@@ -617,7 +617,7 @@
                     <div class="settingdivblue">
                         <a href="{{ url('plugins') }}">
                             <span class="fa-stack fa-2x">
-                                <i class="fas fa-plug fa-stack-1x"></i>
+                                <i class="fa-solid fa-plug fa-stack-1x"></i>
                             </span>
                         </a>
                     </div>
@@ -642,7 +642,7 @@
                     <div class="settingdivblue">
                         <a href="{{ url('api') }}">
                             <span class="fa-stack fa-2x">
-                                <i class="fas fa-cogs fa-stack-1x"></i>
+                                <i class="fa-solid fa-gears fa-stack-1x"></i>
                             </span>
                         </a>
                     </div>
@@ -667,7 +667,7 @@
                     <div class="settingdivblue">
                         <a href="{{ url('logs') }}">
                             <span class="fa-stack fa-2x">
-                                <i class="fas fa-lock fa-stack-1x"></i>
+                                <i class="fa-solid fa-lock fa-stack-1x"></i>
                             </span>
                         </a>
                     </div>

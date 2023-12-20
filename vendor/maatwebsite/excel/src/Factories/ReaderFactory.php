@@ -27,7 +27,7 @@ class ReaderFactory
      *
      * @throws Exception
      */
-    public static function make($import, TemporaryFile $file, string $readerType = null): IReader
+    public static function make($import, TemporaryFile $file, ?string $readerType = null): IReader
     {
         $reader = IOFactory::createReader(
             $readerType ?: static::identify($file)
@@ -81,7 +81,7 @@ class ReaderFactory
         try {
             return IOFactory::identify($temporaryFile->getLocalPath());
         } catch (Exception $e) {
-            throw new NoTypeDetectedException(null, null, $e);
+            throw new NoTypeDetectedException('', 0, $e);
         }
     }
 }

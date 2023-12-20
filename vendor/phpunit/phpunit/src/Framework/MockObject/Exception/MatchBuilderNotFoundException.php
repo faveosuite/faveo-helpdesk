@@ -12,6 +12,8 @@ namespace PHPUnit\Framework\MockObject;
 use function sprintf;
 
 /**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final class MatchBuilderNotFoundException extends \PHPUnit\Framework\Exception implements Exception
@@ -21,8 +23,8 @@ final class MatchBuilderNotFoundException extends \PHPUnit\Framework\Exception i
         parent::__construct(
             sprintf(
                 'No builder found for match builder identification <%s>',
-                $id
-            )
+                $id,
+            ),
         );
     }
 }

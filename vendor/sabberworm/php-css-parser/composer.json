@@ -1,26 +1,42 @@
 {
     "name": "sabberworm/php-css-parser",
-    "type": "library",
     "description": "Parser for CSS Files written in PHP",
+    "license": "MIT",
+    "type": "library",
     "keywords": [
         "parser",
         "css",
         "stylesheet"
     ],
-    "homepage": "https://www.sabberworm.com/blog/2010/6/10/php-css-parser",
-    "license": "MIT",
     "authors": [
         {
             "name": "Raphael Schweikert"
+        },
+        {
+            "name": "Oliver Klee",
+            "email": "github@oliverklee.de"
+        },
+        {
+            "name": "Jake Hotson",
+            "email": "jake.github@qzdesign.co.uk"
         }
     ],
+    "homepage": "https://www.sabberworm.com/blog/2010/6/10/php-css-parser",
     "require": {
-        "php": ">=5.6.20",
+        "php": "^7.2.0 || ~8.0.0 || ~8.1.0 || ~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0 || ~8.6.0",
         "ext-iconv": "*"
     },
     "require-dev": {
-        "phpunit/phpunit": "^4.8.36",
-        "codacy/coverage": "^1.4"
+        "php-parallel-lint/php-parallel-lint": "1.4.0",
+        "phpstan/extension-installer": "1.4.3",
+        "phpstan/phpstan": "1.12.33 || 2.2.9",
+        "phpstan/phpstan-phpunit": "1.4.2 || 2.0.18",
+        "phpstan/phpstan-strict-rules": "1.6.2 || 2.0.12",
+        "phpunit/phpunit": "8.5.54",
+        "rawr/phpunit-data-provider": "3.3.1",
+        "rector/rector": "1.2.10 || 2.6.2",
+        "rector/type-perfect": "1.0.0 || 2.1.4",
+        "squizlabs/php_codesniffer": "4.0.4"
     },
     "suggest": {
         "ext-mbstring": "for parsing UTF-8 CSS"
@@ -28,42 +44,96 @@
     "autoload": {
         "psr-4": {
             "Sabberworm\\CSS\\": "src/"
-        }
+        },
+        "files": [
+            "src/Rule/Rule.php",
+            "src/RuleSet/RuleContainer.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
             "Sabberworm\\CSS\\Tests\\": "tests/"
         }
     },
+    "config": {
+        "allow-plugins": {
+            "phpstan/extension-installer": true
+        },
+        "preferred-install": {
+            "*": "dist"
+        },
+        "sort-packages": true
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-main": "9.6.x-dev"
+        }
+    },
     "scripts": {
-        "ci": [
-            "@ci:static"
+        "check": [
+            "@check:static",
+            "@check:dynamic"
         ],
-        "ci:php:fixer": "@php ./.phive/php-cs-fixer.phar --config=config/php-cs-fixer.php fix --dry-run -v --show-progress=dots bin src tests",
-        "ci:php:sniffer": "@php ./.phive/phpcs.phar --standard=config/phpcs.xml bin src tests",
-        "ci:php:stan": "@php ./.phive/phpstan.phar --configuration=config/phpstan.neon",
-        "ci:static": [
-            "@ci:php:fixer",
-            "@ci:php:sniffer",
-            "@ci:php:stan"
+        "check:composer:normalize": "\"./.phive/composer-normalize\" --no-check-lock --dry-run",
+        "check:dynamic": [
+            "@check:tests"
         ],
+        "check:php:cs-fixer": "\"./.phive/php-cs-fixer\" fix --config=./Build/php-cs-fixer/config.php -v --dry-run --diff --show-progress=dots Build bin src tests",
+        "check:php:lint": "parallel-lint Build bin src tests",
+        "check:php:rector": "rector process --no-progress-bar --dry-run --config=./Build/rector/config.php",
+        "check:php:sniff": "phpcs --standard=./Build/phpcs/config.xml Build bin src tests",
+        "check:php:stan": "phpstan --no-progress -v --configuration=./Build/phpstan/phpstan.neon",
+        "check:static": [
+            "@check:composer:normalize",
+            "@check:php:lint",
+            "@check:php:rector",
+            "@check:php:sniff",
+            "@check:php:stan",
+            "@check:php:cs-fixer"
+        ],
+        "check:tests": [
+            "@check:tests:unit"
+        ],
+        "check:tests:coverage": "phpunit --config=./Build/phpunit/config.xml --do-not-cache-result --coverage-clover=coverage.xml",
+        "check:tests:sof": "phpunit --stop-on-failure --config=./Build/phpunit/config.xml --do-not-cache-result",
+        "check:tests:unit": "phpunit --config=./Build/phpunit/config.xml --do-not-cache-result",
+        "fix": [
+            "@fix:php"
+        ],
+        "fix:composer:normalize": "\"./.phive/composer-normalize\" --no-check-lock",
         "fix:php": [
-            "@fix:php:fixer",
-            "@fix:php:sniffer"
+            "@fix:composer:normalize",
+            "@fix:php:rector",
+            "@fix:php:sniff",
+            "@fix:php:cs-fixer"
         ],
-        "fix:php:fixer": "@php ./.phive/php-cs-fixer.phar --config=config/php-cs-fixer.php fix bin src tests",
-        "fix:php:sniffer": "@php ./.phive/phpcbf.phar --standard=config/phpcs.xml bin src tests",
-        "phpstan:baseline": "@php ./.phive/phpstan.phar --configuration=config/phpstan.neon --generate-baseline=config/phpstan-baseline.neon"
+        "fix:php:cs-fixer": "\"./.phive/php-cs-fixer\" fix --config=./Build/php-cs-fixer/config.php Build bin src tests",
+        "fix:php:rector": "rector process --config=./Build/rector/config.php",
+        "fix:php:sniff": "phpcbf --standard=./Build/phpcs/config.xml Build bin src tests",
+        "phpstan:baseline": "phpstan --configuration=./Build/phpstan/phpstan.neon --allow-empty-baseline --generate-baseline=./Build/phpstan/phpstan-baseline.neon",
+        "phpstan:clearcache": "phpstan clear-result-cache"
     },
     "scripts-descriptions": {
-        "ci": "Runs all dynamic and static code checks (i.e. currently, only the static checks).",
-        "ci:php:fixer": "Checks the code style with PHP CS Fixer.",
-        "ci:php:sniffer": "Checks the code style with PHP_CodeSniffer.",
-        "ci:php:stan": "Checks the types with PHPStan.",
-        "ci:static": "Runs all static code analysis checks for the code.",
-        "fix:php": "Autofixes all autofixable issues in the PHP code.",
-        "fix:php:fixer": "Fixes autofixable issues found by PHP CS Fixer.",
-        "fix:php:sniffer": "Fixes autofixable issues found by PHP_CodeSniffer.",
-        "phpstand:baseline": "Updates the PHPStan baseline file to match the code."
+        "check": "Runs all dynamic and static code checks.",
+        "check:composer:normalize": "Checks the composer.json.",
+        "check:dynamic": "Runs all dynamic code checks (i.e., currently, the unit tests).",
+        "check:php:cs-fixer": "Checks the code style with the PHP Coding Standards Fixer (PHP-CS-Fixer).",
+        "check:php:lint": "Lints the PHP files for syntax errors.",
+        "check:php:rector": "Checks for code for changes by Rector.",
+        "check:php:sniff": "Checks the code style with PHP_CodeSniffer (PHPCS).",
+        "check:php:stan": "Checks the PHP types using PHPStan.",
+        "check:static": "Runs all static code checks (syntax, style, types).",
+        "check:tests": "Runs all dynamic tests (i.e., currently, the unit tests).",
+        "check:tests:coverage": "Runs the unit tests with code coverage.",
+        "check:tests:sof": "Runs the unit tests and stops at the first failure.",
+        "check:tests:unit": "Runs the unit tests.",
+        "fix": "Runs all automatic code style fixes.",
+        "fix:composer:normalize": "Normalizes composer.json file content.",
+        "fix:php": "Runs all fixers for the PHP code.",
+        "fix:php:cs-fixer": "Fixes the code style with PHP-CS-Fixer.",
+        "fix:php:rector": "Updates the code with Rector.",
+        "fix:php:sniff": "Fixes the code style with PHP_CodeSniffer.",
+        "phpstan:baseline": "Updates the PHPStan baseline file to match the code.",
+        "phpstan:clearcache": "Clears the PHPStan cache."
     }
 }

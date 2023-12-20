@@ -1,7 +1,7 @@
 This is the PHP port of Hamcrest Matchers
 =========================================
 
-[![Build Status](https://travis-ci.org/hamcrest/hamcrest-php.png?branch=master)](https://travis-ci.org/hamcrest/hamcrest-php)
+[![tests](https://github.com/hamcrest/hamcrest-php/actions/workflows/ci.yml/badge.svg)](https://github.com/hamcrest/hamcrest-php/actions/workflows/ci.yml)
 
 Hamcrest is a matching library originally written for Java, but
 subsequently ported to many other languages.  hamcrest-php is the
@@ -47,7 +47,7 @@ Usage
 Hamcrest matchers are easy to use as:
 
 ```php
-Hamcrest_MatcherAssert::assertThat('a', Hamcrest_Matchers::equalToIgnoringCase('A'));
+\Hamcrest\MatcherAssert::assertThat('a', \Hamcrest\Matchers::equalToIgnoringCase('A'));
 ```
 
 Alternatively, you can use the global proxy-functions:
@@ -67,11 +67,21 @@ assertThat($result === true);
 assertThat(true, is(true));
 ```
 
-:warning: **NOTE:** the global proxy-functions aren't autoloaded by default, so you will need to load them first:
+> [!NOTE]
+> To prevent tests from being marked as Risky (the `This test did not perform any assertions` message)
+> add this code to your test case `tearDown` method:
+>
+> ```php
+> $this->addToAssertionCount(\Hamcrest\MatcherAssert::getCount());
+> \Hamcrest\MatcherAssert::resetCount();
+> ```
 
-```php
-\Hamcrest\Util::registerGlobalFunctions();
-```
+> [!WARNING]
+> the global proxy-functions aren't autoloaded by default, so you will need to load them first:
+>
+> ```php
+> \Hamcrest\Util::registerGlobalFunctions();
+> ```
 
 For brevity, all of the examples below use the proxy-functions.
 
@@ -133,7 +143,7 @@ assertThat(['name'=> 'foobar'], hasKeyInArray('name'));
 
 * `hasKey` - alias of hasKeyInArray
 
-* `hasKeyValuePair` - check if arary has given key, value pair
+* `hasKeyValuePair` - check if array has given key, value pair
 ```php
 assertThat(['name'=> 'foobar'], hasKeyValuePair('name', 'foobar'));
 ```
@@ -143,7 +153,7 @@ assertThat(['name'=> 'foobar'], hasKeyValuePair('name', 'foobar'));
 ```php
 assertthat([2, 4, 6], arrayWithSize(3));
 ```
-* `emptyArray` - check if array is emtpy
+* `emptyArray` - check if array is empty
 ```php
 assertThat([], emptyArray());
 ```
@@ -222,7 +232,7 @@ assertThat([2, 4, 6], everyItem(notNullValue()));
 assertThat([2, 4, 6], hasItem(equalTo(2)));
 ```
 
-* `hasItems` - check array has givem items, it can take multiple matcher as arguments
+* `hasItems` - check array has given items, it can take multiple matcher as arguments
 ```php
 assertThat([1, 3, 5], hasItems(equalTo(1), equalTo(3)));
 ```
@@ -456,7 +466,7 @@ $fp = fopen("/tmp/foo", "w+");
 assertThat($fp, resourceValue());
 ```
 
-* `scalarValue` - check for scaler value
+* `scalarValue` - check for scalar value
 ```php
 assertThat(1, scalarValue());
 ```

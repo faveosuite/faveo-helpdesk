@@ -13,7 +13,7 @@
 >
     <testsuites>
         <testsuite name="Fetch Test Suite">
-            <directory>./tests</directory>
+            <directory>./tests/Fetch</directory>
         </testsuite>
     </testsuites>
     <filter>

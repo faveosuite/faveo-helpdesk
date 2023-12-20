@@ -84,12 +84,12 @@ foreach($segments as $seg){
                 last = false;
                 create = true;
                 sort = [[7, "desc"]]
-                $('a.toggle-vis').html('<i class="fas fa-clock" style="color:green;"> </i> {!!Lang::get("lang.last_activity")!!}');
+                $('a.toggle-vis').html('<i class="fa-solid fa-clock" style="color:green;"> </i> {!!Lang::get("lang.last_activity")!!}');
             } else {
                 last = true;
                 create = false;
                 sort = [[6, "desc"]]
-                $('a.toggle-vis').html('<i class="fas fa-plus" style="color:green;"> </i> {!!Lang::get("lang.created-at")!!}');
+                $('a.toggle-vis').html('<i class="fa-solid fa-plus" style="color:green;"> </i> {!!Lang::get("lang.created-at")!!}');
 
             }
             $("#chumper").dataTable().fnDestroy();

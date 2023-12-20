@@ -1,0 +1,284 @@
+i.site-content .fa-ul > li a,
+footer ul.media-list a,
+.site-info.col-md-6 a,
+.navbar .navbar-nav>li>a,
+#tweets-list a, div#login-form a,
+.accordion .accordion-toggle,
+.breadcrumb-custom > li a, .archive-article .hentry a,
+header.entry-header a, .media-body a, a {
+    text-decoration: none;
+}
+.small, small {
+    font-size: 80%;
+    font-weight: 400;
+}
+.list-group-item {
+    position: relative;
+    display: block;
+    padding: 0.75rem 1.25rem;
+    margin-bottom: -1px;
+    background-color: #fff;
+    border: 1px solid rgba(0,0,0,.125);
+}
+.list-group-item-action {
+    width: 100%;
+    color: #495057;
+    text-align: inherit;
+}
+.list-group-item-action:focus, .list-group-item-action:hover {
+    z-index: 1;
+    color: #495057;
+    text-decoration: none;
+    background-color: #f8f9fa;
+}
+.section-title > i.line {
+    right: 0;
+}
+.mr-3, .mx-3 {
+    margin-left: 1rem!important;
+}
+footer ul.media-list {
+    list-style-type: none;
+}
+.navbar-brand {
+    display: inline-block;
+    padding-top: 0.3125rem;
+    padding-bottom: 0.3125rem;
+    margin-left: 1rem;
+    font-size: 1.25rem;
+    line-height: inherit;
+    white-space: nowrap;
+}
+.twitterbar .tweets-control {
+    margin-bottom: 0;
+    position: absolute;
+    left: 0;
+    top: 40px;
+}
+.twitterbar .tweets-control li {
+    display: inline-block;
+    width: 28px;
+    height: 30px;
+    position: relative;
+}
+.twitterbar .tweets-control a {
+    display: block;
+    width: 100%;
+}
+.twitterbar .tweets-control a {
+    border-color: #ddd;
+    background-color: #fff;
+    opacity: 1;
+    border: 1px solid;
+}
+.twitterbar .tweets-control a:hover {
+    color: #999;
+    -webkit-box-shadow: 0 1px 3px rgb(0 0 0 / 5%);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 5%);
+}
+.switcher-toggle {
+    width: 100px;
+    background-color: #fff;
+    height: 40px;
+    border-radius: 20px;
+    margin-right: 20px;
+    border: 1px solid #ddd;
+    padding: 4px;
+    position: relative;
+    cursor: pointer;
+}
+.switcher-toggle span.icon {
+    height: 30px;
+    width: 30px;
+    display: block;
+    background-color: #000;
+    border-radius: 22px;
+    position: absolute;
+    right: 4px;
+    left: auto;
+
+}
+.dark-mode, .dark-mode .site,
+.dark-mode .site-header, .dark-mode .site-footer {
+    background: #000 !important;
+}
+.dark-mode .navbar, .dark-mode .site-main .content-area{
+    background-color: #000 !important;
+}
+.dark-mode .switcher-toggle span.icon {
+    right: auto;
+    left: 4px;
+}
+.dark-mode .navbar .navbar-nav>li>a,
+.dark-mode .navbar i.sub-indicator.fa {
+    /* color: #fff;*/
+}
+.dark-mode .note-icon-caret,
+.dark-mode .note-current-fontsize,
+.dark-mode .far .fa-square::before {
+    color: #000b16 !important;
+}
+.dark-mode .note-icon-caret,
+.dark-mode .note-current-fontsize,
+.dark-mode .widgetitemtitle
+{
+    color: #337ab7 !important;
+}
+.dark-mode .text-red{
+    color: red !important;
+}
+
+.dark-mode span, .dark-mode p,
+.dark-mode .ticket-table,
+.dark-mode .table,
+.dark-mode.reply, .dark-mode .ticketratingtitle,
+.dark-mode .comment-reply-title,
+.dark-mode .note-editable,
+.dark-mode .label,
+.dark-mode .float-right,
+.dark-mode .box-categories .section-title,
+.dark-mode .site-content .fa-ul > li a,
+.dark-mode .banner-horizontal .banner-title,
+.dark-mode .banner-horizontal .banner-content p,
+.dark-mode #section-banner .banner-content p,
+.dark-mode .section-title,
+.dark-mode footer p,
+.dark-mode .box-categories .fa-ul > li > *,
+.dark-mode .fa-regular,
+.dark-mode footer small.text-muted,
+.dark-mode .site-content .section .fa-ul > li > .meta > *,
+.dark-mode header.entry-header h1,
+.dark-mode .entry-content,
+.dark-mode h4.panel-title.h4 a,
+.dark-mode h1.archive-title,
+.dark-mode .archive-list .entry-footer span,
+.dark-mode .archive-article .entry-header > .fa-fw,
+.dark-mode header.entry-header span,
+.dark-mode .comment-content,
+.dark-mode .comment-author .fn,
+.dark-mode .comment-author .fn a,
+.dark-mode .entry-attribute strong,
+.dark-mode footer.entry-footer small,
+.dark-mode .entry-summary,
+.dark-mode form#commentform label,
+.dark-mode .fa-ul i,
+.dark-mode .error404 .error-title,
+.dark-mode .error404 ,
+.dark-mode .h2,
+.dark-mode .entry-title,
+.dark-mode.section-title .text-muted.text-info.nav-item {
+    color: #fff !important;
+}
+
+.dark-mode div#respond, .dark-mode form.contact-form{
+    background-color: #0000;
+}
+div#respond .form-group {
+    margin-bottom: 1rem;
+}
+/*.addrotate {*/
+/*!*    transform: rotate(180deg);*!*/
+/*!*}*!*/
+#login-form .form-group, form.contact-form .form-group {
+    margin-bottom: 1rem;
+}
+.dark-mode button.navbar-toggler.custom-toggler {
+    background-color: #fff;
+    border-color: #fff;
+}
+.m-none {
+    display: none;
+}
+.desk_none{
+    display: block;
+}
+#respond .media {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-align: start;
+    align-items: flex-start;
+}
+form#commentform label, form.contact-form label {
+    display: inline-block;
+    margin-bottom: 0.5rem;
+}
+.custom_alert .close {
+    position: absolute;
+    line-height: 20px;
+    left: 21px;
+}
+.custom_alert .fa {
+    float: right;
+    margin-right: -26px;
+    font-size: 3em;
+}
+.error404 .search-form .form-group {
+    margin: auto;
+    justify-content: center;
+}
+ul.dropdown-menu a.dropdown-item.active{
+    background: none !important;
+    color: #b00 !important;
+}
+.share-links .text-muted.mr-2 {
+    margin-left: 0.5rem;
+}
+.rate-post li .btn-social {
+    color: #666 !important;
+    background: #eee !important;
+    border-color: transparent !important;
+    border-radius: 0 !important;
+}
+
+
+
+
+
+@media (min-width: 576px){
+    .form-inline .form-group {
+        display: -ms-flexbox;
+        display: flex;
+        -ms-flex: 0 0 auto;
+        flex: 0 0 auto;
+        -ms-flex-flow: row wrap;
+        flex-flow: row wrap;
+        -ms-flex-align: center;
+        align-items: center;
+        margin-bottom: 0;
+    }
+    .form-inline .form-control {
+        display: inline-block;
+        width: auto;
+        vertical-align: middle;
+    }
+    .site-navigation .dropdown-menu {
+        margin-right: -300px !important;
+    }
+}
+
+
+
+@media(max-width: 992px){
+    .navbar .login-form {
+        top: 24px;
+    }
+    .switcher-toggle span.icon {
+        height: 24px;
+        width: 24px;
+        top: 3px;
+        right: 4px;
+        left: auto;
+    }
+    .switcher-toggle {
+        float: left;
+        width: 80px;
+        height: 32px;
+        margin-top: 10px;
+    }
+    .m-none {
+        display: block;
+    }
+    .desk_none{
+        display: none;
+    }
+}

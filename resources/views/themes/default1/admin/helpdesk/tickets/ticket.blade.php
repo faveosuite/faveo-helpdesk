@@ -18,6 +18,7 @@
         <!-- AdminLTE Skins. Choose a skin from the css/skins
              folder instead of downloading all of them to reduce the load. -->
         <link href="dist/css/skins/_all-skins.min.css" rel="stylesheet" type="text/css" />
+        <link href="{{asset("css/common.css")}}" rel="stylesheet" type="text/css" />
         <!-- iCheck -->
         <link href="plugins/iCheck/flat/blue.css" rel="stylesheet" type="text/css" />
         <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -30,15 +31,15 @@
         <![endif]-->
     </head>
     <body class="skin-blue">
-        <div class="wrapper">
+        <div class="app-wrapper">
 
             <header class="main-header">
                 <a href="../../index2.html" class="logo"><b>Faveo</b> HELP DESK</a>
                 <!-- Header Navbar: style can be found in header.less -->
                 <nav class="navbar navbar-static-top" role="navigation">
                     <!-- Sidebar toggle button-->
-                    <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
-                        <span class="sr-only">Toggle navigation</span>
+                    <a href="#" class="sidebar-toggle" data-bs-toggle="offcanvas" role="button">
+                        <span class="visually-hidden">Toggle navigation</span>
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
@@ -46,14 +47,14 @@
                     <!-- Collect the nav links, forms, and other content for toggling -->
                     <div class="collapse navbar-collapse" id="navbar-collapse">
                         <ul class="tabs tabs-horizontal nav navbar-nav">
-                            <li class="active"><a data-target="#tabA" href="#">Home</a></li>
-                            <li><a data-target="#tabB" href="#">Staff</a></li>
-                            <li><a data-target="#tabC" href="#">Department</a></li>
-                            <li><a data-target="#tabD" href="#">Users</a></li>
+                            <li class="active"><a data-bs-target="#tabA" href="#">Home</a></li>
+                            <li><a data-bs-target="#tabB" href="#">Staff</a></li>
+                            <li><a data-bs-target="#tabC" href="#">Department</a></li>
+                            <li><a data-bs-target="#tabD" href="#">Users</a></li>
                         </ul>
                         <ul class="nav navbar-nav navbar-right">
                             <li class="dropdown user user-menu">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
                                     <img src="dist/img/user2-160x160.jpg" class="user-image" alt="User Image"/>
                                     <span class="hidden-xs">Alexander Pierce</span>
                                 </a>
@@ -68,23 +69,23 @@
                                     </li>
                                     <!-- Menu Body -->
                                     <li class="user-body">
-                                        <div class="col-xs-4 text-center">
+                                        <div class="col-4 text-center">
                                             <a href="#">Followers</a>
                                         </div>
-                                        <div class="col-xs-4 text-center">
+                                        <div class="col-4 text-center">
                                             <a href="#">Sales</a>
                                         </div>
-                                        <div class="col-xs-4 text-center">
+                                        <div class="col-4 text-center">
                                             <a href="#">Friends</a>
                                         </div>
                                     </li>
                                     <!-- Menu Footer-->
                                     <li class="user-footer">
                                         <div class="pull-left">
-                                            <a href="#" class="btn btn-default btn-flat">Profile</a>
+                                            <a href="#" class="btn btn-secondary ">Profile</a>
                                         </div>
                                         <div class="pull-right">
-                                            <a href="#" class="btn btn-default btn-flat">Sign out</a>
+                                            <a href="#" class="btn btn-secondary ">Sign out</a>
                                         </div>
                                     </li>
                                 </ul>
@@ -93,7 +94,7 @@
 
 
                         <!-- <form class="navbar-form navbar-left" role="search">
-                          <div class="form-group">
+                          <div class="mb-3">
                             <input type="text" class="form-control" id="navbar-search-input" placeholder="Search">
                           </div>
                         </form> -->
@@ -102,7 +103,7 @@
                 </nav>
             </header>
             <!-- Left side column. contains the logo and sidebar -->
-            <aside class="main-sidebar">
+            <aside class="app-sidebar">
                 <!-- sidebar: style can be found in sidebar.less -->
                 <section class="sidebar">
                     <!-- Sidebar user panel -->
@@ -111,7 +112,7 @@
                         <div class="input-group">
                             <input type="text" name="q" class="form-control" placeholder="Search..."/>
                             <span class="input-group-btn">
-                                <button type='submit' name='seach' id='search-btn' class="btn btn-flat"><i class="fa fa-search"></i></button>
+                                <button type='submit' name='seach' id='search-btn' class="btn "><i class="fa-solid fa-magnifying-glass"></i></button>
                             </span>
                         </div>
                     </form>
@@ -121,57 +122,57 @@
                         <li class="header">TICKETS</li>
                         <li>
                             <a href="../widgets.html">
-                                <i class="fa fa-envelope"></i> <span>Inbox</span> <small class="label pull-right bg-green">5</small>
+                                <i class="fa-solid fa-envelope"></i> <span>Inbox</span> <small class="badge float-end text-bg-success">5</small>
                             </a>
                         </li>
                         <li>
                             <a href="../widgets.html">
-                                <i class="fa fa-user"></i> <span>My Tickets</span> <small class="label pull-right bg-green">2</small>
+                                <i class="fa-solid fa-user"></i> <span>My Tickets</span> <small class="badge float-end text-bg-success">2</small>
                             </a>
                         </li>
                         <li>
                             <a href="../widgets.html">
-                                <i class="fa fa-th"></i> <span>Unassigned</span> <small class="label pull-right bg-green">4</small>
+                                <i class="fa-solid fa-th"></i> <span>Unassigned</span> <small class="badge float-end text-bg-success">4</small>
                             </a>
                         </li>
                         <li>
                             <a href="../widgets.html">
-                                <i class="fa fa-trash-o"></i> <span>Trash</span> <small class="label pull-right bg-green">89</small>
+                                <i class="fa-solid fa-trash-o"></i> <span>Trash</span> <small class="badge float-end text-bg-success">89</small>
                             </a>
                         </li>
                         <li class="treeview">
                             <a href="#">
-                                <i class="fa fa-folder-open"></i> <span>General</span> <i class="fa fa-angle-left pull-right"></i>
+                                <i class="fa-solid fa-folder-open"></i> <span>General</span> <i class="fa-solid fa-angle-left pull-right"></i>
                             </a>
                             <ul class="treeview-menu">
-                                <li><a href=""><i class="fa fa-circle-o"></i>Open<small class="label pull-right bg-green">4</small></a></li>
-                                <li><a href=""><i class="fa fa-circle-o"></i>Inprogress<small class="label pull-right bg-green">3</small></a></li>
-                                <li><a href=""><i class="fa fa-circle-o"></i>Closed<small class="label pull-right bg-green">55</small></a></li>
+                                <li><a href=""><i class="fa-solid fa-circle-o"></i>Open<small class="badge float-end text-bg-success">4</small></a></li>
+                                <li><a href=""><i class="fa-solid fa-circle-o"></i>Inprogress<small class="badge float-end text-bg-success">3</small></a></li>
+                                <li><a href=""><i class="fa-solid fa-circle-o"></i>Closed<small class="badge float-end text-bg-success">55</small></a></li>
                             </ul>
                         </li>
                         <li class="treeview">
                             <a href="#">
-                                <i class="fa fa-folder-open"></i> <span>Support</span> <i class="fa fa-angle-left pull-right"></i>
+                                <i class="fa-solid fa-folder-open"></i> <span>Support</span> <i class="fa-solid fa-angle-left pull-right"></i>
                             </a>
                             <ul class="treeview-menu">
-                                <li><a href=""><i class="fa fa-circle-o"></i>Open<small class="label pull-right bg-green">1</small></a></li>
-                                <li><a href=""><i class="fa fa-circle-o"></i>Inprogress<small class="label pull-right bg-green">6</small></a></li>
-                                <li><a href=""><i class="fa fa-circle-o"></i>Closed<small class="label pull-right bg-green">88</small></a></li>
+                                <li><a href=""><i class="fa-solid fa-circle-o"></i>Open<small class="badge float-end text-bg-success">1</small></a></li>
+                                <li><a href=""><i class="fa-solid fa-circle-o"></i>Inprogress<small class="badge float-end text-bg-success">6</small></a></li>
+                                <li><a href=""><i class="fa-solid fa-circle-o"></i>Closed<small class="badge float-end text-bg-success">88</small></a></li>
                             </ul>
                         </li>
 
 
                         <li class="header">LABELS</li>
-                        <li><a href="#"><i class="fa fa-circle-o text-danger"></i> Important</a></li>
-                        <li><a href="#"><i class="fa fa-circle-o text-warning"></i> Warning</a></li>
-                        <li><a href="#"><i class="fa fa-circle-o text-info"></i> Information</a></li>
+                        <li><a href="#"><i class="fa-solid fa-circle-o text-danger"></i> Important</a></li>
+                        <li><a href="#"><i class="fa-solid fa-circle-o text-warning"></i> Warning</a></li>
+                        <li><a href="#"><i class="fa-solid fa-circle-o text-info"></i> Information</a></li>
                     </ul>
                 </section>
                 <!-- /.sidebar -->
             </aside>
 
             <!-- Right side column. Contains the navbar and content of the page -->
-            <div class="content-wrapper">
+            <div class="app-main">
                 <!-- Content Header (Page header) -->
                 <div class="tab-content" style="background-color: white;padding: 0 20px 0 20px">
                     <div class="collapse navbar-collapse" id="navbar-collapse">
@@ -203,18 +204,18 @@
                         </div>
                     </div>
                 </div>
-                <section class="content-header">
+                <section class="app-content-header">
                     <h1>
                         Tickets
                     </h1>
                     <ol class="breadcrumb">
-                        <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+                        <li><a href="#"><i class="fa-solid fa-dashboard"></i> Home</a></li>
                         <li class="active">Mailbox</li>
                     </ol>
                 </section>
 
                 <!-- Main content -->
-                <section class="content">
+                <section class="app-content">
 
                     <div class="row">
                         <div class="col-md-12">
@@ -231,18 +232,18 @@
                                 <div class="box-body no-padding">
                                     <div class="mailbox-controls">
                                         <!-- Check all button -->
-                                        <button class="btn btn-default btn-sm checkbox-toggle"><i class="fa fa-square-o"></i></button>
+                                        <button class="btn btn-secondary btn-sm checkbox-toggle"><i class="fa-solid fa-square-o"></i></button>
                                         <div class="btn-group">
-                                            <button class="btn btn-default btn-sm"><i class="fa fa-trash-o"></i></button>
-                                            <button class="btn btn-default btn-sm"><i class="fa fa-reply"></i></button>
-                                            <button class="btn btn-default btn-sm"><i class="fa fa-share"></i></button>
+                                            <button class="btn btn-secondary btn-sm"><i class="fa-solid fa-trash-o"></i></button>
+                                            <button class="btn btn-secondary btn-sm"><i class="fa-solid fa-reply"></i></button>
+                                            <button class="btn btn-secondary btn-sm"><i class="fa-solid fa-share"></i></button>
                                         </div><!-- /.btn-group -->
-                                        <button class="btn btn-default btn-sm"><i class="fa fa-refresh"></i></button>
+                                        <button class="btn btn-secondary btn-sm"><i class="fa-solid fa-refresh"></i></button>
                                         <div class="pull-right">
                                             1-5 /5
                                             <div class="btn-group">
-                                                <button class="btn btn-default btn-sm"><i class="fa fa-chevron-left"></i></button>
-                                                <button class="btn btn-default btn-sm"><i class="fa fa-chevron-right"></i></button>
+                                                <button class="btn btn-secondary btn-sm"><i class="fa-solid fa-chevron-left"></i></button>
+                                                <button class="btn btn-secondary btn-sm"><i class="fa-solid fa-chevron-right"></i></button>
                                             </div><!-- /.btn-group -->
                                         </div><!-- /.pull-right -->
                                     </div>
@@ -279,7 +280,7 @@
 
                                                 <tr>
                                                     <td><input type="checkbox" /></td>
-                                                    <td class="mailbox-star"><a href="#"><i class="fa fa-star text-yellow"></i></a></td>
+                                                    <td class="mailbox-star"><a href="#"><i class="fa-solid fa-star text-yellow"></i></a></td>
                                                     @foreach($threads as $thread)
                                                     <td class="mailbox-name"><a href="timeline.html">{{$thread->ticket_subject}}</a></td>
 
@@ -293,7 +294,7 @@
                                             </tr>
                                             <tr>
                                                 <td><input type="checkbox" /></td>
-                                                <td class="mailbox-star"><a href="#"><i class="fa fa-star text-yellow"></i></a></td>
+                                                <td class="mailbox-star"><a href="#"><i class="fa-solid fa-star text-yellow"></i></a></td>
                                                 <td class="mailbox-name"><a href="timeline.html">Testing</a></td>
                                                 <td class="mailbox-Id">#12345</td>
                                                 <td class="mailbox-last-reply">client</td>
@@ -304,7 +305,7 @@
                                             </tr>
                                             <tr>
                                                 <td><input type="checkbox" /></td>
-                                                <td class="mailbox-star"><a href="#"><i class="fa fa-star text-yellow"></i></a></td>
+                                                <td class="mailbox-star"><a href="#"><i class="fa-solid fa-star text-yellow"></i></a></td>
                                                 <td class="mailbox-name"><a href="timeline.html">Testing</a></td>
                                                 <td class="mailbox-Id">#12345</td>
                                                 <td class="mailbox-last-reply">client</td>
@@ -315,7 +316,7 @@
                                             </tr>
                                             <tr>
                                                 <td><input type="checkbox" /></td>
-                                                <td class="mailbox-star"><a href="#"><i class="fa fa-star text-yellow"></i></a></td>
+                                                <td class="mailbox-star"><a href="#"><i class="fa-solid fa-star text-yellow"></i></a></td>
                                                 <td class="mailbox-name"><a href="timeline.html">Testing</a></td>
                                                 <td class="mailbox-Id">#12345</td>
                                                 <td class="mailbox-last-reply">client</td>
@@ -326,7 +327,7 @@
                                             </tr>
                                             <tr>
                                                 <td><input type="checkbox" /></td>
-                                                <td class="mailbox-star"><a href="#"><i class="fa fa-star text-yellow"></i></a></td>
+                                                <td class="mailbox-star"><a href="#"><i class="fa-solid fa-star text-yellow"></i></a></td>
                                                 <td class="mailbox-name"><a href="timeline.html">Testing</a></td>
                                                 <td class="mailbox-Id">#12345</td>
                                                 <td class="mailbox-last-reply">client</td>
@@ -343,18 +344,18 @@
                                 <div class="box-footer no-padding">
                                     <div class="mailbox-controls">
                                         <!-- Check all button -->
-                                        <button class="btn btn-default btn-sm checkbox-toggle"><i class="fa fa-square-o"></i></button>
+                                        <button class="btn btn-secondary btn-sm checkbox-toggle"><i class="fa-solid fa-square-o"></i></button>
                                         <div class="btn-group">
-                                            <button class="btn btn-default btn-sm"><i class="fa fa-trash-o"></i></button>
-                                            <button class="btn btn-default btn-sm"><i class="fa fa-reply"></i></button>
-                                            <button class="btn btn-default btn-sm"><i class="fa fa-share"></i></button>
+                                            <button class="btn btn-secondary btn-sm"><i class="fa-solid fa-trash-o"></i></button>
+                                            <button class="btn btn-secondary btn-sm"><i class="fa-solid fa-reply"></i></button>
+                                            <button class="btn btn-secondary btn-sm"><i class="fa-solid fa-share"></i></button>
                                         </div><!-- /.btn-group -->
-                                        <button class="btn btn-default btn-sm"><i class="fa fa-refresh"></i></button>
+                                        <button class="btn btn-secondary btn-sm"><i class="fa-solid fa-refresh"></i></button>
                                         <div class="pull-right">
                                             1-5/5
                                             <div class="btn-group">
-                                                <button class="btn btn-default btn-sm"><i class="fa fa-chevron-left"></i></button>
-                                                <button class="btn btn-default btn-sm"><i class="fa fa-chevron-right"></i></button>
+                                                <button class="btn btn-secondary btn-sm"><i class="fa-solid fa-chevron-left"></i></button>
+                                                <button class="btn btn-secondary btn-sm"><i class="fa-solid fa-chevron-right"></i></button>
                                             </div><!-- /.btn-group -->
                                         </div><!-- /.pull-right -->
                                     </div>
@@ -364,7 +365,7 @@
                     </div><!-- /.row -->
                 </section><!-- /.content -->
             </div><!-- /.content-wrapper -->
-            <footer class="main-footer">
+            <footer class="app-footer">
                 <div class="pull-right hidden-xs">
                     <b>{!! Lang::get('lang.version') !!}</b> 0.1
                 </div>

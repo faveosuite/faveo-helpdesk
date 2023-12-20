@@ -1,184 +1,189 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sabberworm\CSS\Parsing;
 
 use Sabberworm\CSS\Comment\Comment;
 use Sabberworm\CSS\Settings;
 
+/**
+ * @internal since 8.7.0
+ */
 class ParserState
 {
-    /**
-     * @var null
-     */
-    const EOF = null;
+    public const EOF = null;
 
     /**
      * @var Settings
      */
-    private $oParserSettings;
+    private $parserSettings;
 
     /**
      * @var string
      */
-    private $sText;
+    private $text;
 
     /**
      * @var array<int, string>
      */
-    private $aText;
+    private $characters;
 
     /**
-     * @var int
+     * @var int<0, max>
      */
-    private $iCurrentPosition;
+    private $currentPosition = 0;
 
     /**
+     * will only be used if the CSS does not contain an `@charset` declaration
+     *
      * @var string
      */
-    private $sCharset;
+    private $charset;
 
     /**
-     * @var int
+     * @var int<1, max> $lineNumber
      */
-    private $iLength;
+    private $lineNumber;
 
     /**
-     * @var int
+     * @param string $text the complete CSS as text (i.e., usually the contents of a CSS file)
+     * @param int<1, max> $lineNumber
      */
-    private $iLineNo;
-
-    /**
-     * @param string $sText
-     * @param int $iLineNo
-     */
-    public function __construct($sText, Settings $oParserSettings, $iLineNo = 1)
+    public function __construct(string $text, Settings $parserSettings, int $lineNumber = 1)
     {
-        $this->oParserSettings = $oParserSettings;
-        $this->sText = $sText;
-        $this->iCurrentPosition = 0;
-        $this->iLineNo = $iLineNo;
-        $this->setCharset($this->oParserSettings->sDefaultCharset);
+        $this->parserSettings = $parserSettings;
+        $this->text = $text;
+        $this->lineNumber = $lineNumber;
+        $this->setCharset($this->parserSettings->getDefaultCharset());
     }
 
     /**
-     * @param string $sCharset
-     *
-     * @return void
+     * Sets the charset to be used if the CSS does not contain an `@charset` declaration.
      */
-    public function setCharset($sCharset)
+    public function setCharset(string $charset): void
     {
-        $this->sCharset = $sCharset;
-        $this->aText = $this->strsplit($this->sText);
-        if (is_array($this->aText)) {
-            $this->iLength = count($this->aText);
-        }
+        $this->charset = $charset;
+        $this->characters = $this->strsplit($this->text);
     }
 
     /**
-     * @return string
+     * @return int<1, max>
      */
-    public function getCharset()
+    public function currentLine(): int
     {
-        return $this->sCharset;
+        return $this->lineNumber;
     }
 
     /**
-     * @return int
+     * @return int<0, max>
      */
-    public function currentLine()
+    public function currentColumn(): int
     {
-        return $this->iLineNo;
+        return $this->currentPosition;
+    }
+
+    public function getSettings(): Settings
+    {
+        return $this->parserSettings;
+    }
+
+    public function anchor(): Anchor
+    {
+        return new Anchor($this->currentPosition, $this);
     }
 
     /**
-     * @return int
+     * @param int<0, max> $position
      */
-    public function currentColumn()
+    public function setPosition(int $position): void
     {
-        return $this->iCurrentPosition;
+        $this->currentPosition = $position;
     }
 
     /**
-     * @return Settings
-     */
-    public function getSettings()
-    {
-        return $this->oParserSettings;
-    }
-
-    /**
-     * @param bool $bIgnoreCase
-     *
-     * @return string
+     * @return non-empty-string
      *
      * @throws UnexpectedTokenException
      */
-    public function parseIdentifier($bIgnoreCase = true)
+    public function parseIdentifier(bool $ignoreCase = true): string
     {
-        $sResult = $this->parseCharacter(true);
-        if ($sResult === null) {
-            throw new UnexpectedTokenException($sResult, $this->peek(5), 'identifier', $this->iLineNo);
+        if ($this->isEnd()) {
+            throw new UnexpectedEOFException('', '', 'identifier', $this->lineNumber);
         }
-        $sCharacter = null;
-        while (($sCharacter = $this->parseCharacter(true)) !== null) {
-            if (preg_match('/[a-zA-Z0-9\x{00A0}-\x{FFFF}_-]/Sux', $sCharacter)) {
-                $sResult .= $sCharacter;
+        $result = $this->parseCharacter(true);
+        if ($result === null) {
+            throw new UnexpectedTokenException('', $this->peek(5), 'identifier', $this->lineNumber);
+        }
+        while (!$this->isEnd() && ($character = $this->parseCharacter(true)) !== null) {
+            $matchResult = \preg_match('/[a-zA-Z0-9\\x{00A0}-\\x{FFFF}_-]/Sux', $character);
+            if (!\is_int($matchResult)) {
+                throw new \RuntimeException('The CSS is not valid UTF-8.', 1787112617);
+            }
+            if ($matchResult !== 0) {
+                $result .= $character;
             } else {
-                $sResult .= '\\' . $sCharacter;
+                $result .= '\\' . $character;
             }
         }
-        if ($bIgnoreCase) {
-            $sResult = $this->strtolower($sResult);
+        if ($ignoreCase) {
+            $result = $this->strtolower($result);
         }
-        return $sResult;
+
+        return $result;
     }
 
     /**
-     * @param bool $bIsForIdentifier
-     *
-     * @return string|null
-     *
      * @throws UnexpectedEOFException
      * @throws UnexpectedTokenException
      */
-    public function parseCharacter($bIsForIdentifier)
+    public function parseCharacter(bool $isForIdentifier): ?string
     {
         if ($this->peek() === '\\') {
-            if (
-                $bIsForIdentifier && $this->oParserSettings->bLenientParsing
-                && ($this->comes('\0') || $this->comes('\9'))
-            ) {
-                // Non-strings can contain \0 or \9 which is an IE hack supported in lenient parsing.
-                return null;
-            }
             $this->consume('\\');
-            if ($this->comes('\n') || $this->comes('\r')) {
+            if ($this->comes('\\n') || $this->comes('\\r')) {
                 return '';
             }
-            if (preg_match('/[0-9a-fA-F]/Su', $this->peek()) === 0) {
+            $matchResult = \preg_match('/[0-9a-fA-F]/Su', $this->peek());
+            if (!\is_int($matchResult)) {
+                throw new \RuntimeException('The CSS is not valid UTF-8.', 1787112618);
+            }
+            if ($matchResult === 0) {
                 return $this->consume(1);
             }
-            $sUnicode = $this->consumeExpression('/^[0-9a-fA-F]{1,6}/u', 6);
-            if ($this->strlen($sUnicode) < 6) {
+            $hexCodePoint = $this->consumeExpression('/^[0-9a-fA-F]{1,6}/u', 6);
+            if ($this->strlen($hexCodePoint) < 6) {
                 // Consume whitespace after incomplete unicode escape
-                if (preg_match('/\\s/isSu', $this->peek())) {
-                    if ($this->comes('\r\n')) {
+                $matchResult = \preg_match('/\\s/isSu', $this->peek());
+                if (!\is_int($matchResult)) {
+                    throw new \RuntimeException('The CSS is not valid UTF-8.', 1787112619);
+                }
+                if ($matchResult !== 0) {
+                    if ($this->comes('\\r\\n')) {
                         $this->consume(2);
                     } else {
                         $this->consume(1);
                     }
                 }
             }
-            $iUnicode = intval($sUnicode, 16);
-            $sUtf32 = "";
+            $codePoint = \intval($hexCodePoint, 16);
+            $utf32EncodedCharacter = '';
             for ($i = 0; $i < 4; ++$i) {
-                $sUtf32 .= chr($iUnicode & 0xff);
-                $iUnicode = $iUnicode >> 8;
+                $utf32EncodedCharacter .= \chr($codePoint & 0xff);
+                $codePoint = $codePoint >> 8;
             }
-            return iconv('utf-32le', $this->sCharset, $sUtf32);
+            // The suppression is needed because `\iconv` emits a notice, as well as returning `false`, on failure.
+            $convertedCharacter = @\iconv('utf-32le', $this->charset, $utf32EncodedCharacter);
+            if (!\is_string($convertedCharacter)) {
+                throw new \RuntimeException(
+                    'The Unicode escape sequence could not be converted to the target character set.',
+                    1787112620
+                );
+            }
+            return $convertedCharacter;
         }
-        if ($bIsForIdentifier) {
-            $peek = ord($this->peek());
+        if ($isForIdentifier) {
+            $peek = \ord($this->peek());
             // Ranges: a-z A-Z 0-9 - _
             if (
                 ($peek >= 97 && $peek <= 122)
@@ -193,116 +198,158 @@ class ParserState
         } else {
             return $this->consume(1);
         }
+
         return null;
     }
 
     /**
-     * @return array<int, Comment>|void
+     * Consumes whitespace and/or comments until the next non-whitespace character that isn't a slash opening a comment.
+     *
+     * @param list<Comment> $comments Any comments consumed will be appended to this array.
+     *
+     * @return string the whitespace consumed, without the comments
      *
      * @throws UnexpectedEOFException
      * @throws UnexpectedTokenException
+     *
+     * @phpstan-impure
+     * This method may change the state of the object by advancing the internal position;
+     * it does not simply 'get' a value.
      */
-    public function consumeWhiteSpace()
+    public function consumeWhiteSpace(array &$comments = []): string
     {
-        $comments = [];
+        $consumed = '';
         do {
-            while (preg_match('/\\s/isSu', $this->peek()) === 1) {
-                $this->consume(1);
+            while (true) {
+                $matchResult = \preg_match('/\\s/isSu', $this->peek());
+                if (!\is_int($matchResult)) {
+                    throw new \RuntimeException('The CSS is not valid UTF-8.', 1787112621);
+                }
+                if ($matchResult !== 1) {
+                    break;
+                }
+                $consumed .= $this->consume(1);
             }
-            if ($this->oParserSettings->bLenientParsing) {
+            if ($this->parserSettings->usesLenientParsing()) {
                 try {
-                    $oComment = $this->consumeComment();
+                    $comment = $this->consumeComment();
                 } catch (UnexpectedEOFException $e) {
-                    $this->iCurrentPosition = $this->iLength;
-                    return;
+                    $this->currentPosition = \count($this->characters);
+                    break;
                 }
             } else {
-                $oComment = $this->consumeComment();
+                $comment = $this->consumeComment();
             }
-            if ($oComment !== false) {
-                $comments[] = $oComment;
+            if ($comment instanceof Comment) {
+                $comments[] = $comment;
             }
-        } while ($oComment !== false);
-        return $comments;
+        } while ($comment instanceof Comment);
+
+        return $consumed;
     }
 
     /**
-     * @param string $sString
-     * @param bool $bCaseInsensitive
-     *
-     * @return bool
+     * @param non-empty-string $string
      */
-    public function comes($sString, $bCaseInsensitive = false)
+    public function comes(string $string, bool $caseInsensitive = false): bool
     {
-        $sPeek = $this->peek(strlen($sString));
-        return ($sPeek == '')
-            ? false
-            : $this->streql($sPeek, $sString, $bCaseInsensitive);
+        $peek = $this->peek(\strlen($string));
+
+        return ($peek !== '') && $this->streql($peek, $string, $caseInsensitive);
     }
 
     /**
-     * @param int $iLength
-     * @param int $iOffset
-     *
-     * @return string
+     * @param int<1, max> $length
+     * @param int<0, max> $offset
      */
-    public function peek($iLength = 1, $iOffset = 0)
+    public function peek(int $length = 1, int $offset = 0): string
     {
-        $iOffset += $this->iCurrentPosition;
-        if ($iOffset >= $this->iLength) {
+        $offset += $this->currentPosition;
+        if ($offset >= \count($this->characters)) {
             return '';
         }
-        return $this->substr($iOffset, $iLength);
+
+        return $this->substr($offset, $length);
     }
 
     /**
-     * @param int $mValue
-     *
-     * @return string
+     * @param string|int<1, max> $value
      *
      * @throws UnexpectedEOFException
      * @throws UnexpectedTokenException
      */
-    public function consume($mValue = 1)
+    public function consume($value = 1): string
     {
-        if (is_string($mValue)) {
-            $iLineCount = substr_count($mValue, "\n");
-            $iLength = $this->strlen($mValue);
-            if (!$this->streql($this->substr($this->iCurrentPosition, $iLength), $mValue)) {
-                throw new UnexpectedTokenException($mValue, $this->peek(max($iLength, 5)), $this->iLineNo);
+        if (\is_string($value)) {
+            $numberOfLines = \substr_count($value, "\n");
+            $length = $this->strlen($value);
+            if (!$this->streql($this->substr($this->currentPosition, $length), $value)) {
+                throw new UnexpectedTokenException(
+                    $value,
+                    $this->peek(\max($length, 5)),
+                    'literal',
+                    $this->lineNumber
+                );
             }
-            $this->iLineNo += $iLineCount;
-            $this->iCurrentPosition += $this->strlen($mValue);
-            return $mValue;
+
+            $this->lineNumber += $numberOfLines;
+            $this->currentPosition += $this->strlen($value);
+            $result = $value;
         } else {
-            if ($this->iCurrentPosition + $mValue > $this->iLength) {
-                throw new UnexpectedEOFException($mValue, $this->peek(5), 'count', $this->iLineNo);
+            if ($this->currentPosition + $value > \count($this->characters)) {
+                throw new UnexpectedEOFException((string) $value, $this->peek(5), 'count', $this->lineNumber);
             }
-            $sResult = $this->substr($this->iCurrentPosition, $mValue);
-            $iLineCount = substr_count($sResult, "\n");
-            $this->iLineNo += $iLineCount;
-            $this->iCurrentPosition += $mValue;
-            return $sResult;
+
+            $result = $this->substr($this->currentPosition, $value);
+            $numberOfLines = \substr_count($result, "\n");
+            $this->lineNumber += $numberOfLines;
+            $this->currentPosition += $value;
         }
+
+        return $result;
     }
 
     /**
-     * @param string $mExpression
-     * @param int|null $iMaxLength
+     * If the possibly-expected next content is next, consume it.
      *
-     * @return string
+     * @param non-empty-string $nextContent
+     *
+     * @return bool whether the possibly-expected content was found and consumed
+     */
+    public function consumeIfComes(string $nextContent): bool
+    {
+        $length = $this->strlen($nextContent);
+        if (!$this->streql($this->substr($this->currentPosition, $length), $nextContent)) {
+            return false;
+        }
+
+        $numberOfLines = \substr_count($nextContent, "\n");
+        $this->lineNumber += $numberOfLines;
+        $this->currentPosition += $this->strlen($nextContent);
+
+        return true;
+    }
+
+    /**
+     * @param string $expression
+     * @param int<1, max>|null $maximumLength
      *
      * @throws UnexpectedEOFException
      * @throws UnexpectedTokenException
      */
-    public function consumeExpression($mExpression, $iMaxLength = null)
+    public function consumeExpression(string $expression, ?int $maximumLength = null): string
     {
-        $aMatches = null;
-        $sInput = $iMaxLength !== null ? $this->peek($iMaxLength) : $this->inputLeft();
-        if (preg_match($mExpression, $sInput, $aMatches, PREG_OFFSET_CAPTURE) === 1) {
-            return $this->consume($aMatches[0][0]);
+        $matches = null;
+        $input = ($maximumLength !== null) ? $this->peek($maximumLength) : $this->inputLeft();
+        $matchResult = \preg_match($expression, $input, $matches, PREG_OFFSET_CAPTURE);
+        if (!\is_int($matchResult)) {
+            throw new \RuntimeException('The CSS is not valid UTF-8.', 1787112622);
         }
-        throw new UnexpectedTokenException($mExpression, $this->peek(5), 'expression', $this->iLineNo);
+        if ($matchResult !== 1) {
+            throw new UnexpectedTokenException($expression, $this->peek(5), 'expression', $this->lineNumber);
+        }
+
+        return $this->consume($matches[0][0]);
     }
 
     /**
@@ -310,13 +357,14 @@ class ParserState
      */
     public function consumeComment()
     {
-        $mComment = false;
+        $lineNumber = $this->lineNumber;
+        $comment = null;
+
         if ($this->comes('/*')) {
-            $iLineNo = $this->iLineNo;
             $this->consume(1);
-            $mComment = '';
+            $comment = '';
             while (($char = $this->consume(1)) !== '') {
-                $mComment .= $char;
+                $comment .= $char;
                 if ($this->comes('*/')) {
                     $this->consume(2);
                     break;
@@ -324,193 +372,160 @@ class ParserState
             }
         }
 
-        if ($mComment !== false) {
-            // We skip the * which was included in the comment.
-            return new Comment(substr($mComment, 1), $iLineNo);
-        }
-
-        return $mComment;
+        // We skip the * which was included in the comment.
+        return \is_string($comment) ? new Comment(\substr($comment, 1), $lineNumber) : false;
     }
 
-    /**
-     * @return bool
-     */
-    public function isEnd()
+    public function isEnd(): bool
     {
-        return $this->iCurrentPosition >= $this->iLength;
+        return $this->currentPosition >= \count($this->characters);
     }
 
     /**
-     * @param array<array-key, string>|string $aEnd
-     * @param string $bIncludeEnd
-     * @param string $consumeEnd
-     * @param array<int, Comment> $comments
-     *
-     * @return string
+     * @param list<string|self::EOF>|string|self::EOF $stopCharacters
+     * @param list<Comment> $comments
      *
      * @throws UnexpectedEOFException
      * @throws UnexpectedTokenException
      */
-    public function consumeUntil($aEnd, $bIncludeEnd = false, $consumeEnd = false, array &$comments = [])
-    {
-        $aEnd = is_array($aEnd) ? $aEnd : [$aEnd];
-        $out = '';
-        $start = $this->iCurrentPosition;
+    public function consumeUntil(
+        $stopCharacters,
+        bool $includeEnd = false,
+        bool $consumeEnd = false,
+        array &$comments = []
+    ): string {
+        $stopCharacters = \is_array($stopCharacters) ? $stopCharacters : [$stopCharacters];
+        $consumedCharacters = '';
+        $start = $this->currentPosition;
 
+        $comments = \array_merge($comments, $this->consumeComments());
         while (!$this->isEnd()) {
-            $char = $this->consume(1);
-            if (in_array($char, $aEnd)) {
-                if ($bIncludeEnd) {
-                    $out .= $char;
+            $character = $this->consume(1);
+            if (\in_array($character, $stopCharacters, true)) {
+                if ($includeEnd) {
+                    $consumedCharacters .= $character;
                 } elseif (!$consumeEnd) {
-                    $this->iCurrentPosition -= $this->strlen($char);
+                    $this->currentPosition -= $this->strlen($character);
                 }
-                return $out;
+                return $consumedCharacters;
             }
-            $out .= $char;
-            if ($comment = $this->consumeComment()) {
-                $comments[] = $comment;
-            }
+            $consumedCharacters .= $character;
+            $comments = \array_merge($comments, $this->consumeComments());
         }
 
-        if (in_array(self::EOF, $aEnd)) {
-            return $out;
+        if (\in_array(self::EOF, $stopCharacters, true)) {
+            return $consumedCharacters;
         }
 
-        $this->iCurrentPosition = $start;
+        $this->currentPosition = $start;
         throw new UnexpectedEOFException(
-            'One of ("' . implode('","', $aEnd) . '")',
+            'One of ("' . \implode('","', $stopCharacters) . '")',
             $this->peek(5),
             'search',
-            $this->iLineNo
+            $this->lineNumber
         );
     }
 
-    /**
-     * @return string
-     */
-    private function inputLeft()
+    private function inputLeft(): string
     {
-        return $this->substr($this->iCurrentPosition, -1);
+        return $this->substr($this->currentPosition, -1);
+    }
+
+    public function streql(string $string1, string $string2, bool $caseInsensitive = true): bool
+    {
+        return $caseInsensitive
+            ? ($this->strtolower($string1) === $this->strtolower($string2))
+            : ($string1 === $string2);
     }
 
     /**
-     * @param string $sString1
-     * @param string $sString2
-     * @param bool $bCaseInsensitive
-     *
-     * @return bool
+     * @param int<1, max> $numberOfCharacters
      */
-    public function streql($sString1, $sString2, $bCaseInsensitive = true)
+    public function backtrack(int $numberOfCharacters): void
     {
-        if ($bCaseInsensitive) {
-            return $this->strtolower($sString1) === $this->strtolower($sString2);
-        } else {
-            return $sString1 === $sString2;
-        }
+        $this->currentPosition -= $numberOfCharacters;
     }
 
     /**
-     * @param int $iAmount
-     *
-     * @return void
+     * @return int<0, max>
      */
-    public function backtrack($iAmount)
+    public function strlen(string $string): int
     {
-        $this->iCurrentPosition -= $iAmount;
+        return $this->parserSettings->hasMultibyteSupport()
+            ? \mb_strlen($string, $this->charset)
+            : \strlen($string);
     }
 
     /**
-     * @param string $sString
-     *
-     * @return int
+     * @param int<0, max> $offset
      */
-    public function strlen($sString)
+    private function substr(int $offset, int $length): string
     {
-        if ($this->oParserSettings->bMultibyteSupport) {
-            return mb_strlen($sString, $this->sCharset);
-        } else {
-            return strlen($sString);
+        if ($length < 0) {
+            $length = \count($this->characters) - $offset + $length;
         }
+        if ($offset + $length > \count($this->characters)) {
+            $length = \count($this->characters) - $offset;
+        }
+        $result = '';
+        while ($length > 0) {
+            $result .= $this->characters[$offset];
+            $offset++;
+            $length--;
+        }
+
+        return $result;
     }
 
     /**
-     * @param int $iStart
-     * @param int $iLength
-     *
-     * @return string
+     * @return ($string is non-empty-string ? non-empty-string : string)
      */
-    private function substr($iStart, $iLength)
+    private function strtolower(string $string): string
     {
-        if ($iLength < 0) {
-            $iLength = $this->iLength - $iStart + $iLength;
-        }
-        if ($iStart + $iLength > $this->iLength) {
-            $iLength = $this->iLength - $iStart;
-        }
-        $sResult = '';
-        while ($iLength > 0) {
-            $sResult .= $this->aText[$iStart];
-            $iStart++;
-            $iLength--;
-        }
-        return $sResult;
+        return $this->parserSettings->hasMultibyteSupport()
+            ? \mb_strtolower($string, $this->charset)
+            : \strtolower($string);
     }
 
     /**
-     * @param string $sString
-     *
-     * @return string
+     * @return list<string>
      */
-    private function strtolower($sString)
+    private function strsplit(string $string): array
     {
-        if ($this->oParserSettings->bMultibyteSupport) {
-            return mb_strtolower($sString, $this->sCharset);
-        } else {
-            return strtolower($sString);
-        }
-    }
-
-    /**
-     * @param string $sString
-     *
-     * @return array<int, string>
-     */
-    private function strsplit($sString)
-    {
-        if ($this->oParserSettings->bMultibyteSupport) {
-            if ($this->streql($this->sCharset, 'utf-8')) {
-                return preg_split('//u', $sString, -1, PREG_SPLIT_NO_EMPTY);
-            } else {
-                $iLength = mb_strlen($sString, $this->sCharset);
-                $aResult = [];
-                for ($i = 0; $i < $iLength; ++$i) {
-                    $aResult[] = mb_substr($sString, $i, 1, $this->sCharset);
+        if ($this->parserSettings->hasMultibyteSupport()) {
+            if ($this->streql($this->charset, 'utf-8')) {
+                $result = \preg_split('//u', $string, -1, PREG_SPLIT_NO_EMPTY);
+                if (!\is_array($result)) {
+                    throw new \RuntimeException('The CSS is not valid UTF-8.', 1787112623);
                 }
-                return $aResult;
+            } else {
+                $length = \mb_strlen($string, $this->charset);
+                $result = [];
+                for ($i = 0; $i < $length; ++$i) {
+                    $result[] = \mb_substr($string, $i, 1, $this->charset);
+                }
             }
         } else {
-            if ($sString === '') {
-                return [];
-            } else {
-                return str_split($sString);
-            }
+            $result = ($string !== '') ? \str_split($string) : [];
         }
+
+        return $result;
     }
 
     /**
-     * @param string $sString
-     * @param string $sNeedle
-     * @param int $iOffset
-     *
-     * @return int|false
+     * @return list<Comment>
      */
-    private function strpos($sString, $sNeedle, $iOffset)
+    private function consumeComments(): array
     {
-        if ($this->oParserSettings->bMultibyteSupport) {
-            return mb_strpos($sString, $sNeedle, $iOffset, $this->sCharset);
-        } else {
-            return strpos($sString, $sNeedle, $iOffset);
+        $comments = [];
+
+        while (true) {
+            $comment = $this->consumeComment();
+            if ($comment instanceof Comment) {
+                $comments[] = $comment;
+            } else {
+                return $comments;
+            }
         }
     }
 }

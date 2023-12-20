@@ -31,10 +31,10 @@ use Symfony\Component\Mime\MimeTypes;
  */
 class UploadedFile extends File
 {
-    private bool $test;
     private string $originalName;
     private string $mimeType;
     private int $error;
+    private string $originalPath;
 
     /**
      * Accepts the information of the uploaded file as provided by the PHP global $_FILES.
@@ -60,12 +60,17 @@ class UploadedFile extends File
      * @throws FileException         If file_uploads is disabled
      * @throws FileNotFoundException If the file does not exist
      */
-    public function __construct(string $path, string $originalName, string $mimeType = null, int $error = null, bool $test = false)
-    {
+    public function __construct(
+        string $path,
+        string $originalName,
+        ?string $mimeType = null,
+        ?int $error = null,
+        private bool $test = false,
+    ) {
         $this->originalName = $this->getName($originalName);
+        $this->originalPath = strtr($originalName, '\\', '/');
         $this->mimeType = $mimeType ?: 'application/octet-stream';
         $this->error = $error ?: \UPLOAD_ERR_OK;
-        $this->test = $test;
 
         parent::__construct($path, \UPLOAD_ERR_OK === $this->error);
     }
@@ -74,7 +79,7 @@ class UploadedFile extends File
      * Returns the original file name.
      *
      * It is extracted from the request from which the file has been uploaded.
-     * Then it should not be considered as a safe value.
+     * This should not be considered as a safe value to use for a file name on your servers.
      */
     public function getClientOriginalName(): string
     {
@@ -85,11 +90,26 @@ class UploadedFile extends File
      * Returns the original file extension.
      *
      * It is extracted from the original file name that was uploaded.
-     * Then it should not be considered as a safe value.
+     * This should not be considered as a safe value to use for a file name on your servers.
      */
     public function getClientOriginalExtension(): string
     {
         return pathinfo($this->originalName, \PATHINFO_EXTENSION);
+    }
+
+    /**
+     * Returns the original file full path.
+     *
+     * It is extracted from the request from which the file has been uploaded.
+     * This should not be considered as a safe value to use for a file name/path on your servers.
+     *
+     * If this file was uploaded with the "webkitdirectory" upload directive, this will contain
+     * the path of the file relative to the uploaded root directory. Otherwise this will be identical
+     * to getClientOriginalName().
+     */
+    public function getClientOriginalPath(): string
+    {
+        return $this->originalPath;
     }
 
     /**
@@ -158,7 +178,7 @@ class UploadedFile extends File
      *
      * @throws FileException if, for any reason, the file could not have been moved
      */
-    public function move(string $directory, string $name = null): File
+    public function move(string $directory, ?string $name = null): File
     {
         if ($this->isValid()) {
             if ($this->test) {
@@ -167,39 +187,47 @@ class UploadedFile extends File
 
             $target = $this->getTargetFile($directory, $name);
 
-            set_error_handler(function ($type, $msg) use (&$error) { $error = $msg; });
+            set_error_handler(static function ($type, $msg) use (&$error) { $error = $msg; });
             try {
                 $moved = move_uploaded_file($this->getPathname(), $target);
             } finally {
                 restore_error_handler();
             }
             if (!$moved) {
-                throw new FileException(sprintf('Could not move the file "%s" to "%s" (%s).', $this->getPathname(), $target, strip_tags($error)));
+                throw new FileException(\sprintf('Could not move the file "%s" to "%s" (%s).', $this->getPathname(), $target, strip_tags($error)));
             }
 
-            @chmod($target, 0666 & ~umask());
+            @chmod($target, 0o666 & ~umask());
 
             return $target;
         }
 
         switch ($this->error) {
             case \UPLOAD_ERR_INI_SIZE:
-                throw new IniSizeFileException($this->getErrorMessage());
+                throw new IniSizeFileException($this->getExceptionMessage());
             case \UPLOAD_ERR_FORM_SIZE:
-                throw new FormSizeFileException($this->getErrorMessage());
+                throw new FormSizeFileException($this->getExceptionMessage());
             case \UPLOAD_ERR_PARTIAL:
-                throw new PartialFileException($this->getErrorMessage());
+                throw new PartialFileException($this->getExceptionMessage());
             case \UPLOAD_ERR_NO_FILE:
-                throw new NoFileException($this->getErrorMessage());
+                throw new NoFileException($this->getExceptionMessage());
             case \UPLOAD_ERR_CANT_WRITE:
-                throw new CannotWriteFileException($this->getErrorMessage());
+                throw new CannotWriteFileException($this->getExceptionMessage());
             case \UPLOAD_ERR_NO_TMP_DIR:
-                throw new NoTmpDirFileException($this->getErrorMessage());
+                throw new NoTmpDirFileException($this->getExceptionMessage());
             case \UPLOAD_ERR_EXTENSION:
-                throw new ExtensionFileException($this->getErrorMessage());
+                throw new ExtensionFileException($this->getExceptionMessage());
         }
 
-        throw new FileException($this->getErrorMessage());
+        throw new FileException($this->getExceptionMessage());
+    }
+
+    /**
+     * Retrieves a user-friendly error message for file upload issues, if any.
+     */
+    public function getErrorMessage(): string
+    {
+        return \UPLOAD_ERR_OK !== $this->error ? $this->getExceptionMessage() : '';
     }
 
     /**
@@ -248,7 +276,7 @@ class UploadedFile extends File
     /**
      * Returns an informative upload error message.
      */
-    public function getErrorMessage(): string
+    private function getExceptionMessage(): string
     {
         static $errors = [
             \UPLOAD_ERR_INI_SIZE => 'The file "%s" exceeds your upload_max_filesize ini directive (limit is %d KiB).',
@@ -264,6 +292,6 @@ class UploadedFile extends File
         $maxFilesize = \UPLOAD_ERR_INI_SIZE === $errorCode ? self::getMaxFilesize() / 1024 : 0;
         $message = $errors[$errorCode] ?? 'The file "%s" was not uploaded due to an unknown error.';
 
-        return sprintf($message, $this->getClientOriginalName(), $maxFilesize);
+        return \sprintf($message, $this->getClientOriginalName(), $maxFilesize);
     }
 }

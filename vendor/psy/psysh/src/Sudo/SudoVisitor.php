@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -123,6 +123,8 @@ class SudoVisitor extends NodeVisitorAbstract
             // not using prepareCall because the $node->args we started with are already Arg instances
             return new StaticCall(new FullyQualifiedName(Sudo::class), self::NEW_INSTANCE, $args);
         }
+
+        return null;
     }
 
     private function prepareCall(string $method, array $args): StaticCall

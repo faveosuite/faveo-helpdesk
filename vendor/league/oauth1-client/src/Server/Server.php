@@ -60,7 +60,7 @@ abstract class Server
      * @param ClientCredentialsInterface|array $clientCredentials
      * @param SignatureInterface               $signature
      */
-    public function __construct($clientCredentials, SignatureInterface $signature = null)
+    public function __construct($clientCredentials, ?SignatureInterface $signature = null)
     {
         // Pass through an array or client credentials, we don't care
         if (is_array($clientCredentials)) {
@@ -283,14 +283,17 @@ abstract class Server
             switch ($this->responseType) {
                 case 'json':
                     $this->cachedUserDetailsResponse = json_decode((string) $response->getBody(), true);
+
                     break;
 
                 case 'xml':
                     $this->cachedUserDetailsResponse = simplexml_load_string((string) $response->getBody());
+
                     break;
 
                 case 'string':
                     parse_str((string) $response->getBody(), $this->cachedUserDetailsResponse);
+
                     break;
 
                 default:

@@ -17,9 +17,9 @@ use Crypt;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Request as Input;
 use Lang;
+use Yajra\DataTables\Facades\DataTables;
 
 /**
  * ***************************
@@ -57,9 +57,7 @@ class SettingsController extends Controller
      */
     public function list_widget()
     {
-        return \Datatable::collection(Widgets::where('id', '<', '7')->get())
-                        ->searchColumns('name')
-                        ->orderColumns('name', 'title', 'value')
+        return DataTables::of(Widgets::where('id', '<', '7')->get())
                         ->addColumn('name', function ($model) {
                             return $model->name;
                         })
@@ -116,7 +114,8 @@ class SettingsController extends Controller
                     </div>
                 </div>';
                         })
-                        ->make();
+                        ->rawColumns(['Actions'])
+                        ->make(true);
     }
 
     /**
@@ -159,9 +158,7 @@ class SettingsController extends Controller
      */
     public function list_social_buttons()
     {
-        return \Datatable::collection(Widgets::where('id', '>', '6')->get())
-                        ->searchColumns('name')
-                        ->orderColumns('name', 'value')
+        return DataTables::of(Widgets::where('id', '>', '6')->get())
                         ->addColumn('name', function ($model) {
                             return $model->name;
                         })
@@ -194,7 +191,8 @@ class SettingsController extends Controller
                     </div>
                 </div>';
                         })
-                        ->make();
+                        ->rawColumns(['Actions'])
+                        ->make(true);
     }
 
     /**
@@ -304,8 +302,7 @@ class SettingsController extends Controller
     {
         $plugins = $this->fetchConfig();
 
-        return \Datatable::collection(new Collection($plugins))
-                        ->searchColumns('name')
+        return DataTables::of(collect($plugins))
                         ->addColumn('name', function ($model) {
                             if (Arr::has($model, 'path')) {
                                 if ($model['status'] == 0) {
@@ -354,7 +351,8 @@ class SettingsController extends Controller
                         ->addColumn('version', function ($model) {
                             return $model['version'];
                         })
-                        ->make();
+                        ->rawColumns(['name', 'website'])
+                        ->make(true);
     }
 
     /**

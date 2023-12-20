@@ -23,7 +23,7 @@ class="nav-link active"
 <!-- content -->
 @section('content')
 <!-- open a form -->
-{!! Form::open(['route'=>'canned.store','method' => 'patch']) !!}
+{!! html()->form('PATCH', route('canned.store'))->open() !!}
 <div class="card card-light">
     <div class="card-header">
         <h3 class="card-title">{!! Lang::get('lang.create') !!} </h3>
@@ -31,10 +31,10 @@ class="nav-link active"
     <div class="card-body">
         @if(Session::has('errors'))
         <?php //dd($errors); ?>
-        <div class="alert alert-danger alert-dismissable">
-            <i class="fas fa-ban"></i>
+        <div class="alert alert-danger alert-dismissible">
+            <i class="fa-solid fa-ban"></i>
             <b>{!! Lang::get('lang.alert') !!}!</b>
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
             <br/>
             @if($errors->first('title'))
             <li class="error-message-padding">{!! $errors->first('title', ':message') !!}</li>
@@ -46,19 +46,19 @@ class="nav-link active"
         @endif
         <div class="row">
             <!-- username -->
-            <div class="col-sm-6 form-group {{ $errors->has('title') ? 'has-error' : '' }}">
-                {!! Form::label('title',Lang::get('lang.title')) !!}    <span class="text-red"> *</span>           
-                {!! Form::text('title',null,['class' => 'form-control']) !!}
+            <div class="col-sm-6 mb-3 {{ $errors->has('title') ? 'has-error' : '' }}">
+                {!! html()->label(Lang::get('lang.title'), 'title') !!}    <span class="text-red"> *</span>           
+                {!! html()->text('title', null)->class('form-control') !!}
             </div>
             <!-- firstname -->
-            <div class="col-sm-12 form-group {{ $errors->has('message') ? 'has-error' : '' }}">
-                {!! Form::label('message',Lang::get('lang.message')) !!}<span class="text-red"> *</span>
-                {!! Form::textarea('message',null,['class' => 'form-control']) !!}
+            <div class="col-sm-12 mb-3 {{ $errors->has('message') ? 'has-error' : '' }}">
+                {!! html()->label(Lang::get('lang.message'), 'message') !!}<span class="text-red"> *</span>
+                {!! html()->textarea('message', null)->class('form-control') !!}
             </div>
         </div>
     </div>
     <div class="card-footer">
-        {!! Form::submit(Lang::get('lang.submit'),['class'=>'btn btn-primary'])!!}
+        {!! html()->submit(Lang::get('lang.submit'))->class('btn btn-primary') !!}
     </div>
 </div>
 <script>

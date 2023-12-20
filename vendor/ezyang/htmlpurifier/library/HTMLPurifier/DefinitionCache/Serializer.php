@@ -139,8 +139,9 @@ class HTMLPurifier_DefinitionCache_Serializer extends HTMLPurifier_DefinitionCac
                 continue;
             }
             $key = substr($filename, 0, strlen($filename) - 4);
-            if ($this->isOld($key, $config)) {
-                unlink($dir . '/' . $filename);
+            $file = $dir . '/' . $filename;
+            if ($this->isOld($key, $config) && file_exists($file)) {
+                unlink($file);
             }
         }
         closedir($dh);
@@ -238,12 +239,17 @@ class HTMLPurifier_DefinitionCache_Serializer extends HTMLPurifier_DefinitionCac
             } elseif (!$this->_testPermissions($base, $chmod)) {
                 return false;
             }
-            if (!@mkdir($directory, $chmod) && !is_dir($directory)) {
+            $created = @mkdir($directory, $chmod);
+            if (!$created && !is_dir($directory)) {
                 trigger_error(
                     'Could not create directory ' . $directory . '',
                     E_USER_WARNING
                 );
                 return false;
+            }
+            if ($created) {
+                // Ensure the directory has the correct permissions, since mkdir() obeys the umask
+                @chmod($directory, $chmod);
             }
             if (!$this->_testPermissions($directory, $chmod)) {
                 return false;
@@ -287,13 +293,14 @@ class HTMLPurifier_DefinitionCache_Serializer extends HTMLPurifier_DefinitionCac
             } elseif (filegroup($dir) === posix_getgid()) {
                 $chmod = $chmod | 0070;
             } else {
-                // PHP's probably running as nobody, so we'll
-                // need to give global permissions
-                $chmod = $chmod | 0777;
+              // PHP's probably running as nobody, it is
+              // not obvious how to fix this (777 is probably
+              // bad if you are multi-user), let the user figure it out
+                $chmod = null;
             }
             trigger_error(
-                'Directory ' . $dir . ' not writable, ' .
-                'please chmod to ' . decoct($chmod),
+                'Directory ' . $dir . ' not writable. ' .
+                ($chmod === null ? '' : 'Please chmod to ' . decoct($chmod)),
                 E_USER_WARNING
             );
         } else {

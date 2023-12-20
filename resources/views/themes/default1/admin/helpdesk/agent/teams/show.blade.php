@@ -20,7 +20,7 @@ class="nav-link active"
 @stop
 <!-- header -->
 @section('PageHeader')
-<h1>{{$teams->name}}</h1>
+<h3>{{$teams->name}}</h3>
 @stop
 <!-- /header -->
 <!-- breadcrumbs -->
@@ -33,19 +33,19 @@ class="nav-link active"
 @section('content')
 
 @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <i class="fas fa-check-circle"></i>
+<div class="alert alert-success alert-dismissible">
+    <i class="fa-solid fa-circle-check"></i>
     <b>Success!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {!! Session::get('success') !!}
 </div>
 @endif
 <!-- failure message -->
 @if(Session::has('fails'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fa fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>Fail!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {!! Session::get('fails') !!}
 </div>
 @endif
@@ -67,9 +67,9 @@ class="nav-link active"
      @endif
         <h3 class="lead card-title"> &nbsp;| {!! Lang::get('lang.status') !!} : <?php if($teams->status == 1) { $stat = Lang::get('lang.active'); } elseif($teams->status == 0) { $stat = Lang::get('lang.inactive'); } ?>{!! $stat !!} </h3>
         
-        <div class="card-tools">
-            <a href="{{URL::route('teams.index')}}" class="btn btn-default btn-tool">
-                <i class="fas fa-arrow-left" aria-hidden="true"></i> {{Lang::get('lang.go_back')}}
+        <div class="card-tools d-flex">
+            <a href="{{URL::route('teams.index')}}" class="btn btn-secondary btn-tool">
+                <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> {{Lang::get('lang.go_back')}}
             </a>
         </div>
     </div>

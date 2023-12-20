@@ -34,14 +34,14 @@ interface SurrogateInterface
     /**
      * Adds Surrogate-capability to the given Request.
      */
-    public function addSurrogateCapability(Request $request);
+    public function addSurrogateCapability(Request $request): void;
 
     /**
      * Adds HTTP headers to specify that the Response needs to be parsed for Surrogate.
      *
      * This method only adds an Surrogate HTTP header if the Response has some Surrogate tags.
      */
-    public function addSurrogateControl(Response $response);
+    public function addSurrogateControl(Response $response): void;
 
     /**
      * Checks that the Response needs to be parsed for Surrogate tags.
@@ -51,10 +51,10 @@ interface SurrogateInterface
     /**
      * Renders a Surrogate tag.
      *
-     * @param string $alt     An alternate URI
-     * @param string $comment A comment to add as an esi:include tag
+     * @param string|null $alt     An alternate URI
+     * @param string      $comment A comment to add as an esi:include tag
      */
-    public function renderIncludeTag(string $uri, string $alt = null, bool $ignoreErrors = true, string $comment = ''): string;
+    public function renderIncludeTag(string $uri, ?string $alt = null, bool $ignoreErrors = true, string $comment = ''): string;
 
     /**
      * Replaces a Response Surrogate tags with the included resource content.

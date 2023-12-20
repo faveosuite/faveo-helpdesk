@@ -1,34 +1,37 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sabberworm\CSS\Property;
 
-use Sabberworm\CSS\Comment\Commentable;
-use Sabberworm\CSS\Renderable;
+use Sabberworm\CSS\CSSList\CSSListItem;
 
-interface AtRule extends Renderable, Commentable
+/**
+ * Note that `CSSListItem` extends both `Commentable` and `Renderable`,
+ * so concrete classes implementing this interface must also implement those.
+ */
+interface AtRule extends CSSListItem
 {
     /**
      * Since there are more set rules than block rules,
      * we’re whitelisting the block rules and have anything else be treated as a set rule.
      *
-     * @var string
+     * @internal since 8.5.2
      */
-    const BLOCK_RULES = 'media/document/supports/region-style/font-feature-values';
+    public const BLOCK_RULES = [
+        'media',
+        'document',
+        'supports',
+        'region-style',
+        'font-feature-values',
+        'container',
+        'layer',
+        'scope',
+        'starting-style',
+    ];
 
     /**
-     * … and more font-specific ones (to be used inside font-feature-values)
-     *
-     * @var string
+     * @return non-empty-string
      */
-    const SET_RULES = 'font-face/counter-style/page/swash/styleset/annotation';
-
-    /**
-     * @return string|null
-     */
-    public function atRuleName();
-
-    /**
-     * @return string|null
-     */
-    public function atRuleArgs();
+    public function atRuleName(): string;
 }

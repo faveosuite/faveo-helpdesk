@@ -1,31 +1,31 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Nette Framework (https://nette.org)
  * Copyright (c) 2004 David Grudl (https://davidgrudl.com)
  */
 
-declare(strict_types=1);
-
 namespace Nette\Utils;
 
 use Nette;
+use function array_splice, array_unshift, count, is_int;
 
 
 /**
- * Provides the base class for a generic list (items can be accessed by index).
+ * Generic list with integer indices.
  * @template T
+ * @implements \IteratorAggregate<int, T>
+ * @implements \ArrayAccess<int, T>
  */
 class ArrayList implements \ArrayAccess, \Countable, \IteratorAggregate
 {
-	use Nette\SmartObject;
-
+	/** @var list<T> */
 	private array $list = [];
 
 
 	/**
 	 * Transforms array to ArrayList.
-	 * @param  array<T>  $array
+	 * @param  list<T>  $array
 	 */
 	public static function from(array $array): static
 	{
@@ -40,7 +40,6 @@ class ArrayList implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Returns an iterator over all items.
 	 * @return \Iterator<int, T>
 	 */
 	public function &getIterator(): \Iterator
@@ -51,9 +50,6 @@ class ArrayList implements \ArrayAccess, \Countable, \IteratorAggregate
 	}
 
 
-	/**
-	 * Returns items count.
-	 */
 	public function count(): int
 	{
 		return count($this->list);
@@ -61,8 +57,8 @@ class ArrayList implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Replaces or appends a item.
-	 * @param  int|null  $index
+	 * Replaces or appends an item.
+	 * @param  ?int  $index
 	 * @param  T  $value
 	 * @throws Nette\OutOfRangeException
 	 */
@@ -81,7 +77,7 @@ class ArrayList implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Returns a item.
+	 * Returns an item.
 	 * @param  int  $index
 	 * @return T
 	 * @throws Nette\OutOfRangeException
@@ -97,7 +93,7 @@ class ArrayList implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Determines whether a item exists.
+	 * Determines whether an item exists.
 	 * @param  int  $index
 	 */
 	public function offsetExists($index): bool
@@ -122,13 +118,13 @@ class ArrayList implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Prepends a item.
+	 * Prepends an item.
 	 * @param  T  $value
 	 */
 	public function prepend(mixed $value): void
 	{
-		$first = array_slice($this->list, 0, 1);
-		$this->offsetSet(0, $value);
-		array_splice($this->list, 1, 0, $first);
+		// route the value through offsetSet() first so a validation added in a subclass isn't bypassed
+		$this->offsetSet(null, $value);
+		array_unshift($this->list, ...array_splice($this->list, -1));
 	}
 }

@@ -30,15 +30,8 @@ final class LinkParserHelper
      */
     public static function parseLinkDestination(Cursor $cursor): ?string
     {
-        if ($res = $cursor->match(RegexHelper::REGEX_LINK_DESTINATION_BRACES)) {
-            // Chop off surrounding <..>:
-            return UrlEncoder::unescapeAndEncode(
-                RegexHelper::unescape(\substr($res, 1, -1))
-            );
-        }
-
         if ($cursor->getCurrentCharacter() === '<') {
-            return null;
+            return self::parseDestinationBraces($cursor);
         }
 
         $destination = self::manuallyParseLinkDestination($cursor);
@@ -53,7 +46,7 @@ final class LinkParserHelper
 
     public static function parseLinkLabel(Cursor $cursor): int
     {
-        $match = $cursor->match('/^\[(?:[^\\\\\[\]]|\\\\.){0,1000}\]/');
+        $match = $cursor->matchInPlace('/\G\[(?:[^\\\\\[\]]|\\\\.){0,1000}\]/');
         if ($match === null) {
             return 0;
         }
@@ -69,7 +62,7 @@ final class LinkParserHelper
 
     public static function parsePartialLinkLabel(Cursor $cursor): ?string
     {
-        return $cursor->match('/^(?:[^\\\\\[\]]+|\\\\.?)*/');
+        return $cursor->matchInPlace('/\G(?:[^\\\\\[\]]++|\\\\.?)*+/');
     }
 
     /**
@@ -79,7 +72,7 @@ final class LinkParserHelper
      */
     public static function parseLinkTitle(Cursor $cursor): ?string
     {
-        if ($title = $cursor->match('/' . RegexHelper::PARTIAL_LINK_TITLE . '/')) {
+        if ($title = $cursor->matchInPlace('/\G' . RegexHelper::PARTIAL_LINK_TITLE_UNANCHORED . '/')) {
             // Chop off quotes from title and unescape
             return RegexHelper::unescape(\substr($title, 1, -1));
         }
@@ -91,7 +84,7 @@ final class LinkParserHelper
     {
         $endDelimiter = \preg_quote($endDelimiter, '/');
         $regex        = \sprintf('/(%s|[^%s\x00])*(?:%s)?/', RegexHelper::PARTIAL_ESCAPED_CHAR, $endDelimiter, $endDelimiter);
-        if (($partialTitle = $cursor->match($regex)) === null) {
+        if (($partialTitle = $cursor->matchInPlace($regex)) === null) {
             return null;
         }
 
@@ -100,27 +93,34 @@ final class LinkParserHelper
 
     private static function manuallyParseLinkDestination(Cursor $cursor): ?string
     {
-        $oldPosition = $cursor->getPosition();
-        $oldState    = $cursor->saveState();
-
+        // The destination always ends at the first whitespace or unbalanced ")", so scan the line
+        // in place from the cursor rather than materializing the remainder: the cost of finding it
+        // should follow the length of the destination, not the length of everything left in the
+        // block. A partially-consumed tab needs no special handling - getRemainder() would expand
+        // it into leading spaces and the scan would stop on the first one, exactly as it stops on
+        // the tab itself here.
+        $line       = $cursor->getLine();
+        $start      = $cursor->getBytePosition();
         $openParens = 0;
-        while (($c = $cursor->getCurrentCharacter()) !== null) {
-            if ($c === '\\' && ($peek = $cursor->peek()) !== null && RegexHelper::isEscapable($peek)) {
-                $cursor->advanceBy(2);
+        $len        = \strlen($line) - $start;
+        for ($i = 0; $i < $len; $i++) {
+            $c = $line[$start + $i];
+            if ($c === '\\' && $i + 1 < $len && RegexHelper::isEscapable($line[$start + $i + 1])) {
+                $i++;
             } elseif ($c === '(') {
-                $cursor->advanceBy(1);
                 $openParens++;
+                // Limit to 32 nested parens for pathological cases
+                if ($openParens > 32) {
+                    return null;
+                }
             } elseif ($c === ')') {
                 if ($openParens < 1) {
                     break;
                 }
 
-                $cursor->advanceBy(1);
                 $openParens--;
-            } elseif (\preg_match(RegexHelper::REGEX_WHITESPACE_CHAR, $c)) {
+            } elseif (\ord($c) <= 32 && RegexHelper::isWhitespace($c)) {
                 break;
-            } else {
-                $cursor->advanceBy(1);
             }
         }
 
@@ -128,15 +128,45 @@ final class LinkParserHelper
             return null;
         }
 
-        if ($cursor->getPosition() === $oldPosition && (! isset($c) || $c !== ')')) {
+        if ($i === 0 && (! isset($c) || $c !== ')')) {
             return null;
         }
 
-        $newPos = $cursor->getPosition();
-        $cursor->restoreState($oldState);
+        $destination = \substr($line, $start, $i);
+        $cursor->advanceBy(\mb_strlen($destination, 'UTF-8'));
 
-        $cursor->advanceBy($newPos - $cursor->getPosition());
+        return $destination;
+    }
 
-        return $cursor->getPreviousText();
+    /** @var \WeakReference<Cursor>|null */
+    private static ?\WeakReference $lastCursor       = null;
+    private static bool $lastCursorLacksClosingBrace = false;
+
+    private static function parseDestinationBraces(Cursor $cursor): ?string
+    {
+        // Optimization: If we've previously parsed this cursor and returned `null`, we know
+        // that no closing brace exists, so we can skip the regex entirely. This helps avoid
+        // certain pathological cases where the regex engine can take a very long time to
+        // determine that no match exists.
+        if (self::$lastCursor !== null && self::$lastCursor->get() === $cursor) {
+            if (self::$lastCursorLacksClosingBrace) {
+                return null;
+            }
+        } else {
+            self::$lastCursor = \WeakReference::create($cursor);
+        }
+
+        if ($res = $cursor->matchInPlace('/\G' . RegexHelper::PARTIAL_LINK_DESTINATION_BRACES . '/')) {
+            self::$lastCursorLacksClosingBrace = false;
+
+            // Chop off surrounding <..>:
+            return UrlEncoder::unescapeAndEncode(
+                RegexHelper::unescape(\substr($res, 1, -1))
+            );
+        }
+
+        self::$lastCursorLacksClosingBrace = true;
+
+        return null;
     }
 }

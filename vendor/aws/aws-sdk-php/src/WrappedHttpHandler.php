@@ -2,6 +2,7 @@
 namespace Aws;
 
 use Aws\Api\Parser\Exception\ParserException;
+use Aws\Exception\AwsException;
 use GuzzleHttp\Promise;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -47,7 +48,7 @@ class WrappedHttpHandler
         callable $httpHandler,
         callable $parser,
         callable $errorParser,
-        $exceptionClass = 'Aws\Exception\AwsException',
+        $exceptionClass = AwsException::class,
         $collectStats = false
     ) {
         $this->httpHandler = $httpHandler;
@@ -165,10 +166,17 @@ class WrappedHttpHandler
             throw new \RuntimeException('The HTTP handler was rejected without an "exception" key value pair.');
         }
 
-        $serviceError = "AWS HTTP error: " . $err['exception']->getMessage();
+        $serviceError = "AWS HTTP error:\n";
 
-        if (!isset($err['response'])) {
-            $parts = ['response' => null];
+        // A 2xx status on a rejected promise means the transport failed
+        // mid-body after a success response was received; there is no error
+        // document to parse, and parsing one would buffer the entire partial
+        // body into memory.
+        if (!isset($err['response'])
+            || $err['response']->getStatusCode() < 300
+        ) {
+            $parts = ['response' => $err['response'] ?? null];
+            $serviceError .= $err['exception']->getMessage();
         } else {
             try {
                 $parts = call_user_func(
@@ -176,8 +184,9 @@ class WrappedHttpHandler
                     $err['response'],
                     $command
                 );
-                $serviceError .= " {$parts['code']} ({$parts['type']}): "
-                    . "{$parts['message']} - " . $err['response']->getBody();
+
+                $serviceError .= "{$parts['code']} ({$parts['type']}): "
+                    . "{$parts['message']}";
             } catch (ParserException $e) {
                 $parts = [];
                 $serviceError .= ' Unable to parse error information from '

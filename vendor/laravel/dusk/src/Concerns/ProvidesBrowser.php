@@ -6,6 +6,8 @@ use Closure;
 use Exception;
 use Illuminate\Support\Collection;
 use Laravel\Dusk\Browser;
+use PHPUnit\Framework\Attributes\AfterClass;
+use PHPUnit\Runner\Version;
 use ReflectionFunction;
 use Throwable;
 
@@ -28,10 +30,9 @@ trait ProvidesBrowser
     /**
      * Tear down the Dusk test case class.
      *
-     * @afterClass
-     *
      * @return void
      */
+    #[AfterClass]
     public static function tearDownDuskClass()
     {
         static::closeAll();
@@ -227,7 +228,17 @@ trait ProvidesBrowser
      */
     protected function getCallerName()
     {
-        return str_replace('\\', '_', get_class($this)).'_'.$this->getName(false);
+        $name = version_compare(Version::id(), '10', '>=')
+            ? $this->name()
+            : $this->getName(false); // @phpstan-ignore-line
+
+        $parts = array_filter([
+            str_replace('\\', '_', get_class($this)),
+            $name,
+            str_replace(['\\', DIRECTORY_SEPARATOR, ' '], ['', '', '_'], $this->dataName()),
+        ], fn ($part) => $part !== '');
+
+        return substr(implode('_', $parts), -140);
     }
 
     /**

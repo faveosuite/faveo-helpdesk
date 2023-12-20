@@ -26,7 +26,7 @@ enum AnsiColorMode
     case Ansi4;
 
     /*
-     * 8-bit Ansi colors (240 differents colors + 16 duplicate color codes, ensuring backward compatibility).
+     * 8-bit Ansi colors (240 different colors + 16 duplicate color codes, ensuring backward compatibility).
      * Output syntax is: "ESC[38;5;${foreGroundColorcode};48;5;${backGroundColorcode}m"
      * Should be compatible with most terminals.
      */
@@ -51,7 +51,7 @@ enum AnsiColorMode
         }
 
         if (6 !== \strlen($hexColor)) {
-            throw new InvalidArgumentException(sprintf('Invalid "#%s" color.', $hexColor));
+            throw new InvalidArgumentException(\sprintf('Invalid "#%s" color.', $hexColor));
         }
 
         $color = hexdec($hexColor);
@@ -62,8 +62,8 @@ enum AnsiColorMode
 
         return match ($this) {
             self::Ansi4 => (string) $this->convertFromRGB($r, $g, $b),
-            self::Ansi8 => '8;5;'.((string) $this->convertFromRGB($r, $g, $b)),
-            self::Ansi24 => sprintf('8;2;%d;%d;%d', $r, $g, $b)
+            self::Ansi8 => '8;5;'.$this->convertFromRGB($r, $g, $b),
+            self::Ansi24 => \sprintf('8;2;%d;%d;%d', $r, $g, $b),
         };
     }
 
@@ -72,31 +72,13 @@ enum AnsiColorMode
         return match ($this) {
             self::Ansi4 => $this->degradeHexColorToAnsi4($r, $g, $b),
             self::Ansi8 => $this->degradeHexColorToAnsi8($r, $g, $b),
-            default => throw new InvalidArgumentException("RGB cannot be converted to {$this->name}.")
+            default => throw new InvalidArgumentException("RGB cannot be converted to {$this->name}."),
         };
     }
 
     private function degradeHexColorToAnsi4(int $r, int $g, int $b): int
     {
-        if (0 === round($this->getSaturation($r, $g, $b) / 50)) {
-            return 0;
-        }
-
-        return (int) ((round($b / 255) << 2) | (round($g / 255) << 1) | round($r / 255));
-    }
-
-    private function getSaturation(int $r, int $g, int $b): int
-    {
-        $r = $r / 255;
-        $g = $g / 255;
-        $b = $b / 255;
-        $v = max($r, $g, $b);
-
-        if (0 === $diff = $v - min($r, $g, $b)) {
-            return 0;
-        }
-
-        return (int) ((int) $diff * 100 / $v);
+        return round($b / 255) << 2 | (round($g / 255) << 1) | round($r / 255);
     }
 
     /**
@@ -114,11 +96,11 @@ enum AnsiColorMode
             }
 
             return (int) round(($r - 8) / 247 * 24) + 232;
-        } else {
-            return 16 +
-                    (36 * (int) round($r / 255 * 5)) +
-                    (6 * (int) round($g / 255 * 5)) +
-                    (int) round($b / 255 * 5);
         }
+
+        return 16 +
+            (36 * (int) round($r / 255 * 5)) +
+            (6 * (int) round($g / 255 * 5)) +
+            (int) round($b / 255 * 5);
     }
 }

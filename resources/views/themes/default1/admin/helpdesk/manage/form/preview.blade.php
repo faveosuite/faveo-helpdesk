@@ -18,7 +18,7 @@ class="nav-link active"
 
 <!-- header -->
 @section('PageHeader')
-<h1>{!! Lang::get('lang.forms') !!}</h1>
+<h3>{!! Lang::get('lang.forms') !!}</h3>
 @stop
 <!-- /header -->
 
@@ -31,15 +31,15 @@ class="nav-link active"
 <!-- content -->
 @section('content')
 @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <i class="fas fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+    <i class="fa-solid fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('success')}}
 </div>
 @endif
 @if(Session::has('fails'))
-<div class="alert alert-success alert-dismissable">
-    <i class="fas fa-ban"></i><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+    <i class="fa-solid fa-ban"></i><button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     <b>{!! Lang::get('lang.alert') !!} !</b> <br>
     <li class="error-message-padding">{{Session::get('fails')}}</li>
 </div>

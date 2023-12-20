@@ -5,15 +5,16 @@
     <title>SUPPORT CENTER</title>
     <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
     
-    <link rel="shortcut icon" href="{{asset("lb-faveo/media/images/favicon.ico")}}">
+    <link rel="shortcut icon" href="{{ assetLink('css' , 'favicon') }}">
     
-    <link href="{{asset("lb-faveo/css/bootstrap4.min.css")}}" rel="stylesheet" type="text/css" />
+    <link href="{{ assetLink('css', 'bootstrap') }}" rel="stylesheet" type="text/css" />
     <!-- Font Awesome Icons -->
-    <link href="{{asset("lb-faveo/css/font-awesome-5.min.css")}}" rel="stylesheet" type="text/css" />
+    <link href="{{ assetLink('css' , 'font-awesome')}}" rel="stylesheet" type="text/css" />
     <!-- Theme style -->
-    <link href="{{asset("lb-faveo/css/client.min.css")}}" rel="stylesheet" type="text/css" />
+    <link href="{{ assetLink('css' , 'client')}}" rel="stylesheet" type="text/css" />
 
-    <link href="{{asset("lb-faveo/css/widgetbox.min.css")}}" rel="stylesheet" type="text/css" />
+    <link href="{{ assetLink('css' , 'widget')}}" rel="stylesheet" type="text/css" />
+    <link href="{{ assetLink('css' , 'common')}}" rel="stylesheet" type="text/css" />
     
   </head>
   <body>
@@ -120,11 +121,11 @@
     </footer> 
   </div>
 
-    <script src="{{asset("lb-faveo/js/jquery-3.4.1.min.js")}}" type="text/javascript"></script>
+    <script src="{{ assetLink('js' , 'client-js')}}" type="text/javascript"></script>
 
-    <script src="{{asset("lb-faveo/js/bootstrap4.min.js")}}" type="text/javascript"></script>
+    <script src="{{ assetLink('js' , 'bootstrap')}}" type="text/javascript"></script>
             
-    <script src="{{asset("lb-faveo/js/client.min.js")}}" type="text/javascript"></script>
+    <script src="{{ assetLink('js' , 'client-min-js')}}" type="text/javascript"></script>
 
     <script type="text/javascript">
 

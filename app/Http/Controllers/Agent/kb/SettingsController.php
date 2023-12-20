@@ -17,8 +17,10 @@ use Config;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Request as Input;
-use Image;
+use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\ImageManager;
 use Lang;
+use Yajra\DataTables\Facades\DataTables;
 
 /**
  * SettingsController
@@ -81,11 +83,10 @@ class SettingsController extends Controller
                 Input::file('logo')->move($destinationPath, $fileName);
                 $settings->logo = $fileName;
                 //$thDestinationPath = 'dist/th';
-                Image::make($destinationPath.'/'.$fileName, [
-                    'width'     => 300,
-                    'height'    => 300,
-                    'grayscale' => false,
-                ])->save('lb-faveo/dist/image/'.$fileName);
+                (new ImageManager(new Driver()))
+                    ->read($destinationPath.'/'.$fileName)
+                    ->scale(300, 300)
+                    ->save('lb-faveo/dist/image/'.$fileName);
             }
             if (Input::file('background')) {
                 $name = Input::file('background')->getClientOriginalName();
@@ -95,11 +96,10 @@ class SettingsController extends Controller
                 Input::file('background')->move($destinationPath, $fileName);
                 $settings->background = $fileName;
                 //$thDestinationPath = 'dist/th';
-                Image::make($destinationPath.'/'.$fileName, [
-                    'width'     => 300,
-                    'height'    => 300,
-                    'grayscale' => false,
-                ])->save('lb-faveo/dist/image/'.$fileName);
+                (new ImageManager(new Driver()))
+                    ->read($destinationPath.'/'.$fileName)
+                    ->scale(300, 300)
+                    ->save('lb-faveo/dist/image/'.$fileName);
             }
             /* Check whether function success or not */
             if ($settings->fill($request->except('logo', 'background'))->save() == true) {
@@ -134,9 +134,7 @@ class SettingsController extends Controller
      */
     public function getData()
     {
-        return \Datatable::collection(Comment::All())
-                        ->searchColumns('details', 'comment', 'created')
-                        ->orderColumns('details')
+        return DataTables::of(Comment::All())
                         ->addColumn('details', function ($model) {
                             $name = "<p>$model->name</p><br>";
                             $email = "<p>$model->email</p><br>";
@@ -162,7 +160,8 @@ class SettingsController extends Controller
                         ->addColumn('Actions', function ($model) {
                             return '<div class="row"><a href=comment/delete/'.$model->id.' class="btn btn-danger btn-xs">'.\Lang::get('lang.delete').'</a>&nbsp;<a href=published/'.$model->id.' class="btn btn-warning btn-xs">'.\Lang::get('lang.publish').'</a></div>';
                         })
-                        ->make();
+                        ->rawColumns(['details', 'comment', 'status', 'Actions'])
+                        ->make(true);
     }
 
     /**

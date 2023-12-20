@@ -1,4 +1,4 @@
-{!! Form::model($emails,['url' => 'post-scheduler', 'method' => 'PATCH']) !!}
+{!! html()->modelForm($emails, 'PATCH', url('post-scheduler'))->open() !!}
 <div class="box box-primary">
     <div class="box-header with-border">
         <h3 class="box-title">{{Lang::get('lang.cron_settings')}}</h3>
@@ -16,93 +16,93 @@
         </div>
         @endif
         @if($warn!=="")
-        <div class="alert alert-warning alert-dismissable">
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <div class="alert alert-warning alert-dismissible">
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
             {!!$warn!!}
         </div>
         @endif
         <!-- check whether success or not -->
         @if(Session::has('success'))
-        <div class="alert alert-success alert-dismissable">
-            <i class="fa  fa-check-circle"></i>
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <div class="alert alert-success alert-dismissible">
+            <i class="fa  fa-circle-check"></i>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
             {!!Session::get('success')!!}
         </div>
         @endif
         <!-- failure message -->
         @if(Session::has('fails'))
-        <div class="alert alert-danger alert-dismissable">
-            <i class="fa fa-ban"></i>
+        <div class="alert alert-danger alert-dismissible">
+            <i class="fa-solid fa-ban"></i>
             <b>{!! Lang::get('lang.alert') !!}!</b>
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
             {!!Session::get('fails')!!}
         </div>
         @endif
-        <div class="alert  alert-dismissable" style="background: #F3F3F3">
-            <i class="fa  fa-info-circle"></i>&nbsp;{!!Lang::get('lang.crone-url-message')!!}
+        <div class="alert  alert-dismissible" style="background: #F3F3F3">
+            <i class="fa  fa-circle-info"></i>&nbsp;{!!Lang::get('lang.crone-url-message')!!}
             <a href="http://ladybirdweb.com/support/show/cron-job-scheduling" style="color:black" target="blank">{!!Lang::get('lang.click')!!}</a> {!!Lang::get('lang.check-cron-set')!!}
         </div>
         <div class="col-md-6">
-            <div class="info-box">
+            <div class="info-box shadow-sm">
                 <!-- Apply any bg-* class to to the icon to color it -->
-                <span class="info-box-icon bg-aqua"><i class="fa fa-cloud-download"></i></span>
+                <span class="info-box-icon text-bg-info"><i class="fa-solid fa-cloud-download"></i></span>
                 <div class="info-box-content">
-                    <i class="fa fa-clipboard pull-right" title="{!!Lang::get('lang.click-url-copy')!!}" onclick="copyToClipboard('#p1')"></i>
+                    <i class="fa-solid fa-clipboard pull-right" title="{!!Lang::get('lang.click-url-copy')!!}" onclick="copyToClipboard('#p1')"></i>
                     <div class="col-md-6">
-                        <div class="form-group">
-                            {!! Form::label('email_fetching',Lang::get('lang.email_fetch')) !!}<br>
-                            {!! Form::checkbox('email_fetching',1,true) !!}&nbsp;{{Lang::get('lang.fetch_auto-corn')}}
+                        <div class="mb-3">
+                            {!! html()->label(Lang::get('lang.email_fetch'), 'email_fetching') !!}<br>
+                            {!! html()->checkbox('email_fetching', true, 1) !!}&nbsp;{{Lang::get('lang.fetch_auto-corn')}}
                         </div>
                     </div>
                     <div class="col-md-12">
                         <em><span class="info-box-text" style="background: #F3F3F3" id='p1'></span></em>
-                        <!-- <div class="btn btn-default btn-xs pull-right" onclick="copyToClipboard('#p1')">Copy URL</div> -->
+                        <!-- <div class="btn btn-secondary btn-xs pull-right" onclick="copyToClipboard('#p1')">Copy URL</div> -->
                     </div>
                 </div><!-- /.info-box-content -->
             </div><!-- /.info-box -->
         </div>
         <div class="col-md-6">
-            <div class="info-box">
+            <div class="info-box shadow-sm">
                 <!-- Apply any bg-* class to to the icon to color it -->
-                <span class="info-box-icon bg-aqua"><i class="fa fa-cloud-upload"></i></span>
+                <span class="info-box-icon text-bg-info"><i class="fa-solid fa-cloud-upload"></i></span>
                 <div class="info-box-content">
-                    <i class="fa fa-clipboard pull-right" title="{!!Lang::get('lang.click-url-copy')!!}" onclick="copyToClipboard('#p2')"></i>
+                    <i class="fa-solid fa-clipboard pull-right" title="{!!Lang::get('lang.click-url-copy')!!}" onclick="copyToClipboard('#p2')"></i>
                     <div class="col-md-8">
-                        <div class="form-group">
-                            {!! Form::label('notification_cron',Lang::get('lang.notification-email')) !!}<br>
-                            {!! Form::checkbox('notification_cron',1,true) !!}&nbsp;{{Lang::get('lang.cron_notification')}}
+                        <div class="mb-3">
+                            {!! html()->label(Lang::get('lang.notification-email'), 'notification_cron') !!}<br>
+                            {!! html()->checkbox('notification_cron', true, 1) !!}&nbsp;{{Lang::get('lang.cron_notification')}}
                         </div>
                     </div>
                     <div class="col-md-12">
                         <em><span class="info-box-text" style="background: #F3F3F3" id='p2'></span></em>
-                        <!-- <div class="btn btn-default btn-xs pull-right" onclick="copyToClipboard('#p1')">Copy URL</div> -->
+                        <!-- <div class="btn btn-secondary btn-xs pull-right" onclick="copyToClipboard('#p1')">Copy URL</div> -->
                     </div>
                 </div><!-- /.info-box-content -->
             </div><!-- /.info-box -->
         </div>
         <div class="col-md-6">
-            <div class="info-box">
+            <div class="info-box shadow-sm">
                 <!-- Apply any bg-* class to to the icon to color it -->
-                <span class="info-box-icon bg-aqua"><i class="fa fa-check-circle"></i></span>
+                <span class="info-box-icon text-bg-info"><i class="fa-solid fa-circle-check"></i></span>
                 <div class="info-box-content">
-                    <i class="fa fa-clipboard pull-right" title="{!!Lang::get('lang.click-url-copy')!!}" onclick="copyToClipboard('#p3')"></i>
+                    <i class="fa-solid fa-clipboard pull-right" title="{!!Lang::get('lang.click-url-copy')!!}" onclick="copyToClipboard('#p3')"></i>
                     <div class="col-md-8">
-                        <div class="form-group">
-                            {!! Form::label('condition',Lang::get('lang.auto_close_workflow')) !!}<br>
+                        <div class="mb-3">
+                            {!! html()->label(Lang::get('lang.auto_close_workflow'), 'condition') !!}<br>
                             <input type="checkbox" name="condition" @if($workflow->condition == 1) checked @endif">
                             {{Lang::get('lang.enable_workflow')}}
                         </div>
                     </div>
                     <div class="col-md-12">
                         <em><span class="info-box-text" style="background: #F3F3F3" id='p3'></span></em>
-                        <!-- <div class="btn btn-default btn-xs pull-right" onclick="copyToClipboard('#p1')">Copy URL</div> -->
+                        <!-- <div class="btn btn-secondary btn-xs pull-right" onclick="copyToClipboard('#p1')">Copy URL</div> -->
                     </div>
                 </div><!-- /.info-box-content -->
             </div><!-- /.info-box -->
         </div>
     </div>
     <div class="box-footer">
-        {!! Form::submit(Lang::get('lang.submit'),['class'=>'btn btn-primary'])!!}
+        {!! html()->submit(Lang::get('lang.submit'))->class('btn btn-primary') !!}
     </div>
 </div>
 <script type="text/javascript">

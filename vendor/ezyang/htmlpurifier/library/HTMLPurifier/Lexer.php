@@ -101,7 +101,7 @@ class HTMLPurifier_Lexer
                         break;
                     }
 
-                    if (class_exists('DOMDocument', false) &&
+                    if (class_exists('DOMDocument') &&
                         method_exists('DOMDocument', 'loadHTML') &&
                         !extension_loaded('domxml')
                     ) {
@@ -238,7 +238,7 @@ class HTMLPurifier_Lexer
      */
     public function tokenizeHTML($string, $config, $context)
     {
-        trigger_error('Call to abstract class', E_USER_ERROR);
+        throw new Exception('Call to abstract class');
     }
 
     /**
@@ -270,20 +270,6 @@ class HTMLPurifier_Lexer
     }
 
     /**
-     * Special Internet Explorer conditional comments should be removed.
-     * @param string $string HTML string to process.
-     * @return string HTML with conditional comments removed.
-     */
-    protected static function removeIEConditional($string)
-    {
-        return preg_replace(
-            '#<!--\[if [^>]+\]>.*?<!\[endif\]-->#si', // probably should generalize for all strings
-            '',
-            $string
-        );
-    }
-
-    /**
      * Callback function for escapeCDATA() that does the work.
      *
      * @warning Though this is public in order to let the callback happen,
@@ -309,10 +295,11 @@ class HTMLPurifier_Lexer
      */
     public function normalize($html, $config, $context)
     {
+        $html = (string) $html;
         // normalize newlines to \n
         if ($config->get('Core.NormalizeNewlines')) {
-            $html = str_replace("\r\n", "\n", (string)$html);
-            $html = str_replace("\r", "\n", (string)$html);
+            $html = str_replace("\r\n", "\n", $html);
+            $html = str_replace("\r", "\n", $html);
         }
 
         if ($config->get('HTML.Trusted')) {
@@ -322,8 +309,6 @@ class HTMLPurifier_Lexer
 
         // escape CDATA
         $html = $this->escapeCDATA($html);
-
-        $html = $this->removeIEConditional($html);
 
         // extract body from document if applicable
         if ($config->get('Core.ConvertDocumentToFragment')) {

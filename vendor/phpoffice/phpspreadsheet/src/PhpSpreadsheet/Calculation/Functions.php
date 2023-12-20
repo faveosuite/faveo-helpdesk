@@ -26,6 +26,8 @@ class Functions
     const RETURNDATE_PHP_DATETIME_OBJECT = 'O';
     const RETURNDATE_EXCEL = 'E';
 
+    public const NOT_YET_IMPLEMENTED = '#Not Yet Implemented';
+
     /**
      * Compatibility mode to use for error checking and responses.
      *
@@ -663,7 +665,7 @@ class Functions
 
     public static function trimTrailingRange(string $coordinate): string
     {
-        return (string) preg_replace('/:[\\w\$]+$/', '', $coordinate);
+        return (string) preg_replace('/:[\w\$]+$/', '', $coordinate);
     }
 
     public static function trimSheetFromCellReference(string $coordinate): string

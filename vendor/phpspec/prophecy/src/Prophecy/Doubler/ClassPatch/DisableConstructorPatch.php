@@ -11,8 +11,11 @@
 
 namespace Prophecy\Doubler\ClassPatch;
 
+use Prophecy\Doubler\Generator\Node\ArgumentTypeNode;
 use Prophecy\Doubler\Generator\Node\ClassNode;
 use Prophecy\Doubler\Generator\Node\MethodNode;
+use Prophecy\Doubler\Generator\Node\Type\BuiltinType;
+use Prophecy\Doubler\Generator\Node\Type\UnionType;
 
 /**
  * Disable constructor.
@@ -52,13 +55,41 @@ class DisableConstructorPatch implements ClassPatchInterface
         }
 
         $constructor = $node->getMethod('__construct');
+        \assert($constructor !== null);
         foreach ($constructor->getArguments() as $argument) {
             $argument->setDefault(null);
+
+            $type = $argument->getTypeNode()->getType();
+            if (
+                $type instanceof BuiltinType
+                && ($type->getType() === 'null' || $type->getType() === 'mixed')
+            ) {
+                continue;
+            }
+
+            if ($type instanceof UnionType && $type->has(new BuiltinType('null'))) {
+                continue;
+            }
+
+            if (null === $type) {
+                continue;
+            }
+
+            if ($type instanceof UnionType) {
+                $argument->setTypeNode(new ArgumentTypeNode(new UnionType(
+                    [new BuiltinType('null'), ...$type->getTypes()]
+                )));
+                continue;
+            }
+
+            $argument->setTypeNode(new ArgumentTypeNode(new UnionType(
+                [new BuiltinType('null'), $type]
+            )));
         }
 
         $constructor->setCode(<<<PHP
 if (0 < func_num_args()) {
-    call_user_func_array(array('parent', '__construct'), func_get_args());
+    call_user_func_array(array(parent::class, '__construct'), func_get_args());
 }
 PHP
         );

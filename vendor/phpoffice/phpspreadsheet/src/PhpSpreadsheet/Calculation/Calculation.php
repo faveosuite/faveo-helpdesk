@@ -19,6 +19,7 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use ReflectionClassConstant;
 use ReflectionMethod;
 use ReflectionParameter;
+use Throwable;
 
 class Calculation
 {
@@ -45,7 +46,7 @@ class Calculation
     //    Defined Names: Named Range of cells, or Named Formulae
     const CALCULATION_REGEXP_DEFINEDNAME = '((([^\s,!&%^\/\*\+<>=-]*)|(\'(?:[^\']|\'[^!])+?\')|(\"(?:[^\"]|\"[^!])+?\"))!)?([_\p{L}][_\p{L}\p{N}\.]*)';
     // Structured Reference (Fully Qualified and Unqualified)
-    const CALCULATION_REGEXP_STRUCTURED_REFERENCE = '([\p{L}_\\\\][\p{L}\p{N}\._]+)?(\[(?:[^\d\]+-])?)';
+    const CALCULATION_REGEXP_STRUCTURED_REFERENCE = '([\p{L}_\\\][\p{L}\p{N}\._]+)?(\[(?:[^\d\]+-])?)';
     //    Error
     const CALCULATION_REGEXP_ERROR = '\#[A-Z][A-Z0_\/]*[!\?]?';
 
@@ -150,13 +151,6 @@ class Calculation
      * @var null|string
      */
     public $formulaError;
-
-    /**
-     * Reference Helper.
-     *
-     * @var ReferenceHelper
-     */
-    private static $referenceHelper;
 
     /**
      * An array of the nested cell references accessed by the calculation engine, used for the debug log.
@@ -2795,6 +2789,7 @@ class Calculation
             'category' => Category::CATEGORY_WEB,
             'functionCall' => [Web\Service::class, 'webService'],
             'argumentCount' => '1',
+            'passCellReference' => true,
         ],
         'WEEKDAY' => [
             'category' => Category::CATEGORY_DATE_AND_TIME,
@@ -2924,7 +2919,6 @@ class Calculation
         $this->cyclicReferenceStack = new CyclicReferenceStack();
         $this->debugLog = new Logger($this->cyclicReferenceStack);
         $this->branchPruner = new BranchPruner($this->branchPruningEnabled);
-        self::$referenceHelper = ReferenceHelper::getInstance();
     }
 
     private static function loadLocales(): void
@@ -3556,7 +3550,7 @@ class Calculation
                 }
             }
 
-            throw new Exception($e->getMessage());
+            throw new Exception($e->getMessage(), $e->getCode(), $e);
         }
 
         if ((is_array($result)) && (self::$returnArrayAsType != self::RETURN_ARRAY_AS_ARRAY)) {
@@ -3696,15 +3690,16 @@ class Calculation
      * @param string $formula The formula to parse and calculate
      * @param string $cellID The ID (e.g. A3) of the cell that we are calculating
      * @param Cell $cell Cell to calculate
+     * @param bool $ignoreQuotePrefix If set to true, evaluate the formyla even if the referenced cell is quote prefixed
      *
      * @return mixed
      */
-    public function _calculateFormulaValue($formula, $cellID = null, ?Cell $cell = null)
+    public function _calculateFormulaValue($formula, $cellID = null, ?Cell $cell = null, bool $ignoreQuotePrefix = false)
     {
         $cellValue = null;
 
         //  Quote-Prefixed cell values cannot be formulae, but are treated as strings
-        if ($cell !== null && $cell->getStyle()->getQuotePrefix() === true) {
+        if ($cell !== null && $ignoreQuotePrefix === false && $cell->getStyle()->getQuotePrefix() === true) {
             return self::wrapResult((string) $formula);
         }
 
@@ -4209,7 +4204,7 @@ class Calculation
                     try {
                         $this->branchPruner->closingBrace($d['value']);
                     } catch (Exception $e) {
-                        return $this->raiseFormulaError($e->getMessage());
+                        return $this->raiseFormulaError($e->getMessage(), $e->getCode(), $e);
                     }
 
                     $functionName = $matches[1]; //    Get the function name
@@ -4248,7 +4243,7 @@ class Calculation
                     } elseif ($expectedArgumentCount != '*') {
                         $isOperandOrFunction = preg_match('/(\d*)([-+,])(\d*)/', $expectedArgumentCount, $argMatch);
                         self::doNothing($isOperandOrFunction);
-                        switch ($argMatch[2]) {
+                        switch ($argMatch[2] ?? '') {
                             case '+':
                                 if ($argumentCount < $argMatch[1]) {
                                     $argumentCountError = true;
@@ -4281,7 +4276,7 @@ class Calculation
                 try {
                     $this->branchPruner->argumentSeparator();
                 } catch (Exception $e) {
-                    return $this->raiseFormulaError($e->getMessage());
+                    return $this->raiseFormulaError($e->getMessage(), $e->getCode(), $e);
                 }
 
                 while (($o2 = $stack->pop()) && $o2['value'] !== '(') {        //    Pop off the stack back to the last (
@@ -4363,8 +4358,12 @@ class Calculation
                                 $rangeStartCellRef = $output[count($output) - 2]['value'] ?? '';
                             }
                             preg_match('/^' . self::CALCULATION_REGEXP_CELLREF . '$/miu', $rangeStartCellRef, $rangeStartMatches);
-                            if ($rangeStartMatches[2] > '') {
-                                $val = $rangeStartMatches[2] . '!' . $val;
+                            if (array_key_exists(2, $rangeStartMatches)) {
+                                if ($rangeStartMatches[2] > '') {
+                                    $val = $rangeStartMatches[2] . '!' . $val;
+                                }
+                            } else {
+                                $val = Information\ExcelError::REF();
                             }
                         } else {
                             $rangeStartCellRef = $output[count($output) - 1]['value'] ?? '';
@@ -4390,7 +4389,7 @@ class Calculation
                     try {
                         $structuredReference = Operands\StructuredReference::fromParser($formula, $index, $matches);
                     } catch (Exception $e) {
-                        return $this->raiseFormulaError($e->getMessage());
+                        return $this->raiseFormulaError($e->getMessage(), $e->getCode(), $e);
                     }
 
                     $val = $structuredReference->value();
@@ -4433,6 +4432,8 @@ class Calculation
                                 }
                                 $val = $address;
                             }
+                        } elseif ($val === Information\ExcelError::REF()) {
+                            $stackItemReference = $val;
                         } else {
                             $startRowColRef = $output[count($output) - 1]['value'] ?? '';
                             [$rangeWS1, $startRowColRef] = Worksheet::extractSheetTitle($startRowColRef, true);
@@ -4730,7 +4731,7 @@ class Calculation
                     $cellRange = $token->parse($cell);
                     if (strpos($cellRange, ':') !== false) {
                         $this->debugLog->writeDebugLog('Evaluating Structured Reference %s as Cell Range %s', $token->value(), $cellRange);
-                        $rangeValue = self::getInstance($cell->getWorksheet()->getParent())->_calculateFormulaValue("={$cellRange}", $token->value(), $cell);
+                        $rangeValue = self::getInstance($cell->getWorksheet()->getParent())->_calculateFormulaValue("={$cellRange}", $cellRange, $cell);
                         $stack->push('Value', $rangeValue);
                         $this->debugLog->writeDebugLog('Evaluated Structured Reference %s as value %s', $token->value(), $this->showValue($rangeValue));
                     } else {
@@ -4744,7 +4745,7 @@ class Calculation
                         $stack->push('Error', Information\ExcelError::REF(), null);
                         $this->debugLog->writeDebugLog('Evaluated Structured Reference %s as error value %s', $token->value(), Information\ExcelError::REF());
                     } else {
-                        return $this->raiseFormulaError($e->getMessage());
+                        return $this->raiseFormulaError($e->getMessage(), $e->getCode(), $e);
                     }
                 }
             } elseif (!is_numeric($token) && !is_object($token) && isset(self::BINARY_OPERATORS[$token])) {
@@ -4792,7 +4793,7 @@ class Calculation
                                 }
                             }
                         }
-                        if (strpos($operand1Data['reference'], '!') !== false) {
+                        if (strpos($operand1Data['reference'] ?? '', '!') !== false) {
                             [$sheet1, $operand1Data['reference']] = Worksheet::extractSheetTitle($operand1Data['reference'], true);
                         } else {
                             $sheet1 = ($pCellWorksheet !== null) ? $pCellWorksheet->getTitle() : '';
@@ -4829,10 +4830,21 @@ class Calculation
 
                             $oData = array_merge(explode(':', $operand1Data['reference']), explode(':', $operand2Data['reference']));
                             $oCol = $oRow = [];
+                            $breakNeeded = false;
                             foreach ($oData as $oDatum) {
-                                $oCR = Coordinate::coordinateFromString($oDatum);
-                                $oCol[] = Coordinate::columnIndexFromString($oCR[0]) - 1;
-                                $oRow[] = $oCR[1];
+                                try {
+                                    $oCR = Coordinate::coordinateFromString($oDatum);
+                                    $oCol[] = Coordinate::columnIndexFromString($oCR[0]) - 1;
+                                    $oRow[] = $oCR[1];
+                                } catch (\Exception $e) {
+                                    $stack->push('Error', Information\ExcelError::REF(), null);
+                                    $breakNeeded = true;
+
+                                    break;
+                                }
+                            }
+                            if ($breakNeeded) {
+                                break;
                             }
                             $cellRef = Coordinate::stringFromColumnIndex(min($oCol) + 1) . min($oRow) . ':' . Coordinate::stringFromColumnIndex(max($oCol) + 1) . max($oRow);
                             if ($pCellParent !== null && $this->spreadsheet !== null) {
@@ -4841,8 +4853,10 @@ class Calculation
                                 return $this->raiseFormulaError('Unable to access Cell Reference');
                             }
 
+                            $this->debugLog->writeDebugLog('Evaluation Result is %s', $this->showTypeDetails($cellValue));
                             $stack->push('Cell Reference', $cellValue, $cellRef);
                         } else {
+                            $this->debugLog->writeDebugLog('Evaluation Result is a #REF! Error');
                             $stack->push('Error', Information\ExcelError::REF(), null);
                         }
 
@@ -4943,10 +4957,10 @@ class Calculation
                     [$rows, $columns] = self::checkMatrixOperands($result, $operand2, 0);
                     for ($row = 0; $row < $rows; ++$row) {
                         for ($column = 0; $column < $columns; ++$column) {
-                            if (is_numeric($result[$row][$column])) {
+                            if (self::isNumericOrBool($result[$row][$column])) {
                                 $result[$row][$column] *= $multiplier;
                             } else {
-                                $result[$row][$column] = Information\ExcelError::VALUE();
+                                $result[$row][$column] = self::makeError($result[$row][$column]);
                             }
                         }
                     }
@@ -5335,15 +5349,15 @@ class Calculation
                 for ($column = 0; $column < $columns; ++$column) {
                     if ($operand1[$row][$column] === null) {
                         $operand1[$row][$column] = 0;
-                    } elseif (!is_numeric($operand1[$row][$column])) {
-                        $operand1[$row][$column] = Information\ExcelError::VALUE();
+                    } elseif (!self::isNumericOrBool($operand1[$row][$column])) {
+                        $operand1[$row][$column] = self::makeError($operand1[$row][$column]);
 
                         continue;
                     }
                     if ($operand2[$row][$column] === null) {
                         $operand2[$row][$column] = 0;
-                    } elseif (!is_numeric($operand2[$row][$column])) {
-                        $operand1[$row][$column] = Information\ExcelError::VALUE();
+                    } elseif (!self::isNumericOrBool($operand2[$row][$column])) {
+                        $operand1[$row][$column] = self::makeError($operand2[$row][$column]);
 
                         continue;
                     }
@@ -5433,13 +5447,13 @@ class Calculation
      *
      * @return false
      */
-    protected function raiseFormulaError(string $errorMessage)
+    protected function raiseFormulaError(string $errorMessage, int $code = 0, ?Throwable $exception = null)
     {
         $this->formulaError = $errorMessage;
         $this->cyclicReferenceStack->clear();
         $suppress = /** @scrutinizer ignore-deprecated */ $this->suppressFormulaErrors ?? $this->suppressFormulaErrorsNew;
         if (!$suppress) {
-            throw new Exception($errorMessage);
+            throw new Exception($errorMessage, $code, $exception);
         }
 
         return false;
@@ -5602,7 +5616,7 @@ class Calculation
 
     private function addDefaultArgumentValues(array $functionCall, array $args, array $emptyArguments): array
     {
-        $reflector = new ReflectionMethod(implode('::', $functionCall));
+        $reflector = new ReflectionMethod($functionCall[0], $functionCall[1]);
         $methodArguments = $reflector->getParameters();
 
         if (count($methodArguments) > 0) {
@@ -5709,18 +5723,21 @@ class Calculation
         $recursiveCalculationCellAddress = $recursiveCalculationCell->getCoordinate();
 
         // Adjust relative references in ranges and formulae so that we execute the calculation for the correct rows and columns
-        $definedNameValue = self::$referenceHelper->updateFormulaReferencesAnyWorksheet(
-            $definedNameValue,
-            Coordinate::columnIndexFromString($cell->getColumn()) - 1,
-            $cell->getRow() - 1
-        );
+        $definedNameValue = ReferenceHelper::getInstance()
+            ->updateFormulaReferencesAnyWorksheet(
+                $definedNameValue,
+                Coordinate::columnIndexFromString(
+                    $cell->getColumn()
+                ) - 1,
+                $cell->getRow() - 1
+            );
 
         $this->debugLog->writeDebugLog('Value adjusted for relative references is %s', $definedNameValue);
 
         $recursiveCalculator = new self($this->spreadsheet);
         $recursiveCalculator->getDebugLog()->setWriteDebugLog($this->getDebugLog()->getWriteDebugLog());
         $recursiveCalculator->getDebugLog()->setEchoDebugLog($this->getDebugLog()->getEchoDebugLog());
-        $result = $recursiveCalculator->_calculateFormulaValue($definedNameValue, $recursiveCalculationCellAddress, $recursiveCalculationCell);
+        $result = $recursiveCalculator->_calculateFormulaValue($definedNameValue, $recursiveCalculationCellAddress, $recursiveCalculationCell, true);
 
         if ($this->getDebugLog()->getWriteDebugLog()) {
             $this->debugLog->mergeDebugLog(array_slice($recursiveCalculator->getDebugLog()->getLog(), 3));
@@ -5762,5 +5779,17 @@ class Calculation
         }
 
         return $operand1;
+    }
+
+    /** @param mixed $operand */
+    private static function isNumericOrBool($operand): bool
+    {
+        return is_numeric($operand) || is_bool($operand);
+    }
+
+    /** @param mixed $operand */
+    private static function makeError($operand = ''): string
+    {
+        return Information\ErrorValue::isError($operand) ? $operand : Information\ExcelError::VALUE();
     }
 }

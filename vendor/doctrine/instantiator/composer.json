@@ -16,17 +16,16 @@
         }
     ],
     "require": {
-        "php": "^7.1 || ^8.0"
+        "php": "^8.4"
     },
     "require-dev": {
         "ext-phar":                  "*",
         "ext-pdo":                   "*",
-        "doctrine/coding-standard":  "^9 || ^11",
-        "phpbench/phpbench":         "^0.16 || ^1",
-        "phpstan/phpstan":           "^1.4",
-        "phpstan/phpstan-phpunit":   "^1",
-        "phpunit/phpunit":           "^7.5 || ^8.5 || ^9.5",
-        "vimeo/psalm": "^4.30 || ^5.4"
+        "doctrine/coding-standard":  "^14",
+        "phpbench/phpbench":         "^1.2",
+        "phpstan/phpstan":           "^2.1",
+        "phpstan/phpstan-phpunit":   "^2.0",
+        "phpunit/phpunit":           "^10.5.58"
     },
     "autoload": {
         "psr-4": {

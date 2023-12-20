@@ -49,10 +49,10 @@ class="nav-link active"
 @section('PageHeader')
 
 @if($users->role == 'user')
-<h1>{!! Lang::get('lang.user_profile') !!} </h1>
+<h3>{!! Lang::get('lang.user_profile') !!} </h3>
 
 @elseif($users->role == 'agent')
-<h1>{!! Lang::get('lang.agent_profile') !!} </h1>
+<h3>{!! Lang::get('lang.agent_profile') !!} </h3>
 @endif
 @stop
 <!-- /header -->
@@ -64,35 +64,30 @@ class="nav-link active"
 <!-- content -->
 @section('content')
 <!-- success message -->
-<div id="alert-success" class="alert alert-success alert-dismissable" style="display:none;">
-    <i class="fas fa-check-circle"> </i> <b>  <span id="get-success"></span></b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div id="alert-success" class="alert alert-success alert-dismissible d-none">
+    <i class="fa-solid fa-circle-check"> </i> <b>  <span id="get-success"></span></b>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
 </div>
 <!-- INfo message -->
-<div id="alert-danger" class="alert alert-danger alert-dismissable" style="display:none;">
-    <i class="fas fa-ban"> </i> <b>  <span id="get-danger"></span></b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div id="alert-danger" class="alert alert-danger alert-dismissible d-none">
+    <i class="fa-solid fa-ban"> </i> <b>  <span id="get-danger"></span></b>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
 </div>
 @if(Session::has('success1'))
-<div id="success-alert" class="alert alert-success alert-dismissable">
-    <i class="fas  fa-check-circle"> </i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div id="success-alert" class="alert alert-success alert-dismissible">
+    <i class="fa-solid  fa-circle-check"> </i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('success1')}}
 </div>
 @endif
 <!-- failure message -->
 @if(Session::has('fails1'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fas fa-ban"> </i> <b> {!! Lang::get('lang.alert') !!} ! </b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"> </i> <b> {!! Lang::get('lang.alert') !!} ! </b>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('fails1')}}
 </div>
 @endif
-<?php $table = \Datatable::table()
-                ->addColumn(
-                        "", Lang::get('lang.subject'), Lang::get('lang.ticket_id'), Lang::get('lang.priority'), Lang::get('lang.from'), Lang::get('lang.assigned_to'), Lang::get('lang.last_activity'), Lang::get('lang.created-at'))
-                ->noScript();?>
-
 <div class="row">
     <div class="col-md-3">
         <div class="card" >
@@ -113,11 +108,11 @@ class="nav-link active"
                 <ul class="list-group list-group-unbordered mb-3 mt-3">
                      @if($users->user_name)
                     <li class="list-group-item mb-0">
-                        <b>{{Lang::get('lang.user_name')}}</b> <a class="float-right" title="{{$users->user_name}}">{{Str::limit($users->user_name,10) }}</a>
+                        <b>{{Lang::get('lang.user_name')}}</b> <a class="float-end" title="{{$users->user_name}}">{{Str::limit($users->user_name,10) }}</a>
                     </li>
                      @endif
                      <li class="list-group-item mb-0">
-                        <b>{{Lang::get('lang.email')}}</b> <a class="float-right" title="{{$users->email}}"> {{Str::limit($users->email,10) }}</a>
+                        <b>{{Lang::get('lang.email')}}</b> <a class="float-end" title="{{$users->email}}"> {{Str::limit($users->email,10) }}</a>
                     </li>
 
                     @if($users->is_delete != '1')
@@ -131,8 +126,8 @@ class="nav-link active"
                        
                        @if($user_org == null)
                         <b>{!! Lang::get('lang.organization') !!}</b>
-                        <a href="" class="float-right"  data-toggle="modal" data-target="#assign"><i class="fas fa-hand-point-right"> </i> {!! Lang::get('lang.assign') !!} </a>
-                        <a href="" data-toggle="modal" data-target="#create_org" class="float-right"> {{Lang::get('lang.create')}} |&nbsp;</a>
+                        <a href="" class="float-end"  data-bs-toggle="modal" data-bs-target="#assign"><i class="fa-solid fa-hand-point-right"> </i> {!! Lang::get('lang.assign') !!} </a>
+                        <a href="" data-bs-toggle="modal" data-bs-target="#create_org" class="float-end"> {{Lang::get('lang.create')}} |&nbsp;</a>
                         @endif
 
                         @if($user_org != null)
@@ -144,10 +139,10 @@ class="nav-link active"
 
                         &nbsp;&nbsp;&nbsp;
 
-                        <a href=""  data-toggle="modal" data-target="#editassign" title="{{$organization->name}}"> <span style="color:green;">{{Str::limit($organization->name,10)}}</span> </a>
+                        <a href=""  data-bs-toggle="modal" data-bs-target="#editassign" title="{{$organization->name}}"> <span style="color:green;">{{Str::limit($organization->name,10)}}</span> </a>
 
 
-                        <a class="float-right" href="#" data-toggle="modal" data-target="#delete-{{$org_id}}" title="{!! Lang::get('lang.remove') !!}"><i class="fas fa-times" style="color:red;"> </i></a> 
+                        <a class="float-end" href="#" data-bs-toggle="modal" data-bs-target="#delete-{{$org_id}}" title="{!! Lang::get('lang.remove') !!}"><i class="fa-solid fa-xmark text-danger"> </i></a>
 
                         <div class="modal fade" id="delete-{{$org_id}}">
                             <div class="modal-dialog">
@@ -156,14 +151,16 @@ class="nav-link active"
                                        
                                         <h4 class="modal-title">Remove user from Organization</h4>
 
-                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                                     </div>
                                     <div class="modal-body">
                                         <span>Are you sure you want to Remove ?</span>
                                     </div>
                                     <div class="modal-footer justify-content-between">
-                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                        {!! link_to_route('removeuser.org','Remove User',[$org_id],['id'=>'delete','class'=>'btn btn-danger']) !!}
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <a href="{{ route('removeuser.org', [$org_id]) }}" id="delete" class="btn btn-danger">
+                                            Remove User
+                                        </a>
                                     </div>
                                 </div> 
                             </div>
@@ -173,12 +170,12 @@ class="nav-link active"
                     @endif
 
                     <li class="list-group-item mb-0">
-                        <b>{{Lang::get('lang.role')}}</b> <a class="float-right" style="color:green;"> {!! $users->role !!}</a>
+                        <b>{{Lang::get('lang.role')}}</b> <a class="float-end text-success"> {!! $users->role !!}</a>
                     </li>
 
                     <li class="list-group-item mb-0">
                         <b>{{Lang::get('lang.status')}}</b> 
-                        <a class="float-right">
+                        <a class="float-end">
                             @if($users->active == '1')
                             <span style="color:green;"> 
                                 <span class="glyphicon glyphicon-ok-circle"></span>  
@@ -195,26 +192,26 @@ class="nav-link active"
 
                     @if($users->country_code)
                     <li class="list-group-item mb-0">
-                        <b>{{Lang::get('lang.country_code')}}</b> <a class="float-right" title="{{$users->country_code}}"> 
+                        <b>{{Lang::get('lang.country_code')}}</b> <a class="float-end" title="{{$users->country_code}}">
                             {{Str::limit($users->country_code,10) }}</a>
                     </li>
                     @endif
 
                     @if($users->ext)
                     <li class="list-group-item mb-0">
-                        <b>{{Lang::get('lang.ext')}}</b> <a class="float-right" title="{{$users->ext}}"> {{Str::limit($users->ext,10)}}</a>
+                        <b>{{Lang::get('lang.ext')}}</b> <a class="float-end" title="{{$users->ext}}"> {{Str::limit($users->ext,10)}}</a>
                     </li>
                     @endif
 
                     @if($users->mobile)
                     <li class="list-group-item mb-0">
-                        <b>{{Lang::get('lang.mobile')}}</b> <a class="float-right" title="{{$users->mobile}}"> {{Str::limit($users->mobile,10)}}</a>
+                        <b>{{Lang::get('lang.mobile')}}</b> <a class="float-end" title="{{$users->mobile}}"> {{Str::limit($users->mobile,10)}}</a>
                     </li>
                     @endif
 
                     @if($users->phone_number)
                     <li class="list-group-item mb-0">
-                        <b>{{Lang::get('lang.phone')}}</b><a class="float-right" title="{{$users->phone_number}}">{{Str::limit($users->phone_number,10)}}</a>
+                        <b>{{Lang::get('lang.phone')}}</b><a class="float-end" title="{{$users->phone_number}}">{{Str::limit($users->phone_number,10)}}</a>
                     </li>
                     @endif
 
@@ -263,7 +260,7 @@ class="nav-link active"
 
             <div class="card-body">
                 
-                      <div class="text-right mb-3">
+                      <div class="text-end mb-3">
                 
                 <div>
                 
@@ -272,58 +269,58 @@ class="nav-link active"
                     @if(Auth::user()->role == 'admin')
                     @if($users->role == 'user')
                     <div class="btn-group">
-                        <button type="button" href="#myPopup" data-rel="popup" class="btn btn-default btn-sm" data-toggle="modal" 
-                            data-target="#addNewCategoryModal1">{{Lang::get('lang.change_role_to_agent')}}</button>
+                        <button type="button" href="#myPopup" data-rel="popup" class="btn btn-secondary btn-sm" data-bs-toggle="modal" 
+                            data-bs-target="#addNewCategoryModal1">{{Lang::get('lang.change_role_to_agent')}}</button>
                     </div>
 
                     <div class="btn-group">
-                        <button type="button" href="#myPopup" data-rel="popup" class="btn btn-default btn-sm" data-toggle="modal" 
-                            data-target="#addNewCategoryModal4">{{Lang::get('lang.change_role_to_admin')}}</button>
+                        <button type="button" href="#myPopup" data-rel="popup" class="btn btn-secondary btn-sm" data-bs-toggle="modal" 
+                            data-bs-target="#addNewCategoryModal4">{{Lang::get('lang.change_role_to_admin')}}</button>
                     </div>
                     @elseif($users->role == 'agent')
                     <div class="btn-group">
-                        <button type="button" href="#myPopup" data-rel="popup" class="btn btn-default btn-sm" data-toggle="modal" 
-                            data-target="#addNewCategoryModal2">{{Lang::get('lang.change_role_to_user')}}</button>
+                        <button type="button" href="#myPopup" data-rel="popup" class="btn btn-secondary btn-sm" data-bs-toggle="modal" 
+                            data-bs-target="#addNewCategoryModal2">{{Lang::get('lang.change_role_to_user')}}</button>
                     </div>
                     <div class="btn-group">
-                        <button type="button" href="#myPopup" data-rel="popup" class="btn btn-default btn-sm" data-toggle="modal" 
-                            data-target="#addNewCategoryModal4">{{Lang::get('lang.change_role_to_admin')}}</button>
+                        <button type="button" href="#myPopup" data-rel="popup" class="btn btn-secondary btn-sm" data-bs-toggle="modal" 
+                            data-bs-target="#addNewCategoryModal4">{{Lang::get('lang.change_role_to_admin')}}</button>
                     </div>
                     @else
                     <div class="btn-group">
-                        <button type="button" href="#myPopup" data-rel="popup" class="btn btn-default btn-sm" data-toggle="modal" 
-                            data-target="#addNewCategoryModal2">{{Lang::get('lang.change_role_to_user')}}</button>
+                        <button type="button" href="#myPopup" data-rel="popup" class="btn btn-secondary btn-sm" data-bs-toggle="modal" 
+                            data-bs-target="#addNewCategoryModal2">{{Lang::get('lang.change_role_to_user')}}</button>
                     </div>
                     <div class="btn-group">
-                        <button type="button" href="#myPopup" data-rel="popup" class="btn btn-default btn-sm" data-toggle="modal" 
-                            data-target="#addNewCategoryModal1">{{Lang::get('lang.change_role_to_agent')}}</button>
+                        <button type="button" href="#myPopup" data-rel="popup" class="btn btn-secondary btn-sm" data-bs-toggle="modal" 
+                            data-bs-target="#addNewCategoryModal1">{{Lang::get('lang.change_role_to_agent')}}</button>
                     </div>
                     @endif
                     @endif
 
                     @if(Auth::user()->role == 'admin')
                     <a href="{{route('user.edit', $users->id)}}">
-                        <button type="button"  href="{{route('user.edit', $users->id)}}" class="btn btn-default btn-sm">{{Lang::get('lang.edit')}}</button>
+                        <button type="button"  href="{{route('user.edit', $users->id)}}" class="btn btn-secondary btn-sm">{{Lang::get('lang.edit')}}</button>
                     </a>
 
-                    <button type="button" href="#myPopup" data-rel="popup" class="btn btn-default btn-sm" data-toggle="modal" 
-                        data-target="#addNewCategoryModal">{{Lang::get('lang.change_password')}}</button>
+                    <button type="button" href="#myPopup" data-rel="popup" class="btn btn-secondary btn-sm" data-bs-toggle="modal" 
+                        data-bs-target="#addNewCategoryModal">{{Lang::get('lang.change_password')}}</button>
                     
-                    <button type="button" href="#myPopup" data-rel="popup" class="btn btn-default btn-sm" data-toggle="modal" 
-                        data-target="#addNewCategoryModal3">{{Lang::get('lang.delete')}}</button>
+                    <button type="button" href="#myPopup" data-rel="popup" class="btn btn-secondary btn-sm" data-bs-toggle="modal" 
+                        data-bs-target="#addNewCategoryModal3">{{Lang::get('lang.delete')}}</button>
                     @endif
 
                     @if(Auth::user()->role == 'agent')
                     @if($users->role == 'user')
                     <a href="{{route('user.edit', $users->id)}}">
-                        <button type="button"  href="{{route('user.edit', $users->id)}}" class="btn btn-default btn-sm">{{Lang::get('lang.edit')}}</button>
+                        <button type="button"  href="{{route('user.edit', $users->id)}}" class="btn btn-secondary btn-sm">{{Lang::get('lang.edit')}}</button>
                     </a>
 
-                    <button type="button" href="#myPopup" data-rel="popup" class="btn btn-default btn-sm" data-toggle="modal" 
-                        data-target="#addNewCategoryModal">{{Lang::get('lang.change_password')}}</button>
+                    <button type="button" href="#myPopup" data-rel="popup" class="btn btn-secondary btn-sm" data-bs-toggle="modal" 
+                        data-bs-target="#addNewCategoryModal">{{Lang::get('lang.change_password')}}</button>
 
-                    <button type="button" href="#myPopup" data-rel="popup" class="btn btn-default btn-sm" data-toggle="modal" 
-                        data-target="#addNewCategoryModal3">{{Lang::get('lang.delete')}}</button>
+                    <button type="button" href="#myPopup" data-rel="popup" class="btn btn-secondary btn-sm" data-bs-toggle="modal" 
+                        data-bs-target="#addNewCategoryModal3">{{Lang::get('lang.delete')}}</button>
                     @endif
                     @endif
 
@@ -334,7 +331,7 @@ class="nav-link active"
                         
                              <article class="hentry error404 text-center">
                         
-                            <h1 class="error-title"><i class="fas fa-trash text-info" style="color: grey"></i>
+                            <h1 class="error-title"><i class="fa-solid fa-trash text-info" style="color: grey"></i>
                         
                             </h1>
 
@@ -343,8 +340,8 @@ class="nav-link active"
                             <div class="entry-content clearfix">
                                 <p class="lead">{!! Lang::get('lang.delete-account-caution-info') !!}</p>
                                 <p>
-                                    <button type="button" href="#myPopup" data-rel="popup" class="btn btn-primary btn-sm" data-toggle="modal" 
-                                        data-target="#addNewCategoryModal8">{{Lang::get('lang.restore-user')}}
+                                    <button type="button" href="#myPopup" data-rel="popup" class="btn btn-primary btn-sm" data-bs-toggle="modal" 
+                                        data-bs-target="#addNewCategoryModal8">{{Lang::get('lang.restore-user')}}
                                     </button>
                                 </p>
                             </div><!-- .entry-content -->
@@ -355,7 +352,7 @@ class="nav-link active"
                     @if(Auth::user()->role == 'agent')
                     @if($users->role == 'user')
                     This is a deleted contact 
-                    <button type="button" href="#myPopup" data-rel="popup" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addNewCategoryModal8">{{Lang::get('lang.restore')}}</button>
+                    <button type="button" href="#myPopup" data-rel="popup" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addNewCategoryModal8">{{Lang::get('lang.restore')}}</button>
                     @elseif($users->role == 'agent')
                     This is a deleted contact 
                     @endif
@@ -369,56 +366,55 @@ class="nav-link active"
                     <ul class="nav nav-tabs" >
 
                         <li class="nav-item">
-                            <a class="nav-link active" href="#tab_1" id="open_tab" data-toggle="tab">{!! Lang::get('lang.open_tickets') !!} ({{$open}})</a>
+                            <a class="nav-link active" href="#tab_1" id="open_tab" data-bs-toggle="tab">{!! Lang::get('lang.open_tickets') !!} ({{$open}})</a>
                         </li>
                         
                         <li class="nav-item">
-                            <a class="nav-link" href="#tab_2" id="closed_tab" data-toggle="tab">{!! Lang::get('lang.closed_tickets') !!} ({{$counted}})</a>
+                            <a class="nav-link" href="#tab_2" id="closed_tab" data-bs-toggle="tab">{!! Lang::get('lang.closed_tickets') !!} ({{$counted}})</a>
                         </li>
                         
                         <li class="nav-item">
-                            <a class="nav-link" href="#tab_3" id="deleted_tab" data-toggle="tab">{!! Lang::get('lang.deleted_tickets') !!} ({{$deleted}})</a>
+                            <a class="nav-link" href="#tab_3" id="deleted_tab" data-bs-toggle="tab">{!! Lang::get('lang.deleted_tickets') !!} ({{$deleted}})</a>
                         </li>
                     </ul>
                 
                     <div class="tab-content mt-2">
                     
                         @if(Session::has('success'))
-                        <div id="success-alert" class="alert alert-success alert-dismissable">
-                            <i class="fas  fa-check-circle"> </i>
-                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                        <div id="success-alert" class="alert alert-success alert-dismissible">
+                            <i class="fa-solid  fa-circle-check"> </i>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
                             {{Session::get('success')}}
                         </div>
                         @endif
                         <!-- failure message -->
                         @if(Session::has('fails'))
-                        <div class="alert alert-danger alert-dismissable">
-                            <i class="fas fa-ban"> </i> <b> {!! Lang::get('lang.alert') !!} ! </b>
-                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                        <div class="alert alert-danger alert-dismissible">
+                            <i class="fa-solid fa-ban"> </i> <b> {!! Lang::get('lang.alert') !!} ! </b>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
                             {{Session::get('fails')}}
                         </div>
                         @endif
 
-                        {!! Form::open(['route'=>'select_all','method'=>'post']) !!}
+                        {!! html()->form('POST', route('select_all'))->open() !!}
                         
                         <div class="mailbox-controls">
 
-                            <a class="btn btn-default btn-sm checkbox-toggle"><i class="far fa-square"></i></a>
+                            <a class="btn btn-secondary btn-sm checkbox-toggle"><i class="fa-regular fa-square"></i></a>
                        
-                            <input type="submit" class="btn btn-default text-orange btn-sm" name="submit" value="{!! Lang::get('lang.delete') !!}">
+                            <input type="submit" class="btn btn-secondary btn-sm" name="submit" value="{!! Lang::get('lang.delete') !!}">
                        
-                            <input type="submit" class="btn btn-default text-yellow btn-sm" name="submit" value="{!! Lang::get('lang.close') !!}">
+                            <input type="submit" class="btn btn-secondary btn-sm" name="submit" value="{!! Lang::get('lang.close') !!}">
                        
                             <div id="more-option" class="btn-group">
                        
-                                <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" id="d2">
-                                    <i class="fas fa-sort" style="color:teal;"> </i>
+                                <button type="button" class="btn btn-sm btn-secondary dropdown-toggle" data-bs-toggle="dropdown" id="d2">
                                         {!! Lang::get('lang.sort-by') !!} <span class="caret"></span>
                                 </button>
 
                                 <div  class="dropdown-menu">
-                                    <a data-toggle="modal" data-target="#ChangeOwner" class="dropdown-item toggle-vis" href="#">
-                                        <i class="fas fa-plus" style="color:green;"> </i> {!!Lang::get('lang.created-at')!!}
+                                    <a data-bs-toggle="modal" data-bs-target="#ChangeOwner" class="dropdown-item toggle-vis" href="#">
+                                        <i class="fa-solid fa-plus text-success"> </i> {!!Lang::get('lang.created-at')!!}
                                     </a>
                                 </div>
                             </div>
@@ -436,14 +432,27 @@ class="nav-link active"
                                 <b>{!! Lang::get('lang.loading') !!}...</b>
                             </p>
                             
-                            {!!$table->render('vendor.Chumper.template')!!}
+                            <table id="chumper" class="table table-bordered w-100 d-table">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>{{Lang::get('lang.subject')}}</th>
+                                        <th>{{Lang::get('lang.ticket_id')}}</th>
+                                        <th>{{Lang::get('lang.priority')}}</th>
+                                        <th>{{Lang::get('lang.from')}}</th>
+                                        <th>{{Lang::get('lang.assigned_to')}}</th>
+                                        <th>{{Lang::get('lang.last_activity')}}</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
 
                         </div><!-- /.mail-box-messages -->
                     </div><!-- /.col -->          
                 </div>
             </div>
         </div>
-        {!!Form::close()!!}
+        {!! html()->closeModelForm() !!}
            
          @endif
 
@@ -463,11 +472,11 @@ class="nav-link active"
             <div class="card-body">
                 <form id="foo">
                 {{ csrf_field() }}
-                    <div  class="form-group">
+                    <div  class="mb-3">
                         <div class="row">
                             <div class='col-sm-3'>
-                                {!! Form::label('date', Lang::get("lang.start_date").':') !!}
-                                {!! Form::text('start_date',null,['class'=>'form-control','id'=>'datepicker4'])!!}
+                                {!! html()->label(Lang::get("lang.start_date").':', 'date') !!}
+                                {!! html()->text('start_date', null)->class('form-control')->id('datepicker4') !!}
                             </div>
                             <?php
                             $start_date = App\Model\helpdesk\Ticket\Tickets::where('id', '=', '1')->first();
@@ -493,8 +502,8 @@ class="nav-link active"
                                 });
                             </script>
                             <div class='col-sm-3'>
-                                {!! Form::label('start_time', Lang::get("lang.end_date").':') !!}
-                                {!! Form::text('end_date',null,['class'=>'form-control','id'=>'datetimepicker3'])!!}
+                                {!! html()->label(Lang::get("lang.end_date").':', 'start_time') !!}
+                                {!! html()->text('end_date', null)->class('form-control')->id('datetimepicker3') !!}
                             </div>
                             <script type="text/javascript">
                                 $(function() {
@@ -508,7 +517,7 @@ class="nav-link active"
                                 });
                             </script>
                             <div class='col-sm-3'>
-                                {!! Form::label('filter', 'Filter:',['style' => 'visibility:hidden;']) !!}<br>
+                                {!! html()->label('Filter:', 'filter')->attributes(['style' => 'visibility:hidden;']) !!}<br>
                                 <input type="submit" value="{!! Lang::get('lang.submit') !!}" class="btn btn-primary">
                             </div>
                             <div class="col-sm-10">
@@ -547,22 +556,22 @@ class="nav-link active"
     <div class="modal fade" id="create_org">
         <div class="modal-dialog" style="width:84%;height:70%;">
             <div class="modal-content">
-                {!! Form::model($users->id, ['id'=>'form','method' => 'PATCH'] )!!}
+                {!! html()->modelForm($users->id, 'PATCH', url()->current())->attributes(['id' => 'form'])->open() !!}
                 <div class="modal-header">
                     
-                    <h4 class="modal-title">{!! Lang::get('lang.create_organization') !!}</h4>
+                    <h5 class="modal-title">{!! Lang::get('lang.create_organization') !!}</h4>
 
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidd en="true">&times;</span></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidd en="true">&times;</span></button>
                 </div>
                 <div class="modal-body">
                     <!-- failure message -->                                
-                    <div class="alert alert-danger alert-dismissable" id="alert-danger-create-org" style="display:none;"> 
-                        <i class="fas fa-ban"> </i> <b> {!! Lang::get('lang.alert') !!} ! <span id="get-danger-create-org"></span> </b>
-                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    <div class="alert alert-danger alert-dismissible" id="alert-danger-create-org" style="display:none;"> 
+                        <i class="fa-solid fa-ban"> </i> <b> {!! Lang::get('lang.alert') !!} ! <span id="get-danger-create-org"></span> </b>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
                     </div>                              
                     <div class="row" id="hide">
                         <div class="col-md-4">
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label>{!! Lang::get('lang.name') !!}</label>
                                 <input type="text" name="name" class="form-control">
                                 <spam id="error-name" style="display:none;position:fixed" class="call-out text-red">This is a required field</spam>
@@ -571,14 +580,14 @@ class="nav-link active"
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label>{!! Lang::get('lang.phone') !!}</label>
                                 <input type="number" name="phone" class="form-control">
                                 <br/>
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label>{!! Lang::get('lang.website') !!}</label>
                                 <input type="url" name="website" placeholder="https://www.example.com" class="form-control">
                                 <spam id="error-website" style="display:none" class="help-block text-red">! Allready Taken</spam>
@@ -586,13 +595,13 @@ class="nav-link active"
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label>{!! Lang::get('lang.address') !!}</label>
                                 <textarea name="address" id="address" class="form-control"></textarea>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label>{!! Lang::get('lang.internal_notes') !!}</label>
                                 <textarea name="internal" id="internal" class="form-control"></textarea>
                             </div>
@@ -611,10 +620,10 @@ class="nav-link active"
                     </div>
                 </div>
                 <div class="modal-footer justify-content-between">
-                    <button type="button" class="btn btn-default" data-dismiss="modal" id="dismis">{!! Lang::get('lang.close') !!}</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="dismis">{!! Lang::get('lang.close') !!}</button>
                     <input type="submit" class="btn btn-primary" value="{!! Lang::get('lang.update') !!}">
                 </div>
-                {!! Form::close() !!}
+                {!! html()->closeModelForm() !!}
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
         <script>
@@ -637,28 +646,28 @@ class="nav-link active"
                     dataType: "html",
                     data: $(this).serialize(),
                     beforeSend: function() {
-                        $("#hide").hide();
-                        $("#show2").show();
+                        $("#hide").addClass('d-none');
+                        $("#show2").removeClass('d-none');
                     },
                     success: function(response) {
-                        $("#show2").hide();
-                        $("#hide").show();
+                        $("#show2").addClass('d-none');
+                        $("#hide").removeClass('d-none');
                         if (response == 0) {
                             message = "Organization added successfully."
                             $("#dismis").trigger("click");
                             $("#refresh-org").load("../user/{{ $users->id }}  #refresh-org");
                             // $("#refresh2").load("../thread/{{$users->id}}   #refresh2");
-                            // $("#show").show();
-                            $("#alert-success").show();
+                            // $("#show").removeClass('d-none');
+                            $("#alert-success").removeClass('d-none');
                             $('#get-success').html(message);
                             setInterval(function() {
-                                $("#alert-success").hide();
+                                $("#alert-success").addClass('d-none');
                             }, 6000);
                             window.location.reload(true);
 
                         } else {
                             message = response;
-                            $("#alert-danger-create-org").show();
+                            $("#alert-danger-create-org").removeClass('d-none');
                             $('#get-danger-create-org').html(message);
                         }
                     }
@@ -671,20 +680,20 @@ class="nav-link active"
     <div class="modal fade" id="assign">
         <div class="modal-dialog">
             <div class="modal-content">
-                {!! Form::model($users->id, ['id'=>'org_assign','method' => 'PATCH'] )!!}
+                {!! html()->modelForm($users->id, 'PATCH', url()->current())->attributes(['id' => 'org_assign'])->open() !!}
                 <div class="modal-header">
 
-                    <h4 class="modal-title">{!! Lang::get('lang.assign') !!}</h4>
+                    <h5 class="modal-title">{!! Lang::get('lang.assign') !!}</h4>
 
-                    <button type="button" class="close" data-dismiss="modal" id="dismiss" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" id="dismiss" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     
                 </div>
         
                 <div class="modal-body">
 
-                    <div class="alert alert-danger alert-dismissable" id="alert-danger-assign-org" style="display:none;"> 
-                        <i class="fas fa-ban"> </i> <b> {!! Lang::get('lang.alert') !!} ! <span id="get-danger-assign-org"></span> </b>
-                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    <div class="alert alert-danger alert-dismissible" id="alert-danger-assign-org" style="display:none;"> 
+                        <i class="fa-solid fa-ban"> </i> <b> {!! Lang::get('lang.alert') !!} ! <span id="get-danger-assign-org"></span> </b>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
                     </div>
 
                     <div class="row">
@@ -702,7 +711,7 @@ class="nav-link active"
                     </div>
                 </div>
                 <div class="modal-footer justify-content-between">
-                    <button type="button" class="btn btn-default" data-dismiss="modal" id="dismis4">{!! Lang::get('lang.close') !!}</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="dismis4">{!! Lang::get('lang.close') !!}</button>
                     <button type="submit" class="btn btn-success" id="submt2">{!! Lang::get('lang.assign') !!}</button>
                 </div>
                 <script>
@@ -712,7 +721,7 @@ class="nav-link active"
                     });
                 </script>
 
-                {!! Form::close()!!}
+                {!! html()->closeModelForm() !!}
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
@@ -733,22 +742,22 @@ class="nav-link active"
         <div class="modal-dialog">
 
             <div class="modal-content">
-                {!! Form::model($users->id, ['id'=>'org_edit_assign','method' => 'PATCH'] )!!}
+                {!! html()->modelForm($users->id, 'PATCH', url()->current())->attributes(['id' => 'org_edit_assign'])->open() !!}
                 <div class="modal-header">
                     
-                    <h4 class="modal-title">{!! Lang::get('lang.assign') !!}</h4>
+                    <h5 class="modal-title">{!! Lang::get('lang.assign') !!}</h4>
 
-                    <button type="button" class="close" data-dismiss="modal" id="dismiss" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" id="dismiss" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 </div>
-                <!--   <div id="assign_alert" class="alert alert-success alert-dismissable" style="display:none;">
-                      <button id="assign_dismiss" type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-                      <h4><i class="icon fa fa-check"></i>Alert!</h4>
+                <!--   <div id="assign_alert" class="alert alert-success alert-dismissible d-none">
+                      <button id="assign_dismiss" type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
+                      <h4><i class="icon fa-solid fa-check"></i>Alert!</h4>
                       <div id="message-success1"></div>
                   </div> -->
                 <div class="modal-body">
-                    <div class="alert alert-danger alert-dismissable" id="alert-danger-edit-org" style="display:none;"> 
-                        <i class="fas fa-ban"> </i> <b> {!! Lang::get('lang.alert') !!} ! <span id="get-danger-edit-org"></span> </b>
-                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    <div class="alert alert-danger alert-dismissible" id="alert-danger-edit-org" style="display:none;"> 
+                        <i class="fa-solid fa-ban"> </i> <b> {!! Lang::get('lang.alert') !!} ! <span id="get-danger-edit-org"></span> </b>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
                     </div>
                     <div class="row">
                         <div class="col-md-4">
@@ -767,16 +776,16 @@ class="nav-link active"
                     </div>
                 </div>
                 <div class="modal-footer justify-content-between">
-                    <button type="button" class="btn btn-default" data-dismiss="modal" id="dismis4">{!! Lang::get('lang.close') !!}</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="dismis4">{!! Lang::get('lang.close') !!}</button>
                     <button type="submit" class="btn btn-success" id="submt3">{!! Lang::get('lang.assign') !!}</button>
                 </div>
-                {!! Form::close()!!}
+                {!! html()->closeModelForm() !!}
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
     @endif
     @endif
-    {!! $table->script('vendor.Chumper.tuser-javascript') !!}
+    @include('vendor.Chumper.tuser-javascript')
     <script type="text/javascript">
         // Assign a ticket
         jQuery(document).ready(function($) {
@@ -788,23 +797,23 @@ class="nav-link active"
                     dataType: "html",
                     data: $(this).serialize(),
                     beforeSend: function() {
-                        $("#hide").hide();
-                        $("#show2").show();
+                        $("#hide").addClass('d-none');
+                        $("#show2").removeClass('d-none');
                     },
                     success: function(response) {
-                        $("#show2").hide();
-                        $("#hide").show();
+                        $("#show2").addClass('d-none');
+                        $("#hide").removeClass('d-none');
 
                         if (response == 1) {
                             message = "Organization added successfully."
                             $("#dismiss").trigger("click");
                             $("#refresh-org").load("../user/{{ $users->id }}  #refresh-org");
                             // $("#refresh2").load("../thread/{{$users->id}}   #refresh2");
-                            // $("#show").show();
-                            $("#alert-success").show();
+                            // $("#show").removeClass('d-none');
+                            $("#alert-success").removeClass('d-none');
                             $('#get-success').html(message);
                             setInterval(function() {
-                                $("#alert-success").hide();
+                                $("#alert-success").addClass('d-none');
                             }, 4000);
                             window.location.reload(true);
                         }
@@ -816,11 +825,11 @@ class="nav-link active"
                             // $("#dismiss").trigger("click");
                             $("#refresh-org").load("../user/{{ $users->id }}  #refresh-org");
                             // $("#refresh2").load("../thread/{{$users->id}}   #refresh2");
-                            // $("#show").show();
-                            $("#alert-danger-assign-org").show();
+                            // $("#show").removeClass('d-none');
+                            $("#alert-danger-assign-org").removeClass('d-none');
                             $('#get-danger-assign-org').html(message);
                             setInterval(function() {
-                                $("#alert-danger-assign-org").hide();
+                                $("#alert-danger-assign-org").addClass('d-none');
                             }, 4000);
                         }
 
@@ -829,11 +838,11 @@ class="nav-link active"
                             // $("#dismiss").trigger("click");
                             $("#refresh-org").load("../user/{{ $users->id }}  #refresh-org");
                             // $("#refresh2").load("../thread/{{$users->id}}   #refresh2");
-                            // $("#show").show();
-                            $("#alert-danger-assign-org").show();
+                            // $("#show").removeClass('d-none');
+                            $("#alert-danger-assign-org").removeClass('d-none');
                             $('#get-danger-assign-org').html(message);
                             setInterval(function() {
-                                $("#alert-danger-assign-org").hide();
+                                $("#alert-danger-assign-org").addClass('d-none');
                             }, 4000);
                         }
 
@@ -857,12 +866,12 @@ class="nav-link active"
                     dataType: "html",
                     data: $(this).serialize(),
                     beforeSend: function() {
-                        $("#hide").hide();
-                        $("#show2").show();
+                        $("#hide").addClass('d-none');
+                        $("#show2").removeClass('d-none');
                     },
                     success: function(response) {
-                        $("#show2").hide();
-                        $("#hide").show();
+                        $("#show2").addClass('d-none');
+                        $("#hide").removeClass('d-none');
 
                         if (response == 1) {
                             $("#editassign").modal('hide');
@@ -870,11 +879,11 @@ class="nav-link active"
                             $("#dismiss").trigger("click");
                             $("#refresh-org").load("../user/{{ $users->id }}  #refresh-org");
                             // $("#refresh2").load("../thread/{{$users->id}}   #refresh2");
-                            // $("#show").show();
-                            $("#alert-success").show();
+                            // $("#show").removeClass('d-none');
+                            $("#alert-success").removeClass('d-none');
                             $('#get-success').html(message);
                             setInterval(function() {
-                                $("#alert-success").hide();
+                                $("#alert-success").addClass('d-none');
                             }, 4000);
                             window.location.reload(true);
                         }
@@ -884,11 +893,11 @@ class="nav-link active"
                             // $("#dismiss").trigger("click");
                             $("#refresh-org").load("../user/{{ $users->id }}  #refresh-org");
                             // $("#refresh2").load("../thread/{{$users->id}}   #refresh2");
-                            // $("#show").show();
-                            $("#alert-danger-edit-org").show();
+                            // $("#show").removeClass('d-none');
+                            $("#alert-danger-edit-org").removeClass('d-none');
                             $('#get-danger-edit-org').html(message);
                             setInterval(function() {
-                                $("#alert-danger-edit-org").hide();
+                                $("#alert-danger-edit-org").addClass('d-none');
                             }, 4000);
 
                         }
@@ -898,11 +907,11 @@ class="nav-link active"
                             // $("#dismiss").trigger("click");
                             $("#refresh-org").load("../user/{{ $users->id }}  #refresh-org");
                             // $("#refresh2").load("../thread/{{$users->id}}   #refresh2");
-                            // $("#show").show();
-                            $("#alert-danger-edit-org").show();
+                            // $("#show").removeClass('d-none');
+                            $("#alert-danger-edit-org").removeClass('d-none');
                             $('#get-danger-edit-org').html(message);
                             setInterval(function() {
-                                $("#alert-danger-edit-org").hide();
+                                $("#alert-danger-edit-org").addClass('d-none');
                             }, 4000);
 
                         }
@@ -988,7 +997,7 @@ class="nav-link active"
         $(document).ready(function() { /// Wait till page is loaded
             $('#click').click(function() {
                 $('#refresh').load('open #refresh');
-                $("#show").show();
+                $("#show").removeClass('d-none');
             });
         });
 
@@ -1289,7 +1298,7 @@ class="nav-link active"
                             <h4 class="modal-title" id="titleLabel">{{Lang::get('lang.delete_agent')}}</h4>
                             @endif
 
-                             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span
                                     aria-hidden="true">&times;</span>
                             </button>
 
@@ -1301,7 +1310,7 @@ class="nav-link active"
 <br>
                             <?php $user = App\User::where('id', $users->id)->first(); ?>
                             @if($user->role == 'agent')
-                            {!! Form::label('delete_all_content',Lang::get('lang.delete_all_content')) !!} <span class="text-red"> *</span>
+                            {!! html()->label(Lang::get('lang.delete_all_content'), 'delete_all_content') !!} <span class="text-red"> *</span>
                             <?php
                             $open = App\Model\helpdesk\Ticket\Tickets::where('assigned_to', '=', $users->id)->where('status', '=', '1')->get();
                             ?>
@@ -1358,7 +1367,7 @@ class="nav-link active"
                         </div>
 
                         <div class="modal-footer">
-                            {!! Form::submit(Lang::get('lang.confirm_deletion'),['class'=>'btn btn-primary float-right'])!!}
+                            {!! html()->submit(Lang::get('lang.confirm_deletion'))->class('btn btn-primary float-end') !!}
                         </div>
                     </div>
                 </div>
@@ -1375,7 +1384,7 @@ class="nav-link active"
                     <div class="modal-header">
 
                         <h4 class="modal-title" id="titleLabel">{{Lang::get('lang.role_change')}}:</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span
                                 aria-hidden="true">&times;</span>
                         </button>
                        
@@ -1388,20 +1397,20 @@ class="nav-link active"
                         $departments = App\Model\helpdesk\Agent\Department::all(['id', 'name']);
                         ?>
 
-                        <!-- <div class="col-sm-4 form-group {{ $errors->has('group') ? 'has-error' : '' }}"> -->
-                        {!! Form::label('assign_group',Lang::get('lang.assigned_group')) !!} <span class="text-red"> *</span>
-                        {!!Form::select('group',[Lang::get('lang.groups')=>$groups->pluck('name','id')->toArray()],null,['class' => 'form-control select']) !!}
+                        <!-- <div class="col-sm-4 mb-3 {{ $errors->has('group') ? 'has-error' : '' }}"> -->
+                        {!! html()->label(Lang::get('lang.assigned_group'), 'assign_group') !!} <span class="text-red"> *</span>
+                        {!! html()->select('group', [Lang::get('lang.groups')=>$groups->pluck('name','id')->toArray()], null)->class('form-control select') !!}
                         <!-- </div> -->
                         <!-- primary dept -->
-                        <!-- <div class="col-sm-4 form-group {{ $errors->has('primary_department') ? 'has-error' : '' }}"> -->
-                        {!! Form::label('primary_dpt',Lang::get('lang.primary_department')) !!} <span class="text-red"> *</span>
-                        {!! Form::select('primary_department', [Lang::get('lang.departments')=>$departments->pluck('name','id')->toArray()],null,['class' => 'form-control select']) !!}
+                        <!-- <div class="col-sm-4 mb-3 {{ $errors->has('primary_department') ? 'has-error' : '' }}"> -->
+                        {!! html()->label(Lang::get('lang.primary_department'), 'primary_dpt') !!} <span class="text-red"> *</span>
+                        {!! html()->select('primary_department', [Lang::get('lang.departments')=>$departments->pluck('name','id')->toArray()], null)->class('form-control select') !!}
                         <!-- </div> -->
 
                     </div>
 
                     <div class="modal-footer">
-                        {!! Form::submit(Lang::get('lang.submit'),['class'=>'btn btn-primary float-right'])!!}
+                        {!! html()->submit(Lang::get('lang.submit'))->class('btn btn-primary float-end') !!}
                     </div>
                 </div>
             </div>
@@ -1417,7 +1426,7 @@ class="nav-link active"
 
                          <h4 class="modal-title" id="titleLabel">{{Lang::get('lang.role_change')}}:</h4>
 
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span
                                 aria-hidden="true">&times;</span>
                         </button>
                        
@@ -1432,7 +1441,7 @@ class="nav-link active"
                     </div>
 
                     <div class="modal-footer">
-                        {!! Form::submit(Lang::get('lang.submit'),['class'=>'btn btn-primary float-right'])!!}
+                        {!! html()->submit(Lang::get('lang.submit'))->class('btn btn-primary float-end') !!}
                     </div>
                 </div>
             </div>
@@ -1447,7 +1456,7 @@ class="nav-link active"
                     <div class="modal-header">
 
                         <h4 class="modal-title" id="titleLabel">{{Lang::get('lang.role_change')}}:</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span
                                 aria-hidden="true">&times;</span>
                         </button>
                         
@@ -1460,20 +1469,20 @@ class="nav-link active"
                         $departments = App\Model\helpdesk\Agent\Department::all(['id', 'name']);
                         ?>
 
-                        <!-- <div class="col-sm-4 form-group {{ $errors->has('group') ? 'has-error' : '' }}"> -->
-                        {!! Form::label('assign_group',Lang::get('lang.assigned_group')) !!} <span class="text-red"> *</span>
-                        {!!Form::select('group',[Lang::get('lang.groups')=>$groups->pluck('name','id')->toArray()],null,['class' => 'form-control select']) !!}
+                        <!-- <div class="col-sm-4 mb-3 {{ $errors->has('group') ? 'has-error' : '' }}"> -->
+                        {!! html()->label(Lang::get('lang.assigned_group'), 'assign_group') !!} <span class="text-red"> *</span>
+                        {!! html()->select('group', [Lang::get('lang.groups')=>$groups->pluck('name','id')->toArray()], null)->class('form-control select') !!}
                         <!-- </div> -->
                         <!-- primary dept -->
-                        <!-- <div class="col-sm-4 form-group {{ $errors->has('primary_department') ? 'has-error' : '' }}"> -->
-                        {!! Form::label('primary_dpt',Lang::get('lang.primary_department')) !!} <span class="text-red"> *</span>
-                        {!! Form::select('primary_department', [Lang::get('lang.departments')=>$departments->pluck('name','id')->toArray()],null,['class' => 'form-control select']) !!}
+                        <!-- <div class="col-sm-4 mb-3 {{ $errors->has('primary_department') ? 'has-error' : '' }}"> -->
+                        {!! html()->label(Lang::get('lang.primary_department'), 'primary_dpt') !!} <span class="text-red"> *</span>
+                        {!! html()->select('primary_department', [Lang::get('lang.departments')=>$departments->pluck('name','id')->toArray()], null)->class('form-control select') !!}
                         <!-- </div> -->
 
                     </div>
 
                     <div class="modal-footer">
-                        {!! Form::submit(Lang::get('lang.submit'),['class'=>'btn btn-primary float-right'])!!}
+                        {!! html()->submit(Lang::get('lang.submit'))->class('btn btn-primary float-end') !!}
                     </div>
                 </div>
             </div>
@@ -1487,7 +1496,7 @@ class="nav-link active"
                 <div class="modal-header">
 
                     <h4 class="modal-title" id="titleLabel">{{Lang::get('lang.change_password')}}:</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span
                             aria-hidden="true">&times;</span>
                     </button>
                     
@@ -1495,14 +1504,14 @@ class="nav-link active"
 
                 <div class="modal-body">
 
-                    <button class="btn btn-warning float-right btn-sm mb-1" id="changepassword">{{Lang::get('lang.password_generator')}}</button>
+                    <button class="btn btn-warning float-end btn-sm mb-1" id="changepassword">{{Lang::get('lang.password_generator')}}</button>
 
                     <form name="myForm" action="{!!URL::route('user.post.changepassword', $users->id)!!}" method="post" role="form" onsubmit="return validateForm()">
                     {{ csrf_field() }}
-                        <div class="form-group">
+                        <div class="mb-3">
 
-                            <!-- <div class="form-group {{ $errors->has('change_password') ? 'has-error' : '' }}"> -->
-                            {!! Form::label('New password',Lang::get('lang.new_password')) !!} <span class="text-red"> *</span>
+                            <!-- <div class="mb-3 {{ $errors->has('change_password') ? 'has-error' : '' }}"> -->
+                            {!! html()->label(Lang::get('lang.new_password'), 'New password') !!} <span class="text-red"> *</span>
                             <input type="text" class="form-control" name="change_password" id="changepassword1" >
 
                             <p id="demo" style="color:red"></p>
@@ -1514,7 +1523,7 @@ class="nav-link active"
                 </div>
 
                 <div class="modal-footer">
-                    {!! Form::submit(Lang::get('lang.submit'),['class'=>'btn btn-primary float-right','id'=>'savepassword'])!!}
+                    {!! html()->submit(Lang::get('lang.submit'))->class('btn btn-primary float-end')->id('savepassword') !!}
                 </div>
             </div>
             </form>
@@ -1531,7 +1540,7 @@ class="nav-link active"
                     <div class="modal-header">
 
                           <h4 class="modal-title" id="titleLabel">{{Lang::get('lang.restore')}}:</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span
                                 aria-hidden="true">&times;</span>
                         </button>
                       
@@ -1544,7 +1553,7 @@ class="nav-link active"
                     </div>
 
                     <div class="modal-footer">
-                        {!! Form::submit(Lang::get('lang.submit'),['class'=>'btn btn-primary float-right'])!!}
+                        {!! html()->submit(Lang::get('lang.submit'))->class('btn btn-primary float-end') !!}
                     </div>
                 </div>
             </div>

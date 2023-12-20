@@ -1,11 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Nette Framework (https://nette.org)
  * Copyright (c) 2004 David Grudl (https://davidgrudl.com)
  */
-
-declare(strict_types=1);
 
 namespace Nette\Schema;
 
@@ -17,22 +15,18 @@ use Nette;
  */
 class ValidationException extends Nette\InvalidStateException
 {
-	/** @var Message[] */
-	private $messages;
-
-
-	/**
-	 * @param  Message[]  $messages
-	 */
-	public function __construct(?string $message, array $messages = [])
-	{
-		parent::__construct($message ?: $messages[0]->toString());
-		$this->messages = $messages;
+	public function __construct(
+		?string $message,
+		/** @var list<Message> */
+		private readonly array $messages = [],
+	) {
+		parent::__construct($message ?? $messages[0]->toString());
 	}
 
 
 	/**
-	 * @return string[]
+	 * Returns all validation error messages as formatted strings.
+	 * @return list<string>
 	 */
 	public function getMessages(): array
 	{
@@ -46,7 +40,8 @@ class ValidationException extends Nette\InvalidStateException
 
 
 	/**
-	 * @return Message[]
+	 * Returns all validation error messages as Message objects.
+	 * @return list<Message>
 	 */
 	public function getMessageObjects(): array
 	{

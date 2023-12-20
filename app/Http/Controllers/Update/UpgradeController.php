@@ -4,423 +4,418 @@ namespace App\Http\Controllers\Update;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Utility\LibraryController as Utility;
+use App\Model\helpdesk\Settings\Backup;
+use App\Model\helpdesk\Settings\BackupPath;
 use App\Model\Update\BarNotification;
-use Artisan;
+use Carbon\Carbon;
 use Exception;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
+use Illuminate\View\View;
+use ZipArchive;
 
 class UpgradeController extends Controller
 {
-    public $dir;
-
-    public function __construct()
-    {
-        $dir = base_path();
-        $this->dir = $dir;
+    public function __construct(
+        protected GitHubUpdateService $github
+    ) {
     }
 
-    public function getLatestVersion()
+    /**
+     * API: check whether a new release is available on GitHub.
+     */
+    public function checkUpdate()
     {
         try {
-            $name = \Config::get('app.name');
-            //dd($name);
-            //serial key should be encrypted data
-            $serial_key = '64JAHF9WVJA4GCUZ';
-            //order number should be encrypted data
-            $order_number = '44596328';
-            $url = env('APP_URL');
-            $data = [
-                'serial_key'   => $serial_key,
-                'order_number' => $order_number,
-                'name'         => $name,
-                'version'      => Utility::getFileVersion(),
-                'request_type' => 'check_update',
-                'url'          => $url,
-            ];
-            $data = Utility::encryptByFaveoPublicKey(json_encode($data));
-            //dd($data);
-            $post_data = [
-                'data' => $data,
-            ];
-            $url = 'http://faveohelpdesk.com/billing/public/verification';
-            if (Str::contains($url, ' ')) {
-                $url = str_replace(' ', '%20', $url);
-            }
-            $curl = $this->postCurl($url, $post_data);
-            if (is_array($curl)) {
-                if (array_key_exists('status', $curl)) {
-                    if ($curl['status'] == 'success') {
-                        if (array_key_exists('version', $curl)) {
-                            return $curl['version'];
-                        }
-                    }
-                }
-            }
-        } catch (\Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            $release = $this->github->getLatestRelease();
+
+            $backupPath = BackupPath::value('backup_path') ?: storage_path('backups');
+
+            return successResponse('', [
+                'current_version'  => $this->getCurrentVersion(),
+                'database_version' => $this->getDatabaseVersion(),
+                'latest_version'   => $release['version'] ?? null,
+                'update_available' => $this->isUpdateAvailable(),
+                'database_outdated'=> $this->isDatabaseOutdated(),
+                'release_notes'    => $release['body'] ?? null,
+                'release_url'      => $release['html_url'] ?? null,
+                'backup_path'      => $backupPath,
+            ]);
+        } catch (Exception $e) {
+            return errorResponse($e->getMessage(), 500);
         }
     }
 
-    public function downloadLatestCode()
-    {
-        $name = \Config::get('app.name');
-        $durl = 'http://www.faveohelpdesk.com/billing/public/download-url';
-        if (Str::contains($durl, ' ')) {
-            $durl = str_replace(' ', '%20', $durl);
-        }
-        $data = [
-            'name' => $name,
-        ];
-        $download = $this->postDownloadCurl($durl, $data);
-
-        $download_url = $download['zipball_url'];
-
-        return $download_url;
-    }
-
-    public function saveLatestCodeAtTemp($download_url)
-    {
-        echo '<p>Downloading New Update</p>';
-        $context = stream_context_create(
-            [
-                'http' => [
-                    'header' => 'User-Agent: Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36',
-                ],
-            ]
-        );
-
-        $newUpdate = file_get_contents($download_url, false, $context);
-        if (!is_dir("$this->dir/UPDATES/")) {
-            \File::makeDirectory($this->dir.'/UPDATES/', 0777);
-        }
-
-        $dlHandler = fopen($this->dir.'/UPDATES/'.'/faveo-helpdesk-master.zip', 'w');
-        if (!fwrite($dlHandler, $newUpdate)) {
-            echo '<p>Could not save new update. Operation aborted.</p>';
-            exit;
-        }
-        fclose($dlHandler);
-        echo '<p>Update Downloaded And Saved</p>';
-    }
-
-    public function doUpdate()
+    /**
+     * Page: Application Updates dashboard with version comparison and release timeline.
+     */
+    public function fileUpdate(): View|RedirectResponse
     {
         try {
-            $memory_limit = ini_get('memory_limit');
-            if ($memory_limit < 256) {
-                echo '<ul class=list-unstyled>';
-                echo "<li style='color:red;'>Sorry we can not process your request because of limited memory! You have only  $memory_limit. For this you need atleast 256 MB</li>";
-                echo '</ul>';
+            $release = $this->github->getLatestRelease();
+            $currentVersion = $this->getCurrentVersion();
+            $latestVersion = $release['version'] ?? $currentVersion;
+            $updateAvailable = $release && version_compare($latestVersion, $currentVersion, '>');
+            $recentReleases = collect($this->github->getRecentReleases())
+                ->filter(fn ($r) => version_compare($r['version'], $currentVersion, '>'))
+                ->values()
+                ->all();
 
-                return 0;
-            }
-            if (!extension_loaded('zip')) {
-                echo '<ul class=list-unstyled>';
-                echo "<li style='color:red;'>Sorry we can not process your request because you don't have ZIP extension contact your system admin</li>";
-                echo '</ul>';
+            $backupPath = BackupPath::value('backup_path') ?: storage_path('backups');
 
-                return 0;
-            }
-            //Artisan::call('down');
-            $update = $this->dir.'/UPDATES';
-            //Open The File And Do Stuff
-            $zipHandle = zip_open($update.'/faveo-helpdesk-master.zip');
-            //dd($update . '/faveo-' . $aV . '.zip');
-
-            echo '<ul class=list-unstyled>';
-            while ($aF = zip_read($zipHandle)) {
-                $thisFileName = zip_entry_name($aF);
-                $thisFileDir = dirname($thisFileName);
-
-                //Continue if its not a file
-                if (substr($thisFileName, -1, 1) == '/') {
-                    continue;
-                }
-
-                //Make the directory if we need to...
-                if (!is_dir($update.'/'.$thisFileDir.'/')) {
-                    \File::makeDirectory($update.'/'.$thisFileDir, 0775, true, true);
-                    // mkdir($update.'/'. $thisFileDir, 0775);
-                    echo '<li style="color:white;">Created Directory '.$thisFileDir.'</li>';
-                }
-
-                //Overwrite the file
-                if (!is_dir($update.'/'.$thisFileName)) {
-                    echo '<li style="color:white;">'.$thisFileName.'...........';
-                    $contents = zip_entry_read($aF, zip_entry_filesize($aF));
-                    $contents = str_replace("\r\n", "\n", $contents);
-                    $updateThis = '';
-
-                    //If we need to run commands, then do it.
-                    if ($thisFileName == $thisFileDir.'/.env') {
-                        if (is_file($update.'/'.$thisFileDir.'/.env')) {
-                            unlink($update.'/'.$thisFileDir.'/.env');
-                            unlink($update.'/'.$thisFileDir.'/config/database.php');
-                        }
-                        echo' EXECUTED</li>';
-                    } else {
-                        $updateThis = fopen($update.'/'.$thisFileName, 'w');
-                        fwrite($updateThis, $contents);
-                        fclose($updateThis);
-                        unset($contents);
-                        echo' UPDATED</li>';
-                    }
-                }
-            }
-            echo '</ul>';
-
-            //Artisan::call('migrate', ['--force' => true]);
-            return true;
-        } catch (Exception $ex) {
-            echo '<ul class=list-unstyled>';
-            echo "<li style='color:red;'>".$ex->getMessage().'</li>';
-            echo '</ul>';
+            return view('themes.default1.update.update', compact(
+                'currentVersion',
+                'latestVersion',
+                'updateAvailable',
+                'recentReleases',
+                'backupPath',
+            ));
+        } catch (Exception $e) {
+            return redirect()->back()->with('fails', $e->getMessage());
         }
     }
 
-    public function copyToActualDirectory($latest_version)
+    /**
+     * Page: show the upgrade progress page.
+     */
+    public function fileUpgrading(Request $request): View|RedirectResponse
     {
         try {
-            echo '<ul class=list-unstyled>';
-            $directory = "$this->dir/UPDATES";
-            $destination = $this->dir;
-//        $destination = "/Applications/AMPPS/www/test/new";
-            $directories = \File::directories($directory);
-
-//        echo "current directory => $directory <br>";
-//        echo "Destination Directory => $destination <br>";
-            foreach ($directories as $source) {
-                $success = \File::copyDirectory($source, $destination);
-                echo '<li class="success">&raquo; </li>';
+            if (!$this->isUpdateAvailable()) {
+                return redirect('dashboard')->with('fails', 'No new updates available.');
             }
 
-            \File::deleteDirectory($directory);
+            $currentVersion = $this->getCurrentVersion();
+            $latestVersion = $this->github->getLatestVersion();
 
-            $this->deleteBarNotification('new-version');
-
-            echo "<li style='color:green;'>&raquo; Faveo Updated to v".Utility::getFileVersion().'</li>';
-            echo '</ul>';
-        } catch (Exception $ex) {
-            echo '<ul class=list-unstyled>';
-            echo "<li style='color:red;'>".$ex->getMessage().'</li>';
-            echo '</ul>';
+            return view('themes.default1.update.progress', compact(
+                'currentVersion',
+                'latestVersion',
+            ));
+        } catch (Exception $e) {
+            return redirect()->back()->with('fails', $e->getMessage());
         }
-        exit;
     }
 
-    public function deleteBarNotification($key)
+    /**
+     * AJAX: take system backup (database + filesystem) before update.
+     */
+    public function backup(Request $request)
     {
         try {
-            $noti = new BarNotification();
-            $notifications = $noti->where('key', $key)->get();
-            foreach ($notifications as $notify) {
-                $notify->delete();
-            }
-        } catch (Exception $ex) {
-            throw new Exception($ex->getMessage());
-        }
-    }
+            $backupPath = $request->input('path', storage_path('backups'));
 
-    public function fileUpdate()
-    {
-        try {
-            $latest_version = $this->getLatestVersion();
-            if (Utility::getFileVersion() < $latest_version) {
-                $url = url('file-upgrade');
-
-                return view('themes.default1.update.file', compact('url'));
+            if (!is_dir($backupPath)) {
+                File::makeDirectory($backupPath, 0777, true, true);
             }
 
-            return redirect('dashboard')->with('fails', 'Could not find latest realeases from repository.');
-        } catch (Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    public function fileUpgrading(Request $request)
-    {
-        try {
-            //
-            $latest_version = $this->getLatestVersion();
-
-            $current_version = Utility::getFileVersion();
-            if ($latest_version != '') {
-                if (Utility::getFileVersion() < $latest_version) {
-                    return view('themes.default1.update.update', compact('latest_version', 'current_version', 'request'));
-                }
+            if (!is_readable($backupPath) || !is_writable($backupPath)) {
+                return errorResponse('Backup directory is not readable/writable. Please check permissions.');
             }
 
-            return redirect('dashboard')->with('fails', 'Could not find latest realeases from repository.');
+            BackupPath::updateOrCreate(['id' => 1], ['backup_path' => $backupPath]);
 
-//            else {
-//                return redirect()->back();
-//            }
-        } catch (Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
+            $currentVersion = $this->getCurrentVersion();
+            $dbType = \Config::get('database.default');
+            $dbUser = \Config::get('database.connections.'.$dbType.'.username');
+            $dbPass = \Config::get('database.connections.'.$dbType.'.password');
+            $database = \Config::get('database.connections.'.$dbType.'.database');
+            $host = \Config::get('database.connections.'.$dbType.'.host');
 
-    public function testScroll()
-    {
-        $ex = 1000;
-        echo '<ul style=list-unstyled>';
-        for ($i = 0; $i < $ex; $i++) {
-            echo "<li style='color:white;'>updated</li>";
-        }
-        echo '</ul>';
-    }
+            $timestamp = Carbon::now()->timestamp;
+            $datePath = $backupPath.DIRECTORY_SEPARATOR.date('Y/m/d');
+            $filesystemZip = $datePath.DIRECTORY_SEPARATOR."filesystem-{$timestamp}";
+            $dbZip = $datePath.DIRECTORY_SEPARATOR."db-{$timestamp}";
 
-    public function fileUpgrading1(Request $request)
-    {
-        if (Utility::getFileVersion() < Utility::getDatabaseVersion()) {
-            $latest_version = $this->getLatestVersion();
-//            dd($latest_version);
-            $current_version = Utility::getFileVersion();
-            //dd($current_version);
-            if ($latest_version != '') {
-                echo "<p>CURRENT VERSION: $current_version</p>";
-                echo '<p>Reading Current Releases List</p>';
-                if ($latest_version > $current_version) {
-                    echo '<p>New Update Found: v'.$latest_version.'</p>';
-                    $found = true;
-                    if (!is_file("$this->dir/UPDATES/faveo-helpdesk-master.zip")) {
-                        if ($request->get('dodownload') == true) {
-                            $download_url = $this->downloadLatestCode();
-                            if ($download_url != null) {
-                                $this->saveLatestCodeAtTemp($download_url);
-                            } else {
-                                echo '<p>Error in you network connection.</p>';
-                            }
-                        } else {
-                            echo '<p>Latest code found. <a href='.url('file-upgrade?dodownload=true').'>&raquo; Download Now?</a></p>';
-                            exit;
-                        }
-                    } else {
-                        echo '<p>Update already downloaded.</p>';
-                    }
-                    if ($request->get('doUpdate') == true) {
-                        $updated = $this->doUpdate();
-                    } else {
-                        echo '<p>Update ready. <a href='.url('file-upgrade?doUpdate=true').'>&raquo; Install Now?</a></p>';
-                        exit;
-                    }
+            if (!is_dir($datePath)) {
+                File::makeDirectory($datePath, 0775, true, true);
+            }
 
-                    if ($updated == true) {
-                        $this->copyToActualDirectory($latest_version);
-                    } elseif ($found != true) {
-                        echo '<p>&raquo; No update is available.</p>';
-                    }
-                } else {
-                    echo '<p>Could not find latest realeases.</p>';
-                }
+            $folderPath = base_path();
+            $sanitizedPass = str_replace("'", "'\\''", $dbPass);
+            $autoUpdate = $request->input('autoUpdate');
+
+            if ($dbPass == '') {
+                exec("(mysqldump -h{$host} -u{$dbUser} {$database} | zip {$dbZip} - ; zip -r {$filesystemZip} {$folderPath}) > /dev/null 2>&1 &");
             } else {
-                echo '<p>Could not find latest realeases from repository.</p>';
+                exec("(mysqldump -h{$host} -u{$dbUser} -p'{$sanitizedPass}' {$database} | zip {$dbZip} - ; zip -r {$filesystemZip} {$folderPath}) > /dev/null 2>&1 &");
             }
-        } else {
-            return redirect()->back();
+
+            Backup::create([
+                'filename'  => "Filesystem_{$currentVersion}",
+                'db_name'   => "Database_{$currentVersion}",
+                'file_path' => $filesystemZip.'.zip',
+                'db_path'   => $dbZip.'.zip',
+                'version'   => $currentVersion,
+            ]);
+
+            if ($autoUpdate) {
+                Artisan::call('down');
+                $this->github->downloadRelease();
+                $this->extractAndApply();
+                $this->dismissNotification('new-version');
+                $this->cleanup();
+                $this->clearBootstrapCache();
+                Artisan::call('database:sync');
+                Artisan::call('up');
+
+                return successResponse('Backup and update started.');
+            }
+
+            return successResponse('Backup started.');
+        } catch (Exception $e) {
+            return errorResponse($e->getMessage(), 500);
         }
     }
 
-    public function getCurl($url)
+    /**
+     * AJAX: download the latest release ZIP from GitHub.
+     */
+    public function download()
     {
         try {
-            $curl = Utility::_isCurl();
-            if (!$curl) {
-                throw new Exception('Please enable your curl function to check latest update');
+            if ($this->github->hasDownload()) {
+                return successResponse('Update archive already downloaded.');
             }
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_URL, $url);
-            if (curl_exec($ch) === false) {
-                echo 'Curl error: '.curl_error($ch);
-            }
-            $data = curl_exec($ch);
-            curl_close($ch);
 
-            return $data;
-        } catch (Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            $this->github->downloadRelease();
+
+            return successResponse('Release downloaded successfully.');
+        } catch (Exception $e) {
+            return errorResponse($e->getMessage(), 500);
         }
     }
 
-    public function postDownloadCurl($url, $data)
+    /**
+     * AJAX: extract and apply downloaded update files.
+     */
+    public function install()
     {
         try {
-            $curl = Utility::_isCurl();
-            if (!$curl) {
-                throw new Exception('Please enable your curl function to check latest update');
-            }
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_URL, $url);
-            if (curl_exec($ch) === false) {
-                echo 'Curl error: '.curl_error($ch);
-            }
-            $data = curl_exec($ch);
-            curl_close($ch);
+            Artisan::call('down');
 
-            return json_decode($data, true);
-        } catch (Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+            $log = $this->extractAndApply();
+
+            $this->dismissNotification('new-version');
+            $this->cleanup();
+            $this->clearBootstrapCache();
+
+            Artisan::call('up');
+
+            return successResponse('Files updated successfully.', [
+                'version' => $this->getCurrentVersion(),
+                'log'     => $log,
+            ]);
+        } catch (Exception $e) {
+            Artisan::call('up');
+
+            return errorResponse($e->getMessage(), 500);
         }
     }
 
-    public function postCurl($url, $data)
+    /**
+     * Page: show "database update required" notification.
+     */
+    public function databaseUpdate(): View|RedirectResponse
     {
         try {
-            $curl = Utility::_isCurl();
-            if (!$curl) {
-                throw new Exception('Please enable your curl function to check latest update');
-            }
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_URL, $url);
-            if (curl_exec($ch) === false) {
-                echo 'Curl error: '.curl_error($ch);
-            }
-            $data = curl_exec($ch);
-            curl_close($ch);
-            $data = Utility::decryptByFaveoPrivateKey($data);
-
-            return json_decode($data, true);
-        } catch (Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
-        }
-    }
-
-    public function databaseUpdate()
-    {
-        try {
-            if (Utility::getFileVersion() > Utility::getDatabaseVersion()) {
-                $url = url('database-upgrade');
-
-                //$string = "Your Database is outdated please upgrade <a href=$url>Now !</a>";
-                return view('themes.default1.update.database', compact('url'));
-            } else {
+            if (!$this->isDatabaseOutdated()) {
                 return redirect()->back();
             }
-        } catch (Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+
+            $url = url('database-upgrade');
+
+            return view('themes.default1.update.database', compact('url'));
+        } catch (Exception $e) {
+            return redirect()->back()->with('fails', $e->getMessage());
         }
     }
 
-    public function databaseUpgrade()
+    /**
+     * Action: run database sync (migrations + seeders).
+     */
+    public function databaseUpgrade(): RedirectResponse
     {
         try {
-            if (Utility::getFileVersion() > Utility::getDatabaseVersion()) {
-                Artisan::call('migrate', ['--force' => true]);
-
-                return redirect('dashboard')->with('success', 'Database updated');
-            } else {
+            if (!$this->isDatabaseOutdated()) {
                 return redirect()->back();
             }
-        } catch (Exception $ex) {
-            return redirect()->back()->with('fails', $ex->getMessage());
+
+            Artisan::call('database:sync');
+            $output = trim(Artisan::output());
+
+            return redirect('dashboard')->with('success', 'Database synced successfully. '.$output);
+        } catch (Exception $e) {
+            return redirect()->back()->with('fails', $e->getMessage());
         }
+    }
+
+    /**
+     * AJAX: run database sync after file update.
+     */
+    public function ajaxDatabaseSync()
+    {
+        try {
+            Artisan::call('database:sync');
+            $output = trim(Artisan::output());
+
+            return successResponse('Database updated successfully. '.$output);
+        } catch (Exception $e) {
+            return errorResponse($e->getMessage(), 500);
+        }
+    }
+
+    // ------------------------------------------------------------------
+    //  Application-level helpers
+    // ------------------------------------------------------------------
+
+    protected function clearBootstrapCache(): void
+    {
+        $files = glob(base_path('bootstrap/cache/*'));
+        foreach ($files as $file) {
+            if (is_file($file)) {
+                @unlink($file);
+            }
+        }
+    }
+
+    protected function getCurrentVersion(): string
+    {
+        return Utility::getFileVersion() ?: '0';
+    }
+
+    protected function getDatabaseVersion(): string
+    {
+        return Utility::getDatabaseVersion() ?: '0';
+    }
+
+    protected function isUpdateAvailable(): bool
+    {
+        $latest = $this->github->getLatestVersion();
+
+        return $latest && version_compare($latest, $this->getCurrentVersion(), '>');
+    }
+
+    protected function isDatabaseOutdated(): bool
+    {
+        return version_compare($this->getCurrentVersion(), $this->getDatabaseVersion(), '>');
+    }
+
+    protected function dismissNotification(string $key): void
+    {
+        BarNotification::where('key', $key)->delete();
+    }
+
+    /**
+     * Extract the downloaded ZIP and overwrite application files.
+     */
+    protected function extractAndApply(): array
+    {
+        $zipPath = $this->github->zipPath();
+
+        if (!File::exists($zipPath)) {
+            throw new Exception('No downloaded update found. Please download first.');
+        }
+
+        if (!extension_loaded('zip')) {
+            throw new Exception('The PHP ZIP extension is required but not loaded.');
+        }
+
+        $zip = new ZipArchive();
+        if ($zip->open($zipPath) !== true) {
+            throw new Exception('Failed to open the update archive.');
+        }
+
+        $log = [];
+        $basePath = base_path();
+        $rootPrefix = $this->detectZipRootPrefix($zip);
+
+        for ($i = 0; $i < $zip->numFiles; $i++) {
+            $entryName = $zip->getNameIndex($i);
+            $relativePath = $this->stripPrefix($entryName, $rootPrefix);
+
+            if ($relativePath === null || $relativePath === '' || str_ends_with($entryName, '/')) {
+                continue;
+            }
+
+            if ($this->isExcluded($relativePath)) {
+                $log[] = ['file' => $relativePath, 'status' => 'skipped'];
+                continue;
+            }
+
+            $targetPath = $basePath.'/'.$relativePath;
+            $targetDir = dirname($targetPath);
+
+            if (!File::isDirectory($targetDir)) {
+                File::makeDirectory($targetDir, 0755, true, true);
+                $log[] = ['file' => dirname($relativePath).'/', 'status' => 'directory_created'];
+            }
+
+            $contents = $zip->getFromIndex($i);
+            if ($contents !== false) {
+                File::put($targetPath, $contents);
+                $log[] = ['file' => $relativePath, 'status' => 'updated'];
+            } else {
+                $log[] = ['file' => $relativePath, 'status' => 'failed'];
+            }
+        }
+
+        $zip->close();
+
+        Log::info('Update: files extracted', ['total' => count($log)]);
+
+        return $log;
+    }
+
+    /**
+     * Delete the temporary update directory.
+     */
+    protected function cleanup(): void
+    {
+        $tempPath = $this->github->getTempPath();
+
+        if (File::isDirectory($tempPath)) {
+            File::deleteDirectory($tempPath);
+        }
+
+        Log::info('Update: temp files cleaned up');
+    }
+
+    protected function detectZipRootPrefix(ZipArchive $zip): string
+    {
+        if ($zip->numFiles === 0) {
+            return '';
+        }
+
+        $first = $zip->getNameIndex(0);
+
+        return str_contains($first, '/') ? explode('/', $first)[0].'/' : '';
+    }
+
+    protected function stripPrefix(string $path, string $prefix): ?string
+    {
+        if ($prefix === '') {
+            return $path;
+        }
+
+        return str_starts_with($path, $prefix) ? substr($path, strlen($prefix)) : null;
+    }
+
+    protected function isExcluded(string $relativePath): bool
+    {
+        foreach (config('update.excluded_paths') as $pattern) {
+            if (str_ends_with($pattern, '/')) {
+                if (str_starts_with($relativePath, $pattern)) {
+                    return true;
+                }
+            } elseif ($relativePath === $pattern || basename($relativePath) === $pattern) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

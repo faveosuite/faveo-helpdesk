@@ -19,26 +19,26 @@ class="nav-link active"
 
 <!-- header -->
 @section('PageHeader')
-<h1>{!! Lang::get('lang.edit_user') !!}</h1>
+<h3>{!! Lang::get('lang.edit_user') !!}</h3>
 @stop
 <!-- /header -->
 
 <!-- content -->
 @section('content')
 @if(Session::has('fails'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fas fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('fails')}}
 </div>
 @endif
 
 @if(Session::has('errors'))
-    <div class="alert alert-danger alert-dismissable">
-        <i class="fas fa-ban"></i>
+    <div class="alert alert-danger alert-dismissible">
+        <i class="fa-solid fa-ban"></i>
         <b>{!! Lang::get('lang.alert') !!}!</b>
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         <br/>
         @if($errors->first('first_name'))
             <li class="error-message-padding">{!! $errors->first('first_name', ':message') !!}</li>
@@ -67,7 +67,7 @@ class="nav-link active"
     </div>
     @endif
 <!-- open a form -->
-{!! Form::model($users,['url'=>'user/'.$users->id,'method'=>'PATCH']) !!}
+{!! html()->modelForm($users, 'PATCH', url('user/'.$users->id))->open() !!}
 <div class="card card-light">
     <div class="card-header">
         <h3 class="card-title">
@@ -77,29 +77,29 @@ class="nav-link active"
     <div class="card-body">
         <div class="row">
             <!-- First name : first name : Required -->
-            <div class="col-sm-4 form-group {{ $errors->has('first_name') ? 'has-error' : '' }}">
-                {!! Form::label('first_name',Lang::get('lang.first_name')) !!}<span class="text-red"> *</span>
-                {!! Form::text('first_name',null,['class' => 'form-control']) !!}
+            <div class="col-sm-4 mb-3 {{ $errors->has('first_name') ? 'has-error' : '' }}">
+                {!! html()->label(Lang::get('lang.first_name'), 'first_name') !!}<span class="text-red"> *</span>
+                {!! html()->text('first_name', null)->class('form-control') !!}
             </div>
             <!-- Last name : last name : Required -->
-            <div class="col-sm-4 form-group {{ $errors->has('last_name') ? 'has-error' : '' }}">
-                {!! Form::label('last_name',Lang::get('lang.last_name')) !!}
-                {!! Form::text('last_name',null,['class' => 'form-control']) !!}
+            <div class="col-sm-4 mb-3 {{ $errors->has('last_name') ? 'has-error' : '' }}">
+                {!! html()->label(Lang::get('lang.last_name'), 'last_name') !!}
+                {!! html()->text('last_name', null)->class('form-control') !!}
             </div>
             <!-- User Name : Text : Required-->
-            <div class="col-sm-4 form-group {{ $errors->has('user_name') ? 'has-error' : '' }}">
-                {!! Form::label('user_name',Lang::get('lang.user_name')) !!}<span class="text-red"> *</span>
-                {!! Form::text('user_name',null,['class' => 'form-control']) !!}
+            <div class="col-sm-4 mb-3 {{ $errors->has('user_name') ? 'has-error' : '' }}">
+                {!! html()->label(Lang::get('lang.user_name'), 'user_name') !!}<span class="text-red"> *</span>
+                {!! html()->text('user_name', null)->class('form-control') !!}
             </div>
         </div>
         <div class="row">
             <!-- Email Address : Email : Required -->
-            <div class="col-sm-6 form-group {{ $errors->has('email') ? 'has-error' : '' }}">
-                {!! Form::label('email',Lang::get('lang.email')) !!}<span class="text-red"> *</span>
-                {!! Form::email('email',null,['class' => 'form-control']) !!}
+            <div class="col-sm-6 mb-3 {{ $errors->has('email') ? 'has-error' : '' }}">
+                {!! html()->label(Lang::get('lang.email'), 'email') !!}<span class="text-red"> *</span>
+                {!! html()->email('email', null)->class('form-control') !!}
             </div>
-            <div class="col-sm-6 form-group {{ $errors->has('organization') ? 'has-error' : '' }}">
-                {!! Form::label('organization',Lang::get('lang.organization')) !!}
+            <div class="col-sm-6 mb-3 {{ $errors->has('organization') ? 'has-error' : '' }}">
+                {!! html()->label(Lang::get('lang.organization'), 'organization') !!}
                
 
                   <select class="form-control" name="org_id">
@@ -115,55 +115,55 @@ class="nav-link active"
             </div>
         </div>
         <div class="row">     
-            <div class="col-sm-1 form-group {{ Session::has('country_code_error') ? 'has-error' : '' }}">
-                {!! Form::label('country_code',Lang::get('lang.country-code')) !!}
+            <div class="col-sm-1 mb-3 {{ Session::has('country_code_error') ? 'has-error' : '' }}">
+                {!! html()->label(Lang::get('lang.country-code'), 'country_code') !!}
                 {!! $errors->first('country_code', '<spam class="help-block">:message</spam>') !!}
-                {!! Form::text('country_code',null,['class' => 'form-control', 'placeholder' => $phonecode, 'title' => Lang::get('lang.enter-country-phone-code')]) !!}
+                {!! html()->text('country_code', null)->class('form-control')->placeholder($phonecode)->attributes(['title' => Lang::get('lang.enter-country-phone-code')]) !!}
             </div>
             <!-- mobile Number : Text :  -->
-            <div class="col-md-3 form-group {{ $errors->has('mobile') ? 'has-error' : '' }}">
-                {!! Form::label('mobile',Lang::get('lang.mobile')) !!}
-                {!! Form::input('number', 'mobile',null,['class' => 'form-control']) !!}
+            <div class="col-md-3 mb-3 {{ $errors->has('mobile') ? 'has-error' : '' }}">
+                {!! html()->label(Lang::get('lang.mobile'), 'mobile') !!}
+                {!! html()->number('mobile', null)->class('form-control') !!}
             </div>           
-            <div class="col-sm-1 form-group {{ $errors->has('ext') ? 'has-error' : '' }}">
+            <div class="col-sm-1 mb-3 {{ $errors->has('ext') ? 'has-error' : '' }}">
                 <label for="ext">{!! Lang::get('lang.ext') !!}</label>  
-                {!! Form::text('ext',null,['class' => 'form-control']) !!}
+                {!! html()->text('ext', null)->class('form-control') !!}
             </div>
-            <div class="col-sm-3 form-group {{ $errors->has('phone_number') ? 'has-error' : '' }}">
+            <div class="col-sm-3 mb-3 {{ $errors->has('phone_number') ? 'has-error' : '' }}">
                 <label for="phone_number">{!! Lang::get('lang.phone') !!}</label>
-                {!! Form::text('phone_number',null,['class' => 'form-control']) !!}
+                {!! html()->text('phone_number', null)->class('form-control') !!}
             </div>
-            <div class="col-sm-2 form-group {{ $errors->has('active') ? 'has-error' : '' }}">
-                {!! Form::label('active',Lang::get('lang.status')) !!}
+            <div class="col-sm-2 mb-3 {{ $errors->has('active') ? 'has-error' : '' }}">
+                {!! html()->label(Lang::get('lang.status'), 'active') !!}
                 <div class="row">
                     <div class="col-sm-12">
-                        {!! Form::radio('active','1',true) !!} {{Lang::get('lang.active')}}
+                        {!! html()->radio('active', true, '1') !!} {{Lang::get('lang.active')}}
                     </div>
                     <div class="col-sm-12">
-                        {!! Form::radio('active','0') !!} {{Lang::get('lang.inactive')}}
+                        {!! html()->radio('active', null, '0') !!} {{Lang::get('lang.inactive')}}
                     </div>
                 </div>
             </div>
-            <div class="col-sm-2 form-group {{ $errors->has('ban') ? 'has-error' : '' }}">
-                {!! Form::label('ban',Lang::get('lang.ban')) !!}
+            <div class="col-sm-2 mb-3 {{ $errors->has('ban') ? 'has-error' : '' }}">
+                {!! html()->label(Lang::get('lang.ban'), 'ban') !!}
                 <div class="row">
                     <div class="col-sm-12">
-                        {!! Form::radio('ban','1',true) !!} {{Lang::get('lang.enable')}}
+                        {!! html()->radio('ban', true, '1') !!} {{Lang::get('lang.enable')}}
                     </div>
                     <div class="col-sm-12">
-                        {!! Form::radio('ban','0') !!} {{Lang::get('lang.disable')}}
+                        {!! html()->radio('ban', null, '0') !!} {{Lang::get('lang.disable')}}
                     </div>
                 </div>
             </div>
         </div>
         <!-- Internal Notes : Textarea -->
-        <div class="form-group">
-            {!! Form::label('internal_note',Lang::get('lang.internal_notes')) !!}
-            {!! Form::textarea('internal_note',null,['class' => 'form-control', 'size' => '30x5']) !!}
+        <div class="mb-3">
+            {!! html()->label(Lang::get('lang.internal_notes'), 'internal_note') !!}
+            {!! html()->textarea('internal_note', null)->class('form-control')->attributes(['size' => '30x5']) !!}
         </div>
     </div>
     <div class="card-footer">
-        {!! Form::submit(Lang::get('lang.update'),['class'=>'btn btn-primary'])!!}
+        {!! html()->submit(Lang::get('lang.update'))->class('btn btn-primary') !!}
     </div>        
 </div>
 <script>

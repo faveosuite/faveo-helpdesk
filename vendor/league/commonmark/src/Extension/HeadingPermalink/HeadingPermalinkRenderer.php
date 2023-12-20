@@ -49,24 +49,33 @@ final class HeadingPermalinkRenderer implements NodeRendererInterface, XmlNodeRe
 
         $slug = $node->getSlug();
 
-        $idPrefix = (string) $this->config->get('heading_permalink/id_prefix');
-        if ($idPrefix !== '') {
-            $idPrefix .= '-';
-        }
-
         $fragmentPrefix = (string) $this->config->get('heading_permalink/fragment_prefix');
         if ($fragmentPrefix !== '') {
             $fragmentPrefix .= '-';
         }
 
-        $attrs = $node->data->getData('attributes');
-        $attrs->set('id', $idPrefix . $slug);
+        $attrs    = $node->data->getData('attributes');
+        $appendId = ! $this->config->get('heading_permalink/apply_id_to_heading');
+
+        if ($appendId) {
+            $idPrefix = (string) $this->config->get('heading_permalink/id_prefix');
+
+            if ($idPrefix !== '') {
+                $idPrefix .= '-';
+            }
+
+            $attrs->set('id', $idPrefix . $slug);
+        }
+
         $attrs->set('href', '#' . $fragmentPrefix . $slug);
         $attrs->append('class', $this->config->get('heading_permalink/html_class'));
 
         $hidden = $this->config->get('heading_permalink/aria_hidden');
         if ($hidden) {
             $attrs->set('aria-hidden', 'true');
+            // A focusable element removed from the accessibility tree is a WCAG 4.1.2 failure,
+            // so the link must also be taken out of the tab order
+            $attrs->set('tabindex', '-1');
         }
 
         $attrs->set('title', $this->config->get('heading_permalink/title'));

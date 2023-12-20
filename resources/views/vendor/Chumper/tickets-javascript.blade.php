@@ -24,13 +24,14 @@ $path = public_path();
         function myFunction()
         {
             return jQuery('#chumper').dataTable({
-                "sDom": "<'row'<'col-sm-6'l><'col-sm-6'f>r>"+
-                        "t"+
-                        "<'row'<'col-sm-6'i><'col-sm-6'p>>",
-                "sPaginationType": "full_numbers",
-                "bProcessing": true,
-                "bStateSave" : true,
-                "bStateDuration": -1,
+                "dom": "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
+                       "<'row'<'col-sm-12'tr>>" +
+                       "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7 d-flex justify-content-end'p>>",
+                "pagingType": "full_numbers",
+                "processing": true,
+                "serverSide": true,
+                "stateSave": true,
+                "stateDuration": -1,
                 "oLanguage": {
                     "sEmptyTable": "{!! Lang::get('datatables.sEmptyTable') !!}",
                     "sInfo": "{!! Lang::get('datatables.sInfo') !!}",
@@ -44,13 +45,14 @@ $path = public_path();
                     "sSearch": "{!! Lang::get('datatables.sSearch') !!}",
                     "sZeroRecords": "{!! Lang::get('datatables.sZeroRecords') !!}",
                     "oPaginate": {
-                        "sFirst": "{!! Lang::get('datatables.oPaginate.sFirst') !!}",
-                        "sLast": "{!! Lang::get('datatables.oPaginate.sLast') !!}",
-                        "sNext": "{!! Lang::get('datatables.oPaginate.sNext') !!}",
-                        "sPrevious": "{!! Lang::get('datatables.oPaginate.sPrevious') !!}"
+                        "sFirst":    "&laquo;",   // «
+                        "sPrevious": "&lsaquo;",  // ‹
+                        "sNext":     "&rsaquo;",  // ›
+                        "sLast":     "&raquo;"    // »
                     },
+
                     "oAria": {
-                        "sSortAscending": "{!! Lang::get('datatables.oAria.sSortAscending') !!}",
+                        "sSortAscending":  "{!! Lang::get('datatables.oAria.sSortAscending') !!}",
                         "sSortDescending": "{!! Lang::get('datatables.oAria.sortDescending') !!}"
                     },
                 },
@@ -94,7 +96,8 @@ $path = public_path();
                 "columnDefs": [
                     {"defaultContent": "-",
                         "targets": "_all"},
-                    { "orderable": false, "targets": 0},
+                    { "orderable": false, "searchable": false, "targets": 0},
+                    { "searchable": false, "targets": 5 },
                     { "visible": true, "targets": 5 },
                     {
                         "aTargets": [0],
@@ -104,7 +107,7 @@ $path = public_path();
                             var color = hexToRgbA(str.substr(start, 7));
                                 $(nTd).css("border-left", "5px solid "+color);
                         }
-                    } 
+                    }
                 ],
                 "columns":[
                     {data: "id"},
@@ -128,7 +131,7 @@ $path = public_path();
                             $("td", nRow).css({"background-color": "#F3F3F3", "font-weight": "600", "border-bottom": "solid 0.5px #ddd", "border-right": "solid 0.5px #F3F3F3"});
                         });
                     } else {
-                        $("td", nRow).css({"background-color": "white", "border-bottom": "solid 0.5px #ddd", "border-right": "solid 0.5px white"});
+                        $("td", nRow).css({"background-color": "white", "border-bottom": "solid 0.5px #ddd"});
                         $("td", nRow).mouseenter(function () {
                             $("td", nRow).css({"background-color": "#DEDFE0", "border-bottom": "solid 0.5px #ddd", "border-right": "solid 0.5px #DEDFE0"});
                         });

@@ -16,17 +16,8 @@ namespace Symfony\Component\Routing;
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-class CompiledRoute implements \Serializable
+class CompiledRoute
 {
-    private array $variables;
-    private array $tokens;
-    private string $staticPrefix;
-    private string $regex;
-    private array $pathVariables;
-    private array $hostVariables;
-    private ?string $hostRegex;
-    private array $hostTokens;
-
     /**
      * @param string      $staticPrefix  The static prefix of the compiled route
      * @param string      $regex         The regular expression to use to match this route
@@ -37,16 +28,16 @@ class CompiledRoute implements \Serializable
      * @param array       $hostVariables An array of host variables
      * @param array       $variables     An array of variables (variables defined in the path and in the host patterns)
      */
-    public function __construct(string $staticPrefix, string $regex, array $tokens, array $pathVariables, string $hostRegex = null, array $hostTokens = [], array $hostVariables = [], array $variables = [])
-    {
-        $this->staticPrefix = $staticPrefix;
-        $this->regex = $regex;
-        $this->tokens = $tokens;
-        $this->pathVariables = $pathVariables;
-        $this->hostRegex = $hostRegex;
-        $this->hostTokens = $hostTokens;
-        $this->hostVariables = $hostVariables;
-        $this->variables = $variables;
+    public function __construct(
+        private string $staticPrefix,
+        private string $regex,
+        private array $tokens,
+        private array $pathVariables,
+        private ?string $hostRegex = null,
+        private array $hostTokens = [],
+        private array $hostVariables = [],
+        private array $variables = [],
+    ) {
     }
 
     public function __serialize(): array
@@ -63,16 +54,15 @@ class CompiledRoute implements \Serializable
         ];
     }
 
-    /**
-     * @internal
-     */
-    final public function serialize(): string
-    {
-        throw new \BadMethodCallException('Cannot serialize '.__CLASS__);
-    }
-
     public function __unserialize(array $data): void
     {
+        if (($data['path_prefix'] ?? null) instanceof \Stringable
+            || ($data['path_regex'] ?? null) instanceof \Stringable
+            || ($data['host_regex'] ?? null) instanceof \Stringable
+        ) {
+            throw new \BadMethodCallException('Cannot unserialize '.self::class);
+        }
+
         $this->variables = $data['vars'];
         $this->staticPrefix = $data['path_prefix'];
         $this->regex = $data['path_regex'];
@@ -81,14 +71,6 @@ class CompiledRoute implements \Serializable
         $this->hostRegex = $data['host_regex'];
         $this->hostTokens = $data['host_tokens'];
         $this->hostVariables = $data['host_vars'];
-    }
-
-    /**
-     * @internal
-     */
-    final public function unserialize(string $serialized)
-    {
-        $this->__unserialize(unserialize($serialized, ['allowed_classes' => false]));
     }
 
     /**

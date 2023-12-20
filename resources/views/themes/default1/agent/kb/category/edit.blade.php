@@ -35,29 +35,29 @@ class="nav-link active"
 @stop
 
 @section('content')
-{!! Form::model($category,['url' => 'category/'.$category->id , 'method' => 'PATCH'] )!!}
+{!! html()->modelForm($category, 'PATCH', url('category/'.$category->id))->open() !!}
 @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <i class="far fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+    <i class="fa-regular fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('success')}}
 </div>
 @endif
 <!-- failure message -->
 @if(Session::has('fails'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fas fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('fails')}}
 </div>
 @endif
 @if(Session::has('errors'))
 <?php //dd($errors); ?>
-<div class="alert alert-danger alert-dismissable">
-    <i class="fas fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     <br/>
     @if($errors->first('name'))
     <li class="error-message-padding">{!! $errors->first('name', ':message') !!}</li>
@@ -83,36 +83,36 @@ class="nav-link active"
     <div class="card-body">
         <div class="row">
             <div class="col-sm-3 {{ $errors->has('name') ? 'has-error' : '' }}">
-                {!! Form::label('name',Lang::get('lang.name')) !!}<span class="text-red"> *</span>
+                {!! html()->label(Lang::get('lang.name'), 'name') !!}<span class="text-red"> *</span>
 
-                {!! Form::text('name',null,['class' => 'form-control']) !!}
+                {!! html()->text('name', null)->class('form-control') !!}
             </div>
             <div class="col-sm-3 {{ $errors->has('parent') ? 'has-error' : '' }}">
-                {!! Form::label('parent',Lang::get('lang.parent')) !!}
+                {!! html()->label(Lang::get('lang.parent'), 'parent') !!}
 
-                {!!Form::select('parent',[''=>'Select a Group','Categorys'=>$categories],null,['class' => 'form-control select']) !!}
+                {!! html()->select('parent', [''=>'Select a Group','Categorys'=>$categories], null)->class('form-control select') !!}
             </div>
             <div class="col-sm-3 {{ $errors->has('status') ? 'has-error' : '' }}">
-                {!! Form::label('status',Lang::get('lang.status')) !!}
+                {!! html()->label(Lang::get('lang.status'), 'status') !!}
 
                 <div class="row">
                     <div class="col-sm-4">
-                        {!! Form::radio('status','1',true) !!} {{Lang::get('lang.active')}}
+                        {!! html()->radio('status', true, '1') !!} {{Lang::get('lang.active')}}
                     </div>
                     <div class="col-sm-6">
-                        {!! Form::radio('status','0',null) !!} {{Lang::get('lang.inactive')}}
+                        {!! html()->radio('status', null, '0') !!} {{Lang::get('lang.inactive')}}
                     </div>
                 </div>
             </div>
             <div class="col-md-12 {{ $errors->has('description') ? 'has-error' : '' }}">
-                {!! Form::label('description',Lang::get('lang.description')) !!}<span class="text-red"> *</span>
+                {!! html()->label(Lang::get('lang.description'), 'description') !!}<span class="text-red"> *</span>
 
-                {!! Form::textarea('description',null,['class' => 'form-control','size' => '128x10','id'=>'description','placeholder'=>'Enter the description']) !!}
+                {!! html()->textarea('description', null)->class('form-control')->id('description')->placeholder('Enter the description')->attributes(['size' => '128x10']) !!}
             </div>
         </div>
     </div>
     <div class="card-footer">
-        {!! Form::submit(Lang::get('lang.update'),['class'=>'btn btn-primary'])!!}
+        {!! html()->submit(Lang::get('lang.update'))->class('btn btn-primary') !!}
     </div>
 </div>
 <script type="text/javascript">

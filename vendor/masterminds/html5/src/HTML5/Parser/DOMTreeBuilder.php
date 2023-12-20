@@ -231,8 +231,6 @@ class DOMTreeBuilder implements EventHandler
      *
      * This is used for handling Processor Instructions as they are
      * inserted. If omitted, PI's are inserted directly into the DOM tree.
-     *
-     * @param InstructionProcessor $proc
      */
     public function setInstructionProcessor(InstructionProcessor $proc)
     {
@@ -359,6 +357,16 @@ class DOMTreeBuilder implements EventHandler
             $this->onlyInline = null;
         }
 
+        // some elements as table related tags might have optional end tags that force us to auto close multiple tags
+        // https://www.w3.org/TR/html401/struct/tables.html
+        if ($this->current instanceof \DOMElement && isset(Elements::$optionalEndElementsParentsToClose[$lname])) {
+            foreach (Elements::$optionalEndElementsParentsToClose[$lname] as $parentElName) {
+                if ($this->current instanceof \DOMElement && $this->current->tagName === $parentElName) {
+                    $this->autoclose($parentElName);
+                }
+            }
+        }
+
         try {
             $prefix = ($pos = strpos($lname, ':')) ? substr($lname, 0, $pos) : '';
 
@@ -389,9 +397,9 @@ class DOMTreeBuilder implements EventHandler
         // When we are on a void tag, we do not need to care about namesapce nesting.
         if ($pushes > 0 && !Elements::isA($name, Elements::VOID_TAG)) {
             // PHP tends to free the memory used by DOM,
-            // to avoid spl_object_hash collisions whe have to avoid garbage collection of $ele storing it into $pushes
+            // to avoid spl_object_id collisions we have to avoid garbage collection of $ele storing it into $pushes
             // see https://bugs.php.net/bug.php?id=67459
-            $this->pushes[spl_object_hash($ele)] = array($pushes, $ele);
+            $this->pushes[spl_object_id($ele)] = array($pushes, $ele);
         }
 
         foreach ($attributes as $aName => $aVal) {
@@ -513,7 +521,7 @@ class DOMTreeBuilder implements EventHandler
             $lname = Elements::normalizeSvgElement($lname);
         }
 
-        $cid = spl_object_hash($this->current);
+        $cid = spl_object_id($this->current);
 
         // XXX: HTML has no parent. What do we do, though,
         // if this element appears in the wrong place?

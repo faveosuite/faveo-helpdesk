@@ -1,11 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Nette Framework (https://nette.org)
  * Copyright (c) 2004 David Grudl (https://davidgrudl.com)
  */
-
-declare(strict_types=1);
 
 namespace Nette\Schema;
 
@@ -17,19 +15,16 @@ use Nette;
  */
 final class Processor
 {
-	use Nette\SmartObject;
-
-	/** @var array */
-	public $onNewContext = [];
-
-	/** @var Context|null */
-	private $context;
-
-	/** @var bool */
-	private $skipDefaults;
+	/** @var list<\Closure(Context): void> */
+	public array $onNewContext = [];
+	private Context $context;
+	private bool $skipDefaults = false;
 
 
-	public function skipDefaults(bool $value = true)
+	/**
+	 * When enabled, properties with default values are omitted from the output.
+	 */
+	public function skipDefaults(bool $value = true): void
 	{
 		$this->skipDefaults = $value;
 	}
@@ -37,58 +32,60 @@ final class Processor
 
 	/**
 	 * Normalizes and validates data. Result is a clean completed data.
-	 * @return mixed
 	 * @throws ValidationException
 	 */
-	public function process(Schema $schema, $data)
+	public function process(Schema $schema, mixed $data): mixed
 	{
 		$this->createContext();
 		$data = $schema->normalize($data, $this->context);
-		$this->throwsErrors();
+		$this->throwErrors();
 		$data = $schema->complete($data, $this->context);
-		$this->throwsErrors();
+		$this->throwErrors();
 		return $data;
 	}
 
 
 	/**
 	 * Normalizes and validates and merges multiple data. Result is a clean completed data.
-	 * @return mixed
+	 * @param  list<mixed>  $dataset
 	 * @throws ValidationException
 	 */
-	public function processMultiple(Schema $schema, array $dataset)
+	public function processMultiple(Schema $schema, array $dataset): mixed
 	{
 		$this->createContext();
 		$flatten = null;
 		$first = true;
 		foreach ($dataset as $data) {
 			$data = $schema->normalize($data, $this->context);
-			$this->throwsErrors();
+			$this->throwErrors();
 			$flatten = $first ? $data : $schema->merge($data, $flatten);
 			$first = false;
 		}
 
 		$data = $schema->complete($flatten, $this->context);
-		$this->throwsErrors();
+		$this->throwErrors();
 		return $data;
 	}
 
 
 	/**
-	 * @return string[]
+	 * Returns all deprecation warnings collected during the last processing run.
+	 * @return list<string>
 	 */
 	public function getWarnings(): array
 	{
 		$res = [];
-		foreach ($this->context->warnings as $message) {
-			$res[] = $message->toString();
+		if (isset($this->context)) {
+			foreach ($this->context->warnings as $message) {
+				$res[] = $message->toString();
+			}
 		}
 
 		return $res;
 	}
 
 
-	private function throwsErrors(): void
+	private function throwErrors(): void
 	{
 		if ($this->context->errors) {
 			throw new ValidationException(null, $this->context->errors);
@@ -96,10 +93,10 @@ final class Processor
 	}
 
 
-	private function createContext()
+	private function createContext(): void
 	{
 		$this->context = new Context;
 		$this->context->skipDefaults = $this->skipDefaults;
-		$this->onNewContext($this->context);
+		Nette\Utils\Arrays::invoke($this->onNewContext, $this->context);
 	}
 }

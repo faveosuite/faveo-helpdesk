@@ -82,56 +82,62 @@ The [`Assert`] class provides the following assertions:
 
 ### Type Assertions
 
-Method                                                   | Description
--------------------------------------------------------- | --------------------------------------------------
-`string($value, $message = '')`                          | Check that a value is a string
-`stringNotEmpty($value, $message = '')`                  | Check that a value is a non-empty string
-`integer($value, $message = '')`                         | Check that a value is an integer
-`integerish($value, $message = '')`                      | Check that a value casts to an integer
-`positiveInteger($value, $message = '')`                 | Check that a value is a positive (non-zero) integer
-`float($value, $message = '')`                           | Check that a value is a float
-`numeric($value, $message = '')`                         | Check that a value is numeric
-`natural($value, $message= ''')`                         | Check that a value is a non-negative integer
-`boolean($value, $message = '')`                         | Check that a value is a boolean
-`scalar($value, $message = '')`                          | Check that a value is a scalar
-`object($value, $message = '')`                          | Check that a value is an object
-`resource($value, $type = null, $message = '')`          | Check that a value is a resource
-`isCallable($value, $message = '')`                      | Check that a value is a callable
-`isArray($value, $message = '')`                         | Check that a value is an array
-`isTraversable($value, $message = '')`  (deprecated)     | Check that a value is an array or a `\Traversable`
-`isIterable($value, $message = '')`                      | Check that a value is an array or a `\Traversable`
-`isCountable($value, $message = '')`                     | Check that a value is an array or a `\Countable`
-`isInstanceOf($value, $class, $message = '')`            | Check that a value is an `instanceof` a class
-`isInstanceOfAny($value, array $classes, $message = '')` | Check that a value is an `instanceof` at least one class on the array of classes
-`notInstanceOf($value, $class, $message = '')`           | Check that a value is not an `instanceof` a class
-`isAOf($value, $class, $message = '')`                   | Check that a value is of the class or has one of its parents
-`isAnyOf($value, array $classes, $message = '')`         | Check that a value is of at least one of the classes or has one of its parents
-`isNotA($value, $class, $message = '')`                  | Check that a value is not of the class or has not one of its parents
-`isArrayAccessible($value, $message = '')`               | Check that a value can be accessed as an array
-`uniqueValues($values, $message = '')`                   | Check that the given array contains unique values
+Method                                                      | Description
+----------------------------------------------------------- | --------------------------------------------------
+`string($value, $message = '')`                             | Check that a value is a string
+`stringNotEmpty($value, $message = '')`                     | Check that a value is a non-empty string
+`integer($value, $message = '')`                            | Check that a value is an integer
+`integerish($value, $message = '')`                         | Check that a value casts to an integer
+`positiveInteger($value, $message = '')`                    | Check that a value is a positive (non-zero) integer
+`negativeInteger($value, $message = '')`                    | Check that a value is a negative integer
+`notNegativeInteger($value, $message = '')`                 | Check that a value is a non-negative integer
+`float($value, $message = '')`                              | Check that a value is a float
+`numeric($value, $message = '')`                            | Check that a value is numeric
+`natural($value, $message = '')`                            | Check that a value is a non-negative integer
+`boolean($value, $message = '')`                            | Check that a value is a boolean
+`scalar($value, $message = '')`                             | Check that a value is a scalar
+`object($value, $message = '')`                             | Check that a value is an object
+`objectish($value, $message = '')`                          | Check that a value is an object or a string of a class that exists
+`resource($value, $type = null, $message = '')`             | Check that a value is a resource
+`isInitialized($value, $property, $message = '')`           | Check that a value has an initialized property
+`isCallable($value, $message = '')`                         | Check that a value is a callable
+`isArray($value, $message = '')`                            | Check that a value is an array
+`isIterable($value, $message = '')`                         | Check that a value is an array or a `\Traversable`
+`isCountable($value, $message = '')`                        | Check that a value is an array or a `\Countable`
+`isInstanceOf($value, $class, $message = '')`               | Check that a value is an `instanceof` a class
+`isInstanceOfAny($value, array $classes, $message = '')`    | Check that a value is an `instanceof` at least one class on the array of classes
+`notInstanceOf($value, $class, $message = '')`              | Check that a value is not an `instanceof` a class
+`isNotInstanceOfAny($value, array $classes, $message = '')` | Check that a value is not an `instanceof` at least one class on the array of classes
+`isAOf($value, $class, $message = '')`                      | Check that a value is of the class or has one of its parents
+`isAnyOf($value, array $classes, $message = '')`            | Check that a value is of at least one of the classes or has one of its parents
+`isNotA($value, $class, $message = '')`                     | Check that a value is not of the class or has not one of its parents
+`isArrayAccessible($value, $message = '')`                  | Check that a value can be accessed as an array
+`uniqueValues($values, $message = '')`                      | Check that the given array contains unique values
 
 ### Comparison Assertions
 
-Method                                          | Description
------------------------------------------------ | ------------------------------------------------------------------
-`true($value, $message = '')`                   | Check that a value is `true`
-`false($value, $message = '')`                  | Check that a value is `false`
-`notFalse($value, $message = '')`               | Check that a value is not `false`
-`null($value, $message = '')`                   | Check that a value is `null`
-`notNull($value, $message = '')`                | Check that a value is not `null`
-`isEmpty($value, $message = '')`                | Check that a value is `empty()`
-`notEmpty($value, $message = '')`               | Check that a value is not `empty()`
-`eq($value, $value2, $message = '')`            | Check that a value equals another (`==`)
-`notEq($value, $value2, $message = '')`         | Check that a value does not equal another (`!=`)
-`same($value, $value2, $message = '')`          | Check that a value is identical to another (`===`)
-`notSame($value, $value2, $message = '')`       | Check that a value is not identical to another (`!==`)
-`greaterThan($value, $value2, $message = '')`   | Check that a value is greater than another
-`greaterThanEq($value, $value2, $message = '')` | Check that a value is greater than or equal to another
-`lessThan($value, $value2, $message = '')`      | Check that a value is less than another
-`lessThanEq($value, $value2, $message = '')`    | Check that a value is less than or equal to another
-`range($value, $min, $max, $message = '')`      | Check that a value is within a range
-`inArray($value, array $values, $message = '')` | Check that a value is one of a list of values
-`oneOf($value, array $values, $message = '')`   | Check that a value is one of a list of values (alias of `inArray`)
+Method                                                | Description
+----------------------------------------------------- | ------------------------------------------------------------------
+`true($value, $message = '')`                         | Check that a value is `true`
+`false($value, $message = '')`                        | Check that a value is `false`
+`notFalse($value, $message = '')`                     | Check that a value is not `false`
+`null($value, $message = '')`                         | Check that a value is `null`
+`notNull($value, $message = '')`                      | Check that a value is not `null`
+`isEmpty($value, $message = '')`                      | Check that a value is `empty()`
+`notEmpty($value, $message = '')`                     | Check that a value is not `empty()`
+`eq($value, $value2, $message = '')`                  | Check that a value equals another (`==`)
+`notEq($value, $value2, $message = '')`               | Check that a value does not equal another (`!=`)
+`same($value, $value2, $message = '')`                | Check that a value is identical to another (`===`)
+`notSame($value, $value2, $message = '')`             | Check that a value is not identical to another (`!==`)
+`greaterThan($value, $value2, $message = '')`         | Check that a value is greater than another
+`greaterThanEq($value, $value2, $message = '')`       | Check that a value is greater than or equal to another
+`lessThan($value, $value2, $message = '')`            | Check that a value is less than another
+`lessThanEq($value, $value2, $message = '')`          | Check that a value is less than or equal to another
+`range($value, $min, $max, $message = '')`            | Check that a value is within a range
+`inArray($value, array $values, $message = '')`       | Check that a value is one of a list of values
+`notInArray($value, array $values, $message = '')`    | Check that a value is not one of a list of values
+`oneOf($value, array $values, $message = '')`         | Check that a value is one of a list of values (alias of `inArray`)
+`notOneOf($value, array $values, $message = '')`      | Check that a value is not one of a list of values (alias of `notInArray`)
 
 ### String Assertions
 
@@ -207,9 +213,11 @@ Method                                             | Description
 
 ### Function Assertions
 
-Method                                      | Description
-------------------------------------------- | -----------------------------------------------------------------------------------------------------
-`throws($closure, $class, $message = '')`   | Check that a function throws a certain exception. Subclasses of the exception class will be accepted.
+Method                                    | Description
+------------------------------------------| -----------------------------------------------------------------------------------------------------
+`throws($closure, $class, $message = '')` | Check that a function throws a certain exception. Subclasses of the exception class will be accepted.
+`isStatic($closure, $message = '')`       | Check that a function is static.
+`notStatic($closure, $message = '')`    | Check that a function is not static.
 
 ### Collection Assertions
 
@@ -223,16 +231,27 @@ Assert::allIsInstanceOf($employees, 'Acme\Employee');
 ### Nullable Assertions
 
 All of the above assertions can be prefixed with `nullOr*()` to run the
-assertion only if it the value is not `null`:
+assertion only if the value is not `null`:
 
 ```php
 Assert::nullOrString($middleName, 'The middle name must be a string or null. Got: %s');
 ```
 
+### Lazy assertion messages
+
+Assertion messages can be provided as callables to avoid unnecessary computation when the assertion passes:
+
+```php
+Assert::string($value, fn() => expensiveMessage());
+```
+
+The callable will only be executed if the assertion fails.
+
 ### Extending Assert
 
 The `Assert` class comes with a few methods, which can be overridden to change the class behaviour. You can also extend it to
 add your own assertions.
+
 
 #### Overriding methods
 
@@ -243,7 +262,7 @@ Overriding the following methods in your assertion class allows you to change th
 * `protected static function valueToString($value)`
   * This method is used for error messages, to convert the value to a string value for displaying. You could use this for representing a value object with a `__toString` method for example.
 * `protected static function typeToString($value)`
-  * This method is used for error messages, to convert the a value to a string representing its type.
+  * This method is used for error messages, to convert a value to a string representing its type.
 * `protected static function strlen($value)`
   * This method is used to calculate string length for relevant methods, using the `mb_strlen` if available and useful.
 * `protected static function reportInvalidArgument($message)`
@@ -252,7 +271,14 @@ Overriding the following methods in your assertion class allows you to change th
 ## Static analysis support
 
 Where applicable, assertion functions are annotated to support Psalm's
-[Assertion syntax](https://psalm.dev/docs/annotating_code/assertion_syntax/).
+[Assertion syntax](https://psalm.dev/docs/annotating_code/assertion_syntax/).  
+
+A native Psalm plugin can be enabled to also add type inference for return types (new in 2.x):
+
+```php
+vendor/bin/psalm-plugin enable webmozart/assert
+```
+
 A dedicated [PHPStan Plugin](https://github.com/phpstan/phpstan-webmozart-assert) is
 required for proper type support.
 

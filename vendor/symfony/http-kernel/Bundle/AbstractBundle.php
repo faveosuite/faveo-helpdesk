@@ -31,11 +31,11 @@ abstract class AbstractBundle extends Bundle implements ConfigurableExtensionInt
     {
     }
 
-    public function prependExtension(ContainerConfigurator $container, ContainerBuilder $builder): void
+    public function prependExtension(ContainerConfigurator $configurator, ContainerBuilder $container): void
     {
     }
 
-    public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
+    public function loadExtension(array $config, ContainerConfigurator $configurator, ContainerBuilder $container): void
     {
     }
 
@@ -50,7 +50,7 @@ abstract class AbstractBundle extends Bundle implements ConfigurableExtensionInt
 
     public function getPath(): string
     {
-        if (null === $this->path) {
+        if (!isset($this->path)) {
             $reflected = new \ReflectionObject($this);
             // assume the modern directory structure by default
             $this->path = \dirname($reflected->getFileName(), 2);

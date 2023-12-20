@@ -14,7 +14,7 @@ namespace Mremi\UrlShortener\Model;
 use Mremi\UrlShortener\Provider\ChainProvider;
 
 /**
- * Link manager class.
+ * Link manager class
  *
  * @author Rémi Marseille <marseille.remi@gmail.com>
  */
@@ -31,7 +31,7 @@ class LinkManager implements LinkManagerInterface
     protected $class;
 
     /**
-     * Constructor.
+     * Constructor
      *
      * @param ChainProvider $chainProvider A chain provider instance
      * @param string        $class         The Link class namespace, optional
@@ -47,7 +47,7 @@ class LinkManager implements LinkManagerInterface
      */
     public function create()
     {
-        return new $this->class();
+        return new $this->class;
     }
 
     /**

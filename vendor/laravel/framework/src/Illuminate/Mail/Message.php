@@ -3,10 +3,13 @@
 namespace Illuminate\Mail;
 
 use Illuminate\Contracts\Mail\Attachable;
-use Illuminate\Support\Str;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Traits\ForwardsCalls;
+use InvalidArgumentException;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
+use Symfony\Component\Mime\Part\DataPart;
+use Symfony\Component\Mime\Part\File;
 
 /**
  * @mixin \Symfony\Component\Mime\Email
@@ -35,7 +38,6 @@ class Message
      * Create a new message instance.
      *
      * @param  \Symfony\Component\Mime\Email  $message
-     * @return void
      */
     public function __construct(Email $message)
     {
@@ -52,8 +54,8 @@ class Message
     public function from($address, $name = null)
     {
         is_array($address)
-            ? $this->message->from(...$address)
-            : $this->message->from(new Address($address, (string) $name));
+            ? $this->message->from(...$this->ensureAddressesAreSafe($address))
+            : $this->message->from($this->createAddress($address, (string) $name));
 
         return $this;
     }
@@ -68,8 +70,8 @@ class Message
     public function sender($address, $name = null)
     {
         is_array($address)
-            ? $this->message->sender(...$address)
-            : $this->message->sender(new Address($address, (string) $name));
+            ? $this->message->sender(...$this->ensureAddressesAreSafe($address))
+            : $this->message->sender($this->createAddress($address, (string) $name));
 
         return $this;
     }
@@ -82,6 +84,8 @@ class Message
      */
     public function returnPath($address)
     {
+        $this->ensureAddressIsSafe($address);
+
         $this->message->returnPath($address);
 
         return $this;
@@ -99,8 +103,8 @@ class Message
     {
         if ($override) {
             is_array($address)
-                ? $this->message->to(...$address)
-                : $this->message->to(new Address($address, (string) $name));
+                ? $this->message->to(...$this->ensureAddressesAreSafe($address))
+                : $this->message->to($this->createAddress($address, (string) $name));
 
             return $this;
         }
@@ -136,8 +140,8 @@ class Message
     {
         if ($override) {
             is_array($address)
-                ? $this->message->cc(...$address)
-                : $this->message->cc(new Address($address, (string) $name));
+                ? $this->message->cc(...$this->ensureAddressesAreSafe($address))
+                : $this->message->cc($this->createAddress($address, (string) $name));
 
             return $this;
         }
@@ -173,8 +177,8 @@ class Message
     {
         if ($override) {
             is_array($address)
-                ? $this->message->bcc(...$address)
-                : $this->message->bcc(new Address($address, (string) $name));
+                ? $this->message->bcc(...$this->ensureAddressesAreSafe($address))
+                : $this->message->bcc($this->createAddress($address, (string) $name));
 
             return $this;
         }
@@ -223,28 +227,70 @@ class Message
         if (is_array($address)) {
             $type = lcfirst($type);
 
-            $addresses = collect($address)->map(function ($address, $key) {
+            $addresses = (new Collection($address))->map(function ($address, $key) {
                 if (is_string($key) && is_string($address)) {
-                    return new Address($key, $address);
+                    return $this->createAddress($key, $address);
                 }
 
                 if (is_array($address)) {
-                    return new Address($address['email'] ?? $address['address'], $address['name'] ?? null);
+                    return $this->createAddress($address['email'] ?? $address['address'], $address['name'] ?? null);
                 }
 
                 if (is_null($address)) {
-                    return new Address($key);
+                    return $this->createAddress($key);
                 }
 
-                return $address;
+                return $this->ensureAddressIsSafe($address);
             })->all();
 
             $this->message->{"{$type}"}(...$addresses);
         } else {
-            $this->message->{"add{$type}"}(new Address($address, (string) $name));
+            $this->message->{"add{$type}"}($this->createAddress($address, (string) $name));
         }
 
         return $this;
+    }
+
+    /**
+     * Create a safe Symfony address instance.
+     *
+     * @param  string  $address
+     * @param  string|null  $name
+     * @return \Symfony\Component\Mime\Address
+     */
+    protected function createAddress($address, $name = null)
+    {
+        $this->ensureAddressIsSafe($address);
+
+        return new Address($address, (string) $name);
+    }
+
+    /**
+     * Ensure the given address cannot inject additional headers or commands.
+     *
+     * @param  mixed  $address
+     * @return mixed
+     */
+    protected function ensureAddressIsSafe($address)
+    {
+        $addressString = $address instanceof Address ? $address->getAddress() : $address;
+
+        if (is_string($addressString) && preg_match('/[\r\n]/', $addressString) > 0) {
+            throw new InvalidArgumentException('Email addresses may not contain line break characters.');
+        }
+
+        return $address;
+    }
+
+    /**
+     * Ensure the given addresses cannot inject additional headers or commands.
+     *
+     * @param  array  $addresses
+     * @return array
+     */
+    protected function ensureAddressesAreSafe(array $addresses)
+    {
+        return array_map(fn ($address) => $this->ensureAddressIsSafe($address), $addresses);
     }
 
     /**
@@ -315,7 +361,7 @@ class Message
     /**
      * Attach in-memory data as an attachment.
      *
-     * @param  string  $data
+     * @param  string|resource  $data
      * @param  string  $name
      * @param  array  $options
      * @return $this
@@ -342,40 +388,46 @@ class Message
         if ($file instanceof Attachment) {
             return $file->attachWith(
                 function ($path) use ($file) {
-                    $cid = $file->as ?? Str::random();
+                    $part = (new DataPart(new File($path), $file->as, $file->mime))->asInline();
 
-                    $this->message->embedFromPath($path, $cid, $file->mime);
+                    $this->message->addPart($part);
 
-                    return "cid:{$cid}";
+                    return "cid:{$part->getContentId()}";
                 },
                 function ($data) use ($file) {
-                    $this->message->embed($data(), $file->as, $file->mime);
+                    $this->message->addPart(
+                        $part = $part = (new DataPart($data(), $file->as, $file->mime))->asInline()
+                    );
 
-                    return "cid:{$file->as}";
+                    return "cid:{$part->getContentId()}";
                 }
             );
         }
 
-        $cid = Str::random(10);
+        $fileObject = new File($file);
 
-        $this->message->embedFromPath($file, $cid);
+        $this->message->addPart(
+            $part = (new DataPart($fileObject, $fileObject->getFilename()))->asInline()
+        );
 
-        return "cid:$cid";
+        return "cid:{$part->getContentId()}";
     }
 
     /**
      * Embed in-memory data in the message and get the CID.
      *
-     * @param  string  $data
+     * @param  string|resource  $data
      * @param  string  $name
      * @param  string|null  $contentType
      * @return string
      */
     public function embedData($data, $name, $contentType = null)
     {
-        $this->message->embed($data, $name, $contentType);
+        $part = (new DataPart($data, $name, $contentType))->asInline();
 
-        return "cid:$name";
+        $this->message->addPart($part);
+
+        return "cid:{$part->getContentId()}";
     }
 
     /**

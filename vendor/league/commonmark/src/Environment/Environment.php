@@ -21,6 +21,7 @@ use League\CommonMark\Delimiter\Processor\DelimiterProcessorCollection;
 use League\CommonMark\Delimiter\Processor\DelimiterProcessorInterface;
 use League\CommonMark\Event\DocumentParsedEvent;
 use League\CommonMark\Event\ListenerData;
+use League\CommonMark\Exception\AlreadyInitializedException;
 use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
 use League\CommonMark\Extension\ConfigurableExtensionInterface;
 use League\CommonMark\Extension\ExtensionInterface;
@@ -399,11 +400,13 @@ final class Environment implements EnvironmentInterface, EnvironmentBuilderInter
             \assert($normalizer instanceof TextNormalizerInterface);
             $this->injectEnvironmentAndConfigurationIfNeeded($normalizer);
 
-            if ($this->config->get('slug_normalizer/unique') !== UniqueSlugNormalizerInterface::DISABLED && ! $normalizer instanceof UniqueSlugNormalizer) {
-                $normalizer = new UniqueSlugNormalizer($normalizer);
+            if ($this->config->get('slug_normalizer/unique') !== UniqueSlugNormalizerInterface::DISABLED && ! $normalizer instanceof UniqueSlugNormalizerInterface) {
+                /** @var string[] $reserved */
+                $reserved   = $this->config->get('slug_normalizer/reserved');
+                $normalizer = new UniqueSlugNormalizer($normalizer, $reserved);
             }
 
-            if ($normalizer instanceof UniqueSlugNormalizer) {
+            if ($normalizer instanceof UniqueSlugNormalizerInterface) {
                 if ($this->config->get('slug_normalizer/unique') === UniqueSlugNormalizerInterface::PER_DOCUMENT) {
                     $this->addEventListener(DocumentParsedEvent::class, [$normalizer, 'clearHistory'], -1000);
                 }
@@ -416,12 +419,12 @@ final class Environment implements EnvironmentInterface, EnvironmentBuilderInter
     }
 
     /**
-     * @throws \RuntimeException
+     * @throws AlreadyInitializedException
      */
     private function assertUninitialized(string $message): void
     {
         if ($this->extensionsInitialized) {
-            throw new \RuntimeException($message . ' Extensions have already been initialized.');
+            throw new AlreadyInitializedException($message . ' Extensions have already been initialized.');
         }
     }
 
@@ -431,15 +434,20 @@ final class Environment implements EnvironmentInterface, EnvironmentBuilderInter
             'html_input' => Expect::anyOf(HtmlFilter::STRIP, HtmlFilter::ALLOW, HtmlFilter::ESCAPE)->default(HtmlFilter::ALLOW),
             'allow_unsafe_links' => Expect::bool(true),
             'max_nesting_level' => Expect::type('int')->default(PHP_INT_MAX),
+            'max_delimiters_per_line' => Expect::type('int')->default(PHP_INT_MAX),
             'renderer' => Expect::structure([
                 'block_separator' => Expect::string("\n"),
                 'inner_separator' => Expect::string("\n"),
                 'soft_break' => Expect::string("\n"),
             ]),
+            'xml' => Expect::structure([
+                'max_indentation_level' => Expect::int()->min(0)->default(16),
+            ]),
             'slug_normalizer' => Expect::structure([
                 'instance' => Expect::type(TextNormalizerInterface::class)->default(new SlugNormalizer()),
                 'max_length' => Expect::int()->min(0)->default(255),
                 'unique' => Expect::anyOf(UniqueSlugNormalizerInterface::DISABLED, UniqueSlugNormalizerInterface::PER_ENVIRONMENT, UniqueSlugNormalizerInterface::PER_DOCUMENT)->default(UniqueSlugNormalizerInterface::PER_DOCUMENT),
+                'reserved' => Expect::listOf('string')->default([]),
             ]),
         ]);
     }
