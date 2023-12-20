@@ -33,6 +33,7 @@ class Profile
     private ?int $time = null;
     private ?int $statusCode = null;
     private ?self $parent = null;
+    private ?string $virtualType = null;
 
     /**
      * @var Profile[]
@@ -44,6 +45,9 @@ class Profile
         $this->token = $token;
     }
 
+    /**
+     * @return void
+     */
     public function setToken(string $token)
     {
         $this->token = $token;
@@ -59,6 +63,8 @@ class Profile
 
     /**
      * Sets the parent token.
+     *
+     * @return void
      */
     public function setParent(self $parent)
     {
@@ -89,6 +95,9 @@ class Profile
         return $this->ip;
     }
 
+    /**
+     * @return void
+     */
     public function setIp(?string $ip)
     {
         $this->ip = $ip;
@@ -102,6 +111,9 @@ class Profile
         return $this->method;
     }
 
+    /**
+     * @return void
+     */
     public function setMethod(string $method)
     {
         $this->method = $method;
@@ -115,6 +127,9 @@ class Profile
         return $this->url;
     }
 
+    /**
+     * @return void
+     */
     public function setUrl(?string $url)
     {
         $this->url = $url;
@@ -125,11 +140,17 @@ class Profile
         return $this->time ?? 0;
     }
 
+    /**
+     * @return void
+     */
     public function setTime(int $time)
     {
         $this->time = $time;
     }
 
+    /**
+     * @return void
+     */
     public function setStatusCode(int $statusCode)
     {
         $this->statusCode = $statusCode;
@@ -138,6 +159,22 @@ class Profile
     public function getStatusCode(): ?int
     {
         return $this->statusCode;
+    }
+
+    /**
+     * @internal
+     */
+    public function setVirtualType(?string $virtualType): void
+    {
+        $this->virtualType = $virtualType;
+    }
+
+    /**
+     * @internal
+     */
+    public function getVirtualType(): ?string
+    {
+        return $this->virtualType;
     }
 
     /**
@@ -154,6 +191,8 @@ class Profile
      * Sets children profiler.
      *
      * @param Profile[] $children
+     *
+     * @return void
      */
     public function setChildren(array $children)
     {
@@ -165,6 +204,8 @@ class Profile
 
     /**
      * Adds the child token.
+     *
+     * @return void
      */
     public function addChild(self $child)
     {
@@ -211,6 +252,8 @@ class Profile
      * Sets the Collectors associated with this profile.
      *
      * @param DataCollectorInterface[] $collectors
+     *
+     * @return void
      */
     public function setCollectors(array $collectors)
     {
@@ -222,6 +265,8 @@ class Profile
 
     /**
      * Adds a Collector.
+     *
+     * @return void
      */
     public function addCollector(DataCollectorInterface $collector)
     {
@@ -235,6 +280,6 @@ class Profile
 
     public function __sleep(): array
     {
-        return ['token', 'parent', 'children', 'collectors', 'ip', 'method', 'url', 'time', 'statusCode'];
+        return ['token', 'parent', 'children', 'collectors', 'ip', 'method', 'url', 'time', 'statusCode', 'virtualType'];
     }
 }

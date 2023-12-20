@@ -5,6 +5,8 @@ namespace Laravel\Dusk\Console;
 use Dotenv\Dotenv;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
+use NunoMaduro\Collision\Adapters\Phpunit\Subscribers\EnsurePrinterIsRegisteredSubscriber;
+use PHPUnit\Runner\Version;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Process\Exception\ProcessSignaledException;
 use Symfony\Component\Process\Exception\RuntimeException;
@@ -118,12 +120,26 @@ class DuskCommand extends Command
      */
     protected function phpunitArguments($options)
     {
+        if ($this->shouldUseCollisionPrinter()) {
+            $options[] = '--no-output';
+        }
+
         $options = array_values(array_filter($options, function ($option) {
-            return ! Str::startsWith($option, ['--env=', '--pest']);
+            return ! Str::startsWith($option, ['--env=', '--pest', '--ansi', '--no-ansi']);
         }));
 
         if (! file_exists($file = base_path('phpunit.dusk.xml'))) {
             $file = base_path('phpunit.dusk.xml.dist');
+        }
+
+        if (version_compare(Version::id(), '10.0', '>=')) {
+            if ($this->option('ansi')) {
+                $options[] = '--colors=always';
+            }
+
+            if ($this->option('no-ansi')) {
+                $options[] = '--colors=never';
+            }
         }
 
         return array_merge(['-c', $file], $options);
@@ -136,9 +152,29 @@ class DuskCommand extends Command
      */
     protected function env()
     {
+        $variables = [];
+
         if ($this->option('browse') && ! isset($_ENV['CI']) && ! isset($_SERVER['CI'])) {
-            return ['DUSK_HEADLESS_DISABLED' => true];
+            $variables['DUSK_HEADLESS_DISABLED'] = true;
         }
+
+        if ($this->shouldUseCollisionPrinter()) {
+            $variables['COLLISION_PRINTER'] = 'DefaultPrinter';
+        }
+
+        return $variables;
+    }
+
+    /**
+     * Determine if Collision's printer should be used.
+     *
+     * @return bool
+     */
+    protected function shouldUseCollisionPrinter()
+    {
+        return ! $this->option('pest')
+            && class_exists(EnsurePrinterIsRegisteredSubscriber::class)
+            && version_compare(Version::id(), '10.0', '>=');
     }
 
     /**
@@ -224,7 +260,8 @@ class DuskCommand extends Command
     protected function setupDuskEnvironment()
     {
         if (file_exists(base_path($this->duskFile()))) {
-            if (file_get_contents(base_path('.env')) !== file_get_contents(base_path($this->duskFile()))) {
+            if (file_exists(base_path('.env')) &&
+                file_get_contents(base_path('.env')) !== file_get_contents(base_path($this->duskFile()))) {
                 $this->backupEnvironment();
             }
 
@@ -255,20 +292,6 @@ class DuskCommand extends Command
      */
     protected function refreshEnvironment()
     {
-        // BC fix to support Dotenv ^2.2...
-        if (! method_exists(Dotenv::class, 'create')) {
-            (new Dotenv(base_path()))->overload();
-
-            return;
-        }
-
-        // BC fix to support Dotenv ^3.0...
-        if (! method_exists(Dotenv::class, 'createMutable')) {
-            Dotenv::create(base_path())->overload();
-
-            return;
-        }
-
         Dotenv::createMutable(base_path())->load();
     }
 
@@ -281,7 +304,11 @@ class DuskCommand extends Command
     {
         if (! file_exists($file = base_path('phpunit.dusk.xml')) &&
             ! file_exists(base_path('phpunit.dusk.xml.dist'))) {
-            copy(realpath(__DIR__.'/../../stubs/phpunit.xml'), $file);
+            if (version_compare(Version::id(), '10.0', '>=')) {
+                copy(realpath(__DIR__.'/../../stubs/phpunit.xml'), $file);
+            } else {
+                copy(realpath(__DIR__.'/../../stubs/phpunit9.xml'), $file);
+            }
 
             return;
         }

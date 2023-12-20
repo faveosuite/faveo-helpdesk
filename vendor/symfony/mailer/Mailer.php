@@ -56,12 +56,16 @@ final class Mailer implements MailerInterface
             $event = new MessageEvent($clonedMessage, $clonedEnvelope, (string) $this->transport, true);
             $this->dispatcher->dispatch($event);
             $stamps = $event->getStamps();
+
+            if ($event->isRejected()) {
+                return;
+            }
         }
 
         try {
             $this->bus->dispatch(new SendEmailMessage($message, $envelope), $stamps);
         } catch (HandlerFailedException $e) {
-            foreach ($e->getNestedExceptions() as $nested) {
+            foreach ($e->getWrappedExceptions() as $nested) {
                 if ($nested instanceof TransportExceptionInterface) {
                     throw $nested;
                 }

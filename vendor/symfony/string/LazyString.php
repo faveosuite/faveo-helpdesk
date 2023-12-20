@@ -30,7 +30,9 @@ class LazyString implements \Stringable, \JsonSerializable
         }
 
         $lazyString = new static();
-        $lazyString->value = static function () use (&$callback, &$arguments, &$value): string {
+        $lazyString->value = static function () use (&$callback, &$arguments): string {
+            static $value;
+
             if (null !== $arguments) {
                 if (!\is_callable($callback)) {
                     $callback[0] = $callback[0]();
@@ -127,7 +129,7 @@ class LazyString implements \Stringable, \JsonSerializable
         } elseif ($callback instanceof \Closure) {
             $r = new \ReflectionFunction($callback);
 
-            if (str_contains($r->name, '{closure}') || !$class = \PHP_VERSION_ID >= 80111 ? $r->getClosureCalledClass() : $r->getClosureScopeClass()) {
+            if (str_contains($r->name, '{closure}') || !$class = $r->getClosureCalledClass()) {
                 return $r->name;
             }
 

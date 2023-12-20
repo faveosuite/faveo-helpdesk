@@ -15,6 +15,8 @@ use Nette;
 /**
  * Provides objects to work as array.
  * @template T
+ * @implements \IteratorAggregate<array-key, T>
+ * @implements \ArrayAccess<array-key, T>
  */
 class ArrayHash extends \stdClass implements \ArrayAccess, \Countable, \IteratorAggregate
 {
@@ -27,7 +29,7 @@ class ArrayHash extends \stdClass implements \ArrayAccess, \Countable, \Iterator
 		$obj = new static;
 		foreach ($array as $key => $value) {
 			$obj->$key = $recursive && is_array($value)
-				? static::from($value, true)
+				? static::from($value)
 				: $value;
 		}
 
@@ -37,7 +39,7 @@ class ArrayHash extends \stdClass implements \ArrayAccess, \Countable, \Iterator
 
 	/**
 	 * Returns an iterator over all items.
-	 * @return \Iterator<int|string, T>
+	 * @return \Iterator<array-key, T>
 	 */
 	public function &getIterator(): \Iterator
 	{
@@ -58,13 +60,13 @@ class ArrayHash extends \stdClass implements \ArrayAccess, \Countable, \Iterator
 
 	/**
 	 * Replaces or appends a item.
-	 * @param  string|int  $key
+	 * @param  array-key  $key
 	 * @param  T  $value
 	 */
 	public function offsetSet($key, $value): void
 	{
 		if (!is_scalar($key)) { // prevents null
-			throw new Nette\InvalidArgumentException(sprintf('Key must be either a string or an integer, %s given.', gettype($key)));
+			throw new Nette\InvalidArgumentException(sprintf('Key must be either a string or an integer, %s given.', get_debug_type($key)));
 		}
 
 		$this->$key = $value;
@@ -73,7 +75,7 @@ class ArrayHash extends \stdClass implements \ArrayAccess, \Countable, \Iterator
 
 	/**
 	 * Returns a item.
-	 * @param  string|int  $key
+	 * @param  array-key  $key
 	 * @return T
 	 */
 	#[\ReturnTypeWillChange]
@@ -85,7 +87,7 @@ class ArrayHash extends \stdClass implements \ArrayAccess, \Countable, \Iterator
 
 	/**
 	 * Determines whether a item exists.
-	 * @param  string|int  $key
+	 * @param  array-key  $key
 	 */
 	public function offsetExists($key): bool
 	{
@@ -95,7 +97,7 @@ class ArrayHash extends \stdClass implements \ArrayAccess, \Countable, \Iterator
 
 	/**
 	 * Removes the element from this list.
-	 * @param  string|int  $key
+	 * @param  array-key  $key
 	 */
 	public function offsetUnset($key): void
 	{

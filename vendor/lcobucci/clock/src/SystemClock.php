@@ -8,6 +8,7 @@ use DateTimeZone;
 
 use function date_default_timezone_get;
 
+/** @immutable */
 final class SystemClock implements Clock
 {
     public function __construct(private readonly DateTimeZone $timezone)

@@ -11,10 +11,10 @@
         }
     ],
     "require": {
-        "php": "^8.0",
-        "illuminate/support": "5.*|^6|9.*",
-        "guzzlehttp/guzzle": "~7.0",
-        "monolog/monolog": "^1.12|^2.0"
+        "php": "^8.2",
+        "illuminate/support": "5.*|^6|9.*|10.*|11.*",
+        "guzzlehttp/guzzle": "~7.2",
+        "monolog/monolog": "^1.12|^2.0|^3.0"
     },
     "require-dev": {
         "mockery/mockery" : "0.9.*",

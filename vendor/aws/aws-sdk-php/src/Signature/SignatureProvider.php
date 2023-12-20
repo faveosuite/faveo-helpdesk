@@ -45,6 +45,7 @@ class SignatureProvider
         's3' => true,
         's3control' => true,
         's3-object-lambda' => true,
+        's3express' => true
     ];
 
     /**
@@ -118,13 +119,17 @@ class SignatureProvider
     {
         return function ($version, $service, $region) {
             switch ($version) {
+                case 'v4-s3express':
+                    return new S3ExpressSignature($service, $region);
                 case 's3v4':
                 case 'v4':
                     return !empty(self::$s3v4SignedServices[$service])
                         ? new S3SignatureV4($service, $region)
                         : new SignatureV4($service, $region);
                 case 'v4a':
-                    return new SignatureV4($service, $region, ['use_v4a' => true]);
+                    return !empty(self::$s3v4SignedServices[$service])
+                        ? new S3SignatureV4($service, $region, ['use_v4a' => true])
+                        : new SignatureV4($service, $region, ['use_v4a' => true]);
                 case 'v4-unsigned-body':
                     return !empty(self::$s3v4SignedServices[$service])
                     ? new S3SignatureV4($service, $region, ['unsigned-body' => 'true'])

@@ -15,6 +15,9 @@ use League\Flysystem\UnixVisibility\PortableVisibilityConverter;
 use League\Flysystem\Visibility;
 use Symfony\Component\Console\Attribute\AsCommand;
 
+use function Laravel\Prompts\search;
+use function Laravel\Prompts\select;
+
 #[AsCommand(name: 'vendor:publish')]
 class VendorPublishCommand extends Command
 {
@@ -50,17 +53,6 @@ class VendorPublishCommand extends Command
                     {--all : Publish assets for all service providers without prompt}
                     {--provider= : The service provider that has assets you want to publish}
                     {--tag=* : One or many tags that have assets you want to publish}';
-
-    /**
-     * The name of the console command.
-     *
-     * This name is used to identify the command during lazy loading.
-     *
-     * @var string|null
-     *
-     * @deprecated
-     */
-    protected static $defaultName = 'vendor:publish';
 
     /**
      * The console command description.
@@ -123,10 +115,23 @@ class VendorPublishCommand extends Command
      */
     protected function promptForProviderOrTag()
     {
-        $choice = $this->components->choice(
-            "Which provider or tag's files would you like to publish?",
-            $choices = $this->publishableChoices()
-        );
+        $choices = $this->publishableChoices();
+
+        $choice = windows_os()
+            ? select(
+                "Which provider or tag's files would you like to publish?",
+                $choices,
+                scroll: 15,
+            )
+            : search(
+                label: "Which provider or tag's files would you like to publish?",
+                placeholder: 'Search...',
+                options: fn ($search) => array_values(array_filter(
+                    $choices,
+                    fn ($choice) => str_contains(strtolower($choice), strtolower($search))
+                )),
+                scroll: 15,
+            );
 
         if ($choice == $choices[0] || is_null($choice)) {
             return;
@@ -143,7 +148,7 @@ class VendorPublishCommand extends Command
     protected function publishableChoices()
     {
         return array_merge(
-            ['<comment>Publish files from all providers and tags listed below</comment>'],
+            ['All providers and tags'],
             preg_filter('/^/', '<fg=gray>Provider:</> ', Arr::sort(ServiceProvider::publishableProviders())),
             preg_filter('/^/', '<fg=gray>Tag:</> ', Arr::sort(ServiceProvider::publishableGroups()))
         );
@@ -174,8 +179,6 @@ class VendorPublishCommand extends Command
      */
     protected function publishTag($tag)
     {
-        $published = false;
-
         $pathsToPublish = $this->pathsToPublish($tag);
 
         if ($publishing = count($pathsToPublish) > 0) {

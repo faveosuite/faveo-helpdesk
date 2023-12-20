@@ -42,13 +42,13 @@ abstract class AbstractSessionListener implements EventSubscriberInterface, Rese
 {
     public const NO_AUTO_CACHE_CONTROL_HEADER = 'Symfony-Session-NoAutoCacheControl';
 
-    protected $container;
+    protected ?ContainerInterface $container;
     private bool $debug;
 
     /**
      * @var array<string, mixed>
      */
-    private $sessionOptions;
+    private array $sessionOptions;
 
     public function __construct(ContainerInterface $container = null, bool $debug = false, array $sessionOptions = [])
     {
@@ -57,7 +57,7 @@ abstract class AbstractSessionListener implements EventSubscriberInterface, Rese
         $this->sessionOptions = $sessionOptions;
     }
 
-    public function onKernelRequest(RequestEvent $event)
+    public function onKernelRequest(RequestEvent $event): void
     {
         if (!$event->isMainRequest()) {
             return;
@@ -65,11 +65,13 @@ abstract class AbstractSessionListener implements EventSubscriberInterface, Rese
 
         $request = $event->getRequest();
         if (!$request->hasSession()) {
-            // This variable prevents calling `$this->getSession()` twice in case the Request (and the below factory) is cloned
-            $sess = null;
-            $request->setSessionFactory(function () use (&$sess, $request) {
+            $request->setSessionFactory(function () use ($request) {
+                // Prevent calling `$this->getSession()` twice in case the Request (and the below factory) is cloned
+                static $sess;
+
                 if (!$sess) {
                     $sess = $this->getSession();
+                    $request->setSession($sess);
 
                     /*
                      * For supporting sessions in php runtime with runners like roadrunner or swoole, the session
@@ -88,7 +90,7 @@ abstract class AbstractSessionListener implements EventSubscriberInterface, Rese
         }
     }
 
-    public function onKernelResponse(ResponseEvent $event)
+    public function onKernelResponse(ResponseEvent $event): void
     {
         if (!$event->isMainRequest() || (!$this->container->has('initialized_session') && !$event->getRequest()->hasSession())) {
             return;

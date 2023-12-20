@@ -37,7 +37,7 @@ use App\Model\helpdesk\Workflow\WorkflowClose;
 use App\Model\kb\Settings;
 // Knowledge base
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Schema;
+    use Illuminate\Support\Facades\Schema;
 
 class DatabaseSeeder extends Seeder
 {
@@ -61,7 +61,7 @@ class DatabaseSeeder extends Seeder
                     Schema::table($tableName, function ($table) use ($column) {
                         $table->string($column)->nullable()->change();
                     });
-                } elseif (Schema::getColumnType($tableName, $column) == 'boolean') {
+                    } elseif (Schema::getColumnType($tableName, $column) == 'boolean') {
                     Schema::table($tableName, function ($table) use ($column) {
                         $table->boolean($column)->default(0)->change();
                     });

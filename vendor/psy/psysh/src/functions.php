@@ -155,6 +155,9 @@ if (!\function_exists('Psy\\info')) {
 
         $config = $lastConfig ?: new Configuration();
         $configEnv = (isset($_SERVER['PSYSH_CONFIG']) && $_SERVER['PSYSH_CONFIG']) ? $_SERVER['PSYSH_CONFIG'] : false;
+        if ($configEnv === false && \PHP_SAPI === 'cli-server') {
+            $configEnv = \getenv('PSYSH_CONFIG');
+        }
 
         $shellInfo = [
             'PsySH version' => Shell::VERSION,
@@ -165,6 +168,7 @@ if (!\function_exists('Psy\\info')) {
             'OS'                  => \PHP_OS,
             'default includes'    => $config->getDefaultIncludes(),
             'require semicolons'  => $config->requireSemicolons(),
+            'strict types'        => $config->strictTypes(),
             'error logging level' => $config->errorLoggingLevel(),
             'config file'         => [
                 'default config file' => $prettyPath($config->getConfigFile()),
@@ -226,6 +230,16 @@ if (!\function_exists('Psy\\info')) {
             'output decorated' => $config->getOutputDecorated(),
             'output verbosity' => $config->verbosity(),
             'output pager'     => $config->getPager(),
+        ];
+
+        $theme = $config->theme();
+        // TODO: show styles (but only if they're different than default?)
+        $output['theme'] = [
+            'compact'      => $theme->compact(),
+            'prompt'       => $theme->prompt(),
+            'bufferPrompt' => $theme->bufferPrompt(),
+            'replayPrompt' => $theme->replayPrompt(),
+            'returnValue'  => $theme->returnValue(),
         ];
 
         $pcntl = [
@@ -381,7 +395,7 @@ if (!\function_exists('Psy\\bin')) {
             }
 
             // Handle --help
-            if ($usageException !== null || $input->getOption('help')) {
+            if (!isset($config) || $usageException !== null || $input->getOption('help')) {
                 if ($usageException !== null) {
                     echo $usageException->getMessage().\PHP_EOL.\PHP_EOL;
                 }

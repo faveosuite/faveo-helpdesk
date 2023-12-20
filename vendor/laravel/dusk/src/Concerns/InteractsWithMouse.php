@@ -6,6 +6,9 @@ use Facebook\WebDriver\Exception\ElementClickInterceptedException;
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\Interactions\WebDriverActions;
 use Facebook\WebDriver\WebDriverBy;
+use Facebook\WebDriver\WebDriverKeys;
+use Laravel\Dusk\Keyboard;
+use Laravel\Dusk\OperatingSystem;
 
 trait InteractsWithMouse
 {
@@ -97,25 +100,39 @@ trait InteractsWithMouse
     }
 
     /**
-     * Perform a mouse click and hold the mouse button down.
+     * Perform a mouse click and hold the mouse button down at the given selector.
      *
+     * @param  string|null  $selector
      * @return $this
      */
-    public function clickAndHold()
+    public function clickAndHold($selector = null)
     {
-        (new WebDriverActions($this->driver))->clickAndHold()->perform();
+        if (is_null($selector)) {
+            (new WebDriverActions($this->driver))->clickAndHold()->perform();
+        } else {
+            (new WebDriverActions($this->driver))->clickAndHold(
+                $this->resolver->findOrFail($selector)
+            )->perform();
+        }
 
         return $this;
     }
 
     /**
-     * Perform a double click at the current mouse position.
+     * Double click the element at the given selector.
      *
+     * @param  string|null  $selector
      * @return $this
      */
-    public function doubleClick()
+    public function doubleClick($selector = null)
     {
-        (new WebDriverActions($this->driver))->doubleClick()->perform();
+        if (is_null($selector)) {
+            (new WebDriverActions($this->driver))->doubleClick()->perform();
+        } else {
+            (new WebDriverActions($this->driver))->doubleClick(
+                $this->resolver->findOrFail($selector)
+            )->perform();
+        }
 
         return $this;
     }
@@ -137,6 +154,23 @@ trait InteractsWithMouse
         }
 
         return $this;
+    }
+
+    /**
+     * Control click the element at the given selector.
+     *
+     * @param  string|null  $selector
+     * @return $this
+     */
+    public function controlClick($selector = null)
+    {
+        return $this->withKeyboard(function (Keyboard $keyboard) use ($selector) {
+            $key = OperatingSystem::onMac() ? WebDriverKeys::META : WebDriverKeys::CONTROL;
+
+            $keyboard->press($key);
+            $this->click($selector);
+            $keyboard->release($key);
+        });
     }
 
     /**

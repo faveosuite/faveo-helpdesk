@@ -5,12 +5,13 @@ namespace Illuminate\Support\Testing\Fakes;
 use BadMethodCallException;
 use Closure;
 use Illuminate\Contracts\Queue\Queue;
+use Illuminate\Queue\CallQueuedClosure;
 use Illuminate\Queue\QueueManager;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Traits\ReflectsClosures;
 use PHPUnit\Framework\Assert as PHPUnit;
 
-class QueueFake extends QueueManager implements Queue
+class QueueFake extends QueueManager implements Fake, Queue
 {
     use ReflectsClosures;
 
@@ -19,7 +20,7 @@ class QueueFake extends QueueManager implements Queue
      *
      * @var \Illuminate\Contracts\Queue\Queue
      */
-    protected $queue;
+    public $queue;
 
     /**
      * The job types that should be intercepted instead of pushed to the queue.
@@ -41,6 +42,13 @@ class QueueFake extends QueueManager implements Queue
      * @var array
      */
     protected $jobs = [];
+
+    /**
+     * Indicates if items should be serialized and restored when pushed to the queue.
+     *
+     * @var bool
+     */
+    protected bool $serializeAndRestore = false;
 
     /**
      * Create a new fake queue instance.
@@ -219,6 +227,28 @@ class QueueFake extends QueueManager implements Queue
     }
 
     /**
+     * Assert if a closure was pushed based on a truth-test callback.
+     *
+     * @param  callable|int|null  $callback
+     * @return void
+     */
+    public function assertClosurePushed($callback = null)
+    {
+        $this->assertPushed(CallQueuedClosure::class, $callback);
+    }
+
+    /**
+     * Assert that a closure was not pushed based on a truth-test callback.
+     *
+     * @param  callable|null  $callback
+     * @return void
+     */
+    public function assertClosureNotPushed($callback = null)
+    {
+        $this->assertNotPushed(CallQueuedClosure::class, $callback);
+    }
+
+    /**
      * Determine if the given chain is entirely composed of objects.
      *
      * @param  array  $chain
@@ -324,8 +354,12 @@ class QueueFake extends QueueManager implements Queue
     public function push($job, $data = '', $queue = null)
     {
         if ($this->shouldFakeJob($job)) {
+            if ($job instanceof Closure) {
+                $job = CallQueuedClosure::create($job);
+            }
+
             $this->jobs[is_object($job) ? get_class($job) : $job][] = [
-                'job' => $job,
+                'job' =>  $this->serializeAndRestore ? $this->serializeAndRestoreJob($job) : $job,
                 'queue' => $queue,
                 'data' => $data,
             ];
@@ -353,7 +387,7 @@ class QueueFake extends QueueManager implements Queue
         }
 
         return $this->jobsToFake->contains(
-            fn ($jobToFake) => $job instanceof ((string) $jobToFake)
+            fn ($jobToFake) => $job instanceof ((string) $jobToFake) || $job === (string) $jobToFake
         );
     }
 
@@ -462,6 +496,30 @@ class QueueFake extends QueueManager implements Queue
     public function pushedJobs()
     {
         return $this->jobs;
+    }
+
+    /**
+     * Specify if jobs should be serialized and restored when being "pushed" to the queue.
+     *
+     * @param  bool  $serializeAndRestore
+     * @return $this
+     */
+    public function serializeAndRestore(bool $serializeAndRestore = true)
+    {
+        $this->serializeAndRestore = $serializeAndRestore;
+
+        return $this;
+    }
+
+    /**
+     * Serialize and unserialize the job to simulate the queueing process.
+     *
+     * @param  mixed  $job
+     * @return mixed
+     */
+    protected function serializeAndRestoreJob($job)
+    {
+        return unserialize(serialize($job));
     }
 
     /**

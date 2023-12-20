@@ -308,10 +308,15 @@ class Ignition
             $this->solutionProviderRepository->getSolutionsForThrowable($throwable),
             $this->solutionTransformerClass,
             $this->customHtmlHead,
-            $this->customHtmlBody
+            $this->customHtmlBody,
         );
 
-        (new Renderer())->render(['viewModel' => $viewModel]);
+        (new Renderer())->render(['viewModel' => $viewModel], self::viewPath('errorPage'));
+    }
+
+    public static function viewPath(string $viewName): string
+    {
+        return __DIR__ . "/../resources/views/{$viewName}.php";
     }
 
     /**

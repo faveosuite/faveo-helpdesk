@@ -22,7 +22,7 @@ use Symfony\Component\Routing\Route as SymfonyRoute;
 
 class Route
 {
-    use CreatesRegularExpressionRouteConstraints, Macroable, RouteDependencyResolverTrait;
+    use CreatesRegularExpressionRouteConstraints, FiltersControllerMiddleware, Macroable, ResolvesRouteDependencies;
 
     /**
      * The URI pattern the route responds to.
@@ -268,6 +268,10 @@ class Route
      */
     public function getController()
     {
+        if (! $this->isControllerAction()) {
+            return null;
+        }
+
         if (! $this->controller) {
             $class = $this->getControllerClass();
 
@@ -280,11 +284,11 @@ class Route
     /**
      * Get the controller class used for the route.
      *
-     * @return string
+     * @return string|null
      */
     public function getControllerClass()
     {
-        return $this->parseControllerCallback()[0];
+        return $this->isControllerAction() ? $this->parseControllerCallback()[0] : null;
     }
 
     /**
@@ -997,6 +1001,7 @@ class Route
         return is_string($missing) &&
             Str::startsWith($missing, [
                 'O:47:"Laravel\\SerializableClosure\\SerializableClosure',
+                'O:55:"Laravel\\SerializableClosure\\UnsignedSerializableClosure',
             ]) ? unserialize($missing) : $missing;
     }
 
@@ -1113,7 +1118,7 @@ class Route
     protected function staticallyProvidedControllerMiddleware(string $class, string $method)
     {
         return collect($class::middleware())->reject(function ($middleware) use ($method) {
-            return $this->controllerDispatcher()::methodExcludedByOptions(
+            return static::methodExcludedByOptions(
                 $method, ['only' => $middleware->only, 'except' => $middleware->except]
             );
         })->map->middleware->values()->all();
@@ -1135,7 +1140,7 @@ class Route
     }
 
     /**
-     * Get the middleware should be removed from the route.
+     * Get the middleware that should be removed from the route.
      *
      * @return array
      */
@@ -1340,13 +1345,13 @@ class Route
     {
         if ($this->action['uses'] instanceof Closure) {
             $this->action['uses'] = serialize(
-                new SerializableClosure($this->action['uses'])
+                SerializableClosure::unsigned($this->action['uses'])
             );
         }
 
         if (isset($this->action['missing']) && $this->action['missing'] instanceof Closure) {
             $this->action['missing'] = serialize(
-                new SerializableClosure($this->action['missing'])
+                SerializableClosure::unsigned($this->action['missing'])
             );
         }
 

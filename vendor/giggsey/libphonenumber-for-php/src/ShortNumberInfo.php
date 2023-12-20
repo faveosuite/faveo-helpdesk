@@ -13,7 +13,6 @@ namespace libphonenumber;
 
 class ShortNumberInfo
 {
-    const META_DATA_FILE_PREFIX = 'ShortNumberMetadata';
     /**
      * @var ShortNumberInfo
      */
@@ -39,7 +38,7 @@ class ShortNumberInfo
         // TODO: Create ShortNumberInfo for a given map
         $this->countryCallingCodeToRegionCodeMap = CountryCodeToRegionCodeMap::$countryCodeToRegionCodeMap;
 
-        $this->currentFilePrefix = dirname(__FILE__) . '/data/' . static::META_DATA_FILE_PREFIX;
+        $this->currentFilePrefix = __DIR__ . '/data/ShortNumberMetadata';
 
         // Initialise PhoneNumberUtil to make sure regex's are setup correctly
         PhoneNumberUtil::getInstance();
@@ -65,7 +64,7 @@ class ShortNumberInfo
     }
 
     /**
-     * Returns a list with teh region codes that match the specific country calling code. For
+     * Returns a list with the region codes that match the specific country calling code. For
      * non-geographical country calling codes, the region code 001 is returned. Also, in the case
      * of no region code being found, an empty list is returned.
      *

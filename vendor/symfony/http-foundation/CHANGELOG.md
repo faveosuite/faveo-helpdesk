@@ -1,9 +1,34 @@
 CHANGELOG
 =========
 
+6.4
+---
+
+ * Make `HeaderBag::getDate()`, `Response::getDate()`, `getExpires()` and `getLastModified()` return a `DateTimeImmutable`
+ * Support root-level `Generator` in `StreamedJsonResponse`
+ * Add `UriSigner` from the HttpKernel component
+ * Add `partitioned` flag to `Cookie` (CHIPS Cookie)
+ * Add argument `bool $flush = true` to `Response::send()`
+* Make `MongoDbSessionHandler` instantiable with the mongodb extension directly
+
+6.3
+---
+
+ * Calling `ParameterBag::getDigit()`, `getAlnum()`, `getAlpha()` on an `array` throws a `UnexpectedValueException` instead of a `TypeError`
+ * Add `ParameterBag::getString()` to convert a parameter into string and throw an exception if the value is invalid
+ * Add `ParameterBag::getEnum()`
+ * Create migration for session table when pdo handler is used
+ * Add support for Relay PHP extension for Redis
+ * The `Response::sendHeaders()` method now takes an optional HTTP status code as parameter, allowing to send informational responses such as Early Hints responses (103 status code)
+ * Add `IpUtils::isPrivateIp()`
+ * Add `Request::getPayload(): InputBag`
+ * Deprecate conversion of invalid values in `ParameterBag::getInt()` and `ParameterBag::getBoolean()`,
+ * Deprecate ignoring invalid values when using `ParameterBag::filter()`, unless flag `FILTER_NULL_ON_FAILURE` is set
+
 6.2
 ---
 
+ * Add `StreamedJsonResponse` class for efficient JSON streaming
  * The HTTP cache store uses the `xxh128` algorithm
  * Deprecate calling `JsonResponse::setCallback()`, `Response::setExpires/setLastModified/setEtag()`, `MockArraySessionStorage/NativeSessionStorage::setMetadataBag()`, `NativeSessionStorage::setSaveHandler()` without arguments
  * Add request matchers under the `Symfony\Component\HttpFoundation\RequestMatcher` namespace

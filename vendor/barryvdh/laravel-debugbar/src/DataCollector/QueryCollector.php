@@ -392,8 +392,10 @@ class QueryCollector extends PDOCollector
             $this->reflection['viewfinderViews'] = $property;
         }
 
+        $xxh128Exists = in_array('xxh128', hash_algos());
+
         foreach ($property->getValue($finder) as $name => $path) {
-            if (sha1($path) == $hash || md5($path) == $hash) {
+            if (($xxh128Exists && hash('xxh128', 'v2' . $path) == $hash) || sha1('v2' . $path) == $hash) {
                 return $name;
             }
         }
@@ -431,7 +433,14 @@ class QueryCollector extends PDOCollector
         if (file_exists($path)) {
             $path = realpath($path);
         }
-        return str_replace(base_path(), '', $path);
+
+        $basepath = base_path();
+
+        if (! str_starts_with($path, $basepath)) {
+            return $path;
+        }
+
+        return substr($path, strlen($basepath));
     }
 
     /**

@@ -52,7 +52,7 @@ class DateTime extends \DateTime implements \JsonSerializable
 				$time += time();
 			}
 
-			return (new static('@' . $time))->setTimezone(new \DateTimeZone(date_default_timezone_get()));
+			return (new static)->setTimestamp((int) $time);
 
 		} else { // textual or null
 			return new static((string) $time);
@@ -130,7 +130,7 @@ class DateTime extends \DateTime implements \JsonSerializable
 
 
 	/**
-	 * Creates a copy with a modified time.
+	 * You'd better use: (clone $dt)->modify(...)
 	 */
 	public function modifyClone(string $modify = ''): static
 	{

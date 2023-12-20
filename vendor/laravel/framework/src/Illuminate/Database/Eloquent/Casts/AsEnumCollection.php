@@ -15,7 +15,7 @@ class AsEnumCollection implements Castable
      * @template TEnum of \UnitEnum|\BackedEnum
      *
      * @param  array{class-string<TEnum>}  $arguments
-     * @return CastsAttributes<Collection<array-key, TEnum>, iterable<TEnum>>
+     * @return \Illuminate\Contracts\Database\Eloquent\CastsAttributes<\Illuminate\Support\Collection<array-key, TEnum>, iterable<TEnum>>
      */
     public static function castUsing(array $arguments)
     {
@@ -34,7 +34,7 @@ class AsEnumCollection implements Castable
                     return;
                 }
 
-                $data = json_decode($attributes[$key], true);
+                $data = Json::decode($attributes[$key]);
 
                 if (! is_array($data)) {
                     return;
@@ -52,9 +52,9 @@ class AsEnumCollection implements Castable
             public function set($model, $key, $value, $attributes)
             {
                 $value = $value !== null
-                    ? (new Collection($value))->map(function ($enum) {
+                    ? Json::encode((new Collection($value))->map(function ($enum) {
                         return $this->getStorableEnumValue($enum);
-                    })->toJson()
+                    })->jsonSerialize())
                     : null;
 
                 return [$key => $value];

@@ -14,10 +14,10 @@
         }
     ],
     "require": {
-        "php": "^8.0",
+        "php": "^8.2",
         "ext-zip": "*",
-        "illuminate/support": "^9.0",
-        "illuminate/filesystem": "^9.0"
+        "illuminate/support": "^10.0",
+        "illuminate/filesystem": "^10.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^5.7",

@@ -69,8 +69,8 @@ final class AnyOf implements Schema
 
 	public function merge($value, $base)
 	{
-		if (is_array($value) && isset($value[Helpers::PREVENT_MERGING])) {
-			unset($value[Helpers::PREVENT_MERGING]);
+		if (is_array($value) && isset($value[Helpers::PreventMerging])) {
+			unset($value[Helpers::PreventMerging]);
 			return $value;
 		}
 
@@ -80,6 +80,15 @@ final class AnyOf implements Schema
 
 	public function complete($value, Context $context)
 	{
+		$isOk = $context->createChecker();
+		$value = $this->findAlternative($value, $context);
+		$isOk() && $value = $this->doTransform($value, $context);
+		return $isOk() ? $value : null;
+	}
+
+
+	private function findAlternative($value, Context $context)
+	{
 		$expecteds = $innerErrors = [];
 		foreach ($this->set as $item) {
 			if ($item instanceof Schema) {
@@ -88,7 +97,7 @@ final class AnyOf implements Schema
 				$res = $item->complete($item->normalize($value, $dolly), $dolly);
 				if (!$dolly->errors) {
 					$context->warnings = array_merge($context->warnings, $dolly->warnings);
-					return $this->doFinalize($res, $context);
+					return $res;
 				}
 
 				foreach ($dolly->errors as $error) {
@@ -100,7 +109,7 @@ final class AnyOf implements Schema
 				}
 			} else {
 				if ($item === $value) {
-					return $this->doFinalize($value, $context);
+					return $value;
 				}
 
 				$expecteds[] = Nette\Schema\Helpers::formatValue($item);
@@ -112,7 +121,7 @@ final class AnyOf implements Schema
 		} else {
 			$context->addError(
 				'The %label% %path% expects to be %expected%, %value% given.',
-				Nette\Schema\Message::TYPE_MISMATCH,
+				Nette\Schema\Message::TypeMismatch,
 				[
 					'value' => $value,
 					'expected' => implode('|', array_unique($expecteds)),
@@ -127,7 +136,7 @@ final class AnyOf implements Schema
 		if ($this->required) {
 			$context->addError(
 				'The mandatory item %path% is missing.',
-				Nette\Schema\Message::MISSING_ITEM
+				Nette\Schema\Message::MissingItem
 			);
 			return null;
 		}

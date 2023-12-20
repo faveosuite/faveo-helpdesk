@@ -3,7 +3,6 @@
 use Chumper\Datatable\Engines\CollectionEngine;
 use Chumper\Datatable\Engines\QueryEngine;
 use Input;
-use Request;
 
 /**
  * Class Datatable
@@ -11,35 +10,30 @@ use Request;
  */
 class Datatable {
 
-    private $columnNames = array();
-
     /**
      * @param $query
-     * @return \Chumper\Datatable\Engines\QueryEngine
+     * @return QueryEngine
      */
     public function query($query)
     {
-        $class = config('chumper.datatable.classmap.QueryEngine');
-        return new $class($query);
+        return new QueryEngine($query);
     }
 
     /**
      * @param $collection
-     * @return \Chumper\Datatable\Engines\CollectionEngine
+     * @return CollectionEngine
      */
     public function collection($collection)
     {
-        $class = config('chumper.datatable.classmap.CollectionEngine');
-        return new $class($collection);
+        return new CollectionEngine($collection);
     }
 
     /**
-     * @return \Chumper\Datatable\Table
+     * @return Table
      */
     public function table()
     {
-        $class = config('chumper.datatable.classmap.Table');
-        return new $class();
+        return new Table;
     }
 
     /**

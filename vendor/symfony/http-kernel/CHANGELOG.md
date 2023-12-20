@@ -1,6 +1,40 @@
 CHANGELOG
 =========
 
+6.4
+---
+
+ * Support backed enums in #[MapQueryParameter]
+ * `BundleInterface` no longer extends `ContainerAwareInterface`
+ * Add optional `$className` parameter to `ControllerEvent::getAttributes()`
+ * Add native return types to `TraceableEventDispatcher` and to `MergeExtensionConfigurationPass`
+ * Add argument `$validationFailedStatusCode` to `#[MapQueryString]` and `#[MapRequestPayload]`
+ * Add argument `$debug` to `Logger`
+ * Add class `DebugLoggerConfigurator`
+ * Add parameters `kernel.runtime_mode` and `kernel.runtime_mode.*`, all set from env var `APP_RUNTIME_MODE`
+ * Deprecate `Kernel::stripComments()`
+ * Support the `!` character at the beginning of a string as a negation operator in the url filter of the profiler
+ * Deprecate `UriSigner`, use `UriSigner` from the HttpFoundation component instead
+ * Deprecate `FileLinkFormatter`, use `FileLinkFormatter` from the ErrorHandler component instead
+ * Add argument `$buildDir` to `WarmableInterface`
+ * Add argument `$filter` to `Profiler::find()` and `FileProfilerStorage::find()`
+ * Add `ControllerResolver::allowControllers()` to define which callables are legit controllers when the `_check_controller_is_allowed` request attribute is set
+
+6.3
+---
+
+ * Deprecate parameters `container.dumper.inline_factories` and `container.dumper.inline_class_loader`, use `.container.dumper.inline_factories` and `.container.dumper.inline_class_loader` instead
+ * `FileProfilerStorage` removes profiles automatically after two days
+ * Add `#[WithHttpStatus]` for defining status codes for exceptions
+ * Use an instance of `Psr\Clock\ClockInterface` to generate the current date time in `DateTimeValueResolver`
+ * Add `#[WithLogLevel]` for defining log levels for exceptions
+ * Add `skip_response_headers` to the `HttpCache` options
+ * Introduce targeted value resolvers with `#[ValueResolver]` and `#[AsTargetedValueResolver]`
+ * Add `#[MapRequestPayload]` to map and validate request payload from `Request::getContent()` or `Request::$request->all()` to typed objects
+ * Add `#[MapQueryString]` to map and validate request query string from `Request::$query->all()` to typed objects
+ * Add `#[MapQueryParameter]` to map and validate individual query parameters to controller arguments
+ * Collect data from every event dispatcher
+
 6.2
 ---
 

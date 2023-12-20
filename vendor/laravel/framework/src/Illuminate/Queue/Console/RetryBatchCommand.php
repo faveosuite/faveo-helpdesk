@@ -4,10 +4,11 @@ namespace Illuminate\Queue\Console;
 
 use Illuminate\Bus\BatchRepository;
 use Illuminate\Console\Command;
+use Illuminate\Contracts\Console\Isolatable;
 use Symfony\Component\Console\Attribute\AsCommand;
 
 #[AsCommand(name: 'queue:retry-batch')]
-class RetryBatchCommand extends Command
+class RetryBatchCommand extends Command implements Isolatable
 {
     /**
      * The console command signature.
@@ -15,17 +16,6 @@ class RetryBatchCommand extends Command
      * @var string
      */
     protected $signature = 'queue:retry-batch {id : The ID of the batch whose failed jobs should be retried}';
-
-    /**
-     * The name of the console command.
-     *
-     * This name is used to identify the command during lazy loading.
-     *
-     * @var string|null
-     *
-     * @deprecated
-     */
-    protected static $defaultName = 'queue:retry-batch';
 
     /**
      * The console command description.
@@ -60,5 +50,15 @@ class RetryBatchCommand extends Command
         }
 
         $this->newLine();
+    }
+
+    /**
+     * Get the custom mutex name for an isolated command.
+     *
+     * @return string
+     */
+    public function isolatableId()
+    {
+        return $this->argument('id');
     }
 }

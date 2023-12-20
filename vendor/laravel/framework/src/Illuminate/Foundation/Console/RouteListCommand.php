@@ -27,17 +27,6 @@ class RouteListCommand extends Command
     protected $name = 'route:list';
 
     /**
-     * The name of the console command.
-     *
-     * This name is used to identify the command during lazy loading.
-     *
-     * @var string|null
-     *
-     * @deprecated
-     */
-    protected static $defaultName = 'route:list';
-
-    /**
      * The console command description.
      *
      * @var string
@@ -101,7 +90,9 @@ class RouteListCommand extends Command
      */
     public function handle()
     {
-        $this->router->flushMiddlewareGroups();
+        if (! $this->output->isVeryVerbose()) {
+            $this->router->flushMiddlewareGroups();
+        }
 
         if (! $this->router->getRoutes()->count()) {
             return $this->components->error("Your application doesn't have any routes.");

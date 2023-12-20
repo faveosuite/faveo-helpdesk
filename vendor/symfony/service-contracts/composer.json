@@ -22,9 +22,6 @@
     "conflict": {
         "ext-psr": "<1.1|>=2"
     },
-    "suggest": {
-        "symfony/service-implementation": ""
-    },
     "autoload": {
         "psr-4": { "Symfony\\Contracts\\Service\\": "" },
         "exclude-from-classmap": [
@@ -34,7 +31,7 @@
     "minimum-stability": "dev",
     "extra": {
         "branch-alias": {
-            "dev-main": "3.3-dev"
+            "dev-main": "3.4-dev"
         },
         "thanks": {
             "name": "symfony/contracts",

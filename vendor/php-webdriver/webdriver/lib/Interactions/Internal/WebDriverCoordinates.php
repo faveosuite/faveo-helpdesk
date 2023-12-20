@@ -11,7 +11,8 @@ use Facebook\WebDriver\WebDriverPoint;
 class WebDriverCoordinates
 {
     /**
-     * @var null
+     * @var mixed
+     * @todo remove in next major version (if it is unused)
      */
     private $onScreen;
     /**
@@ -28,9 +29,7 @@ class WebDriverCoordinates
     private $auxiliary;
 
     /**
-     * @param null $on_screen
-     * @param callable $in_view_port
-     * @param callable $on_page
+     * @param mixed $on_screen
      * @param string $auxiliary
      */
     public function __construct($on_screen, callable $in_view_port, callable $on_page, $auxiliary)

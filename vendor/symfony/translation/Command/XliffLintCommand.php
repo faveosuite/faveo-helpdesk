@@ -50,11 +50,14 @@ class XliffLintCommand extends Command
         $this->requireStrictFileNames = $requireStrictFileNames;
     }
 
+    /**
+     * @return void
+     */
     protected function configure()
     {
         $this
             ->addArgument('filename', InputArgument::IS_ARRAY, 'A file, a directory or "-" for reading from STDIN')
-            ->addOption('format', null, InputOption::VALUE_REQUIRED, 'The output format')
+            ->addOption('format', null, InputOption::VALUE_REQUIRED, sprintf('The output format ("%s")', implode('", "', $this->getAvailableFormatOptions())))
             ->setHelp(<<<EOF
 The <info>%command.name%</info> command lints an XLIFF file and outputs to STDOUT
 the first encountered syntax error.
@@ -151,17 +154,17 @@ EOF
         return ['file' => $file, 'valid' => 0 === \count($errors), 'messages' => $errors];
     }
 
-    private function display(SymfonyStyle $io, array $files)
+    private function display(SymfonyStyle $io, array $files): int
     {
         return match ($this->format) {
             'txt' => $this->displayTxt($io, $files),
             'json' => $this->displayJson($io, $files),
             'github' => $this->displayTxt($io, $files, true),
-            default => throw new InvalidArgumentException(sprintf('The format "%s" is not supported.', $this->format)),
+            default => throw new InvalidArgumentException(sprintf('Supported formats are "%s".', implode('", "', $this->getAvailableFormatOptions()))),
         };
     }
 
-    private function displayTxt(SymfonyStyle $io, array $filesInfo, bool $errorAsGithubAnnotations = false)
+    private function displayTxt(SymfonyStyle $io, array $filesInfo, bool $errorAsGithubAnnotations = false): int
     {
         $countFiles = \count($filesInfo);
         $erroredFiles = 0;
@@ -193,7 +196,7 @@ EOF
         return min($erroredFiles, 1);
     }
 
-    private function displayJson(SymfonyStyle $io, array $filesInfo)
+    private function displayJson(SymfonyStyle $io, array $filesInfo): int
     {
         $errors = 0;
 
@@ -209,7 +212,10 @@ EOF
         return min($errors, 1);
     }
 
-    private function getFiles(string $fileOrDirectory)
+    /**
+     * @return iterable<\SplFileInfo>
+     */
+    private function getFiles(string $fileOrDirectory): iterable
     {
         if (is_file($fileOrDirectory)) {
             yield new \SplFileInfo($fileOrDirectory);
@@ -226,14 +232,15 @@ EOF
         }
     }
 
-    private function getDirectoryIterator(string $directory)
+    /**
+     * @return iterable<\SplFileInfo>
+     */
+    private function getDirectoryIterator(string $directory): iterable
     {
-        $default = function ($directory) {
-            return new \RecursiveIteratorIterator(
-                new \RecursiveDirectoryIterator($directory, \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::FOLLOW_SYMLINKS),
-                \RecursiveIteratorIterator::LEAVES_ONLY
-            );
-        };
+        $default = fn ($directory) => new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($directory, \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::FOLLOW_SYMLINKS),
+            \RecursiveIteratorIterator::LEAVES_ONLY
+        );
 
         if (null !== $this->directoryIteratorProvider) {
             return ($this->directoryIteratorProvider)($directory, $default);
@@ -242,11 +249,9 @@ EOF
         return $default($directory);
     }
 
-    private function isReadable(string $fileOrDirectory)
+    private function isReadable(string $fileOrDirectory): bool
     {
-        $default = function ($fileOrDirectory) {
-            return is_readable($fileOrDirectory);
-        };
+        $default = fn ($fileOrDirectory) => is_readable($fileOrDirectory);
 
         if (null !== $this->isReadableProvider) {
             return ($this->isReadableProvider)($fileOrDirectory, $default);
@@ -269,7 +274,12 @@ EOF
     public function complete(CompletionInput $input, CompletionSuggestions $suggestions): void
     {
         if ($input->mustSuggestOptionValuesFor('format')) {
-            $suggestions->suggestValues(['txt', 'json', 'github']);
+            $suggestions->suggestValues($this->getAvailableFormatOptions());
         }
+    }
+
+    private function getAvailableFormatOptions(): array
+    {
+        return ['txt', 'json', 'github'];
     }
 }

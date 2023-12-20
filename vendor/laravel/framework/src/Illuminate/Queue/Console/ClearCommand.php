@@ -5,6 +5,7 @@ namespace Illuminate\Queue\Console;
 use Illuminate\Console\Command;
 use Illuminate\Console\ConfirmableTrait;
 use Illuminate\Contracts\Queue\ClearableQueue;
+use Illuminate\Support\Str;
 use ReflectionClass;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -21,17 +22,6 @@ class ClearCommand extends Command
      * @var string
      */
     protected $name = 'queue:clear';
-
-    /**
-     * The name of the console command.
-     *
-     * This name is used to identify the command during lazy loading.
-     *
-     * @var string|null
-     *
-     * @deprecated
-     */
-    protected static $defaultName = 'queue:clear';
 
     /**
      * The console command description.
@@ -64,7 +54,7 @@ class ClearCommand extends Command
         if ($queue instanceof ClearableQueue) {
             $count = $queue->clear($queueName);
 
-            $this->components->info('Cleared '.$count.' jobs from the ['.$queueName.'] queue');
+            $this->components->info('Cleared '.$count.' '.Str::plural('job', $count).' from the ['.$queueName.'] queue');
         } else {
             $this->components->error('Clearing queues is not supported on ['.(new ReflectionClass($queue))->getShortName().']');
         }

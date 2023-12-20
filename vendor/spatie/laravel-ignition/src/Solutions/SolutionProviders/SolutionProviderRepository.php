@@ -11,6 +11,9 @@ use Throwable;
 
 class SolutionProviderRepository implements SolutionProviderRepositoryContract
 {
+    /**
+     * @param array<int, ProvidesSolution> $solutionProviders
+     */
     protected Collection $solutionProviders;
 
     /**

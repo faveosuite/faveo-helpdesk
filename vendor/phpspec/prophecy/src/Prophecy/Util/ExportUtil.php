@@ -47,7 +47,7 @@ class ExportUtil
      * and public properties.
      *
      * @param  mixed $value
-     * @return array
+     * @return array<mixed>
      */
     public static function toArray($value)
     {
@@ -120,7 +120,7 @@ class ExportUtil
         if (is_resource($value)) {
             return sprintf(
                 'resource(%d) of type (%s)',
-                $value,
+                (int) $value,
                 get_resource_type($value)
             );
         }
@@ -147,6 +147,7 @@ class ExportUtil
                 return 'Array &' . $key;
             }
 
+            \assert(\is_array($value));
             $array  = $value;
             $key    = $processed->add($value);
             $values = '';
@@ -171,10 +172,12 @@ class ExportUtil
             $class = get_class($value);
 
             if ($processed->contains($value)) {
+                \assert(\is_object($value));
                 return sprintf('%s#%d Object', $class, spl_object_id($value));
             }
 
             $processed->add($value);
+            \assert(\is_object($value));
             $values = '';
             $array  = self::toArray($value);
 

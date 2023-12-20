@@ -848,7 +848,25 @@ class Report implements FeatureDataStore
         }
 
         if (is_string($obj)) {
-            return (function_exists('mb_detect_encoding') && !mb_detect_encoding($obj, 'UTF-8', true)) ? utf8_encode($obj) : $obj;
+            // on PHP 7.2+ we can use the 'JSON_INVALID_UTF8_SUBSTITUTE' flag to
+            // substitute invalid UTF-8 characters when encoding so can return
+            // strings as-is and let PHP handle invalid UTF-8
+            // note: we check PHP 7.2+ specifically rather than if the flag
+            // exists because some code defines the flag as '0' when it doesn't
+            // exist to avoid having to check for it existing. This completely
+            // breaks the flag as it will not function, so we can't know if the
+            // flag can be used just from it being defined
+            if (version_compare(PHP_VERSION, '7.2', '>=')) {
+                return $obj;
+            }
+
+            // if we have the mbstring extension available, use that to detect
+            // encodings and handle conversions to UTF-8
+            if (function_exists('mb_check_encoding') && !mb_check_encoding($obj, 'UTF-8')) {
+                return mb_convert_encoding($obj, 'UTF-8', mb_list_encodings());
+            }
+
+            return $obj;
         }
 
         if (is_object($obj)) {
