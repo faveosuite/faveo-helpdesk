@@ -4,6 +4,7 @@ namespace Illuminate\Database\Console\Factories;
 
 use Illuminate\Console\GeneratorCommand;
 use Illuminate\Support\Str;
+use Illuminate\Support\Stringable;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputOption;
 
@@ -16,17 +17,6 @@ class FactoryMakeCommand extends GeneratorCommand
      * @var string
      */
     protected $name = 'make:factory';
-
-    /**
-     * The name of the console command.
-     *
-     * This name is used to identify the command during lazy loading.
-     *
-     * @var string|null
-     *
-     * @deprecated
-     */
-    protected static $defaultName = 'make:factory';
 
     /**
      * The console command description.
@@ -76,8 +66,8 @@ class FactoryMakeCommand extends GeneratorCommand
         $factory = class_basename(Str::ucfirst(str_replace('Factory', '', $name)));
 
         $namespaceModel = $this->option('model')
-                        ? $this->qualifyModel($this->option('model'))
-                        : $this->qualifyModel($this->guessModelName($name));
+            ? $this->qualifyModel($this->option('model'))
+            : $this->qualifyModel($this->guessModelName($name));
 
         $model = class_basename($namespaceModel);
 
@@ -110,7 +100,7 @@ class FactoryMakeCommand extends GeneratorCommand
      */
     protected function getPath($name)
     {
-        $name = (string) Str::of($name)->replaceFirst($this->rootNamespace(), '')->finish('Factory');
+        $name = (new Stringable($name))->replaceFirst($this->rootNamespace(), '')->finish('Factory')->value();
 
         return $this->laravel->databasePath().'/factories/'.str_replace('\\', '/', $name).'.php';
     }

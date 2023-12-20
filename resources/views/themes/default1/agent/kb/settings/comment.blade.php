@@ -2,7 +2,7 @@
 
 @extends('themes.default1.agent.layout.sidebar')    
 @section('PageHeader')
-<h1>{!! Lang::get('lang.comments') !!}</h1>
+<h3>{!! Lang::get('lang.comments') !!}</h3>
 @stop
 @section('comment')
 class="nav-link active"
@@ -23,39 +23,57 @@ class="nav-link active"
 @section('content')
 
 @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <i class="fas fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+    <i class="fa-solid fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('success')}}
 </div>
 @endif
 <!-- failure message -->
 @if(Session::has('fails'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fas fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!} !</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('fails')}}
 </div>
 @endif
 
-<div class="card card-light">
+<div class="card">
     <div class="card-header">
         <h3 class="card-title">{{Lang::get('lang.comments-list')}}</h3>
     </div>
     <div class="card-body">
         <div class="row">
             <div class="col-sm-12">
-                {!! Datatable::table()
-                ->addColumn(Lang::get('lang.details'), 
-                Lang::get('lang.comment'),
-                Lang::get('lang.status'),
-                Lang::get('lang.action'))       // these are the column headings to be shown
-                ->setUrl(route('api.comment'))   // this is the route where data will be retrieved
-                ->render() !!}
+                <table id="comments-table" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>{!! Lang::get('lang.details') !!}</th>
+                            <th>{!! Lang::get('lang.comment') !!}</th>
+                            <th>{!! Lang::get('lang.status') !!}</th>
+                            <th>{!! Lang::get('lang.action') !!}</th>
+                        </tr>
+                    </thead>
+                </table>
             </div>
         </div>
     </div>
 </div>
+<script>
+$(function() {
+    $('#comments-table').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: '{{ route("api.comment") }}',
+        columns: [
+            {data: 'details',  name: 'details'},
+            {data: 'comment',  name: 'comment'},
+            {data: 'status',   name: 'status'},
+            {data: 'Actions',  name: 'Actions', orderable: false, searchable: false},
+        ]
+    });
+});
+</script>
 
 @stop

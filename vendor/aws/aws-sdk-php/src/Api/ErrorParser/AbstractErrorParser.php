@@ -21,7 +21,7 @@ abstract class AbstractErrorParser
     /**
      * @param Service $api
      */
-    public function __construct(Service $api = null)
+    public function __construct(?Service $api = null)
     {
         $this->api = $api;
     }
@@ -31,23 +31,10 @@ abstract class AbstractErrorParser
         StructureShape $member
     );
 
-    protected function extractPayload(
-        StructureShape $member,
-        ResponseInterface $response
-    ) {
-        if ($member instanceof StructureShape) {
-            // Structure members parse top-level data into a specific key.
-            return $this->payload($response, $member);
-        } else {
-            // Streaming data is just the stream from the response body.
-            return $response->getBody();
-        }
-    }
-
     protected function populateShape(
         array &$data,
         ResponseInterface $response,
-        CommandInterface $command = null
+        ?CommandInterface $command = null
     ) {
         $data['body'] = [];
 
@@ -57,18 +44,15 @@ abstract class AbstractErrorParser
             if (!empty($data['code'])) {
 
                 $errors = $this->api->getOperation($command->getName())->getErrors();
-                foreach ($errors as $key => $error) {
+                foreach ($errors as $error) {
 
                     // If error code matches a known error shape, populate the body
-                    if ($data['code'] == $error['name']
-                        && $error instanceof StructureShape
-                    ) {
-                        $modeledError = $error;
-                        $data['body'] = $this->extractPayload(
-                            $modeledError,
-                            $response
+                    if ($this->errorCodeMatches($data, $error)) {
+                        $data['body'] = $this->payload(
+                            $response,
+                            $error
                         );
-                        $data['error_shape'] = $modeledError;
+                        $data['error_shape'] = $error;
 
                         foreach ($error->getMembers() as $name => $member) {
                             switch ($member['location']) {
@@ -91,5 +75,11 @@ abstract class AbstractErrorParser
         }
 
         return $data;
+    }
+
+    private function errorCodeMatches(array $data, $error): bool
+    {
+        return $data['code'] == $error['name']
+            || (isset($error['error']['code']) && $data['code'] === $error['error']['code']);
     }
 }

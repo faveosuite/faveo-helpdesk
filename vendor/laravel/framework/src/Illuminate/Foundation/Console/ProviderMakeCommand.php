@@ -3,6 +3,7 @@
 namespace Illuminate\Foundation\Console;
 
 use Illuminate\Console\GeneratorCommand;
+use Illuminate\Support\ServiceProvider;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputOption;
 
@@ -17,17 +18,6 @@ class ProviderMakeCommand extends GeneratorCommand
     protected $name = 'make:provider';
 
     /**
-     * The name of the console command.
-     *
-     * This name is used to identify the command during lazy loading.
-     *
-     * @var string|null
-     *
-     * @deprecated
-     */
-    protected static $defaultName = 'make:provider';
-
-    /**
      * The console command description.
      *
      * @var string
@@ -40,6 +30,29 @@ class ProviderMakeCommand extends GeneratorCommand
      * @var string
      */
     protected $type = 'Provider';
+
+    /**
+     * Execute the console command.
+     *
+     * @return bool|null
+     *
+     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     */
+    public function handle()
+    {
+        $result = parent::handle();
+
+        if ($result === false) {
+            return $result;
+        }
+
+        ServiceProvider::addProviderToBootstrapFile(
+            $this->qualifyClass($this->getNameInput()),
+            $this->laravel->getBootstrapProvidersPath(),
+        );
+
+        return $result;
+    }
 
     /**
      * Get the stub file for the generator.

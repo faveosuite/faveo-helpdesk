@@ -7,9 +7,11 @@ use DateTimeImmutable;
 final class Date
 {
     /**
+     * @param ClockInterface|null $clock
+     *
      * @return string
      */
-    public static function now(ClockInterface $clock = null)
+    public static function now($clock = null)
     {
         if ($clock === null) {
             $clock = new Clock();

@@ -82,6 +82,17 @@ class SetupTestEnv extends Command
      */
     private function setupConfig($dbUsername, $dbPassword)
     {
+        // The v_2_0_0 DatabaseSeeder begins with `if (isInstall()) { return; }`,
+        // and isInstall() (app/Http/helpers.php) reads env('DB_INSTALL') — NOT the
+        // 'database.install' config set below. A normal .env carries DB_INSTALL=1,
+        // so without this the seeder returns immediately and the test database is
+        // left with schema but no data: no ticket_priority, no settings_system, no
+        // statuses. Every controller test then dies on a foreign key or a null
+        // $system. Forcing the env value here makes `testing-setup` self-contained.
+        putenv('DB_INSTALL=0');
+        $_ENV['DB_INSTALL'] = '0';
+        $_SERVER['DB_INSTALL'] = '0';
+
         Config::set('app.env', 'development');
         Config::set('database.connections.mysql.port', '');
         Config::set('database.connections.mysql.database', null);

@@ -123,10 +123,10 @@ class Table
             ) {
                 throw new PhpSpreadsheetException('The table name can\'t be the same as a cell reference');
             }
-            if (!preg_match('/^[\p{L}_\\\\]/iu', $name)) {
+            if (!preg_match('/^[\p{L}_\\\]/iu', $name)) {
                 throw new PhpSpreadsheetException('The table name must begin a name with a letter, an underscore character (_), or a backslash (\)');
             }
-            if (!preg_match('/^[\p{L}_\\\\][\p{L}\p{M}0-9\._]+$/iu', $name)) {
+            if (!preg_match('/^[\p{L}_\\\][\p{L}\p{M}0-9\._]+$/iu', $name)) {
                 throw new PhpSpreadsheetException('The table name contains invalid characters');
             }
 
@@ -180,7 +180,7 @@ class Table
 
     private function updateStructuredReferencesInCells(Worksheet $worksheet, string $newName): void
     {
-        $pattern = '/' . preg_quote($this->name) . '\[/mui';
+        $pattern = '/' . preg_quote($this->name, '/') . '\[/mui';
 
         foreach ($worksheet->getCoordinates(false) as $coordinate) {
             $cell = $worksheet->getCell($coordinate);
@@ -196,7 +196,7 @@ class Table
 
     private function updateStructuredReferencesInNamedFormulae(Spreadsheet $spreadsheet, string $newName): void
     {
-        $pattern = '/' . preg_quote($this->name) . '\[/mui';
+        $pattern = '/' . preg_quote($this->name, '/') . '\[/mui';
 
         foreach ($spreadsheet->getNamedFormulae() as $namedFormula) {
             $formula = $namedFormula->getValue();
@@ -324,7 +324,7 @@ class Table
     {
         if ($this->workSheet !== null) {
             $thisrange = $this->range;
-            $range = (string) preg_replace('/\\d+$/', (string) $this->workSheet->getHighestRow(), $thisrange);
+            $range = (string) preg_replace('/\d+$/', (string) $this->workSheet->getHighestRow(), $thisrange);
             if ($range !== $thisrange) {
                 $this->setRange($range);
             }

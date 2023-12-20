@@ -1,0 +1,115 @@
+<?php
+
+namespace Illuminate\Pagination;
+
+/**
+ * @template TKey of array-key
+ * @template TValue
+ *
+ * @mixin \Illuminate\Support\Collection<TKey, TValue>
+ */
+abstract class AbstractPaginator implements \Illuminate\Contracts\Support\Htmlable, \Stringable
+{
+    /**
+     * @param  TKey  $key
+     * @return TValue|null
+     */
+    public function offsetGet($key): mixed;
+
+    /**
+     * @return (TValue is \Illuminate\Database\Eloquent\Model
+     *     ? collection-of<TValue>
+     *     : \Illuminate\Support\Collection<TKey, TValue>)
+     */
+    public function getCollection();
+
+    /**
+     * @template TSetKey of array-key
+     * @template TSetValue
+     *
+     * @param  \Illuminate\Support\Collection<TSetKey, TSetValue>  $collection
+     * @phpstan-this-out static<TSetKey, TSetValue>
+     * @return $this
+     */
+    public function setCollection(\Illuminate\Support\Collection $collection);
+}
+
+/**
+ * @template TKey of array-key
+ * @template TValue
+ *
+ * @implements \ArrayAccess<TKey, TValue>
+ * @implements \IteratorAggregate<TKey, TValue>
+ * @implements \Illuminate\Contracts\Support\Arrayable<TKey, TValue>
+ * @implements \Illuminate\Contracts\Pagination\Paginator<TKey, TValue>
+ *
+ * @extends AbstractPaginator<TKey, TValue>
+ */
+class Paginator extends AbstractPaginator implements \Illuminate\Contracts\Support\Arrayable, \ArrayAccess, \Countable, \IteratorAggregate, \Illuminate\Contracts\Support\Jsonable, \JsonSerializable, \Illuminate\Contracts\Pagination\Paginator
+{}
+
+/**
+ * @template TKey of array-key
+ * @template TValue
+ *
+ * @implements \ArrayAccess<TKey, TValue>
+ * @implements \IteratorAggregate<TKey, TValue>
+ * @implements \Illuminate\Contracts\Support\Arrayable<TKey, TValue>
+ * @implements \Illuminate\Contracts\Pagination\LengthAwarePaginator<TKey, TValue>
+ *
+ * @extends AbstractPaginator<TKey, TValue>
+ */
+class LengthAwarePaginator extends AbstractPaginator implements \Illuminate\Contracts\Support\Arrayable, \ArrayAccess, \Countable, \IteratorAggregate, \Illuminate\Contracts\Support\Jsonable, \JsonSerializable, \Illuminate\Contracts\Pagination\LengthAwarePaginator
+{}
+
+/**
+ * @template TKey of array-key
+ * @template TValue
+ *
+ * @mixin \Illuminate\Support\Collection<TKey, TValue>
+ */
+abstract class AbstractCursorPaginator implements \Illuminate\Contracts\Support\Htmlable, \Stringable
+{
+    /**
+     * @return (TValue is \Illuminate\Database\Eloquent\Model
+     *     ? collection-of<TValue>
+     *     : \Illuminate\Support\Collection<TKey, TValue>)
+     */
+    public function getCollection();
+
+    /**
+     * @template TSetKey of array-key
+     * @template TSetValue
+     *
+     * @param  \Illuminate\Support\Collection<TSetKey, TSetValue>  $collection
+     * @phpstan-this-out static<TSetKey, TSetValue>
+     * @return $this
+     */
+    public function setCollection(\Illuminate\Support\Collection $collection);
+
+    /**
+     * @param  TKey  $key
+     * @return TValue|null
+     */
+    public function offsetGet($key): mixed;
+}
+
+/**
+ * @template TKey of array-key
+ * @template TValue
+ *
+ * @implements \ArrayAccess<TKey, TValue>
+ * @implements \IteratorAggregate<TKey, TValue>
+ * @implements \Illuminate\Contracts\Support\Arrayable<TKey, TValue>
+ * @implements \Illuminate\Contracts\Pagination\CursorPaginator<TKey, TValue>
+ *
+ * @extends AbstractCursorPaginator<TKey, TValue>
+ */
+class CursorPaginator extends AbstractCursorPaginator implements \Illuminate\Contracts\Support\Arrayable, \ArrayAccess, \Countable, \IteratorAggregate, \Illuminate\Contracts\Support\Jsonable, \JsonSerializable, \Illuminate\Contracts\Pagination\CursorPaginator
+{}
+
+/**
+ * @implements \Illuminate\Contracts\Support\Arrayable<array-key, mixed>
+ */
+class Cursor implements \Illuminate\Contracts\Support\Arrayable
+{}

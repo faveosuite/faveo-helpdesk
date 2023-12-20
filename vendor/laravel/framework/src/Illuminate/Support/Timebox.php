@@ -2,6 +2,8 @@
 
 namespace Illuminate\Support;
 
+use Throwable;
+
 class Timebox
 {
     /**
@@ -19,17 +21,29 @@ class Timebox
      * @param  (callable($this): TCallReturnType)  $callback
      * @param  int  $microseconds
      * @return TCallReturnType
+     *
+     * @throws \Throwable
      */
     public function call(callable $callback, int $microseconds)
     {
+        $exception = null;
+
         $start = microtime(true);
 
-        $result = $callback($this);
+        try {
+            $result = $callback($this);
+        } catch (Throwable $caught) {
+            $exception = $caught;
+        }
 
-        $remainder = intval($microseconds - ((microtime(true) - $start) * 1000000));
+        $remainder = (int) ($microseconds - ((microtime(true) - $start) * 1_000_000));
 
         if (! $this->earlyReturn && $remainder > 0) {
             $this->usleep($remainder);
+        }
+
+        if ($exception) {
+            throw $exception;
         }
 
         return $result;
@@ -67,6 +81,6 @@ class Timebox
      */
     protected function usleep(int $microseconds)
     {
-        usleep($microseconds);
+        Sleep::usleep($microseconds);
     }
 }

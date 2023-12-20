@@ -35,7 +35,7 @@ final class PathHeader extends AbstractHeader
      *
      * @throws RfcComplianceException
      */
-    public function setBody(mixed $body)
+    public function setBody(mixed $body): void
     {
         $this->setAddress($body);
     }
@@ -45,7 +45,7 @@ final class PathHeader extends AbstractHeader
         return $this->getAddress();
     }
 
-    public function setAddress(Address $address)
+    public function setAddress(Address $address): void
     {
         $this->address = $address;
     }
@@ -57,6 +57,6 @@ final class PathHeader extends AbstractHeader
 
     public function getBodyAsString(): string
     {
-        return '<'.$this->address->toString().'>';
+        return '<'.$this->address->getEncodedAddress().'>';
     }
 }

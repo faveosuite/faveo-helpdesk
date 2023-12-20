@@ -36,8 +36,8 @@ final class InlineParserEngine implements InlineParserEngineInterface
 
     /**
      * @var array<int, InlineParserInterface|string|bool>
-     * @psalm-var list<array{0: InlineParserInterface, 1: string, 2: bool}>
-     * @phpstan-var array<int, array{0: InlineParserInterface, 1: string, 2: bool}>
+     * @psalm-var list<array{0: InlineParserInterface, 1: non-empty-string, 2: bool}>
+     * @phpstan-var array<int, array{0: InlineParserInterface, 1: non-empty-string, 2: bool}>
      */
     private array $parsers = [];
 
@@ -59,7 +59,7 @@ final class InlineParserEngine implements InlineParserEngineInterface
         $contents = \trim($contents);
         $cursor   = new Cursor($contents);
 
-        $inlineParserContext = new InlineParserContext($cursor, $block, $this->referenceMap);
+        $inlineParserContext = new InlineParserContext($cursor, $block, $this->referenceMap, $this->environment->getConfiguration()->get('max_delimiters_per_line'));
 
         // Have all parsers look at the line to determine what they might want to parse and what positions they exist at
         foreach ($this->matchParsers($contents) as $matchPosition => $parsers) {
@@ -78,7 +78,6 @@ final class InlineParserEngine implements InlineParserEngineInterface
             // We're now at a potential start - see which of the current parsers can handle it
             $parsed = false;
             foreach ($parsers as [$parser, $matches]) {
-                \assert($parser instanceof InlineParserInterface);
                 if ($parser->parse($inlineParserContext->withMatches($matches))) {
                     // A parser has successfully handled the text at the given position; don't consider any others at this position
                     $parsed = true;
@@ -134,7 +133,7 @@ final class InlineParserEngine implements InlineParserEngineInterface
     private function matchParsers(string $contents): array
     {
         $contents    = \trim($contents);
-        $isMultibyte = \mb_strlen($contents, 'UTF-8') !== \strlen($contents);
+        $isMultibyte = ! \mb_check_encoding($contents, 'ASCII');
 
         $ret = [];
 
@@ -149,10 +148,16 @@ final class InlineParserEngine implements InlineParserEngineInterface
             }
 
             // For each part that matched...
+            $lastByteOffset = 0;
+            $lastCharOffset = 0;
             foreach ($matches as $match) {
                 if ($isMultibyte) {
-                    // PREG_OFFSET_CAPTURE always returns the byte offset, not the char offset, which is annoying
-                    $offset = \mb_strlen(\substr($contents, 0, $match[0][1]), 'UTF-8');
+                    // PREG_OFFSET_CAPTURE always returns the byte offset, not the char offset, which is annoying.
+                    // Matches are returned in ascending order, so convert incrementally from the previous position
+                    // instead of re-scanning from the start of the line for every match (which would be quadratic).
+                    $lastCharOffset += \mb_strlen(\substr($contents, $lastByteOffset, $match[0][1] - $lastByteOffset), 'UTF-8');
+                    $lastByteOffset  = $match[0][1];
+                    $offset          = $lastCharOffset;
                 } else {
                     $offset = \intval($match[0][1]);
                 }

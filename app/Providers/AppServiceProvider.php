@@ -41,6 +41,8 @@ class AppServiceProvider extends ServiceProvider
         Route::singularResourceParameters(false);
         $this->composer();
         URL::forceScheme('https');
+
+        require base_path('app/Http/breadcrumbs.php');
     }
 
     public function composer()

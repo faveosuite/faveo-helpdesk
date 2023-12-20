@@ -33,24 +33,18 @@ class OutputFormatterStyle implements OutputFormatterStyleInterface
      * @param string|null $foreground The style foreground color name
      * @param string|null $background The style background color name
      */
-    public function __construct(string $foreground = null, string $background = null, array $options = [])
+    public function __construct(?string $foreground = null, ?string $background = null, array $options = [])
     {
         $this->color = new Color($this->foreground = $foreground ?: '', $this->background = $background ?: '', $this->options = $options);
     }
 
-    public function setForeground(string $color = null)
+    public function setForeground(?string $color): void
     {
-        if (1 > \func_num_args()) {
-            trigger_deprecation('symfony/console', '6.2', 'Calling "%s()" without any arguments is deprecated, pass null explicitly instead.', __METHOD__);
-        }
         $this->color = new Color($this->foreground = $color ?: '', $this->background, $this->options);
     }
 
-    public function setBackground(string $color = null)
+    public function setBackground(?string $color): void
     {
-        if (1 > \func_num_args()) {
-            trigger_deprecation('symfony/console', '6.2', 'Calling "%s()" without any arguments is deprecated, pass null explicitly instead.', __METHOD__);
-        }
         $this->color = new Color($this->foreground, $this->background = $color ?: '', $this->options);
     }
 
@@ -59,13 +53,13 @@ class OutputFormatterStyle implements OutputFormatterStyleInterface
         $this->href = $url;
     }
 
-    public function setOption(string $option)
+    public function setOption(string $option): void
     {
         $this->options[] = $option;
         $this->color = new Color($this->foreground, $this->background, $this->options);
     }
 
-    public function unsetOption(string $option)
+    public function unsetOption(string $option): void
     {
         $pos = array_search($option, $this->options);
         if (false !== $pos) {
@@ -75,7 +69,7 @@ class OutputFormatterStyle implements OutputFormatterStyleInterface
         $this->color = new Color($this->foreground, $this->background, $this->options);
     }
 
-    public function setOptions(array $options)
+    public function setOptions(array $options): void
     {
         $this->color = new Color($this->foreground, $this->background, $this->options = $options);
     }
@@ -83,7 +77,8 @@ class OutputFormatterStyle implements OutputFormatterStyleInterface
     public function apply(string $text): string
     {
         $this->handlesHrefGracefully ??= 'JetBrains-JediTerm' !== getenv('TERMINAL_EMULATOR')
-            && (!getenv('KONSOLE_VERSION') || (int) getenv('KONSOLE_VERSION') > 201100);
+            && (!getenv('KONSOLE_VERSION') || (int) getenv('KONSOLE_VERSION') > 201100)
+            && !isset($_SERVER['IDEA_INITIAL_DIRECTORY']);
 
         if (null !== $this->href && $this->handlesHrefGracefully) {
             $text = "\033]8;;$this->href\033\\$text\033]8;;\033\\";

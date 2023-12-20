@@ -17,37 +17,36 @@
         }
     ],
     "support": {
-        "issues": "https://github.com/sebastianbergmann/php-code-coverage/issues"
+        "issues": "https://github.com/sebastianbergmann/php-code-coverage/issues",
+        "security": "https://github.com/sebastianbergmann/php-code-coverage/security/policy"
     },
     "config": {
         "platform": {
-            "php": "7.3.0"
+            "php": "8.3.0"
         },
         "optimize-autoloader": true,
         "sort-packages": true
     },
     "prefer-stable": true,
     "require": {
-        "php": ">=7.3",
+        "php": ">=8.3",
         "ext-dom": "*",
         "ext-libxml": "*",
         "ext-xmlwriter": "*",
-        "nikic/php-parser": "^4.14",
-        "phpunit/php-file-iterator": "^3.0.3",
-        "phpunit/php-text-template": "^2.0.2",
-        "sebastian/code-unit-reverse-lookup": "^2.0.2",
-        "sebastian/complexity": "^2.0",
-        "sebastian/environment": "^5.1.2",
-        "sebastian/lines-of-code": "^1.0.3",
-        "sebastian/version": "^3.0.1",
-        "theseer/tokenizer": "^1.2.0"
+        "nikic/php-parser": "^5.7.0",
+        "phpunit/php-text-template": "^5.0",
+        "sebastian/complexity": "^5.0",
+        "sebastian/environment": "^8.1.2",
+        "sebastian/lines-of-code": "^4.0.1",
+        "sebastian/version": "^6.0",
+        "theseer/tokenizer": "^2.0.1"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.3"
+        "phpunit/phpunit": "^12.5.28"
     },
     "suggest": {
-        "ext-pcov": "*",
-        "ext-xdebug": "*"
+        "ext-pcov": "PHP extension that provides line coverage",
+        "ext-xdebug": "PHP extension that provides line coverage as well as branch and path coverage"
     },
     "autoload": {
         "classmap": [
@@ -55,14 +54,13 @@
         ]
     },
     "autoload-dev": {
-        "files": [
-            "tests/TestCase.php",
-            "tests/_files/BankAccountTest.php"
+        "classmap": [
+            "tests/"
         ]
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "9.2-dev"
+            "dev-main": "12.5.x-dev"
         }
     }
 }

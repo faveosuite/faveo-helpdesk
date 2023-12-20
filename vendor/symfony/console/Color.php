@@ -60,7 +60,7 @@ final class Color
 
         foreach ($options as $option) {
             if (!isset(self::AVAILABLE_OPTIONS[$option])) {
-                throw new InvalidArgumentException(sprintf('Invalid option specified: "%s". Expected one of (%s).', $option, implode(', ', array_keys(self::AVAILABLE_OPTIONS))));
+                throw new InvalidArgumentException(\sprintf('Invalid option specified: "%s". Expected one of (%s).', $option, implode(', ', array_keys(self::AVAILABLE_OPTIONS))));
             }
 
             $this->options[$option] = self::AVAILABLE_OPTIONS[$option];
@@ -84,11 +84,11 @@ final class Color
         foreach ($this->options as $option) {
             $setCodes[] = $option['set'];
         }
-        if (0 === \count($setCodes)) {
+        if (!$setCodes) {
             return '';
         }
 
-        return sprintf("\033[%sm", implode(';', $setCodes));
+        return \sprintf("\033[%sm", implode(';', $setCodes));
     }
 
     public function unset(): string
@@ -103,11 +103,11 @@ final class Color
         foreach ($this->options as $option) {
             $unsetCodes[] = $option['unset'];
         }
-        if (0 === \count($unsetCodes)) {
+        if (!$unsetCodes) {
             return '';
         }
 
-        return sprintf("\033[%sm", implode(';', $unsetCodes));
+        return \sprintf("\033[%sm", implode(';', $unsetCodes));
     }
 
     private function parseColor(string $color, bool $background = false): string
@@ -128,6 +128,6 @@ final class Color
             return ($background ? '10' : '9').self::BRIGHT_COLORS[$color];
         }
 
-        throw new InvalidArgumentException(sprintf('Invalid "%s" color; expected one of (%s).', $color, implode(', ', array_merge(array_keys(self::COLORS), array_keys(self::BRIGHT_COLORS)))));
+        throw new InvalidArgumentException(\sprintf('Invalid "%s" color; expected one of (%s).', $color, implode(', ', array_merge(array_keys(self::COLORS), array_keys(self::BRIGHT_COLORS)))));
     }
 }

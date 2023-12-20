@@ -18,14 +18,14 @@ namespace Symfony\Component\HttpFoundation;
  */
 class AcceptHeaderItem
 {
-    private string $value;
     private float $quality = 1.0;
     private int $index = 0;
     private array $attributes = [];
 
-    public function __construct(string $value, array $attributes = [])
-    {
-        $this->value = $value;
+    public function __construct(
+        private string $value,
+        array $attributes = [],
+    ) {
         foreach ($attributes as $name => $value) {
             $this->setAttribute($name, $value);
         }
@@ -50,7 +50,7 @@ class AcceptHeaderItem
     public function __toString(): string
     {
         $string = $this->value.($this->quality < 1 ? ';q='.$this->quality : '');
-        if (\count($this->attributes) > 0) {
+        if ($this->attributes) {
             $string .= '; '.HeaderUtils::toString($this->attributes, ';');
         }
 

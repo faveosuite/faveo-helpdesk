@@ -7,6 +7,7 @@ use Illuminate\Console\Command;
 use Illuminate\Contracts\Encryption\Encrypter;
 use Illuminate\Queue\Events\JobRetryRequested;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use RuntimeException;
 use Symfony\Component\Console\Attribute\AsCommand;
 
@@ -21,18 +22,7 @@ class RetryCommand extends Command
     protected $signature = 'queue:retry
                             {id?* : The ID of the failed job or "all" to retry all jobs}
                             {--queue= : Retry all of the failed jobs for the specified queue}
-                            {--range=* : Range of job IDs (numeric) to be retried}';
-
-    /**
-     * The name of the console command.
-     *
-     * This name is used to identify the command during lazy loading.
-     *
-     * @var string|null
-     *
-     * @deprecated
-     */
-    protected static $defaultName = 'queue:retry';
+                            {--range=* : Range of job IDs (numeric) to be retried (e.g. 1-5)}';
 
     /**
      * The console command description.
@@ -81,7 +71,11 @@ class RetryCommand extends Command
         $ids = (array) $this->argument('id');
 
         if (count($ids) === 1 && $ids[0] === 'all') {
-            return Arr::pluck($this->laravel['queue.failer']->all(), 'id');
+            $failer = $this->laravel['queue.failer'];
+
+            return method_exists($failer, 'ids')
+                ? $failer->ids()
+                : Arr::pluck($failer->all(), 'id');
         }
 
         if ($queue = $this->option('queue')) {
@@ -103,10 +97,14 @@ class RetryCommand extends Command
      */
     protected function getJobIdsByQueue($queue)
     {
-        $ids = collect($this->laravel['queue.failer']->all())
-                        ->where('queue', $queue)
-                        ->pluck('id')
-                        ->toArray();
+        $failer = $this->laravel['queue.failer'];
+
+        $ids = method_exists($failer, 'ids')
+            ? $failer->ids($queue)
+            : (new Collection($failer->all()))
+                ->where('queue', $queue)
+                ->pluck('id')
+                ->toArray();
 
         if (count($ids) === 0) {
             $this->components->error("Unable to find failed jobs for queue [{$queue}].");
@@ -142,8 +140,12 @@ class RetryCommand extends Command
      */
     protected function retryJob($job)
     {
+        $queue = $this->laravel['queue']->connection($job->connection);
+
         $this->laravel['queue']->connection($job->connection)->pushRaw(
-            $this->refreshRetryUntil($this->resetAttempts($job->payload)), $job->queue
+            $this->refreshRetryUntil($this->resetAttempts($job->payload)),
+            $job->queue,
+            $this->getQueueableOptions($queue, $job)
         );
     }
 
@@ -182,24 +184,59 @@ class RetryCommand extends Command
             return json_encode($payload);
         }
 
-        if (str_starts_with($payload['data']['command'], 'O:')) {
-            $instance = unserialize($payload['data']['command']);
-        } elseif ($this->laravel->bound(Encrypter::class)) {
-            $instance = unserialize($this->laravel->make(Encrypter::class)->decrypt($payload['data']['command']));
-        }
-
-        if (! isset($instance)) {
-            throw new RuntimeException('Unable to extract job payload.');
-        }
+        $instance = $this->getInstanceFromPayload($payload);
 
         if (is_object($instance) && ! $instance instanceof \__PHP_Incomplete_Class && method_exists($instance, 'retryUntil')) {
             $retryUntil = $instance->retryUntil();
 
             $payload['retryUntil'] = $retryUntil instanceof DateTimeInterface
-                                        ? $retryUntil->getTimestamp()
-                                        : $retryUntil;
+                ? $retryUntil->getTimestamp()
+                : $retryUntil;
         }
 
         return json_encode($payload);
+    }
+
+    /**
+     * Get the queueable options from the job.
+     *
+     * @param  $queue
+     * @param  \stdClass  $job
+     * @return array
+     */
+    protected function getQueueableOptions($queue, $job)
+    {
+        if (! method_exists($queue, 'getQueueableOptions')) {
+            return [];
+        }
+
+        $payload = json_decode($job->payload, true);
+
+        if (! isset($payload['data']['command'])) {
+            return [];
+        }
+
+        return $queue->getQueueableOptions($this->getInstanceFromPayload($payload), $job->queue, $job->payload);
+    }
+
+    /**
+     * Get the job instance from the given payload.
+     *
+     * @param  array  $payload
+     * @return mixed
+     *
+     * @throws \RuntimeException
+     */
+    protected function getInstanceFromPayload($payload)
+    {
+        if (str_starts_with($payload['data']['command'], 'O:')) {
+            return unserialize($payload['data']['command']);
+        }
+
+        if ($this->laravel->bound(Encrypter::class)) {
+            return unserialize($this->laravel->make(Encrypter::class)->decrypt($payload['data']['command']));
+        }
+
+        throw new RuntimeException('Unable to extract job payload.');
     }
 }

@@ -15,7 +15,7 @@ class="active"
 <!-- content -->
 @section('content')
 
-	<!-- <section class="content"> -->
+	<!-- <section class="app-content"> -->
 <div class="box box-primary">
 	
 	<div class="box-header">

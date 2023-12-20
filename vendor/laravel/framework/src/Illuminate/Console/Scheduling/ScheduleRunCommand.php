@@ -2,16 +2,19 @@
 
 namespace Illuminate\Console\Scheduling;
 
+use Exception;
 use Illuminate\Console\Application;
 use Illuminate\Console\Command;
 use Illuminate\Console\Events\ScheduledTaskFailed;
 use Illuminate\Console\Events\ScheduledTaskFinished;
 use Illuminate\Console\Events\ScheduledTaskSkipped;
 use Illuminate\Console\Events\ScheduledTaskStarting;
+use Illuminate\Contracts\Cache\Repository as Cache;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Sleep;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Throwable;
 
@@ -19,22 +22,11 @@ use Throwable;
 class ScheduleRunCommand extends Command
 {
     /**
-     * The console command name.
+     * The name and signature of the console command.
      *
      * @var string
      */
-    protected $name = 'schedule:run';
-
-    /**
-     * The name of the console command.
-     *
-     * This name is used to identify the command during lazy loading.
-     *
-     * @var string|null
-     *
-     * @deprecated
-     */
-    protected static $defaultName = 'schedule:run';
+    protected $signature = 'schedule:run {--whisper : Do not output message indicating that no jobs were ready to run}';
 
     /**
      * The console command description.
@@ -79,6 +71,13 @@ class ScheduleRunCommand extends Command
     protected $handler;
 
     /**
+     * The cache store implementation.
+     *
+     * @var \Illuminate\Contracts\Cache\Repository
+     */
+    protected $cache;
+
+    /**
      * The PHP binary used by the command.
      *
      * @var string
@@ -87,8 +86,6 @@ class ScheduleRunCommand extends Command
 
     /**
      * Create a new command instance.
-     *
-     * @return void
      */
     public function __construct()
     {
@@ -102,23 +99,33 @@ class ScheduleRunCommand extends Command
      *
      * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
      * @param  \Illuminate\Contracts\Events\Dispatcher  $dispatcher
+     * @param  \Illuminate\Contracts\Cache\Repository  $cache
      * @param  \Illuminate\Contracts\Debug\ExceptionHandler  $handler
      * @return void
      */
-    public function handle(Schedule $schedule, Dispatcher $dispatcher, ExceptionHandler $handler)
+    public function handle(Schedule $schedule, Dispatcher $dispatcher, Cache $cache, ExceptionHandler $handler)
     {
         $this->schedule = $schedule;
         $this->dispatcher = $dispatcher;
+        $this->cache = $cache;
         $this->handler = $handler;
         $this->phpBinary = Application::phpBinary();
 
-        $this->newLine();
+        $events = $this->schedule->dueEvents($this->laravel);
 
-        foreach ($this->schedule->dueEvents($this->laravel) as $event) {
+        if ($events->contains->isRepeatable()) {
+            $this->clearInterruptSignal();
+        }
+
+        foreach ($events as $event) {
             if (! $event->filtersPass($this->laravel)) {
                 $this->dispatcher->dispatch(new ScheduledTaskSkipped($event));
 
                 continue;
+            }
+
+            if (! $this->eventsRan) {
+                $this->newLine();
             }
 
             if ($event->onOneServer) {
@@ -130,8 +137,14 @@ class ScheduleRunCommand extends Command
             $this->eventsRan = true;
         }
 
+        if ($events->contains->isRepeatable()) {
+            $this->repeatEvents($events->filter->isRepeatable());
+        }
+
         if (! $this->eventsRan) {
-            $this->components->info('No scheduled commands are ready to run.');
+            if (! $this->option('whisper')) {
+                $this->components->info('No scheduled commands are ready to run.');
+            }
         } else {
             $this->newLine();
         }
@@ -149,7 +162,7 @@ class ScheduleRunCommand extends Command
             $this->runEvent($event);
         } else {
             $this->components->info(sprintf(
-                'Skipping [%s], as command already run on another server.', $event->getSummaryForDisplay()
+                'Skipping [%s] because the command already ran on another server.', $event->getSummaryForDisplay()
             ));
         }
     }
@@ -189,6 +202,10 @@ class ScheduleRunCommand extends Command
                 ));
 
                 $this->eventsRan = true;
+
+                if ($event->exitCode != 0 && ! $event->runInBackground) {
+                    throw new Exception("Scheduled command [{$event->command}] failed with exit code [{$event->exitCode}].");
+                }
             } catch (Throwable $e) {
                 $this->dispatcher->dispatch(new ScheduledTaskFailed($event, $e));
 
@@ -203,5 +220,70 @@ class ScheduleRunCommand extends Command
                 $event->getSummaryForDisplay(),
             ]);
         }
+    }
+
+    /**
+     * Run the given repeating events.
+     *
+     * @param  \Illuminate\Support\Collection<\Illuminate\Console\Scheduling\Event>  $events
+     * @return void
+     */
+    protected function repeatEvents($events)
+    {
+        $hasEnteredMaintenanceMode = false;
+
+        while (Date::now()->lte($this->startedAt->endOfMinute())) {
+            foreach ($events as $event) {
+                if ($this->shouldInterrupt()) {
+                    return;
+                }
+
+                if (! $event->shouldRepeatNow()) {
+                    continue;
+                }
+
+                $hasEnteredMaintenanceMode = $hasEnteredMaintenanceMode || $this->laravel->isDownForMaintenance();
+
+                if ($hasEnteredMaintenanceMode && ! $event->runsInMaintenanceMode()) {
+                    continue;
+                }
+
+                if (! $event->filtersPass($this->laravel)) {
+                    $this->dispatcher->dispatch(new ScheduledTaskSkipped($event));
+
+                    continue;
+                }
+
+                if ($event->onOneServer) {
+                    $this->runSingleServerEvent($event);
+                } else {
+                    $this->runEvent($event);
+                }
+
+                $this->eventsRan = true;
+            }
+
+            Sleep::usleep(100_000);
+        }
+    }
+
+    /**
+     * Determine if the schedule run should be interrupted.
+     *
+     * @return bool
+     */
+    protected function shouldInterrupt()
+    {
+        return $this->cache->get('illuminate:schedule:interrupt', false);
+    }
+
+    /**
+     * Ensure the interrupt signal is cleared.
+     *
+     * @return void
+     */
+    protected function clearInterruptSignal()
+    {
+        $this->cache->forget('illuminate:schedule:interrupt');
     }
 }

@@ -23,16 +23,12 @@ namespace Symfony\Component\CssSelector\XPath;
  */
 class XPathExpr
 {
-    private string $path;
-    private string $element;
-    private string $condition;
-
-    public function __construct(string $path = '', string $element = '*', string $condition = '', bool $starPrefix = false)
-    {
-        $this->path = $path;
-        $this->element = $element;
-        $this->condition = $condition;
-
+    public function __construct(
+        private string $path = '',
+        private string $element = '*',
+        private string $condition = '',
+        bool $starPrefix = false,
+    ) {
         if ($starPrefix) {
             $this->addStarPrefix();
         }
@@ -46,9 +42,9 @@ class XPathExpr
     /**
      * @return $this
      */
-    public function addCondition(string $condition): static
+    public function addCondition(string $condition, string $operator = 'and'): static
     {
-        $this->condition = $this->condition ? sprintf('(%s) and (%s)', $this->condition, $condition) : $condition;
+        $this->condition = $this->condition ? \sprintf('(%s) %s (%s)', $this->condition, $operator, $condition) : $condition;
 
         return $this;
     }
@@ -84,9 +80,13 @@ class XPathExpr
     /**
      * Joins another XPathExpr with a combiner.
      *
+     * When $hasInnerConditions is true, $expr->condition is folded into $expr->element as a
+     * "[...]" predicate rather than onto $this->condition, so subsequent addCondition() calls
+     * on $this are not AND'd with it. Needed for relative selectors inside :has().
+     *
      * @return $this
      */
-    public function join(string $combiner, self $expr): static
+    public function join(string $combiner, self $expr, ?string $closingCombiner = null, bool $hasInnerConditions = false): static
     {
         $path = $this->__toString().$combiner;
 
@@ -95,8 +95,19 @@ class XPathExpr
         }
 
         $this->path = $path;
-        $this->element = $expr->element;
-        $this->condition = $expr->condition;
+
+        if (!$hasInnerConditions) {
+            $this->element = $expr->element.($closingCombiner ?? '');
+            $this->condition = $expr->condition;
+        } else {
+            $this->element = $expr->element;
+            if ($expr->condition) {
+                $this->element .= '['.$expr->condition.']';
+            }
+            if ($closingCombiner) {
+                $this->element .= $closingCombiner;
+            }
+        }
 
         return $this;
     }
@@ -104,7 +115,7 @@ class XPathExpr
     public function __toString(): string
     {
         $path = $this->path.$this->element;
-        $condition = null === $this->condition || '' === $this->condition ? '' : '['.$this->condition.']';
+        $condition = '' === $this->condition ? '' : '['.$this->condition.']';
 
         return $path.$condition;
     }

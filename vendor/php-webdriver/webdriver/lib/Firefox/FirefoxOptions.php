@@ -2,6 +2,7 @@
 
 namespace Facebook\WebDriver\Firefox;
 
+use Facebook\WebDriver\Exception\Internal\LogicException;
 use ReturnTypeWillChange;
 
 /**
@@ -12,13 +13,13 @@ use ReturnTypeWillChange;
 class FirefoxOptions implements \JsonSerializable
 {
     /** @var string The key of FirefoxOptions in desired capabilities */
-    const CAPABILITY = 'moz:firefoxOptions';
+    public const CAPABILITY = 'moz:firefoxOptions';
     /** @var string */
-    const OPTION_ARGS = 'args';
+    public const OPTION_ARGS = 'args';
     /** @var string */
-    const OPTION_PREFS = 'prefs';
+    public const OPTION_PREFS = 'prefs';
     /** @var string */
-    const OPTION_PROFILE = 'profile';
+    public const OPTION_PROFILE = 'profile';
 
     /** @var array */
     private $options = [];
@@ -49,13 +50,13 @@ class FirefoxOptions implements \JsonSerializable
     public function setOption($name, $value)
     {
         if ($name === self::OPTION_PREFS) {
-            throw new \InvalidArgumentException('Use setPreference() method to set Firefox preferences');
+            throw LogicException::forError('Use setPreference() method to set Firefox preferences');
         }
         if ($name === self::OPTION_ARGS) {
-            throw new \InvalidArgumentException('Use addArguments() method to add Firefox arguments');
+            throw LogicException::forError('Use addArguments() method to add Firefox arguments');
         }
         if ($name === self::OPTION_PROFILE) {
-            throw new \InvalidArgumentException('Use setProfile() method to set Firefox profile');
+            throw LogicException::forError('Use setProfile() method to set Firefox profile');
         }
 
         $this->options[$name] = $value;
@@ -96,7 +97,6 @@ class FirefoxOptions implements \JsonSerializable
 
     /**
      * @see https://github.com/php-webdriver/php-webdriver/wiki/Firefox#firefox-profile
-     * @param FirefoxProfile $profile
      * @return self
      */
     public function setProfile(FirefoxProfile $profile)

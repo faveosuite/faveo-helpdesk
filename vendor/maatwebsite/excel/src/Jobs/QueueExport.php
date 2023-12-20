@@ -4,7 +4,9 @@ namespace Maatwebsite\Excel\Jobs;
 
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
+use Maatwebsite\Excel\Exceptions\NoSheetsFoundException;
 use Maatwebsite\Excel\Files\TemporaryFile;
 use Maatwebsite\Excel\Jobs\Middleware\LocalizeJob;
 use Maatwebsite\Excel\Writer;
@@ -12,7 +14,7 @@ use Throwable;
 
 class QueueExport implements ShouldQueue
 {
-    use ExtendedQueueable, Dispatchable;
+    use ExtendedQueueable, Dispatchable, InteractsWithQueue;
 
     /**
      * @var object
@@ -66,6 +68,10 @@ class QueueExport implements ShouldQueue
                 $sheetExports = $this->export->sheets();
             }
 
+            if (count($sheetExports) === 0) {
+                throw new NoSheetsFoundException('Your export did not return any sheet export instances, please make sure your sheets() method always at least returns one instance.');
+            }
+
             // Pre-create the worksheets
             foreach ($sheetExports as $sheetIndex => $sheetExport) {
                 $sheet = $writer->addNewSheet($sheetIndex);
@@ -73,7 +79,7 @@ class QueueExport implements ShouldQueue
             }
 
             // Write to temp file with empty sheets.
-            $writer->write($sheetExport, $this->temporaryFile, $this->writerType);
+            $writer->write($this->export, $this->temporaryFile, $this->writerType);
         });
     }
 

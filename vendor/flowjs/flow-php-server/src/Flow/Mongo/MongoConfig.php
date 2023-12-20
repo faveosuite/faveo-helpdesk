@@ -3,30 +3,24 @@
 namespace Flow\Mongo;
 
 use Flow\Config;
+use Flow\ConfigInterface;
 use MongoDB\GridFS\Bucket;
 
 /**
  * @codeCoverageIgnore
  */
-class MongoConfig extends Config implements MongoConfigInterface
+class MongoConfig extends Config implements ConfigInterface
 {
-    private $gridFs;
-
     /**
      * @param Bucket $gridFS storage of the upload (and chunks)
      */
-    function __construct(Bucket $gridFS)
+    public function __construct(private readonly Bucket $gridFS)
     {
         parent::__construct();
-        $this->gridFs = $gridFS;
     }
 
-
-    /**
-     * @return Bucket
-     */
-    public function getGridFs()
+    public function getGridFs(): Bucket
     {
-        return $this->gridFs;
+        return $this->gridFS;
     }
 }

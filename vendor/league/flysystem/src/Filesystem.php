@@ -6,12 +6,13 @@ namespace League\Flysystem;
 
 use DateTimeInterface;
 use Generator;
-use League\Flysystem\UrlGeneration\ShardedPrefixPublicUrlGenerator;
 use League\Flysystem\UrlGeneration\PrefixPublicUrlGenerator;
 use League\Flysystem\UrlGeneration\PublicUrlGenerator;
+use League\Flysystem\UrlGeneration\ShardedPrefixPublicUrlGenerator;
 use League\Flysystem\UrlGeneration\TemporaryUrlGenerator;
 use Throwable;
 
+use function array_key_exists;
 use function is_array;
 
 class Filesystem implements FilesystemOperator
@@ -24,12 +25,12 @@ class Filesystem implements FilesystemOperator
     public function __construct(
         private FilesystemAdapter $adapter,
         array $config = [],
-        PathNormalizer $pathNormalizer = null,
+        ?PathNormalizer $pathNormalizer = null,
         private ?PublicUrlGenerator $publicUrlGenerator = null,
         private ?TemporaryUrlGenerator $temporaryUrlGenerator = null,
     ) {
         $this->config = new Config($config);
-        $this->pathNormalizer = $pathNormalizer ?: new WhitespacePathNormalizer();
+        $this->pathNormalizer = $pathNormalizer ?? new WhitespacePathNormalizer($this->config->get('allow_relative_path_traversal', true));
     }
 
     public function fileExists(string $location): bool
@@ -119,20 +120,40 @@ class Filesystem implements FilesystemOperator
 
     public function move(string $source, string $destination, array $config = []): void
     {
-        $this->adapter->move(
-            $this->pathNormalizer->normalizePath($source),
-            $this->pathNormalizer->normalizePath($destination),
-            $this->config->extend($config)
-        );
+        $config = $this->resolveConfigForMoveAndCopy($config);
+        $from = $this->pathNormalizer->normalizePath($source);
+        $to = $this->pathNormalizer->normalizePath($destination);
+
+        if ($from === $to) {
+            $resolutionStrategy = $config->get(Config::OPTION_MOVE_IDENTICAL_PATH, ResolveIdenticalPathConflict::TRY);
+
+            if ($resolutionStrategy === ResolveIdenticalPathConflict::FAIL) {
+                throw UnableToMoveFile::sourceAndDestinationAreTheSame($source, $destination);
+            } elseif ($resolutionStrategy === ResolveIdenticalPathConflict::IGNORE) {
+                return;
+            }
+        }
+
+        $this->adapter->move($from, $to, $config);
     }
 
     public function copy(string $source, string $destination, array $config = []): void
     {
-        $this->adapter->copy(
-            $this->pathNormalizer->normalizePath($source),
-            $this->pathNormalizer->normalizePath($destination),
-            $this->config->extend($config)
-        );
+        $config = $this->resolveConfigForMoveAndCopy($config);
+        $from = $this->pathNormalizer->normalizePath($source);
+        $to = $this->pathNormalizer->normalizePath($destination);
+
+        if ($from === $to) {
+            $resolutionStrategy = $config->get(Config::OPTION_COPY_IDENTICAL_PATH, ResolveIdenticalPathConflict::TRY);
+
+            if ($resolutionStrategy === ResolveIdenticalPathConflict::FAIL) {
+                throw UnableToCopyFile::sourceAndDestinationAreTheSame($source, $destination);
+            } elseif ($resolutionStrategy === ResolveIdenticalPathConflict::IGNORE) {
+                return;
+            }
+        }
+
+        $this->adapter->copy($from, $to, $config);
     }
 
     public function lastModified(string $path): int
@@ -147,8 +168,16 @@ class Filesystem implements FilesystemOperator
 
     public function mimeType(string $path): string
     {
-        return $this->adapter->mimeType($this->pathNormalizer->normalizePath($path))->mimeType();
+        $normalizedPath = $this->pathNormalizer->normalizePath($path);
+        $attributes = $this->adapter->mimeType($normalizedPath);
+
+        if ($attributes->mimeType() === null) {
+            throw UnableToRetrieveMetadata::mimeType($path);
+        }
+
+        return $attributes->mimeType();
     }
+
 
     public function setVisibility(string $path, string $visibility): void
     {
@@ -163,18 +192,25 @@ class Filesystem implements FilesystemOperator
     public function publicUrl(string $path, array $config = []): string
     {
         $this->publicUrlGenerator ??= $this->resolvePublicUrlGenerator()
-            ?: throw UnableToGeneratePublicUrl::noGeneratorConfigured($path);
+            ?? throw UnableToGeneratePublicUrl::noGeneratorConfigured($path);
         $config = $this->config->extend($config);
 
-        return $this->publicUrlGenerator->publicUrl($path, $config);
+        return $this->publicUrlGenerator->publicUrl(
+            $this->pathNormalizer->normalizePath($path),
+            $config,
+        );
     }
 
     public function temporaryUrl(string $path, DateTimeInterface $expiresAt, array $config = []): string
     {
-        $generator = $this->temporaryUrlGenerator ?: $this->adapter;
+        $generator = $this->temporaryUrlGenerator ?? $this->adapter;
 
         if ($generator instanceof TemporaryUrlGenerator) {
-            return $generator->temporaryUrl($path, $expiresAt, $this->config->extend($config));
+            return $generator->temporaryUrl(
+                $this->pathNormalizer->normalizePath($path),
+                $expiresAt,
+                $this->config->extend($config)
+            );
         }
 
         throw UnableToGenerateTemporaryUrl::noGeneratorConfigured($path);
@@ -189,9 +225,15 @@ class Filesystem implements FilesystemOperator
         }
 
         try {
-            return $this->adapter->checksum($path, $config);
+            return $this->adapter->checksum(
+                $this->pathNormalizer->normalizePath($path),
+                $config,
+            );
         } catch (ChecksumAlgoIsNotSupported) {
-            return $this->calculateChecksumFromStream($path, $config);
+            return $this->calculateChecksumFromStream(
+                $this->pathNormalizer->normalizePath($path),
+                $config,
+            );
         }
     }
 
@@ -220,7 +262,7 @@ class Filesystem implements FilesystemOperator
             throw new InvalidStreamProvided(
                 "Invalid stream provided, expected stream resource, received " . gettype($contents)
             );
-        } elseif ($type = get_resource_type($contents) !== 'stream') {
+        } elseif (($type = get_resource_type($contents)) !== 'stream') {
             throw new InvalidStreamProvided(
                 "Invalid stream provided, expected stream resource, received resource of type " . $type
             );
@@ -235,5 +277,22 @@ class Filesystem implements FilesystemOperator
         if (ftell($resource) !== 0 && stream_get_meta_data($resource)['seekable']) {
             rewind($resource);
         }
+    }
+
+    private function resolveConfigForMoveAndCopy(array $config): Config
+    {
+        $retainVisibility = $this->config->get(Config::OPTION_RETAIN_VISIBILITY, $config[Config::OPTION_RETAIN_VISIBILITY] ?? true);
+        $fullConfig = $this->config->extend($config);
+
+        /*
+         * By default, we retain visibility. When we do not retain visibility, the visibility setting
+         * from the default configuration is ignored. Only when it is set explicitly, we propagate the
+         * setting.
+         */
+        if ($retainVisibility && ! array_key_exists(Config::OPTION_VISIBILITY, $config)) {
+            $fullConfig = $fullConfig->withoutSettings(Config::OPTION_VISIBILITY)->extend($config);
+        }
+
+        return $fullConfig;
     }
 }

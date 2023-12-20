@@ -6,19 +6,20 @@ namespace App\Http\Controllers\Admin\helpdesk;
 use App\Http\Controllers\Admin\MailFetch as Fetch;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\helpdesk\EmailsRequest;
-// model
 use App\Http\Requests\helpdesk\Mail\MailRequest;
+// model
 use App\Model\helpdesk\Agent\Department;
 use App\Model\helpdesk\Email\Emails;
 use App\Model\helpdesk\Manage\Help_topic;
 use App\Model\helpdesk\Settings\Email;
 use App\Model\helpdesk\Ticket\Ticket_Priority;
-// classes
 use App\Model\helpdesk\Utility\MailboxProtocol;
+// classes
 use Crypt;
 use Exception;
 use Lang;
 use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
+use Yajra\DataTables\Facades\DataTables;
 
 /**
  * ======================================
@@ -48,15 +49,78 @@ class EmailsController extends Controller
      *
      * @return type view
      */
-    public function index(Emails $email)
+    public function index()
     {
         try {
-            // fetch all the emails from emails table
-            $emails = $email->get();
-
-            return view('themes.default1.admin.helpdesk.emails.emails.index', compact('emails'));
+            return view('themes.default1.admin.helpdesk.emails.emails.index');
         } catch (Exception $e) {
             return redirect()->back()->with('fails', $e->getMessage());
+        }
+    }
+
+    /**
+     * Return emails list as DataTables JSON for the index AJAX endpoint.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getEmailList()
+    {
+        try {
+            $default_system_email = Email::where('id', '=', '1')->first();
+            $default_email = $default_system_email->sys_email ?? null;
+
+            $emails = Emails::select('id', 'email_address', 'priority', 'department', 'created_at', 'updated_at')->get();
+
+            return DataTables::of($emails)
+                ->addColumn('email_address', function ($model) use ($default_email) {
+                    $label = '<a href="'.route('emails.edit', $model->id).'">'.e($model->email_address).'</a>';
+                    if ($default_email == $model->id) {
+                        $label .= ' ( Default )';
+                    }
+
+                    return $label;
+                })
+                ->addColumn('priority', function ($model) {
+                    if ($model->priority === null) {
+                        return '<a href="'.url('getticket').'">System Default</a>';
+                    }
+                    $priority = Ticket_Priority::where('priority_id', '=', $model->priority)->first();
+
+                    return $priority ? ucfirst($priority->priority_desc) : '-';
+                })
+                ->addColumn('department', function ($model) {
+                    if ($model->department === null) {
+                        return '<a href="'.url('getsystem').'">System Default</a>';
+                    }
+                    $dept = Department::where('id', '=', $model->department)->first();
+
+                    return $dept ? e($dept->name) : '-';
+                })
+                ->addColumn('created_at', function ($model) {
+                    return \UTC::usertimezone($model->created_at);
+                })
+                ->addColumn('updated_at', function ($model) {
+                    return \UTC::usertimezone($model->updated_at);
+                })
+                ->addColumn('action', function ($model) use ($default_email) {
+                    $edit = '<a href="'.route('emails.edit', $model->id).'" class="btn btn-primary btn-xs"><i class="fa-solid fa-edit"></i> '.\Lang::get('lang.edit').'</a> ';
+                    if ($default_email == $model->id) {
+                        $delete = '<button class="btn btn-danger btn-xs" disabled><i class="fa-solid fa-trash"></i> '.\Lang::get('lang.delete').'</button>';
+                    } else {
+                        $form_open = '<form method="POST" action="'.route('emails.destroy', $model->id).'" style="display:inline">'
+                            .'<input type="hidden" name="_method" value="DELETE">'
+                            .'<input type="hidden" name="_token" value="'.csrf_token().'">';
+                        $delete = $form_open
+                            .'<button type="submit" class="btn btn-danger btn-xs" onclick="return confirm(\'Are you sure?\')"><i class="fa-solid fa-trash"></i> '.\Lang::get('lang.delete').'</button>'
+                            .'</form>';
+                    }
+
+                    return $edit.$delete;
+                })
+                ->rawColumns(['email_address', 'priority', 'department', 'created_at', 'updated_at', 'action'])
+                ->make(true);
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
@@ -120,7 +184,7 @@ class EmailsController extends Controller
             if ($send == 1 && $fetch == 1) {
                 $this->store($request, $service_request, $id);
 
-                return $this->jsonResponse('success', Lang::get('lang.success'));
+                return $this->jsonResponse('success', Lang::get('lang.successfully_saved_your_settings'));
             }
 
             return $this->validateEmailError($send, $fetch);
@@ -176,6 +240,11 @@ class EmailsController extends Controller
         $email->email_address = $request->email_address;
 
         $email->email_name = $request->email_name;
+        // stored as entered - deliberately NOT defaulted to the email address.
+        // The edit form prefills this field from the column, so persisting a
+        // resolved value would freeze the credential to whatever the address
+        // was at creation time and keep using it after the address is changed.
+        // Resolution happens at read time instead, in Emails::authUsername().
         $email->user_name = $request->user_name;
         $email->fetching_host = $request->fetching_host;
         $email->fetching_port = $request->fetching_port;
@@ -245,7 +314,9 @@ class EmailsController extends Controller
         $mailservice_id = $request->input('sending_protocol');
         $driver = $this->getDriver($mailservice_id);
         $address = $request->input('email_address');
-        $username = $request->input('user_name');
+        // same resolution the real send uses, so this test cannot pass with a
+        // credential that sending would not use
+        $username = Emails::resolveAuthUsername($request->input('user_name'), $address);
         $password = $request->input('password');
         $name = $request->input('email_name');
         $host = $request->input('sending_host');
@@ -268,7 +339,7 @@ class EmailsController extends Controller
         $mailservice_id = $request->input('sending_protocol');
         $driver = $this->getDriver($mailservice_id);
         $address = $request->input('email_address');
-        $username = $request->input('user_name');
+        $username = Emails::resolveAuthUsername($request->input('user_name'), $address);
         $password = $request->input('password');
         $name = $request->input('email_name');
         $host = $request->input('sending_host');
@@ -461,13 +532,11 @@ class EmailsController extends Controller
         $service = $request->input('fetching_protocol');
         $encryption = $request->input('fetching_encryption');
         $validate = $request->input('imap_validate');
-        $username = $request->input('email_address');
+        // same resolution the real fetch uses
+        $username = Emails::resolveAuthUsername($request->input('user_name'), $request->input('email_address'));
         $password = $request->input('password');
         $server = new Fetch($host, $port, $service);
         //$server->setFlag('novalidate-cert');
-        if ($request->filled('user_name')) {
-            $username = $request->input('user_name');
-        }
         if ($encryption != '') {
             $server->setFlag($encryption);
         }

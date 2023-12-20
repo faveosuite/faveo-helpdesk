@@ -11,6 +11,7 @@
 
 namespace Monolog;
 
+use Closure;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 
@@ -25,35 +26,36 @@ use Psr\Log\LogLevel;
  */
 class ErrorHandler
 {
-    /** @var LoggerInterface */
-    private $logger;
+    private Closure|null $previousExceptionHandler = null;
 
-    /** @var ?callable */
-    private $previousExceptionHandler = null;
     /** @var array<class-string, LogLevel::*> an array of class name to LogLevel::* constant mapping */
-    private $uncaughtExceptionLevelMap = [];
+    private array $uncaughtExceptionLevelMap = [];
 
-    /** @var callable|true|null */
-    private $previousErrorHandler = null;
+    /** @var Closure|true|null */
+    private Closure|bool|null $previousErrorHandler = null;
+
     /** @var array<int, LogLevel::*> an array of E_* constant to LogLevel::* constant mapping */
-    private $errorLevelMap = [];
-    /** @var bool */
-    private $handleOnlyReportedErrors = true;
+    private array $errorLevelMap = [];
 
-    /** @var bool */
-    private $hasFatalErrorHandler = false;
-    /** @var LogLevel::* */
-    private $fatalLevel = LogLevel::ALERT;
-    /** @var ?string */
-    private $reservedMemory = null;
+    private bool $handleOnlyReportedErrors = true;
+
+    private bool $hasFatalErrorHandler = false;
+
+    /** @var int bitmask of E_* constants to capture stack traces for, 0 to disable */
+    private int $captureStackTraceTypes = 0;
+
+    private string $fatalLevel = LogLevel::ALERT;
+
+    private string|null $reservedMemory = null;
+
     /** @var ?array{type: int, message: string, file: string, line: int, trace: mixed} */
-    private $lastFatalData = null;
-    /** @var int[] */
-    private static $fatalErrors = [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR];
+    private array|null $lastFatalData = null;
 
-    public function __construct(LoggerInterface $logger)
-    {
-        $this->logger = $logger;
+    private const FATAL_ERRORS = [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR];
+
+    public function __construct(
+        private LoggerInterface $logger
+    ) {
     }
 
     /**
@@ -61,11 +63,10 @@ class ErrorHandler
      *
      * By default it will handle errors, exceptions and fatal errors
      *
-     * @param  LoggerInterface                        $logger
      * @param  array<int, LogLevel::*>|false          $errorLevelMap     an array of E_* constant to LogLevel::* constant mapping, or false to disable error handling
      * @param  array<class-string, LogLevel::*>|false $exceptionLevelMap an array of class name to LogLevel::* constant mapping, or false to disable exception handling
      * @param  LogLevel::*|null|false                 $fatalLevel        a LogLevel::* constant, null to use the default LogLevel::ALERT or false to disable fatal error handling
-     * @return ErrorHandler
+     * @return static
      */
     public static function register(LoggerInterface $logger, $errorLevelMap = [], $exceptionLevelMap = [], $fatalLevel = null): self
     {
@@ -99,8 +100,8 @@ class ErrorHandler
                 $this->uncaughtExceptionLevelMap[$class] = $level;
             }
         }
-        if ($callPrevious && $prev) {
-            $this->previousExceptionHandler = $prev;
+        if ($callPrevious && null !== $prev) {
+            $this->previousExceptionHandler = $prev(...);
         }
 
         return $this;
@@ -112,10 +113,10 @@ class ErrorHandler
      */
     public function registerErrorHandler(array $levelMap = [], bool $callPrevious = true, int $errorTypes = -1, bool $handleOnlyReportedErrors = true): self
     {
-        $prev = set_error_handler([$this, 'handleError'], $errorTypes);
+        $prev = set_error_handler($this->handleError(...), $errorTypes);
         $this->errorLevelMap = array_replace($this->defaultErrorLevelMap(), $levelMap);
         if ($callPrevious) {
-            $this->previousErrorHandler = $prev ?: true;
+            $this->previousErrorHandler = $prev !== null ? $prev(...) : true;
         } else {
             $this->previousErrorHandler = null;
         }
@@ -126,16 +127,41 @@ class ErrorHandler
     }
 
     /**
-     * @param LogLevel::*|null $level              a LogLevel::* constant, null to use the default LogLevel::ALERT
-     * @param int              $reservedMemorySize Amount of KBs to reserve in memory so that it can be freed when handling fatal errors giving Monolog some room in memory to get its job done
+     * @param  LogLevel::*|null $level              a LogLevel::* constant, null to use the default LogLevel::ALERT
+     * @param  int              $reservedMemorySize Amount of KBs to reserve in memory so that it can be freed when handling fatal errors giving Monolog some room in memory to get its job done
+     * @return $this
      */
     public function registerFatalHandler($level = null, int $reservedMemorySize = 20): self
     {
-        register_shutdown_function([$this, 'handleFatalError']);
+        register_shutdown_function($this->handleFatalError(...));
 
         $this->reservedMemory = str_repeat(' ', 1024 * $reservedMemorySize);
         $this->fatalLevel = null === $level ? LogLevel::ALERT : $level;
         $this->hasFatalErrorHandler = true;
+
+        return $this;
+    }
+
+    /**
+     * Attaches an ErrorException carrying the stack trace of the error to the log record's context
+     *
+     * PHP does not report where a warning/notice/deprecation came from, so without this the records
+     * only point at the line which raised the error, and not at its caller. Formatters rendering
+     * stack traces (e.g. LineFormatter::includeStacktraces) then show the full call site.
+     *
+     * This is off by default because context.exception makes errors look like exceptions to the
+     * handlers which treat that key specially, e.g. NewRelicHandler reports them via
+     * newrelic_notice_error and RollbarHandler as exception occurrences, and because formatters
+     * extending NormalizerFormatter then include the whole trace in every record. Narrowing
+     * $errorTypes is wise if you log a lot of errors: E_DEPRECATED in particular can be very
+     * frequent in legacy code while rarely being worth a stack trace.
+     *
+     * @param  int   $errorTypes bitmask of E_* constants to capture stack traces for
+     * @return $this
+     */
+    public function captureStackTraces(bool $capture = true, int $errorTypes = E_ALL): self
+    {
+        $this->captureStackTraceTypes = $capture ? $errorTypes : 0;
 
         return $this;
     }
@@ -168,17 +194,14 @@ class ErrorHandler
             E_USER_ERROR        => LogLevel::ERROR,
             E_USER_WARNING      => LogLevel::WARNING,
             E_USER_NOTICE       => LogLevel::NOTICE,
-            E_STRICT            => LogLevel::NOTICE,
+            2048                => LogLevel::NOTICE, // E_STRICT
             E_RECOVERABLE_ERROR => LogLevel::ERROR,
             E_DEPRECATED        => LogLevel::NOTICE,
             E_USER_DEPRECATED   => LogLevel::NOTICE,
         ];
     }
 
-    /**
-     * @phpstan-return never
-     */
-    private function handleException(\Throwable $e): void
+    private function handleException(\Throwable $e): never
     {
         $level = LogLevel::ERROR;
         foreach ($this->uncaughtExceptionLevelMap as $class => $candidate) {
@@ -194,42 +217,49 @@ class ErrorHandler
             ['exception' => $e]
         );
 
-        if ($this->previousExceptionHandler) {
+        if (null !== $this->previousExceptionHandler) {
             ($this->previousExceptionHandler)($e);
         }
 
-        if (!headers_sent() && !ini_get('display_errors')) {
-            http_response_code(500);
+        if (!headers_sent() && \in_array(strtolower((string) \ini_get('display_errors')), ['0', '', 'false', 'off', 'none', 'no'], true)) {
+            // PHP 8.5+ warns if header('HTTP/...') already staged a status line, which is undetectable from userland
+            @http_response_code(500);
         }
 
         exit(255);
     }
 
-    /**
-     * @private
-     *
-     * @param mixed[] $context
-     */
-    public function handleError(int $code, string $message, string $file = '', int $line = 0, ?array $context = []): bool
+    private function handleError(int $code, string $message, string $file = '', int $line = 0): bool
     {
-        if ($this->handleOnlyReportedErrors && !(error_reporting() & $code)) {
+        if ($this->handleOnlyReportedErrors && 0 === (error_reporting() & $code)) {
             return false;
         }
 
-        // fatal error codes are ignored if a fatal error handler is present as well to avoid duplicate log entries
-        if (!$this->hasFatalErrorHandler || !in_array($code, self::$fatalErrors, true)) {
-            $level = $this->errorLevelMap[$code] ?? LogLevel::CRITICAL;
-            $this->logger->log($level, self::codeToString($code).': '.$message, ['code' => $code, 'message' => $message, 'file' => $file, 'line' => $line]);
-        } else {
+        $isFatal = $this->hasFatalErrorHandler && \in_array($code, self::FATAL_ERRORS, true);
+
+        $trace = null;
+        if ($isFatal || 0 !== ($this->captureStackTraceTypes & $code)) {
             $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
             array_shift($trace); // Exclude handleError from trace
+        }
+
+        // fatal error codes are ignored if a fatal error handler is present as well to avoid duplicate log entries
+        if (!$isFatal) {
+            $level = $this->errorLevelMap[$code] ?? LogLevel::CRITICAL;
+            $context = ['code' => $code, 'message' => $message, 'file' => $file, 'line' => $line];
+            if (null !== $trace) {
+                $context['exception'] = self::createErrorException($code, $message, $file, $line, $trace);
+            }
+            $this->logger->log($level, self::codeToString($code).': '.$message, $context);
+        } else {
             $this->lastFatalData = ['type' => $code, 'message' => $message, 'file' => $file, 'line' => $line, 'trace' => $trace];
         }
 
         if ($this->previousErrorHandler === true) {
             return false;
-        } elseif ($this->previousErrorHandler) {
-            return (bool) ($this->previousErrorHandler)($code, $message, $file, $line, $context);
+        }
+        if ($this->previousErrorHandler instanceof Closure) {
+            return (bool) ($this->previousErrorHandler)($code, $message, $file, $line);
         }
 
         return true;
@@ -242,18 +272,23 @@ class ErrorHandler
     {
         $this->reservedMemory = '';
 
-        if (is_array($this->lastFatalData)) {
+        if (\is_array($this->lastFatalData)) {
             $lastError = $this->lastFatalData;
         } else {
             $lastError = error_get_last();
         }
-
-        if ($lastError && in_array($lastError['type'], self::$fatalErrors, true)) {
+        if (\is_array($lastError) && \in_array($lastError['type'], self::FATAL_ERRORS, true)) {
+            // PHP 8.5+ reports a trace for fatal errors which never reach the error handler (OOM, timeouts)
             $trace = $lastError['trace'] ?? null;
+            $context = ['code' => $lastError['type'], 'message' => $lastError['message'], 'file' => $lastError['file'], 'line' => $lastError['line'], 'trace' => $trace];
+            if (\is_array($trace)) {
+                /** @var list<array<string, mixed>> $trace */
+                $context['exception'] = self::createErrorException($lastError['type'], $lastError['message'], $lastError['file'], $lastError['line'], $trace);
+            }
             $this->logger->log(
                 $this->fatalLevel,
                 'Fatal Error ('.self::codeToString($lastError['type']).'): '.$lastError['message'],
-                ['code' => $lastError['type'], 'message' => $lastError['message'], 'file' => $lastError['file'], 'line' => $lastError['line'], 'trace' => $trace]
+                $context
             );
 
             if ($this->logger instanceof Logger) {
@@ -265,43 +300,38 @@ class ErrorHandler
     }
 
     /**
-     * @param int $code
+     * @param list<array<string, mixed>> $trace
      */
-    private static function codeToString($code): string
+    private static function createErrorException(int $code, string $message, string $file, int $line, array $trace): \ErrorException
     {
-        switch ($code) {
-            case E_ERROR:
-                return 'E_ERROR';
-            case E_WARNING:
-                return 'E_WARNING';
-            case E_PARSE:
-                return 'E_PARSE';
-            case E_NOTICE:
-                return 'E_NOTICE';
-            case E_CORE_ERROR:
-                return 'E_CORE_ERROR';
-            case E_CORE_WARNING:
-                return 'E_CORE_WARNING';
-            case E_COMPILE_ERROR:
-                return 'E_COMPILE_ERROR';
-            case E_COMPILE_WARNING:
-                return 'E_COMPILE_WARNING';
-            case E_USER_ERROR:
-                return 'E_USER_ERROR';
-            case E_USER_WARNING:
-                return 'E_USER_WARNING';
-            case E_USER_NOTICE:
-                return 'E_USER_NOTICE';
-            case E_STRICT:
-                return 'E_STRICT';
-            case E_RECOVERABLE_ERROR:
-                return 'E_RECOVERABLE_ERROR';
-            case E_DEPRECATED:
-                return 'E_DEPRECATED';
-            case E_USER_DEPRECATED:
-                return 'E_USER_DEPRECATED';
-        }
+        $e = new \ErrorException($message, 0, $code, $file, $line);
 
-        return 'Unknown PHP error';
+        // Exception::getTrace() is final, so overwriting the private property is the only way to
+        // report the real call site instead of ErrorHandler's own frame
+        (new \ReflectionProperty(\Exception::class, 'trace'))->setValue($e, $trace);
+
+        return $e;
+    }
+
+    private static function codeToString(int $code): string
+    {
+        return match ($code) {
+            E_ERROR => 'E_ERROR',
+            E_WARNING => 'E_WARNING',
+            E_PARSE => 'E_PARSE',
+            E_NOTICE => 'E_NOTICE',
+            E_CORE_ERROR => 'E_CORE_ERROR',
+            E_CORE_WARNING => 'E_CORE_WARNING',
+            E_COMPILE_ERROR => 'E_COMPILE_ERROR',
+            E_COMPILE_WARNING => 'E_COMPILE_WARNING',
+            E_USER_ERROR => 'E_USER_ERROR',
+            E_USER_WARNING => 'E_USER_WARNING',
+            E_USER_NOTICE => 'E_USER_NOTICE',
+            2048 => 'E_STRICT',
+            E_RECOVERABLE_ERROR => 'E_RECOVERABLE_ERROR',
+            E_DEPRECATED => 'E_DEPRECATED',
+            E_USER_DEPRECATED => 'E_USER_DEPRECATED',
+            default => 'Unknown PHP error',
+        };
     }
 }

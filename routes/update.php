@@ -3,7 +3,10 @@
 /**
  * upgrade from 1.9.6 to 1.9.7.
  */
-Route::get('1-9-7', function () {
+Route::middleware(['auth', 'roles'])->get('1-9-7', function () {
+    if (!\Auth::check() || \Auth::user()->role !== 'admin') {
+        abort(403, 'Forbidden');
+    }
     if (\Schema::hasTable('ticket_type')) {
         return redirect('/')->with(['success' => 'You are application is up to date']);
     }

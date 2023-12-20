@@ -11,11 +11,14 @@
 
 namespace Symfony\Component\HttpClient\Internal;
 
+use Amp\Http\Client\ApplicationInterceptor;
+use Amp\Http\Client\Connection\Connection;
 use Amp\Http\Client\Connection\Stream;
 use Amp\Http\Client\EventListener;
+use Amp\Http\Client\NetworkInterceptor;
 use Amp\Http\Client\Request;
-use Amp\Promise;
-use Amp\Success;
+use Amp\Http\Client\Response;
+use Amp\Socket\InternetAddress;
 use Symfony\Component\HttpClient\Exception\TransportException;
 
 /**
@@ -26,12 +29,16 @@ use Symfony\Component\HttpClient\Exception\TransportException;
 class AmpListener implements EventListener
 {
     private array $info;
-    private array $pinSha256;
-    private \Closure $onProgress;
-    private $handle;
 
-    public function __construct(array &$info, array $pinSha256, \Closure $onProgress, &$handle)
-    {
+    /**
+     * @param resource|null $handle
+     */
+    public function __construct(
+        array &$info,
+        private array $pinSha256,
+        private \Closure $onProgress,
+        private &$handle,
+    ) {
         $info += [
             'connect_time' => 0.0,
             'pretransfer_time' => 0.0,
@@ -43,52 +50,37 @@ class AmpListener implements EventListener
         ];
 
         $this->info = &$info;
-        $this->pinSha256 = $pinSha256;
-        $this->onProgress = $onProgress;
-        $this->handle = &$handle;
     }
 
-    public function startRequest(Request $request): Promise
+    public function requestStart(Request $request): void
     {
         $this->info['start_time'] ??= microtime(true);
         ($this->onProgress)();
-
-        return new Success();
     }
 
-    public function startDnsResolution(Request $request): Promise
+    public function connectionAcquired(Request $request, Connection $connection, int $streamCount): void
     {
+        $this->info['namelookup_time'] = microtime(true) - $this->info['start_time']; // see https://github.com/amphp/socket/issues/114
+        $this->info['connect_time'] = microtime(true) - $this->info['start_time'];
         ($this->onProgress)();
-
-        return new Success();
     }
 
-    public function startConnectionCreation(Request $request): Promise
+    public function requestHeaderStart(Request $request, Stream $stream): void
     {
-        ($this->onProgress)();
+        $host = $stream->getRemoteAddress()->toString();
+        if ($stream->getRemoteAddress() instanceof InternetAddress) {
+            $host = $stream->getRemoteAddress()->getAddress();
+            $this->info['primary_port'] = $stream->getRemoteAddress()->getPort();
+        }
 
-        return new Success();
-    }
-
-    public function startTlsNegotiation(Request $request): Promise
-    {
-        ($this->onProgress)();
-
-        return new Success();
-    }
-
-    public function startSendingRequest(Request $request, Stream $stream): Promise
-    {
-        $host = $stream->getRemoteAddress()->getHost();
+        $this->info['primary_ip'] = $host;
 
         if (str_contains($host, ':')) {
             $host = '['.$host.']';
         }
 
-        $this->info['primary_ip'] = $host;
-        $this->info['primary_port'] = $stream->getRemoteAddress()->getPort();
         $this->info['pretransfer_time'] = microtime(true) - $this->info['start_time'];
-        $this->info['debug'] .= sprintf("* Connected to %s (%s) port %d\n", $request->getUri()->getHost(), $host, $this->info['primary_port']);
+        $this->info['debug'] .= \sprintf("* Connected to %s (%s) port %d\n", $request->getUri()->getHost(), $host, $this->info['primary_port']);
 
         if ((isset($this->info['peer_certificate_chain']) || $this->pinSha256) && null !== $tlsInfo = $stream->getTlsInfo()) {
             foreach ($tlsInfo->getPeerCertificates() as $cert) {
@@ -103,7 +95,7 @@ class AmpListener implements EventListener
                 $pin = base64_encode(hash('sha256', $pin, true));
 
                 if (!\in_array($pin, $this->pinSha256, true)) {
-                    throw new TransportException(sprintf('SSL public key does not match pinned public key for "%s".', $this->info['url']));
+                    throw new TransportException(\sprintf('SSL public key does not match pinned public key for "%s".', $this->info['url']));
                 }
             }
         }
@@ -120,64 +112,96 @@ class AmpListener implements EventListener
             $requestUri = $uri->getHost().': '.($uri->getPort() ?? ('https' === $uri->getScheme() ? 443 : 80));
         }
 
-        $this->info['debug'] .= sprintf("> %s %s HTTP/%s \r\n", $method, $requestUri, $request->getProtocolVersions()[0]);
+        $this->info['debug'] .= \sprintf("> %s %s HTTP/%s \r\n", $method, $requestUri, $request->getProtocolVersions()[0]);
 
-        foreach ($request->getRawHeaders() as [$name, $value]) {
+        foreach ($request->getHeaderPairs() as [$name, $value]) {
             $this->info['debug'] .= $name.': '.$value."\r\n";
         }
         $this->info['debug'] .= "\r\n";
-
-        return new Success();
     }
 
-    public function completeSendingRequest(Request $request, Stream $stream): Promise
+    public function requestBodyEnd(Request $request, Stream $stream): void
     {
         ($this->onProgress)();
-
-        return new Success();
     }
 
-    public function startReceivingResponse(Request $request, Stream $stream): Promise
+    public function responseHeaderStart(Request $request, Stream $stream): void
     {
-        $this->info['starttransfer_time'] = microtime(true) - $this->info['start_time'];
         ($this->onProgress)();
-
-        return new Success();
     }
 
-    public function completeReceivingResponse(Request $request, Stream $stream): Promise
+    public function requestEnd(Request $request, Response $response): void
+    {
+        ($this->onProgress)();
+    }
+
+    public function requestFailed(Request $request, \Throwable $exception): void
     {
         $this->handle = null;
         ($this->onProgress)();
-
-        return new Success();
     }
 
-    public function completeDnsResolution(Request $request): Promise
-    {
-        $this->info['namelookup_time'] = microtime(true) - $this->info['start_time'];
-        ($this->onProgress)();
-
-        return new Success();
-    }
-
-    public function completeConnectionCreation(Request $request): Promise
-    {
-        $this->info['connect_time'] = microtime(true) - $this->info['start_time'];
-        ($this->onProgress)();
-
-        return new Success();
-    }
-
-    public function completeTlsNegotiation(Request $request): Promise
+    public function requestHeaderEnd(Request $request, Stream $stream): void
     {
         ($this->onProgress)();
-
-        return new Success();
     }
 
-    public function abort(Request $request, \Throwable $cause): Promise
+    public function requestBodyStart(Request $request, Stream $stream): void
     {
-        return new Success();
+        ($this->onProgress)();
+    }
+
+    public function requestBodyProgress(Request $request, Stream $stream): void
+    {
+        ($this->onProgress)();
+    }
+
+    public function responseHeaderEnd(Request $request, Stream $stream, Response $response): void
+    {
+        ($this->onProgress)();
+    }
+
+    public function responseBodyStart(Request $request, Stream $stream, Response $response): void
+    {
+        $this->info['starttransfer_time'] = microtime(true) - $this->info['start_time'];
+        ($this->onProgress)();
+    }
+
+    public function responseBodyProgress(Request $request, Stream $stream, Response $response): void
+    {
+        ($this->onProgress)();
+    }
+
+    public function responseBodyEnd(Request $request, Stream $stream, Response $response): void
+    {
+        $this->handle = null;
+        ($this->onProgress)();
+    }
+
+    public function applicationInterceptorStart(Request $request, ApplicationInterceptor $interceptor): void
+    {
+    }
+
+    public function applicationInterceptorEnd(Request $request, ApplicationInterceptor $interceptor, Response $response): void
+    {
+    }
+
+    public function networkInterceptorStart(Request $request, NetworkInterceptor $interceptor): void
+    {
+    }
+
+    public function networkInterceptorEnd(Request $request, NetworkInterceptor $interceptor, Response $response): void
+    {
+    }
+
+    public function push(Request $request): void
+    {
+        ($this->onProgress)();
+    }
+
+    public function requestRejected(Request $request): void
+    {
+        $this->handle = null;
+        ($this->onProgress)();
     }
 }

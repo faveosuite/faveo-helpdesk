@@ -21,17 +21,20 @@ use ReflectionClass;
  */
 class NameGenerator
 {
+    /**
+     * @var int
+     */
     private static $counter = 1;
 
     /**
      * Generates name.
      *
-     * @param ReflectionClass   $class
-     * @param ReflectionClass[] $interfaces
+     * @param ReflectionClass<object>|null $class
+     * @param ReflectionClass<object>[]    $interfaces
      *
      * @return string
      */
-    public function name(ReflectionClass $class = null, array $interfaces)
+    public function name(?ReflectionClass $class, array $interfaces)
     {
         $parts = array();
 

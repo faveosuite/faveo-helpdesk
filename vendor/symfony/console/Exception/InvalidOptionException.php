@@ -18,4 +18,25 @@ namespace Symfony\Component\Console\Exception;
  */
 class InvalidOptionException extends \InvalidArgumentException implements ExceptionInterface
 {
+    /**
+     * @internal
+     */
+    public static function fromEnumValue(string $name, string $value, array|\Closure $suggestedValues): self
+    {
+        $error = \sprintf('The value "%s" is not valid for the "%s" option.', $value, $name);
+
+        if (\is_array($suggestedValues)) {
+            $error .= \sprintf(' Supported values are "%s".', implode('", "', $suggestedValues));
+        }
+
+        return new self($error);
+    }
+
+    /**
+     * @internal
+     */
+    public static function fromInvalidType(string $name, string $value, string $type): self
+    {
+        return new self(\sprintf('The value "%s" is not valid for the "%s" option. Expected a value of type "%s".', $value, $name, $type));
+    }
 }

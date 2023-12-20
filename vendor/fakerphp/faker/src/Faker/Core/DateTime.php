@@ -8,7 +8,7 @@ use Faker\Extension\GeneratorAwareExtensionTrait;
 use Faker\Extension\Helper;
 
 /**
- * @experimental
+ * @experimental This class is experimental and does not fall under our BC promise
  *
  * @since 1.20.0
  */
@@ -19,12 +19,9 @@ final class DateTime implements DateTimeExtension, GeneratorAwareExtension
     /**
      * @var string[]
      */
-    private $centuries = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX', 'XXI'];
+    private array $centuries = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX', 'XXI'];
 
-    /**
-     * @var string
-     */
-    private $defaultTimezone = null;
+    private ?string $defaultTimezone = null;
 
     /**
      * Get the POSIX-timestamp of a DateTime, int or string.
@@ -33,7 +30,7 @@ final class DateTime implements DateTimeExtension, GeneratorAwareExtension
      *
      * @return false|int
      */
-    protected function getTimestamp($until = 'now')
+    private function getTimestamp($until = 'now')
     {
         if (is_numeric($until)) {
             return (int) $until;
@@ -51,22 +48,12 @@ final class DateTime implements DateTimeExtension, GeneratorAwareExtension
      *
      * @param int $timestamp the UNIX / POSIX-compatible timestamp
      */
-    protected function getTimestampDateTime(int $timestamp): \DateTime
+    private function getTimestampDateTime(int $timestamp): \DateTime
     {
         return new \DateTime('@' . $timestamp);
     }
 
-    protected function setDefaultTimezone(string $timezone = null): void
-    {
-        $this->defaultTimezone = $timezone;
-    }
-
-    protected function getDefaultTimezone(): ?string
-    {
-        return $this->defaultTimezone;
-    }
-
-    protected function resolveTimezone(?string $timezone): string
+    private function resolveTimezone(?string $timezone): string
     {
         if ($timezone !== null) {
             return $timezone;
@@ -78,14 +65,14 @@ final class DateTime implements DateTimeExtension, GeneratorAwareExtension
     /**
      * Internal method to set the timezone on a DateTime object.
      */
-    protected function setTimezone(\DateTime $dateTime, ?string $timezone): \DateTime
+    private function setTimezone(\DateTime $dateTime, ?string $timezone): \DateTime
     {
         $timezone = $this->resolveTimezone($timezone);
 
         return $dateTime->setTimezone(new \DateTimeZone($timezone));
     }
 
-    public function dateTime($until = 'now', string $timezone = null): \DateTime
+    public function dateTime($until = 'now', ?string $timezone = null): \DateTime
     {
         return $this->setTimezone(
             $this->getTimestampDateTime($this->unixTime($until)),
@@ -93,7 +80,7 @@ final class DateTime implements DateTimeExtension, GeneratorAwareExtension
         );
     }
 
-    public function dateTimeAD($until = 'now', string $timezone = null): \DateTime
+    public function dateTimeAD($until = 'now', ?string $timezone = null): \DateTime
     {
         $min = (PHP_INT_SIZE > 4) ? -62135597361 : -PHP_INT_MAX;
 
@@ -103,7 +90,7 @@ final class DateTime implements DateTimeExtension, GeneratorAwareExtension
         );
     }
 
-    public function dateTimeBetween($from = '-30 years', $until = 'now', string $timezone = null): \DateTime
+    public function dateTimeBetween($from = '-30 years', $until = 'now', ?string $timezone = null): \DateTime
     {
         $start = $this->getTimestamp($from);
         $end = $this->getTimestamp($until);
@@ -120,7 +107,7 @@ final class DateTime implements DateTimeExtension, GeneratorAwareExtension
         );
     }
 
-    public function dateTimeInInterval($from = '-30 years', string $interval = '+5 days', string $timezone = null): \DateTime
+    public function dateTimeInInterval($from = '-30 years', string $interval = '+5 days', ?string $timezone = null): \DateTime
     {
         $intervalObject = \DateInterval::createFromDateString($interval);
         $datetime = $from instanceof \DateTime ? $from : new \DateTime($from);
@@ -133,29 +120,29 @@ final class DateTime implements DateTimeExtension, GeneratorAwareExtension
         return $this->dateTimeBetween($begin, $end, $timezone);
     }
 
-    public function dateTimeThisWeek($until = 'sunday this week', string $timezone = null): \DateTime
+    public function dateTimeThisWeek($until = 'sunday this week', ?string $timezone = null): \DateTime
     {
         return $this->dateTimeBetween('monday this week', $until, $timezone);
     }
 
-    public function dateTimeThisMonth($until = 'last day of this month', string $timezone = null): \DateTime
+    public function dateTimeThisMonth($until = 'last day of this month', ?string $timezone = null): \DateTime
     {
         return $this->dateTimeBetween('first day of this month', $until, $timezone);
     }
 
-    public function dateTimeThisYear($until = 'last day of december', string $timezone = null): \DateTime
+    public function dateTimeThisYear($until = 'last day of december', ?string $timezone = null): \DateTime
     {
         return $this->dateTimeBetween('first day of january', $until, $timezone);
     }
 
-    public function dateTimeThisDecade($until = 'now', string $timezone = null): \DateTime
+    public function dateTimeThisDecade($until = 'now', ?string $timezone = null): \DateTime
     {
         $year = floor(date('Y') / 10) * 10;
 
         return $this->dateTimeBetween("first day of january $year", $until, $timezone);
     }
 
-    public function dateTimeThisCentury($until = 'now', string $timezone = null): \DateTime
+    public function dateTimeThisCentury($until = 'now', ?string $timezone = null): \DateTime
     {
         $year = floor(date('Y') / 100) * 100;
 
@@ -217,7 +204,7 @@ final class DateTime implements DateTimeExtension, GeneratorAwareExtension
         return Helper::randomElement($this->centuries);
     }
 
-    public function timezone(string $countryCode = null): string
+    public function timezone(?string $countryCode = null): string
     {
         if ($countryCode) {
             $timezones = \DateTimeZone::listIdentifiers(\DateTimeZone::PER_COUNTRY, $countryCode);

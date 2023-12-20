@@ -1,15 +1,7 @@
 /*! DataTables Bootstrap 4 integration
- * ©2011-2017 SpryMedia Ltd - datatables.net/license
+ * © SpryMedia Ltd - datatables.net/license
  */
 
-/**
- * DataTables integration for Bootstrap 4. This requires Bootstrap 4 and
- * DataTables 1.10 or newer.
- *
- * This file sets the defaults and adds options to DataTables to style its
- * controls using Bootstrap. See http://datatables.net/manual/styling/bootstrap
- * for further information.
- */
 (function( factory ){
     if ( typeof define === 'function' && define.amd ) {
         // AMD
@@ -19,164 +11,109 @@
     }
     else if ( typeof exports === 'object' ) {
         // CommonJS
-        module.exports = function (root, $) {
-            if ( ! root ) {
-                root = window;
+        var jq = require('jquery');
+        var cjsRequires = function (root, $) {
+            if ( ! $.fn.dataTable ) {
+                require('datatables.net')(root, $);
             }
-
-            if ( ! $ || ! $.fn.dataTable ) {
-                // Require DataTables, which attaches to jQuery, including
-                // jQuery if needed and have a $ property so we can access the
-                // jQuery object that is used
-                $ = require('datatables.net')(root, $).$;
-            }
-
-            return factory( $, root, root.document );
         };
+
+        if (typeof window === 'undefined') {
+            module.exports = function (root, $) {
+                if ( ! root ) {
+                    // CommonJS environments without a window global must pass a
+                    // root. This will give an error otherwise
+                    root = window;
+                }
+
+                if ( ! $ ) {
+                    $ = jq( root );
+                }
+
+                cjsRequires( root, $ );
+                return factory( $, root, root.document );
+            };
+        }
+        else {
+            cjsRequires( window, jq );
+            module.exports = factory( jq, window, window.document );
+        }
     }
     else {
         // Browser
         factory( jQuery, window, document );
     }
-}(function( $, window, document, undefined ) {
+}(function( $, window, document ) {
     'use strict';
     var DataTable = $.fn.dataTable;
 
 
+
+    /**
+     * DataTables integration for Bootstrap 4.
+     *
+     * This file sets the defaults and adds options to DataTables to style its
+     * controls using Bootstrap. See https://datatables.net/manual/styling/bootstrap
+     * for further information.
+     */
+
     /* Set the defaults for DataTables initialisation */
     $.extend( true, DataTable.defaults, {
-        dom:
-            "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
-            "<'row'<'col-sm-12'tr>>" +
-            "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
         renderer: 'bootstrap'
     } );
 
 
     /* Default class modification */
-    $.extend( DataTable.ext.classes, {
-        sWrapper:      "dataTables_wrapper dt-bootstrap4",
-        sFilterInput:  "form-control form-control-sm",
-        sLengthSelect: "custom-select custom-select-sm form-control form-control-sm",
-        sProcessing:   "dataTables_processing card",
-        sPageButton:   "paginate_button page-item"
+    $.extend( true, DataTable.ext.classes, {
+        container: "dt-container dt-bootstrap4",
+        search: {
+            input: "form-control form-control-sm"
+        },
+        length: {
+            select: "custom-select custom-select-sm form-control form-control-sm"
+        },
+        processing: {
+            container: "dt-processing card"
+        },
+        layout: {
+            row: 'row justify-content-between',
+            cell: 'd-md-flex justify-content-between align-items-center',
+            tableCell: 'col-12',
+            start: 'dt-layout-start col-md-auto mr-auto',
+            end: 'dt-layout-end col-md-auto ml-auto',
+            full: 'dt-layout-full col-md'
+        }
     } );
 
 
     /* Bootstrap paging button renderer */
-    DataTable.ext.renderer.pageButton.bootstrap = function ( settings, host, idx, buttons, page, pages ) {
-        var api     = new DataTable.Api( settings );
-        var classes = settings.oClasses;
-        var lang    = settings.oLanguage.oPaginate;
-        var aria = settings.oLanguage.oAria.paginate || {};
-        var btnDisplay, btnClass, counter=0;
+    DataTable.ext.renderer.pagingButton.bootstrap = function (settings, buttonType, content, active, disabled) {
+        var btnClasses = ['dt-paging-button', 'page-item'];
 
-        var attach = function( container, buttons ) {
-            var i, ien, node, button;
-            var clickHandler = function ( e ) {
-                e.preventDefault();
-                if ( !$(e.currentTarget).hasClass('disabled') && api.page() != e.data.action ) {
-                    api.page( e.data.action ).draw( 'page' );
-                }
-            };
+        if (active) {
+            btnClasses.push('active');
+        }
 
-            for ( i=0, ien=buttons.length ; i<ien ; i++ ) {
-                button = buttons[i];
+        if (disabled) {
+            btnClasses.push('disabled')
+        }
 
-                if ( Array.isArray( button ) ) {
-                    attach( container, button );
-                }
-                else {
-                    btnDisplay = '';
-                    btnClass = '';
+        var li = $('<li>').addClass(btnClasses.join(' '));
+        var a = $('<a>', {
+            'href': disabled ? null : '#',
+            'class': 'page-link'
+        })
+            .html(content)
+            .appendTo(li);
 
-                    switch ( button ) {
-                        case 'ellipsis':
-                            btnDisplay = '&#x2026;';
-                            btnClass = 'disabled';
-                            break;
-
-                        case 'first':
-                            btnDisplay = lang.sFirst;
-                            btnClass = button + (page > 0 ?
-                                '' : ' disabled');
-                            break;
-
-                        case 'previous':
-                            btnDisplay = lang.sPrevious;
-                            btnClass = button + (page > 0 ?
-                                '' : ' disabled');
-                            break;
-
-                        case 'next':
-                            btnDisplay = lang.sNext;
-                            btnClass = button + (page < pages-1 ?
-                                '' : ' disabled');
-                            break;
-
-                        case 'last':
-                            btnDisplay = lang.sLast;
-                            btnClass = button + (page < pages-1 ?
-                                '' : ' disabled');
-                            break;
-
-                        default:
-                            btnDisplay = button + 1;
-                            btnClass = page === button ?
-                                'active' : '';
-                            break;
-                    }
-
-                    if ( btnDisplay ) {
-                        node = $('<li>', {
-                            'class': classes.sPageButton+' '+btnClass,
-                            'id': idx === 0 && typeof button === 'string' ?
-                                settings.sTableId +'_'+ button :
-                                null
-                        } )
-                            .append( $('<a>', {
-                                    'href': '#',
-                                    'aria-controls': settings.sTableId,
-                                    'aria-label': aria[ button ],
-                                    'data-dt-idx': counter,
-                                    'tabindex': settings.iTabIndex,
-                                    'class': 'page-link'
-                                } )
-                                    .html( btnDisplay )
-                            )
-                            .appendTo( container );
-
-                        settings.oApi._fnBindAction(
-                            node, {action: button}, clickHandler
-                        );
-
-                        counter++;
-                    }
-                }
-            }
+        return {
+            display: li,
+            clicker: a
         };
+    };
 
-        // IE9 throws an 'unknown error' if document.activeElement is used
-        // inside an iframe or frame.
-        var activeEl;
-
-        try {
-            // Because this approach is destroying and recreating the paging
-            // elements, focus is lost on the select button which is bad for
-            // accessibility. So we want to restore focus once the draw has
-            // completed
-            activeEl = $(host).find(document.activeElement).data('dt-idx');
-        }
-        catch (e) {}
-
-        attach(
-            $(host).empty().html('<ul class="pagination"/>').children('ul'),
-            buttons
-        );
-
-        if ( activeEl !== undefined ) {
-            $(host).find( '[data-dt-idx='+activeEl+']' ).trigger('focus');
-        }
+    DataTable.ext.renderer.pagingContainer.bootstrap = function (settings, buttonEls) {
+        return $('<ul/>').addClass('pagination').append(buttonEls);
     };
 
 

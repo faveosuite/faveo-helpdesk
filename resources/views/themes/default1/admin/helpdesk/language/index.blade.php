@@ -20,7 +20,7 @@ class="nav-link active"
 @stop
 <!-- header -->
 @section('PageHeader')
-<h1>{{ Lang::get('lang.settings') }}</h1>
+<h3>{{ Lang::get('lang.settings') }}</h3>
 @stop
 <!-- /header -->
 <!-- breadcrumbs -->
@@ -34,35 +34,62 @@ class="nav-link active"
 @section('content')
 <!-- check whether success or not -->
 @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <i class="fa  fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+    <i class="fa  fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('success')}} @if(Session::has('link'))<a href="{{url(Session::get('link'))}}">{{Lang::get('lang.enable_lang')}}</a> @endif
 </div>
 @endif
 <!-- failure message -->
 @if(Session::has('fails'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fa fa-ban"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('fails')}}
 </div>
 @endif
 <div class="card card-light">
     <div class="card-header">
         <h3 class="card-title">{{ Lang::get('lang.language-settings') }}</h3>
-        <div class="card-tools">
-            <a href="{{route('download')}}" title="click here to download template file" class="btn btn-default btn-tool">
-                <i class="fas fa-download"></i> {{Lang::get('lang.download')}} 
+        <div class="card-tools d-flex">
+            <a href="{{route('download')}}" title="click here to download template file" class="btn btn-secondary btn-tool">
+                <i class="fa-solid fa-download"></i> {{Lang::get('lang.download')}} 
             </a> 
-            <a href="{{route('add-language')}}" class="btn btn-default btn-tool"><i class="fas fa-plus"></i> {{Lang::get('lang.add')}}</a>
+            <a href="{{route('add-language')}}" class="btn btn-secondary btn-tool"><i class="fa-solid fa-plus"></i> {{Lang::get('lang.add')}}</a>
         </div>
     </div>
     <div class="card-body">
-        {!! Datatable::table()
-        ->addColumn(Lang::get('lang.language'),Lang::get('lang.native-name'),Lang::get('lang.iso-code'),Lang::get('lang.system-language'),Lang::get('lang.Action'))       // these are the column headings to be shown
-        ->setUrl(route('getAllLanguages'))   // this is the route where data will be retrieved
-        ->render()  !!}
+        <table id="lang" class="table table-bordered w-100 d-table">
+            <thead>
+                <tr>
+                    <th>{{Lang::get('lang.language')}}</th>
+                    <th>{{Lang::get('lang.native-name')}}</th>
+                    <th>{{Lang::get('lang.iso-code')}}</th>
+                    <th>{{Lang::get('lang.system-language')}}</th>
+                    <th>{{Lang::get('lang.Action')}}</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <script type="text/javascript">
+            jQuery(document).ready(function () {
+                jQuery('#lang').dataTable({
+                    "sPaginationType": "full_numbers",
+                    "bProcessing": true,
+                    "bServerSide": true,
+                    "ajax": {
+                        url: "{{route('getAllLanguages')}}"
+                    },
+                    "columns": [
+                        {data: "language"},
+                        {data: "name"},
+                        {data: "id"},
+                        {data: "status"},
+                        {data: "Action"}
+                    ]
+                });
+            });
+        </script>
     </div>
 </div>
 @stop

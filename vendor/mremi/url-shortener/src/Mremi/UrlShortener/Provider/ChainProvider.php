@@ -12,7 +12,7 @@
 namespace Mremi\UrlShortener\Provider;
 
 /**
- * Chain provider class.
+ * Chain provider class
  *
  * @author Rémi Marseille <marseille.remi@gmail.com>
  */
@@ -21,10 +21,10 @@ class ChainProvider
     /**
      * @var array
      */
-    private $providers = [];
+    private $providers = array();
 
     /**
-     * Adds the given provider to the chain.
+     * Adds the given provider to the chain
      *
      * @param UrlShortenerProviderInterface $provider A provider instance
      */
@@ -34,7 +34,7 @@ class ChainProvider
     }
 
     /**
-     * Gets a provider by name.
+     * Gets a provider by name
      *
      * @param string $name A provider name
      *
@@ -52,7 +52,7 @@ class ChainProvider
     }
 
     /**
-     * Gets the chain providers.
+     * Gets the chain providers
      *
      * @return UrlShortenerProviderInterface[]
      */
@@ -62,11 +62,11 @@ class ChainProvider
     }
 
     /**
-     * Returns TRUE whether the given name identifies a configured provider.
+     * Returns TRUE whether the given name identifies a configured provider
      *
      * @param string $name A provider name
      *
-     * @return bool
+     * @return boolean
      */
     public function hasProvider($name)
     {

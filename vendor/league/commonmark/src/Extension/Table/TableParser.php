@@ -25,6 +25,11 @@ use League\CommonMark\Util\ArrayCollection;
 
 final class TableParser extends AbstractBlockContinueParser implements BlockContinueParserWithInlinesInterface
 {
+    /**
+     * @internal
+     */
+    public const DEFAULT_MAX_AUTOCOMPLETED_CELLS = 10_000;
+
     /** @psalm-readonly */
     private Table $block;
 
@@ -54,6 +59,8 @@ final class TableParser extends AbstractBlockContinueParser implements BlockCont
     /** @psalm-readonly-allow-private-mutation */
     private bool $nextIsSeparatorLine = true;
 
+    private int $remainingAutocompletedCells;
+
     /**
      * @param array<int, string|null> $columns
      * @param array<int, string>      $headerCells
@@ -62,12 +69,13 @@ final class TableParser extends AbstractBlockContinueParser implements BlockCont
      *
      * @phpstan-param array<int, TableCell::ALIGN_*|null> $columns
      */
-    public function __construct(array $columns, array $headerCells)
+    public function __construct(array $columns, array $headerCells, int $remainingAutocompletedCells = self::DEFAULT_MAX_AUTOCOMPLETED_CELLS)
     {
-        $this->block       = new Table();
-        $this->bodyLines   = new ArrayCollection();
-        $this->columns     = $columns;
-        $this->headerCells = $headerCells;
+        $this->block                       = new Table();
+        $this->bodyLines                   = new ArrayCollection();
+        $this->columns                     = $columns;
+        $this->headerCells                 = $headerCells;
+        $this->remainingAutocompletedCells = $remainingAutocompletedCells;
     }
 
     public function canHaveLazyContinuationLines(): bool
@@ -121,6 +129,12 @@ final class TableParser extends AbstractBlockContinueParser implements BlockCont
 
             // Body can not have more columns than head
             for ($i = 0; $i < $headerColumns; $i++) {
+                // It can have less columns though, in which case we'll autocomplete the empty ones (up to some limit)
+                if (! isset($cells[$i]) && $this->remainingAutocompletedCells-- <= 0) {
+                    // Too many cells were auto-completed, so we'll just stop here
+                    return;
+                }
+
                 $cell      = $cells[$i] ?? '';
                 $tableCell = $this->parseCell($cell, $i, $inlineParser);
                 $row->appendChild($tableCell);
@@ -138,13 +152,11 @@ final class TableParser extends AbstractBlockContinueParser implements BlockCont
 
     private function parseCell(string $cell, int $column, InlineParserEngineInterface $inlineParser): TableCell
     {
-        $tableCell = new TableCell();
+        $tableCell = new TableCell(TableCell::TYPE_DATA, $this->columns[$column] ?? null);
 
-        if ($column < \count($this->columns)) {
-            $tableCell->setAlign($this->columns[$column]);
+        if ($cell !== '') {
+            $inlineParser->parse(\trim($cell), $tableCell);
         }
-
-        $inlineParser->parse(\trim($cell), $tableCell);
 
         return $tableCell;
     }
@@ -156,24 +168,28 @@ final class TableParser extends AbstractBlockContinueParser implements BlockCont
      */
     public static function split(string $line): array
     {
-        $cursor = new Cursor(\trim($line));
+        // Scan raw bytes: the only significant characters are ASCII, and copying the other bytes through one at a
+        // time reassembles multibyte sequences unchanged. This is several times faster than stepping a Cursor.
+        $line   = \trim($line);
+        $length = \strlen($line);
 
-        if ($cursor->getCurrentCharacter() === '|') {
-            $cursor->advanceBy(1);
+        $i = 0;
+        if ($length > 0 && $line[0] === '|') {
+            $i = 1;
         }
 
         $cells = [];
         $sb    = '';
 
-        while (! $cursor->isAtEnd()) {
-            switch ($c = $cursor->getCurrentCharacter()) {
+        for (; $i < $length; $i++) {
+            switch ($c = $line[$i]) {
                 case '\\':
-                    if ($cursor->peek() === '|') {
+                    if ($i + 1 < $length && $line[$i + 1] === '|') {
                         // Pipe is special for table parsing. An escaped pipe doesn't result in a new cell, but is
                         // passed down to inline parsing as an unescaped pipe. Note that that applies even for the `\|`
                         // in an input like `\\|` - in other words, table parsing doesn't support escaping backslashes.
                         $sb .= '|';
-                        $cursor->advanceBy(1);
+                        $i++;
                     } else {
                         // Preserve backslash before other characters or at end of line.
                         $sb .= '\\';
@@ -187,8 +203,6 @@ final class TableParser extends AbstractBlockContinueParser implements BlockCont
                 default:
                     $sb .= $c;
             }
-
-            $cursor->advanceBy(1);
         }
 
         if ($sb !== '') {

@@ -36,7 +36,6 @@ use DateTime;
 // classes
 use DB;
 use Exception;
-use File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Request as Input;
 use Illuminate\Support\Str;
@@ -125,18 +124,30 @@ class SettingsController extends Controller
      */
     public function deleteLogo()
     {
-        $path = $_GET['data1']; //get file path of logo image
+        $allowed_dir = realpath(public_path('uploads/company'));
+
+        $filename = basename(request()->get('data1', ''));
+
+        if (empty($filename) || !$allowed_dir) {
+            return 'false';
+        }
+
+        $path = $allowed_dir.DIRECTORY_SEPARATOR.$filename;
+
+        if (!file_exists($path) || strpos(realpath($path), $allowed_dir) !== 0) {
+            return 'false';
+        }
+
         if (!unlink($path)) {
             return 'false';
-        } else {
-            $companys = Company::where('id', '=', 1)->first();
-            $companys->logo = null;
-            $companys->use_logo = '0';
-            $companys->save();
-
-            return 'true';
         }
-        // return $res;
+
+        $companys = Company::where('id', '=', 1)->first();
+        $companys->logo = null;
+        $companys->use_logo = '0';
+        $companys->save();
+
+        return 'true';
     }
 
     /**
@@ -1128,7 +1139,7 @@ class SettingsController extends Controller
             )->where('id', '=', 1)->first();
             $system = System::where('id', '=', 1)->first();
             \Schema::disableForeignKeyConstraints();
-            $tableNames = \Schema::getConnection()->getDoctrineSchemaManager()->listTableNames();
+            $tableNames = \Schema::getTableListing(\DB::connection()->getDatabaseName(), false);
             foreach ($tableNames as $name) {
                 //if you don't want to truncate migrations
                 if ($name == 'migrations' ||

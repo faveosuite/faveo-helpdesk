@@ -20,7 +20,7 @@ class="nav-link active"
 @stop
 <!-- header -->
 @section('PageHeader')
-<h1>{!! Lang::get('lang.url') !!}</h1>
+<h3>{!! Lang::get('lang.url') !!}</h3>
 @stop
 <!-- /header -->
 <!-- breadcrumbs -->
@@ -30,7 +30,7 @@ class="nav-link active"
 @stop
 
 @section('content')
-{!! Form::open(['url' => 'url/settings', 'method' => 'PATCH']) !!}
+{!! html()->form('PATCH', url('url/settings'))->open() !!}
 
 @if (count($errors) > 0)
 <div class="alert alert-danger">
@@ -44,18 +44,18 @@ class="nav-link active"
 @endif
 <!-- check whether success or not -->
 @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <i class="fa  fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+    <i class="fa  fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {!!Session::get('success')!!}
 </div>
 @endif
 <!-- failure message -->
 @if(Session::has('fails'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fa fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {!!Session::get('fails')!!}
 </div>
 @endif
@@ -70,23 +70,23 @@ class="nav-link active"
         <div class="row">
 
             <div class="col-md-3">
-                {!! Form::label('www','WWW/non-WWW') !!}<br/>
-                {!! Form::radio('www','yes',$www['www'],['class'=>'option']) !!} WWW&nbsp;&nbsp;
-                {!! Form::radio('www','no',$www['nonwww'],['class'=>'option']) !!} Non WWW
+                {!! html()->label('WWW/non-WWW', 'www') !!}<br/>
+                {!! html()->radio('www', $www['www'], 'yes')->class('option') !!} WWW&nbsp;&nbsp;
+                {!! html()->radio('www', $www['nonwww'], 'no')->class('option') !!} Non WWW
             </div>
  
             <div class="col-md-3">
                 
-                {!! Form::label('option','SSl') !!}<br/>
-                {!! Form::radio('ssl','yes',$https['https'],['class'=>'option']) !!} HTTPS&nbsp;&nbsp;
-                {!! Form::radio('ssl','no',$https['http'],['class'=>'option']) !!} HTTP
+                {!! html()->label('SSl', 'option') !!}<br/>
+                {!! html()->radio('ssl', $https['https'], 'yes')->class('option') !!} HTTPS&nbsp;&nbsp;
+                {!! html()->radio('ssl', $https['http'], 'no')->class('option') !!} HTTP
             </div>
         </div>
     </div>
     
     <div class="card-footer">
-        {!! Form::submit(Lang::get('lang.submit'),['class'=>'btn btn-primary'])!!}
+        {!! html()->submit(Lang::get('lang.submit'))->class('btn btn-primary') !!}
     </div>
 </div>
-{!! Form::close() !!}
+{!! html()->closeModelForm() !!}
 @stop

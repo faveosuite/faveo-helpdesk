@@ -7,7 +7,7 @@
             }
         </style>
         <li class="breadcrumb-item">
-            <i class="fas fa-home"></i> {!! Lang::get('lang.you_are_here') !!} : &nbsp;
+            <i class="fa-solid fa-home"></i> {!! Lang::get('lang.you_are_here') !!} : &nbsp;
         </li>
         <li>
             <a class="words" href="{!! URL::route('/') !!}">{!! Lang::get('lang.home') !!}</a>
@@ -31,7 +31,7 @@
                     <article class="format-standard type-post hentry clearfix">
                         <header class="clearfix">
                             <h3 class="post-title">
-                                <small><i class="fa fa-list-alt fa-2x fa-fw pull-left text-muted"></i></small>
+                                <small><i class="fa-solid fa-list-alt fa-2x fa-fw pull-left text-muted"></i></small>
                                 <a href="{{url('show/'.$arti->slug)}}">{{$arti->name}}</a>
                             </h3>
                         </header>
@@ -42,7 +42,7 @@
                             <a class="readmore-link" href="{{url('show/'.$arti->slug)}}">Read more</a>
                         </blockquote>
                         <div class="post-meta clearfix">
-                            <span class="date"><i class="fa fa-clock-o fa-fw"></i> {{$arti->created_at->format('l, d-m-Y')}}</span>
+                            <span class="date"><i class="fa-solid fa-clock-o fa-fw"></i> {{$arti->created_at->format('l, d-m-Y')}}</span>
                         </div><!-- end of post meta -->
                         <hr>
                     </article>
@@ -57,7 +57,7 @@
     @stop
 </div>
     {{--@section('category')--}}
-    {{--<h2 class="section-title h4 clearfix">{!! Lang::get('lang.categories') !!}<small class="pull-right"><i class="fa fa-hdd-o fa-fw"></i></small></h2>--}}
+    {{--<h2 class="section-title h4 clearfix">{!! Lang::get('lang.categories') !!}<small class="pull-right"><i class="fa-solid fa-hdd-o fa-fw"></i></small></h2>--}}
     {{--<ul class="nav nav-pills nav-stacked nav-categories">--}}
 
     {{--    @foreach($categorys as $category)--}}
@@ -74,7 +74,7 @@
 
 
 {{--@section('category')--}}
-{{--<h2 class="section-title h4 clearfix">{!! Lang::get('lang.categories') !!}<small class="pull-right"><i class="fa fa-hdd-o fa-fw"></i></small></h2>--}}
+{{--<h2 class="section-title h4 clearfix">{!! Lang::get('lang.categories') !!}<small class="pull-right"><i class="fa-solid fa-hdd-o fa-fw"></i></small></h2>--}}
 {{--<ul class="nav nav-pills nav-stacked nav-categories">--}}
 
 {{--    @foreach($categorys as $category)--}}

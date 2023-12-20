@@ -30,19 +30,19 @@ main
                 @endif
 
                 @if(Session::has('success'))
-                <div class="alert alert-success alert-dismissable">
-                    <i class="fa fa-ban"></i>
+                <div class="alert alert-success alert-dismissible">
+                    <i class="fa-solid fa-ban"></i>
                     <b>{{Lang::get('message.alert')}}!</b> {{Lang::get('message.success')}}.
-                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
                     {{Session::get('success')}}
                 </div>
                 @endif
                 <!-- fail message -->
                 @if(Session::has('fails'))
-                <div class="alert alert-danger alert-dismissable">
-                    <i class="fa fa-ban"></i>
+                <div class="alert alert-danger alert-dismissible">
+                    <i class="fa-solid fa-ban"></i>
                     <b>{{Lang::get('message.alert')}}!</b> {{Lang::get('message.failed')}}.
-                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
                     {{Session::get('fails')}}
                 </div>
                 @endif

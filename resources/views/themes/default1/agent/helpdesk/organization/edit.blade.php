@@ -20,7 +20,7 @@ class="nav-link active"
 @stop
 <!-- header -->
 @section('PageHeader')
-<h1>{!! Lang::get('lang.organization') !!}</h1>
+<h3>{!! Lang::get('lang.organization') !!}</h3>
 @stop
 <!-- /header -->
 <!-- breadcrumbs -->
@@ -32,13 +32,13 @@ class="nav-link active"
 <!-- content -->
 @section('content')
 <!-- open a form -->
-{!! Form::model($orgs,['url'=>'organizations/'.$orgs->id,'method'=>'PATCH']) !!}
+{!! html()->modelForm($orgs, 'PATCH', url('organizations/'.$orgs->id))->open() !!}
 @if(Session::has('errors'))
 <?php //dd($errors); ?>
-<div class="alert alert-danger alert-dismissable">
-    <i class="fa fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     <br/>
     @if($errors->first('name'))
     <li class="error-message-padding">{!! $errors->first('name', ':message') !!}</li>
@@ -58,35 +58,35 @@ class="nav-link active"
     <div class="card-body">
         <!-- name : text : Required -->
         <div class="row">
-            <div class="col-sm-4 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                {!! Form::label('name',Lang::get('lang.name')) !!} <span class="text-red"> *</span>
-                {!! Form::text('name',null,['class' => 'form-control']) !!}
+            <div class="col-sm-4 mb-3 {{ $errors->has('name') ? 'has-error' : '' }}">
+                {!! html()->label(Lang::get('lang.name'), 'name') !!} <span class="text-red"> *</span>
+                {!! html()->text('name', null)->class('form-control') !!}
             </div>
             <!-- phone : Text : -->
-            <div class="col-sm-4 form-group {{ $errors->has('phone') ? 'has-error' : '' }}">
-                {!! Form::label('phone',Lang::get('lang.phone')) !!}
-                {!! Form::text('phone',null,['class' => 'form-control']) !!}
+            <div class="col-sm-4 mb-3 {{ $errors->has('phone') ? 'has-error' : '' }}">
+                {!! html()->label(Lang::get('lang.phone'), 'phone') !!}
+                {!! html()->text('phone', null)->class('form-control') !!}
             </div>
             <!--website : Text :  -->
-            <div class="col-sm-4 form-group {{ $errors->has('website') ? 'has-error' : '' }}">
-                {!! Form::label('website',Lang::get('lang.website')) !!}
-                {!! Form::text('website',null,['class' => 'form-control']) !!}
+            <div class="col-sm-4 mb-3 {{ $errors->has('website') ? 'has-error' : '' }}">
+                {!! html()->label(Lang::get('lang.website'), 'website') !!}
+                {!! html()->text('website', null)->class('form-control') !!}
             </div>
         </div>
         <!-- Internal Notes : Textarea -->
         <div class="row">
-            <div class="col-sm-6 form-group">
-                {!! Form::label('address',Lang::get('lang.address')) !!}
-                {!! Form::textarea('address',null,['class' => 'form-control']) !!}
+            <div class="col-sm-6 mb-3">
+                {!! html()->label(Lang::get('lang.address'), 'address') !!}
+                {!! html()->textarea('address', null)->class('form-control') !!}
             </div>
-            <div class="col-sm-6 form-group">
-                {!! Form::label('internal_notes',Lang::get('lang.internal_notes')) !!}
-                {!! Form::textarea('internal_notes',null,['class' => 'form-control']) !!}
+            <div class="col-sm-6 mb-3">
+                {!! html()->label(Lang::get('lang.internal_notes'), 'internal_notes') !!}
+                {!! html()->textarea('internal_notes', null)->class('form-control') !!}
             </div>
         </div>
     </div>
     <div class="card-footer">
-        {!! Form::submit(Lang::get('lang.submit'),['class'=>'btn btn-primary'])!!}
+        {!! html()->submit(Lang::get('lang.submit'))->class('btn btn-primary') !!}
     </div>
 </div>
 <script type="text/javascript">

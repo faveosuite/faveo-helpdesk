@@ -13,6 +13,7 @@ namespace Symfony\Component\Translation\Extractor\Visitor;
 
 use PhpParser\Node;
 use PhpParser\NodeVisitor;
+use Symfony\Component\Translation\TranslatableMessage;
 
 /**
  * @author Mathieu Santostefano <msantostefano@protonmail.com>
@@ -26,6 +27,11 @@ final class TranslatableMessageVisitor extends AbstractVisitor implements NodeVi
 
     public function enterNode(Node $node): ?Node
     {
+        return null;
+    }
+
+    public function leaveNode(Node $node): ?Node
+    {
         if (!$node instanceof Node\Expr\New_) {
             return null;
         }
@@ -34,7 +40,9 @@ final class TranslatableMessageVisitor extends AbstractVisitor implements NodeVi
             return null;
         }
 
-        if (!\in_array('TranslatableMessage', $className->parts, true)) {
+        // the name resolver gives a fully qualified name; templates without a "use"
+        // statement resolve to the global namespace, which is accepted as well
+        if (!\in_array($className->toString(), [TranslatableMessage::class, 'TranslatableMessage'], true)) {
             return null;
         }
 
@@ -50,11 +58,6 @@ final class TranslatableMessageVisitor extends AbstractVisitor implements NodeVi
             $this->addMessageToCatalogue($message, $domain, $node->getStartLine());
         }
 
-        return null;
-    }
-
-    public function leaveNode(Node $node): ?Node
-    {
         return null;
     }
 

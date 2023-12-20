@@ -15,6 +15,9 @@ use League\Flysystem\UnixVisibility\PortableVisibilityConverter;
 use League\Flysystem\Visibility;
 use Symfony\Component\Console\Attribute\AsCommand;
 
+use function Laravel\Prompts\search;
+use function Laravel\Prompts\select;
+
 #[AsCommand(name: 'vendor:publish')]
 class VendorPublishCommand extends Command
 {
@@ -28,7 +31,7 @@ class VendorPublishCommand extends Command
     /**
      * The provider to publish.
      *
-     * @var string
+     * @var string|null
      */
     protected $provider = null;
 
@@ -38,6 +41,13 @@ class VendorPublishCommand extends Command
      * @var array
      */
     protected $tags = [];
+
+    /**
+     * The time the command started.
+     *
+     * @var \Illuminate\Support\Carbon|null
+     */
+    protected $publishedAt;
 
     /**
      * The console command signature.
@@ -52,17 +62,6 @@ class VendorPublishCommand extends Command
                     {--tag=* : One or many tags that have assets you want to publish}';
 
     /**
-     * The name of the console command.
-     *
-     * This name is used to identify the command during lazy loading.
-     *
-     * @var string|null
-     *
-     * @deprecated
-     */
-    protected static $defaultName = 'vendor:publish';
-
-    /**
      * The console command description.
      *
      * @var string
@@ -70,10 +69,16 @@ class VendorPublishCommand extends Command
     protected $description = 'Publish any publishable assets from vendor packages';
 
     /**
+     * Indicates if migration dates should be updated while publishing.
+     *
+     * @var bool
+     */
+    protected static $updateMigrationDates = true;
+
+    /**
      * Create a new command instance.
      *
      * @param  \Illuminate\Filesystem\Filesystem  $files
-     * @return void
      */
     public function __construct(Filesystem $files)
     {
@@ -89,6 +94,8 @@ class VendorPublishCommand extends Command
      */
     public function handle()
     {
+        $this->publishedAt = now();
+
         $this->determineWhatShouldBePublished();
 
         foreach ($this->tags ?: [null] as $tag) {
@@ -123,10 +130,23 @@ class VendorPublishCommand extends Command
      */
     protected function promptForProviderOrTag()
     {
-        $choice = $this->components->choice(
-            "Which provider or tag's files would you like to publish?",
-            $choices = $this->publishableChoices()
-        );
+        $choices = $this->publishableChoices();
+
+        $choice = windows_os()
+            ? select(
+                "Which provider or tag's files would you like to publish?",
+                $choices,
+                scroll: 15,
+            )
+            : search(
+                label: "Which provider or tag's files would you like to publish?",
+                placeholder: 'Search...',
+                options: fn ($search) => array_values(array_filter(
+                    $choices,
+                    fn ($choice) => str_contains(strtolower($choice), strtolower($search))
+                )),
+                scroll: 15,
+            );
 
         if ($choice == $choices[0] || is_null($choice)) {
             return;
@@ -143,7 +163,7 @@ class VendorPublishCommand extends Command
     protected function publishableChoices()
     {
         return array_merge(
-            ['<comment>Publish files from all providers and tags listed below</comment>'],
+            ['All providers and tags'],
             preg_filter('/^/', '<fg=gray>Provider:</> ', Arr::sort(ServiceProvider::publishableProviders())),
             preg_filter('/^/', '<fg=gray>Tag:</> ', Arr::sort(ServiceProvider::publishableGroups()))
         );
@@ -170,12 +190,10 @@ class VendorPublishCommand extends Command
      * Publishes the assets for a tag.
      *
      * @param  string  $tag
-     * @return mixed
+     * @return void
      */
     protected function publishTag($tag)
     {
-        $published = false;
-
         $pathsToPublish = $this->pathsToPublish($tag);
 
         if ($publishing = count($pathsToPublish) > 0) {
@@ -240,6 +258,8 @@ class VendorPublishCommand extends Command
     {
         if ((! $this->option('existing') && (! $this->files->exists($to) || $this->option('force')))
             || ($this->option('existing') && $this->files->exists($to))) {
+            $to = $this->ensureMigrationNameIsUpToDate($from, $to);
+
             $this->createParentDirectory(dirname($to));
 
             $this->files->copy($from, $to);
@@ -271,7 +291,7 @@ class VendorPublishCommand extends Command
     {
         $visibility = PortableVisibilityConverter::fromArray([], Visibility::PUBLIC);
 
-        $this->moveManagedFiles(new MountManager([
+        $this->moveManagedFiles($from, new MountManager([
             'from' => new Flysystem(new LocalAdapter($from)),
             'to' => new Flysystem(new LocalAdapter($to, $visibility)),
         ]));
@@ -282,12 +302,13 @@ class VendorPublishCommand extends Command
     /**
      * Move all the files in the given MountManager.
      *
+     * @param  string  $from
      * @param  \League\Flysystem\MountManager  $manager
      * @return void
      */
-    protected function moveManagedFiles($manager)
+    protected function moveManagedFiles($from, $manager)
     {
-        foreach ($manager->listContents('from://', true) as $file) {
+        foreach ($manager->listContents('from://', true)->sortByPath() as $file) {
             $path = Str::after($file['path'], 'from://');
 
             if (
@@ -297,6 +318,8 @@ class VendorPublishCommand extends Command
                     || ($this->option('existing') && $manager->fileExists('to://'.$path))
                 )
             ) {
+                $path = $this->ensureMigrationNameIsUpToDate($from, $path);
+
                 $manager->write('to://'.$path, $manager->read($file['path']));
             }
         }
@@ -313,6 +336,38 @@ class VendorPublishCommand extends Command
         if (! $this->files->isDirectory($directory)) {
             $this->files->makeDirectory($directory, 0755, true);
         }
+    }
+
+    /**
+     * Ensure the given migration name is up-to-date.
+     *
+     * @param  string  $from
+     * @param  string  $to
+     * @return string
+     */
+    protected function ensureMigrationNameIsUpToDate($from, $to)
+    {
+        if (static::$updateMigrationDates === false) {
+            return $to;
+        }
+
+        $from = realpath($from);
+
+        foreach (ServiceProvider::publishableMigrationPaths() as $path) {
+            $path = realpath($path);
+
+            if ($from === $path && preg_match('/\d{4}_(\d{2})_(\d{2})_(\d{6})_/', $to)) {
+                $this->publishedAt = $this->publishedAt->addSecond();
+
+                return preg_replace(
+                    '/\d{4}_(\d{2})_(\d{2})_(\d{6})_/',
+                    $this->publishedAt->format('Y_m_d_His').'_',
+                    $to,
+                );
+            }
+        }
+
+        return $to;
     }
 
     /**
@@ -335,5 +390,15 @@ class VendorPublishCommand extends Command
             $from,
             $to,
         ));
+    }
+
+    /**
+     * Instruct the command to not update the dates on migrations when publishing.
+     *
+     * @return void
+     */
+    public static function dontUpdateMigrationDates()
+    {
+        static::$updateMigrationDates = false;
     }
 }

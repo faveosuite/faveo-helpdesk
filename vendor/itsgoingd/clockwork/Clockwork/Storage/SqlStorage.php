@@ -70,6 +70,7 @@ class SqlStorage extends Storage
 		'viewsData'                => 'TEXT NULL',
 		'userData'                 => 'TEXT NULL',
 		'subrequests'              => 'TEXT NULL',
+		'httpRequests'             => 'TEXT NULL',
 		'xdebug'                   => 'TEXT NULL',
 		'commandName'              => 'TEXT NULL',
 		'commandArguments'         => 'TEXT NULL',
@@ -100,9 +101,9 @@ class SqlStorage extends Storage
 		'headers', 'getData', 'postData', 'requestData', 'sessionData', 'authenticatedUser', 'cookies', 'middleware',
 		'databaseQueries', 'cacheQueries', 'modelsActions', 'modelsRetrieved', 'modelsCreated', 'modelsUpdated',
 		'modelsDeleted', 'redisCommands', 'queueJobs', 'timelineData', 'log', 'events', 'routes', 'notifications',
-		'emailsData', 'viewsData', 'userData', 'subrequests', 'xdebug', 'commandArguments', 'commandArgumentsDefaults',
-		'commandOptions', 'commandOptionsDefaults', 'jobPayload', 'jobOptions', 'testAsserts', 'parent',
-		'clientMetrics', 'webVitals'
+		'emailsData', 'viewsData', 'userData', 'httpRequests', 'subrequests', 'xdebug', 'commandArguments',
+		'commandArgumentsDefaults', 'commandOptions', 'commandOptionsDefaults', 'jobPayload', 'jobOptions', 'testAsserts',
+		'parent', 'clientMetrics', 'webVitals'
 	];
 
 	// Return a new storage, takes PDO object or DSN and optionally a table name and database credentials as arguments
@@ -114,7 +115,7 @@ class SqlStorage extends Storage
 	}
 
 	// Returns all requests
-	public function all(Search $search = null)
+	public function all(?Search $search = null)
 	{
 		$fields = implode(', ', array_map(function ($field) { return $this->quote($field); }, array_keys($this->fields)));
 		$search = SqlSearch::fromBase($search, $this->pdo);
@@ -134,7 +135,7 @@ class SqlStorage extends Storage
 	}
 
 	// Return the latest request
-	public function latest(Search $search = null)
+	public function latest(?Search $search = null)
 	{
 		$fields = implode(', ', array_map(function ($field) { return $this->quote($field); }, array_keys($this->fields)));
 		$search = SqlSearch::fromBase($search, $this->pdo);
@@ -147,7 +148,7 @@ class SqlStorage extends Storage
 	}
 
 	// Return requests received before specified id, optionally limited to specified count
-	public function previous($id, $count = null, Search $search = null)
+	public function previous($id, $count = null, ?Search $search = null)
 	{
 		$count = (int) $count;
 
@@ -162,7 +163,7 @@ class SqlStorage extends Storage
 	}
 
 	// Return requests received after specified id, optionally limited to specified count
-	public function next($id, $count = null, Search $search = null)
+	public function next($id, $count = null, ?Search $search = null)
 	{
 		$count = (int) $count;
 
@@ -225,8 +226,12 @@ class SqlStorage extends Storage
 		// first we get rid of existing table if it exists by renaming it so we won't lose any data
 		try {
 			$table = $this->quote($this->table);
-			$backupTableName = $this->quote("{$this->table}_backup_" . date('Ymd'));
+			$backupTableName = $this->quote("{$this->table}_backup_" . date('Ymd_His'));
 			$this->pdo->exec("ALTER TABLE {$table} RENAME TO {$backupTableName};");
+
+			$indexName = $this->quote("{$this->table}_time_index");
+			$this->pdo->exec("DROP INDEX {$indexName};"); // most sql implementations use global index names
+			$this->pdo->exec("DROP INDEX {$indexName} ON {$backupTableName};"); // mysql uses table-specific index names
 		} catch (\PDOException $e) {
 			// this just means the table doesn't yet exist, nothing to do here
 		}
@@ -260,7 +265,7 @@ class SqlStorage extends Storage
 				throw new \PDOException;
 			}
 		} catch (\PDOException $e) {
-			$stmt = false;
+			$stmt = strpos($e->getMessage(), 'Integrity constraint violation') !== false;
 		}
 
 		// the query failed to execute, assume it's caused by missing or old schema, try to reinitialize database

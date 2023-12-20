@@ -8,7 +8,8 @@ use App\Http\Controllers\Common;
 use App\Http\Controllers\Installer;
 use App\Http\Controllers\Job;
 use App\Http\Controllers\Update;
-use DaveJamesMiller\Breadcrumbs\Facades\Breadcrumbs;
+use Diglactic\Breadcrumbs\Breadcrumbs;
+use Diglactic\Breadcrumbs\Generator as BreadcrumbTrail;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Route;
@@ -43,18 +44,18 @@ Route::middleware('web')->group(function () {
       |
      */
     Route::get('password/email/{one?}/{two?}/{three?}/{four?}/{five?}', [Auth\PasswordController::class, 'getEmail'])->name('password.email');
-    Breadcrumbs::register('password.email', function ($breadcrumbs) {
-        $breadcrumbs->parent('/');
-        $breadcrumbs->push('Login', url('auth/login'));
-        $breadcrumbs->push('Forgot Password', url('password/email'));
+    Breadcrumbs::for('password.email', function (BreadcrumbTrail $trail) {
+        $trail->parent('/');
+        $trail->push('Login', url('auth/login'));
+        $trail->push('Forgot Password', url('password/email'));
     });
 
     // register page
     Route::get('auth/register/{one?}/{two?}/{three?}/{four?}/{five?}', [Auth\AuthController::class, 'getRegister'])->name('auth.register');
-    Breadcrumbs::register('auth.register', function ($breadcrumbs) {
-        $breadcrumbs->parent('/');
-        $breadcrumbs->push('Login', url('auth/login'));
-        $breadcrumbs->push('Create Account', url('auth/register'));
+    Breadcrumbs::for('auth.register', function (BreadcrumbTrail $trail) {
+        $trail->parent('/');
+        $trail->push('Login', url('auth/login'));
+        $trail->push('Create Account', url('auth/register'));
     });
 
     // Auth login
@@ -62,7 +63,7 @@ Route::middleware('web')->group(function () {
     Route::post('auth/login', [Auth\AuthController::class, 'postLogin'])->name('auth.post.login');
     Route::match(['get', 'post'], 'user/search', [Client\kb\UserController::class, 'search'])->name('client.search');
 
-    Breadcrumbs::register('auth.login', function ($breadcrumbs) {
+    Breadcrumbs::for('auth.login', function (BreadcrumbTrail $trail) {
 //        $breadcrumbs->parent('/');
 //        $breadcrumbs->push('Create Account', url('auth/register'));
 //        $breadcrumbs->push('Login', url('auth/login'));
@@ -100,18 +101,20 @@ Route::middleware('web')->group(function () {
 
         Route::resource('teams', Admin\helpdesk\TeamController::class); // in teams module, for CRUD
         Route::get('/teams/show/{id}', [Admin\helpdesk\TeamController::class, 'show'])->name('teams.show'); /*  Get Team View */
-        Breadcrumbs::register('teams.show', function ($breadcrumbs) {
-            $breadcrumbs->parent('teams.index');
-            $breadcrumbs->push(Lang::get('lang.show'), url('teams/{teams}/show'));
+        Breadcrumbs::for('teams.show', function (BreadcrumbTrail $trail) {
+            $trail->parent('teams.index');
+            $trail->push(Lang::get('lang.show'), url('teams/{teams}/show'));
         });
         Route::get('getshow/{id}', [Admin\helpdesk\TeamController::class, 'getshow'])->name('teams.getshow.list');
         Route::resource('agents', Admin\helpdesk\AgentController::class); // in agents module, for CRUD
 
         Route::resource('emails', Admin\helpdesk\EmailsController::class); // in emails module, for CRUD
+        Route::get('emails-list', [Admin\helpdesk\EmailsController::class, 'getEmailList'])->name('emails.list'); // datatable AJAX endpoint
 
         Route::resource('banlist', Admin\helpdesk\BanlistController::class); // in banlist module, for CRUD
 
         Route::get('banlist/delete/{id}', [Admin\helpdesk\BanlistController::class, 'delete'])->name('banlist.delete'); // in banlist module, for CRUD
+        Route::get('banlist-list', [Admin\helpdesk\BanlistController::class, 'getBanList'])->name('banlist.list'); // datatable AJAX endpoint
         /*
          * Templates
          */
@@ -330,6 +333,7 @@ Route::middleware('web')->group(function () {
         Route::patch('agent-profile', [Agent\helpdesk\UserController::class, 'postProfileedit'])->name('agent-profile'); /* User Profile Post */
         Route::patch('agent-profile-password/{id}', [Agent\helpdesk\UserController::class, 'postProfilePassword']); /*  Profile Password Post */
         Route::get('canned/list', [Agent\helpdesk\CannedController::class, 'index'])->name('canned.list'); /* Canned list */
+        Route::get('canned/datatable', [Agent\helpdesk\CannedController::class, 'canned_list'])->name('canned.datatable'); /* Canned datatable AJAX */
 
         Route::get('canned/create', [Agent\helpdesk\CannedController::class, 'create'])->name('canned.create'); /* Canned create */
 
@@ -352,7 +356,8 @@ Route::middleware('web')->group(function () {
         Route::post('/thread/reply/{id}', [Agent\helpdesk\TicketController::class, 'reply'])->name('ticket.reply'); /*  Patch Thread Reply */
         Route::patch('/internal/note/{id}', [Agent\helpdesk\TicketController::class, 'InternalNote'])->name('Internal.note'); /*  Patch Internal Note */
         Route::patch('/ticket/assign/{id}', [Agent\helpdesk\TicketController::class, 'assign'])->name('assign.ticket'); /*  Patch Ticket assigned to whom */
-        Route::patch('/ticket/post/edit/{id}', [Agent\helpdesk\TicketController::class, 'ticketEditPost'])->name('ticket.post.edit'); /*  Patchi Ticket Edit */
+        Route::patch('/ticket/post/edit/{id}', [Agent\helpdesk\TicketController::class, 'ticketEditPost'])->name('ticket.post.edit'); /*  Patch Ticket Edit */
+        Route::post('/ticket/duedate/{id}', [Agent\helpdesk\TicketController::class, 'updateDueDate'])->name('ticket.duedate'); /*  Post Ticket Due Date */
         Route::get('/ticket/print/{id}', [Agent\helpdesk\TicketController::class, 'ticket_print'])->name('ticket.print'); /*  Get Print Ticket */
         Route::post('/ticket/delete/{id}', [Agent\helpdesk\TicketController::class, 'delete'])->name('ticket.delete'); /*  Get Ticket Delete */
         Route::get('/email/ban/{id}', [Agent\helpdesk\TicketController::class, 'ban'])->name('ban.email'); /*  Get Ban Email */
@@ -532,7 +537,7 @@ Route::middleware('web')->group(function () {
     //===================================================================================
     Route::middleware('auth')->group(function () {
         Route::get('client-profile', [Client\helpdesk\GuestController::class, 'getProfile'])->name('client.profile'); /*  User profile get  */
-        Route::post('select/all', [Agent\helpdesk\TicketController::class, 'select_all'])->name('select_all');
+        //Route::post('select/all', [Agent\helpdesk\TicketController::class, 'select_all'])->name('select_all');
 
         Route::get('mytickets', [Client\helpdesk\GuestController::class, 'getMyticket'])->name('ticket2');
         Route::get('myticket/{id}', [Client\helpdesk\GuestController::class, 'thread'])->name('ticket'); /* Get my tickets */
@@ -589,33 +594,35 @@ Route::middleware('web')->group(function () {
       | These links are for cron job execution
       |
      */
-    Route::get('readmails', [Agent\helpdesk\MailController::class, 'readmails'])->name('readmails');
-    Route::get('notification', [Agent\helpdesk\NotificationController::class, 'send_notification'])->name('notification');
-    Route::get('auto-close-tickets', [Client\helpdesk\UnAuthController::class, 'autoCloseTickets'])->name('auto.close');
+    Route::middleware(['auth', 'roles'])->group(function () {
+        Route::get('readmails', [Agent\helpdesk\MailController::class, 'readmails'])->name('readmails');
+        Route::get('notification', [Agent\helpdesk\NotificationController::class, 'send_notification'])->name('notification');
+        Route::get('auto-close-tickets', [Client\helpdesk\UnAuthController::class, 'autoCloseTickets'])->name('auto.close');
+    });
     /*
       |=============================================================
       |  View all the Routes
       |=============================================================
      */
-    Route::get('/aaa', function () {
-        $routeCollection = Route::getRoutes();
-        echo "<table style='width:100%'>";
-        echo '<tr>';
-        echo "<td width='10%'><h4>HTTP Method</h4></td>";
-        echo "<td width='10%'><h4>Route</h4></td>";
-        echo "<td width='10%'><h4>Url</h4></td>";
-        echo "<td width='80%'><h4>Corresponding Action</h4></td>";
-        echo '</tr>';
-        foreach ($routeCollection as $value) {
-            echo '<tr>';
-            echo '<td>'.$value->getMethods()[0].'</td>';
-            echo '<td>'.$value->getName().'</td>';
-            echo '<td>'.$value->getPath().'</td>';
-            echo '<td>'.$value->getActionName().'</td>';
-            echo '</tr>';
-        }
-        echo '</table>';
-    });
+//    Route::get('/aaa', function () {
+//        $routeCollection = Route::getRoutes();
+//        echo "<table style='width:100%'>";
+//        echo '<tr>';
+//        echo "<td width='10%'><h4>HTTP Method</h4></td>";
+//        echo "<td width='10%'><h4>Route</h4></td>";
+//        echo "<td width='10%'><h4>Url</h4></td>";
+//        echo "<td width='80%'><h4>Corresponding Action</h4></td>";
+//        echo '</tr>';
+//        foreach ($routeCollection as $value) {
+//            echo '<tr>';
+//            echo '<td>'.$value->getMethods()[0].'</td>';
+//            echo '<td>'.$value->getName().'</td>';
+//            echo '<td>'.$value->getPath().'</td>';
+//            echo '<td>'.$value->getActionName().'</td>';
+//            echo '</tr>';
+//        }
+//        echo '</table>';
+//    });
     /*
       |=============================================================
       |  Error Routes
@@ -709,7 +716,7 @@ Route::middleware('web')->group(function () {
 
     Route::post('show/rating/{id}', [Client\helpdesk\UnAuthController::class, 'rating'])->name('show.rating'); /* Get overall Ratings */
     Route::post('show/rating2/{id}', [Client\helpdesk\UnAuthController::class, 'ratingReply'])->name('show.rating2'); /* Get reply Ratings */
-    Route::get('show/change-status/{status}/{id}', [Client\helpdesk\UnAuthController::class, 'changeStatus'])->name('show.change.status'); /* Get reply Ratings */
+    Route::post('show/change-status/{status}/{id}', [Client\helpdesk\UnAuthController::class, 'changeStatus'])->name('show.change.status'); /* Get reply Ratings */
     Route::post('show/close/{id}', [Client\helpdesk\UnAuthController::class, 'close'])->name('show.close'); /* Get reply Ratings */
     Route::post('show/open/{id}', [Client\helpdesk\UnAuthController::class, 'open'])->name('show.open'); /* Get reply Ratings */
     Route::post('show/resolve/{id}', [Client\helpdesk\UnAuthController::class, 'resolve'])->name('show.resolve'); /* Get reply Ratings */
@@ -737,6 +744,11 @@ Route::middleware('web')->group(function () {
     Route::get('database-upgrade', [Update\UpgradeController::class, 'databaseUpgrade'])->name('database.upgrade');
     Route::get('file-update', [Update\UpgradeController::class, 'fileUpdate'])->name('file.update');
     Route::get('file-upgrade', [Update\UpgradeController::class, 'fileUpgrading'])->name('file.upgrade');
+    Route::post('upgrade/backup', [Update\UpgradeController::class, 'backup'])->name('upgrade.backup');
+    Route::post('upgrade/download', [Update\UpgradeController::class, 'download'])->name('upgrade.download');
+    Route::post('upgrade/apply', [Update\UpgradeController::class, 'install'])->name('upgrade.apply');
+    Route::post('upgrade/database', [Update\UpgradeController::class, 'ajaxDatabaseSync'])->name('upgrade.database');
+    Route::get('upgrade/check', [Update\UpgradeController::class, 'checkUpdate'])->name('upgrade.check');
     /*
      * Webhook
      */

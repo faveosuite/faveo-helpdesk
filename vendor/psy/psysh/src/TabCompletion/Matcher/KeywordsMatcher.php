@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -73,7 +73,7 @@ class KeywordsMatcher extends AbstractMatcher
             case self::hasToken([self::T_OPEN_TAG, self::T_VARIABLE], $token):
 //            case is_string($token) && $token === '$':
             case self::hasToken([self::T_OPEN_TAG, self::T_VARIABLE], $prevToken) &&
-                self::tokenIs($token, self::T_STRING):
+            self::tokenIs($token, self::T_STRING):
             case self::isOperator($token):
                 return true;
         }

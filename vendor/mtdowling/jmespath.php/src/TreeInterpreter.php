@@ -14,7 +14,7 @@ class TreeInterpreter
      *                                    a function name argument and an array of
      *                                    function arguments and returns the result.
      */
-    public function __construct(callable $fnDispatcher = null)
+    public function __construct(?callable $fnDispatcher = null)
     {
         $this->fnDispatcher = $fnDispatcher ?: FnDispatcher::getInstance();
     }
@@ -69,7 +69,8 @@ class TreeInterpreter
 
             case 'projection':
                 $left = $this->dispatch($node['children'][0], $value);
-                switch ($node['from']) {
+                $from = isset($node['from']) ? $node['from'] : null;
+                switch ($from) {
                     case 'object':
                         if (!Utils::isObject($left)) {
                             return null;
@@ -81,7 +82,7 @@ class TreeInterpreter
                         }
                         break;
                     default:
-                        if (!is_array($left) || !($left instanceof \stdClass)) {
+                        if (!is_array($left) && !($left instanceof \stdClass)) {
                             return null;
                         }
                 }
@@ -107,7 +108,7 @@ class TreeInterpreter
                 $merged = [];
                 foreach ($value as $values) {
                     // Only merge up arrays lists and not hashes
-                    if (is_array($values) && isset($values[0])) {
+                    if (is_array($values) && array_key_exists(0, $values)) {
                         $merged = array_merge($merged, $values);
                     } elseif ($values !== $skipElement) {
                         $merged[] = $values;

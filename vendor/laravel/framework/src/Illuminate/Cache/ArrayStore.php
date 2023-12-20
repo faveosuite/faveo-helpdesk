@@ -3,6 +3,7 @@
 namespace Illuminate\Cache;
 
 use Illuminate\Contracts\Cache\LockProvider;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\InteractsWithTime;
 
 class ArrayStore extends TaggableStore implements LockProvider
@@ -12,14 +13,14 @@ class ArrayStore extends TaggableStore implements LockProvider
     /**
      * The array of stored values.
      *
-     * @var array
+     * @var array<string, array{value: mixed, expiresAt: float}>
      */
     protected $storage = [];
 
     /**
      * The array of locks.
      *
-     * @var array
+     * @var array<string, array{owner: ?string, expiresAt: ?\Illuminate\Support\Carbon}>
      */
     public $locks = [];
 
@@ -31,20 +32,52 @@ class ArrayStore extends TaggableStore implements LockProvider
     protected $serializesValues;
 
     /**
+     * The classes that should be allowed during unserialization.
+     *
+     * @var array|bool|null
+     */
+    protected $serializableClasses;
+
+    /**
      * Create a new Array store.
      *
      * @param  bool  $serializesValues
-     * @return void
+     * @param  array|bool|null  $serializableClasses
      */
-    public function __construct($serializesValues = false)
+    public function __construct($serializesValues = false, $serializableClasses = null)
     {
         $this->serializesValues = $serializesValues;
+        $this->serializableClasses = $serializableClasses;
+    }
+
+    /**
+     * Get all of the cached values and their expiration times.
+     *
+     * @param  bool  $unserialize
+     * @return array<string, array{value: mixed, expiresAt: float}>
+     */
+    public function all($unserialize = true)
+    {
+        if ($unserialize === false || $this->serializesValues === false) {
+            return $this->storage;
+        }
+
+        $storage = [];
+
+        foreach ($this->storage as $key => $data) {
+            $storage[$key] = [
+                'value' => $this->unserialize($data['value']),
+                'expiresAt' => $data['expiresAt'],
+            ];
+        }
+
+        return $storage;
     }
 
     /**
      * Retrieve an item from the cache by key.
      *
-     * @param  string|array  $key
+     * @param  string  $key
      * @return mixed
      */
     public function get($key)
@@ -57,13 +90,13 @@ class ArrayStore extends TaggableStore implements LockProvider
 
         $expiresAt = $item['expiresAt'] ?? 0;
 
-        if ($expiresAt !== 0 && $this->currentTime() > $expiresAt) {
+        if ($expiresAt !== 0 && (Carbon::now()->getPreciseTimestamp(3) / 1000) >= $expiresAt) {
             $this->forget($key);
 
             return;
         }
 
-        return $this->serializesValues ? unserialize($item['value']) : $item['value'];
+        return $this->serializesValues ? $this->unserialize($item['value']) : $item['value'];
     }
 
     /**
@@ -173,7 +206,7 @@ class ArrayStore extends TaggableStore implements LockProvider
      * Get the expiration time of the key.
      *
      * @param  int  $seconds
-     * @return int
+     * @return float
      */
     protected function calculateExpiration($seconds)
     {
@@ -181,14 +214,14 @@ class ArrayStore extends TaggableStore implements LockProvider
     }
 
     /**
-     * Get the UNIX timestamp for the given number of seconds.
+     * Get the UNIX timestamp, with milliseconds, for the given number of seconds in the future.
      *
      * @param  int  $seconds
-     * @return int
+     * @return float
      */
     protected function toTimestamp($seconds)
     {
-        return $seconds > 0 ? $this->availableAt($seconds) : 0;
+        return $seconds > 0 ? (Carbon::now()->getPreciseTimestamp(3) / 1000) + $seconds : 0;
     }
 
     /**
@@ -214,5 +247,20 @@ class ArrayStore extends TaggableStore implements LockProvider
     public function restoreLock($name, $owner)
     {
         return $this->lock($name, 0, $owner);
+    }
+
+    /**
+     * Unserialize the given value.
+     *
+     * @param  string  $value
+     * @return mixed
+     */
+    protected function unserialize($value)
+    {
+        if ($this->serializableClasses !== null) {
+            return unserialize($value, ['allowed_classes' => $this->serializableClasses]);
+        }
+
+        return unserialize($value);
     }
 }

@@ -20,17 +20,6 @@ class ViewCacheCommand extends Command
     protected $signature = 'view:cache';
 
     /**
-     * The name of the console command.
-     *
-     * This name is used to identify the command during lazy loading.
-     *
-     * @var string|null
-     *
-     * @deprecated
-     */
-    protected static $defaultName = 'view:cache';
-
-    /**
      * The console command description.
      *
      * @var string
@@ -40,7 +29,7 @@ class ViewCacheCommand extends Command
     /**
      * Execute the console command.
      *
-     * @return mixed
+     * @return void
      */
     public function handle()
     {
@@ -88,11 +77,17 @@ class ViewCacheCommand extends Command
      */
     protected function bladeFilesIn(array $paths)
     {
-        return collect(
+        $extensions = (new Collection($this->laravel['view']->getExtensions()))
+            ->filter(fn ($value) => $value === 'blade')
+            ->keys()
+            ->map(fn ($extension) => "*.{$extension}")
+            ->all();
+
+        return new Collection(
             Finder::create()
                 ->in($paths)
                 ->exclude('vendor')
-                ->name('*.blade.php')
+                ->name($extensions)
                 ->files()
         );
     }
@@ -106,8 +101,12 @@ class ViewCacheCommand extends Command
     {
         $finder = $this->laravel['view']->getFinder();
 
-        return collect($finder->getPaths())->merge(
-            collect($finder->getHints())->flatten()
-        );
+        $paths = (new Collection($finder->getPaths()))->merge(
+            (new Collection($finder->getHints()))->flatten()
+        )->unique();
+
+        return $paths->reject(fn ($path) => $paths->contains(function ($existing) use ($path) {
+            return $existing !== $path && str_starts_with(realpath($path) ?: $path, realpath($existing) ?: $existing);
+        }))->values();
     }
 }

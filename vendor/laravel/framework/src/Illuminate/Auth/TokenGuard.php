@@ -5,10 +5,11 @@ namespace Illuminate\Auth;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Http\Request;
+use Illuminate\Support\Traits\Macroable;
 
 class TokenGuard implements Guard
 {
-    use GuardHelpers;
+    use GuardHelpers, Macroable;
 
     /**
      * The request instance.
@@ -46,15 +47,14 @@ class TokenGuard implements Guard
      * @param  string  $inputKey
      * @param  string  $storageKey
      * @param  bool  $hash
-     * @return void
      */
     public function __construct(
         UserProvider $provider,
         Request $request,
         $inputKey = 'api_token',
         $storageKey = 'api_token',
-        $hash = false)
-    {
+        $hash = false,
+    ) {
         $this->hash = $hash;
         $this->request = $request;
         $this->provider = $provider;
@@ -80,7 +80,7 @@ class TokenGuard implements Guard
 
         $token = $this->getTokenForRequest();
 
-        if (! empty($token)) {
+        if (is_string($token) && ! empty($token)) {
             $user = $this->provider->retrieveByCredentials([
                 $this->storageKey => $this->hash ? hash('sha256', $token) : $token,
             ]);
@@ -92,25 +92,14 @@ class TokenGuard implements Guard
     /**
      * Get the token for the current request.
      *
-     * @return string
+     * @return string|null
      */
     public function getTokenForRequest()
     {
-        $token = $this->request->query($this->inputKey);
-
-        if (empty($token)) {
-            $token = $this->request->input($this->inputKey);
-        }
-
-        if (empty($token)) {
-            $token = $this->request->bearerToken();
-        }
-
-        if (empty($token)) {
-            $token = $this->request->getPassword();
-        }
-
-        return $token;
+        return $this->request->query($this->inputKey)
+            ?: $this->request->input($this->inputKey)
+            ?: $this->request->bearerToken()
+            ?: $this->request->getPassword();
     }
 
     /**
@@ -121,17 +110,13 @@ class TokenGuard implements Guard
      */
     public function validate(array $credentials = [])
     {
-        if (empty($credentials[$this->inputKey])) {
+        if (! is_string($credentials[$this->inputKey] ?? null) || empty($credentials[$this->inputKey])) {
             return false;
         }
 
         $credentials = [$this->storageKey => $credentials[$this->inputKey]];
 
-        if ($this->provider->retrieveByCredentials($credentials)) {
-            return true;
-        }
-
-        return false;
+        return (bool) $this->provider->retrieveByCredentials($credentials);
     }
 
     /**

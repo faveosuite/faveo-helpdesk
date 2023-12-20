@@ -21,19 +21,19 @@ class SentMessage
 {
     private RawMessage $original;
     private RawMessage $raw;
-    private Envelope $envelope;
     private string $messageId;
     private string $debug = '';
 
     /**
      * @internal
      */
-    public function __construct(RawMessage $message, Envelope $envelope)
-    {
+    public function __construct(
+        RawMessage $message,
+        private Envelope $envelope,
+    ) {
         $message->ensureValidity();
 
         $this->original = $message;
-        $this->envelope = $envelope;
 
         if ($message instanceof Message) {
             $message = clone $message;
@@ -63,11 +63,19 @@ class SentMessage
         return $this->envelope;
     }
 
+    /**
+     * Sets the transport-level message ID.
+     */
     public function setMessageId(string $id): void
     {
         $this->messageId = $id;
     }
 
+    /**
+     * Gets the transport-level message ID.
+     *
+     * Not to be confused with the Message-ID header, which is available via getOriginalMessage()
+     */
     public function getMessageId(): string
     {
         return $this->messageId;

@@ -10,6 +10,11 @@ namespace Prophecy\Doubler\Generator;
  */
 final class TypeHintReference
 {
+    /**
+     * @param string $type
+     *
+     * @return bool
+     */
     public function isBuiltInParamTypeHint($type)
     {
         switch ($type) {
@@ -22,16 +27,19 @@ final class TypeHintReference
             case 'string':
             case 'iterable':
             case 'object':
-                return true;
-
             case 'mixed':
-                return PHP_VERSION_ID >= 80000;
+                return true;
 
             default:
                 return false;
         }
     }
 
+    /**
+     * @param string $type
+     *
+     * @return bool
+     */
     public function isBuiltInReturnTypeHint($type)
     {
         if ($type === 'void') {

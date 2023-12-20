@@ -31,7 +31,6 @@ class XliffUtils
      */
     public static function getVersionNumber(\DOMDocument $dom): string
     {
-        /** @var \DOMNode $xliff */
         foreach ($dom->getElementsByTagName('xliff') as $xliff) {
             $version = $xliff->attributes->getNamedItem('version');
             if ($version) {
@@ -41,7 +40,7 @@ class XliffUtils
             $namespace = $xliff->attributes->getNamedItem('xmlns');
             if ($namespace) {
                 if (0 !== substr_compare('urn:oasis:names:tc:xliff:document:', $namespace->nodeValue, 0, 34)) {
-                    throw new InvalidArgumentException(sprintf('Not a valid XLIFF namespace "%s".', $namespace));
+                    throw new InvalidArgumentException(\sprintf('Not a valid XLIFF namespace "%s".', $namespace));
                 }
 
                 return substr($namespace, 34);
@@ -61,18 +60,9 @@ class XliffUtils
     {
         $xliffVersion = static::getVersionNumber($dom);
         $internalErrors = libxml_use_internal_errors(true);
-        if ($shouldEnable = self::shouldEnableEntityLoader()) {
-            $disableEntities = libxml_disable_entity_loader(false);
-        }
-        try {
-            $isValid = @$dom->schemaValidateSource(self::getSchema($xliffVersion));
-            if (!$isValid) {
-                return self::getXmlErrors($internalErrors);
-            }
-        } finally {
-            if ($shouldEnable) {
-                libxml_disable_entity_loader($disableEntities);
-            }
+
+        if (!@$dom->schemaValidateSource(self::getSchema($xliffVersion))) {
+            return self::getXmlErrors($internalErrors);
         }
 
         $dom->normalizeDocument();
@@ -83,37 +73,12 @@ class XliffUtils
         return [];
     }
 
-    private static function shouldEnableEntityLoader(): bool
-    {
-        static $dom, $schema;
-        if (null === $dom) {
-            $dom = new \DOMDocument();
-            $dom->loadXML('<?xml version="1.0"?><test/>');
-
-            $tmpfile = tempnam(sys_get_temp_dir(), 'symfony');
-            register_shutdown_function(static function () use ($tmpfile) {
-                @unlink($tmpfile);
-            });
-            $schema = '<?xml version="1.0" encoding="utf-8"?>
-<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <xsd:include schemaLocation="file:///'.str_replace('\\', '/', $tmpfile).'" />
-</xsd:schema>';
-            file_put_contents($tmpfile, '<?xml version="1.0" encoding="utf-8"?>
-<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <xsd:element name="test" type="testType" />
-  <xsd:complexType name="testType"/>
-</xsd:schema>');
-        }
-
-        return !@$dom->schemaValidateSource($schema);
-    }
-
     public static function getErrorsAsString(array $xmlErrors): string
     {
         $errorsAsString = '';
 
         foreach ($xmlErrors as $error) {
-            $errorsAsString .= sprintf("[%s %s] %s (in %s - line %d, column %d)\n",
+            $errorsAsString .= \sprintf("[%s %s] %s (in %s - line %d, column %d)\n",
                 \LIBXML_ERR_WARNING === $error['level'] ? 'WARNING' : 'ERROR',
                 $error['code'],
                 $error['message'],
@@ -126,16 +91,35 @@ class XliffUtils
         return $errorsAsString;
     }
 
+    private static function getFileUrl(string $path): string
+    {
+        if ('\\' === \DIRECTORY_SEPARATOR) {
+            $parts = explode('/', str_replace('\\', '/', $path));
+            $drive = array_shift($parts).'/';
+        } else {
+            $parts = explode('/', $path);
+            $drive = '';
+        }
+
+        return 'file:///'.$drive.implode('/', array_map('rawurlencode', $parts));
+    }
+
     private static function getSchema(string $xliffVersion): string
     {
         if ('1.2' === $xliffVersion) {
             $schemaSource = file_get_contents(__DIR__.'/../Resources/schemas/xliff-core-1.2-transitional.xsd');
             $xmlUri = 'http://www.w3.org/2001/xml.xsd';
-        } elseif ('2.0' === $xliffVersion) {
+        } elseif (\in_array($xliffVersion, ['2.0', '2.1'], true)) {
+            // XLIFF 2.1 adds optional modules (Change Tracking, ITS, ...) on top of 2.0.
+            // We validate 2.1 documents against the 2.0 XSD: 2.1 documents that stick to
+            // the 2.0 core load fine; documents that use 2.1-only modules will fail validation.
             $schemaSource = file_get_contents(__DIR__.'/../Resources/schemas/xliff-core-2.0.xsd');
             $xmlUri = 'informativeCopiesOf3rdPartySchemas/w3c/xml.xsd';
+        } elseif ('2.2' === $xliffVersion) {
+            $schemaSource = file_get_contents(__DIR__.'/../Resources/schemas/xliff-core-2.2.xsd');
+            $xmlUri = 'informativeCopiesOf3rdPartySchemas/w3c/xml.xsd';
         } else {
-            throw new InvalidArgumentException(sprintf('No support implemented for loading XLIFF version "%s".', $xliffVersion));
+            throw new InvalidArgumentException(\sprintf('No support implemented for loading XLIFF version "%s".', $xliffVersion));
         }
 
         return self::fixXmlLocation($schemaSource, $xmlUri);
@@ -146,22 +130,26 @@ class XliffUtils
      */
     private static function fixXmlLocation(string $schemaSource, string $xmlUri): string
     {
-        $newPath = str_replace('\\', '/', __DIR__).'/../Resources/schemas/xml.xsd';
-        $parts = explode('/', $newPath);
-        $locationstart = 'file:///';
-        if (0 === stripos($newPath, 'phar://')) {
-            $tmpfile = tempnam(sys_get_temp_dir(), 'symfony');
-            if ($tmpfile) {
-                copy($newPath, $tmpfile);
-                $parts = explode('/', str_replace('\\', '/', $tmpfile));
+        static $newPath;
+
+        if (null === $newPath) {
+            $path = __DIR__.'/../Resources/schemas/xml.xsd';
+
+            if (0 !== stripos($path, 'phar://')) {
+                $newPath = self::getFileUrl($path);
+            } elseif ($tmpfile = tempnam(sys_get_temp_dir(), 'symfony')) {
+                copy($path, $tmpfile);
+                register_shutdown_function(static function () use ($tmpfile) {
+                    @unlink($tmpfile);
+                });
+                $newPath = self::getFileUrl($tmpfile);
             } else {
+                $parts = explode('/', '\\' === \DIRECTORY_SEPARATOR ? str_replace('\\', '/', $path) : $path);
                 array_shift($parts);
-                $locationstart = 'phar:///';
+                $drive = '\\' === \DIRECTORY_SEPARATOR ? array_shift($parts).'/' : '';
+                $newPath = 'phar:///'.$drive.implode('/', array_map('rawurlencode', $parts));
             }
         }
-
-        $drive = '\\' === \DIRECTORY_SEPARATOR ? array_shift($parts).'/' : '';
-        $newPath = $locationstart.$drive.implode('/', array_map('rawurlencode', $parts));
 
         return str_replace($xmlUri, $newPath, $schemaSource);
     }

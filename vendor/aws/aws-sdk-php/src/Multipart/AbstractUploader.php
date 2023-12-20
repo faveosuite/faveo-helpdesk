@@ -12,6 +12,9 @@ abstract class AbstractUploader extends AbstractUploadManager
     /** @var Stream Source of the data to be uploaded. */
     protected $source;
 
+    /** @var bool Configuration used to indicate if upload progress will be displayed. */
+    protected $displayProgress;
+
     /**
      * @param Client $client
      * @param mixed  $source
@@ -129,10 +132,14 @@ abstract class AbstractUploader extends AbstractUploadManager
         // Use the contents of a file as the data source.
         if (is_string($source)) {
             $source = Psr7\Utils::tryFopen($source, 'r');
+            $stream = Psr7\Utils::streamFor($source);
+        } elseif (is_resource($source)) {
+            // User-owned resource — don't fclose on destruct.
+            $stream = \Aws\detach_on_close_stream(Psr7\Utils::streamFor($source));
+        } else {
+            $stream = Psr7\Utils::streamFor($source);
         }
 
-        // Create a source stream.
-        $stream = Psr7\Utils::streamFor($source);
         if (!$stream->isReadable()) {
             throw new IAE('Source stream must be readable.');
         }

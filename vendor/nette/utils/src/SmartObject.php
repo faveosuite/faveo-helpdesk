@@ -1,11 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Nette Framework (https://nette.org)
  * Copyright (c) 2004 David Grudl (https://davidgrudl.com)
  */
-
-declare(strict_types=1);
 
 namespace Nette;
 
@@ -22,6 +20,7 @@ use Nette\Utils\ObjectHelpers;
 trait SmartObject
 {
 	/**
+	 * @param  mixed[]  $args
 	 * @return mixed
 	 * @throws MemberAccessException
 	 */
@@ -36,7 +35,7 @@ trait SmartObject
 					$handler(...$args);
 				}
 			} elseif ($handlers !== null) {
-				throw new UnexpectedValueException("Property $class::$$name must be iterable or null, " . gettype($handlers) . ' given.');
+				throw new UnexpectedValueException("Property $class::$$name must be iterable or null, " . get_debug_type($handlers) . ' given.');
 			}
 
 			return null;
@@ -47,6 +46,8 @@ trait SmartObject
 
 
 	/**
+	 * @param  mixed[]  $args
+	 * @return never
 	 * @throws MemberAccessException
 	 */
 	public static function __callStatic(string $name, array $args)

@@ -42,7 +42,7 @@ class MessageEvents
     /**
      * @return MessageEvent[]
      */
-    public function getEvents(string $name = null): array
+    public function getEvents(?string $name = null): array
     {
         if (null === $name) {
             return $this->events;
@@ -61,14 +61,24 @@ class MessageEvents
     /**
      * @return RawMessage[]
      */
-    public function getMessages(string $name = null): array
+    public function getMessages(?string $name = null): array
     {
-        $events = $this->getEvents($name);
         $messages = [];
-        foreach ($events as $event) {
+        $sent = 0;
+
+        // an email that is queued and then sent in the same process is reported by two events; keep only the sent one
+        foreach (array_reverse($this->getEvents($name)) as $event) {
+            if (!$event->isQueued()) {
+                ++$sent;
+            } elseif ($sent > 0) {
+                --$sent;
+
+                continue;
+            }
+
             $messages[] = $event->getMessage();
         }
 
-        return $messages;
+        return array_reverse($messages);
     }
 }

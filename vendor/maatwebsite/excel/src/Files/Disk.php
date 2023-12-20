@@ -32,7 +32,7 @@ class Disk
      * @param  string|null  $name
      * @param  array  $diskOptions
      */
-    public function __construct(IlluminateFilesystem $disk, string $name = null, array $diskOptions = [])
+    public function __construct(IlluminateFilesystem $disk, ?string $name = null, array $diskOptions = [])
     {
         $this->disk        = $disk;
         $this->name        = $name;
@@ -68,16 +68,11 @@ class Disk
     {
         $readStream = $source->readStream();
 
-        if (realpath($destination)) {
-            $tempStream = fopen($destination, 'rb+');
-            $success    = stream_copy_to_stream($readStream, $tempStream) !== false;
-
-            if (is_resource($tempStream)) {
-                fclose($tempStream);
-            }
-        } else {
-            $success = $this->put($destination, $readStream);
+        if (!is_resource($readStream)) {
+            return false;
         }
+
+        $success = $this->put($destination, $readStream);
 
         if (is_resource($readStream)) {
             fclose($readStream);

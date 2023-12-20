@@ -3,8 +3,10 @@
 namespace UniSharp\LaravelFilemanager;
 
 use Illuminate\Container\Container;
+use Illuminate\Support\Str;
 use Intervention\Image\Facades\Image;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use UniSharp\LaravelFilemanager\Services\ImageService;
 use UniSharp\LaravelFilemanager\Events\FileIsUploading;
 use UniSharp\LaravelFilemanager\Events\FileWasUploaded;
 use UniSharp\LaravelFilemanager\Events\ImageIsUploading;
@@ -19,9 +21,12 @@ class LfmPath
 
     private $helper;
 
-    public function __construct(Lfm $lfm = null)
+    private ImageService $imageService;
+
+    public function __construct(Lfm $lfm, ImageService $imageService)
     {
         $this->helper = $lfm;
+        $this->imageService = $imageService;
     }
 
     public function __get($var_name)
@@ -210,6 +215,10 @@ class LfmPath
             return strcasecmp($a->{$key_to_sort}, $b->{$key_to_sort});
         });
 
+        if (config('lfm.is_reverse_view', false)) {
+            return array_reverse($arr_items);
+        }
+
         return $arr_items;
     }
 
@@ -234,7 +243,6 @@ class LfmPath
             \Log::info($e);
             return $this->error('invalid');
         }
-        // TODO should be "FileWasUploaded"
         event(new FileWasUploaded($new_file_path));
         event(new ImageWasUploaded($new_file_path));
 
@@ -253,11 +261,15 @@ class LfmPath
             $validator->nameIsNotDuplicate($this->getNewName($file), $this);
         }
 
-        $validator->isNotExcutable(config('lfm.disallowed_mimetypes', ['text/x-php', 'text/html', 'text/plain']));
+        $validator->mimetypeIsNotExcutable(config('lfm.disallowed_mimetypes', ['text/x-php', 'text/html', 'text/plain']));
+
+        $validator->extensionIsNotExcutable();
 
         if (config('lfm.should_validate_mime', false)) {
             $validator->mimeTypeIsValid($this->helper->availableMimeTypes());
         }
+
+        $validator->extensionIsValid(config('lfm.disallowed_extensions', []));
 
         if (config('lfm.should_validate_size', false)) {
             $validator->sizeIsLowerThanConfiguredMaximum($this->helper->maxUploadSize());
@@ -277,7 +289,7 @@ class LfmPath
         if (config('lfm.rename_file') === true) {
             $new_file_name = uniqid();
         } elseif (config('lfm.alphanumeric_filename') === true) {
-            $new_file_name = preg_replace('/[^A-Za-z0-9\-\']/', '_', $new_file_name);
+            $new_file_name = Str::slug($new_file_name);
         }
 
         if ($extension) {
@@ -320,9 +332,11 @@ class LfmPath
         $this->setName($file_name)->thumb(true);
         $thumbWidth = $this->helper->shouldCreateCategoryThumb() && $this->helper->categoryThumbWidth() ? $this->helper->categoryThumbWidth() : config('lfm.thumb_img_width', 200);
         $thumbHeight = $this->helper->shouldCreateCategoryThumb() && $this->helper->categoryThumbHeight() ? $this->helper->categoryThumbHeight() : config('lfm.thumb_img_height', 200);
-        $image = Image::make($original_image->get())
-            ->fit($thumbWidth, $thumbHeight);
 
-        $this->storage->put($image->stream()->detach(), 'public');
+        $encoded_image = $this->imageService->read($original_image->get())
+            ->cover($thumbWidth, $thumbHeight)
+            ->encodeByMediaType();
+        
+        $this->storage->put($encoded_image, 'public');
     }
 }

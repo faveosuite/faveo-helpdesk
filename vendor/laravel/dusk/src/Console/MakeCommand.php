@@ -4,9 +4,13 @@ namespace Laravel\Dusk\Console;
 
 use Illuminate\Console\GeneratorCommand;
 use Illuminate\Support\Str;
+use Symfony\Component\Console\Attribute\AsCommand;
 
+#[AsCommand(name: 'dusk:make')]
 class MakeCommand extends GeneratorCommand
 {
+    use Concerns\InteractsWithTestingFrameworks;
+
     /**
      * The console command name.
      *
@@ -35,7 +39,9 @@ class MakeCommand extends GeneratorCommand
      */
     protected function getStub()
     {
-        return __DIR__.'/stubs/test.stub';
+        return $this->usingPest()
+                    ? __DIR__.'/stubs/test.pest.stub'
+                    : __DIR__.'/stubs/test.stub';
     }
 
     /**

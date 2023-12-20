@@ -21,13 +21,13 @@ class="nav-link active"
 
 <!-- header -->
 @section('PageHeader')
-<h1>{!! Lang::get('lang.create_workflow') !!}</h1>
+<h3>{!! Lang::get('lang.create_workflow') !!}</h3>
 @stop
 <!-- /header -->
 <!-- breadcrumbs -->
 @section('breadcrumbs')
 <ol class="breadcrumb">
-    <li><a href="{!! URL::route('setting') !!}"><i class="fas fa-tachometer-alt"></i> {!! Lang::get('lang.home') !!}</a></li>
+    <li><a href="{!! URL::route('setting') !!}"><i class="fa-solid fa-tachometer-alt"></i> {!! Lang::get('lang.home') !!}</a></li>
     <li><a href="{!! URL::route('workflow') !!}">{!! Lang::get('lang.ticket_workflow') !!}</a></li>
     <li class="active"><a href="{!! URL::route('workflow.create') !!}">{!! Lang::get('lang.create_workflow') !!}</a></li>
 </ol>
@@ -39,25 +39,25 @@ class="nav-link active"
     {{ csrf_field() }}
     <!-- check whether success or not -->
     @if(Session::has('success'))
-    <div class="alert alert-success alert-dismissable">
-        <i class="fas fa-check-circle"></i>
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <div class="alert alert-success alert-dismissible">
+        <i class="fa-solid fa-circle-check"></i>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         {!! Session::get('success') !!}
     </div>
     @endif
     <!-- failure message -->
     @if(Session::has('fails'))
-    <div class="alert alert-danger alert-dismissable">
-        <i class="fas fa-ban"></i><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <div class="alert alert-danger alert-dismissible">
+        <i class="fa-solid fa-ban"></i><button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         <b>{!! Lang::get('lang.alert') !!} !</b><br>
         <li class="error-message-padding">{!! Session::get('fails') !!}</li>
     </div>
     @endif
     @if(Session::has('errors'))
-    <div class="alert alert-danger alert-dismissable">
-        <i class="fas fa-ban"></i>
+    <div class="alert alert-danger alert-dismissible">
+        <i class="fa-solid fa-ban"></i>
         <b>Alert!</b>
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         <br/>
         @if($errors->first('name'))
         <li class="error-message-padding">{!! $errors->first('name', ':message') !!}</li>
@@ -68,11 +68,13 @@ class="nav-link active"
         @if($errors->first('target_channel'))
         <li class="error-message-padding">{!! $errors->first('target_channel', ':message') !!}</li>
         @endif
-        @if($errors->first('rule'))
-        <li class="error-message-padding">{!! $errors->first('rule', ':message') !!}</li>
+        {{-- 'rule.*' also catches the per-row errors (rule.0.a, rule.0.c, ...), otherwise an
+             incomplete row is rejected with an empty alert box and no explanation. --}}
+        @if($errors->has('rule') || $errors->has('rule.*'))
+        <li class="error-message-padding">{!! $errors->first('rule') ?: $errors->first('rule.*') !!}</li>
         @endif
-        @if($errors->first('action'))
-        <li class="error-message-padding">{!! $errors->first('action', ':message') !!}</li>
+        @if($errors->has('action') || $errors->has('action.*'))
+        <li class="error-message-padding">{!! $errors->first('action') ?: $errors->first('action.*') !!}</li>
         @endif
     </div>
     @endif
@@ -85,12 +87,12 @@ class="nav-link active"
         <div class="card-body">
 
             <div class="row">
-                <div class="form-group col-sm-6 {!! $errors->has('name') ? 'has-error' : '' !!}">
+                <div class="mb-3 col-sm-6 {!! $errors->has('name') ? 'has-error' : '' !!}">
                     <label for="inputName">{!! Lang::get('lang.name') !!} <span class="text-red"> *</span></label>
-                    {!! Form::text('name',null,['class' => 'form-control', 'placeholder' => Lang::get('lang.name'), 'id' => 'name']) !!}
+                    {!! html()->text('name', null)->class('form-control')->placeholder(Lang::get('lang.name'))->id('name') !!}
                 </div>
 
-                <div class="form-group col-sm-6 {!! $errors->has('status') ? 'has-error' : '' !!}">
+                <div class="mb-3 col-sm-6 {!! $errors->has('status') ? 'has-error' : '' !!}">
                     <label> {!! Lang::get('lang.status') !!}</label>
                     <div>
                         <input type="radio" id="inputEmail2" name="status" value="1" >&nbsp;&nbsp;{!! Lang::get('lang.active') !!}&nbsp;&nbsp;
@@ -100,14 +102,14 @@ class="nav-link active"
             </div>
 
             <div class="row">
-                <div class="form-group col-sm-6 {!! $errors->has('execution_order') ? 'has-error' : '' !!}">
+                <div class="mb-3 col-sm-6 {!! $errors->has('execution_order') ? 'has-error' : '' !!}">
                     <label for="Exceution">{!! Lang::get('lang.execution_order') !!} <span class="text-red"> *</span></label>
-                    {!! Form::input('number', 'execution_order',null,['class' => 'form-control', 'placeholder' => Lang::get('lang.execution_order'), 'id' => 'execution_order', 'min' => '0']) !!}
+                    {!! html()->number('execution_order', null)->class('form-control')->placeholder(Lang::get('lang.execution_order'))->id('execution_order')->attributes(['min' => '0']) !!}
                 </div>
 
-                <div class="form-group col-sm-6 {!! $errors->has('target_channel') ? 'has-error' : '' !!}">
+                <div class="mb-3 col-sm-6 {!! $errors->has('target_channel') ? 'has-error' : '' !!}">
                     <label>{!! Lang::get('lang.target_channel') !!} <span class="text-red"> *</span></label>
-                    {!! Form::select('target_channel', [''=> '-- '.Lang::get('lang.select_a_channel').' --', 'A-0' => 'Any', 'A-1' => 'Web Forms', 'A-4' => 'API Calls', 'A-2' => 'Emails'], null,['class' => 'form-control', 'id' => 'execution_order']) !!}
+                    {!! html()->select('target_channel', [''=> '-- '.Lang::get('lang.select_a_channel').' --', 'A-0' => 'Any', 'A-1' => 'Web Forms', 'A-4' => 'API Calls', 'A-2' => 'Emails'], null)->class('form-control')->id('execution_order') !!}
                 </div>
             </div>
 
@@ -156,9 +158,9 @@ class="nav-link active"
                                 </td>
                                 <td style="text-align: center">
                                     <div class="tools"> 
-                                        <span class="btnRemove1" data-toggle="modal" data-target="#">
-                                            <a data-toggle="tooltip" data-placement="top" title="{!! Lang::get('lang.delete') !!}" onclick="document.getElementById('firstdata').innerHTML = ''">
-                                                <i class="fas fa-trash text-red"></i>
+                                        <span class="btnRemove1" data-bs-toggle="modal" data-bs-target="#">
+                                            <a data-bs-toggle="tooltip" data-bs-placement="top" title="{!! Lang::get('lang.delete') !!}" onclick="document.getElementById('firstdata').innerHTML = ''">
+                                                <i class="fa-solid fa-trash text-red"></i>
                                             </a>
                                         </span> 
                                     </div>
@@ -167,8 +169,8 @@ class="nav-link active"
                         </tbody>
                     </table>
                     <div class="mt-2">
-                        <div class="float-right" >
-                            <a class="btn btn-primary btnAdd1" href="javascript:;"><i class="fas fa-plus"></i> {!! Lang::get('lang.add') !!}</a>
+                        <div class="float-end" >
+                            <a class="btn btn-primary btnAdd1" href="javascript:;"><i class="fa-solid fa-plus"></i> {!! Lang::get('lang.add') !!}</a>
                         </div>
                     </div>
                 </div>
@@ -210,9 +212,9 @@ class="nav-link active"
                                 </td>
                                 <td style="text-align: center">
                                     <div class="tools"> 
-                                        <span class="btnRemove" data-toggle="modal" data-target="#">
-                                            <a data-toggle="tooltip" data-placement="top" title="{!! Lang::get('lang.delete') !!}" onclick="document.getElementById('firstdata1').innerHTML = ''">
-                                                <i class="fas fa-trash text-red"></i>
+                                        <span class="btnRemove" data-bs-toggle="modal" data-bs-target="#">
+                                            <a data-bs-toggle="tooltip" data-bs-placement="top" title="{!! Lang::get('lang.delete') !!}" onclick="document.getElementById('firstdata1').innerHTML = ''">
+                                                <i class="fa-solid fa-trash text-red"></i>
                                             </a>
                                         </span> 
                                     </div>
@@ -221,8 +223,8 @@ class="nav-link active"
                         </tbody>
                     </table>
                     <div class="mt-2">
-                        <div class="float-right">
-                            <a class="btn btn-primary btnAdd" href="javascript:;"><i class="fas fa-plus"></i> {!! Lang::get('lang.add') !!}</a>                                            
+                        <div class="float-end">
+                            <a class="btn btn-primary btnAdd" href="javascript:;"><i class="fa-solid fa-plus"></i> {!! Lang::get('lang.add') !!}</a>                                            
                         </div>
                     </div>
                 </div>
@@ -273,25 +275,25 @@ class="nav-link active"
             $('.buttons').append('<tr id="firstdata1">' +
                     '<td>' +
                     '<select class="form-control" onChange="selectdata(' + n + ')" name="action[' + n + '][a]" id="selected' + n + '" required>' +
-                    '<option value="">-- {!! Lang::get("lang.select_an_action") !!} --</option>' +
+                    '<option value="">-- {{ Lang::get("lang.select_an_action") }} --</option>' +
                     '<optgroup label="Ticket">' +
-                    '<option value="reject">{!! Lang::get("lang.reject_ticket") !!} </option>' +
-                    '<option value="department">{!! Lang::get("lang.set_department") !!} </option>' +
-                    '<option value="priority">{!! Lang::get("lang.set_priority") !!} </option>' +
-                    '<option value="sla">{!! Lang::get("lang.set_sla_plan") !!}  </option>' +
-                    '<option value="team">{!! Lang::get("lang.assign_team") !!} </option>' +
-                    '<option value="agent">{!! Lang::get("lang.assign_agent") !!} </option>' +
-                    '<option value="helptopic">{!! Lang::get("lang.set_help_topic") !!}  </option>' +
-                    '<option value="status">{!! Lang::get("lang.set_ticket_status") !!}  </option>' +
+                    '<option value="reject">{{ Lang::get("lang.reject_ticket") }} </option>' +
+                    '<option value="department">{{ Lang::get("lang.set_department") }} </option>' +
+                    '<option value="priority">{{ Lang::get("lang.set_priority") }} </option>' +
+                    '<option value="sla">{{ Lang::get("lang.set_sla_plan") }}  </option>' +
+                    '<option value="team">{{ Lang::get("lang.assign_team") }} </option>' +
+                    '<option value="agent">{{ Lang::get("lang.assign_agent") }} </option>' +
+                    '<option value="helptopic">{{ Lang::get("lang.set_help_topic") }}  </option>' +
+                    '<option value="status">{{ Lang::get("lang.set_ticket_status") }}  </option>' +
                     '</select>' +
                     '</td>' +
                     '<td id="fill' + n + '">' +
                     '</td>' +
                     '<td style="text-align: center">' +
                     '<div class="tools">' +
-                    '<span class="btnRemove" data-toggle="modal" data-target="#">' +
-                    '<a data-toggle="tooltip" data-placement="top" title="Delete">' +
-                    '<i class="fas fa-trash text-red"></i>' +
+                    '<span class="btnRemove" data-bs-toggle="modal" data-bs-target="#">' +
+                    '<a data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">' +
+                    '<i class="fa-solid fa-trash text-red"></i>' +
                     '</a>' +
                     '</span>' +
                     '</div>' +
@@ -313,27 +315,27 @@ class="nav-link active"
             $('.button1').append('<tr>' +
                     '<td>' +
                     '<select class="form-control" name="rule[' + n + '][a]" required>' +
-                    '<option>-- {!! Lang::get("lang.select_one") !!} --</option>' +
-                    '<option value="email">{!! Lang::get("lang.email") !!}</option>' +
-                    '<option value="email_name">{!! Lang::get("lang.email_name") !!}</option>' +
-                    '<option value="subject">{!! Lang::get("lang.subject") !!}</option>' +
-                    '<option value="message">{!! Lang::get("lang.message") !!}/{!! Lang::get("lang.body") !!}</option>' +
+                    '<option>-- {{ Lang::get("lang.select_one") }} --</option>' +
+                    '<option value="email">{{ Lang::get("lang.email") }}</option>' +
+                    '<option value="email_name">{{ Lang::get("lang.email_name") }}</option>' +
+                    '<option value="subject">{{ Lang::get("lang.subject") }}</option>' +
+                    '<option value="message">{{ Lang::get("lang.message") }}/{{ Lang::get("lang.body") }}</option>' +
                     '</select>' +
                     '</td>' +
                     '<td>' +
                     '<select class="form-control" name="rule[' + n + '][b]" required>' +
-                    '<option value="">-- {!! Lang::get("lang.select_one") !!} --</option>' +
-                    '<option value="equal">{!! Lang::get("lang.equal_to") !!}</option>' +
-                    '<option value="not_equal">{!! Lang::get("lang.not_equal_to") !!}</option>' +
-                    '<option value="contains">{!! Lang::get("lang.contains") !!}</option>' +
-                    '<option value="dn_contain">{!! Lang::get("lang.does_not_contain") !!}</option>' +
-                    '<option value="starts">{!! Lang::get("lang.starts_with") !!}</option>' +
-                    '<option value="ends">{!! Lang::get("lang.ends_with") !!}</option>' +
+                    '<option value="">-- {{ Lang::get("lang.select_one") }} --</option>' +
+                    '<option value="equal">{{ Lang::get("lang.equal_to") }}</option>' +
+                    '<option value="not_equal">{{ Lang::get("lang.not_equal_to") }}</option>' +
+                    '<option value="contains">{{ Lang::get("lang.contains") }}</option>' +
+                    '<option value="dn_contain">{{ Lang::get("lang.does_not_contain") }}</option>' +
+                    '<option value="starts">{{ Lang::get("lang.starts_with") }}</option>' +
+                    '<option value="ends">{{ Lang::get("lang.ends_with") }}</option>' +
                     '</select>' +
                     '</td>' +
                     '<td> <input class="form-control" type="text" name="rule[' + n + '][c]" required> </td>' +
                     '<td style="text-align: center">' +
-                    '<div class="tools"> <span class="btnRemove1" data-toggle="modal" data-target="#"><a data-toggle="tooltip" data-placement="top" title="Delete"><i class="fas fa-trash text-red"></i></a></span> </div>' +
+                    '<div class="tools"> <span class="btnRemove1" data-bs-toggle="modal" data-bs-target="#"><a data-bs-toggle="tooltip" data-bs-placement="top" title="Delete"><i class="fa-solid fa-trash text-red"></i></a></span> </div>' +
                     '</td>' +
                     '</tr>'); // end append
             $('div .btnRemove1').last().click(function(e) {

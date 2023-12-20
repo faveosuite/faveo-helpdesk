@@ -1,52 +1,52 @@
 
 <div>
 	@if(Session::has('success'))
-	<div class="alert alert-success alert-dismissable">
-	  <i class="fa  fa-check-circle"></i>
+	<div class="alert alert-success alert-dismissible">
+	  <i class="fa  fa-circle-check"></i>
 	  <b>Success</b>
-	  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+	  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
 	  {{Session::get('success')}}
 	</div>
 	@endif
 	<!-- failure message -->
 	@if(Session::has('fails'))
-	<div class="alert alert-danger alert-dismissable">
-	  <i class="fa fa-ban"></i>
+	<div class="alert alert-danger alert-dismissible">
+	  <i class="fa-solid fa-ban"></i>
 	  <b>Fail!</b>
-	  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+	  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
 	  {{Session::get('fails')}}
 	</div>
 	@endif
 
 	<div class="row">
 
-		<div class="col-sm-7 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+		<div class="col-sm-7 mb-3 {{ $errors->has('name') ? 'has-error' : '' }}">
 
-			{!! Form::label('name',Lang::get('lang.name')) !!}
+			{!! html()->label(Lang::get('lang.name'), 'name') !!}
 			{!! $errors->first('name', '<spam class="help-block">:message</spam>') !!}
-			{!! Form::text('name',null,['class' => 'form-control']) !!}
+			{!! html()->text('name', null)->class('form-control') !!}
 		</div>
 
-		<div class="col-sm-5 form-group {{ $errors->has('status') ? 'has-error' : '' }}">
+		<div class="col-sm-5 mb-3 {{ $errors->has('status') ? 'has-error' : '' }}">
 
-			{!! Form::label('status',Lang::get('lang.status')) !!}
+			{!! html()->label(Lang::get('lang.status'), 'status') !!}
 			{!! $errors->first('status', '<spam class="help-block">:message</spam>') !!}
 			
 			<div class="row">
 				<div class="col-sm-6">
-					{!! Form::radio('status','1',true) !!}{!! Lang::get('lang.active') !!}
+					{!! html()->radio('status', true, '1') !!}{!! Lang::get('lang.active') !!}
 				</div>
 				<div class="col-sm-6">
-					{!! Form::radio('status','0',null) !!}{!! Lang::get('lang.inactive') !!}
+					{!! html()->radio('status', null, '0') !!}{!! Lang::get('lang.inactive') !!}
 				</div>
 		</div>
 	</div>
 
-	<div class="form-group col-sm-12 {{ $errors->has('description') ? 'has-error' : '' }}">
-		{!! Form::label('description',Lang::get('lang.description')) !!}
+	<div class="mb-3 col-sm-12 {{ $errors->has('description') ? 'has-error' : '' }}">
+		{!! html()->label(Lang::get('lang.description'), 'description') !!}
 		{!! $errors->first('description', '<spam class="help-block">:message</spam>') !!}
 
-		{!! Form::textarea('description',null,['class' => 'form-control','size' => '50x10','id'=>'myNicEditor','placeholder'=>Lang::get('lang.enter_the_description')]) !!}
+		{!! html()->textarea('description', null)->class('form-control')->id('myNicEditor')->placeholder(Lang::get('lang.enter_the_description'))->attributes(['size' => '50x10']) !!}
 	</div>
 </div>
 

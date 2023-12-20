@@ -5,7 +5,7 @@ namespace Illuminate\Database\Eloquent\Concerns;
 use Closure;
 use Illuminate\Database\ClassMorphViolationException;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\PendingHasThroughRelationship;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -40,6 +40,20 @@ trait HasRelationships
     protected $touches = [];
 
     /**
+     * The relationship autoloader callback.
+     *
+     * @var \Closure|null
+     */
+    protected $relationAutoloadCallback = null;
+
+    /**
+     * The relationship autoloader callback context.
+     *
+     * @var mixed
+     */
+    protected $relationAutoloadContext = null;
+
+    /**
      * The many to many relationship methods.
      *
      * @var string[]
@@ -58,9 +72,11 @@ trait HasRelationships
     /**
      * Get the dynamic relation resolver if defined or inherited, or return null.
      *
-     * @param  string  $class
+     * @template TRelatedModel of \Illuminate\Database\Eloquent\Model
+     *
+     * @param  class-string<TRelatedModel>  $class
      * @param  string  $key
-     * @return mixed
+     * @return Closure|null
      */
     public function relationResolver($class, $key)
     {
@@ -91,12 +107,107 @@ trait HasRelationships
     }
 
     /**
+     * Determine if a relationship autoloader callback has been defined.
+     *
+     * @return bool
+     */
+    public function hasRelationAutoloadCallback()
+    {
+        return ! is_null($this->relationAutoloadCallback);
+    }
+
+    /**
+     * Define an automatic relationship autoloader callback for this model and its relations.
+     *
+     * @param  \Closure  $callback
+     * @param  mixed  $context
+     * @return $this
+     */
+    public function autoloadRelationsUsing(Closure $callback, $context = null)
+    {
+        // Prevent circular relation autoloading...
+        if ($context && $this->relationAutoloadContext === $context) {
+            return $this;
+        }
+
+        $this->relationAutoloadCallback = $callback;
+        $this->relationAutoloadContext = $context;
+
+        foreach ($this->relations as $key => $value) {
+            $this->propagateRelationAutoloadCallbackToRelation($key, $value);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Attempt to autoload the given relationship using the autoload callback.
+     *
+     * @param  string  $key
+     * @return bool
+     */
+    protected function attemptToAutoloadRelation($key)
+    {
+        if (! $this->hasRelationAutoloadCallback()) {
+            return false;
+        }
+
+        $this->invokeRelationAutoloadCallbackFor($key, []);
+
+        return $this->relationLoaded($key);
+    }
+
+    /**
+     * Invoke the relationship autoloader callback for the given relationships.
+     *
+     * @param  string  $key
+     * @param  array  $tuples
+     * @return void
+     */
+    protected function invokeRelationAutoloadCallbackFor($key, $tuples)
+    {
+        $tuples = array_merge([[$key, get_class($this)]], $tuples);
+
+        call_user_func($this->relationAutoloadCallback, $tuples);
+    }
+
+    /**
+     * Propagate the relationship autoloader callback to the given related models.
+     *
+     * @param  string  $key
+     * @param  mixed  $models
+     * @return void
+     */
+    protected function propagateRelationAutoloadCallbackToRelation($key, $models)
+    {
+        if (! $this->hasRelationAutoloadCallback() || ! $models) {
+            return;
+        }
+
+        if ($models instanceof Model) {
+            $models = [$models];
+        }
+
+        if (! is_iterable($models)) {
+            return;
+        }
+
+        $callback = fn (array $tuples) => $this->invokeRelationAutoloadCallbackFor($key, $tuples);
+
+        foreach ($models as $model) {
+            $model->autoloadRelationsUsing($callback, $this->relationAutoloadContext);
+        }
+    }
+
+    /**
      * Define a one-to-one relationship.
      *
-     * @param  string  $related
+     * @template TRelatedModel of \Illuminate\Database\Eloquent\Model
+     *
+     * @param  class-string<TRelatedModel>  $related
      * @param  string|null  $foreignKey
      * @param  string|null  $localKey
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne<TRelatedModel, $this>
      */
     public function hasOne($related, $foreignKey = null, $localKey = null)
     {
@@ -106,17 +217,20 @@ trait HasRelationships
 
         $localKey = $localKey ?: $this->getKeyName();
 
-        return $this->newHasOne($instance->newQuery(), $this, $instance->getTable().'.'.$foreignKey, $localKey);
+        return $this->newHasOne($instance->newQuery(), $this, $instance->qualifyColumn($foreignKey), $localKey);
     }
 
     /**
      * Instantiate a new HasOne relationship.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  \Illuminate\Database\Eloquent\Model  $parent
+     * @template TRelatedModel of \Illuminate\Database\Eloquent\Model
+     * @template TDeclaringModel of \Illuminate\Database\Eloquent\Model
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<TRelatedModel>  $query
+     * @param  TDeclaringModel  $parent
      * @param  string  $foreignKey
      * @param  string  $localKey
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne<TRelatedModel, TDeclaringModel>
      */
     protected function newHasOne(Builder $query, Model $parent, $foreignKey, $localKey)
     {
@@ -126,13 +240,16 @@ trait HasRelationships
     /**
      * Define a has-one-through relationship.
      *
-     * @param  string  $related
-     * @param  string  $through
+     * @template TRelatedModel of \Illuminate\Database\Eloquent\Model
+     * @template TIntermediateModel of \Illuminate\Database\Eloquent\Model
+     *
+     * @param  class-string<TRelatedModel>  $related
+     * @param  class-string<TIntermediateModel>  $through
      * @param  string|null  $firstKey
      * @param  string|null  $secondKey
      * @param  string|null  $localKey
      * @param  string|null  $secondLocalKey
-     * @return \Illuminate\Database\Eloquent\Relations\HasOneThrough
+     * @return \Illuminate\Database\Eloquent\Relations\HasOneThrough<TRelatedModel, TIntermediateModel, $this>
      */
     public function hasOneThrough($related, $through, $firstKey = null, $secondKey = null, $localKey = null, $secondLocalKey = null)
     {
@@ -143,23 +260,31 @@ trait HasRelationships
         $secondKey = $secondKey ?: $through->getForeignKey();
 
         return $this->newHasOneThrough(
-            $this->newRelatedInstance($related)->newQuery(), $this, $through,
-            $firstKey, $secondKey, $localKey ?: $this->getKeyName(),
-            $secondLocalKey ?: $through->getKeyName()
+            $this->newRelatedInstance($related)->newQuery(),
+            $this,
+            $through,
+            $firstKey,
+            $secondKey,
+            $localKey ?: $this->getKeyName(),
+            $secondLocalKey ?: $through->getKeyName(),
         );
     }
 
     /**
      * Instantiate a new HasOneThrough relationship.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  \Illuminate\Database\Eloquent\Model  $farParent
-     * @param  \Illuminate\Database\Eloquent\Model  $throughParent
+     * @template TRelatedModel of \Illuminate\Database\Eloquent\Model
+     * @template TIntermediateModel of \Illuminate\Database\Eloquent\Model
+     * @template TDeclaringModel of \Illuminate\Database\Eloquent\Model
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<TRelatedModel>  $query
+     * @param  TDeclaringModel  $farParent
+     * @param  TIntermediateModel  $throughParent
      * @param  string  $firstKey
      * @param  string  $secondKey
      * @param  string  $localKey
      * @param  string  $secondLocalKey
-     * @return \Illuminate\Database\Eloquent\Relations\HasOneThrough
+     * @return \Illuminate\Database\Eloquent\Relations\HasOneThrough<TRelatedModel, TIntermediateModel, TDeclaringModel>
      */
     protected function newHasOneThrough(Builder $query, Model $farParent, Model $throughParent, $firstKey, $secondKey, $localKey, $secondLocalKey)
     {
@@ -169,12 +294,14 @@ trait HasRelationships
     /**
      * Define a polymorphic one-to-one relationship.
      *
-     * @param  string  $related
+     * @template TRelatedModel of \Illuminate\Database\Eloquent\Model
+     *
+     * @param  class-string<TRelatedModel>  $related
      * @param  string  $name
      * @param  string|null  $type
      * @param  string|null  $id
      * @param  string|null  $localKey
-     * @return \Illuminate\Database\Eloquent\Relations\MorphOne
+     * @return \Illuminate\Database\Eloquent\Relations\MorphOne<TRelatedModel, $this>
      */
     public function morphOne($related, $name, $type = null, $id = null, $localKey = null)
     {
@@ -182,22 +309,23 @@ trait HasRelationships
 
         [$type, $id] = $this->getMorphs($name, $type, $id);
 
-        $table = $instance->getTable();
-
         $localKey = $localKey ?: $this->getKeyName();
 
-        return $this->newMorphOne($instance->newQuery(), $this, $table.'.'.$type, $table.'.'.$id, $localKey);
+        return $this->newMorphOne($instance->newQuery(), $this, $instance->qualifyColumn($type), $instance->qualifyColumn($id), $localKey);
     }
 
     /**
      * Instantiate a new MorphOne relationship.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  \Illuminate\Database\Eloquent\Model  $parent
+     * @template TRelatedModel of \Illuminate\Database\Eloquent\Model
+     * @template TDeclaringModel of \Illuminate\Database\Eloquent\Model
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<TRelatedModel>  $query
+     * @param  TDeclaringModel  $parent
      * @param  string  $type
      * @param  string  $id
      * @param  string  $localKey
-     * @return \Illuminate\Database\Eloquent\Relations\MorphOne
+     * @return \Illuminate\Database\Eloquent\Relations\MorphOne<TRelatedModel, TDeclaringModel>
      */
     protected function newMorphOne(Builder $query, Model $parent, $type, $id, $localKey)
     {
@@ -207,11 +335,13 @@ trait HasRelationships
     /**
      * Define an inverse one-to-one or many relationship.
      *
-     * @param  string  $related
+     * @template TRelatedModel of \Illuminate\Database\Eloquent\Model
+     *
+     * @param  class-string<TRelatedModel>  $related
      * @param  string|null  $foreignKey
      * @param  string|null  $ownerKey
      * @param  string|null  $relation
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<TRelatedModel, $this>
      */
     public function belongsTo($related, $foreignKey = null, $ownerKey = null, $relation = null)
     {
@@ -244,12 +374,15 @@ trait HasRelationships
     /**
      * Instantiate a new BelongsTo relationship.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  \Illuminate\Database\Eloquent\Model  $child
+     * @template TRelatedModel of \Illuminate\Database\Eloquent\Model
+     * @template TDeclaringModel of \Illuminate\Database\Eloquent\Model
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<TRelatedModel>  $query
+     * @param  TDeclaringModel  $child
      * @param  string  $foreignKey
      * @param  string  $ownerKey
      * @param  string  $relation
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<TRelatedModel, TDeclaringModel>
      */
     protected function newBelongsTo(Builder $query, Model $child, $foreignKey, $ownerKey, $relation)
     {
@@ -263,7 +396,7 @@ trait HasRelationships
      * @param  string|null  $type
      * @param  string|null  $id
      * @param  string|null  $ownerKey
-     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo<\Illuminate\Database\Eloquent\Model, $this>
      */
     public function morphTo($name = null, $type = null, $id = null, $ownerKey = null)
     {
@@ -280,8 +413,8 @@ trait HasRelationships
         // the relationship. In this case we'll just pass in a dummy query where we
         // need to remove any eager loads that may already be defined on a model.
         return is_null($class = $this->getAttributeFromArray($type)) || $class === ''
-                    ? $this->morphEagerTo($name, $type, $id, $ownerKey)
-                    : $this->morphInstanceTo($class, $name, $type, $id, $ownerKey);
+            ? $this->morphEagerTo($name, $type, $id, $ownerKey)
+            : $this->morphInstanceTo($class, $name, $type, $id, $ownerKey);
     }
 
     /**
@@ -290,8 +423,8 @@ trait HasRelationships
      * @param  string  $name
      * @param  string  $type
      * @param  string  $id
-     * @param  string  $ownerKey
-     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     * @param  string|null  $ownerKey
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo<\Illuminate\Database\Eloquent\Model, $this>
      */
     protected function morphEagerTo($name, $type, $id, $ownerKey)
     {
@@ -307,8 +440,8 @@ trait HasRelationships
      * @param  string  $name
      * @param  string  $type
      * @param  string  $id
-     * @param  string  $ownerKey
-     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     * @param  string|null  $ownerKey
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo<\Illuminate\Database\Eloquent\Model, $this>
      */
     protected function morphInstanceTo($target, $name, $type, $id, $ownerKey)
     {
@@ -324,13 +457,16 @@ trait HasRelationships
     /**
      * Instantiate a new MorphTo relationship.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  \Illuminate\Database\Eloquent\Model  $parent
+     * @template TRelatedModel of \Illuminate\Database\Eloquent\Model
+     * @template TDeclaringModel of \Illuminate\Database\Eloquent\Model
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<TRelatedModel>  $query
+     * @param  TDeclaringModel  $parent
      * @param  string  $foreignKey
-     * @param  string  $ownerKey
+     * @param  string|null  $ownerKey
      * @param  string  $type
      * @param  string  $relation
-     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo<TRelatedModel, TDeclaringModel>
      */
     protected function newMorphTo(Builder $query, Model $parent, $foreignKey, $ownerKey, $type, $relation)
     {
@@ -355,7 +491,7 @@ trait HasRelationships
      */
     protected function guessBelongsToRelation()
     {
-        [$one, $two, $caller] = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
+        [, , $caller] = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
 
         return $caller['function'];
     }
@@ -363,8 +499,18 @@ trait HasRelationships
     /**
      * Create a pending has-many-through or has-one-through relationship.
      *
-     * @param  string|\Illuminate\Database\Eloquent\Relations\HasMany|\Illuminate\Database\Eloquent\Relations\HasOne  $relationship
-     * @return \Illuminate\Database\Eloquent\PendingHasThroughRelationship
+     * @template TIntermediateModel of \Illuminate\Database\Eloquent\Model
+     *
+     * @param  string|\Illuminate\Database\Eloquent\Relations\HasMany<TIntermediateModel, covariant $this>|\Illuminate\Database\Eloquent\Relations\HasOne<TIntermediateModel, covariant $this>  $relationship
+     * @return (
+     *     $relationship is string
+     *     ? \Illuminate\Database\Eloquent\PendingHasThroughRelationship<\Illuminate\Database\Eloquent\Model, $this>
+     *     : (
+     *          $relationship is \Illuminate\Database\Eloquent\Relations\HasMany<TIntermediateModel, $this>
+     *          ? \Illuminate\Database\Eloquent\PendingHasThroughRelationship<TIntermediateModel, $this, \Illuminate\Database\Eloquent\Relations\HasMany<TIntermediateModel, $this>>
+     *          : \Illuminate\Database\Eloquent\PendingHasThroughRelationship<TIntermediateModel, $this, \Illuminate\Database\Eloquent\Relations\HasOne<TIntermediateModel, $this>>
+     *     )
+     * )
      */
     public function through($relationship)
     {
@@ -378,10 +524,12 @@ trait HasRelationships
     /**
      * Define a one-to-many relationship.
      *
-     * @param  string  $related
+     * @template TRelatedModel of \Illuminate\Database\Eloquent\Model
+     *
+     * @param  class-string<TRelatedModel>  $related
      * @param  string|null  $foreignKey
      * @param  string|null  $localKey
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<TRelatedModel, $this>
      */
     public function hasMany($related, $foreignKey = null, $localKey = null)
     {
@@ -392,18 +540,21 @@ trait HasRelationships
         $localKey = $localKey ?: $this->getKeyName();
 
         return $this->newHasMany(
-            $instance->newQuery(), $this, $instance->getTable().'.'.$foreignKey, $localKey
+            $instance->newQuery(), $this, $instance->qualifyColumn($foreignKey), $localKey
         );
     }
 
     /**
      * Instantiate a new HasMany relationship.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  \Illuminate\Database\Eloquent\Model  $parent
+     * @template TRelatedModel of \Illuminate\Database\Eloquent\Model
+     * @template TDeclaringModel of \Illuminate\Database\Eloquent\Model
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<TRelatedModel>  $query
+     * @param  TDeclaringModel  $parent
      * @param  string  $foreignKey
      * @param  string  $localKey
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany<TRelatedModel, TDeclaringModel>
      */
     protected function newHasMany(Builder $query, Model $parent, $foreignKey, $localKey)
     {
@@ -413,13 +564,16 @@ trait HasRelationships
     /**
      * Define a has-many-through relationship.
      *
-     * @param  string  $related
-     * @param  string  $through
+     * @template TRelatedModel of \Illuminate\Database\Eloquent\Model
+     * @template TIntermediateModel of \Illuminate\Database\Eloquent\Model
+     *
+     * @param  class-string<TRelatedModel>  $related
+     * @param  class-string<TIntermediateModel>  $through
      * @param  string|null  $firstKey
      * @param  string|null  $secondKey
      * @param  string|null  $localKey
      * @param  string|null  $secondLocalKey
-     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough<TRelatedModel, TIntermediateModel, $this>
      */
     public function hasManyThrough($related, $through, $firstKey = null, $secondKey = null, $localKey = null, $secondLocalKey = null)
     {
@@ -443,14 +597,18 @@ trait HasRelationships
     /**
      * Instantiate a new HasManyThrough relationship.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  \Illuminate\Database\Eloquent\Model  $farParent
-     * @param  \Illuminate\Database\Eloquent\Model  $throughParent
+     * @template TRelatedModel of \Illuminate\Database\Eloquent\Model
+     * @template TIntermediateModel of \Illuminate\Database\Eloquent\Model
+     * @template TDeclaringModel of \Illuminate\Database\Eloquent\Model
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<TRelatedModel>  $query
+     * @param  TDeclaringModel  $farParent
+     * @param  TIntermediateModel  $throughParent
      * @param  string  $firstKey
      * @param  string  $secondKey
      * @param  string  $localKey
      * @param  string  $secondLocalKey
-     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough<TRelatedModel, TIntermediateModel, TDeclaringModel>
      */
     protected function newHasManyThrough(Builder $query, Model $farParent, Model $throughParent, $firstKey, $secondKey, $localKey, $secondLocalKey)
     {
@@ -460,12 +618,14 @@ trait HasRelationships
     /**
      * Define a polymorphic one-to-many relationship.
      *
-     * @param  string  $related
+     * @template TRelatedModel of \Illuminate\Database\Eloquent\Model
+     *
+     * @param  class-string<TRelatedModel>  $related
      * @param  string  $name
      * @param  string|null  $type
      * @param  string|null  $id
      * @param  string|null  $localKey
-     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany<TRelatedModel, $this>
      */
     public function morphMany($related, $name, $type = null, $id = null, $localKey = null)
     {
@@ -476,22 +636,23 @@ trait HasRelationships
         // get the table and create the relationship instances for the developers.
         [$type, $id] = $this->getMorphs($name, $type, $id);
 
-        $table = $instance->getTable();
-
         $localKey = $localKey ?: $this->getKeyName();
 
-        return $this->newMorphMany($instance->newQuery(), $this, $table.'.'.$type, $table.'.'.$id, $localKey);
+        return $this->newMorphMany($instance->newQuery(), $this, $instance->qualifyColumn($type), $instance->qualifyColumn($id), $localKey);
     }
 
     /**
      * Instantiate a new MorphMany relationship.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  \Illuminate\Database\Eloquent\Model  $parent
+     * @template TRelatedModel of \Illuminate\Database\Eloquent\Model
+     * @template TDeclaringModel of \Illuminate\Database\Eloquent\Model
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<TRelatedModel>  $query
+     * @param  TDeclaringModel  $parent
      * @param  string  $type
      * @param  string  $id
      * @param  string  $localKey
-     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany<TRelatedModel, TDeclaringModel>
      */
     protected function newMorphMany(Builder $query, Model $parent, $type, $id, $localKey)
     {
@@ -501,18 +662,26 @@ trait HasRelationships
     /**
      * Define a many-to-many relationship.
      *
-     * @param  string  $related
-     * @param  string|null  $table
+     * @template TRelatedModel of \Illuminate\Database\Eloquent\Model
+     *
+     * @param  class-string<TRelatedModel>  $related
+     * @param  string|class-string<\Illuminate\Database\Eloquent\Model>|null  $table
      * @param  string|null  $foreignPivotKey
      * @param  string|null  $relatedPivotKey
      * @param  string|null  $parentKey
      * @param  string|null  $relatedKey
      * @param  string|null  $relation
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<TRelatedModel, $this, \Illuminate\Database\Eloquent\Relations\Pivot>
      */
-    public function belongsToMany($related, $table = null, $foreignPivotKey = null, $relatedPivotKey = null,
-                                  $parentKey = null, $relatedKey = null, $relation = null)
-    {
+    public function belongsToMany(
+        $related,
+        $table = null,
+        $foreignPivotKey = null,
+        $relatedPivotKey = null,
+        $parentKey = null,
+        $relatedKey = null,
+        $relation = null,
+    ) {
         // If no relationship name was passed, we will pull backtraces to get the
         // name of the calling function. We will use that function name as the
         // title of this relation since that is a great convention to apply.
@@ -537,49 +706,74 @@ trait HasRelationships
         }
 
         return $this->newBelongsToMany(
-            $instance->newQuery(), $this, $table, $foreignPivotKey,
-            $relatedPivotKey, $parentKey ?: $this->getKeyName(),
-            $relatedKey ?: $instance->getKeyName(), $relation
+            $instance->newQuery(),
+            $this,
+            $table,
+            $foreignPivotKey,
+            $relatedPivotKey,
+            $parentKey ?: $this->getKeyName(),
+            $relatedKey ?: $instance->getKeyName(),
+            $relation,
         );
     }
 
     /**
      * Instantiate a new BelongsToMany relationship.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  \Illuminate\Database\Eloquent\Model  $parent
-     * @param  string  $table
+     * @template TRelatedModel of \Illuminate\Database\Eloquent\Model
+     * @template TDeclaringModel of \Illuminate\Database\Eloquent\Model
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<TRelatedModel>  $query
+     * @param  TDeclaringModel  $parent
+     * @param  string|class-string<\Illuminate\Database\Eloquent\Model>  $table
      * @param  string  $foreignPivotKey
      * @param  string  $relatedPivotKey
      * @param  string  $parentKey
      * @param  string  $relatedKey
      * @param  string|null  $relationName
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<TRelatedModel, TDeclaringModel, \Illuminate\Database\Eloquent\Relations\Pivot>
      */
-    protected function newBelongsToMany(Builder $query, Model $parent, $table, $foreignPivotKey, $relatedPivotKey,
-                                        $parentKey, $relatedKey, $relationName = null)
-    {
+    protected function newBelongsToMany(
+        Builder $query,
+        Model $parent,
+        $table,
+        $foreignPivotKey,
+        $relatedPivotKey,
+        $parentKey,
+        $relatedKey,
+        $relationName = null,
+    ) {
         return new BelongsToMany($query, $parent, $table, $foreignPivotKey, $relatedPivotKey, $parentKey, $relatedKey, $relationName);
     }
 
     /**
      * Define a polymorphic many-to-many relationship.
      *
-     * @param  string  $related
+     * @template TRelatedModel of \Illuminate\Database\Eloquent\Model
+     *
+     * @param  class-string<TRelatedModel>  $related
      * @param  string  $name
      * @param  string|null  $table
      * @param  string|null  $foreignPivotKey
      * @param  string|null  $relatedPivotKey
      * @param  string|null  $parentKey
      * @param  string|null  $relatedKey
+     * @param  string|null  $relation
      * @param  bool  $inverse
-     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
+     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany<TRelatedModel, $this>
      */
-    public function morphToMany($related, $name, $table = null, $foreignPivotKey = null,
-                                $relatedPivotKey = null, $parentKey = null,
-                                $relatedKey = null, $inverse = false)
-    {
-        $caller = $this->guessBelongsToManyRelation();
+    public function morphToMany(
+        $related,
+        $name,
+        $table = null,
+        $foreignPivotKey = null,
+        $relatedPivotKey = null,
+        $parentKey = null,
+        $relatedKey = null,
+        $relation = null,
+        $inverse = false,
+    ) {
+        $relation = $relation ?: $this->guessBelongsToManyRelation();
 
         // First, we will need to determine the foreign key and "other key" for the
         // relationship. Once we have determined the keys we will make the query
@@ -602,17 +796,27 @@ trait HasRelationships
         }
 
         return $this->newMorphToMany(
-            $instance->newQuery(), $this, $name, $table,
-            $foreignPivotKey, $relatedPivotKey, $parentKey ?: $this->getKeyName(),
-            $relatedKey ?: $instance->getKeyName(), $caller, $inverse
+            $instance->newQuery(),
+            $this,
+            $name,
+            $table,
+            $foreignPivotKey,
+            $relatedPivotKey,
+            $parentKey ?: $this->getKeyName(),
+            $relatedKey ?: $instance->getKeyName(),
+            $relation,
+            $inverse,
         );
     }
 
     /**
      * Instantiate a new MorphToMany relationship.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
-     * @param  \Illuminate\Database\Eloquent\Model  $parent
+     * @template TRelatedModel of \Illuminate\Database\Eloquent\Model
+     * @template TDeclaringModel of \Illuminate\Database\Eloquent\Model
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<TRelatedModel>  $query
+     * @param  TDeclaringModel  $parent
      * @param  string  $name
      * @param  string  $table
      * @param  string  $foreignPivotKey
@@ -621,31 +825,59 @@ trait HasRelationships
      * @param  string  $relatedKey
      * @param  string|null  $relationName
      * @param  bool  $inverse
-     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
+     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany<TRelatedModel, TDeclaringModel>
      */
-    protected function newMorphToMany(Builder $query, Model $parent, $name, $table, $foreignPivotKey,
-                                      $relatedPivotKey, $parentKey, $relatedKey,
-                                      $relationName = null, $inverse = false)
-    {
-        return new MorphToMany($query, $parent, $name, $table, $foreignPivotKey, $relatedPivotKey, $parentKey, $relatedKey,
-            $relationName, $inverse);
+    protected function newMorphToMany(
+        Builder $query,
+        Model $parent,
+        $name,
+        $table,
+        $foreignPivotKey,
+        $relatedPivotKey,
+        $parentKey,
+        $relatedKey,
+        $relationName = null,
+        $inverse = false,
+    ) {
+        return new MorphToMany(
+            $query,
+            $parent,
+            $name,
+            $table,
+            $foreignPivotKey,
+            $relatedPivotKey,
+            $parentKey,
+            $relatedKey,
+            $relationName,
+            $inverse,
+        );
     }
 
     /**
      * Define a polymorphic, inverse many-to-many relationship.
      *
-     * @param  string  $related
+     * @template TRelatedModel of \Illuminate\Database\Eloquent\Model
+     *
+     * @param  class-string<TRelatedModel>  $related
      * @param  string  $name
      * @param  string|null  $table
      * @param  string|null  $foreignPivotKey
      * @param  string|null  $relatedPivotKey
      * @param  string|null  $parentKey
      * @param  string|null  $relatedKey
-     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
+     * @param  string|null  $relation
+     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany<TRelatedModel, $this>
      */
-    public function morphedByMany($related, $name, $table = null, $foreignPivotKey = null,
-                                  $relatedPivotKey = null, $parentKey = null, $relatedKey = null)
-    {
+    public function morphedByMany(
+        $related,
+        $name,
+        $table = null,
+        $foreignPivotKey = null,
+        $relatedPivotKey = null,
+        $parentKey = null,
+        $relatedKey = null,
+        $relation = null,
+    ) {
         $foreignPivotKey = $foreignPivotKey ?: $this->getForeignKey();
 
         // For the inverse of the polymorphic many-to-many relations, we will change
@@ -654,8 +886,15 @@ trait HasRelationships
         $relatedPivotKey = $relatedPivotKey ?: $name.'_id';
 
         return $this->morphToMany(
-            $related, $name, $table, $foreignPivotKey,
-            $relatedPivotKey, $parentKey, $relatedKey, true
+            $related,
+            $name,
+            $table,
+            $foreignPivotKey,
+            $relatedPivotKey,
+            $parentKey,
+            $relatedKey,
+            $relation,
+            true,
         );
     }
 
@@ -673,7 +912,7 @@ trait HasRelationships
             );
         });
 
-        return ! is_null($caller) ? $caller['function'] : null;
+        return $caller['function'] ?? null;
     }
 
     /**
@@ -689,8 +928,9 @@ trait HasRelationships
         // sorted alphabetically and concatenated with an underscore, so we can
         // just sort the models and join them together to get the table name.
         $segments = [
-            $instance ? $instance->joiningTableSegment()
-                      : Str::snake(class_basename($related)),
+            $instance
+                ? $instance->joiningTableSegment()
+                : Str::snake(class_basename($related)),
             $this->joiningTableSegment(),
         ];
 
@@ -730,17 +970,19 @@ trait HasRelationships
      */
     public function touchOwners()
     {
-        foreach ($this->getTouchedRelations() as $relation) {
-            $this->$relation()->touch();
+        $this->withoutRecursion(function () {
+            foreach ($this->getTouchedRelations() as $relation) {
+                $this->$relation()->touch();
 
-            if ($this->$relation instanceof self) {
-                $this->$relation->fireModelEvent('saved', false);
+                if ($this->$relation instanceof self) {
+                    $this->$relation->fireModelEvent('saved', false);
 
-                $this->$relation->touchOwners();
-            } elseif ($this->$relation instanceof Collection) {
-                $this->$relation->each->touchOwners();
+                    $this->$relation->touchOwners();
+                } elseif ($this->$relation instanceof EloquentCollection) {
+                    $this->$relation->each->touchOwners();
+                }
             }
-        }
+        });
     }
 
     /**
@@ -783,8 +1025,10 @@ trait HasRelationships
     /**
      * Create a new model instance for a related model.
      *
-     * @param  string  $class
-     * @return mixed
+     * @template TRelatedModel of \Illuminate\Database\Eloquent\Model
+     *
+     * @param  class-string<TRelatedModel>  $class
+     * @return TRelatedModel
      */
     protected function newRelatedInstance($class)
     {
@@ -798,8 +1042,10 @@ trait HasRelationships
     /**
      * Create a new model instance for a related "through" model.
      *
-     * @param  string  $class
-     * @return mixed
+     * @template TRelatedModel of \Illuminate\Database\Eloquent\Model
+     *
+     * @param  class-string<TRelatedModel>  $class
+     * @return TRelatedModel
      */
     protected function newRelatedThroughInstance($class)
     {
@@ -849,6 +1095,8 @@ trait HasRelationships
     {
         $this->relations[$relation] = $value;
 
+        $this->propagateRelationAutoloadCallbackToRelation($relation, $value);
+
         return $this;
     }
 
@@ -879,6 +1127,18 @@ trait HasRelationships
     }
 
     /**
+     * Enable relationship autoloading for this model.
+     *
+     * @return $this
+     */
+    public function withRelationshipAutoloading()
+    {
+        $this->newCollection([$this])->withRelationshipAutoloading();
+
+        return $this;
+    }
+
+    /**
      * Duplicate the instance and unset all the loaded relations.
      *
      * @return $this
@@ -888,6 +1148,23 @@ trait HasRelationships
         $model = clone $this;
 
         return $model->unsetRelations();
+    }
+
+    /**
+     * Duplicate the instance and unset the given loaded relations.
+     *
+     * @param  array|string  $relations
+     * @return $this
+     */
+    public function withoutRelation($relations)
+    {
+        $model = clone $this;
+
+        foreach ((array) $relations as $relation) {
+            $model->unsetRelation($relation);
+        }
+
+        return $model;
     }
 
     /**

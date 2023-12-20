@@ -10,7 +10,7 @@ active
 @stop
 
 @section('PageHeader')
-<h1>{{Lang::get('lang.ticket-details')}}</h1>
+<h3>{{Lang::get('lang.ticket-details')}}</h3>
 @include('themes.default1.agent.helpdesk.ticket.response-messages')
 @stop
 <?php
@@ -23,15 +23,15 @@ $group = App\Model\helpdesk\Agent\Groups::where('id', '=', $agent_group)->where(
 @section('sidebar')
 <li class="nav-header">{!! Lang::get('lang.Ticket_Information') !!} </li>
 <li class="nav-item">
-    <a href="" class="nav-link">
+    <a href="" class="nav-link d-block">
         <span>{!! Lang::get('lang.Ticket_Id') !!} </span>
         </br><b>#{{$tickets->ticket_number}}</b>
     </a>
 </li>
 <li class="nav-item">
-    <a href="{!! URL('user/'.$user->id) !!}" class="nav-link">
+    <a href="{!! URL('user/'.$user->id) !!}" class="nav-link d-block">
         <span>{!! Lang::get('lang.User') !!} </span>
-        </br><i class="fa fa-user"></i> <b>{{$user->name() }}</b>
+        </br><i class="fa-solid fa-user"></i> <b>{{$user->name() }}</b>
     </a>
 </li>
 <li class="nav-item">
@@ -63,9 +63,9 @@ $group = App\Model\helpdesk\Agent\Groups::where('id', '=', $agent_group)->where(
         $ratingval = $rating_value->rating_value;
     }
     ?>
-    <a href="#" class="nav-link">
+    <a href="#" class="nav-link d-flex align-items-center justify-content-between">
         {!! $rating->name !!}:
-        <small class="float-right">
+        <small class="float-end">
             <?php for ($i = 1; $i <= $rating->rating_scale; $i++) { ?>
                 <input type="radio" class="star not-apply" id="star5" name="{!! $rating->name !!}" value="{!! $i !!}"<?php echo ($ratingval == $i) ? 'checked' : '' ?> />
             <?php } ?>
@@ -82,9 +82,9 @@ $group = App\Model\helpdesk\Agent\Groups::where('id', '=', $agent_group)->where(
         $avg_rating = $avg_rate[0];
     }
     ?>
-    <a href="#" class="nav-link">
+    <a href="#" class="nav-link d-flex align-items-center justify-content-between">
         {!! $rating->name !!}:
-        <small class="float-right">
+        <small class="float-end">
             <?php for ($i = 1; $i <= $rating->rating_scale; $i++) { ?>
                 <input type="radio" class="star not-apply" id="star5" name="{!! $rating->name !!}" value="{!! $i !!}"<?php echo ($avg_rating == $i) ? 'checked' : '' ?> />
             <?php } ?>
@@ -103,58 +103,67 @@ if ($thread->title != "") {
 ?>
 
 @section('content')
-<div id="alert10" class="alert alert-success alert-dismissable" style="display:none;">
-    <button id="dismiss10" type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-    <b><i class="icon fas fa-check"></i>{!! Lang::get('lang.alert') !!}!</b>
-    <div id="message-success0"></div>
-</div>
-<div id="alert11" class="alert alert-success alert-dismissable" style="display:none;">
-    <button id="dismiss11" type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-    <h4><i class="icon fas fa-check"></i>{!! Lang::get('lang.alert') !!}!</h4>
-    <div id="message-success1"></div>
-</div>
-<div id="alert12" class="alert alert-warning alert-dismissable" style="display:none;">
-    <button id="dismiss12" type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-    <h4><i class="icon fas fa-exclamation-triangle"></i>{!! Lang::get('lang.alert') !!}!</h4>
-    <div id="message-warning1"></div>
-</div>
-<div id="alert13" class="alert alert-danger alert-dismissable" style="display:none;">
-    <button id="dismiss13" type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-    <h4><i class="icon fas fa-ban"></i>{!! Lang::get('lang.alert') !!}!</h4>
-    <div id="message-danger1"></div>
-</div>
+    <div id="alert10" class="alert alert-success alert-dismissible fade d-none" role="alert">
+        <button id="dismiss10" type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <b><i class="bi bi-check-circle-fill me-2"></i>{!! Lang::get('lang.alert') !!}!</b>
+        <div id="message-success0"></div>
+    </div>
+
+    <div id="alert11" class="alert alert-success alert-dismissible fade d-none" role="alert">
+        <button id="dismiss11" type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <h4 class="alert-heading"><i class="bi bi-check-circle-fill me-2"></i>{!! Lang::get('lang.alert') !!}!</h4>
+        <div id="message-success1"></div>
+    </div>
+
+    <div id="alert12" class="alert alert-warning alert-dismissible fade d-none" role="alert">
+        <button id="dismiss12" type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <h4 class="alert-heading"><i class="bi bi-exclamation-triangle-fill me-2"></i>{!! Lang::get('lang.alert') !!}!</h4>
+        <div id="message-warning1"></div>
+    </div>
+
+    <div id="alert13" class="alert alert-danger alert-dismissible fade d-none" role="alert">
+        <button id="dismiss13" type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <h4 class="alert-heading"><i class="bi bi-ban-fill me-2"></i>{!! Lang::get('lang.alert') !!}!</h4>
+        <div id="message-danger1"></div>
+    </div>
 <!-- Main content -->
 <div class="card card-light">
     <div class="card-header">
-        <h3 class="card-title" id="refresh2"><i class="fas fa-ticket-alt"> </i> {!! $thread->getSubject() !!}</h3>
+        <h3 class="card-title" id="refresh2"><i class="fa-solid fa-ticket-alt"> </i> {!! $thread->getSubject() !!}</h3>
     </div>
     <!-- ticket details Table -->
     <div class="card-body">
 
         <div class="mb-3">
-            <!-- <button type="button" class="btn btn-default"><i class="fa fa-edit" style="color:green;"> </i> Edit</button> -->
+            <!-- <button type="button" class="btn btn-secondary"><i class="fa-solid fa-pen-to-square text-success"> </i> Edit</button> -->
             <?php
             \Illuminate\Support\Facades\Event::dispatch(new \App\Events\TicketBoxHeader($user->id));
 
             if ($group->can_edit_ticket == 1) {
                 ?>
-            <button type="button" class="btn btn-sm btn-default btn-tool">
+            <button type="button" class="btn btn-sm btn-light btn-tool" data-bs-toggle="modal" data-bs-target="#Edit">
 
-                <i class="fas fa-edit" style="color:green;"></i> {{trans('lang.edit')}}
+                <i class="fa-solid fa-pen-to-square text-success"></i> {{trans('lang.edit')}}
 
             </button>            <?php } ?>
 
             <?php if ($group->can_assign_ticket == 1) { ?>
-            <button type="button" class="btn btn-sm btn-default btn-tool">
+            <button type="button" class="btn btn-sm btn-light btn-tool" data-bs-toggle="modal" data-bs-target="#assign{{$tickets->id}}">
 
-                <i class="fas fa-hand-point-right" style="color:orange;"></i> {{trans('lang.assign')}}
+                <i class="fa-solid fa-hand-point-right text-orange"></i> {{trans('lang.assign')}}
 
             </button>            <?php } ?>
 
-            @if($tickets->assigned_to == Auth::user()->id)
-                <button type="button" id="surrender_button" class="btn btn-sm btn-default btn-tool" data-toggle="modal" data-target="#surrender">
+            <?php if ($group->can_edit_ticket == 1) { ?>
+            <button type="button" class="btn btn-sm btn-light btn-tool" data-bs-toggle="modal" data-bs-target="#changeDueDate">
+                <i class="fa-solid fa-calendar-days text-primary"></i> {{trans('lang.due_date')}}
+            </button>
+            <?php } ?>
 
-                    <i class="fas fa-arrows-alt" style="color:red;"></i> {{trans('lang.surrender')}}
+            @if($tickets->assigned_to == Auth::user()->id)
+                <button type="button" id="surrender_button" class="btn btn-sm btn-light btn-tool" data-bs-toggle="modal" data-bs-target="#surrender">
+
+                    <i class="fa-solid fa-arrows-alt text-danger"></i> {{trans('lang.surrender')}}
 
                 </button>
             @endif
@@ -162,54 +171,54 @@ if ($thread->title != "") {
 
             <?php \Illuminate\Support\Facades\Event::dispatch('show-add-event-btn', []); ?>
 
-            <a href="{{url('ticket/print/'.$tickets->id)}}" target="_blank" class="btn btn-default btn-tool btn-sm">
+            <a href="{{url('ticket/print/'.$tickets->id)}}" target="_blank" class="btn btn-light btn-tool btn-sm">
 
-                <i class="fas fa-print"></i> {{trans('lang.generate_pdf')}}
+                <i class="fa-solid fa-print"></i> {{trans('lang.generate_pdf')}}
 
             </a>            <div class="btn-group">
-                <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" id="d1"><i class="fas fa-exchange-alt" style="color:teal;" id="hidespin"> </i><i class="fa fa-spinner fa-spin" style="color:teal; display:none;" id="spin"></i>
+                <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-bs-toggle="dropdown" id="d1"><i class="fa-solid fa-right-left text-teal" id="hidespin"> </i>
                     {!! Lang::get('lang.change_status') !!} <span class="caret"></span>
                 </button>
                 <div class="dropdown-menu">
-                    <a href="#" id="open" class="dropdown-item"><i class="fas fa-folder-open" style="color:red;"> </i> {!! Lang::get('lang.open') !!}</a>
+                    <a href="#" id="open" class="dropdown-item"><i class="fa-solid fa-folder-open text-danger"> </i> {!! Lang::get('lang.open') !!}</a>
 
                     <?php if ( $tickets_approval->status==7) {?>
                   @if(Auth::user()->role == 'admin')
-                     <a href="#" id="approval_close" class="dropdown-item"><i class="fas fa-thumbs-up" style="color:red;"> </i> {!! Lang::get('lang.approval') !!}</a>
+                     <a href="#" id="approval_close" class="dropdown-item"><i class="fa-solid fa-thumbs-up text-danger"> </i> {!! Lang::get('lang.approval') !!}</a>
                      @endif
                     
                     <?php } ?>
 
                      <?php if ( $tickets_approval->status==3) {?>
                     <?php if ($group->can_edit_ticket == 1) {?>
-                    <a href="#"  id="close" class="dropdown-item"><i class="fas fa-check" style="color:green;"> </i> {!! Lang::get('lang.close') !!}</a>
+                    <a href="#"  id="close" class="dropdown-item"><i class="fa-solid fa-check text-success"> </i> {!! Lang::get('lang.close') !!}</a>
                     <?php } ?>
                      <?php } ?>
 
                      <?php if ( $tickets_approval->status==1) {?>
                     <?php if ($group->can_edit_ticket == 1) {?>
-                    <a href="#" id="close" class="dropdown-item"><i class="fas fa-check" style="color:green;"> </i> {!! Lang::get('lang.close') !!}</a>
+                    <a href="#" id="close" class="dropdown-item"><i class="fa-solid fa-check text-success"> </i> {!! Lang::get('lang.close') !!}</a>
                     <?php } ?>
                      <?php } ?>
-                    <a href="#" id="resolved" class="dropdown-item"><i class="fas fa-check-circle " style="color:green;"> </i> {!! Lang::get('lang.resolved') !!} </a>
+                    <a href="#" id="resolved" class="dropdown-item"><i class="fa-solid fa-circle-check  text-success"> </i> {!! Lang::get('lang.resolved') !!} </a>
                 </div>
             </div>
             <?php if ($group->can_delete_ticket == 1 || $group->can_ban_email == 1) { ?>
-                <div id="more-option" class="btn-group ml-0">
-                    <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" id="d2"><i class="fas fa-cogs" style="color:teal;"> </i>
+                <div id="more-option" class="btn-group ms-0">
+                    <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-bs-toggle="dropdown" id="d2"><i class="fa-solid fa-gears text-teal"> </i>
                         {!! Lang::get('lang.more') !!} <span class="caret"></span>
                     </button>
                     <div  class="dropdown-menu dropdown-menu-right">
-                        <a href="#" data-toggle="modal" data-target="#ChangeOwner" class="dropdown-item"><i class="fas fa-users" style="color:green;"> </i>{!! Lang::get('lang.change_owner_for_ticket') !!}</a>
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#ChangeOwner" class="dropdown-item"><i class="fa-solid fa-users text-success"> </i>{!! Lang::get('lang.change_owner_for_ticket') !!}</a>
                         @if($tickets->status != 3 && $tickets->status != 2)
-                        <a href="#" class="dropdown-item" data-toggle="modal" data-target="#MergeTickets"><i class="fas fa-cogs" style="color:teal;"> </i> {!! Lang::get('lang.merge-ticket') !!}</a>
+                        <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#MergeTickets"><i class="fa-solid fa-gears text-teal"> </i> {!! Lang::get('lang.merge-ticket') !!}</a>
                         @endif
                         <?php if ($group->can_delete_ticket == 1) { ?>
-                        <a href="#" id="delete" class="dropdown-item" data-toggle="modal" data-target="#MergeTickets"><i class="fas fa-trash" style="color:red;"> </i> {!! Lang::get('lang.delete_ticket') !!}</a>
+                        <a href="#" id="delete" class="dropdown-item" data-bs-toggle="modal" data-bs-target=""><i class="fa-solid fa-trash text-danger"> </i> {!! Lang::get('lang.delete_ticket') !!}</a>
                         <?php }
                         ?>
                         <?php if ($group->can_ban_email == 1) { ?>
-                        <a href="#" class="dropdown-item" data-toggle="modal" data-target="#banemail"><i class="fas fa-ban" style="color:red;"></i> {{trans('lang.ban_email')}}</a>
+                        <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#banemail"><i class="fa-solid fa-ban text-danger"></i> {{trans('lang.ban_email')}}</a>
                         <?php 
                         \Illuminate\Support\Facades\Event::dispatch('ticket.details.more.list',[$tickets]);
                         }
@@ -255,13 +264,13 @@ if ($thread->title != "") {
         </div>
         
         <div class="text-center">
-            <div id="show2" style="display:none;">
+            <div id="show2" class="d-none">
              
                 <img src="{{asset("lb-faveo/media/images/gifloader.gif")}}"><br/><br/><br/>
             </div>
         </div>
 
-        <div id="hide2" class="row" style="width: 100%;">
+        <div id="hide2" class="row w-100">
             <div class="col-md-6">
                 <table class="table table-hover">
                     <div id="refresh">
@@ -283,7 +292,7 @@ if ($thread->title != "") {
                             <td title="{{$dept123->name}}">{{$dept123->name}}</td></tr>
                             @endif
                         <tr><td><b>{!! Lang::get('lang.email') !!}:</b></td>        <td>{{Str::limit($user->email,30)}}</td></tr>
-                        @if($user->ban > 0)  <tr><td style="color:orange;"><i class="fa fa-warning"></i><b>
+                        @if($user->ban > 0)  <tr><td class="text-orange"><i class="fa-solid fa-warning"></i><b>
                                     {!!  Lang::get('lang.this_ticket_is_under_banned_user')!!}</td><td></td></tr>@endif
                     </div>
                 </table>
@@ -328,46 +337,46 @@ if ($thread->title != "") {
         </div>
 
         <?php \Illuminate\Support\Facades\Event::dispatch('ticket.timeline.marble',[$TicketData]);?>
-        <div id="gifshow" style="display:none" class="text-center">
+        <div id="gifshow" class="text-center d-none">
             <img src="{{asset("lb-faveo/media/images/gifloader.gif")}}">
         </div>  <!-- added 05/05/2016-->
         <div id="resultdiv"></div>
 
-        <div class="card card-light" id="inboxactions">
+        <div class="card card-light mb-3" id="inboxactions">
             
             <div class="card-header">
                 
                 <h3 class="card-title">{{trans('lang.action')}}</h3>
             </div>
 
-                    <div class="card-body">
+                    <div class="card-body mb-3">
             
             <ul class="nav nav-tabs">
-                <li class="nav-item"><a class="nav-link active" href="#General" data-toggle="tab" style="color:#27C116;" id="aa"><i class="fa fa-reply-all"> </i> {!! Lang::get('lang.reply') !!}</a></li>
-                <li class="nav-item"><a class="nav-link" href="#Internal" data-toggle="tab" style="color:#0495FF;" id="bb"><i class="fa fa-file-text"> </i> {!! Lang::get('lang.internal_notes') !!}</a></li>
+                <li class="nav-item"><a class="nav-link active text-success" href="#General" data-bs-toggle="tab" id="aa"><i class="fa-solid fa-reply-all"> </i> {!! Lang::get('lang.reply') !!}</a></li>
+                <li class="nav-item"><a class="nav-link text-primary" href="#Internal" data-bs-toggle="tab" id="bb"><i class="fa-solid fa-file-text"> </i> {!! Lang::get('lang.internal_notes') !!}</a></li>
                 <?php \Illuminate\Support\Facades\Event::dispatch('timeline.tab.list',[$TicketData]); ?>
-                <!-- <li><a href="#Reply" data-toggle="tab" style="color:orange;"><i class="fa fa-mail-forward" > </i> Forward</a></li> -->
+                <!-- <li><a href="#Reply" data-bs-toggle="tab" style="color:orange;"><i class="fa-solid fa-mail-forward" > </i> Forward</a></li> -->
             </ul>
 
             <div class="tab-content mt-3">
                 
-                <div id="alert21" class="alert alert-success alert-dismissable" style="display:none;">
-                    <button id="dismiss21" type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                <div id="alert21" class="alert alert-success alert-dismissible d-none">
+                    <button id="dismiss21" type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
                     <div id="message-success2"></div>
                 </div>
-                <div id="alert22" class="alert alert-warning alert-dismissable" style="display:none;">
-                    <h4><i class="icon fa fa-warning"></i>{!! Lang::get('lang.alert') !!}!</h4>
+                <div id="alert22" class="alert alert-warning alert-dismissible d-none">
+                    <h4><i class="icon fa-solid fa-warning"></i>{!! Lang::get('lang.alert') !!}!</h4>
                     <div id="message-warning2"></div>
                 </div>
-                <div id="alert23" class="alert alert-danger alert-dismissable" style="display:none;">
-                    <button id="dismiss23" type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-                    <i class="icon fa fa-ban"></i><b>{!! Lang::get('lang.alert') !!} !</b>
+                <div id="alert23" class="alert alert-danger alert-dismissible fade d-none">
+                    <button id="dismiss23" type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
+                    <i class="icon fa-solid fa-ban"></i><b>{!! Lang::get('lang.alert') !!} !</b>
                     <div id="message-danger2"></div>
                 </div>
 
                 <div class="tab-pane active" id="General">
                     <!-- ticket reply -->
-                    <div id="show3" style="display:none;text-align: center;">
+                    <div id="show3" class="d-none text-center">
                         <img src="{{asset("lb-faveo/media/images/gifloader.gif")}}"><br/><br/><br/>
                     </div>
 
@@ -379,28 +388,28 @@ if ($thread->title != "") {
                             
                             <div id="reply-response"></div>
                             
-                            <div class="form-group">
+                            <div class="mb-3">
                                 
                             <!-- to -->
                                 <input type="hidden" name="ticket_ID" value="{{$tickets->id}}">
                                 
-                                <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
+                                <div class="mb-3 {{ $errors->has('title') ? 'has-error' : '' }}">
                                     <div class="row">
                                         <div class="col-md-2">
-                                            {!! Form::label('To', Lang::get('lang.to').':') !!}
+                                            {!! html()->label(Lang::get('lang.to').':', 'To') !!}
                                         </div>
                                         <div class="col-md-10">
                                             <div id="refreshTo">
-                                            {!! Form::text('To',$user->email,['disabled'=>'disabled','id'=>'email','class'=>'form-control','style'=>'width:55%'])!!}
+                                            {!! html()->text('To', $user->email)->disabled()->id('email')->class('form-control')->attributes(['style' => 'width:55%']) !!}
                                             {!! $errors->first('To', '<spam class="help-block text-red">:message</spam>') !!}
-                                                <a href="#" data-toggle="modal" data-target="#addccc"> {!! Lang::get('lang.add_cc') !!} </a>
+                                                <a href="#" data-bs-toggle="modal" data-bs-target="#addccc"> {!! Lang::get('lang.add_cc') !!} </a>
                                                 <div id="recepients">
                                                     <?php
                                                     $Collaborator = App\Model\helpdesk\Ticket\Ticket_Collaborator::where('ticket_id', '=', $tickets->id)->get();
                                                     $count_collaborator = count($Collaborator);
                                                     ?>
                                                     @if($count_collaborator > 0)
-                                                    <a href="#" data-toggle="modal" data-target="#surrender2">({!! $count_collaborator !!}) {!! Lang::get('lang.recepients') !!} </a>
+                                                    <a href="#" data-bs-toggle="modal" data-bs-target="#surrender2">({!! $count_collaborator !!}) {!! Lang::get('lang.recepients') !!} </a>
                                                     @endif
                                                 </div>
                                             </div>
@@ -409,13 +418,13 @@ if ($thread->title != "") {
                                 </div>
                             </div>
                         <?php \Illuminate\Support\Facades\Event::dispatch(new App\Events\TimeLineFormEvent($tickets)); ?>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <div class="row">
                                 <div class="col-md-2">
                                     <label>{!! Lang::get('lang.response') !!}</label>
                                 </div>
                                 <div class="col-md-10">
-                                    <select class="form-control" style="width:55%" id="select" onchange="addCannedResponse()">
+                                    <select class="form-control w-55" id="select" onchange="addCannedResponse()">
 
                                         <?php
                                         $canneds = App\Model\helpdesk\Agent_panel\Canned::where('user_id', '=', Auth::user()->id)->get();
@@ -429,61 +438,68 @@ if ($thread->title != "") {
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}"  id="reply_content_class">
+                        <div class="mb-3 {{ $errors->has('title') ? 'has-error' : '' }}"  id="reply_content_class">
                             <div class="row">
                                 <!-- reply content -->
                                     <div class="col-md-2">
-                                        {!! Form::label('Reply Content', Lang::get('lang.reply_content').':') !!}<span class="text-red"> *</span>
+                                        {!! html()->label(Lang::get('lang.reply_content').':', 'Reply Content') !!}<span class="text-red"> *</span>
                                     </div>
                                     <div class="col-md-10">
                                         <div id="newtextarea">
-                                            <textarea style="width:98%;height:20%;" name="reply_content" class="form-control" id="reply_content"></textarea>
+                                            <textarea name="reply_content" class="form-control w-98-h20" id="reply_content"></textarea>
                                         </div>
                                         {!! $errors->first('reply_content', '<spam class="help-block text-red">:message</spam>') !!}
                                     </div>
                             </div>
                         </div>
-                        <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}" id="reply_content_class">
+                        <div class="mb-3 {{ $errors->has('title') ? 'has-error' : '' }}" id="reply_content_class">
                             <div class="row">
                                 <div class="col-md-2">
                                         <label> {!! Lang::get('lang.attachment') !!}</label>
                                     </div>
-                                    <div class="col-md-10">
-                                        <div id="reset-attachment">
-                                            <span class='btn btn-default btn-file'> <i class='fa fa-paperclip'></i> <span>{!! Lang::get('lang.upload') !!}</span><input type='file' name='attachment[]' id='attachment' multiple/></span>
-                                            <div id='file_details'></div><div id='total-size'></div>{!! Lang::get('lang.max') !!}. {!! $max_size_in_actual !!}
-                                            <div>
-                                                <a href="javascript:;" id='clear-file' onClick='clearAll()' style='display:none; cursor:pointer;'><i class='fas fa-times'></i> Clear all</a>
-                                            </div>
+                                <div class="col-md-10">
+                                    <div id="reset-attachment">
+                                        <label class="btn btn-outline-secondary mb-1" style="cursor:pointer;">
+                                            <i class="fa-solid fa-paperclip me-1"></i>
+                                            <span>{!! Lang::get('lang.upload') !!}</span>
+                                            <input type="file" name="attachment[]" id="attachment" multiple class="d-none">
+                                        </label>
+                                        <div id="file_details"></div>
+                                        <div id="total-size"></div>
+                                        <div class="text-muted small mt-1">{!! Lang::get('lang.max') !!}. {!! $max_size_in_actual !!}</div>
+                                        <div>
+                                            <a href="javascript:;" id="clear-file" onclick="clearAll()" class="d-none text-danger">
+                                                <i class="fa-solid fa-xmark me-1"></i> Clear all
+                                            </a>
                                         </div>
-                                        
                                     </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
+                        <div class="mb-3 {{ $errors->has('title') ? 'has-error' : '' }}">
                             <div class="row">
                                 <div class="col-md-2"></div>
                                 <div class="col-md-10">
                                     <div id="t5">
-                                        <button id="replybtn" type="submit" class="btn btn-primary"><i class="fas fa-check-square" style="color:white;"> </i> {!! Lang::get('lang.update') !!}</button>
+                                        <button id="replybtn" type="submit" class="btn btn-primary"><i class="fa-solid fa-check-square text-white"> </i> {!! Lang::get('lang.update') !!}</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    {!!Form::close()!!}
+                    {!! html()->closeModelForm() !!}
                 </div>
 
                 <div class="tab-pane" id="Internal">
                     <!-- ticket reply -->
-                    <div id="show5" class="text-center" style="display:none;">
+                    <div id="show5" class="text-center d-none">
                          <img src="{{asset("lb-faveo/media/images/gifloader.gif")}}">
                         
                     </div>
                     <div id="t2">
-                        {!! Form::model($tickets->id, ['id'=>'form2','method' => 'PATCH'] )!!}
+                        {!! html()->modelForm($tickets->id, 'PATCH', url()->current())->attributes(['id' => 'form2'])->open() !!}
                         <div id="t4">
-                            <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}" id="internal_content_class">
+                            <div class="mb-3 {{ $errors->has('title') ? 'has-error' : '' }}" id="internal_content_class">
                                 <div class="row">
                                     <!-- internal note -->
                                    <div class="col-md-2">
@@ -491,24 +507,24 @@ if ($thread->title != "") {
                                         </div>
                                         <div class="col-md-10">
                                             <div id="newtextarea1">
-                                                <textarea class="form-control" name="InternalContent" id="InternalContent" style="width:98%; height:150px;"></textarea>
+                                                <textarea class="form-control w-98-h150" name="InternalContent" id="InternalContent"></textarea>
                                             </div>
                                             {!! $errors->first('InternalContent', '<spam class="help-block text-red">:message</spam>') !!}
                                         </div>
                                 </div>
                             </div>
                         
-                                <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
+                                <div class="mb-3 {{ $errors->has('title') ? 'has-error' : '' }}">
                                     <div class="row">
                                         <div class="col-md-2"></div>
                                         <div class="col-md-10">
-                                            <button type="submit"  class="btn btn-primary"><i class="fas fa-check-square" style="color:white;"> </i> {!! Lang::get('lang.update') !!}</button>
+                                            <button type="submit"  class="btn btn-primary"><i class="fa-solid fa-check-square text-white"> </i> {!! Lang::get('lang.update') !!}</button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        {!!Form::close()!!}
+                        {!! html()->closeModelForm() !!}
                     </div>
                 </div>
                 <?php \Illuminate\Support\Facades\Event::dispatch('timeline.tab.content',[$tickets]); ?>
@@ -538,7 +554,7 @@ if ($thread->title != "") {
                             }
                         </style>
                        
-                        <ul class="float-right" style="padding-right:40px" >
+                        <ul class="float-end timeline-pagination" >
                             <?php echo $conversations->setPath(url('/thread/' . $tickets->id))->render(); ?>
                         </ul>
 
@@ -567,7 +583,7 @@ if ($thread->title != "") {
                                     if (isset($data) && $date == $data) {
                                         
                                     } else {
-                                        ?> <span class="bg-green">
+                                        ?> <span class="text-bg-success">
                                             {{date_format($conversation->created_at, 'd/m/Y')}}
                                         </span> <?php
                                         $data = $ConvDate[0];
@@ -582,22 +598,22 @@ if ($thread->title != "") {
 
                                 <div>
                                     <?php if ($conversation->is_internal) { ?>
-                                        <i class="fas fa-tag bg-purple" title="<?= Lang::get('lang.posted_by_system') ?>"></i>
+                                        <i class="timeline-icon fa-solid fa-tag text-bg-purple" title="<?= Lang::get('lang.posted_by_system') ?>"></i>
                                     <?php
                                     } else {
                                         if($conversation->user_id != null) {
                                             if ($role->role == 'agent' || $role->role == 'admin') {
                                                 ?>
-                                                <i class="fas fa-reply-all bg-yellow" title="<?= Lang::get('lang.posted_by_support_team') ?>"></i>
+                                                <i class="timeline-icon fa-solid fa-reply-all text-bg-warning" title="<?= Lang::get('lang.posted_by_support_team') ?>"></i>
                                             <?php } elseif ($role->role == 'user') { ?>
-                                                <i class="fas fa-user bg-aqua" title="<?= Lang::get('lang.posted_by_customer') ?>"></i>
+                                                <i class="timeline-icon fa-solid fa-user text-bg-info" title="<?= Lang::get('lang.posted_by_customer') ?>"></i>
                                             <?php } else { ?>
-                                                <i class="fas fa-reply-all bg-purple" title="<?= Lang::get('lang.posted_by_system') ?>"></i>
+                                                <i class="timeline-icon fa-solid fa-reply-all text-bg-purple" title="<?= Lang::get('lang.posted_by_system') ?>"></i>
                                                 <?php
                                             }
                                         } else {
                                             ?>
-                                            <i class="fas fa-tag bg-purple" title="<?= Lang::get('lang.posted_by_system')?>"></i>
+                                            <i class="timeline-icon fa-solid fa-tag text-bg-purple" title="<?= Lang::get('lang.posted_by_system')?>"></i>
                                             <?php
                                         }
                                     }
@@ -619,8 +635,8 @@ if ($thread->title != "") {
                                     
                                     ?>
                                     <div class="timeline-item">
-                                        <span style="color:#fff;">
-                                            <div class="float-right" style="position: relative;top: -13px;">   
+                                        <span class="text-white">
+                                            <div class="float-end timeline-rating-panel">
                                                 <table>
                                                     <tbody>
                                             @if($role)
@@ -637,8 +653,8 @@ if ($thread->title != "") {
                                                         }
                                                         ?>
                                                         <tr>
-                                                            <th><div class="ticketratingtitle" style="color:#3c8dbc;" >{!! $rating->name !!} &nbsp;</div></th>&nbsp
-                                                        <td style="button:disabled;">
+                                                            <th><div class="ticketratingtitle text-primary">{!! $rating->name !!} &nbsp;</div></th>&nbsp
+                                                        <td>
                                                         <?php for ($i = 1; $i <= $rating->rating_scale; $i++) { ?>
                                                             <input type="radio" class="star star-rating-readonly not-apply" id="star5" name="{!! $rating->name !!},{!! $conversation->id !!}" value="{!! $i !!}"<?php echo ($ratingval == $i) ? 'checked' : '' ?> />
                                                         <?php } ?>&nbsp;&nbsp;&nbsp;&nbsp;   
@@ -683,18 +699,18 @@ if ($thread->title != "") {
                                             @endif
 
                                             @if($conversation->id == $ij->id)
-                                            <a href="{{url('genereate-pdf/'.$conversation->id)}}" class= "float-right" title="{!! Lang::get('lang.generate_pdf_thread') !!}">
-                                                &nbsp;&nbsp;<i class="fas fa-newspaper"></i>
+                                            <a href="{{url('genereate-pdf/'.$conversation->id)}}" class= "float-end" title="{!! Lang::get('lang.generate_pdf_thread') !!}">
+                                                &nbsp;&nbsp;<i class="fa-solid fa-newspaper"></i>
                                             </a>
                                             @endif
 
-                                            <span style="float: right;font-size: 12px;color: #999;margin: 4px;"><i class="far fa-clock"></i> {{UTC::usertimezone($conversation->created_at)}}</span>
+                                            <span class="timeline-meta-time"><i class="fa-regular fa-clock"></i> {{UTC::usertimezone($conversation->created_at)}}</span>
                                             
                                         </h3>
                                         @if(\Lang::getLocale()=='ar')
-                                        <div class="timeline-body{{$conversation -> id}} arindam"   style="padding-right:30px !important;margin-bottom:-20px;margin-top: 15px;">
+                                        <div class="timeline-body{{$conversation -> id}} arindam timeline-body-rtl">
                                         @else
-                                        <div class="timeline-body{{$conversation -> id}} arindam"   style="padding-left:30px;margin-bottom:-20px;margin-top: 15px;">
+                                        <div class="timeline-body{{$conversation -> id}} arindam timeline-body-ltr">
                                         @endif
 
 
@@ -707,7 +723,7 @@ if ($thread->title != "") {
                                                         $('body').css('display', 'block');
                                                                 setTimeout(function(){
                                                                 var $iframe = "Id{{$conversation->id}}";
-                                                                        $('<iframe src="about:blank" id=' + $iframe + ' class="iframe" frameborder="0"  scrolling="no" width="100%" style="height:1px"></iframe>').appendTo(".timeline-body{{$conversation->id}}");
+                                                                        $('<iframe src="about:blank" id=' + $iframe + ' class="iframe iframe-inline-height" frameborder="0"  scrolling="no" width="100%"></iframe>').appendTo(".timeline-body{{$conversation->id}}");
                                                                         setTimeout(function(){
                                                                         $('#' + $iframe).contents().find('body').append('<body><style>body{display:inline-block;}</style>{!!$conversation->purify(true)!!}<body>');
                                                                         }, 100);
@@ -728,7 +744,7 @@ if ($thread->title != "") {
                                                         setTimeout(function(){
                                                         $('body').css('display', 'block');
                                                                 var $iframe = "Id{{$conversation->id}}";
-                                                                $('<iframe src="about:blank" id=' + $iframe + ' class="iframe" frameborder="0"  scrolling="no" width="100%" style="height:1px"></iframe>').appendTo(".timeline-body{{$conversation->id}}");
+                                                                $('<iframe src="about:blank" id=' + $iframe + ' class="iframe iframe-inline-height" frameborder="0"  scrolling="no" width="100%"></iframe>').appendTo(".timeline-body{{$conversation->id}}");
                                                                 setTimeout(function(){
                                                                 $('#' + $iframe).contents().find('body').append('<body><style>body{display:inline-block;}</style>{!!$conversation->purify(true)!!}<body>');
                                                                 }, 100);
@@ -761,7 +777,7 @@ if ($thread->title != "") {
                                                 <tbody>
                                                     @foreach($ticket_form_datas as $ticket_form_data)
                                                     <tr>
-                                                        <td style="width: 30%">{!! $ticket_form_data->getFieldKeyLabel() !!}</td>
+                                                        <td class="timeline-field-label">{!! $ticket_form_data->getFieldKeyLabel() !!}</td>
                                                         <td>{!! removeUnderscore($ticket_form_data->content) !!}</td>
                                                     </tr>
                                                     @endforeach
@@ -772,7 +788,7 @@ if ($thread->title != "") {
                                         
                                         </div>
                                         
-                                        <div class="timeline-footer" style="margin-bottom:-5px">
+                                        <div class="timeline-footer timeline-footer-compact">
                                             @if(!$conversation->is_internal)
                                                 @if($conversation->user_id != null)
                                                     <?php \Illuminate\Support\Facades\Event::dispatch(new App\Events\Timeline($conversation, $role)); ?>
@@ -796,9 +812,9 @@ if ($thread->title != "") {
                         }
                         ?>
                         <div>
-                            <i class="fas fa-history bg-gray"></i>
+                            <i class="timeline-icon fa-solid fa-clock-rotate-left text-bg-secondary"></i>
                         </div>
-                        <ul class="float-right" style="padding-right:40px" >
+                        <ul class="float-end timeline-pagination" >
                             <?php echo $conversations->setPath(url('/thread/' . $tickets->id))->render(); ?>
                         </ul>
                     </div>               
@@ -816,22 +832,22 @@ if ($thread->title != "") {
     <!-- Edit Ticket modal -->
     <?php if ($group->can_edit_ticket == 1) { ?>
         <div class="modal fade" id="Edit">
-            <div class="modal-dialog modal-lg" style="width:60%;height:70%;">
+            <div class="modal-dialog modal-lg modal-dialog-60x70">
                 <div class="modal-content">
-                    {!! Form::model($tickets->id, ['id'=>'form','method' => 'PATCH'] )!!}
+                    {!! html()->modelForm($tickets->id, 'PATCH', url()->current())->attributes(['id' => 'form'])->open() !!}
                     <div class="modal-header">
                         <h4 class="modal-title">{!! Lang::get('lang.edit') !!} <b>[#{!! $tickets->ticket_number !!}]</b></h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidd en="true">&times;</span></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body" id="hide">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label>{!! Lang::get('lang.title') !!} <span class="text-red"> *</span></label>
                             <input type="text" name="subject" class="form-control" value="{{$thread->title}}" >
-                            <spam id="error-subject" style="display:none" class="help-block text-red">This is a required field</spam>
+                            <spam id="error-subject" class="help-block text-red d-none">This is a required field</spam>
                         </div>
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>{!! Lang::get('lang.sla_plan') !!} <span class="text-red"> *</span></label>
     <?php $sla_plans = App\Model\helpdesk\Manage\Sla_plan::where('status', '=', 1)->get() ?>
                                     <select class="form-control" name="sla_paln">
@@ -843,11 +859,11 @@ if ($thread->title != "") {
                                         ?> >{!! $sla_plan->grace_period !!}</option>
                                         @endforeach
                                     </select>
-                                    <spam id="error-sla" style="display:none" class="help-block text-red">This is a required field</spam>
+                                    <spam id="error-sla" class="help-block text-red d-none">This is a required field</spam>
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>{!! Lang::get('lang.help_topic') !!} <span class="text-red"> *</span></label>
 
     <?php $help_topics = App\Model\helpdesk\Manage\Help_topic::where('status', '=', 1)->get(); ?>
@@ -860,11 +876,11 @@ if ($thread->title != "") {
                                         ?> >{!! $helptopic->topic !!}</option>
                                         @endforeach
                                     </select>
-                                    <spam id="error-help" style="display:none" class="help-block text-red">This is a required field</spam>
+                                    <spam id="error-help" class="help-block text-red d-none">This is a required field</spam>
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>{!! Lang::get('lang.ticket_source') !!} <span class="text-red"> *</span></label>
     <?php $ticket_sources = App\Model\helpdesk\Ticket\Ticket_source::all() ?>
                                     <select class="form-control" name="ticket_source">
@@ -876,12 +892,12 @@ if ($thread->title != "") {
                                         ?> >{!! $ticketsource->value !!}</option>
                                         @endforeach 
                                     </select>
-                                    <spam id="error-source" style="display:none" class="help-block text-red">This is a required field</spam>
+                                    <spam id="error-source" class="help-block text-red d-none">This is a required field</spam>
                                 </div>
                             </div>
     <?php ?>
                             <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label>{!! Lang::get('lang.priority') !!} <span class="text-red"> *</span></label>
     <?php $ticket_prioritys = App\Model\helpdesk\Ticket\Ticket_Priority::where('status','=',1)->get(); ?>
                                     <select class="form-control" name="ticket_priority">
@@ -893,12 +909,12 @@ if ($thread->title != "") {
                                         ?> >{!! $ticket_priority->priority_desc !!}</option>
                                         @endforeach
                                     </select>
-                                    <spam id="error-priority" style="display:none" class="help-block text-red">This is a required field</spam>
+                                    <spam id="error-priority" class="help-block text-red d-none">This is a required field</spam>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div id="show" style="display:none;text-align: center;">
+                    <div id="show" class="d-none text-center">
                         <img src="{{asset("lb-faveo/media/images/gifloader.gif")}}">
                     </div>
                     <script>
@@ -908,15 +924,50 @@ if ($thread->title != "") {
                         });
                     </script>
                     <div class="modal-footer justify-content-between">
-                        <button type="button" class="btn btn-default" data-dismiss="modal" id="dismis">{!! Lang::get('lang.close') !!}</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="dismis">{!! Lang::get('lang.close') !!}</button>
                         <input type="submit" class="btn btn-primary" value="{!! Lang::get('lang.update') !!}">
                     </div>
-                    {!! Form::close() !!}
+                    {!! html()->closeModelForm() !!}
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->
         </div><!-- /.modal -->
     <?php }
     ?>
+
+    <!-- Change Due Date modal -->
+    <?php if ($group->can_edit_ticket == 1) { ?>
+    <div class="modal fade" id="changeDueDate">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title"><i class="fa-solid fa-calendar-days"></i> {!! Lang::get('lang.due_date') !!} <b>[#{!! $tickets->ticket_number !!}]</b></h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="changeDueDateForm">
+                    @csrf
+                    <div class="modal-body">
+                        <div id="dueDateAlert"></div>
+                        <div class="mb-3">
+                            <label class="form-label">{!! Lang::get('lang.due_date') !!}</label>
+                            <input type="text" name="duedate" id="due-datemask" class="form-control"
+                                value="{{ $tickets->duedate ? \Carbon\Carbon::parse($tickets->duedate)->format('d/m/Y') : '' }}"
+                                placeholder="DD/MM/YYYY" autocomplete="off">
+                            <small class="text-muted">Leave empty to clear the due date.</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{!! Lang::get('lang.close') !!}</button>
+                        <button type="submit" class="btn btn-primary" id="dueDateSubmitBtn">
+                            <span id="dueDateSpinner" class="spinner-border spinner-border-sm d-none me-1" role="status"></span>
+                            {!! Lang::get('lang.update') !!}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <?php } ?>
+
 <?php if ($group->can_ban_email == 1) { ?>
         <!-- ban email modal -->
         <div class="modal fade" id="banemail">
@@ -924,14 +975,14 @@ if ($thread->title != "") {
                 <div class="modal-content">
                     <div class="modal-header">
                         <h4 class="modal-title">{!! Lang::get('lang.ban_email') !!} </h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         {!! Lang::get('lang.are_you_sure_to_ban') !!} {!! $user->email !!}
                     </div>
 
                     <div class="modal-footer justify-content-between">
-                        <button type="button" class="btn btn-default" data-dismiss="modal" id="dismis2">{!! Lang::get('lang.close') !!}</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="dismis2">{!! Lang::get('lang.close') !!}</button>
                         <button id="ban" type="button" class="btn btn-warning" >{{trans('lang.ban_email')}}</button>
                     </div>
                 </div><!-- /.modal-content -->
@@ -944,30 +995,30 @@ if ($thread->title != "") {
     <div class="modal fade" id="ChangeOwner">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                {!! Form::open(['id'=>'form4','method' => 'PATCH'] )!!}
+                {!! html()->form('PATCH', url()->current())->attributes(['id' => 'form4'])->open() !!}
                 <div class="modal-header">
                     <h4 class="modal-title">{!! Lang::get('lang.change_owner_for_ticket') !!} <b>#{!! $tickets->ticket_number !!}</b></h4>
-                    <button type="button" class="close" id="close101" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                    <button type="button" class="btn-close" id="close101" data-bs-dismiss="modal" aria-label="Close">
                     </button>
                 </div>
                 <div class="p-2">
                     <ul class="nav nav-tabs">
                         <li class="nav-item">
-                            <a class="nav-link active" href="#ahah1" data-toggle="tab" style="color:green;" id="aa"><i class="fas fa-users"> </i> {!! Lang::get('lang.search_existing_users') !!}</a>
+                            <a class="nav-link active text-success" href="#ahah1" data-bs-toggle="tab" id="aa"><i class="fa-solid fa-users"> </i> {!! Lang::get('lang.search_existing_users') !!}</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#haha2" data-toggle="tab" style="color:orange;"><i class="fas fa-user-plus" > </i> {!! Lang::get('lang.add_new_user') !!}</a>
+                            <a class="nav-link text-orange" href="#haha2" data-bs-toggle="tab"><i class="fa-solid fa-user-plus" > </i> {!! Lang::get('lang.add_new_user') !!}</a>
                         </li>
                     </ul>
                     <div class="tab-content mt-2">
                         <div class="tab-pane active" id="ahah1">
-                            <div id="change_alert" class="alert alert-danger alert-dismissable" style="display:none;">
-                                <button id="change_dismiss" type="button" class="close" data-dismiss="alert"  aria-hidden="true">×</button>
-                                <b><i class="icon fa fa-exclamation-circle"></i>Alert!</b>
+                            <div id="change_alert" class="alert alert-danger alert-dismissible fade d-none">
+                                <button id="change_dismiss" type="button" class="btn-close" data-bs-dismiss="alert"  aria-hidden="true"></button>
+                                <b><i class="icon fa-solid fa-circle-exclamation"></i>Alert!</b>
                                 <div id="message-success42"></div>
                             </div>
                             <div>
-                                <div class="text-center" id="change_loader" style="display:none;">
+                                <div class="text-center d-none" id="change_loader">
                                     <img src="{{asset("lb-faveo/media/images/gifloader.gif")}}">
                                 </div>
                                 <div id="change_body" class="p-2">
@@ -993,24 +1044,24 @@ if ($thread->title != "") {
                                 </div>
                             </div>
                             <div class="modal-footer justify-content-between">
-                                <button type="button" class="btn btn-default" data-dismiss="modal" id="dismis42">{!! Lang::get('lang.close') !!}</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="dismis42">{!! Lang::get('lang.close') !!}</button>
                                 <!--<input type='checkbox' name='send-mail' class='icheckbox_flat-blue' value='".$ticket->id."'><span disabled class="btn btn-sm">Check to notify user</span></input>-->
                                 <button type="submit" class="btn btn-primary" id="submt2">{!! Lang::get('lang.update') !!}</button>
                             </div>
-                            {!! Form::close()!!}
+                            {!! html()->closeModelForm() !!}
                         </div><!--tab-pane active-->
                         <div class="tab-pane" id="haha2">
-                            <div id="change_alert2" class="alert alert-danger alert-dismissable" style="display:none;">
-                                <button id="change_dismiss" type="button" class="close" data-dismiss="alert"  aria-hidden="true">×</button>
-                                <b><i class="icon fa fa-check"></i>Alert!</b>
+                            <div id="change_alert2" class="alert alert-danger alert-dismissible fade d-none">
+                                <button id="change_dismiss" type="button" class="btn-close" data-bs-dismiss="alert"  aria-hidden="true"></button>
+                                <b><i class="icon fa-solid fa-check"></i>Alert!</b>
                                 <div id="message-success422"></div>
                             </div>
                             <div id="abc" class="p-2">
                                 <label>{!! Lang::get('lang.add_new_user') !!}</label>            
              
                                 <div id="here2"></div>
-                                {!! Form::model($tickets->id, ['id'=>'change-add-owner','method' => 'PATCH'] )!!} 
-                                <div id="add-change-loader" class="text-center" style="display:none;">
+                                {!! html()->modelForm($tickets->id, 'PATCH', url()->current())->attributes(['id' => 'change-add-owner'])->open() !!} 
+                                <div id="add-change-loader" class="text-center d-none">
                                     <img src="{{asset("lb-faveo/media/images/gifloader.gif")}}"> 
                                 </div>
                                 <div id="add-change-body">
@@ -1020,7 +1071,7 @@ if ($thread->title != "") {
                                     <input type="hidden" name="action" value="change-add-owner">
                                     <input type="submit" class="btn btn-primary" value="{!! Lang::get('lang.submit') !!}">
                                 </div>
-                                {!! Form::close() !!}
+                                {!! html()->closeModelForm() !!}
                             </div>
                         </div>
                     </div><!--tab-content-->    
@@ -1034,18 +1085,18 @@ if ($thread->title != "") {
         <div class="modal fade" id="assign{{$tickets->id}}">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    {!! Form::open(['id'=>'form1','method' => 'PATCH'] )!!}
+                    {!! html()->form('PATCH', url()->current())->attributes(['id' => 'form1'])->open() !!}
                     <div class="modal-header">
                         <h4 class="modal-title">{!! Lang::get('lang.assign') !!}</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div id="assign_alert" class="alert alert-success alert-dismissable" style="display:none;">
-                        <button id="assign_dismiss" type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-                        <h4><i class="icon fa fa-check"></i>Alert!</h4>
+                    <div id="assign_alert" class="alert alert-success alert-dismissible fade d-none">
+                        <button id="assign_dismiss" type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
+                        <h4><i class="icon fa-solid fa-check"></i>Alert!</h4>
                         <div id="message-success1"></div>
                     </div>
                     <div class="modal-body">
-                        <div class="text-center" id="assign_loader" style="display:none;">
+                        <div class="text-center d-none" id="assign_loader">
                             <img src="{{asset("lb-faveo/media/images/gifloader.gif")}}">
                         </div>
                         <div id="assign_body">
@@ -1067,10 +1118,10 @@ if ($thread->title != "") {
                         </div>
                     </div>
                     <div class="modal-footer justify-content-between">
-                        <button type="button" class="btn btn-default" data-dismiss="modal" id="dismis4">{!! Lang::get('lang.close') !!}</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="dismis4">{!! Lang::get('lang.close') !!}</button>
                         <button type="submit" class="btn btn-success" id="submt2">{!! Lang::get('lang.assign') !!}</button>
                     </div>
-                    {!! Form::close()!!}
+                    {!! html()->closeModelForm() !!}
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->
         </div><!-- /.modal -->
@@ -1082,13 +1133,13 @@ if ($thread->title != "") {
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">{!! Lang::get('lang.surrender') !!}</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <span>{!! Lang::get('lang.are_you_sure_you_want_to_surrender_this_ticket') !!}?</span>
                 </div>
                 <div class="modal-footer justify-content-between">
-                    <button type="button" class="btn btn-default" data-dismiss="modal" id="dismis6">{!! Lang::get('lang.close') !!}</button>
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal" id="dismis6">{!! Lang::get('lang.close') !!}</button>
                     <button type="button" class="btn btn-warning" id="Surrender">{!! Lang::get('lang.surrender') !!}</button>
                 </div>
             </div><!-- /.modal-content -->
@@ -1101,35 +1152,35 @@ if ($thread->title != "") {
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">{!! Lang::get('lang.add_collaborator') !!}</h4>
-                    <button type="button" id="cc-close" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <button type="button" id="cc-close" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="nav-tabs-custom mt-1 p-1">
                     <ul class="nav nav-tabs">
-                        <li class="nav-item"><a  class="nav-link active" href="#ahah" data-toggle="tab" style="color:green;" id="aa"><i class="fa fa-users"> </i> {!! Lang::get('lang.search_existing_users') !!}</a></li>
-                        <li  class="nav-item"><a  class="nav-link" href="#haha" data-toggle="tab" style="color:orange;"><i class="fa fa-user-plus" > </i> {!! Lang::get('lang.add_new_user') !!}</a></li>
+                        <li class="nav-item"><a  class="nav-link active text-success" href="#ahah" data-bs-toggle="tab" id="aa"><i class="fa-solid fa-users"> </i> {!! Lang::get('lang.search_existing_users') !!}</a></li>
+                        <li  class="nav-item"><a  class="nav-link text-orange" href="#haha" data-bs-toggle="tab"><i class="fa-solid fa-user-plus" > </i> {!! Lang::get('lang.add_new_user') !!}</a></li>
                     </ul>
                     <div class="tab-content">
                         <div class="tab-pane active" id="ahah">
                             <div class="modal-body" id="def">
                                 <div id="here"></div>
-                                <div id="show7" style="display:none;text-align:center;">
+                                <div id="show7" class="d-none text-center">
                                    <img src="{{asset("lb-faveo/media/images/gifloader.gif")}}"> 
                                 </div>
                                 
-                                {!! Form::model($tickets->id, ['id'=>'search-user','method' => 'PATCH'] )!!}    
+                                {!! html()->modelForm($tickets->id, 'PATCH', url()->current())->attributes(['id' => 'search-user'])->open() !!}    
                                 <div id="hide1234">
                                     <input type="text" class="form-control" name="search" id="tags" placeholder="{!! Lang::get('lang.search_by_email') !!}">
                                     <input type="hidden" name="ticket_id" value="{!! $tickets->id !!}">
                                     <input type="submit" class="btn btn-primary" value="{!! Lang::get('lang.submit') !!}">
                                 </div>
-                                {!! Form::close() !!}
+                                {!! html()->closeModelForm() !!}
                             </div>
                         </div>
                         <div class="tab-pane" id="haha">
                             <div class="modal-body" id="abc">           
                                 <div id="here_new"></div>
-                                {!! Form::model($tickets->id, ['id'=>'add-user','method' => 'PATCH'] )!!} 
-                                <div id="show8" style="display:none;text-align:center;">
+                                {!! html()->modelForm($tickets->id, 'PATCH', url()->current())->attributes(['id' => 'add-user'])->open() !!} 
+                                <div id="show8" class="d-none text-center">
                                     <img src="{{asset("lb-faveo/media/images/gifloader.gif")}}"> 
                                 </div>
                                 <div id="hide12345">
@@ -1138,13 +1189,13 @@ if ($thread->title != "") {
                                     <input type="hidden" name="ticket_id" value="{!! $tickets->id !!}">
                                     <input type="submit" class="btn btn-primary" value="{!! Lang::get('lang.submit') !!}">
                                 </div>
-                                {!! Form::close() !!}
+                                {!! html()->closeModelForm() !!}
                             </div>
                         </div>
                     </div>
                 </div>
                 {{-- <div class="modal-footer"> --}}
-                {{-- <button type="button" class="btn btn-default pull-left" data-dismiss="modal" id="dismis9" data-dismiss="alert">Close</button> --}}
+                {{-- <button type="button" class="btn btn-secondary pull-left" data-bs-dismiss="modal" id="dismis9" data-bs-dismiss="alert">Close</button> --}}
                 {{-- <button type="button" class="btn btn-warning pull-right" id="Surrender">Add User</button> --}}
                 {{-- </div> --}}
             </div><!-- /.modal-content -->
@@ -1156,7 +1207,7 @@ if ($thread->title != "") {
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">{!! Lang::get('lang.list_of_collaborators_of_this_ticket') !!}</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="surrender22">
                     @foreach($Collaborator as $ccc)
@@ -1164,26 +1215,26 @@ if ($thread->title != "") {
                     $collab_user_id = $ccc->user_id;
                     $collab_user = App\User::where('id', '=', $collab_user_id)->first();
                     ?>
-                    <div id="alert11" class="alert alert-dismissable" style="background-color:#F2F2F2">
+                    <div id="alert11" class="alert alert-dismissible modal-collaborator-row">
                         <meta name="_token" content="{{ csrf_token() }}"/>
-                        <button id="dismiss11" type="button" class="close" data-dismiss="alert" onclick="remove_collaborator({!! $ccc->id !!})" aria-hidden="true">×</button>
+                        <button id="dismiss11" type="button" class="btn-close" data-bs-dismiss="alert" onclick="remove_collaborator({!! $ccc->id !!})" aria-hidden="true"></button>
                         @if($collab_user->role == 'agent' || $collab_user->role == 'admin')
-                        <i class="icon fa fa-user"></i>{!! $collab_user->first_name . " " . $collab_user->last_name !!}
+                        <i class="icon fa-solid fa-user"></i>{!! $collab_user->first_name . " " . $collab_user->last_name !!}
                         @elseif($collab_user->role == 'user')
-                        <i class="icon fa fa-user"></i>{!! $collab_user->user_name !!}
+                        <i class="icon fa-solid fa-user"></i>{!! $collab_user->user_name !!}
                         @endif
                         <div id="message-success1">{!! $collab_user->email !!}</div>
                     </div>
                     @endforeach
                 </div>
                 {{--  <div class="modal-footer">
-                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal" id="dismis6">Close</button>
+                    <button type="button" class="btn btn-secondary pull-left" data-bs-dismiss="modal" id="dismis6">Close</button>
                     <button type="button" class="btn btn-warning pull-right" id="Surrender">Surrender</button>
                 </div> --}}
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
-    <div style="display:none">
+    <div class="d-none">
         <form id="auto-submit">
             <input type="hidden" name="now" value="1">
         </form>
@@ -1198,25 +1249,25 @@ if ($thread->title != "") {
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">{!! Lang::get('lang.merge-ticket') !!} <b>[#{!! $tickets->ticket_number !!}]</b> </h4>
-                <button type="button" class="close" data-dismiss="modal" id="merge-close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" id="merge-close" aria-label="Close"></button>
                 
             </div><!-- /.modal-header-->
             <div class ="modal-body">
-                <div class="text-center" id="merge_loader"  style="display:none;">
+                <div class="text-center d-none" id="merge_loader">
                     <img src="{{asset("lb-faveo/media/images/gifloader.gif")}}">
                 </div>
                 <div id="merge_body">
                     <div id="merge-body-alert">
                         <div class="row">
                             <div class="col-md-12">
-                                <div id="merge-succ-alert" class="alert alert-success alert-dismissable" style="display:none;" >
-                                    <!-- <button id="dismiss-merge" type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button> -->
-                                    <b><i class="icon fa fa-check"></i>Alert!</b>
+                                <div id="merge-succ-alert" class="alert alert-success alert-dismissible fade d-none" >
+                                    <!-- <button id="dismiss-merge" type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button> -->
+                                    <b><i class="icon fa-solid fa-check"></i>Alert!</b>
                                     <div id="message-merge-succ"></div>
                                 </div>
-                                <div id="merge-err-alert" class="alert alert-danger alert-dismissable" style="display:none;">
-                                    <!-- <button id="dismiss-merge2" type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button> -->
-                                    <h4><i class="icon fas fa-ban"></i>Alert!</h4>
+                                <div id="merge-err-alert" class="alert alert-danger alert-dismissible fade d-none">
+                                    <!-- <button id="dismiss-merge2" type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button> -->
+                                    <h4><i class="icon fa-solid fa-ban"></i>Alert!</h4>
                                     <div id="message-merge-err"></div>
                                 </div>
                             </div>
@@ -1225,7 +1276,7 @@ if ($thread->title != "") {
                     <div id="merge-body-form">
                         <div class="row">
                             <div class="col-md-6">
-                                {!! Form::open(['id'=>'merge-form','method' => 'PATCH'] )!!}
+                                {!! html()->form('PATCH', url()->current())->attributes(['id' => 'merge-form'])->open() !!}
                                 <label>{!! Lang::get('lang.title') !!}</label>
                                 <input type="text" name='title' class="form-control" value="<?php
                                        $ticket_data = App\Model\helpdesk\Ticket\Ticket_Thread::select('title')->where('ticket_id', "=", $tickets->id)->first();
@@ -1234,12 +1285,12 @@ if ($thread->title != "") {
                             </div>
                             <div class="col-md-6">
                                 <label>{!! Lang::get('lang.select-pparent-ticket') !!}</label>
-                                <div id="parent-loader" style="display:none;">
+                                <div id="parent-loader" class="d-none">
                                     <img src="{{asset("lb-faveo/media/images/gifloader.gif")}}" height="30px" width="30px">
                                 </div>
                                 <div id="parent-body" >
 
-                                    <select class="form-control" id="select-merge-parent"  name='p_id' data-placeholder="{!! Lang::get('lang.select_tickets') !!}" style="width: 100%;"><option value="{{$tickets->id}}"><?php
+                                    <select class="form-control w-100" id="select-merge-parent"  name='p_id' data-placeholder="{!! Lang::get('lang.select_tickets') !!}"><option value="{{$tickets->id}}"><?php
                                        $ticket_data = App\Model\helpdesk\Ticket\Ticket_Thread::select('title')->where('ticket_id', "=", $tickets->id)->first();
                                        echo strip_tags($ticket_data->title);
                                        ?></option></select>
@@ -1251,7 +1302,7 @@ if ($thread->title != "") {
                             <div class="col-md-6">
 
                                 <label>{!! Lang::get('lang.select_tickets') !!}</label>
-                                <select class="form-control select2" id="select-merge-tickts" name="t_id[]" multiple="multiple" data-placeholder="{!! Lang::get('lang.select_tickets') !!}" style="width: 100%;">
+                                <select class="form-control select2 w-100" id="select-merge-tickts" name="t_id[]" multiple="multiple" data-placeholder="{!! Lang::get('lang.select_tickets') !!}">
 
                                 </select>
 
@@ -1266,28 +1317,28 @@ if ($thread->title != "") {
                 </div><!-- merge-body -->
             </div><!-- /.modal-body -->
             <div class="modal-footer justify-content-between">
-                <button type="button" class="btn btn-default" data-dismiss="modal" id="dismis2">{!! Lang::get('lang.close') !!}</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="dismis2">{!! Lang::get('lang.close') !!}</button>
                 <input  type="submit" id="merge-btn" class="btn btn-primary" value="{!! Lang::get('lang.merge') !!}"></input>
-                {!! Form::close() !!}
+                {!! html()->closeModelForm() !!}
             </div><!-- /.modal-footer -->
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
 <!-- Modal -->   
-<div class="modal fade in" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false" style="display: none; padding-right: 15px;background-color: rgba(0, 0, 0, 0.7);">
+<div class="modal fade in modal-overlay-hidden" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false">
     <div class="modal-dialog" role="document">
         <div class="col-md-2"></div>
         <div class="col-md-8">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close closemodal" data-dismiss="modal" aria-label="Close"><span aria-hidden="true"></span></button>
+                    <button type="button" class="btn-close closemodal" data-bs-dismiss="modal" aria-label="Close"></button>
                     <h4 class="modal-title" id="myModalLabel"></h4>
                 </div>
                 <div class="modal-body" id="custom-alert-body" >
                 </div>
                 <div class="modal-footer">
-                    <a href="{!! URL::route('ticket.thread',$tickets->id) !!}"><button type="button" class="btn btn-primary yes" data-dismiss="modal">{{Lang::get('lang.reload-now')}}</button></a>
+                    <a href="{!! URL::route('ticket.thread',$tickets->id) !!}"><button type="button" class="btn btn-primary yes" data-bs-dismiss="modal">{{Lang::get('lang.reload-now')}}</button></a>
                 </div>
             </div>
         </div>
@@ -1302,7 +1353,7 @@ if ($thread->title != "") {
                 $("#file_details").html("");
                 $("#total-size").html("");
                 $("#attachment").val('');
-                $("#clear-file").hide();
+                $("#clear-file").addClass('d-none');
                 $("#replybtn").removeClass('disabled');
             }
             
@@ -1337,18 +1388,18 @@ if ($thread->title != "") {
             type: "GET",
                     url: "../ticket/status/{{$tickets->id}}/" + search_r,
                     beforeSend: function () {
-                    $("#refresh").hide();
-                            $("#loader").show();
+                    $("#refresh").addClass('d-none');
+                            $("#loader").removeClass('d-none');
                     },
                     success: function (response) {
 
                     $("#refresh").load("../thread/{{$tickets->id}}  #refresh");
-                            $("#refresh").show();
-                            $("#loader").hide();
+                            $("#refresh").removeClass('d-none');
+                            $("#loader").addClass('d-none');
                             var message = response;
-                            $("#alert11").show();
+                            $("#alert11").removeClass('d-none');
                             $('#message-success1').html(message);
-                            setInterval(function(){$("#alert11").hide(); }, 4000);
+                            setInterval(function(){$("#alert11").addClass('d-none'); }, 4000);
                     }
             });
             return false;
@@ -1375,17 +1426,17 @@ if ($thread->title != "") {
     type: "POST",
             url: "../ticket/close/{{$tickets->id}}",
             beforeSend: function() {
-            $("#hidespin").hide();
-                    $("#spin").show();
-                    $("#hide2").hide();
-                    $("#show2").show();
+            $("#hidespin").addClass('d-none');
+                    $("#spin").removeClass('d-none');
+                    $("#hide2").addClass('d-none');
+                    $("#show2").removeClass('d-none');
             },
             success: function(response) {
             $("#refresh").load("../thread/{{$tickets->id}}   #refresh");
-                    $("#show2").hide();
-                    $("#spin").hide();
-                    $("#hide2").show();
-                    $("#hidespin").show();
+                    $("#show2").addClass('d-none');
+                    $("#spin").addClass('d-none');
+                    $("#hide2").removeClass('d-none');
+                    $("#hidespin").removeClass('d-none');
                     $("#d1").trigger("click");
                     var message = "{!! Lang::get('lang.your_ticket_have_been_closed') !!}";
                     $("#alert10").css('display','block');
@@ -1403,20 +1454,20 @@ if ($thread->title != "") {
     type: "POST",
             url: "../ticket/close/get-approval/{{$tickets->id}}",//route 600
             beforeSend: function() {
-            $("#hidespin").hide();
-                    $("#spin").show();
-                    $("#hide2").hide();
-                    $("#show2").show();
+            $("#hidespin").addClass('d-none');
+                    $("#spin").removeClass('d-none');
+                    $("#hide2").addClass('d-none');
+                    $("#show2").removeClass('d-none');
             },
 
             success: function(response) {
            
             $("#refresh").load("../thread/{{$tickets->id}}   #refresh");
              
-                    $("#show2").hide();
-                    $("#spin").hide();
-                    $("#hide2").show();
-                    $("#hidespin").show();
+                    $("#show2").addClass('d-none');
+                    $("#spin").addClass('d-none');
+                    $("#hide2").removeClass('d-none');
+                    $("#hidespin").removeClass('d-none');
                     $("#d1").trigger("click");
                     var message = "successfull approval";
                     $("#alert10").css('display','block');
@@ -1436,14 +1487,14 @@ if ($thread->title != "") {
     type: "POST",
             url: "../ticket/resolve/{{$tickets->id}}",
             beforeSend: function() {
-            $("#hide2").hide();
-                    $("#show2").show();
+            $("#hide2").addClass('d-none');
+                    $("#show2").removeClass('d-none');
             },
             success: function(response) {
             $("#refresh").load("../thread/{{$tickets->id}}  #refresh");
                     $("#d1").trigger("click");
-                    $("#hide2").show();
-                    $("#show2").hide();
+                    $("#hide2").removeClass('d-none');
+                    $("#show2").addClass('d-none');
                     var message = "{!! Lang::get('lang.your_ticket_have_been_resolved') !!}";
                     console.log(message,'message')
                     $("#alert10").css('display','block');
@@ -1461,14 +1512,14 @@ if ($thread->title != "") {
     type: "POST",
             url: "../ticket/open/{{$tickets->id}}",
             beforeSend: function() {
-            $("#hide2").hide();
-                    $("#show2").show();
+            $("#hide2").addClass('d-none');
+                    $("#show2").removeClass('d-none');
             },
             success: function(response) {
             $("#refresh").load("../thread/{{$tickets->id}}   #refresh");
                     $("#d1").trigger("click");
-                    $("#hide2").show();
-                    $("#show2").hide();
+                    $("#hide2").removeClass('d-none');
+                    $("#show2").addClass('d-none');
                     var message = "{!! Lang::get('lang.your_ticket_have_been_opened') !!}";
                     $("#alert10").css('display','block');
                     $('#message-success0').html(message);
@@ -1485,14 +1536,14 @@ if ($thread->title != "") {
     type: "POST",
             url: "../ticket/delete/{{$tickets->id}}",
             beforeSend: function() {
-            $("#hide2").hide();
-                    $("#show2").show();
+            $("#hide2").addClass('d-none');
+                    $("#show2").removeClass('d-none');
             },
             success: function(response) {
             $("#refresh").load("../thread/{{$tickets->id}}   #refresh");
                     $("#d2").trigger("click");
-                    $("#hide2").show();
-                    $("#show2").hide();
+                    $("#hide2").removeClass('d-none');
+                    $("#show2").addClass('d-none');
                     var message = "{!! Lang::get('lang.your_ticket_have_been_moved_to_trash') !!}";
                     $("#alert10").css('display','block');
                     $('#message-success0').html(message);
@@ -1524,14 +1575,14 @@ if ($thread->title != "") {
     });
             // internal note
             // $('#internal').click(function() {
-            //     $('#t1').hide();
-            //     $('#t2').show();
+            //     $('#t1').addClass('d-none');
+            //     $('#t2').removeClass('d-none');
             // });
 
             // comment a ticket
             // $('#aa').click(function() {
-            //     $('#t1').show();
-            //     $('#t2').hide();
+            //     $('#t1').removeClass('d-none');
+            //     $('#t2').addClass('d-none');
             // });
 
 // Edit a ticket
@@ -1542,12 +1593,12 @@ if ($thread->title != "") {
             dataType: "html",
             data: $(this).serialize(),
             beforeSend: function() {
-            $("#hide").hide();
-                    $("#show").show();
+            $("#hide").addClass('d-none');
+                    $("#show").removeClass('d-none');
             },
             success: function(response) {
-            $("#show").hide();
-                    $("#hide").show();
+            $("#show").addClass('d-none');
+                    $("#hide").removeClass('d-none');
                     if (response == 0) {
             message = "{!! Lang::get('lang.ticket_updated_successfully') !!}"
             $('#Edit').modal('hide');
@@ -1559,19 +1610,19 @@ if ($thread->title != "") {
                 location.reload();
             }
             else if (response == 1) {
-            $("#error-subject").show();
+            $("#error-subject").removeClass('d-none');
             }
             else if (response == 2) {
-            $("#error-sla").show();
+            $("#error-sla").removeClass('d-none');
             }
             else if (response == 3) {
-            $("#error-help").show();
+            $("#error-help").removeClass('d-none');
             }
             else if (response == 4) {
-            $("#error-source").show();
+            $("#error-source").removeClass('d-none');
             }
             else if (response == 5) {
-            $("#error-priority").show();
+            $("#error-priority").removeClass('d-none');
             }
             }
     })
@@ -1585,27 +1636,11 @@ if ($thread->title != "") {
             dataType: "html",
             data: $(this).serialize(),
             beforeSend: function() {
-            $("#assign_body").hide();
-                    $("#assign_loader").show();
+            $("#assign_body").addClass('d-none');
+                    $("#assign_loader").removeClass('d-none');
             },
             success: function(response) {
-            if (response == 1)
-            {
-            // $("#assign_body").show();
-            // var message = "Success";
-            // $('#message-success1').html(message);
-            // setInterval(function(){$("#alert11").hide(); },4000);   
             location.reload();
-            var message = "Success!";
-                    $("#alert10").css('display','block');
-                    $('#message-success0').html(message);
-                    setInterval(function(){$("#dismiss10").trigger("click"); }, 2000);
-            }
-            $("#assign_body").show();
-                    $("#assign_loader").hide();
-                    $("#dismis4").trigger("click");
-                    // $("#RefreshAssign").load( "../thread/{{$tickets->id}} #RefreshAssign");
-                    // $("#General").load( "../thread/{{$tickets->id}} #General");
             }
     })
             return false;
@@ -1618,12 +1653,12 @@ if ($thread->title != "") {
             dataType: "html",
             data: $(this).serialize(),
             beforeSend: function() {
-            $("#change_body").hide();
-                    $("#change_loader").show();
+            $("#change_body").addClass('d-none');
+                    $("#change_loader").removeClass('d-none');
             },
             success: function(response) {
             if (response != 1) {
-                // $("#assign_body").show();
+                // $("#assign_body").removeClass('d-none');
                 var message = "{{Lang::get('lang.user-not-found')}}";
                 if (response == 400) {
                     message = "{{Lang::get('lang.selected-user-is-already-the-owner')}}";
@@ -1631,11 +1666,11 @@ if ($thread->title != "") {
                 $('#change_alert').css('display','block');
                 $('#message-success42').html(message);
                 setInterval(function(){$("#change_alert").css('display','none'); }, 5000);
-                $("#change_body").show();
-                $("#change_loader").hide();
+                $("#change_body").removeClass('d-none');
+                $("#change_loader").addClass('d-none');
             } else {
-            $("#change_body").show();
-                    $("#change_loader").hide();
+            $("#change_body").removeClass('d-none');
+                    $("#change_loader").addClass('d-none');
                     $("#dismis42").trigger("click");
                     // $("#RefreshAssign").load( "../thread/{{$tickets->id}} #RefreshAssign");
                     // $("#General").load( "../thread/{{$tickets->id}} #General");
@@ -1663,13 +1698,13 @@ if ($thread->title != "") {
             dataType: "html",
             data: $(this).serialize(),
             beforeSend: function() {
-            $('#add-change-loader').show();
-                    $('#add-change-body').hide();
+            $('#add-change-loader').removeClass('d-none');
+                    $('#add-change-body').addClass('d-none');
             },
             success: function(response) {
             if (response == 1){
-            $('#add-change-loader').hide();
-                    $('#add-change-body').show();
+            $('#add-change-loader').addClass('d-none');
+                    $('#add-change-body').removeClass('d-none');
                     $("#close101").trigger("click");
                     $("#hide2").load("../thread/{{$tickets->id}}  #hide2");
                     $("#refresh").load("../thread/{{$tickets->id}}  #refresh");
@@ -1689,11 +1724,11 @@ if ($thread->title != "") {
             } else {
             //var message = "Can't process your request. Try after some time.";
             }
-            $('#change_alert2').show();
+            $('#change_alert2').removeClass('d-none');
                     $('#message-success422').html(message);
-                    setInterval(function(){$("#change_alert2").hide(); }, 8000);
-                    $('#add-change-loader').hide();
-                    $('#add-change-body').show();
+                    setInterval(function(){$("#change_alert2").addClass('d-none'); }, 8000);
+                    $('#add-change-loader').addClass('d-none');
+                    $('#add-change-body').removeClass('d-none');
             }
             }
     })
@@ -1704,14 +1739,14 @@ if ($thread->title != "") {
                 var internal_content = document.getElementById('InternalContent').value;
                 if(internal_content) {
                     $("#internal_content_class").removeClass('has-error');
-                    $("#alert23").hide();
+                    $("#alert23").addClass('d-none');
                 } else {
                     var message = "<li>{!! Lang::get('lang.internal_content_is_a_required_field') !!}</li>";
                     $("#internal_content_class").addClass('has-error');
-                    $("#alert23").show();
+                    $("#alert23").removeClass('d-none');
                     $('#message-danger2').html(message);
-                    $("#show3").hide();
-                    $("#t1").show();
+                    $("#show3").addClass('d-none');
+                    $("#t1").removeClass('d-none');
                     return false;
                 }
     $.ajax({
@@ -1720,8 +1755,8 @@ if ($thread->title != "") {
             dataType: "html",
             data: $(this).serialize(),
             beforeSend: function() {
-            $("#t2").hide();
-                    $("#show5").show();
+            $("#t2").addClass('d-none');
+                    $("#show5").removeClass('d-none');
             },
             success: function(response) {
 
@@ -1732,11 +1767,11 @@ if ($thread->title != "") {
             
                     // $("#t4").load("../thread/{{$tickets->id}}   #t4");
                     var message = "{!! Lang::get('lang.internal-note-has-been-added') !!}";
-                    $("#alert21").show();
+                    $("#alert21").removeClass('d-none');
                     $('#message-success2').html(message);
-                    setInterval(function(){$("#alert21").hide(); }, 4000);
-                    $("#show5").hide();
-                    $("#t2").show();
+                    setInterval(function(){$("#alert21").addClass('d-none'); }, 4000);
+                    $("#show5").addClass('d-none');
+                    $("#t2").removeClass('d-none');
                     $('#InternalContent').summernote('reset');
                     setInterval(function(){
                             var head= document.getElementsByTagName('head')[0];
@@ -1744,22 +1779,22 @@ if ($thread->title != "") {
                             script.type= 'text/javascript';
                             script.src= '{{asset("lb-faveo/js/jquery.rating.pack.js")}}';
                             head.appendChild(script);
-//                            $('.rating-cancel').hide();
+//                            $('.rating-cancel').addClass('d-none');
 //                            $(".star-rating-control").attr("disabled", "disabled").off('hover');
 //                            $(".star-rating-control").addClass("disabled")
                         }, 4000);
             } else {
             // alert('fail');
             var message = "{!! Lang::get('lang.for_some_reason_your_message_was_not_posted_please_try_again_later') !!}";
-                    $("#alert23").show();
-                    $("#show5").hide();
-                    $("#t2").show();
+                    $("#alert23").removeClass('d-none');
+                    $("#show5").addClass('d-none');
+                    $("#t2").removeClass('d-none');
                     $('#message-danger2').html(message);
-                    setInterval(function(){$("#alert23").hide(); }, 4000);
+                    setInterval(function(){$("#alert23").addClass('d-none'); }, 4000);
                     // $( "#dismis4" ).trigger( "click" );
             }
-            $("#t2").show();
-                    $("#show5").hide();
+            $("#t2").removeClass('d-none');
+                    $("#show5").addClass('d-none');
             }
     })
             return false;
@@ -1782,18 +1817,18 @@ if ($thread->title != "") {
                         if(file.size < supported_size) {
                             $("#file_details").append("<tr> <td> " + file.name + " </td><td> " + formatBytes(file.size) + "</td> </tr>");
                         } else {
-                            $("#file_details").append("<tr style='color:red;'> <td> " + file.name + " </td><td> " + formatBytes(file.size) + "</td> </tr>");
+                            $("#file_details").append("<tr class='text-danger'> <td> " + file.name + " </td><td> " + formatBytes(file.size) + "</td> </tr>");
                         }
                         total_size += parseInt(file.size);
                     }
                     if(total_size > supported_size) {
-                        $("#total-size").append("<span style='color:red'>Your total file upload size is greater than "+ supported_actual_size +"</span>");
+                        $("#total-size").append("<span class='text-danger'>Your total file upload size is greater than "+ supported_actual_size +"</span>");
                         $("#replybtn").addClass('disabled');
-                        $("#clear-file").show();
+                        $("#clear-file").removeClass('d-none');
                     } else {
                         $("#total-size").html("");
                         $("#replybtn").removeClass('disabled');
-                        $("#clear-file").show();
+                        $("#clear-file").removeClass('d-none');
                     }
                 }
             });
@@ -1812,14 +1847,14 @@ if ($thread->title != "") {
             var reply_content = document.getElementById('reply_content').value;
             if(reply_content) {
                 $("#reply_content_class").removeClass('has-error');
-                $("#alert23").hide();
+                $("#alert23").addClass('d-none');
             } else {
                 var message = "<li>{!! Lang::get('lang.reply_content_is_a_required_field') !!}</li>";
                 $("#reply_content_class").addClass('has-error');
-                $("#alert23").show();
+                $("#alert23").removeClass('d-none');
                 $('#message-danger2').html(message);
-                $("#show3").hide();
-                $("#t1").show();
+                $("#show3").addClass('d-none');
+                $("#t1").removeClass('d-none');
                 $('html, body').animate({
                     scrollTop: $("#inboxactions").offset().top
                 }, 500);
@@ -1835,26 +1870,26 @@ if ($thread->title != "") {
                     processData: false, // tell jQuery not to process the data
                     contentType: false, // tell jQuery not to set contentType
                     beforeSend: function() {
-                    $("#t1").hide();
-                    $("#show3").show();
+                    $("#t1").addClass('d-none');
+                    $("#show3").removeClass('d-none');
                     $('html, body').animate({
                     scrollTop: $("#inboxactions").offset().top
                 }, 500);
             },
             success: function(json) {
-                $("#show3").hide();
-                $("#t1").show();
+                $("#show3").addClass('d-none');
+                $("#t1").removeClass('d-none');
                 setTimeout(function () {
                     location.reload();
                 }, 4000);
 
-                $("#alert21").show();
+                $("#alert21").removeClass('d-none');
                 $('#message-success2').html(json.result.success);
             },
 
                 error: function(json) {
-                    $("#show3").hide();
-                    $("#t1").show();
+                    $("#show3").addClass('d-none');
+                    $("#t1").removeClass('d-none');
                     var res = "";
                     $.each(json.responseJSON, function (idx, topic) {
                     res += "<li>" + topic + "</li>";
@@ -1881,13 +1916,13 @@ if ($thread->title != "") {
                     $('#message-success0').html(message);
                     setInterval(function(){$("#dismiss11").trigger("click"); }, 2000);
                     // $("#refresh1").load( "http://localhost/faveo/public/thread/{{$tickets->id}}   #refresh1");
-                    $('#surrender_button').hide();
+                    $('#surrender_button').addClass('d-none');
                     location.reload();
             }
             else
             {
             var message = "{!! Lang::get('lang.for_some_reason_your_request_failed') !!}";
-                    $("#alert13").show();
+                    $("#alert13").removeClass('d-none');
                     $('#message-danger1').html(message);
                     setInterval(function(){$("#dismiss13").trigger("click"); }, 2000);
                     // alert('fail');
@@ -1906,12 +1941,12 @@ if ($thread->title != "") {
             data: $(this).serialize(),
             beforeSend: function() {
                 $('#here').html("");
-                $('#show7').show();
-                $('#hide1234').hide();
+                $('#show7').removeClass('d-none');
+                $('#hide1234').addClass('d-none');
             },
             success: function(response) {
-            $('#show7').hide();
-                    $('#hide1234').show();
+            $('#show7').addClass('d-none');
+                    $('#hide1234').removeClass('d-none');
                     $('#here').html(response);
                     $("#recepients").load("../thread/{{$tickets->id}}   #recepients");
                     $("#surrender22").load("../thread/{{$tickets->id}}   #surrender22");
@@ -1934,12 +1969,12 @@ if ($thread->title != "") {
             data: $(this).serialize(),
             beforeSend: function() {
             $('#here_new').html("");
-            $('#show8').show();
-            $('#hide12345').hide();
+            $('#show8').removeClass('d-none');
+            $('#hide12345').addClass('d-none');
             },
             success: function(response) {
-            $('#show8').hide();
-                    $('#hide12345').show();
+            $('#show8').addClass('d-none');
+                    $('#hide12345').removeClass('d-none');
                     $('#here_new').html(response);
                     $("#recepients").load("../thread/{{$tickets->id}}   #recepients");
                     $("#surrender22").load("../thread/{{$tickets->id}}   #surrender22");
@@ -1962,27 +1997,27 @@ if ($thread->title != "") {
             dataType: "html",
             data:$(this).serialize(),
             beforeSend: function() {
-            $("#merge_body").hide();
-                    $("#merge_loader").show();
+            $("#merge_body").addClass('d-none');
+                    $("#merge_loader").removeClass('d-none');
             },
             success: function(response) {
             if (response == 0) {
-            $("#merge_body").show();
-                    $("#merge-succ-alert").hide();
-                    $("#merge-body-alert").show();
-                    $("#merge-body-form").hide();
-                    $("#merge_loader").hide();
+            $("#merge_body").removeClass('d-none');
+                    $("#merge-succ-alert").addClass('d-none');
+                    $("#merge-body-alert").removeClass('d-none');
+                    $("#merge-body-form").addClass('d-none');
+                    $("#merge_loader").addClass('d-none');
                     $("#merge-btn").attr('disabled', true);
                     var message = "{{Lang::get('lang.no-tickets-to-merge')}}";
-                    $("#merge-err-alert").show();
+                    $("#merge-err-alert").removeClass('d-none');
                     $('#message-merge-err').html(message);
             } else {
-            $("#merge_body").show();
-                    $("#merge-body-alert").hide();
-                    $("#merge-body-form").show();
-                    $("#merge_loader").hide();
+            $("#merge_body").removeClass('d-none');
+                    $("#merge-body-alert").addClass('d-none');
+                    $("#merge-body-form").removeClass('d-none');
+                    $("#merge_loader").addClass('d-none');
                     $("#merge-btn").attr('disabled', false);
-                    $("#merge_loader").hide();
+                    $("#merge_loader").addClass('d-none');
                     $.ajax({
                     url: "../get-merge-tickets/{{ $tickets->id}}",
                             type: 'GET',
@@ -2005,36 +2040,36 @@ if ($thread->title != "") {
             dataType: "html",
             data: $(this).serialize(),
             beforeSend: function() {
-            $("#merge_body").hide();
-                    $("#merge_loader").show();
+            $("#merge_body").addClass('d-none');
+                    $("#merge_loader").removeClass('d-none');
             },
             success: function(response) {
             if (response == 0) {
-            $("#merge_body").show();
-                    $("#merge-succ-alert").hide();
-                    $("#merge-body-alert").show();
-                    $("#merge-body-form").hide();
-                    $("#merge_loader").hide();
+            $("#merge_body").removeClass('d-none');
+                    $("#merge-succ-alert").addClass('d-none');
+                    $("#merge-body-alert").removeClass('d-none');
+                    $("#merge-body-form").addClass('d-none');
+                    $("#merge_loader").addClass('d-none');
                     $("#merge-btn").attr('disabled', true);
                     var message = "{{Lang::get('lang.merge-error')}}";
-                    $("#merge-err-alert").show();
+                    $("#merge-err-alert").removeClass('d-none');
                     $('#message-merge-err').html(message);
             } else if (response == 2) {
-            $("#merge_body").show();
-                    $("#merge-succ-alert").hide();
-                    $("#merge-body-alert").show();
-                    $("#merge-body-form").hide();
-                    $("#merge_loader").hide();
+            $("#merge_body").removeClass('d-none');
+                    $("#merge-succ-alert").addClass('d-none');
+                    $("#merge-body-alert").removeClass('d-none');
+                    $("#merge-body-form").addClass('d-none');
+                    $("#merge_loader").addClass('d-none');
                     $("#merge-btn").attr('disabled', true);
                     var message = "{{Lang::get('lang.merge-error2')}}";
-                    $("#merge-err-alert").show();
+                    $("#merge-err-alert").removeClass('d-none');
                     $('#message-merge-err').html(message);
             } else {
-            $("#merge_body").show();
-                    $("#merge-err-alert").hide();
-                    $("#merge-body-alert").show();
-                    $("#merge-body-form").hide();
-                    $("#merge_loader").hide();
+            $("#merge_body").removeClass('d-none');
+                    $("#merge-err-alert").addClass('d-none');
+                    $("#merge-body-alert").removeClass('d-none');
+                    $("#merge-body-form").addClass('d-none');
+                    $("#merge_loader").addClass('d-none');
                     $("#merge-btn").attr('disabled', true);
                     $("#hide2").load("../thread/{{$tickets->id}}  #hide2");
                     $("#refresh").load("../thread/{{$tickets->id}}  #refresh");
@@ -2043,7 +2078,7 @@ if ($thread->title != "") {
                     $("#refreshTo").load("../thread/{{$tickets->id}}  #refreshTo");
                     $("#more-option").load("../thread/{{$tickets->id}}  #more-option");
                     var message = "{{Lang::get('lang.merge-success')}}";
-                    $("#merge-succ-alert").show();
+                    $("#merge-succ-alert").removeClass('d-none');
                     $('#message-merge-succ').html(message);
                     location.reload();
             }
@@ -2099,12 +2134,12 @@ echo $ticket_data->title;
                     dataType: "html",
                     data:{data1:arr},
                     beforeSend: function() {
-                    $("#parent-loader").show();
-                            $("#parent-body").hide();
+                    $("#parent-loader").removeClass('d-none');
+                            $("#parent-body").addClass('d-none');
                     },
                     success: function(data) {
-                    $("#parent-loader").hide();
-                            $("#parent-body").show();
+                    $("#parent-loader").addClass('d-none');
+                            $("#parent-body").removeClass('d-none');
                             // $("#select-merge-parent").focus();
                             $('#select-merge-parent').html(data);
                             // $( this ).off( event );
@@ -2157,35 +2192,35 @@ echo $ticket_data->title;
                     // alert(response);
                     // var message = "{{Lang::get('lang.access-ticket')}}"+locktime/(60*1000)
                     // +"{{Lang::get('lang.minutes')}}";
-                    $("#alert22").hide();
+                    $("#alert22").addClass('d-none');
                             $("#hide2").load("../thread/{{$tickets->id}}  #hide2");
                             $("#refresh").load("../thread/{{$tickets->id}}  #refresh");
                             $("#refresh1").load("../thread/{{$tickets->id}}  #refresh1");
                             $("#refresh3").load("../thread/{{$tickets->id}}  #refresh3");
                             $("#t5").load("../thread/{{$tickets->id}}  #t5");
-                            // $("#alert21").show();
+                            // $("#alert21").removeClass('d-none');
                             // $('#message-success2').html(message);
                             $('#replybtn').attr('disabled', false);
-                            // setInterval(function(){$("#alert21").hide(); },8000);
+                            // setInterval(function(){$("#alert21").addClass('d-none'); },8000);
                     } else if (response == 1 || response == 4){
                     // alert(response);
                     // var message = "{{Lang::get('lang.access-ticket')}}"+locktime/(60*1000)
                     // +"{{Lang::get('lang.minutes')}}";
-                    $("#alert22").hide();
+                    $("#alert22").addClass('d-none');
                             $("#refresh").load("../thread/{{$tickets->id}}  #refresh");
                             // $("#refresh1").load("../thread/{{$tickets->id}}  #refresh1");
                             $("#refresh3").load("../thread/{{$tickets->id}}  #refresh3");
                             $("#t5").load("../thread/{{$tickets->id}}  #t5");
-                            // $("#alert21").show();
+                            // $("#alert21").removeClass('d-none');
                             // $('#message-success2').html(message);
                             $('#replybtn').attr('disabled', false);
-                            // setInterval(function(){$("#alert21").hide(); },8000); 
+                            // setInterval(function(){$("#alert21").addClass('d-none'); },8000); 
                     } else {
                     var message = response;
-                            $("#alert22").show();
+                            $("#alert22").removeClass('d-none');
                             $('#message-warning2').html(message);
                             $('#replybtn').attr('disabled', true);
-                            //setInterval(function(){$("#alert23").hide(); },10000);
+                            //setInterval(function(){$("#alert23").addClass('d-none'); },10000);
                     }
                     }
             })
@@ -2211,5 +2246,57 @@ echo $ticket_data->title;
            $('#reply_content').summernote('pasteHTML', response);
         }
     }
+
+    // Change Due Date datepicker
+    $('#changeDueDate').on('shown.bs.modal', function () {
+        $('#due-datemask').datepicker({
+            format: 'dd/mm/yyyy',
+            autoclose: true,
+            todayHighlight: true,
+        });
+    });
+
+    // Change Due Date AJAX submit
+    $('#changeDueDateForm').on('submit', function (e) {
+        e.preventDefault();
+        $('#dueDateAlert').empty();
+        $('#dueDateSubmitBtn').attr('disabled', true);
+        $('#dueDateSpinner').removeClass('d-none');
+        $.ajax({
+            type: 'POST',
+            url: '../ticket/duedate/{{ $tickets->id }}',
+            data: $(this).serialize(),
+            success: function (response) {
+                $('#dueDateSubmitBtn').attr('disabled', false);
+                $('#dueDateSpinner').addClass('d-none');
+                $('#dueDateAlert').html("<div class='alert alert-success alert-dismissible'><button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>{!! Lang::get('lang.due_date_updated_successfully') !!}</div>");
+                setTimeout(function () {
+                    $('#changeDueDate').modal('hide');
+                    location.reload();
+                }, 1500);
+            },
+            error: function (xhr) {
+                $('#dueDateSubmitBtn').attr('disabled', false);
+                $('#dueDateSpinner').addClass('d-none');
+                var msg = 'Something went wrong. Please try again.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    msg = xhr.responseJSON.message;
+                } else if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    var errors = xhr.responseJSON.errors;
+                    msg = Object.values(errors).map(function(e){ return e[0]; }).join('<br>');
+                }
+                $('#dueDateAlert').html("<div class='alert alert-danger alert-dismissible'><button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>" + msg + "</div>");
+            }
+        });
+    });
+
+    $('#changeDueDate').on('hidden.bs.modal', function () {
+        $('#dueDateAlert').empty();
+    });
 </script>
+@stop
+
+@section('FooterInclude')
+<link rel="stylesheet" href="{{ asset('lb-faveo/plugins/datepicker/datepicker3.css') }}">
+<script src="{{ asset('lb-faveo/plugins/datepicker/bootstrap-datepicker.js') }}"></script>
 @stop

@@ -16,6 +16,7 @@
     <!-- AdminLTE Skins. Choose a skin from the css/skins
          folder instead of downloading all of them to reduce the load. -->
     <link href="../../dist/css/skins/_all-skins.min.css" rel="stylesheet" type="text/css" />
+    <link href="{{asset("css/common.css")}}" rel="stylesheet" type="text/css" />
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -27,23 +28,23 @@
   <!-- ADD THE CLASS layout-boxed TO GET A BOXED LAYOUT -->
   <body class="skin-blue layout-boxed">
     <!-- Site wrapper -->
-    <div class="wrapper">
+    <div class="app-wrapper">
 
       <header class="main-header">
         <a href="../../index2.html" class="logo"><b>Admin</b>LTE</a>
         <!-- Header Navbar: style can be found in header.less -->
         <nav class="navbar navbar-static-top" role="navigation">
           <!-- Sidebar toggle button-->
-          <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
-            <span class="sr-only">Toggle navigation</span>
+          <a href="#" class="sidebar-toggle" data-bs-toggle="offcanvas" role="button">
+            <span class="visually-hidden">Toggle navigation</span>
           </a>
           <div class="navbar-custom-menu">
             <ul class="nav navbar-nav">
               <!-- Messages: style can be found in dropdown.less-->
               <li class="dropdown messages-menu">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                  <i class="fa fa-envelope-o"></i>
-                  <span class="label label-success">4</span>
+                <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
+                  <i class="fa-solid fa-envelope-o"></i>
+                  <span class="badge text-bg-success">4</span>
                 </a>
                 <ul class="dropdown-menu">
                   <li class="header">You have 4 messages</li>
@@ -57,7 +58,7 @@
                           </div>
                           <h4>
                             Support Team
-                            <small><i class="fa fa-clock-o"></i> 5 mins</small>
+                            <small><i class="fa-solid fa-clock-o"></i> 5 mins</small>
                           </h4>
                           <p>Why not buy a new awesome theme?</p>
                         </a>
@@ -69,9 +70,9 @@
               </li>
               <!-- Notifications: style can be found in dropdown.less -->
               <li class="dropdown notifications-menu">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                  <i class="fa fa-bell-o"></i>
-                  <span class="label label-warning">10</span>
+                <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
+                  <i class="fa-solid fa-bell-o"></i>
+                  <span class="badge text-bg-warning">10</span>
                 </a>
                 <ul class="dropdown-menu">
                   <li class="header">You have 10 notifications</li>
@@ -80,7 +81,7 @@
                     <ul class="menu">
                       <li>
                         <a href="#">
-                          <i class="fa fa-users text-aqua"></i> 5 new members joined today
+                          <i class="fa-solid fa-users text-aqua"></i> 5 new members joined today
                         </a>
                       </li>
                     </ul>
@@ -90,9 +91,9 @@
               </li>
               <!-- Tasks: style can be found in dropdown.less -->
               <li class="dropdown tasks-menu">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                  <i class="fa fa-flag-o"></i>
-                  <span class="label label-danger">9</span>
+                <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
+                  <i class="fa-solid fa-flag-o"></i>
+                  <span class="badge text-bg-danger">9</span>
                 </a>
                 <ul class="dropdown-menu">
                   <li class="header">You have 9 tasks</li>
@@ -107,7 +108,7 @@
                           </h3>
                           <div class="progress xs">
                             <div class="progress-bar progress-bar-aqua" style="width: 20%" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100">
-                              <span class="sr-only">20% Complete</span>
+                              <span class="visually-hidden">20% Complete</span>
                             </div>
                           </div>
                         </a>
@@ -121,7 +122,7 @@
               </li>
               <!-- User Account: style can be found in dropdown.less -->
               <li class="dropdown user user-menu">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
                   <img src="../../dist/img/user2-160x160.jpg" class="user-image" alt="User Image"/>
                   <span class="hidden-xs">Alexander Pierce</span>
                 </a>
@@ -136,23 +137,23 @@
                   </li>
                   <!-- Menu Body -->
                   <li class="user-body">
-                    <div class="col-xs-4 text-center">
+                    <div class="col-4 text-center">
                       <a href="#">Followers</a>
                     </div>
-                    <div class="col-xs-4 text-center">
+                    <div class="col-4 text-center">
                       <a href="#">Sales</a>
                     </div>
-                    <div class="col-xs-4 text-center">
+                    <div class="col-4 text-center">
                       <a href="#">Friends</a>
                     </div>
                   </li>
                   <!-- Menu Footer-->
                   <li class="user-footer">
                     <div class="pull-left">
-                      <a href="#" class="btn btn-default btn-flat">Profile</a>
+                      <a href="#" class="btn btn-secondary ">Profile</a>
                     </div>
                     <div class="pull-right">
-                      <a href="#" class="btn btn-default btn-flat">Sign out</a>
+                      <a href="#" class="btn btn-secondary ">Sign out</a>
                     </div>
                   </li>
                 </ul>
@@ -165,7 +166,7 @@
       <!-- =============================================== -->
 
       <!-- Left side column. contains the sidebar -->
-      <aside class="main-sidebar">
+      <aside class="app-sidebar">
         <!-- sidebar: style can be found in sidebar.less -->
         <section class="sidebar">
           <!-- Sidebar user panel -->
@@ -176,7 +177,7 @@
             <div class="pull-left info">
               <p>Alexander Pierce</p>
 
-              <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
+              <a href="#"><i class="fa-solid fa-circle text-success"></i> Online</a>
             </div>
           </div>
           <!-- search form -->
@@ -184,7 +185,7 @@
             <div class="input-group">
               <input type="text" name="q" class="form-control" placeholder="Search..."/>
               <span class="input-group-btn">
-                <button type='submit' name='seach' id='search-btn' class="btn btn-flat"><i class="fa fa-search"></i></button>
+                <button type='submit' name='seach' id='search-btn' class="btn "><i class="fa-solid fa-magnifying-glass"></i></button>
               </span>
             </div>
           </form>
@@ -194,134 +195,134 @@
             <li class="header">MAIN NAVIGATION</li>
             <li class="treeview">
               <a href="#">
-                <i class="fa fa-dashboard"></i> <span>Dashboard</span> <i class="fa fa-angle-left pull-right"></i>
+                <i class="fa-solid fa-dashboard"></i> <span>Dashboard</span> <i class="fa-solid fa-angle-left pull-right"></i>
               </a>
               <ul class="treeview-menu">
-                <li><a href="../../index.html"><i class="fa fa-circle-o"></i> Dashboard v1</a></li>
-                <li><a href="../../index2.html"><i class="fa fa-circle-o"></i> Dashboard v2</a></li>
+                <li><a href="../../index.html"><i class="fa-solid fa-circle-o"></i> Dashboard v1</a></li>
+                <li><a href="../../index2.html"><i class="fa-solid fa-circle-o"></i> Dashboard v2</a></li>
               </ul>
             </li>
             <li class="treeview active">
               <a href="#">
-                <i class="fa fa-files-o"></i>
+                <i class="fa-solid fa-files-o"></i>
                 <span>Layout Options</span>
-                <span class="label label-primary pull-right">4</span>
+                <span class="badge text-bg-primary float-end">4</span>
               </a>
               <ul class="treeview-menu">
-                <li><a href="top-nav.html"><i class="fa fa-circle-o"></i> Top Navigation</a></li>
-                <li class="active"><a href="boxed.html"><i class="fa fa-circle-o"></i> Boxed</a></li>
-                <li><a href="fixed.html"><i class="fa fa-circle-o"></i> Fixed</a></li>
-                <li><a href="collapsed-sidebar.html"><i class="fa fa-circle-o"></i> Collapsed Sidebar</a></li>
+                <li><a href="top-nav.html"><i class="fa-solid fa-circle-o"></i> Top Navigation</a></li>
+                <li class="active"><a href="boxed.html"><i class="fa-solid fa-circle-o"></i> Boxed</a></li>
+                <li><a href="fixed.html"><i class="fa-solid fa-circle-o"></i> Fixed</a></li>
+                <li><a href="collapsed-sidebar.html"><i class="fa-solid fa-circle-o"></i> Collapsed Sidebar</a></li>
               </ul>
             </li>
             <li>
               <a href="../widgets.html">
-                <i class="fa fa-th"></i> <span>Widgets</span> <small class="label pull-right bg-green">new</small>
+                <i class="fa-solid fa-th"></i> <span>Widgets</span> <small class="badge float-end text-bg-success">new</small>
               </a>
             </li>
             <li class="treeview">
               <a href="#">
-                <i class="fa fa-pie-chart"></i>
+                <i class="fa-solid fa-pie-chart"></i>
                 <span>Charts</span>
-                <i class="fa fa-angle-left pull-right"></i>
+                <i class="fa-solid fa-angle-left pull-right"></i>
               </a>
               <ul class="treeview-menu">
-                <li><a href="../charts/morris.html"><i class="fa fa-circle-o"></i> Morris</a></li>
-                <li><a href="../charts/flot.html"><i class="fa fa-circle-o"></i> Flot</a></li>
-                <li><a href="../charts/inline.html"><i class="fa fa-circle-o"></i> Inline charts</a></li>
+                <li><a href="../charts/morris.html"><i class="fa-solid fa-circle-o"></i> Morris</a></li>
+                <li><a href="../charts/flot.html"><i class="fa-solid fa-circle-o"></i> Flot</a></li>
+                <li><a href="../charts/inline.html"><i class="fa-solid fa-circle-o"></i> Inline charts</a></li>
               </ul>
             </li>
             <li class="treeview">
               <a href="#">
-                <i class="fa fa-laptop"></i>
+                <i class="fa-solid fa-laptop"></i>
                 <span>UI Elements</span>
-                <i class="fa fa-angle-left pull-right"></i>
+                <i class="fa-solid fa-angle-left pull-right"></i>
               </a>
               <ul class="treeview-menu">
-                <li><a href="../UI/general.html"><i class="fa fa-circle-o"></i> General</a></li>
-                <li><a href="../UI/icons.html"><i class="fa fa-circle-o"></i> Icons</a></li>
-                <li><a href="../UI/buttons.html"><i class="fa fa-circle-o"></i> Buttons</a></li>
-                <li><a href="../UI/sliders.html"><i class="fa fa-circle-o"></i> Sliders</a></li>
-                <li><a href="../UI/timeline.html"><i class="fa fa-circle-o"></i> Timeline</a></li>
-                <li><a href="../UI/modals.html"><i class="fa fa-circle-o"></i> Modals</a></li>
+                <li><a href="../UI/general.html"><i class="fa-solid fa-circle-o"></i> General</a></li>
+                <li><a href="../UI/icons.html"><i class="fa-solid fa-circle-o"></i> Icons</a></li>
+                <li><a href="../UI/buttons.html"><i class="fa-solid fa-circle-o"></i> Buttons</a></li>
+                <li><a href="../UI/sliders.html"><i class="fa-solid fa-circle-o"></i> Sliders</a></li>
+                <li><a href="../UI/timeline.html"><i class="fa-solid fa-circle-o"></i> Timeline</a></li>
+                <li><a href="../UI/modals.html"><i class="fa-solid fa-circle-o"></i> Modals</a></li>
               </ul>
             </li>
             <li class="treeview">
               <a href="#">
-                <i class="fa fa-edit"></i> <span>Forms</span>
-                <i class="fa fa-angle-left pull-right"></i>
+                <i class="fa-solid fa-pen-to-square"></i> <span>Forms</span>
+                <i class="fa-solid fa-angle-left pull-right"></i>
               </a>
               <ul class="treeview-menu">
-                <li><a href="../forms/general.html"><i class="fa fa-circle-o"></i> General Elements</a></li>
-                <li><a href="../forms/advanced.html"><i class="fa fa-circle-o"></i> Advanced Elements</a></li>
-                <li><a href="../forms/editors.html"><i class="fa fa-circle-o"></i> Editors</a></li>
+                <li><a href="../forms/general.html"><i class="fa-solid fa-circle-o"></i> General Elements</a></li>
+                <li><a href="../forms/advanced.html"><i class="fa-solid fa-circle-o"></i> Advanced Elements</a></li>
+                <li><a href="../forms/editors.html"><i class="fa-solid fa-circle-o"></i> Editors</a></li>
               </ul>
             </li>
             <li class="treeview">
               <a href="#">
-                <i class="fa fa-table"></i> <span>Tables</span>
-                <i class="fa fa-angle-left pull-right"></i>
+                <i class="fa-solid fa-table"></i> <span>Tables</span>
+                <i class="fa-solid fa-angle-left pull-right"></i>
               </a>
               <ul class="treeview-menu">
-                <li><a href="../tables/simple.html"><i class="fa fa-circle-o"></i> Simple tables</a></li>
-                <li><a href="../tables/data.html"><i class="fa fa-circle-o"></i> Data tables</a></li>
+                <li><a href="../tables/simple.html"><i class="fa-solid fa-circle-o"></i> Simple tables</a></li>
+                <li><a href="../tables/data.html"><i class="fa-solid fa-circle-o"></i> Data tables</a></li>
               </ul>
             </li>
             <li>
               <a href="../calendar.html">
-                <i class="fa fa-calendar"></i> <span>Calendar</span>
-                <small class="label pull-right bg-red">3</small>
+                <i class="fa-solid fa-calendar"></i> <span>Calendar</span>
+                <small class="badge float-end text-bg-danger">3</small>
               </a>
             </li>
             <li>
               <a href="../mailbox/mailbox.html">
-                <i class="fa fa-envelope"></i> <span>Mailbox</span>
-                <small class="label pull-right bg-yellow">12</small>
+                <i class="fa-solid fa-envelope"></i> <span>Mailbox</span>
+                <small class="badge float-end text-bg-warning">12</small>
               </a>
             </li>
             <li class="treeview">
               <a href="#">
-                <i class="fa fa-folder"></i> <span>Examples</span>
-                <i class="fa fa-angle-left pull-right"></i>
+                <i class="fa-solid fa-folder"></i> <span>Examples</span>
+                <i class="fa-solid fa-angle-left pull-right"></i>
               </a>
               <ul class="treeview-menu">
-                <li><a href="../examples/invoice.html"><i class="fa fa-circle-o"></i> Invoice</a></li>
-                <li><a href="../examples/login.html"><i class="fa fa-circle-o"></i> Login</a></li>
-                <li><a href="../examples/register.html"><i class="fa fa-circle-o"></i> Register</a></li>
-                <li><a href="../examples/lockscreen.html"><i class="fa fa-circle-o"></i> Lockscreen</a></li>
-                <li><a href="../examples/404.html"><i class="fa fa-circle-o"></i> 404 Error</a></li>
-                <li><a href="../examples/500.html"><i class="fa fa-circle-o"></i> 500 Error</a></li>
-                <li><a href="../examples/blank.html"><i class="fa fa-circle-o"></i> Blank Page</a></li>
+                <li><a href="../examples/invoice.html"><i class="fa-solid fa-circle-o"></i> Invoice</a></li>
+                <li><a href="../examples/login.html"><i class="fa-solid fa-circle-o"></i> Login</a></li>
+                <li><a href="../examples/register.html"><i class="fa-solid fa-circle-o"></i> Register</a></li>
+                <li><a href="../examples/lockscreen.html"><i class="fa-solid fa-circle-o"></i> Lockscreen</a></li>
+                <li><a href="../examples/404.html"><i class="fa-solid fa-circle-o"></i> 404 Error</a></li>
+                <li><a href="../examples/500.html"><i class="fa-solid fa-circle-o"></i> 500 Error</a></li>
+                <li><a href="../examples/blank.html"><i class="fa-solid fa-circle-o"></i> Blank Page</a></li>
               </ul>
             </li>
             <li class="treeview">
               <a href="#">
-                <i class="fa fa-share"></i> <span>Multilevel</span>
-                <i class="fa fa-angle-left pull-right"></i>
+                <i class="fa-solid fa-share"></i> <span>Multilevel</span>
+                <i class="fa-solid fa-angle-left pull-right"></i>
               </a>
               <ul class="treeview-menu">
-                <li><a href="#"><i class="fa fa-circle-o"></i> Level One</a></li>
+                <li><a href="#"><i class="fa-solid fa-circle-o"></i> Level One</a></li>
                 <li>
-                  <a href="#"><i class="fa fa-circle-o"></i> Level One <i class="fa fa-angle-left pull-right"></i></a>
+                  <a href="#"><i class="fa-solid fa-circle-o"></i> Level One <i class="fa-solid fa-angle-left pull-right"></i></a>
                   <ul class="treeview-menu">
-                    <li><a href="#"><i class="fa fa-circle-o"></i> Level Two</a></li>
+                    <li><a href="#"><i class="fa-solid fa-circle-o"></i> Level Two</a></li>
                     <li>
-                      <a href="#"><i class="fa fa-circle-o"></i> Level Two <i class="fa fa-angle-left pull-right"></i></a>
+                      <a href="#"><i class="fa-solid fa-circle-o"></i> Level Two <i class="fa-solid fa-angle-left pull-right"></i></a>
                       <ul class="treeview-menu">
-                        <li><a href="#"><i class="fa fa-circle-o"></i> Level Three</a></li>
-                        <li><a href="#"><i class="fa fa-circle-o"></i> Level Three</a></li>
+                        <li><a href="#"><i class="fa-solid fa-circle-o"></i> Level Three</a></li>
+                        <li><a href="#"><i class="fa-solid fa-circle-o"></i> Level Three</a></li>
                       </ul>
                     </li>
                   </ul>
                 </li>
-                <li><a href="#"><i class="fa fa-circle-o"></i> Level One</a></li>
+                <li><a href="#"><i class="fa-solid fa-circle-o"></i> Level One</a></li>
               </ul>
             </li>
-            <li><a href="../../documentation/index.html"><i class="fa fa-book"></i> Documentation</a></li>
+            <li><a href="../../documentation/index.html"><i class="fa-solid fa-book"></i> Documentation</a></li>
             <li class="header">LABELS</li>
-            <li><a href="#"><i class="fa fa-circle-o text-danger"></i> Important</a></li>
-            <li><a href="#"><i class="fa fa-circle-o text-warning"></i> Warning</a></li>
-            <li><a href="#"><i class="fa fa-circle-o text-info"></i> Information</a></li>
+            <li><a href="#"><i class="fa-solid fa-circle-o text-danger"></i> Important</a></li>
+            <li><a href="#"><i class="fa-solid fa-circle-o text-warning"></i> Warning</a></li>
+            <li><a href="#"><i class="fa-solid fa-circle-o text-info"></i> Information</a></li>
           </ul>
         </section>
         <!-- /.sidebar -->
@@ -330,22 +331,22 @@
       <!-- =============================================== -->
 
       <!-- Content Wrapper. Contains page content -->
-      <div class="content-wrapper">
+      <div class="app-main">
         <!-- Content Header (Page header) -->
-        <section class="content-header">
+        <section class="app-content-header">
           <h1>
             Boxed Layout
             <small>Blank example to the boxed layout</small>
           </h1>
           <ol class="breadcrumb">
-            <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+            <li><a href="#"><i class="fa-solid fa-dashboard"></i> Home</a></li>
             <li><a href="#">Examples</a></li>
             <li class="active">Blank page</li>
           </ol>
         </section>
 
         <!-- Main content -->
-        <section class="content">
+        <section class="app-content">
           <div class="callout callout-info">
             <h4>Tip!</h4>
             <p>Add the layout-boxed class to the body tag to get this layout. The boxed layout is helpful when working on large screens because it prevents the site from stretching very wide.</p>
@@ -355,8 +356,8 @@
             <div class="box-header with-border">
               <h3 class="box-title">Title</h3>
               <div class="box-tools pull-right">
-                <button class="btn btn-box-tool" data-widget="collapse" data-toggle="tooltip" title="Collapse"><i class="fa fa-minus"></i></button>
-                <button class="btn btn-box-tool" data-widget="remove" data-toggle="tooltip" title="Remove"><i class="fa fa-times"></i></button>
+                <button class="btn btn-box-tool" data-widget="collapse" data-bs-toggle="tooltip" title="Collapse"><i class="fa-solid fa-minus"></i></button>
+                <button class="btn btn-box-tool" data-widget="remove" data-bs-toggle="tooltip" title="Remove"><i class="fa-solid fa-xmark"></i></button>
               </div>
             </div>
             <div class="box-body">
@@ -370,7 +371,7 @@
         </section><!-- /.content -->
       </div><!-- /.content-wrapper -->
 
-      <footer class="main-footer">
+      <footer class="app-footer">
         <div class="pull-right hidden-xs">
           <b>{!! Lang::get('lang.version') !!}</b> 2.0
         </div>

@@ -1,21 +1,19 @@
 <?php
 /**
  * @package dompdf
- * @link    http://dompdf.github.com/
- * @author  Benj Carson <benjcarson@digitaljunkies.ca>
+ * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
 namespace Dompdf\Frame;
 
-use Dompdf\Css\Style;
 use Dompdf\Dompdf;
 use Dompdf\Exception;
 use Dompdf\Frame;
 use Dompdf\FrameDecorator\AbstractFrameDecorator;
-use DOMXPath;
 use Dompdf\FrameDecorator\Page as PageFrameDecorator;
 use Dompdf\FrameReflower\Page as PageFrameReflower;
 use Dompdf\Positioner\AbstractPositioner;
+use DOMXPath;
 
 /**
  * Contains frame decorating logic
@@ -25,13 +23,12 @@ use Dompdf\Positioner\AbstractPositioner;
  * objects.  This is determined primarily by the Frame's display type, but
  * also by the Frame's node's type (e.g. DomElement vs. #text)
  *
- * @access  private
  * @package dompdf
  */
 class Factory
 {
 
-     /**
+    /**
      * Array of positioners for specific frame types
      *
      * @var AbstractPositioner[]
@@ -41,12 +38,12 @@ class Factory
     /**
      * Decorate the root Frame
      *
-     * @param $root   Frame The frame to decorate
-     * @param $dompdf Dompdf The dompdf instance
+     * @param Frame  $root   The frame to decorate
+     * @param Dompdf $dompdf The dompdf instance
      *
      * @return PageFrameDecorator
      */
-    static function decorate_root(Frame $root, Dompdf $dompdf)
+    public static function decorate_root(Frame $root, Dompdf $dompdf): PageFrameDecorator
     {
         $frame = new PageFrameDecorator($root, $dompdf);
         $frame->set_reflower(new PageFrameReflower($frame));
@@ -58,52 +55,27 @@ class Factory
     /**
      * Decorate a Frame
      *
-     * @param Frame $frame   The frame to decorate
-     * @param Dompdf $dompdf The dompdf instance
-     * @param Frame $root    The root of the frame
+     * @param Frame      $frame  The frame to decorate
+     * @param Dompdf     $dompdf The dompdf instance
+     * @param Frame|null $root   The root of the frame
      *
      * @throws Exception
-     * @return AbstractFrameDecorator
+     * @return AbstractFrameDecorator|null
      * FIXME: this is admittedly a little smelly...
      */
-    static function decorate_frame(Frame $frame, Dompdf $dompdf, Frame $root = null)
+    public static function decorate_frame(Frame $frame, Dompdf $dompdf, ?Frame $root = null): ?AbstractFrameDecorator
     {
         $style = $frame->get_style();
         $display = $style->display;
 
-        // Floating (and more generally out-of-flow) elements are blocks
-        // https://www.w3.org/TR/CSS21/visuren.html#dis-pos-flo
-        if (!$frame->is_in_flow()
-            && in_array($display, Style::INLINE_LEVEL_TYPES, true)
-        ) {
-            switch ($display) {
-                case "inline-flex":
-                    $display = "flex";
-                    break;
-                case "inline-table":
-                    $display = "table";
-                    break;
-                default:
-                    $display = "block";
-            }
-
-            // The original style needs to be modified, too, here, as the style
-            // gets reset to the original style after a page break
-            $frame->get_original_style()->display = $display;
-            $style->display = $display;
-        }
-
         switch ($display) {
 
-            case "flex": //FIXME: display type not yet supported
-            case "table-caption": //FIXME: display type not yet supported
             case "block":
                 $positioner = "Block";
                 $decorator = "Block";
                 $reflower = "Block";
                 break;
 
-            case "inline-flex": //FIXME: display type not yet supported
             case "inline-block":
                 $positioner = "Inline";
                 $decorator = "Block";
@@ -116,13 +88,8 @@ class Factory
                     $decorator = "Text";
                     $reflower = "Text";
                 } else {
-                    if ($style->float !== "none") {
-                        $decorator = "Block";
-                        $reflower = "Block";
-                    } else {
-                        $decorator = "Inline";
-                        $reflower = "Inline";
-                    }
+                    $decorator = "Inline";
+                    $reflower = "Inline";
                 }
                 break;
 
@@ -193,12 +160,11 @@ class Factory
                 break;
 
             default:
-                // FIXME: should throw some sort of warning or something?
             case "none":
                 if ($style->_dompdf_keep !== "yes") {
                     // Remove the node and the frame
                     $frame->get_parent()->remove_child($frame);
-                    return;
+                    return null;
                 }
 
                 $positioner = "NullPositioner";
@@ -212,17 +178,15 @@ class Factory
 
         if ($position === "absolute") {
             $positioner = "Absolute";
-        } else {
-            if ($position === "fixed") {
-                $positioner = "Fixed";
-            }
+        } elseif ($position === "fixed") {
+            $positioner = "Fixed";
         }
 
         $node = $frame->get_node();
 
         // Handle nodeName
         if ($node->nodeName === "img") {
-            $style->display = "-dompdf-image";
+            $style->set_prop("display", "-dompdf-image");
             $decorator = "Image";
             $reflower = "Image";
         }
@@ -248,8 +212,7 @@ class Factory
 
             $node = $frame->get_node();
             $parent_node = $node->parentNode;
-
-            if ($parent_node) {
+            if ($parent_node && $parent_node instanceof \DOMElement) {
                 if (!$parent_node->hasAttribute("dompdf-children-count")) {
                     $xpath = new DOMXPath($xml);
                     $count = $xpath->query("li", $parent_node)->length;
@@ -271,7 +234,7 @@ class Factory
             }
 
             $new_style = $dompdf->getCss()->create_style();
-            $new_style->display = "-dompdf-list-bullet";
+            $new_style->set_prop("display", "-dompdf-list-bullet");
             $new_style->inherit($style);
             $b_f->set_style($new_style);
 
@@ -284,10 +247,11 @@ class Factory
     /**
      * Creates Positioners
      *
-     * @param string $type type of positioner to use
+     * @param string $type Type of positioner to use
+     *
      * @return AbstractPositioner
      */
-    protected static function getPositionerInstance($type)
+    protected static function getPositionerInstance(string $type): AbstractPositioner
     {
         if (!isset(self::$_positioners[$type])) {
             $class = '\\Dompdf\\Positioner\\'.$type;

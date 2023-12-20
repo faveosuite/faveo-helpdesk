@@ -1,6 +1,75 @@
 CHANGELOG
 =========
 
+8.1
+---
+
+ * Add support for XLIFF 2.1 and 2.2
+ * Add support for XLIFF 2.2 PGS (Plural, Gender, and Select Module)
+ * Add `LocaleFallbackProvider`
+ * Always set `LIBXML_NONET` when loading XML in `XliffLintCommand` and `XliffUtils`, and when loading HTML in `PseudoLocalizationTranslator`
+
+8.0
+---
+
+ * Remove the `$escape` parameter from `CsvFileLoader::setCsvControl()`
+ * Make `DataCollectorTranslator` class `final`
+ * Remove `ProviderFactoryTestCase`, extend `AbstractProviderFactoryTestCase` instead
+ * Remove `TranslatableMessage::__toString()` method, use `trans()` or `getMessage()` instead
+
+7.4
+---
+
+ * Make the extractor alias optional
+ * Deprecate `TranslatableMessage::__toString`
+ * Add `Symfony\Component\Translation\StaticMessage`
+
+7.3
+---
+
+ * Add `Translator::addGlobalParameter()` to allow defining global translation parameters
+
+7.2
+---
+
+ * Deprecate `ProviderFactoryTestCase`, extend `AbstractProviderFactoryTestCase` instead
+
+   The `testIncompleteDsnException()` test is no longer provided by default. If you make use of it by implementing the `incompleteDsnProvider()` data providers,
+   you now need to use the `IncompleteDsnTestTrait`.
+
+ * Make `ProviderFactoryTestCase` and `ProviderTestCase` compatible with PHPUnit 10+
+ * Add `lint:translations` command
+ * Deprecate passing an escape character to `CsvFileLoader::setCsvControl()`
+ * Make Xliff 2.0 attributes in segment element available as `segment-attributes`
+   metadata returned by `XliffFileLoader` and make `XliffFileDumper` write them to the file
+
+7.1
+---
+
+ * Mark class `DataCollectorTranslator` as `final`
+
+7.0
+---
+
+ * Remove `PhpStringTokenParser`
+ * Remove `PhpExtractor` in favor of `PhpAstExtractor`
+
+6.4
+---
+
+ * Give current locale to `LocaleSwitcher::runWithLocale()`'s callback
+ * Add `--as-tree` option to `translation:pull` command to write YAML messages as a tree-like structure
+ * [BC BREAK] Add argument `$buildDir` to `DataCollectorTranslator::warmUp()`
+ * Add `DataCollectorTranslatorPass` and `LoggingTranslatorPass`  (moved from `FrameworkBundle`)
+ * Add `PhraseTranslationProvider`
+
+6.2.7
+-----
+
+ * [BC BREAK] The following data providers for `ProviderFactoryTestCase` are now static:
+   `supportsProvider()`, `createProvider()`, `unsupportedSchemeProvider()`and `incompleteDsnProvider()`
+ * [BC BREAK] `ProviderTestCase::toStringProvider()` is now static
+
 6.2
 ---
 

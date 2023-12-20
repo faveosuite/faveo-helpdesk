@@ -4,7 +4,11 @@ namespace Illuminate\Foundation\Console;
 
 use Illuminate\Console\GeneratorCommand;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
+
+use function Laravel\Prompts\confirm;
 
 #[AsCommand(name: 'make:exception')]
 class ExceptionMakeCommand extends GeneratorCommand
@@ -15,17 +19,6 @@ class ExceptionMakeCommand extends GeneratorCommand
      * @var string
      */
     protected $name = 'make:exception';
-
-    /**
-     * The name of the console command.
-     *
-     * This name is used to identify the command during lazy loading.
-     *
-     * @var string|null
-     *
-     * @deprecated
-     */
-    protected static $defaultName = 'make:exception';
 
     /**
      * The console command description.
@@ -79,6 +72,23 @@ class ExceptionMakeCommand extends GeneratorCommand
     protected function getDefaultNamespace($rootNamespace)
     {
         return $rootNamespace.'\Exceptions';
+    }
+
+    /**
+     * Interact further with the user if they were prompted for missing arguments.
+     *
+     * @param  \Symfony\Component\Console\Input\InputInterface  $input
+     * @param  \Symfony\Component\Console\Output\OutputInterface  $output
+     * @return void
+     */
+    protected function afterPromptingForMissingArguments(InputInterface $input, OutputInterface $output)
+    {
+        if ($this->didReceiveOptions($input)) {
+            return;
+        }
+
+        $input->setOption('report', confirm('Should the exception have a report method?', default: false));
+        $input->setOption('render', confirm('Should the exception have a render method?', default: false));
     }
 
     /**

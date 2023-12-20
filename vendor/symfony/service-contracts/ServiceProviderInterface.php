@@ -19,7 +19,7 @@ use Psr\Container\ContainerInterface;
  * @author Nicolas Grekas <p@tchwork.com>
  * @author Mateusz Sip <mateusz.sip@gmail.com>
  *
- * @template T of mixed
+ * @template-covariant T of mixed
  */
 interface ServiceProviderInterface extends ContainerInterface
 {
@@ -39,7 +39,7 @@ interface ServiceProviderInterface extends ContainerInterface
      *  * ['foo' => '?'] means the container provides service name "foo" of unspecified type
      *  * ['bar' => '?Bar\Baz'] means the container provides a service "bar" of type Bar\Baz|null
      *
-     * @return string[] The provided service types, keyed by service names
+     * @return array<string, string> The provided service types, keyed by service names
      */
     public function getProvidedServices(): array;
 }

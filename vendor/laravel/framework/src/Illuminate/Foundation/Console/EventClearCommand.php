@@ -17,17 +17,6 @@ class EventClearCommand extends Command
     protected $name = 'event:clear';
 
     /**
-     * The name of the console command.
-     *
-     * This name is used to identify the command during lazy loading.
-     *
-     * @var string|null
-     *
-     * @deprecated
-     */
-    protected static $defaultName = 'event:clear';
-
-    /**
      * The console command description.
      *
      * @var string
@@ -45,7 +34,6 @@ class EventClearCommand extends Command
      * Create a new config clear command instance.
      *
      * @param  \Illuminate\Filesystem\Filesystem  $files
-     * @return void
      */
     public function __construct(Filesystem $files)
     {

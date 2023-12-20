@@ -50,11 +50,17 @@ class CompiledRouteCollection extends AbstractRouteCollection
     protected $container;
 
     /**
+     * A cache of resolved Route instances keyed by route name.
+     *
+     * @var array<string, \Illuminate\Routing\Route>
+     */
+    protected $nameCache = [];
+
+    /**
      * Create a new CompiledRouteCollection instance.
      *
      * @param  array  $compiled
      * @param  array  $attributes
-     * @return void
      */
     public function __construct(array $compiled, array $attributes)
     {
@@ -121,10 +127,10 @@ class CompiledRouteCollection extends AbstractRouteCollection
             if ($result = $matcher->matchRequest($trimmedRequest)) {
                 $route = $this->getByName($result['_route']);
             }
-        } catch (ResourceNotFoundException|MethodNotAllowedException $e) {
+        } catch (ResourceNotFoundException|MethodNotAllowedException) {
             try {
                 return $this->routes->match($request);
-            } catch (NotFoundHttpException $e) {
+            } catch (NotFoundHttpException) {
                 //
             }
         }
@@ -136,7 +142,7 @@ class CompiledRouteCollection extends AbstractRouteCollection
                 if (! $dynamicRoute->isFallback) {
                     $route = $dynamicRoute;
                 }
-            } catch (NotFoundHttpException|MethodNotAllowedHttpException $e) {
+            } catch (NotFoundHttpException|MethodNotAllowedHttpException) {
                 //
             }
         }
@@ -193,8 +199,12 @@ class CompiledRouteCollection extends AbstractRouteCollection
      */
     public function getByName($name)
     {
+        if (isset($this->nameCache[$name])) {
+            return $this->nameCache[$name];
+        }
+
         if (isset($this->attributes[$name])) {
-            return $this->newRoute($this->attributes[$name]);
+            return $this->nameCache[$name] = $this->newRoute($this->attributes[$name]);
         }
 
         return $this->routes->getByName($name);
@@ -208,7 +218,7 @@ class CompiledRouteCollection extends AbstractRouteCollection
      */
     public function getByAction($action)
     {
-        $attributes = collect($this->attributes)->first(function (array $attributes) use ($action) {
+        $attributes = (new Collection($this->attributes))->first(function (array $attributes) use ($action) {
             if (isset($attributes['action']['controller'])) {
                 return trim($attributes['action']['controller'], '\\') === $action;
             }
@@ -230,7 +240,7 @@ class CompiledRouteCollection extends AbstractRouteCollection
      */
     public function getRoutes()
     {
-        return collect($this->attributes)
+        return (new Collection($this->attributes))
             ->map(function (array $attributes) {
                 return $this->newRoute($attributes);
             })
@@ -246,7 +256,7 @@ class CompiledRouteCollection extends AbstractRouteCollection
      */
     public function getRoutesByMethod()
     {
-        return collect($this->getRoutes())
+        return (new Collection($this->getRoutes()))
             ->groupBy(function (Route $route) {
                 return $route->methods();
             })
@@ -265,7 +275,7 @@ class CompiledRouteCollection extends AbstractRouteCollection
      */
     public function getRoutesByName()
     {
-        return collect($this->getRoutes())
+        return (new Collection($this->getRoutes()))
             ->keyBy(function (Route $route) {
                 return $route->getName();
             })

@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Job;
 
 use App\Http\Controllers\Controller;
 use Exception;
-use Form;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Request as Input;
 
@@ -36,11 +35,11 @@ class MailController extends Controller
         if ($mailid) {
             $emails = new \App\Model\helpdesk\Email\Emails();
             $email = $emails->find($mailid);
-            $form = "<div class='".$class."'>".Form::label($name, $label)."<span class='text-red'> *</span>".
-                Form::text($name, $email->getExtraField($name), ['class' => 'form-control']).'</div>';
+            $form = "<div class='".$class."'>".html()->label($label, $name)."<span class='text-red'> *</span>".
+                html()->text($name, $email->getExtraField($name))->class('form-control').'</div>';
         } else {
-            $form = "<div class='".$class."'>".Form::label($name, $label)."<span class='text-red'> *</span>".
-                Form::text($name, null, ['class' => 'form-control']).'</div>';
+            $form = "<div class='".$class."'>".html()->label($label, $name)."<span class='text-red'> *</span>".
+                html()->text($name, null)->class('form-control').'</div>';
         }
 
         return $form;

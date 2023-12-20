@@ -40,11 +40,11 @@ class MessageFormatter implements MessageFormatterInterface
     /**
      * Apache Common Log Format.
      *
-     * @link https://httpd.apache.org/docs/2.4/logs.html#common
+     * @see https://httpd.apache.org/docs/2.4/logs.html#common
      *
      * @var string
      */
-    public const CLF = "{hostname} {req_header_User-Agent} - [{date_common_log}] \"{method} {target} HTTP/{version}\" {code} {res_header_Content-Length}";
+    public const CLF = '{hostname} {req_header_User-Agent} - [{date_common_log}] "{method} {target} HTTP/{version}" {code} {res_header_Content-Length}';
     public const DEBUG = ">>>>>>>>\n{request}\n<<<<<<<<\n{response}\n--------\n{error}";
     public const SHORT = '[{ts}] "{method} {target} HTTP/{version}" {code}';
 
@@ -72,8 +72,7 @@ class MessageFormatter implements MessageFormatterInterface
     {
         $cache = [];
 
-        /** @var string */
-        return \preg_replace_callback(
+        $result = \preg_replace_callback(
             '/{\s*([A-Za-z_\-\.0-9]+)\s*}/',
             function (array $matches) use ($request, $response, $error, &$cache) {
                 if (isset($cache[$matches[1]])) {
@@ -90,9 +89,9 @@ class MessageFormatter implements MessageFormatterInterface
                         break;
                     case 'req_headers':
                         $result = \trim($request->getMethod()
-                                . ' ' . $request->getRequestTarget())
-                            . ' HTTP/' . $request->getProtocolVersion() . "\r\n"
-                            . $this->headers($request);
+                                .' '.$request->getRequestTarget(), " \n\r\t\0\x0B")
+                            .' HTTP/'.$request->getProtocolVersion()."\r\n"
+                            .$this->headers($request);
                         break;
                     case 'res_headers':
                         $result = $response ?
@@ -101,7 +100,7 @@ class MessageFormatter implements MessageFormatterInterface
                                 $response->getProtocolVersion(),
                                 $response->getStatusCode(),
                                 $response->getReasonPhrase()
-                            ) . "\r\n" . $this->headers($response)
+                            )."\r\n".$this->headers($response)
                             : 'NULL';
                         break;
                     case 'req_body':
@@ -177,10 +176,17 @@ class MessageFormatter implements MessageFormatterInterface
                 }
 
                 $cache[$matches[1]] = $result;
+
                 return $result;
             },
             $this->template
         );
+
+        if ($result === null) {
+            throw new \RuntimeException('Unable to format message: '.\preg_last_error_msg());
+        }
+
+        return $result;
     }
 
     /**
@@ -190,9 +196,9 @@ class MessageFormatter implements MessageFormatterInterface
     {
         $result = '';
         foreach ($message->getHeaders() as $name => $values) {
-            $result .= $name . ': ' . \implode(', ', $values) . "\r\n";
+            $result .= $name.': '.\implode(', ', $values)."\r\n";
         }
 
-        return \trim($result);
+        return \trim($result, " \n\r\t\0\x0B");
     }
 }

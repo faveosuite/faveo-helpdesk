@@ -62,17 +62,59 @@ A `Spatie\Backtrace\Frame` has these properties:
 - `arguments`: the arguments used for this frame. Will be `null` if `withArguments` was not used.
 - `class`: the class name for this frame. Will be `null` if the frame concerns a function.
 - `method`: the method used in this frame
+- `object`: the object when the frame is in an object context (method call, closure bound to object, arrow function which captured `$this`, etc.). Will be `null` if `withObject` was not used.
 - `applicationFrame`: contains `true` is this frame belongs to your application, and `false` if it belongs to a file in
-  the vendor directory
+  the vendor directory. A couple edge cases exist, see "application frames" below.
 
-### Collecting arguments
+### Collecting arguments and objects
 
-For performance reasons, the frames of the back trace will not contain the arguments of the called functions. If you
-want to add those use the `withArguments` method.
+For performance reasons, the frames of the back trace will not contain the arguments of the called functions and the
+object. If you want to add those, use the `withArguments` and `withObject` methods.
 
 ```php
-$backtrace = Spatie\Backtrace\Backtrace::create()->withArguments();
+$backtrace = Spatie\Backtrace\Backtrace::create()->withArguments()->withObject();
 ```
+
+#### Reducing arguments
+
+For viewing purposes, arguments can be reduced to a string:
+
+```php
+$backtrace = Spatie\Backtrace\Backtrace::create()->withArguments()->reduceArguments();
+```
+
+By default, some typical types will be reduced to a string. You can define your own reduction algorithm per type by implementing an `ArgumentReducer`:
+
+```php
+class DateTimeWithOtherFormatArgumentReducer implements ArgumentReducer
+{
+    public function execute($argument): ReducedArgumentContract
+    {
+        if (! $argument instanceof DateTimeInterface) {
+            return UnReducedArgument::create();
+        }
+
+        return new ReducedArgument(
+            $argument->format('d/m/y H:i'),
+            get_class($argument),
+        );
+    }
+}
+```
+
+This is a copy of the built-in argument reducer for `DateTimeInterface` where we've updated the format. An `UnReducedArgument` object is returned when the argument is not of the expected type. A `ReducedArgument` object is returned with the reduced value of the argument and the original type of the argument.
+
+The reducer can be used as such:
+
+```php
+$backtrace = Spatie\Backtrace\Backtrace::create()->withArguments()->reduceArguments(
+    Spatie\Backtrace\Arguments\ArgumentReducers::default([
+        new DateTimeWithOtherFormatArgumentReducer()
+    ])
+);
+```
+
+Which will first execute the new reducer and then the default ones.
 
 ### Setting the application path
 
@@ -82,6 +124,20 @@ frame is an application frame, or a vendor frame. Here's an example using a Lara
 ```php
 $backtrace = Spatie\Backtrace\Backtrace::create()->applicationPath(base_path());
 ```
+### Removing the application path from the file name
+
+You can use `trimFilePaths` to remove the base path of your app from the file. This will only work if you use it in conjunction with the `applicationPath` method re above. Here's an example using a Laravel specific function. This will ensure the Frame has the trimmedFilePath property set.
+
+```php
+$backtrace = Backtrace::create()->applicationPath(base_path())->trimFilePaths());
+```
+
+### Application frames
+
+By default, a frame is considered an application frame when the file of the frame is not in the vendor directory. The following edge cases apply:
+
+- Laravel's `artisan` CLI file (generally found in the root of the project) is considered a vendor file and frame
+- Statamic's `please` CLI file (generally found in the root of the project) is considered a vendor file and frame
 
 ### Getting a certain part of a trace
 
@@ -101,7 +157,7 @@ $frames = Backtrace::create()
 
 With this code, all frames before the frame that concerns `MyClass` will have been filtered out.
 
-Alternatively, you can use the `offSet` method, which will skip the given number of frames. In this example the first 2 frames will not end up in `$frames`.
+Alternatively, you can use the `offset` method, which will skip the given number of frames. In this example the first 2 frames will not end up in `$frames`.
 
 ```php
 $frames = Spatie\Backtrace\Backtrace::create()
@@ -127,7 +183,10 @@ Here's how you can get a backtrace for a throwable.
 $frames = Spatie\Backtrace\Backtrace::createForThrowable($throwable)
 ```
 
-Because we will use the backtrace that is already available the throwable, the frames will always contain the arguments used.
+Because we will use the backtrace that is already available in the throwable, the frames will contain the arguments used
+in the backtrace as long as the `zend.exception_ignore_args` INI option is disabled (set to `0`) *before* the throwable
+is thrown. On the other hand, objects will never be included in the backtrace. 
+[More information](https://www.php.net/manual/en/throwable.gettrace.php#129087).
 
 ## Testing
 
@@ -141,7 +200,7 @@ Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed re
 
 ## Contributing
 
-Please see [CONTRIBUTING](.github/CONTRIBUTING.md) for details.
+Please see [CONTRIBUTING](https://github.com/spatie/.github/blob/main/CONTRIBUTING.md) for details.
 
 ## Security Vulnerabilities
 

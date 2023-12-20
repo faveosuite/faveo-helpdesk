@@ -11,12 +11,14 @@
 
 namespace Symfony\Component\HttpClient\DataCollector;
 
+use Symfony\Component\HttpClient\Exception\TransportException;
 use Symfony\Component\HttpClient\HttpClientTrait;
 use Symfony\Component\HttpClient\TraceableHttpClient;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollector;
 use Symfony\Component\HttpKernel\DataCollector\LateDataCollectorInterface;
+use Symfony\Component\Process\Process;
 use Symfony\Component\VarDumper\Caster\ImgStub;
 
 /**
@@ -31,31 +33,40 @@ final class HttpClientDataCollector extends DataCollector implements LateDataCol
      */
     private array $clients = [];
 
-    public function registerClient(string $name, TraceableHttpClient $client)
+    public function registerClient(string $name, TraceableHttpClient $client): void
     {
         $this->clients[$name] = $client;
     }
 
-    public function collect(Request $request, Response $response, \Throwable $exception = null)
+    public function collect(Request $request, Response $response, ?\Throwable $exception = null): void
     {
+        $this->lateCollect();
     }
 
-    public function lateCollect()
+    public function lateCollect(): void
     {
-        $this->reset();
+        $this->data['request_count'] ??= 0;
+        $this->data['error_count'] ??= 0;
+        $this->data += ['clients' => []];
 
         foreach ($this->clients as $name => $client) {
             [$errorCount, $traces] = $this->collectOnClient($client);
 
-            $this->data['clients'][$name] = [
-                'traces' => $traces,
-                'error_count' => $errorCount,
+            $this->data['clients'] += [
+                $name => [
+                    'traces' => [],
+                    'error_count' => 0,
+                ],
             ];
 
+            $this->data['clients'][$name]['traces'] = array_merge($this->data['clients'][$name]['traces'], $traces);
             $this->data['request_count'] += \count($traces);
             $this->data['error_count'] += $errorCount;
+            $this->data['clients'][$name]['error_count'] += $errorCount;
 
-            $client->reset();
+            if ($traces) {
+                $client->reset();
+            }
         }
     }
 
@@ -79,7 +90,7 @@ final class HttpClientDataCollector extends DataCollector implements LateDataCol
         return 'http_client';
     }
 
-    public function reset()
+    public function reset(): void
     {
         $this->data = [
             'clients' => [],
@@ -186,34 +197,28 @@ final class HttpClientDataCollector extends DataCollector implements LateDataCol
         $dataArg = [];
 
         if ($json = $trace['options']['json'] ?? null) {
-            if (!$this->argMaxLengthIsSafe($payload = self::jsonEncode($json))) {
-                return null;
-            }
-            $dataArg[] = '--data '.escapeshellarg($payload);
+            $dataArg[] = '--data-raw '.$this->escapePayload(self::jsonEncode($json));
         } elseif ($body = $trace['options']['body'] ?? null) {
             if (\is_string($body)) {
-                if (!$this->argMaxLengthIsSafe($body)) {
-                    return null;
-                }
-                try {
-                    $dataArg[] = '--data '.escapeshellarg($body);
-                } catch (\ValueError) {
-                    return null;
-                }
+                $dataArg[] = '--data-raw '.$this->escapePayload($body);
             } elseif (\is_array($body)) {
-                $body = explode('&', self::normalizeBody($body));
-                foreach ($body as $value) {
-                    if (!$this->argMaxLengthIsSafe($payload = urldecode($value))) {
-                        return null;
-                    }
-                    $dataArg[] = '--data '.escapeshellarg($payload);
+                try {
+                    $body = self::normalizeBody($body);
+                } catch (TransportException) {
+                    return null;
+                }
+                if (!\is_string($body)) {
+                    return null;
+                }
+                foreach (explode('&', $body) as $value) {
+                    $dataArg[] = '--data-raw '.$this->escapePayload(urldecode($value));
                 }
             } else {
                 return null;
             }
         }
 
-        $dataArg = empty($dataArg) ? null : implode(' ', $dataArg);
+        $dataArg = $dataArg ? implode(' ', $dataArg) : null;
 
         foreach (explode("\n", $trace['info']['debug']) as $line) {
             $line = substr($line, 0, -1);
@@ -223,13 +228,18 @@ final class HttpClientDataCollector extends DataCollector implements LateDataCol
                 break;
             }
 
+            if (str_starts_with('Due to a bug in curl ', $line)) {
+                // When the curl client disables debug info due to a curl bug, we cannot build the command.
+                return null;
+            }
+
             if ('' === $line || preg_match('/^[*<]|(Host: )/', $line)) {
                 continue;
             }
 
             if (preg_match('/^> ([A-Z]+)/', $line, $match)) {
-                $command[] = sprintf('--request %s', $match[1]);
-                $command[] = sprintf('--url %s', escapeshellarg($url));
+                $command[] = \sprintf('--request %s', $match[1]);
+                $command[] = \sprintf('--url %s', escapeshellarg($url));
                 continue;
             }
 
@@ -243,13 +253,18 @@ final class HttpClientDataCollector extends DataCollector implements LateDataCol
         return implode(" \\\n  ", $command);
     }
 
-    /**
-     * Let's be defensive : we authorize only size of 8kio on Windows for escapeshellarg() argument to avoid a fatal error.
-     *
-     * @see https://github.com/php/php-src/blob/9458f5f2c8a8e3d6c65cc181747a5a75654b7c6e/ext/standard/exec.c#L397
-     */
-    private function argMaxLengthIsSafe(string $payload): bool
+    private function escapePayload(string $payload): string
     {
-        return \strlen($payload) < ('\\' === \DIRECTORY_SEPARATOR ? 8100 : 256000);
+        static $useProcess;
+
+        if ($useProcess ??= \function_exists('proc_open') && class_exists(Process::class)) {
+            return substr((new Process(['', $payload]))->getCommandLine(), 3);
+        }
+
+        if ('\\' === \DIRECTORY_SEPARATOR) {
+            return '"'.str_replace('"', '""', $payload).'"';
+        }
+
+        return "'".str_replace("'", "'\\''", $payload)."'";
     }
 }

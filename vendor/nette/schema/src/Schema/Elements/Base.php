@@ -1,16 +1,16 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Nette Framework (https://nette.org)
  * Copyright (c) 2004 David Grudl (https://davidgrudl.com)
  */
 
-declare(strict_types=1);
-
 namespace Nette\Schema\Elements;
 
 use Nette;
 use Nette\Schema\Context;
+use Nette\Schema\Helpers;
+use function count, is_string;
 
 
 /**
@@ -18,26 +18,18 @@ use Nette\Schema\Context;
  */
 trait Base
 {
-	/** @var bool */
-	private $required = false;
+	private bool $required = false;
+	private mixed $default = null;
 
-	/** @var mixed */
-	private $default;
+	/** @var ?\Closure(mixed): mixed */
+	private ?\Closure $before = null;
 
-	/** @var callable|null */
-	private $before;
-
-	/** @var array[] */
-	private $asserts = [];
-
-	/** @var string|null */
-	private $castTo;
-
-	/** @var string|null */
-	private $deprecated;
+	/** @var list<\Closure(mixed, Context): mixed> */
+	private array $transforms = [];
+	private ?string $deprecated = null;
 
 
-	public function default($value): self
+	public function default(mixed $value): self
 	{
 		$this->default = $value;
 		return $this;
@@ -51,28 +43,61 @@ trait Base
 	}
 
 
+	/**
+	 * Sets a pre-normalization callback applied to the raw input value before any validation.
+	 * @param  callable(mixed): mixed  $handler
+	 */
 	public function before(callable $handler): self
 	{
-		$this->before = $handler;
+		$this->before = $handler(...);
 		return $this;
 	}
 
 
+	/**
+	 * Casts the validated value to a built-in type or instantiates the given class.
+	 */
 	public function castTo(string $type): self
 	{
-		$this->castTo = $type;
+		return $this->transform(Helpers::getCastStrategy($type));
+	}
+
+
+	/**
+	 * Adds a post-validation transformation callback. The handler may also report errors via Context.
+	 * @param  callable(mixed, Context): mixed  $handler
+	 */
+	public function transform(callable $handler): self
+	{
+		$this->transforms[] = $handler(...);
 		return $this;
 	}
 
 
+	/**
+	 * Adds a custom validation assertion; optionally describe it for error messages.
+	 * @param  callable(mixed): bool  $handler
+	 */
 	public function assert(callable $handler, ?string $description = null): self
 	{
-		$this->asserts[] = [$handler, $description];
-		return $this;
+		$expected = $description ?? (is_string($handler) ? "$handler()" : '#' . count($this->transforms));
+		return $this->transform(function ($value, Context $context) use ($handler, $description, $expected) {
+			if ($handler($value)) {
+				return $value;
+			}
+			$context->addError(
+				'Failed assertion ' . ($description ? "'%assertion%'" : '%assertion%') . ' for %label% %path% with value %value%.',
+				Nette\Schema\Message::FailedAssertion,
+				['value' => $value, 'assertion' => $expected],
+			);
+			return null;
+		});
 	}
 
 
-	/** Marks as deprecated */
+	/**
+	 * Marks the item as deprecated; emits a warning with the given message when the item is used.
+	 */
 	public function deprecated(string $message = 'The item %path% is deprecated.'): self
 	{
 		$this->deprecated = $message;
@@ -80,12 +105,12 @@ trait Base
 	}
 
 
-	public function completeDefault(Context $context)
+	public function completeDefault(Context $context): mixed
 	{
 		if ($this->required) {
 			$context->addError(
 				'The mandatory item %path% is missing.',
-				Nette\Schema\Message::MISSING_ITEM
+				Nette\Schema\Message::MissingItem,
 			);
 			return null;
 		}
@@ -94,7 +119,7 @@ trait Base
 	}
 
 
-	public function doNormalize($value, Context $context)
+	public function doNormalize(mixed $value, Context $context): mixed
 	{
 		if ($this->before) {
 			$value = ($this->before)($value);
@@ -109,92 +134,49 @@ trait Base
 		if ($this->deprecated !== null) {
 			$context->addWarning(
 				$this->deprecated,
-				Nette\Schema\Message::DEPRECATED
+				Nette\Schema\Message::Deprecated,
 			);
 		}
 	}
 
 
-	private function doValidate($value, string $expected, Context $context): bool
+	private function doTransform(mixed $value, Context $context): mixed
 	{
-		if (!Nette\Utils\Validators::is($value, $expected)) {
-			$expected = str_replace(['|', ':'], [' or ', ' in range '], $expected);
-			$context->addError(
-				'The %label% %path% expects to be %expected%, %value% given.',
-				Nette\Schema\Message::TYPE_MISMATCH,
-				['value' => $value, 'expected' => $expected]
-			);
-			return false;
-		}
-
-		return true;
-	}
-
-
-	private function doValidateRange($value, array $range, Context $context, string $types = ''): bool
-	{
-		if (is_array($value) || is_string($value)) {
-			[$length, $label] = is_array($value)
-				? [count($value), 'items']
-				: (in_array('unicode', explode('|', $types), true)
-					? [Nette\Utils\Strings::length($value), 'characters']
-					: [strlen($value), 'bytes']);
-
-			if (!self::isInRange($length, $range)) {
-				$context->addError(
-					"The length of %label% %path% expects to be in range %expected%, %length% $label given.",
-					Nette\Schema\Message::LENGTH_OUT_OF_RANGE,
-					['value' => $value, 'length' => $length, 'expected' => implode('..', $range)]
-				);
-				return false;
-			}
-		} elseif ((is_int($value) || is_float($value)) && !self::isInRange($value, $range)) {
-			$context->addError(
-				'The %label% %path% expects to be in range %expected%, %value% given.',
-				Nette\Schema\Message::VALUE_OUT_OF_RANGE,
-				['value' => $value, 'expected' => implode('..', $range)]
-			);
-			return false;
-		}
-
-		return true;
-	}
-
-
-	private function isInRange($value, array $range): bool
-	{
-		return ($range[0] === null || $value >= $range[0])
-			&& ($range[1] === null || $value <= $range[1]);
-	}
-
-
-	private function doFinalize($value, Context $context)
-	{
-		if ($this->castTo) {
-			if (Nette\Utils\Reflection::isBuiltinType($this->castTo)) {
-				settype($value, $this->castTo);
-			} else {
-				$object = new $this->castTo;
-				foreach ($value as $k => $v) {
-					$object->$k = $v;
-				}
-
-				$value = $object;
+		$isOk = $context->createChecker();
+		foreach ($this->transforms as $handler) {
+			$value = $handler($value, $context);
+			if (!$isOk()) {
+				return null;
 			}
 		}
-
-		foreach ($this->asserts as $i => [$handler, $description]) {
-			if (!$handler($value)) {
-				$expected = $description ?: (is_string($handler) ? "$handler()" : "#$i");
-				$context->addError(
-					'Failed assertion ' . ($description ? "'%assertion%'" : '%assertion%') . ' for %label% %path% with value %value%.',
-					Nette\Schema\Message::FAILED_ASSERTION,
-					['value' => $value, 'assertion' => $expected]
-				);
-				return;
-			}
-		}
-
 		return $value;
+	}
+
+
+	/** @deprecated use Nette\Schema\Helpers::validateType() */
+	private function doValidate(mixed $value, string $expected, Context $context): bool
+	{
+		$isOk = $context->createChecker();
+		Helpers::validateType($value, $expected, $context);
+		return $isOk();
+	}
+
+
+	/**
+	 * @deprecated use Nette\Schema\Helpers::validateRange()
+	 * @param  array{?float, ?float}  $range
+	 */
+	private static function doValidateRange(mixed $value, array $range, Context $context, string $types = ''): bool
+	{
+		$isOk = $context->createChecker();
+		Helpers::validateRange($value, $range, $context, $types);
+		return $isOk();
+	}
+
+
+	/** @deprecated use doTransform() */
+	private function doFinalize(mixed $value, Context $context): mixed
+	{
+		return $this->doTransform($value, $context);
 	}
 }

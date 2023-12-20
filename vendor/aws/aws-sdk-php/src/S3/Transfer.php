@@ -4,6 +4,7 @@ namespace Aws\S3;
 use Aws;
 use Aws\CommandInterface;
 use Aws\Exception\AwsException;
+use Aws\MetricsBuilder;
 use GuzzleHttp\Promise;
 use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Promise\PromisorInterface;
@@ -26,6 +27,7 @@ class Transfer implements PromisorInterface
     private $concurrency;
     private $mupThreshold;
     private $before;
+    private $after;
     private $s3Args = [];
     private $addContentMD5;
 
@@ -52,6 +54,11 @@ class Transfer implements PromisorInterface
      *   callback accepts a single argument: Aws\CommandInterface $command.
      *   The provided command will be either a GetObject, PutObject,
      *   InitiateMultipartUpload, or UploadPart command.
+     * - after: (callable) A callback to invoke after each transfer promise is fulfilled.
+     *   The function is invoked with three arguments: the fulfillment value, the index
+     *   position from the iterable list of the promise, and the aggregate
+     *   promise that manages all the promises. The aggregate promise may
+     *   be resolved from within the callback to short-circuit the promise.
      * - mup_threshold: (int) Size in bytes in which a multipart upload should
      *   be used instead of PutObject. Defaults to 20971520 (20 MB).
      * - concurrency: (int, default=5) Number of files to upload concurrently.
@@ -126,6 +133,14 @@ class Transfer implements PromisorInterface
             }
         }
 
+        // Handle "after" callback option.
+        if (isset($options['after'])) {
+            $this->after = $options['after'];
+            if (!is_callable($this->after)) {
+                throw new \InvalidArgumentException('after must be a callable.');
+            }
+        }
+
         // Handle "debug" option.
         if (isset($options['debug'])) {
             if ($options['debug'] === true) {
@@ -139,6 +154,10 @@ class Transfer implements PromisorInterface
         // Handle "add_content_md5" option.
         $this->addContentMD5 = isset($options['add_content_md5'])
             && $options['add_content_md5'] === true;
+        MetricsBuilder::appendMetricsCaptureMiddleware(
+            $this->client->getHandlerList(),
+            MetricsBuilder::S3_TRANSFER
+        );
     }
 
     /**
@@ -146,7 +165,7 @@ class Transfer implements PromisorInterface
      *
      * @return PromiseInterface
      */
-    public function promise()
+    public function promise(): PromiseInterface
     {
         // If the promise has been created, just return it.
         if (!$this->promise) {
@@ -225,9 +244,13 @@ class Transfer implements PromisorInterface
 
     private function resolvesOutsideTargetDirectory($sink, $objectKey)
     {
+        // Split on both '/' and '\'. PHP on Windows treats '\' as a directory
+        // separator in fopen/mkdir/dirname, so a key containing a raw
+        // backslash byte can escape the destination if we only split on '/'.
+        $separators = '#[/\\\\]#';
         $resolved = [];
-        $sections = explode('/', $sink);
-        $targetSectionsLength = count(explode('/', $objectKey));
+        $sections = preg_split($separators, $sink);
+        $targetSectionsLength = count(preg_split($separators, $objectKey));
         $targetSections = array_slice($sections, -($targetSectionsLength + 1));
         $targetDirectory = $targetSections[0];
 
@@ -285,6 +308,7 @@ class Transfer implements PromisorInterface
         return (new Aws\CommandPool($this->client, $commands, [
             'concurrency' => $this->concurrency,
             'before'      => $this->before,
+            'fulfill'     => $this->after,
             'rejected'    => function ($reason, $idx, Promise\PromiseInterface $p) {
                 $p->reject($reason);
             }
@@ -302,7 +326,7 @@ class Transfer implements PromisorInterface
 
         // Create an EachPromise, that will concurrently handle the upload
         // operations' yielded promises from the iterator.
-        return Promise\Each::ofLimitAll($files, $this->concurrency);
+        return Promise\Each::ofLimitAll($files, $this->concurrency, $this->after);
     }
 
     /** @return Iterator */

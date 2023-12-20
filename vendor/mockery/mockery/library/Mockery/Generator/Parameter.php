@@ -1,43 +1,51 @@
 <?php
+
 /**
- * Mockery
+ * Mockery (https://docs.mockery.io/en/stable/)
  *
- * LICENSE
- *
- * This source file is subject to the new BSD license that is bundled
- * with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://github.com/padraic/mockery/blob/master/LICENSE
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to padraic@php.net so we can send you a copy immediately.
- *
- * @category   Mockery
- * @package    Mockery
- * @copyright  Copyright (c) 2010 Pádraic Brady (http://blog.astrumfutura.com)
- * @license    http://github.com/padraic/mockery/blob/master/LICENSE New BSD License
+ * @copyright https://github.com/mockery/mockery/blob/HEAD/COPYRIGHT.md
+ * @license   https://github.com/mockery/mockery/blob/HEAD/LICENSE BSD 3-Clause License
+ * @see       https://github.com/mockery/mockery for the canonical source repository
  */
 
 namespace Mockery\Generator;
 
 use Mockery\Reflector;
+use ReflectionClass;
+use ReflectionParameter;
 
+use function class_exists;
+
+/**
+ * @mixin ReflectionParameter
+ */
 class Parameter
 {
-    /** @var int */
+    /**
+     * @var int
+     */
     private static $parameterCounter = 0;
 
-    /** @var \ReflectionParameter */
-    private $rfp;
+    /**
+     * @var ReflectionParameter
+     */
+    private $reflectionParameter;
 
-    public function __construct(\ReflectionParameter $rfp)
+    public function __construct(ReflectionParameter $rfp)
     {
-        $this->rfp = $rfp;
+        $this->reflectionParameter = $rfp;
     }
 
+    /**
+     * Proxy all method calls to the reflection parameter.
+     *
+     * @param  string       $method
+     * @param  array<mixed> $args
+     * @return mixed
+     */
     public function __call($method, array $args)
     {
-        return call_user_func_array(array($this->rfp, $method), $args);
+        return $this->reflectionParameter->{$method}(...$args);
     }
 
     /**
@@ -45,37 +53,15 @@ class Parameter
      *
      * This will be null if there was no type, or it was a scalar or a union.
      *
-     * @return \ReflectionClass|null
+     * @return null|ReflectionClass
      *
      * @deprecated since 1.3.3 and will be removed in 2.0.
      */
     public function getClass()
     {
-        $typeHint = Reflector::getTypeHint($this->rfp, true);
+        $typeHint = Reflector::getTypeHint($this->reflectionParameter, true);
 
-        return \class_exists($typeHint) ? DefinedTargetClass::factory($typeHint, false) : null;
-    }
-
-    /**
-     * Get the string representation for the paramater type.
-     *
-     * @return string|null
-     */
-    public function getTypeHint()
-    {
-        return Reflector::getTypeHint($this->rfp);
-    }
-
-    /**
-     * Get the string representation for the paramater type.
-     *
-     * @return string
-     *
-     * @deprecated since 1.3.2 and will be removed in 2.0. Use getTypeHint() instead.
-     */
-    public function getTypeHintAsString()
-    {
-        return (string) Reflector::getTypeHint($this->rfp, true);
+        return class_exists($typeHint) ? DefinedTargetClass::factory($typeHint, false) : null;
     }
 
     /**
@@ -87,12 +73,35 @@ class Parameter
      */
     public function getName()
     {
-        $name = $this->rfp->getName();
-        if (!$name || $name == '...') {
-            $name = 'arg' . self::$parameterCounter++;
+        $name = $this->reflectionParameter->getName();
+
+        if (! $name || '...' === $name) {
+            return 'arg' . self::$parameterCounter++;
         }
 
         return $name;
+    }
+
+    /**
+     * Get the string representation for the paramater type.
+     *
+     * @return null|string
+     */
+    public function getTypeHint()
+    {
+        return Reflector::getTypeHint($this->reflectionParameter);
+    }
+
+    /**
+     * Get the string representation for the paramater type.
+     *
+     * @return string
+     *
+     * @deprecated since 1.3.2 and will be removed in 2.0. Use getTypeHint() instead.
+     */
+    public function getTypeHintAsString()
+    {
+        return (string) Reflector::getTypeHint($this->reflectionParameter, true);
     }
 
     /**
@@ -102,7 +111,7 @@ class Parameter
      */
     public function isArray()
     {
-        return Reflector::isArray($this->rfp);
+        return Reflector::isArray($this->reflectionParameter);
     }
 
     /**
@@ -112,6 +121,6 @@ class Parameter
      */
     public function isVariadic()
     {
-        return $this->rfp->isVariadic();
+        return $this->reflectionParameter->isVariadic();
     }
 }

@@ -20,7 +20,7 @@ class="nav-link active"
 @stop
 <!-- header -->
 @section('PageHeader')
-<h1>{{Lang::get('lang.staffs')}}</h1>
+<h3>{{Lang::get('lang.staffs')}}</h3>
 @stop
 <!-- /header -->
 <!-- breadcrumbs -->
@@ -32,12 +32,12 @@ class="nav-link active"
 <!-- content -->
 @section('content')
 <!-- open a form -->
-{!!Form::model($groups, ['url'=>'groups/'.$groups->id , 'method'=> 'PATCH'])!!}
+{!! html()->modelForm($groups, 'PATCH', url('groups/'.$groups->id))->open() !!}
 @if(Session::has('errors'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fa fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     <br/>
     @if($errors->first('name'))
     <li class="error-message-padding">{!! $errors->first('name', ':message') !!}</li>
@@ -54,19 +54,19 @@ class="nav-link active"
     <div class="card-body">
         <div class="row">
             <!-- name -->
-            <div class="col-sm-4 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                {!! Form::label('name',Lang::get('lang.name')) !!} <span class="text-red"> *</span>
-                {!! Form::text('name',null,['class' => 'form-control']) !!}
+            <div class="col-sm-4 mb-3 {{ $errors->has('name') ? 'has-error' : '' }}">
+                {!! html()->label(Lang::get('lang.name'), 'name') !!} <span class="text-red"> *</span>
+                {!! html()->text('name', null)->class('form-control') !!}
             </div>
             <!-- group status -->
-            <div class="col-sm-6 form-group {{ $errors->has('group_status') ? 'has-error' : '' }}">
-                {!! Form::label('group_status',Lang::get('lang.status')) !!}
+            <div class="col-sm-6 mb-3 {{ $errors->has('group_status') ? 'has-error' : '' }}">
+                {!! html()->label(Lang::get('lang.status'), 'group_status') !!}
                 <div class="row">
                     <div class="col-sm-2">
-                        {!! Form::radio('group_status','1',true) !!} {{Lang::get('lang.active')}}
+                        {!! html()->radio('group_status', true, '1') !!} {{Lang::get('lang.active')}}
                     </div>
                     <div class="col-sm-3">
-                        {!! Form::radio('group_status','0',null) !!} {{Lang::get('lang.inactive')}}
+                        {!! html()->radio('group_status', null, '0') !!} {{Lang::get('lang.inactive')}}
                     </div>
                 </div>
             </div>
@@ -82,45 +82,45 @@ class="nav-link active"
             <div class="card-body">
                 <!-- can create ticket -->
                 <div class="row">
-                    {!! Form::checkbox('can_create_ticket',1,null,['class' => 'checkbox']) !!}
-                    &nbsp;{!! Form::label('can_create_ticket',Lang::get('lang.can_create_ticket'),['style' => 'line-height:1;']) !!}
+                    {!! html()->checkbox('can_create_ticket', null, 1)->class('checkbox') !!}
+                    &nbsp;{!! html()->label(Lang::get('lang.can_create_ticket'), 'can_create_ticket')->attributes(['style' => 'line-height:1;']) !!}
                 </div>
                 <!-- can_edit_ticket -->
                 <div class="row">
-                    {!! Form::checkbox('can_edit_ticket',1,null,['class' => 'checkbox']) !!}
-                    &nbsp;{!! Form::label('can_edit_ticket',Lang::get('lang.can_edit_ticket'),['style' => 'line-height:1;']) !!}
+                    {!! html()->checkbox('can_edit_ticket', null, 1)->class('checkbox') !!}
+                    &nbsp;{!! html()->label(Lang::get('lang.can_edit_ticket'), 'can_edit_ticket')->attributes(['style' => 'line-height:1;']) !!}
                 </div>
                 <!-- can post ticket -->
                 <div class="row">
-                    {!! Form::checkbox('can_post_ticket',1,null,['class' => 'checkbox']) !!}
-                    &nbsp;{!! Form::label('can_post_ticket',Lang::get('lang.can_post_ticket'),['style' => 'line-height:1;']) !!}
+                    {!! html()->checkbox('can_post_ticket', null, 1)->class('checkbox') !!}
+                    &nbsp;{!! html()->label(Lang::get('lang.can_post_ticket'), 'can_post_ticket')->attributes(['style' => 'line-height:1;']) !!}
                 </div>
                 <!-- can_close_ticket -->
                 <div class="row">
-                    {!! Form::checkbox('can_close_ticket',1,null,['class' => 'checkbox']) !!}
-                    &nbsp;{!! Form::label('can_close_ticket',Lang::get('lang.can_close_ticket'),['style' => 'line-height:1;']) !!}
+                    {!! html()->checkbox('can_close_ticket', null, 1)->class('checkbox') !!}
+                    &nbsp;{!! html()->label(Lang::get('lang.can_close_ticket'), 'can_close_ticket')->attributes(['style' => 'line-height:1;']) !!}
                 </div>
                 <!-- can delete ticket -->
                 <div class="row">
-                    {!! Form::checkbox('can_delete_ticket',1,null,['class' => 'checkbox']) !!}
-                    &nbsp;{!! Form::label('can_delete_ticket',Lang::get('lang.can_delete_ticket'),['style' => 'line-height:1;']) !!}
+                    {!! html()->checkbox('can_delete_ticket', null, 1)->class('checkbox') !!}
+                    &nbsp;{!! html()->label(Lang::get('lang.can_delete_ticket'), 'can_delete_ticket')->attributes(['style' => 'line-height:1;']) !!}
                 </div>
                 <!-- can assign ticket -->
                 <div class="row">
-                    {!! Form::checkbox('can_assign_ticket',1,null,['class' => 'checkbox']) !!}
-                    &nbsp;{!! Form::label('can_assign_ticket',Lang::get('lang.can_assign_ticket'),['style' => 'line-height:1;']) !!}
+                    {!! html()->checkbox('can_assign_ticket', null, 1)->class('checkbox') !!}
+                    &nbsp;{!! html()->label(Lang::get('lang.can_assign_ticket'), 'can_assign_ticket')->attributes(['style' => 'line-height:1;']) !!}
                 </div>
                 <!-- can ban email -->
                 <div class="row">
-                     {!! Form::checkbox('can_ban_email',1,null,['class' => 'checkbox']) !!}
-                    &nbsp;{!! Form::label('can_ban_email',Lang::get('lang.can_ban_emails'),['style' => 'line-height:1;']) !!}
+                     {!! html()->checkbox('can_ban_email', null, 1)->class('checkbox') !!}
+                    &nbsp;{!! html()->label(Lang::get('lang.can_ban_emails'), 'can_ban_email')->attributes(['style' => 'line-height:1;']) !!}
                 </div>
             </div>
         </div>
     </div>
     <div class="card-footer">
-        {!! Form::submit(Lang::get('lang.update'),['class'=>'btn btn-primary'])!!}
+        {!! html()->submit(Lang::get('lang.update'))->class('btn btn-primary') !!}
     </div>
 </div>
-{!!Form::close()!!}
+{!! html()->closeModelForm() !!}
 @stop

@@ -19,6 +19,7 @@ use Exception;
 // classes
 use Illuminate\Http\Request;
 use Lang;
+use Yajra\DataTables\Facades\DataTables;
 
 /**
  * TicketController.
@@ -74,8 +75,7 @@ class PriorityController extends Controller
             $ticket = new Ticket_Priority();
             $tickets = $ticket->select('priority_id', 'priority', 'priority_desc', 'priority_color', 'status', 'is_default', 'ispublic')->get();
 
-            return \Datatable::Collection($tickets)
-                            ->showColumns('priority', 'priority_desc')
+            return DataTables::of($tickets)
                             ->addColumn('priority_color', function ($model) {
                                 return "<button class='btn' style = 'background-color:$model->priority_color'></button>";
                             })
@@ -96,9 +96,8 @@ class PriorityController extends Controller
                                     return '<a href='.url('ticket/priority/'.$model->priority_id.'/edit')." class='btn btn-primary btn-xs'>Edit</a>&nbsp;<a class='btn btn-danger btn-xs' onclick='confirmDelete(".$model->priority_id.")' href='javascript:;'>Delete </a>";
                                 }
                             })
-                            ->searchColumns('priority')
-                            ->orderColumns('priority', 'priority_color')
-                            ->make();
+                            ->rawColumns(['priority_color', 'status', 'action'])
+                            ->make(true);
         } catch (Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }
