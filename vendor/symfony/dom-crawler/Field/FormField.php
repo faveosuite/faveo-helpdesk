@@ -92,6 +92,8 @@ abstract class FormField
 
     /**
      * Sets the value of the field.
+     *
+     * @return void
      */
     public function setValue(?string $value)
     {
@@ -116,6 +118,8 @@ abstract class FormField
 
     /**
      * Initializes the form field.
+     *
+     * @return void
      */
     abstract protected function initialize();
 }

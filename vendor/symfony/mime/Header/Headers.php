@@ -61,7 +61,7 @@ final class Headers
         }
     }
 
-    public function setMaxLineLength(int $lineLength)
+    public function setMaxLineLength(int $lineLength): void
     {
         $this->lineLength = $lineLength;
         foreach ($this->all() as $header) {
@@ -147,6 +147,8 @@ final class Headers
             $method = 'addTextHeader';
         } elseif ('addIdentificationHeader' === $method) {
             $method = 'addIdHeader';
+        } elseif ('addMailboxListHeader' === $method && !\is_array($argument)) {
+            $argument = [$argument];
         }
 
         return $this->$method($name, $argument, $more);
@@ -264,7 +266,7 @@ final class Headers
         return $arr;
     }
 
-    public function getHeaderBody(string $name)
+    public function getHeaderBody(string $name): mixed
     {
         return $this->has($name) ? $this->get($name)->getBody() : null;
     }

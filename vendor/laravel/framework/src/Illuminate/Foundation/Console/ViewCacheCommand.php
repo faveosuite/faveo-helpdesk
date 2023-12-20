@@ -20,17 +20,6 @@ class ViewCacheCommand extends Command
     protected $signature = 'view:cache';
 
     /**
-     * The name of the console command.
-     *
-     * This name is used to identify the command during lazy loading.
-     *
-     * @var string|null
-     *
-     * @deprecated
-     */
-    protected static $defaultName = 'view:cache';
-
-    /**
      * The console command description.
      *
      * @var string
@@ -88,11 +77,17 @@ class ViewCacheCommand extends Command
      */
     protected function bladeFilesIn(array $paths)
     {
+        $extensions = collect($this->laravel['view']->getExtensions())
+            ->filter(fn ($value) => $value === 'blade')
+            ->keys()
+            ->map(fn ($extension) => "*.{$extension}")
+            ->all();
+
         return collect(
             Finder::create()
                 ->in($paths)
                 ->exclude('vendor')
-                ->name('*.blade.php')
+                ->name($extensions)
                 ->files()
         );
     }

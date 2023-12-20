@@ -2,12 +2,11 @@
 
 namespace Laravel\Dusk\Concerns;
 
-use Carbon\Carbon;
 use Closure;
 use Exception;
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\Exception\ScriptTimeoutException;
-use Facebook\WebDriver\Exception\TimeOutException;
+use Facebook\WebDriver\Exception\TimeoutException;
 use Facebook\WebDriver\WebDriverExpectedCondition;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -22,7 +21,7 @@ trait WaitsForElements
      * @param  int|null  $seconds
      * @return $this
      *
-     * @throws \Facebook\WebDriver\Exception\TimeOutException
+     * @throws \Facebook\WebDriver\Exception\TimeoutException
      */
     public function whenAvailable($selector, Closure $callback, $seconds = null)
     {
@@ -36,7 +35,7 @@ trait WaitsForElements
      * @param  int|null  $seconds
      * @return $this
      *
-     * @throws \Facebook\WebDriver\Exception\TimeOutException
+     * @throws \Facebook\WebDriver\Exception\TimeoutException
      */
     public function waitFor($selector, $seconds = null)
     {
@@ -54,7 +53,7 @@ trait WaitsForElements
      * @param  int|null  $seconds
      * @return $this
      *
-     * @throws \Facebook\WebDriver\Exception\TimeOutException
+     * @throws \Facebook\WebDriver\Exception\TimeoutException
      */
     public function waitUntilMissing($selector, $seconds = null)
     {
@@ -78,7 +77,7 @@ trait WaitsForElements
      * @param  int|null  $seconds
      * @return $this
      *
-     * @throws \Facebook\WebDriver\Exception\TimeOutException
+     * @throws \Facebook\WebDriver\Exception\TimeoutException
      */
     public function waitUntilMissingText($text, $seconds = null)
     {
@@ -98,7 +97,7 @@ trait WaitsForElements
      * @param  int|null  $seconds
      * @return $this
      *
-     * @throws \Facebook\WebDriver\Exception\TimeOutException
+     * @throws \Facebook\WebDriver\Exception\TimeoutException
      */
     public function waitForText($text, $seconds = null)
     {
@@ -119,11 +118,11 @@ trait WaitsForElements
      * @param  int|null  $seconds
      * @return $this
      *
-     * @throws \Facebook\WebDriver\Exception\TimeOutException
+     * @throws \Facebook\WebDriver\Exception\TimeoutException
      */
     public function waitForTextIn($selector, $text, $seconds = null)
     {
-        $message = 'Waited %s seconds for text "'.$text.'" in selector '.$selector;
+        $message = 'Waited %s seconds for text "'.$this->escapePercentCharacters($text).'" in selector '.$selector;
 
         return $this->waitUsing($seconds, 100, function () use ($selector, $text) {
             return $this->assertSeeIn($selector, $text);
@@ -137,7 +136,7 @@ trait WaitsForElements
      * @param  int|null  $seconds
      * @return $this
      *
-     * @throws \Facebook\WebDriver\Exception\TimeOutException
+     * @throws \Facebook\WebDriver\Exception\TimeoutException
      */
     public function waitForLink($link, $seconds = null)
     {
@@ -167,7 +166,7 @@ trait WaitsForElements
      * @param  int|null  $seconds
      * @return $this
      *
-     * @throws \Facebook\WebDriver\Exception\TimeOutException
+     * @throws \Facebook\WebDriver\Exception\TimeoutException
      */
     public function waitForLocation($path, $seconds = null)
     {
@@ -186,7 +185,7 @@ trait WaitsForElements
      * @param  int|null  $seconds
      * @return $this
      *
-     * @throws \Facebook\WebDriver\Exception\TimeOutException
+     * @throws \Facebook\WebDriver\Exception\TimeoutException
      */
     public function waitForRoute($route, $parameters = [], $seconds = null)
     {
@@ -237,7 +236,7 @@ trait WaitsForElements
      * @param  string|null  $message
      * @return $this
      *
-     * @throws \Facebook\WebDriver\Exception\TimeOutException
+     * @throws \Facebook\WebDriver\Exception\TimeoutException
      */
     public function waitUntil($script, $seconds = null, $message = null)
     {
@@ -314,7 +313,7 @@ trait WaitsForElements
      * @param  int|null  $seconds
      * @return $this
      *
-     * @throws \Facebook\WebDriver\Exception\TimeOutException
+     * @throws \Facebook\WebDriver\Exception\TimeoutException
      */
     public function waitForReload($callback = null, $seconds = null)
     {
@@ -335,13 +334,14 @@ trait WaitsForElements
      * Click an element and wait for the page to reload.
      *
      * @param  string|null  $selector
+     * @param  int|null  $seconds
      * @return $this
      */
-    public function clickAndWaitForReload($selector = null)
+    public function clickAndWaitForReload($selector = null, $seconds = null)
     {
         return $this->waitForReload(function ($browser) use ($selector) {
             $browser->click($selector);
-        });
+        }, $seconds);
     }
 
     /**
@@ -352,7 +352,7 @@ trait WaitsForElements
      * @param  int|null  $seconds
      * @return $this
      *
-     * @throws \Facebook\WebDriver\Exception\TimeOutException
+     * @throws \Facebook\WebDriver\Exception\TimeoutException
      */
     public function waitForEvent($type, $target = null, $seconds = null)
     {
@@ -385,7 +385,7 @@ trait WaitsForElements
      * @param  string|null  $message
      * @return $this
      *
-     * @throws \Facebook\WebDriver\Exception\TimeOutException
+     * @throws \Facebook\WebDriver\Exception\TimeoutException
      */
     public function waitUsing($seconds, $interval, Closure $callback, $message = null)
     {
@@ -393,32 +393,22 @@ trait WaitsForElements
 
         $this->pause($interval);
 
-        $started = Carbon::now();
-
-        while (true) {
-            try {
-                if ($callback()) {
-                    break;
+        $this->driver->wait($seconds, $interval)->until(
+            function ($driver) use ($callback) {
+                try {
+                    return $callback();
+                } catch (Exception $e) {
+                    return false;
                 }
-            } catch (Exception $e) {
-                //
-            }
-
-            if ($started->lt(Carbon::now()->subSeconds($seconds))) {
-                throw new TimeOutException($message
-                    ? sprintf($message, $seconds)
-                    : "Waited {$seconds} seconds for callback."
-                );
-            }
-
-            $this->pause($interval);
-        }
+            },
+            $message ? sprintf($message, $seconds) : "Waited {$seconds} seconds for callback."
+        );
 
         return $this;
     }
 
     /**
-     * Prepare custom TimeOutException message for sprintf().
+     * Prepare custom TimeoutException message for sprintf().
      *
      * @param  string  $message
      * @param  string  $expected
@@ -426,6 +416,17 @@ trait WaitsForElements
      */
     protected function formatTimeOutMessage($message, $expected)
     {
-        return $message.' ['.str_replace('%', '%%', $expected).'].';
+        return $message.' ['.$this->escapePercentCharacters($expected).'].';
+    }
+
+    /**
+     * Escape percent characters in preparation for sending the given message to "sprintf".
+     *
+     * @param  string  $message
+     * @return string
+     */
+    protected function escapePercentCharacters($message)
+    {
+        return str_replace('%', '%%', $message);
     }
 }

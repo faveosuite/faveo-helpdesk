@@ -2,7 +2,7 @@
 
 namespace Facebook\WebDriver\Remote;
 
-use Facebook\WebDriver\Exception\UnknownErrorException;
+use Facebook\WebDriver\Exception\Internal\UnexpectedResponseException;
 use Facebook\WebDriver\Interactions\WebDriverActions;
 use Facebook\WebDriver\JavaScriptExecutor;
 use Facebook\WebDriver\Support\IsElementDisplayedAtom;
@@ -54,24 +54,19 @@ class RemoteWebDriver implements WebDriver, JavaScriptExecutor, WebDriverHasInpu
     protected $isW3cCompliant;
 
     /**
-     * @param HttpCommandExecutor $commandExecutor
      * @param string $sessionId
-     * @param WebDriverCapabilities|null $capabilities
      * @param bool $isW3cCompliant false to use the legacy JsonWire protocol, true for the W3C WebDriver spec
      */
     protected function __construct(
         HttpCommandExecutor $commandExecutor,
         $sessionId,
-        WebDriverCapabilities $capabilities = null,
+        WebDriverCapabilities $capabilities,
         $isW3cCompliant = false
     ) {
         $this->executor = $commandExecutor;
         $this->sessionID = $sessionId;
         $this->isW3cCompliant = $isW3cCompliant;
-
-        if ($capabilities !== null) {
-            $this->capabilities = $capabilities;
-        }
+        $this->capabilities = $capabilities;
     }
 
     /**
@@ -139,14 +134,22 @@ class RemoteWebDriver implements WebDriver, JavaScriptExecutor, WebDriverHasInpu
     /**
      * [Experimental] Construct the RemoteWebDriver by an existing session.
      *
-     * This constructor can boost the performance a lot by reusing the same browser for the whole test suite.
-     * You cannot pass the desired capabilities because the session was created before.
+     * This constructor can boost the performance by reusing the same browser for the whole test suite. On the other
+     * hand, because the browser is not pristine, this may lead to flaky and dependent tests. So carefully
+     * consider the tradeoffs.
+     *
+     * To create the instance, we need to know Capabilities of the previously created session. You can either
+     * pass them in $existingCapabilities parameter, or we will attempt to receive them from the Selenium Grid server.
+     * However, if Capabilities were not provided and the attempt to get them was not successful,
+     * exception will be thrown.
      *
      * @param string $session_id The existing session id
      * @param string $selenium_server_url The url of the remote Selenium WebDriver server
      * @param int|null $connection_timeout_in_ms Set timeout for the connect phase to remote Selenium WebDriver server
      * @param int|null $request_timeout_in_ms Set the maximum time of a request to remote Selenium WebDriver server
      * @param bool $isW3cCompliant True to use W3C WebDriver (default), false to use the legacy JsonWire protocol
+     * @param WebDriverCapabilities|null $existingCapabilities Provide capabilities of the existing previously created
+     *  session. If not provided, we will attempt to read them, but this will only work when using Selenium Grid.
      * @return static
      */
     public static function createBySessionID(
@@ -157,6 +160,7 @@ class RemoteWebDriver implements WebDriver, JavaScriptExecutor, WebDriverHasInpu
     ) {
         // BC layer to not break the method signature
         $isW3cCompliant = func_num_args() > 4 ? func_get_arg(4) : true;
+        $existingCapabilities = func_num_args() > 5 ? func_get_arg(5) : null;
 
         $executor = new HttpCommandExecutor($selenium_server_url, null, null);
         if ($connection_timeout_in_ms !== null) {
@@ -170,7 +174,12 @@ class RemoteWebDriver implements WebDriver, JavaScriptExecutor, WebDriverHasInpu
             $executor->disableW3cCompliance();
         }
 
-        return new static($executor, $session_id, null, $isW3cCompliant);
+        // if capabilities were not provided, attempt to read them from the Selenium Grid API
+        if ($existingCapabilities === null) {
+            $existingCapabilities = self::readExistingCapabilitiesFromSeleniumGrid($session_id, $executor);
+        }
+
+        return new static($executor, $session_id, $existingCapabilities, $isW3cCompliant);
     }
 
     /**
@@ -200,7 +209,6 @@ class RemoteWebDriver implements WebDriver, JavaScriptExecutor, WebDriverHasInpu
     /**
      * Find the first WebDriverElement using the given mechanism.
      *
-     * @param WebDriverBy $by
      * @return RemoteWebElement NoSuchElementException is thrown in HttpCommandExecutor if no element is found.
      * @see WebDriverBy
      */
@@ -211,17 +219,12 @@ class RemoteWebDriver implements WebDriver, JavaScriptExecutor, WebDriverHasInpu
             JsonWireCompat::getUsing($by, $this->isW3cCompliant)
         );
 
-        if ($raw_element === null) {
-            throw new UnknownErrorException('Unexpected server response to findElement command');
-        }
-
         return $this->newElement(JsonWireCompat::getElement($raw_element));
     }
 
     /**
      * Find all WebDriverElements within the current page using the given mechanism.
      *
-     * @param WebDriverBy $by
      * @return RemoteWebElement[] A list of all WebDriverElements, or an empty array if nothing matches
      * @see WebDriverBy
      */
@@ -232,8 +235,8 @@ class RemoteWebDriver implements WebDriver, JavaScriptExecutor, WebDriverHasInpu
             JsonWireCompat::getUsing($by, $this->isW3cCompliant)
         );
 
-        if ($raw_elements === null) {
-            throw new UnknownErrorException('Unexpected server response to findElements command');
+        if (!is_array($raw_elements)) {
+            throw UnexpectedResponseException::forError('Server response to findElements command is not an array');
         }
 
         $elements = [];
@@ -667,7 +670,6 @@ class RemoteWebDriver implements WebDriver, JavaScriptExecutor, WebDriverHasInpu
     /**
      * Prepare arguments for JavaScript injection
      *
-     * @param array $arguments
      * @return array
      */
     protected function prepareScriptArguments(array $arguments)
@@ -732,5 +734,27 @@ class RemoteWebDriver implements WebDriver, JavaScriptExecutor, WebDriverHasInpu
         }
 
         return $desired_capabilities;
+    }
+
+    protected static function readExistingCapabilitiesFromSeleniumGrid(
+        string $session_id,
+        HttpCommandExecutor $executor
+    ): DesiredCapabilities {
+        $getCapabilitiesCommand = new CustomWebDriverCommand($session_id, '/se/grid/session/:sessionId', 'GET', []);
+
+        try {
+            $capabilitiesResponse = $executor->execute($getCapabilitiesCommand);
+
+            $existingCapabilities = DesiredCapabilities::createFromW3cCapabilities(
+                $capabilitiesResponse->getValue()['capabilities']
+            );
+            if ($existingCapabilities === null) {
+                throw UnexpectedResponseException::forError('Empty capabilities received');
+            }
+        } catch (\Exception $e) {
+            throw UnexpectedResponseException::forCapabilitiesRetrievalError($e);
+        }
+
+        return $existingCapabilities;
     }
 }

@@ -23,7 +23,7 @@ use Symfony\Component\Mime\Part\TextPart;
  */
 final class FormDataPart extends AbstractMultipartPart
 {
-    private $fields = [];
+    private array $fields = [];
 
     /**
      * @param array<string|array|DataPart> $fields
@@ -32,13 +32,8 @@ final class FormDataPart extends AbstractMultipartPart
     {
         parent::__construct();
 
-        foreach ($fields as $name => $value) {
-            if (!\is_string($value) && !\is_array($value) && !$value instanceof TextPart) {
-                throw new InvalidArgumentException(sprintf('The value of the form field "%s" can only be a string, an array, or an instance of TextPart ("%s" given).', $name, get_debug_type($value)));
-            }
+        $this->fields = $fields;
 
-            $this->fields[$name] = $value;
-        }
         // HTTP does not support \r\n in header values
         $this->getHeaders()->setMaxLineLength(\PHP_INT_MAX);
     }
@@ -58,7 +53,7 @@ final class FormDataPart extends AbstractMultipartPart
         $values = [];
 
         $prepare = function ($item, $key, $root = null) use (&$values, &$prepare) {
-            if (\is_int($key) && \is_array($item)) {
+            if (null === $root && \is_int($key) && \is_array($item)) {
                 if (1 !== \count($item)) {
                     throw new InvalidArgumentException(sprintf('Form field values with integer keys can only have one array element, the key being the field name and the value being the field value, %d provided.', \count($item)));
                 }
@@ -73,6 +68,10 @@ final class FormDataPart extends AbstractMultipartPart
                 array_walk($item, $prepare, $fieldName);
 
                 return;
+            }
+
+            if (!\is_string($item) && !$item instanceof TextPart) {
+                throw new InvalidArgumentException(sprintf('The value of the form field "%s" can only be a string, an array, or an instance of TextPart, "%s" given.', $fieldName, get_debug_type($item)));
             }
 
             $values[] = $this->preparePart($fieldName, $item);

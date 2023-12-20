@@ -11,9 +11,10 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Conditionable;
 use Illuminate\Support\Traits\Macroable;
 use IteratorAggregate;
+use JsonSerializable;
 use Traversable;
 
-class ComponentAttributeBag implements ArrayAccess, Htmlable, IteratorAggregate
+class ComponentAttributeBag implements ArrayAccess, IteratorAggregate, JsonSerializable, Htmlable
 {
     use Conditionable, Macroable;
 
@@ -61,12 +62,43 @@ class ComponentAttributeBag implements ArrayAccess, Htmlable, IteratorAggregate
     /**
      * Determine if a given attribute exists in the attribute array.
      *
-     * @param  string  $key
+     * @param  array|string  $key
      * @return bool
      */
     public function has($key)
     {
-        return array_key_exists($key, $this->attributes);
+        $keys = is_array($key) ? $key : func_get_args();
+
+        foreach ($keys as $value) {
+            if (! array_key_exists($value, $this->attributes)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Determine if any of the keys exist in the attribute array.
+     *
+     * @param  array|string  $key
+     * @return bool
+     */
+    public function hasAny($key)
+    {
+        if (! count($this->attributes)) {
+            return false;
+        }
+
+        $keys = is_array($key) ? $key : func_get_args();
+
+        foreach ($keys as $value) {
+            if ($this->has($value)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -77,7 +109,7 @@ class ComponentAttributeBag implements ArrayAccess, Htmlable, IteratorAggregate
      */
     public function missing($key)
     {
-        return ! $this->has($key, $this->attributes);
+        return ! $this->has($key);
     }
 
     /**
@@ -425,6 +457,16 @@ class ComponentAttributeBag implements ArrayAccess, Htmlable, IteratorAggregate
     }
 
     /**
+     * Convert the object into a JSON serializable form.
+     *
+     * @return mixed
+     */
+    public function jsonSerialize(): mixed
+    {
+        return $this->attributes;
+    }
+
+    /**
      * Implode the attributes into a single HTML ready string.
      *
      * @return string
@@ -439,7 +481,8 @@ class ComponentAttributeBag implements ArrayAccess, Htmlable, IteratorAggregate
             }
 
             if ($value === true) {
-                $value = $key;
+                // Exception for Alpine...
+                $value = $key === 'x-data' ? '' : $key;
             }
 
             $string .= ' '.$key.'="'.str_replace('"', '\\"', trim($value)).'"';

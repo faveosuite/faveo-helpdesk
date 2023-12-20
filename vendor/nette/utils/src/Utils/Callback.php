@@ -94,11 +94,11 @@ final class Callback
 		}
 
 		if (is_string($callable) && str_contains($callable, '::')) {
-			return new \ReflectionMethod($callable);
+			return new ReflectionMethod($callable);
 		} elseif (is_array($callable)) {
-			return new \ReflectionMethod($callable[0], $callable[1]);
+			return new ReflectionMethod($callable[0], $callable[1]);
 		} elseif (is_object($callable) && !$callable instanceof \Closure) {
-			return new \ReflectionMethod($callable, '__invoke');
+			return new ReflectionMethod($callable, '__invoke');
 		} else {
 			return new \ReflectionFunction($callable);
 		}
@@ -120,14 +120,15 @@ final class Callback
 	public static function unwrap(\Closure $closure): callable|array
 	{
 		$r = new \ReflectionFunction($closure);
+		$class = $r->getClosureScopeClass()?->name;
 		if (str_ends_with($r->name, '}')) {
 			return $closure;
 
-		} elseif ($obj = $r->getClosureThis()) {
+		} elseif (($obj = $r->getClosureThis()) && $obj::class === $class) {
 			return [$obj, $r->name];
 
-		} elseif ($class = $r->getClosureScopeClass()) {
-			return [$class->name, $r->name];
+		} elseif ($class) {
+			return [$class, $r->name];
 
 		} else {
 			return $r->name;

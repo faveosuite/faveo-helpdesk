@@ -3,6 +3,31 @@ This project versioning adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## 1.15.1 - 2023-10-20
+- Update `symfony/process` dependency to support upcoming Symfony 7.
+
+## 1.15.0 - 2023-08-29
+### Changed
+- Capability key `ChromeOptions::CAPABILITY_W3C` used to set ChromeOptions is now deprecated in favor of `ChromeOptions::CAPABILITY`, which now also contains the W3C compatible value (`goog:chromeOptions`).
+- ChromeOptions are now passed to the driver always as a W3C compatible key `goog:chromeOptions`, even in the deprecated OSS JsonWire payload (as ChromeDriver [supports](https://bugs.chromium.org/p/chromedriver/issues/detail?id=1786) this since 2017).
+- Improve Safari compatibility for `<select multilpe>` element.
+- Remove no longer needed compatibility layer with old Symfony.
+- Docs: Document exception throwing in findElement.
+
+### Fixed
+- Handle unexpected response when getting element(s) by throwing an exception, not triggering fatal error.
+
+## 1.14.0 - 2023-02-09
+### Added
+- `PhpWebDriverExceptionInterface` as a common interface to identify all exceptions thrown in php-webdriver.
+
+### Changed
+- Require PHP ^7.3.
+- Capabilities must be either explicitly provided or retrievable from Selenium Grid when resuing session with `createBySessionID()`.
+- Throw `UnexpectedResponseException` instead of `UnknownErrorException` in `findElement()` and `findElements()` methods.
+- Throw custom php-webdriver exceptions instead of native PHP SPL exceptions.
+- Do not mix internal non-W3C WebDriver exceptions, separate them into own namespaces.
+
 ## 1.13.1 - 2022-10-11
 ### Fixed
 - Do not fail when using `isDisplayed()` and capabilities are missing in WebDriver instance. (Happens when driver instance was created using `RemoteWebDriver::createBySessionID()`.)

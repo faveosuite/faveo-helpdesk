@@ -17,15 +17,13 @@ use Nette;
  */
 final class FileSystem
 {
-	use Nette\StaticClass;
-
 	/**
 	 * Creates a directory if it does not exist, including parent directories.
 	 * @throws Nette\IOException  on error occurred
 	 */
 	public static function createDir(string $dir, int $mode = 0777): void
 	{
-		if (!is_dir($dir) && !@mkdir($dir, $mode, true) && !is_dir($dir)) { // @ - dir may already exist
+		if (!is_dir($dir) && !@mkdir($dir, $mode, recursive: true) && !is_dir($dir)) { // @ - dir may already exist
 			throw new Nette\IOException(sprintf(
 				"Unable to create directory '%s' with mode %s. %s",
 				self::normalizePath($dir),

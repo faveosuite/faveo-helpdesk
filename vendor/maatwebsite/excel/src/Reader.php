@@ -106,7 +106,7 @@ class Reader
         }
 
         try {
-            $this->loadSpreadsheet($import, $this->reader);
+            $this->loadSpreadsheet($import);
 
             ($this->transaction)(function () use ($import) {
                 $sheetsToDisconnect = [];
@@ -355,9 +355,9 @@ class Reader
     }
 
     /**
-     * @param $import
-     * @param $sheetImport
-     * @param $index
+     * @param  $import
+     * @param  $sheetImport
+     * @param  $index
      * @return Sheet|null
      *
      * @throws \PhpOffice\PhpSpreadsheet\Exception

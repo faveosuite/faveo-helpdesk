@@ -20,19 +20,17 @@ use Symfony\Component\Mime\Header\Headers;
 class DataPart extends TextPart
 {
     /** @internal */
-    protected $_parent;
+    protected array $_parent;
 
-    private $filename;
-    private $mediaType;
-    private $cid;
+    private ?string $filename = null;
+    private string $mediaType;
+    private ?string $cid = null;
 
     /**
      * @param resource|string|File $body Use a File instance to defer loading the file until rendering
      */
     public function __construct($body, string $filename = null, string $contentType = null, string $encoding = null)
     {
-        unset($this->_parent);
-
         if ($body instanceof File && !$filename) {
             $filename = $body->getFilename();
         }
@@ -146,6 +144,9 @@ class DataPart extends TextPart
         return ['_headers', '_parent', 'filename', 'mediaType'];
     }
 
+    /**
+     * @return void
+     */
     public function __wakeup()
     {
         $r = new \ReflectionProperty(AbstractPart::class, 'headers');
@@ -156,7 +157,7 @@ class DataPart extends TextPart
             throw new \BadMethodCallException('Cannot unserialize '.__CLASS__);
         }
         foreach (['body', 'charset', 'subtype', 'disposition', 'name', 'encoding'] as $name) {
-            if (null !== $this->_parent[$name] && !\is_string($this->_parent[$name])) {
+            if (null !== $this->_parent[$name] && !\is_string($this->_parent[$name]) && !$this->_parent[$name] instanceof File) {
                 throw new \BadMethodCallException('Cannot unserialize '.__CLASS__);
             }
             $r = new \ReflectionProperty(TextPart::class, $name);

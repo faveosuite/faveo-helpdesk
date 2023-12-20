@@ -21,6 +21,7 @@
     "require-dev": {
         "ext-json": "*",
         "phpunit/phpunit": "^9.3",
+        "spatie/phpunit-snapshot-assertions": "^4.2",
         "symfony/var-dumper": "^5.1"
     },
     "autoload": {

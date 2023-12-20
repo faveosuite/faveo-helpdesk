@@ -44,7 +44,7 @@ class RequestDataCollector extends DataCollector implements EventSubscriberInter
         $this->requestStack = $requestStack;
     }
 
-    public function collect(Request $request, Response $response, \Throwable $exception = null)
+    public function collect(Request $request, Response $response, \Throwable $exception = null): void
     {
         // attributes are serialized and as they can be anything, they need to be converted to strings.
         $attributes = [];
@@ -136,7 +136,7 @@ class RequestDataCollector extends DataCollector implements EventSubscriberInter
                 continue;
             }
             if ('request_headers' === $key || 'response_headers' === $key) {
-                $this->data[$key] = array_map(function ($v) { return isset($v[0]) && !isset($v[1]) ? $v[0] : $v; }, $value);
+                $this->data[$key] = array_map(fn ($v) => isset($v[0]) && !isset($v[1]) ? $v[0] : $v, $value);
             }
         }
 
@@ -173,108 +173,144 @@ class RequestDataCollector extends DataCollector implements EventSubscriberInter
         }
     }
 
-    public function lateCollect()
+    public function lateCollect(): void
     {
         $this->data = $this->cloneVar($this->data);
     }
 
-    public function reset()
+    public function reset(): void
     {
-        $this->data = [];
+        parent::reset();
         $this->controllers = new \SplObjectStorage();
         $this->sessionUsages = [];
     }
 
-    public function getMethod()
+    public function getMethod(): string
     {
         return $this->data['method'];
     }
 
-    public function getPathInfo()
+    public function getPathInfo(): string
     {
         return $this->data['path_info'];
     }
 
+    /**
+     * @return ParameterBag
+     */
     public function getRequestRequest()
     {
         return new ParameterBag($this->data['request_request']->getValue());
     }
 
+    /**
+     * @return ParameterBag
+     */
     public function getRequestQuery()
     {
         return new ParameterBag($this->data['request_query']->getValue());
     }
 
+    /**
+     * @return ParameterBag
+     */
     public function getRequestFiles()
     {
         return new ParameterBag($this->data['request_files']->getValue());
     }
 
+    /**
+     * @return ParameterBag
+     */
     public function getRequestHeaders()
     {
         return new ParameterBag($this->data['request_headers']->getValue());
     }
 
+    /**
+     * @return ParameterBag
+     */
     public function getRequestServer(bool $raw = false)
     {
         return new ParameterBag($this->data['request_server']->getValue($raw));
     }
 
+    /**
+     * @return ParameterBag
+     */
     public function getRequestCookies(bool $raw = false)
     {
         return new ParameterBag($this->data['request_cookies']->getValue($raw));
     }
 
+    /**
+     * @return ParameterBag
+     */
     public function getRequestAttributes()
     {
         return new ParameterBag($this->data['request_attributes']->getValue());
     }
 
+    /**
+     * @return ParameterBag
+     */
     public function getResponseHeaders()
     {
         return new ParameterBag($this->data['response_headers']->getValue());
     }
 
+    /**
+     * @return ParameterBag
+     */
     public function getResponseCookies()
     {
         return new ParameterBag($this->data['response_cookies']->getValue());
     }
 
-    public function getSessionMetadata()
+    public function getSessionMetadata(): array
     {
         return $this->data['session_metadata']->getValue();
     }
 
-    public function getSessionAttributes()
+    public function getSessionAttributes(): array
     {
         return $this->data['session_attributes']->getValue();
     }
 
-    public function getStatelessCheck()
+    public function getStatelessCheck(): bool
     {
         return $this->data['stateless_check'];
     }
 
-    public function getSessionUsages()
+    public function getSessionUsages(): Data|array
     {
         return $this->data['session_usages'];
     }
 
-    public function getFlashes()
+    public function getFlashes(): array
     {
         return $this->data['flashes']->getValue();
     }
 
+    /**
+     * @return string|resource
+     */
     public function getContent()
     {
         return $this->data['content'];
     }
 
+    /**
+     * @return bool
+     */
     public function isJsonRequest()
     {
         return 1 === preg_match('{^application/(?:\w+\++)*json$}i', $this->data['request_headers']['content-type']);
     }
 
+    /**
+     * @return string|null
+     */
     public function getPrettyJson()
     {
         $decoded = json_decode($this->getContent());
@@ -282,31 +318,34 @@ class RequestDataCollector extends DataCollector implements EventSubscriberInter
         return \JSON_ERROR_NONE === json_last_error() ? json_encode($decoded, \JSON_PRETTY_PRINT) : null;
     }
 
-    public function getContentType()
+    public function getContentType(): string
     {
         return $this->data['content_type'];
     }
 
-    public function getStatusText()
+    public function getStatusText(): string
     {
         return $this->data['status_text'];
     }
 
-    public function getStatusCode()
+    public function getStatusCode(): int
     {
         return $this->data['status_code'];
     }
 
-    public function getFormat()
+    public function getFormat(): string
     {
         return $this->data['format'];
     }
 
-    public function getLocale()
+    public function getLocale(): string
     {
         return $this->data['locale'];
     }
 
+    /**
+     * @return ParameterBag
+     */
     public function getDotenvVars()
     {
         return new ParameterBag($this->data['dotenv_vars']->getValue());
@@ -322,7 +361,7 @@ class RequestDataCollector extends DataCollector implements EventSubscriberInter
         return $this->data['route'];
     }
 
-    public function getIdentifier()
+    public function getIdentifier(): string
     {
         return $this->data['identifier'];
     }
@@ -359,17 +398,17 @@ class RequestDataCollector extends DataCollector implements EventSubscriberInter
         return $this->data['redirect'] ?? false;
     }
 
-    public function getForwardToken()
+    public function getForwardToken(): ?string
     {
         return $this->data['forward_token'] ?? null;
     }
 
-    public function onKernelController(ControllerEvent $event)
+    public function onKernelController(ControllerEvent $event): void
     {
         $this->controllers[$event->getRequest()] = $event->getController();
     }
 
-    public function onKernelResponse(ResponseEvent $event)
+    public function onKernelResponse(ResponseEvent $event): void
     {
         if (!$event->isMainRequest()) {
             return;

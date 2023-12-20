@@ -50,7 +50,9 @@ class SessionManager extends Manager
     protected function createCookieDriver()
     {
         return $this->buildSession(new CookieSessionHandler(
-            $this->container->make('cookie'), $this->config->get('session.lifetime')
+            $this->container->make('cookie'),
+            $this->config->get('session.lifetime'),
+            $this->config->get('session.expire_on_close')
         ));
     }
 
@@ -232,6 +234,26 @@ class SessionManager extends Manager
     public function blockDriver()
     {
         return $this->config->get('session.block_store');
+    }
+
+    /**
+     * Get the maximum number of seconds the session lock should be held for.
+     *
+     * @return int
+     */
+    public function defaultRouteBlockLockSeconds()
+    {
+        return $this->config->get('session.block_lock_seconds', 10);
+    }
+
+    /**
+     * Get the maximum number of seconds to wait while attempting to acquire a route block session lock.
+     *
+     * @return int
+     */
+    public function defaultRouteBlockWaitSeconds()
+    {
+        return $this->config->get('session.block_wait_seconds', 10);
     }
 
     /**

@@ -10,6 +10,7 @@ use Throwable;
 
 class MissingViteManifestSolutionProvider implements HasSolutionsForThrowable
 {
+    /** @var array<string, string> */
     protected array $links = [
         'Asset bundling with Vite' => 'https://laravel.com/docs/9.x/vite#running-vite',
     ];

@@ -15,7 +15,7 @@ class MissingImportSolutionProvider implements HasSolutionsForThrowable
 
     public function canSolve(Throwable $throwable): bool
     {
-        $pattern = '/Class \'([^\s]+)\' not found/m';
+        $pattern = '/Class \"([^\s]+)\" not found/m';
 
         if (! preg_match($pattern, $throwable->getMessage(), $matches)) {
             return false;

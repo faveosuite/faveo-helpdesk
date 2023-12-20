@@ -27,6 +27,7 @@ use Psy\TabCompletion\Matcher;
 use Psy\VarDumper\PresenterAware;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command as BaseCommand;
+use Symfony\Component\Console\Exception\ExceptionInterface as SymfonyConsoleException;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
@@ -49,7 +50,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Shell extends Application
 {
-    const VERSION = 'v0.11.12';
+    const VERSION = 'v0.11.22';
 
     /** @deprecated */
     const PROMPT = '>>> ';
@@ -626,7 +627,7 @@ class Shell extends Application
             $output = $output->getErrorOutput();
         }
 
-        $output->writeln(\sprintf('<aside>%s</aside>', OutputFormatter::escape($code)), ConsoleOutput::VERBOSITY_DEBUG);
+        $output->writeln(\sprintf('<whisper>%s</whisper>', OutputFormatter::escape($code)), ConsoleOutput::VERBOSITY_DEBUG);
 
         return $code;
     }
@@ -1319,10 +1320,21 @@ class Shell extends Application
             }
         }
 
-        if ($e instanceof PsyException) {
+        if ($e instanceof PsyException || $e instanceof SymfonyConsoleException) {
             $exceptionShortName = (new \ReflectionClass($e))->getShortName();
             $typeParts = \preg_split('/(?=[A-Z])/', $exceptionShortName);
-            \array_pop($typeParts); // Removes "Exception"
+
+            switch ($exceptionShortName) {
+                case 'RuntimeException':
+                case 'LogicException':
+                    // These ones look weird without 'Exception'
+                    break;
+                default:
+                    if (\end($typeParts) === 'Exception') {
+                        \array_pop($typeParts);
+                    }
+                    break;
+            }
 
             return \trim(\strtoupper(\implode(' ', $typeParts)));
         }

@@ -15,6 +15,7 @@ use Prophecy\Doubler\CachedDoubler;
 use Prophecy\Doubler\Doubler;
 use Prophecy\Doubler\LazyDouble;
 use Prophecy\Doubler\ClassPatch;
+use Prophecy\Exception\Doubler\ClassNotFoundException;
 use Prophecy\Prophecy\ObjectProphecy;
 use Prophecy\Prophecy\RevealerInterface;
 use Prophecy\Prophecy\Revealer;
@@ -30,22 +31,18 @@ use Prophecy\Exception\Prediction\AggregateException;
  */
 class Prophet
 {
+    /**
+     * @var Doubler
+     */
     private $doubler;
     private $revealer;
     private $util;
 
     /**
-     * @var ObjectProphecy[]
+     * @var list<ObjectProphecy<object>>
      */
     private $prophecies = array();
 
-    /**
-     * Initializes Prophet.
-     *
-     * @param null|Doubler           $doubler
-     * @param null|RevealerInterface $revealer
-     * @param null|StringUtil        $util
-     */
     public function __construct(
         Doubler $doubler = null,
         RevealerInterface $revealer = null,
@@ -74,6 +71,10 @@ class Prophet
      * @param null|string $classOrInterface Class or interface name
      *
      * @return ObjectProphecy
+     *
+     * @template T of object
+     * @phpstan-param class-string<T>|null $classOrInterface
+     * @phpstan-return ($classOrInterface is null ? ObjectProphecy<object> : ObjectProphecy<T>)
      */
     public function prophesize($classOrInterface = null)
     {
@@ -83,12 +84,19 @@ class Prophet
             $this->revealer
         );
 
-        if ($classOrInterface && class_exists($classOrInterface)) {
-            return $prophecy->willExtend($classOrInterface);
-        }
+        if ($classOrInterface) {
+            if (class_exists($classOrInterface)) {
+                return $prophecy->willExtend($classOrInterface);
+            }
 
-        if ($classOrInterface && interface_exists($classOrInterface)) {
-            return $prophecy->willImplement($classOrInterface);
+            if (interface_exists($classOrInterface)) {
+                return $prophecy->willImplement($classOrInterface);
+            }
+
+            throw new ClassNotFoundException(sprintf(
+                'Cannot prophesize class %s, because it cannot be found.',
+                $classOrInterface
+            ), $classOrInterface);
         }
 
         return $prophecy;
@@ -97,7 +105,7 @@ class Prophet
     /**
      * Returns all created object prophecies.
      *
-     * @return ObjectProphecy[]
+     * @return list<ObjectProphecy<object>>
      */
     public function getProphecies()
     {
@@ -116,6 +124,8 @@ class Prophet
 
     /**
      * Checks all predictions defined by prophecies of this Prophet.
+     *
+     * @return void
      *
      * @throws Exception\Prediction\AggregateException If any prediction fails
      */

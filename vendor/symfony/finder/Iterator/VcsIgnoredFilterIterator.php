@@ -18,20 +18,17 @@ use Symfony\Component\Finder\Gitignore;
  */
 final class VcsIgnoredFilterIterator extends \FilterIterator
 {
-    /**
-     * @var string
-     */
-    private $baseDir;
+    private string $baseDir;
 
     /**
      * @var array<string, array{0: string, 1: string}|null>
      */
-    private $gitignoreFilesCache = [];
+    private array $gitignoreFilesCache = [];
 
     /**
      * @var array<string, bool>
      */
-    private $ignoredPathsCache = [];
+    private array $ignoredPathsCache = [];
 
     /**
      * @param \Iterator<string, \SplFileInfo> $iterator
@@ -126,9 +123,7 @@ final class VcsIgnoredFilterIterator extends \FilterIterator
     {
         return array_filter(
             $this->parentDirectoriesUpwards($from),
-            static function (string $directory) use ($upTo): bool {
-                return str_starts_with($directory, $upTo);
-            }
+            static fn (string $directory): bool => str_starts_with($directory, $upTo)
         );
     }
 

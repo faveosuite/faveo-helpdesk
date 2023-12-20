@@ -102,7 +102,7 @@ class Route implements \Serializable
     /**
      * @internal
      */
-    final public function unserialize(string $serialized)
+    final public function unserialize(string $serialized): void
     {
         $this->__unserialize(unserialize($serialized));
     }
@@ -428,7 +428,7 @@ class Route implements \Serializable
         }, $pattern);
     }
 
-    private function sanitizeRequirement(string $key, string $regex)
+    private function sanitizeRequirement(string $key, string $regex): string
     {
         if ('' !== $regex) {
             if ('^' === $regex[0]) {

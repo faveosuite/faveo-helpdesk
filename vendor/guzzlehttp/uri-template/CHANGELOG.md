@@ -4,6 +4,14 @@ All notable changes to `uri-template` will be documented in this file.
 
 Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
+## v1.0.2 - 2023-08-27
+
+### Changed
+- Officially support PHP 8.2 and 8.3
+
+### Fixed
+- Fixed using `0` as an expanded value
+
 ## v1.0.1 - 2021-10-07
 
 ### Changed

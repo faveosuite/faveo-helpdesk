@@ -9,6 +9,7 @@ class ReportTrimmer
     /** @var array<int, class-string<\Spatie\FlareClient\Truncation\TruncationStrategy>> */
     protected array $strategies = [
         TrimStringsStrategy::class,
+        TrimStackFrameArgumentsStrategy::class,
         TrimContextItemsStrategy::class,
     ];
 

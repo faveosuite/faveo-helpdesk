@@ -112,8 +112,8 @@ final class Type implements Schema
 
 	public function normalize($value, Context $context)
 	{
-		if ($prevent = (is_array($value) && isset($value[Helpers::PREVENT_MERGING]))) {
-			unset($value[Helpers::PREVENT_MERGING]);
+		if ($prevent = (is_array($value) && isset($value[Helpers::PreventMerging]))) {
+			unset($value[Helpers::PreventMerging]);
 		}
 
 		$value = $this->doNormalize($value, $context);
@@ -134,7 +134,7 @@ final class Type implements Schema
 		}
 
 		if ($prevent && is_array($value)) {
-			$value[Helpers::PREVENT_MERGING] = true;
+			$value[Helpers::PreventMerging] = true;
 		}
 
 		return $value;
@@ -143,8 +143,8 @@ final class Type implements Schema
 
 	public function merge($value, $base)
 	{
-		if (is_array($value) && isset($value[Helpers::PREVENT_MERGING])) {
-			unset($value[Helpers::PREVENT_MERGING]);
+		if (is_array($value) && isset($value[Helpers::PreventMerging])) {
+			unset($value[Helpers::PreventMerging]);
 			return $value;
 		}
 
@@ -171,8 +171,8 @@ final class Type implements Schema
 	public function complete($value, Context $context)
 	{
 		$merge = $this->merge;
-		if (is_array($value) && isset($value[Helpers::PREVENT_MERGING])) {
-			unset($value[Helpers::PREVENT_MERGING]);
+		if (is_array($value) && isset($value[Helpers::PreventMerging])) {
+			unset($value[Helpers::PreventMerging]);
 			$merge = false;
 		}
 
@@ -182,49 +182,40 @@ final class Type implements Schema
 
 		$this->doDeprecation($context);
 
-		if (!$this->doValidate($value, $this->type, $context)
-			|| !$this->doValidateRange($value, $this->range, $context, $this->type)
-		) {
-			return;
-		}
-
-		if ($value !== null && $this->pattern !== null && !preg_match("\x01^(?:$this->pattern)$\x01Du", $value)) {
-			$context->addError(
-				"The %label% %path% expects to match pattern '%pattern%', %value% given.",
-				Nette\Schema\Message::PATTERN_MISMATCH,
-				['value' => $value, 'pattern' => $this->pattern]
-			);
-			return;
+		$isOk = $context->createChecker();
+		Helpers::validateType($value, $this->type, $context);
+		$isOk() && Helpers::validateRange($value, $this->range, $context, $this->type);
+		$isOk() && $value !== null && $this->pattern !== null && Helpers::validatePattern($value, $this->pattern, $context);
+		$isOk() && is_array($value) && $this->validateItems($value, $context);
+		$isOk() && $merge && $value = Helpers::merge($value, $this->default);
+		$isOk() && $value = $this->doTransform($value, $context);
+		if (!$isOk()) {
+			return null;
 		}
 
 		if ($value instanceof DynamicParameter) {
 			$expected = $this->type . ($this->range === [null, null] ? '' : ':' . implode('..', $this->range));
-			$context->dynamics[] = [$value, str_replace(DynamicParameter::class . '|', '', $expected)];
+			$context->dynamics[] = [$value, str_replace(DynamicParameter::class . '|', '', $expected), $context->path];
+		}
+		return $value;
+	}
+
+
+	private function validateItems(array &$value, Context $context): void
+	{
+		if (!$this->itemsValue) {
+			return;
 		}
 
-		if ($this->itemsValue) {
-			$errCount = count($context->errors);
-			$res = [];
-			foreach ($value as $key => $val) {
-				$context->path[] = $key;
-				$context->isKey = true;
-				$key = $this->itemsKey ? $this->itemsKey->complete($key, $context) : $key;
-				$context->isKey = false;
-				$res[$key] = $this->itemsValue->complete($val, $context);
-				array_pop($context->path);
-			}
-
-			if (count($context->errors) > $errCount) {
-				return null;
-			}
-
-			$value = $res;
+		$res = [];
+		foreach ($value as $key => $val) {
+			$context->path[] = $key;
+			$context->isKey = true;
+			$key = $this->itemsKey ? $this->itemsKey->complete($key, $context) : $key;
+			$context->isKey = false;
+			$res[$key] = $this->itemsValue->complete($val, $context);
+			array_pop($context->path);
 		}
-
-		if ($merge) {
-			$value = Helpers::merge($value, $this->default);
-		}
-
-		return $this->doFinalize($value, $context);
+		$value = $res;
 	}
 }

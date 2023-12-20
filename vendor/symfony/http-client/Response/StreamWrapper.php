@@ -30,9 +30,9 @@ class StreamWrapper
     private ResponseInterface $response;
 
     /** @var resource|string|null */
-    private $content;
+    private $content = null;
 
-    /** @var resource|null */
+    /** @var resource|callable|null */
     private $handle;
 
     private bool $blocking = true;
@@ -266,6 +266,9 @@ class StreamWrapper
         return false;
     }
 
+    /**
+     * @return resource|false
+     */
     public function stream_cast(int $castAs)
     {
         if (\STREAM_CAST_FOR_SELECT === $castAs) {

@@ -160,6 +160,19 @@ class MessageBag implements Jsonable, JsonSerializable, MessageBagContract, Mess
     }
 
     /**
+     * Determine if messages don't exist for all of the given keys.
+     *
+     * @param  array|string|null  $key
+     * @return bool
+     */
+    public function missing($key)
+    {
+        $keys = is_array($key) ? $key : func_get_args();
+
+        return ! $this->hasAny($keys);
+    }
+
+    /**
      * Get the first message from the message bag for a given key.
      *
      * @param  string|null  $key
@@ -248,6 +261,19 @@ class MessageBag implements Jsonable, JsonSerializable, MessageBagContract, Mess
     public function unique($format = null)
     {
         return array_unique($this->all($format));
+    }
+
+    /**
+     * Remove a message from the message bag.
+     *
+     * @param  string  $key
+     * @return $this
+     */
+    public function forget($key)
+    {
+        unset($this->messages[$key]);
+
+        return $this;
     }
 
     /**

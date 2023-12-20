@@ -103,6 +103,9 @@ class LaravelDebugbar extends DebugBar
         $this->app = $app;
         $this->version = $app->version();
         $this->is_lumen = Str::contains($this->version, 'Lumen');
+        if ($this->is_lumen) {
+            $this->version = Str::betweenFirst($app->version(), '(', ')');
+        }
     }
 
     /**
@@ -835,7 +838,7 @@ class LaravelDebugbar extends DebugBar
     protected function isJsonRequest(Request $request)
     {
         // If XmlHttpRequest or Live, return true
-        if ($request->isXmlHttpRequest() || $request->headers->get('X-Livewire')) {
+        if ($request->isXmlHttpRequest() || $request->headers->has('X-Livewire')) {
             return true;
         }
 
@@ -894,9 +897,12 @@ class LaravelDebugbar extends DebugBar
      */
     public function injectDebugbar(Response $response)
     {
+        $config = $this->app['config'];
         $content = $response->getContent();
 
         $renderer = $this->getJavascriptRenderer();
+        $autoShow = $config->get('debugbar.ajax_handler_auto_show', true);
+        $renderer->setAjaxHandlerAutoShow($autoShow);
         if ($this->getStorage()) {
             $openHandlerUrl = route('debugbar.openhandler');
             $renderer->setOpenHandlerUrl($openHandlerUrl);
