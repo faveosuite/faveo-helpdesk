@@ -13,8 +13,13 @@
 return array (
   51900 => 'Claro',
   51901 => 'Claro',
+  51902 => 'Entel',
+  51903 => 'Entel',
   51904 => 'Entel',
   51905 => 'Entel',
+  51906 => 'Entel',
+  51907 => 'Entel',
+  51908 => 'Entel',
   51910 => 'Claro',
   51912 => 'Entel',
   51913 => 'Claro',

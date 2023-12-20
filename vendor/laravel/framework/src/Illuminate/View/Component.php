@@ -143,6 +143,10 @@ abstract class Component
         }
 
         $resolver = function ($view) {
+            if ($view instanceof ViewContract) {
+                return $view;
+            }
+
             return $this->extractBladeViewFromString($view);
         };
 
@@ -187,7 +191,7 @@ abstract class Component
             $directory = Container::getInstance()['config']->get('view.compiled')
         );
 
-        if (! is_file($viewFile = $directory.'/'.sha1($contents).'.blade.php')) {
+        if (! is_file($viewFile = $directory.'/'.hash('xxh128', $contents).'.blade.php')) {
             if (! is_dir($directory)) {
                 mkdir($directory, 0755, true);
             }
@@ -324,11 +328,16 @@ abstract class Component
         return array_merge([
             'data',
             'render',
+            'resolve',
             'resolveView',
             'shouldRender',
             'view',
             'withName',
             'withAttributes',
+            'flushCache',
+            'forgetFactory',
+            'forgetComponentsResolver',
+            'resolveComponentsUsing',
         ], $this->except);
     }
 

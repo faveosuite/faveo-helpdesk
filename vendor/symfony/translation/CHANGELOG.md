@@ -1,6 +1,22 @@
 CHANGELOG
 =========
 
+6.4
+---
+
+ * Give current locale to `LocaleSwitcher::runWithLocale()`'s callback
+ * Add `--as-tree` option to `translation:pull` command to write YAML messages as a tree-like structure
+ * [BC BREAK] Add argument `$buildDir` to `DataCollectorTranslator::warmUp()`
+ * Add `DataCollectorTranslatorPass` and `LoggingTranslatorPass`  (moved from `FrameworkBundle`)
+ * Add `PhraseTranslationProvider`
+
+6.2.7
+-----
+
+ * [BC BREAK] The following data providers for `ProviderFactoryTestCase` are now static:
+   `supportsProvider()`, `createProvider()`, `unsupportedSchemeProvider()`and `incompleteDsnProvider()`
+ * [BC BREAK] `ProviderTestCase::toStringProvider()` is now static
+
 6.2
 ---
 

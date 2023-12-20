@@ -18,7 +18,7 @@ Do know more about the design decisions we made, read [this blog post](https://f
 
 ## Official Documentation
 
-The official documentation for Ignition can be found on the [Flare website](https://flareapp.io/docs/ignition-for-laravel/installation).
+The official documentation for Ignition can be found on the [Flare website](https://flareapp.io/docs/ignition/introducing-ignition/overview).
 
 ## Support us
 

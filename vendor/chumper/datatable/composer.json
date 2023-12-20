@@ -13,10 +13,10 @@
         }
     ],
     "require": {
-        "php": "^8.0",
-        "illuminate/support": "4.*|~5.0|9.*",
-        "illuminate/view": "4.*|~5.0|9.*",
-        "illuminate/config": "4.*|~5.0|9.*"
+        "php": "^8.2",
+        "illuminate/support": "4.*|~5.0|9.*|10.*|11.*",
+        "illuminate/view": "4.*|~5.0|9.*|10.*|11.*",
+        "illuminate/config": "4.*|~5.0|9.*|10.*|11.*"
     },
     "require-dev": {
         "phpunit/phpunit": "3.7.*",

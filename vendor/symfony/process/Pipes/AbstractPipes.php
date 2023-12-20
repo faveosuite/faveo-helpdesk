@@ -22,26 +22,25 @@ abstract class AbstractPipes implements PipesInterface
 {
     public array $pipes = [];
 
-    private $inputBuffer = '';
+    private string $inputBuffer = '';
+    /** @var resource|string|\Iterator */
     private $input;
-    private $blocked = true;
-    private $lastError;
+    private bool $blocked = true;
+    private ?string $lastError = null;
 
     /**
-     * @param resource|string|int|float|bool|\Iterator|null $input
+     * @param resource|string|\Iterator $input
      */
-    public function __construct(mixed $input)
+    public function __construct($input)
     {
         if (\is_resource($input) || $input instanceof \Iterator) {
             $this->input = $input;
-        } elseif (\is_string($input)) {
-            $this->inputBuffer = $input;
         } else {
             $this->inputBuffer = (string) $input;
         }
     }
 
-    public function close()
+    public function close(): void
     {
         foreach ($this->pipes as $pipe) {
             if (\is_resource($pipe)) {
@@ -66,7 +65,7 @@ abstract class AbstractPipes implements PipesInterface
     /**
      * Unblocks streams.
      */
-    protected function unblock()
+    protected function unblock(): void
     {
         if (!$this->blocked) {
             return;
@@ -170,7 +169,7 @@ abstract class AbstractPipes implements PipesInterface
     /**
      * @internal
      */
-    public function handleError(int $type, string $msg)
+    public function handleError(int $type, string $msg): void
     {
         $this->lastError = $msg;
     }

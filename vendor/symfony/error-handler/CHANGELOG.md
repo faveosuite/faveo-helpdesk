@@ -1,6 +1,16 @@
 CHANGELOG
 =========
 
+6.4
+---
+
+ * `FlattenExceptionNormalizer` no longer implements `ContextAwareNormalizerInterface`
+
+6.3
+---
+
+ * Display exception properties in the HTML error page
+
 6.1
 ---
 

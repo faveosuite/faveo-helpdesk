@@ -51,25 +51,39 @@ class StreamedResponse extends Response
      */
     public function setCallback(callable $callback): static
     {
-        $this->callback = $callback;
+        $this->callback = $callback(...);
 
         return $this;
+    }
+
+    public function getCallback(): ?\Closure
+    {
+        if (!isset($this->callback)) {
+            return null;
+        }
+
+        return ($this->callback)(...);
     }
 
     /**
      * This method only sends the headers once.
      *
+     * @param positive-int|null $statusCode The status code to use, override the statusCode property if set and not null
+     *
      * @return $this
      */
-    public function sendHeaders(): static
+    public function sendHeaders(/* int $statusCode = null */): static
     {
         if ($this->headersSent) {
             return $this;
         }
 
-        $this->headersSent = true;
+        $statusCode = \func_num_args() > 0 ? func_get_arg(0) : null;
+        if ($statusCode < 100 || $statusCode >= 200) {
+            $this->headersSent = true;
+        }
 
-        return parent::sendHeaders();
+        return parent::sendHeaders($statusCode);
     }
 
     /**
@@ -85,8 +99,8 @@ class StreamedResponse extends Response
 
         $this->streamed = true;
 
-        if (null === $this->callback) {
-            throw new \LogicException('The Response callback must not be null.');
+        if (!isset($this->callback)) {
+            throw new \LogicException('The Response callback must be set.');
         }
 
         ($this->callback)();

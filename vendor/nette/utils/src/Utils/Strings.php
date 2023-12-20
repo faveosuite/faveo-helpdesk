@@ -397,9 +397,11 @@ class Strings
 	 */
 	public static function length(string $s): int
 	{
-		return function_exists('mb_strlen')
-			? mb_strlen($s, 'UTF-8')
-			: strlen(utf8_decode($s));
+		return match (true) {
+			extension_loaded('mbstring') => mb_strlen($s, 'UTF-8'),
+			extension_loaded('iconv') => iconv_strlen($s, 'UTF-8'),
+			default => strlen(@utf8_decode($s)), // deprecated
+		};
 	}
 
 
@@ -415,6 +417,7 @@ class Strings
 
 	/**
 	 * Pads a UTF-8 string to given length by prepending the $pad string to the beginning.
+	 * @param  non-empty-string  $pad
 	 */
 	public static function padLeft(string $s, int $length, string $pad = ' '): string
 	{
@@ -426,6 +429,7 @@ class Strings
 
 	/**
 	 * Pads UTF-8 string to given length by appending the $pad string to the end.
+	 * @param  non-empty-string  $pad
 	 */
 	public static function padRight(string $s, int $length, string $pad = ' '): string
 	{

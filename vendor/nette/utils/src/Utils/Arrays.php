@@ -98,7 +98,7 @@ class Arrays
 	 */
 	public static function getKeyOffset(array $array, string|int $key): ?int
 	{
-		return Helpers::falseToNull(array_search(self::toKey($key), array_keys($array), true));
+		return Helpers::falseToNull(array_search(self::toKey($key), array_keys($array), strict: true));
 	}
 
 
@@ -128,7 +128,7 @@ class Arrays
 	 */
 	public static function first(array $array): mixed
 	{
-		return count($array) ? reset($array) : null;
+		return $array[array_key_first($array)] ?? null;
 	}
 
 
@@ -140,7 +140,7 @@ class Arrays
 	 */
 	public static function last(array $array): mixed
 	{
-		return count($array) ? end($array) : null;
+		return $array[array_key_last($array)] ?? null;
 	}
 
 
@@ -151,9 +151,9 @@ class Arrays
 	public static function insertBefore(array &$array, string|int|null $key, array $inserted): void
 	{
 		$offset = $key === null ? 0 : (int) self::getKeyOffset($array, $key);
-		$array = array_slice($array, 0, $offset, true)
+		$array = array_slice($array, 0, $offset, preserve_keys: true)
 			+ $inserted
-			+ array_slice($array, $offset, count($array), true);
+			+ array_slice($array, $offset, count($array), preserve_keys: true);
 	}
 
 
@@ -167,9 +167,9 @@ class Arrays
 			$offset = count($array) - 1;
 		}
 
-		$array = array_slice($array, 0, $offset + 1, true)
+		$array = array_slice($array, 0, $offset + 1, preserve_keys: true)
 			+ $inserted
-			+ array_slice($array, $offset + 1, count($array), true);
+			+ array_slice($array, $offset + 1, count($array), preserve_keys: true);
 	}
 
 
@@ -225,6 +225,7 @@ class Arrays
 
 	/**
 	 * Checks if the array is indexed in ascending order of numeric keys from zero, a.k.a list.
+	 * @return ($value is list ? true : false)
 	 */
 	public static function isList(mixed $value): bool
 	{
@@ -331,6 +332,10 @@ class Arrays
 	/**
 	 * Tests whether at least one element in the array passes the test implemented by the
 	 * provided callback with signature `function ($value, $key, array $array): bool`.
+	 * @template K
+	 * @template V
+	 * @param  iterable<K, V> $array
+	 * @param  callable(V, K, ($array is array ? array<K, V> : iterable<K, V>)): bool $callback
 	 */
 	public static function some(iterable $array, callable $callback): bool
 	{
@@ -347,6 +352,10 @@ class Arrays
 	/**
 	 * Tests whether all elements in the array pass the test implemented by the provided function,
 	 * which has the signature `function ($value, $key, array $array): bool`.
+	 * @template K
+	 * @template V
+	 * @param  iterable<K, V> $array
+	 * @param  callable(V, K, ($array is array ? array<K, V> : iterable<K, V>)): bool $callback
 	 */
 	public static function every(iterable $array, callable $callback): bool
 	{
@@ -363,6 +372,12 @@ class Arrays
 	/**
 	 * Calls $callback on all elements in the array and returns the array of return values.
 	 * The callback has the signature `function ($value, $key, array $array): bool`.
+	 * @template K of array-key
+	 * @template V
+	 * @template R
+	 * @param  iterable<K, V> $array
+	 * @param  callable(V, K, ($array is array ? array<K, V> : iterable<K, V>)): R $callback
+	 * @return array<K, R>
 	 */
 	public static function map(iterable $array, callable $callback): array
 	{

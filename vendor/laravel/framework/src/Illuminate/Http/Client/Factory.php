@@ -3,6 +3,8 @@
 namespace Illuminate\Http\Client;
 
 use Closure;
+use GuzzleHttp\Middleware;
+use GuzzleHttp\Promise\Create;
 use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Psr7\Response as Psr7Response;
 use GuzzleHttp\TransferStats;
@@ -26,6 +28,13 @@ class Factory
      * @var \Illuminate\Contracts\Events\Dispatcher|null
      */
     protected $dispatcher;
+
+    /**
+     * The middleware to apply to every request.
+     *
+     * @var array
+     */
+    protected $globalMiddleware = [];
 
     /**
      * The stub callables that will handle requests.
@@ -76,6 +85,45 @@ class Factory
     }
 
     /**
+     * Add middleware to apply to every request.
+     *
+     * @param  callable  $middleware
+     * @return $this
+     */
+    public function globalMiddleware($middleware)
+    {
+        $this->globalMiddleware[] = $middleware;
+
+        return $this;
+    }
+
+    /**
+     * Add request middleware to apply to every request.
+     *
+     * @param  callable  $middleware
+     * @return $this
+     */
+    public function globalRequestMiddleware($middleware)
+    {
+        $this->globalMiddleware[] = Middleware::mapRequest($middleware);
+
+        return $this;
+    }
+
+    /**
+     * Add response middleware to apply to every request.
+     *
+     * @param  callable  $middleware
+     * @return $this
+     */
+    public function globalResponseMiddleware($middleware)
+    {
+        $this->globalMiddleware[] = Middleware::mapResponse($middleware);
+
+        return $this;
+    }
+
+    /**
      * Create a new response instance for use during stubbing.
      *
      * @param  array|string|null  $body
@@ -93,9 +141,7 @@ class Factory
 
         $response = new Psr7Response($status, $headers, $body);
 
-        return class_exists(\GuzzleHttp\Promise\Create::class)
-            ? \GuzzleHttp\Promise\Create::promiseFor($response)
-            : \GuzzleHttp\Promise\promise_for($response);
+        return Create::promiseFor($response);
     }
 
     /**
@@ -354,7 +400,7 @@ class Factory
      */
     protected function newPendingRequest()
     {
-        return new PendingRequest($this);
+        return new PendingRequest($this, $this->globalMiddleware);
     }
 
     /**
@@ -365,6 +411,16 @@ class Factory
     public function getDispatcher()
     {
         return $this->dispatcher;
+    }
+
+    /**
+     * Get the array of global middleware.
+     *
+     * @return array
+     */
+    public function getGlobalMiddleware()
+    {
+        return $this->globalMiddleware;
     }
 
     /**

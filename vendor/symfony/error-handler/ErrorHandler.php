@@ -96,6 +96,7 @@ class ErrorHandler
 
     private bool $isRecursive = false;
     private bool $isRoot = false;
+    /** @var callable|null */
     private $exceptionHandler;
     private ?BufferingLogger $bootstrappingLogger = null;
 
@@ -111,7 +112,7 @@ class ErrorHandler
     {
         if (null === self::$reservedMemory) {
             self::$reservedMemory = str_repeat('x', 32768);
-            register_shutdown_function(__CLASS__.'::handleFatalError');
+            register_shutdown_function(self::handleFatalError(...));
         }
 
         if ($handlerIsNew = null === $handler) {
@@ -358,7 +359,7 @@ class ErrorHandler
     private function reRegister(int $prev): void
     {
         if ($prev !== ($this->thrownErrors | $this->loggedErrors)) {
-            $handler = set_error_handler('is_int');
+            $handler = set_error_handler(static fn () => null);
             $handler = \is_array($handler) ? $handler[0] : null;
             restore_error_handler();
             if ($handler === $this) {
@@ -452,11 +453,10 @@ class ErrorHandler
 
             if ($throw || $this->tracedErrors & $type) {
                 $backtrace = $errorAsException->getTrace();
-                $lightTrace = $this->cleanTrace($backtrace, $type, $file, $line, $throw);
-                ($this->configureException)($errorAsException, $lightTrace, $file, $line);
+                $backtrace = $this->cleanTrace($backtrace, $type, $file, $line, $throw);
+                ($this->configureException)($errorAsException, $backtrace, $file, $line);
             } else {
                 ($this->configureException)($errorAsException, []);
-                $backtrace = [];
             }
         }
 
@@ -484,7 +484,7 @@ class ErrorHandler
      *
      * @internal
      */
-    public function handleException(\Throwable $exception)
+    public function handleException(\Throwable $exception): void
     {
         $handlerException = null;
 
@@ -517,14 +517,7 @@ class ErrorHandler
             }
         }
 
-        if (!$exception instanceof OutOfMemoryError) {
-            foreach ($this->getErrorEnhancers() as $errorEnhancer) {
-                if ($e = $errorEnhancer->enhance($exception)) {
-                    $exception = $e;
-                    break;
-                }
-            }
-        }
+        $exception = $this->enhanceError($exception);
 
         $exceptionHandler = $this->exceptionHandler;
         $this->exceptionHandler = [$this, 'renderException'];
@@ -535,7 +528,9 @@ class ErrorHandler
 
         try {
             if (null !== $exceptionHandler) {
-                return $exceptionHandler($exception);
+                $exceptionHandler($exception);
+
+                return;
             }
             $handlerException ??= $exception;
         } catch (\Throwable $handlerException) {
@@ -645,7 +640,7 @@ class ErrorHandler
      */
     private function renderException(\Throwable $exception): void
     {
-        $renderer = \in_array(\PHP_SAPI, ['cli', 'phpdbg'], true) ? new CliErrorRenderer() : new HtmlErrorRenderer($this->debug);
+        $renderer = \in_array(\PHP_SAPI, ['cli', 'phpdbg', 'embed'], true) ? new CliErrorRenderer() : new HtmlErrorRenderer($this->debug);
 
         $exception = $renderer->render($exception);
 
@@ -658,6 +653,21 @@ class ErrorHandler
         }
 
         echo $exception->getAsString();
+    }
+
+    public function enhanceError(\Throwable $exception): \Throwable
+    {
+        if ($exception instanceof OutOfMemoryError) {
+            return $exception;
+        }
+
+        foreach ($this->getErrorEnhancers() as $errorEnhancer) {
+            if ($e = $errorEnhancer->enhance($exception)) {
+                return $e;
+            }
+        }
+
+        return $exception;
     }
 
     /**
@@ -722,8 +732,6 @@ class ErrorHandler
      */
     private function parseAnonymousClass(string $message): string
     {
-        return preg_replace_callback('/[a-zA-Z_\x7f-\xff][\\\\a-zA-Z0-9_\x7f-\xff]*+@anonymous\x00.*?\.php(?:0x?|:[0-9]++\$)[0-9a-fA-F]++/', static function ($m) {
-            return class_exists($m[0], false) ? (get_parent_class($m[0]) ?: key(class_implements($m[0])) ?: 'class').'@anonymous' : $m[0];
-        }, $message);
+        return preg_replace_callback('/[a-zA-Z_\x7f-\xff][\\\\a-zA-Z0-9_\x7f-\xff]*+@anonymous\x00.*?\.php(?:0x?|:[0-9]++\$)[0-9a-fA-F]++/', static fn ($m) => class_exists($m[0], false) ? (get_parent_class($m[0]) ?: key(class_implements($m[0])) ?: 'class').'@anonymous' : $m[0], $message);
     }
 }

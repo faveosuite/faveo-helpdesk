@@ -155,7 +155,7 @@ class VerifyCsrfToken
         if (! $token && $header = $request->header('X-XSRF-TOKEN')) {
             try {
                 $token = CookieValuePrefix::remove($this->encrypter->decrypt($header, static::serialized()));
-            } catch (DecryptException $e) {
+            } catch (DecryptException) {
                 $token = '';
             }
         }
@@ -211,7 +211,8 @@ class VerifyCsrfToken
             $config['secure'],
             false,
             false,
-            $config['same_site'] ?? null
+            $config['same_site'] ?? null,
+            $config['partitioned'] ?? false
         );
     }
 

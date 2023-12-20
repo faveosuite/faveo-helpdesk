@@ -246,6 +246,7 @@ class SmtpTransport extends AbstractTransport
 
     /**
      * @internal since version 6.1, to be made private in 7.0
+     *
      * @final since version 6.1, to be made private in 7.0
      */
     protected function doHeloCommand(): void
@@ -376,6 +377,9 @@ class SmtpTransport extends AbstractTransport
         throw new \BadMethodCallException('Cannot serialize '.__CLASS__);
     }
 
+    /**
+     * @return void
+     */
     public function __wakeup()
     {
         throw new \BadMethodCallException('Cannot unserialize '.__CLASS__);

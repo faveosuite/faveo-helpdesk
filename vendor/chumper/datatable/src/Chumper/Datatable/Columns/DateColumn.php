@@ -38,9 +38,14 @@ class DateColumn extends BaseColumn {
     public function run($model)
     {
 
-        if(is_string(is_array($model) ? $model[$this->name]: $model->{$this->name}))
+        if (is_string(is_array($model) ? $model[$this->name] : $model->{$this->name}))
         {
-            return is_array($model) ? $model[$this->name]: $model->{$this->name};
+            if ($this->custom)
+            {
+                return strftime($this->custom, strtotime($model->{$this->name}));
+            }
+
+            return is_array($model) ? $model[$this->name] : $model->{$this->name};
         }
 
         switch($this->format)

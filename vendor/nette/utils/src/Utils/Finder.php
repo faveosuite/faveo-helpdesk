@@ -51,7 +51,7 @@ class Finder implements \IteratorAggregate
 	/**
 	 * Begins search for files and directories matching mask.
 	 */
-	public static function find(string|array $masks): static
+	public static function find(string|array $masks = ['*']): static
 	{
 		$masks = is_array($masks) ? $masks : func_get_args(); // compatibility with variadic
 		return (new static)->addMask($masks, 'dir')->addMask($masks, 'file');
@@ -61,7 +61,7 @@ class Finder implements \IteratorAggregate
 	/**
 	 * Begins search for files matching mask.
 	 */
-	public static function findFiles(string|array $masks): static
+	public static function findFiles(string|array $masks = ['*']): static
 	{
 		$masks = is_array($masks) ? $masks : func_get_args(); // compatibility with variadic
 		return (new static)->addMask($masks, 'file');
@@ -71,7 +71,7 @@ class Finder implements \IteratorAggregate
 	/**
 	 * Begins search for directories matching mask.
 	 */
-	public static function findDirectories(string|array $masks): static
+	public static function findDirectories(string|array $masks = ['*']): static
 	{
 		$masks = is_array($masks) ? $masks : func_get_args(); // compatibility with variadic
 		return (new static)->addMask($masks, 'dir');
@@ -81,7 +81,7 @@ class Finder implements \IteratorAggregate
 	/**
 	 * Finds files matching the specified masks.
 	 */
-	public function files(string|array $masks): static
+	public function files(string|array $masks = ['*']): static
 	{
 		return $this->addMask((array) $masks, 'file');
 	}
@@ -90,7 +90,7 @@ class Finder implements \IteratorAggregate
 	/**
 	 * Finds directories matching the specified masks.
 	 */
-	public function directories(string|array $masks): static
+	public function directories(string|array $masks = ['*']): static
 	{
 		return $this->addMask((array) $masks, 'dir');
 	}
@@ -309,10 +309,11 @@ class Finder implements \IteratorAggregate
 
 	/**
 	 * Returns an array with all found files and directories.
+	 * @return list<FileInfo>
 	 */
 	public function collect(): array
 	{
-		return iterator_to_array($this->getIterator());
+		return iterator_to_array($this->getIterator(), preserve_keys: false);
 	}
 
 
@@ -336,7 +337,7 @@ class Finder implements \IteratorAggregate
 
 
 	/**
-	 * @param  array<\stdClass{pattern: string, mode: string, recursive: bool}>  $searches
+	 * @param  array<object{pattern: string, mode: string, recursive: bool}>  $searches
 	 * @param  string[]  $subdirs
 	 * @return \Generator<string, FileInfo>
 	 */
@@ -345,7 +346,7 @@ class Finder implements \IteratorAggregate
 		if ($this->maxDepth >= 0 && count($subdirs) > $this->maxDepth) {
 			return;
 		} elseif (!is_dir($dir)) {
-			throw new Nette\InvalidStateException("Directory '$dir' not found.");
+			throw new Nette\InvalidStateException(sprintf("Directory '%s' does not exist.", rtrim($dir, '/\\')));
 		}
 
 		try {
@@ -384,7 +385,7 @@ class Finder implements \IteratorAggregate
 			$relativePathname = FileSystem::unixSlashes($file->getRelativePathname());
 			foreach ($searches as $search) {
 				if (
-					$file->getType() === $search->mode
+					$file->{'is' . $search->mode}()
 					&& preg_match($search->pattern, $relativePathname)
 					&& $this->proveFilters($this->filters, $file, $cache)
 				) {
@@ -426,7 +427,7 @@ class Finder implements \IteratorAggregate
 	}
 
 
-	/** @return array<string, array<\stdClass{pattern: string, mode: string, recursive: bool}>> */
+	/** @return array<string, array<object{pattern: string, mode: string, recursive: bool}>> */
 	private function buildPlan(): array
 	{
 		$plan = $dirCache = [];
@@ -449,6 +450,10 @@ class Finder implements \IteratorAggregate
 				$dirs = $dirCache[$base] ??= strpbrk($base, '*?[')
 					? glob($base, GLOB_NOSORT | GLOB_ONLYDIR | GLOB_NOESCAPE)
 					: [strtr($base, ['[[]' => '[', '[]]' => ']'])]; // unescape [ and ]
+
+				if (!$dirs) {
+					throw new Nette\InvalidStateException(sprintf("Directory '%s' does not exist.", rtrim($base, '/\\')));
+				}
 
 				$search = (object) ['pattern' => $this->buildPattern($rest), 'mode' => $mode, 'recursive' => $recursive];
 				foreach ($dirs as $dir) {

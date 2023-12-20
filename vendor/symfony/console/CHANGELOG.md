@@ -1,6 +1,22 @@
 CHANGELOG
 =========
 
+6.4
+---
+
+ * Add `SignalMap` to map signal value to its name
+ * Multi-line text in vertical tables is aligned properly
+ * The application can also catch errors with `Application::setCatchErrors(true)`
+ * Add `RunCommandMessage` and `RunCommandMessageHandler`
+ * Dispatch `ConsoleTerminateEvent` after an exit on signal handling and add `ConsoleTerminateEvent::getInterruptingSignal()`
+
+6.3
+---
+
+ * Add support for choosing exit code while handling signal, or to not exit at all
+ * Add `ProgressBar::setPlaceholderFormatter` to set a placeholder attached to a instance, instead of being global.
+ * Add `ReStructuredTextDescriptor`
+
 6.2
 ---
 

@@ -48,6 +48,9 @@ class RegisterListenersPass implements CompilerPassInterface
         return $this;
     }
 
+    /**
+     * @return void
+     */
     public function process(ContainerBuilder $container)
     {
         if (!$container->hasDefinition('event_dispatcher') && !$container->hasAlias('event_dispatcher')) {
@@ -83,17 +86,21 @@ class RegisterListenersPass implements CompilerPassInterface
                     $event['method'] = 'on'.preg_replace_callback([
                         '/(?<=\b|_)[a-z]/i',
                         '/[^a-z0-9]/i',
-                    ], function ($matches) { return strtoupper($matches[0]); }, $event['event']);
+                    ], fn ($matches) => strtoupper($matches[0]), $event['event']);
                     $event['method'] = preg_replace('/[^a-z0-9]/i', '', $event['method']);
 
-                    if (null !== ($class = $container->getDefinition($id)->getClass()) && ($r = $container->getReflectionClass($class, false)) && !$r->hasMethod($event['method']) && $r->hasMethod('__invoke')) {
+                    if (null !== ($class = $container->getDefinition($id)->getClass()) && ($r = $container->getReflectionClass($class, false)) && !$r->hasMethod($event['method'])) {
+                        if (!$r->hasMethod('__invoke')) {
+                            throw new InvalidArgumentException(sprintf('None of the "%s" or "__invoke" methods exist for the service "%s". Please define the "method" attribute on "kernel.event_listener" tags.', $event['method'], $id));
+                        }
+
                         $event['method'] = '__invoke';
                     }
                 }
 
                 $dispatcherDefinition = $globalDispatcherDefinition;
                 if (isset($event['dispatcher'])) {
-                    $dispatcherDefinition = $container->getDefinition($event['dispatcher']);
+                    $dispatcherDefinition = $container->findDefinition($event['dispatcher']);
                 }
 
                 $dispatcherDefinition->addMethodCall('addListener', [$event['event'], [new ServiceClosureArgument(new Reference($id)), $event['method']], $priority]);
@@ -132,7 +139,7 @@ class RegisterListenersPass implements CompilerPassInterface
                     continue;
                 }
 
-                $dispatcherDefinitions[$attributes['dispatcher']] = $container->getDefinition($attributes['dispatcher']);
+                $dispatcherDefinitions[$attributes['dispatcher']] = $container->findDefinition($attributes['dispatcher']);
             }
 
             if (!$dispatcherDefinitions) {
@@ -191,7 +198,7 @@ class ExtractingEventDispatcher extends EventDispatcher implements EventSubscrib
     public static array $aliases = [];
     public static string $subscriber;
 
-    public function addListener(string $eventName, callable|array $listener, int $priority = 0)
+    public function addListener(string $eventName, callable|array $listener, int $priority = 0): void
     {
         $this->listeners[] = [$eventName, $listener[1], $priority];
     }

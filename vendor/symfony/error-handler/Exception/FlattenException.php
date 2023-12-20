@@ -14,6 +14,10 @@ namespace Symfony\Component\ErrorHandler\Exception;
 use Symfony\Component\HttpFoundation\Exception\RequestExceptionInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use Symfony\Component\VarDumper\Caster\Caster;
+use Symfony\Component\VarDumper\Cloner\Data;
+use Symfony\Component\VarDumper\Cloner\Stub;
+use Symfony\Component\VarDumper\Cloner\VarCloner;
 
 /**
  * FlattenException wraps a PHP Error or Exception to be able to serialize it.
@@ -36,6 +40,7 @@ class FlattenException
     private string $file;
     private int $line;
     private ?string $asString = null;
+    private Data $dataRepresentation;
 
     public static function create(\Exception $exception, int $statusCode = null, array $headers = []): static
     {
@@ -80,6 +85,33 @@ class FlattenException
         return $e;
     }
 
+    public static function createWithDataRepresentation(\Throwable $throwable, int $statusCode = null, array $headers = [], VarCloner $cloner = null): static
+    {
+        $e = static::createFromThrowable($throwable, $statusCode, $headers);
+
+        static $defaultCloner;
+
+        if (!$cloner ??= $defaultCloner) {
+            $cloner = $defaultCloner = new VarCloner();
+            $cloner->addCasters([
+                \Throwable::class => function (\Throwable $e, array $a, Stub $s, bool $isNested): array {
+                    if (!$isNested) {
+                        unset($a[Caster::PREFIX_PROTECTED.'message']);
+                        unset($a[Caster::PREFIX_PROTECTED.'code']);
+                        unset($a[Caster::PREFIX_PROTECTED.'file']);
+                        unset($a[Caster::PREFIX_PROTECTED.'line']);
+                        unset($a["\0Error\0trace"], $a["\0Exception\0trace"]);
+                        unset($a["\0Error\0previous"], $a["\0Exception\0previous"]);
+                    }
+
+                    return $a;
+                },
+            ]);
+        }
+
+        return $e->setDataRepresentation($cloner->cloneVar($throwable));
+    }
+
     public function toArray(): array
     {
         $exceptions = [];
@@ -88,6 +120,7 @@ class FlattenException
                 'message' => $exception->getMessage(),
                 'class' => $exception->getClass(),
                 'trace' => $exception->getTrace(),
+                'data' => $exception->getDataRepresentation(),
             ];
         }
 
@@ -195,9 +228,7 @@ class FlattenException
     public function setMessage(string $message): static
     {
         if (str_contains($message, "@anonymous\0")) {
-            $message = preg_replace_callback('/[a-zA-Z_\x7f-\xff][\\\\a-zA-Z0-9_\x7f-\xff]*+@anonymous\x00.*?\.php(?:0x?|:[0-9]++\$)[0-9a-fA-F]++/', function ($m) {
-                return class_exists($m[0], false) ? (get_parent_class($m[0]) ?: key(class_implements($m[0])) ?: 'class').'@anonymous' : $m[0];
-            }, $message);
+            $message = preg_replace_callback('/[a-zA-Z_\x7f-\xff][\\\\a-zA-Z0-9_\x7f-\xff]*+@anonymous\x00.*?\.php(?:0x?|:[0-9]++\$)[0-9a-fA-F]++/', fn ($m) => class_exists($m[0], false) ? (get_parent_class($m[0]) ?: key(class_implements($m[0])) ?: 'class').'@anonymous' : $m[0], $message);
         }
 
         $this->message = $message;
@@ -303,6 +334,21 @@ class FlattenException
                 'args' => isset($entry['args']) ? $this->flattenArgs($entry['args']) : [],
             ];
         }
+
+        return $this;
+    }
+
+    public function getDataRepresentation(): ?Data
+    {
+        return $this->dataRepresentation ?? null;
+    }
+
+    /**
+     * @return $this
+     */
+    public function setDataRepresentation(Data $data): static
+    {
+        $this->dataRepresentation = $data;
 
         return $this;
     }

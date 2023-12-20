@@ -10,31 +10,31 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "https://github.com/RafficMohammed/laravel-push-notification.git"
+            "url": "https://github.com/ladybirdweb/laravel-push-notification.git"
         },
         {
             "type": "vcs",
-            "url": "https://github.com/RafficMohammed/Datatable.git"
+            "url": "https://github.com/ladybirdweb/Datatable.git"
         },
         {
             "type": "vcs",
-            "url": "https://github.com/RafficMohammed/Zipper.git"
+            "url": "https://github.com/ladybirdweb/Zipper.git"
         },
         {
             "type": "vcs",
-            "url": "https://github.com/RafficMohammed/Laravel-FCM.git"
+            "url": "https://github.com/ladybirdweb/Laravel-FCM.git"
         },
         {
             "type": "vcs",
-            "url": "https://github.com/RafficMohammed/laravel-ckeditor.git"
+            "url": "https://github.com/ladybirdweb/laravel-ckeditor.git"
         },
         {
             "type": "vcs",
-            "url": "https://github.com/sandesh556/laravel-gravatar.git"
+            "url": "https://github.com/ladybirdweb/laravel-gravatar.git"
         },
         {
             "type": "vcs",
-            "url": "https://github.com/sandesh556/pdf-laravel5.git"
+            "url": "https://github.com/ladybirdweb/pdf-laravel5.git"
         },
         {
             "type": "vcs",
@@ -42,15 +42,15 @@
         }
     ],
     "require": {
-        "php": "^8.0",
-        "laravel/framework": "^9.46",
+        "php": "^8.2",
+        "laravel/framework": "^10.0",
         "laravelcollective/html": "^6.3",
         "vsmoraes/laravel-pdf": "dev-dev-laravel6",
-        "propaganistas/laravel-phone": "^4.3",
+        "propaganistas/laravel-phone": "^5.0",
         "bugsnag/bugsnag-laravel": "^2.23",
         "neitanod/forceutf8": "dev-master",
         "nicolaslopezj/searchable": "^1.13",
-        "tymon/jwt-auth": "dev-develop",
+        "tymon/jwt-auth": "^2.0.0",
         "davejamesmiller/laravel-breadcrumbs": "^5.3",
         "aws/aws-sdk-php": "^3.131",
         "predis/predis": "~1.0",
@@ -60,11 +60,11 @@
         "tedivm/fetch": "0.6.*",
         "unisharp/laravel-filemanager": "^2.4",
         "torann/geoip": "^3.0",
-        "yajra/laravel-datatables-oracle": "^9.19",
+        "yajra/laravel-datatables-oracle": "^10.0",
         "flowjs/flow-php-server": "^1.0",
-        "doctrine/dbal": "^2.13",
+        "doctrine/dbal": "^3.6",
         "laravel/tinker": "^2.7",
-        "laravel/ui": "^3.3",
+        "laravel/ui": "^4.2",
         "guzzlehttp/guzzle": "^7.2",
         "league/flysystem-aws-s3-v3": "^3.0",
         "davibennun/laravel-push-notification": "dev-master",
@@ -82,12 +82,12 @@
         "phpspec/phpspec": "^7.2.0",
         "symfony/dom-crawler": "^6.0",
         "symfony/css-selector": "^6.0",
-        "laravel/dusk": "^6.21",
+        "laravel/dusk": "^7.4",
         "nunomaduro/collision": "^6.3",
         "mockery/mockery": "^1.4.4",
         "fakerphp/faker": "^1.9.1",
         "barryvdh/laravel-debugbar": "^3.8",
-        "spatie/laravel-ignition": "^1.4",
+        "spatie/laravel-ignition": "^2.0",
         "laravel/pint": "^1.4",
         "beyondcode/laravel-query-detector": "^1.7"
     },

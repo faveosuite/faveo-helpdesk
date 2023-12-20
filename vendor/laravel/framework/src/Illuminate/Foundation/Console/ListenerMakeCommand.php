@@ -10,6 +10,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+use function Laravel\Prompts\suggest;
+
 #[AsCommand(name: 'make:listener')]
 class ListenerMakeCommand extends GeneratorCommand
 {
@@ -21,17 +23,6 @@ class ListenerMakeCommand extends GeneratorCommand
      * @var string
      */
     protected $name = 'make:listener';
-
-    /**
-     * The name of the console command.
-     *
-     * This name is used to identify the command during lazy loading.
-     *
-     * @var string|null
-     *
-     * @deprecated
-     */
-    protected static $defaultName = 'make:listener';
 
     /**
      * The console command description.
@@ -55,7 +46,7 @@ class ListenerMakeCommand extends GeneratorCommand
      */
     protected function buildClass($name)
     {
-        $event = $this->option('event');
+        $event = $this->option('event') ?? '';
 
         if (! Str::startsWith($event, [
             $this->laravel->getNamespace(),
@@ -141,13 +132,12 @@ class ListenerMakeCommand extends GeneratorCommand
             return;
         }
 
-        $event = $this->components->askWithCompletion(
-            'What event should be listened for?',
+        $event = suggest(
+            'What event should be listened for? (Optional)',
             $this->possibleEvents(),
-            'none'
         );
 
-        if ($event && $event !== 'none') {
+        if ($event) {
             $input->setOption('event', $event);
         }
     }

@@ -179,67 +179,115 @@ class Base
     /**
      * Returns randomly ordered subsequence of $count elements from a provided array
      *
-     * @param array $array           Array to take elements from. Defaults to a-c
-     * @param int   $count           Number of elements to take.
-     * @param bool  $allowDuplicates Allow elements to be picked several times. Defaults to false
+     * @todo update default $count to `null` (BC) for next major version
      *
-     * @throws \LengthException When requesting more elements than provided
+     * @param array|class-string|\Traversable $array           Array to take elements from. Defaults to a-c
+     * @param int|null                        $count           Number of elements to take. If `null` then returns random number of elements
+     * @param bool                            $allowDuplicates Allow elements to be picked several times. Defaults to false
+     *
+     * @throws \InvalidArgumentException
+     * @throws \LengthException          When requesting more elements than provided
      *
      * @return array New array with $count elements from $array
      */
     public static function randomElements($array = ['a', 'b', 'c'], $count = 1, $allowDuplicates = false)
     {
-        $traversables = [];
+        $elements = $array;
+
+        if (is_string($array) && function_exists('enum_exists') && enum_exists($array)) {
+            $elements = $array::cases();
+        }
 
         if ($array instanceof \Traversable) {
-            foreach ($array as $element) {
-                $traversables[] = $element;
-            }
+            $elements = \iterator_to_array($array, false);
         }
 
-        $arr = count($traversables) ? $traversables : $array;
-
-        $allKeys = array_keys($arr);
-        $numKeys = count($allKeys);
-
-        if (!$allowDuplicates && $numKeys < $count) {
-            throw new \LengthException(sprintf('Cannot get %d elements, only %d in array', $count, $numKeys));
+        if (!is_array($elements)) {
+            throw new \InvalidArgumentException(sprintf(
+                'Argument for parameter $array needs to be array, an instance of %s, or an instance of %s, got %s instead.',
+                \UnitEnum::class,
+                \Traversable::class,
+                is_object($array) ? get_class($array) : gettype($array),
+            ));
         }
 
-        $highKey = $numKeys - 1;
-        $keys = $elements = [];
-        $numElements = 0;
+        $numberOfElements = count($elements);
 
-        while ($numElements < $count) {
-            $num = mt_rand(0, $highKey);
+        if (!$allowDuplicates && null !== $count && $numberOfElements < $count) {
+            throw new \LengthException(sprintf(
+                'Cannot get %d elements, only %d in array',
+                $count,
+                $numberOfElements,
+            ));
+        }
+
+        if (null === $count) {
+            $count = mt_rand(1, $numberOfElements);
+        }
+
+        $randomElements = [];
+
+        $keys = array_keys($elements);
+        $maxIndex = $numberOfElements - 1;
+        $elementHasBeenSelectedAlready = [];
+        $numberOfRandomElements = 0;
+
+        while ($numberOfRandomElements < $count) {
+            $index = mt_rand(0, $maxIndex);
 
             if (!$allowDuplicates) {
-                if (isset($keys[$num])) {
+                if (isset($elementHasBeenSelectedAlready[$index])) {
                     continue;
                 }
-                $keys[$num] = true;
+
+                $elementHasBeenSelectedAlready[$index] = true;
             }
 
-            $elements[] = $arr[$allKeys[$num]];
-            ++$numElements;
+            $key = $keys[$index];
+
+            $randomElements[] = $elements[$key];
+
+            ++$numberOfRandomElements;
         }
 
-        return $elements;
+        return $randomElements;
     }
 
     /**
      * Returns a random element from a passed array
      *
-     * @param array $array
+     * @param array|class-string|\Traversable $array
+     *
+     * @throws \InvalidArgumentException
      */
     public static function randomElement($array = ['a', 'b', 'c'])
     {
-        if (!$array || ($array instanceof \Traversable && !count($array))) {
+        $elements = $array;
+
+        if (is_string($array) && function_exists('enum_exists') && enum_exists($array)) {
+            $elements = $array::cases();
+        }
+
+        if ($array instanceof \Traversable) {
+            $elements = iterator_to_array($array, false);
+        }
+
+        if ($elements === []) {
             return null;
         }
-        $elements = static::randomElements($array, 1);
 
-        return $elements[0];
+        if (!is_array($elements)) {
+            throw new \InvalidArgumentException(sprintf(
+                'Argument for parameter $array needs to be array, an instance of %s, or an instance of %s, got %s instead.',
+                \UnitEnum::class,
+                \Traversable::class,
+                is_object($array) ? get_class($array) : gettype($array),
+            ));
+        }
+
+        $randomElements = static::randomElements($elements, 1);
+
+        return $randomElements[0];
     }
 
     /**

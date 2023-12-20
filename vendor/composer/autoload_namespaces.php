@@ -13,7 +13,6 @@ return array(
     'ZendService\\Apple\\Apns\\' => array($vendorDir . '/zendframework/zendservice-apple-apns/library'),
     'Sly' => array($vendorDir . '/sly/notification-pusher/src'),
     'PhpSpec' => array($vendorDir . '/phpspec/phpspec/src'),
-    'Mockery' => array($vendorDir . '/mockery/mockery/library'),
     'HTMLPurifier' => array($vendorDir . '/ezyang/htmlpurifier/library'),
     'ForceUTF8\\' => array($vendorDir . '/neitanod/forceutf8/src'),
     'Flow' => array($vendorDir . '/flowjs/flow-php-server/src'),

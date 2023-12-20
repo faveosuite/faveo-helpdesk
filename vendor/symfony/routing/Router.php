@@ -116,6 +116,8 @@ class Router implements RouterInterface, RequestMatcherInterface
      *   * strict_requirements:    Configure strict requirement checking for generators
      *                             implementing ConfigurableRequirementsInterface (default is true)
      *
+     * @return void
+     *
      * @throws \InvalidArgumentException When unsupported option is provided
      */
     public function setOptions(array $options)
@@ -149,6 +151,8 @@ class Router implements RouterInterface, RequestMatcherInterface
     /**
      * Sets an option.
      *
+     * @return void
+     *
      * @throws \InvalidArgumentException
      */
     public function setOption(string $key, mixed $value)
@@ -174,19 +178,25 @@ class Router implements RouterInterface, RequestMatcherInterface
         return $this->options[$key];
     }
 
+    /**
+     * @return RouteCollection
+     */
     public function getRouteCollection()
     {
         return $this->collection ??= $this->loader->load($this->resource, $this->options['resource_type']);
     }
 
+    /**
+     * @return void
+     */
     public function setContext(RequestContext $context)
     {
         $this->context = $context;
 
-        if (null !== $this->matcher) {
+        if (isset($this->matcher)) {
             $this->getMatcher()->setContext($context);
         }
-        if (null !== $this->generator) {
+        if (isset($this->generator)) {
             $this->getGenerator()->setContext($context);
         }
     }
@@ -198,6 +208,8 @@ class Router implements RouterInterface, RequestMatcherInterface
 
     /**
      * Sets the ConfigCache factory to use.
+     *
+     * @return void
      */
     public function setConfigCacheFactory(ConfigCacheFactoryInterface $configCacheFactory)
     {
@@ -230,7 +242,7 @@ class Router implements RouterInterface, RequestMatcherInterface
      */
     public function getMatcher(): UrlMatcherInterface|RequestMatcherInterface
     {
-        if (null !== $this->matcher) {
+        if (isset($this->matcher)) {
             return $this->matcher;
         }
 
@@ -271,7 +283,7 @@ class Router implements RouterInterface, RequestMatcherInterface
      */
     public function getGenerator(): UrlGeneratorInterface
     {
-        if (null !== $this->generator) {
+        if (isset($this->generator)) {
             return $this->generator;
         }
 
@@ -302,6 +314,9 @@ class Router implements RouterInterface, RequestMatcherInterface
         return $this->generator;
     }
 
+    /**
+     * @return void
+     */
     public function addExpressionLanguageProvider(ExpressionFunctionProviderInterface $provider)
     {
         $this->expressionLanguageProviders[] = $provider;
@@ -328,7 +343,7 @@ class Router implements RouterInterface, RequestMatcherInterface
 
     private static function getCompiledRoutes(string $path): array
     {
-        if ([] === self::$cache && \function_exists('opcache_invalidate') && filter_var(\ini_get('opcache.enable'), \FILTER_VALIDATE_BOOL) && (!\in_array(\PHP_SAPI, ['cli', 'phpdbg'], true) || filter_var(\ini_get('opcache.enable_cli'), \FILTER_VALIDATE_BOOL))) {
+        if ([] === self::$cache && \function_exists('opcache_invalidate') && filter_var(\ini_get('opcache.enable'), \FILTER_VALIDATE_BOOL) && (!\in_array(\PHP_SAPI, ['cli', 'phpdbg', 'embed'], true) || filter_var(\ini_get('opcache.enable_cli'), \FILTER_VALIDATE_BOOL))) {
             self::$cache = null;
         }
 

@@ -43,7 +43,7 @@ return array (
   ),
   'mobile' => 
   array (
-    'NationalNumberPattern' => '98\\d{6,7}|975(?:1\\d|77|9[67])\\d{4}|9(?:0[1-9]|[1259]\\d|7[0679])\\d{6}',
+    'NationalNumberPattern' => '9(?:(?:0[1-9]|[12589]\\d)\\d\\d|7(?:[0679]\\d\\d|5(?:[01]\\d|44|77|9[5-7])))\\d{4}|98\\d{6}',
     'ExampleNumber' => '921234567',
     'PossibleLength' => 
     array (
@@ -56,7 +56,7 @@ return array (
   ),
   'tollFree' => 
   array (
-    'NationalNumberPattern' => '80[01]\\d{4,6}',
+    'NationalNumberPattern' => '80\\d{5,7}',
     'ExampleNumber' => '800123456',
     'PossibleLength' => 
     array (

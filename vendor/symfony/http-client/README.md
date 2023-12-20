@@ -6,17 +6,12 @@ The HttpClient component provides powerful methods to fetch HTTP resources synch
 Sponsor
 -------
 
-The Httpclient component for Symfony 6.1 is [backed][1] by [Prisma Media][2].
+The HttpClient component for Symfony 6.4 is [backed][1] by [Innovative Web AG][2].
 
-Prisma Media has become in 40 years the n°1 French publishing group, on print and
-digitally, with 20 flagship brands of the news magazines : Femme Actuelle, GEO,
-Capital, Gala or Télé-Loisirs… Today, more than 42 million French people are in
-contact with one of our brand each month, either by leafing through a magazine,
-surfing the web, subscribing one our mobile or tablet application or listening to
-our podcasts' series. Prisma Media has successfully transformed one's business
-model : from a historic player in the world of paper, it has become in 5 years
-one of the first publishers of multi-media editorial content, and one of the
-first creators of digital solutions.
+Innovative Web AG (i-web) is a specialist for web, applications and the
+digitalisation of the public sector based in Switzerland. With their i-CMS,
+public authorities and institutions implement modern websites and eGovernment
+portals and offer user-friendly eServices for residents and companies.
 
 Help Symfony by [sponsoring][3] its development!
 
@@ -30,5 +25,5 @@ Resources
    in the [main Symfony repository](https://github.com/symfony/symfony)
 
 [1]: https://symfony.com/backers
-[2]: https://www.prismamedia.com
+[2]: https://www.i-web.ch
 [3]: https://symfony.com/sponsor

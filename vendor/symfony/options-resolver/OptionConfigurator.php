@@ -15,8 +15,8 @@ use Symfony\Component\OptionsResolver\Exception\AccessException;
 
 final class OptionConfigurator
 {
-    private $name;
-    private $resolver;
+    private string $name;
+    private OptionsResolver $resolver;
 
     public function __construct(string $name, OptionsResolver $resolver)
     {
@@ -131,6 +131,18 @@ final class OptionConfigurator
     public function info(string $info): static
     {
         $this->resolver->setInfo($this->name, $info);
+
+        return $this;
+    }
+
+    /**
+     * Sets whether ignore undefined options.
+     *
+     * @return $this
+     */
+    public function ignoreUndefined(bool $ignore = true): static
+    {
+        $this->resolver->setIgnoreUndefined($ignore);
 
         return $this;
     }

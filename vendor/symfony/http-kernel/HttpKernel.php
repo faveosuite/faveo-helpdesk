@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Exception\RequestExceptionInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolverInterface;
 use Symfony\Component\HttpKernel\Controller\ControllerResolverInterface;
@@ -70,8 +71,9 @@ class HttpKernel implements HttpKernelInterface, TerminableInterface
         $request->headers->set('X-Php-Ob-Level', (string) ob_get_level());
 
         $this->requestStack->push($request);
+        $response = null;
         try {
-            return $this->handleRaw($request, $type);
+            return $response = $this->handleRaw($request, $type);
         } catch (\Throwable $e) {
             if ($e instanceof \Error && !$this->handleAllThrowables) {
                 throw $e;
@@ -86,12 +88,28 @@ class HttpKernel implements HttpKernelInterface, TerminableInterface
                 throw $e;
             }
 
-            return $this->handleThrowable($e, $request, $type);
+            return $response = $this->handleThrowable($e, $request, $type);
         } finally {
             $this->requestStack->pop();
+
+            if ($response instanceof StreamedResponse && $callback = $response->getCallback()) {
+                $requestStack = $this->requestStack;
+
+                $response->setCallback(static function () use ($request, $callback, $requestStack) {
+                    $requestStack->push($request);
+                    try {
+                        $callback();
+                    } finally {
+                        $requestStack->pop();
+                    }
+                });
+            }
         }
     }
 
+    /**
+     * @return void
+     */
     public function terminate(Request $request, Response $response)
     {
         $this->dispatcher->dispatch(new TerminateEvent($this, $request, $response), KernelEvents::TERMINATE);
@@ -100,7 +118,7 @@ class HttpKernel implements HttpKernelInterface, TerminableInterface
     /**
      * @internal
      */
-    public function terminateWithException(\Throwable $exception, Request $request = null)
+    public function terminateWithException(\Throwable $exception, Request $request = null): void
     {
         if (!$request ??= $this->requestStack->getMainRequest()) {
             throw $exception;
@@ -207,7 +225,7 @@ class HttpKernel implements HttpKernelInterface, TerminableInterface
      * operations such as {@link RequestStack::getParentRequest()} can lead to
      * weird results.
      */
-    private function finishRequest(Request $request, int $type)
+    private function finishRequest(Request $request, int $type): void
     {
         $this->dispatcher->dispatch(new FinishRequestEvent($this, $request, $type), KernelEvents::FINISH_REQUEST);
     }

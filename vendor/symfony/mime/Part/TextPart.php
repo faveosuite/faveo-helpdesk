@@ -24,28 +24,24 @@ use Symfony\Component\Mime\Header\Headers;
 class TextPart extends AbstractPart
 {
     /** @internal */
-    protected $_headers;
+    protected Headers $_headers;
 
-    private static $encoders = [];
+    private static array $encoders = [];
 
+    /** @var resource|string|File */
     private $body;
-    private $charset;
-    private $subtype;
-    /**
-     * @var ?string
-     */
-    private $disposition;
-    private $name;
-    private $encoding;
-    private $seekable;
+    private ?string $charset;
+    private string $subtype;
+    private ?string $disposition = null;
+    private ?string $name = null;
+    private string $encoding;
+    private ?bool $seekable = null;
 
     /**
      * @param resource|string|File $body Use a File instance to defer loading the file until rendering
      */
     public function __construct($body, ?string $charset = 'utf-8', string $subtype = 'plain', string $encoding = null)
     {
-        unset($this->_headers);
-
         parent::__construct();
 
         if (!\is_string($body) && !\is_resource($body) && !$body instanceof File) {
@@ -94,6 +90,14 @@ class TextPart extends AbstractPart
         $this->disposition = $disposition;
 
         return $this;
+    }
+
+    /**
+     * @return ?string null or one of attachment, inline, or form-data
+     */
+    public function getDisposition(): ?string
+    {
+        return $this->disposition;
     }
 
     /**
@@ -218,7 +222,7 @@ class TextPart extends AbstractPart
     public function __sleep(): array
     {
         // convert resources to strings for serialization
-        if (null !== $this->seekable || $this->body instanceof File) {
+        if (null !== $this->seekable) {
             $this->body = $this->getBody();
             $this->seekable = null;
         }
@@ -228,6 +232,9 @@ class TextPart extends AbstractPart
         return ['_headers', 'body', 'charset', 'subtype', 'disposition', 'name', 'encoding'];
     }
 
+    /**
+     * @return void
+     */
     public function __wakeup()
     {
         $r = new \ReflectionProperty(AbstractPart::class, 'headers');
