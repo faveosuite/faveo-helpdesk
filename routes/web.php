@@ -8,11 +8,11 @@ use App\Http\Controllers\Common;
 use App\Http\Controllers\Installer;
 use App\Http\Controllers\Job;
 use App\Http\Controllers\Update;
+use Diglactic\Breadcrumbs\Breadcrumbs;
+use Diglactic\Breadcrumbs\Generator as BreadcrumbTrail;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Route;
-use Diglactic\Breadcrumbs\Breadcrumbs;
-use Diglactic\Breadcrumbs\Generator as BreadcrumbTrail;
 
 /*
   |--------------------------------------------------------------------------
