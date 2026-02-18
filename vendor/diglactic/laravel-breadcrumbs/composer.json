@@ -1,0 +1,57 @@
+{
+    "name": "diglactic/laravel-breadcrumbs",
+    "description": "A simple Laravel-style way to create breadcrumbs.",
+    "keywords": [
+        "laravel"
+    ],
+    "homepage": "https://github.com/diglactic/laravel-breadcrumbs",
+    "authors": [
+        {
+            "name": "Sheng Slogar",
+            "email": "sheng@diglactic.com",
+            "role": "Maintainer"
+        },
+        {
+            "name": "Dave James Miller",
+            "email": "dave@davejamesmiller.com",
+            "role": "Original Creator"
+        }
+    ],
+    "license": "MIT",
+    "require": {
+        "php": "^8.1",
+        "facade/ignition-contracts": "^1.0",
+        "laravel/framework": "^10.0 || ^11.0 || ^12.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^8.0 || ^9.0 || ^10.0",
+        "phpunit/phpunit": "^10.5 || ^11.5",
+        "spatie/phpunit-snapshot-assertions": "^5.1"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "autoload": {
+        "psr-4": {
+            "Diglactic\\Breadcrumbs\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "App\\Http\\": "tests/Http/",
+            "Diglactic\\Breadcrumbs\\Tests\\": "tests/"
+        }
+    },
+    "conflict": {
+        "davejamesmiller/laravel-breadcrumbs": "*"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Diglactic\\Breadcrumbs\\ServiceProvider"
+            ],
+            "aliases": {
+                "Breadcrumbs": "Diglactic\\Breadcrumbs\\Breadcrumbs"
+            }
+        }
+    }
+}

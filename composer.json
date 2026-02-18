@@ -10,10 +10,6 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "https://github.com/ladybirdweb/laravel-push-notification.git"
-        },
-        {
-            "type": "vcs",
             "url": "https://github.com/ladybirdweb/Datatable.git"
         },
         {
@@ -44,14 +40,12 @@
     "require": {
         "php": "^8.1",
         "laravel/framework": "^10.0",
-        "laravelcollective/html": "^6.3",
         "vsmoraes/laravel-pdf": "dev-dev-laravel6",
         "propaganistas/laravel-phone": "^5.0",
         "bugsnag/bugsnag-laravel": "^2.23",
         "neitanod/forceutf8": "dev-master",
         "nicolaslopezj/searchable": "^1.13",
         "tymon/jwt-auth": "^2.0.0",
-        "davejamesmiller/laravel-breadcrumbs": "^5.3",
         "aws/aws-sdk-php": "^3.131",
         "predis/predis": "~1.0",
         "mremi/url-shortener": "^2.4",
@@ -67,7 +61,6 @@
         "laravel/ui": "^4.2",
         "guzzlehttp/guzzle": "^7.2",
         "league/flysystem-aws-s3-v3": "^3.0",
-        "davibennun/laravel-push-notification": "dev-master",
         "chumper/datatable": "dev-master",
         "chumper/zipper": "dev-master",
         "brozot/laravel-fcm": "dev-master",
@@ -75,7 +68,9 @@
         "thomaswelton/laravel-gravatar": "dev-master",
         "symfony/mailgun-mailer": "^6.2",
         "symfony/http-client": "^6.2",
-        "itsgoingd/clockwork": "dev-master"
+        "itsgoingd/clockwork": "dev-master",
+        "diglactic/laravel-breadcrumbs": "*",
+        "spatie/laravel-html": "^3.12"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.5.10",

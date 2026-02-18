@@ -8,10 +8,11 @@ use App\Http\Controllers\Common;
 use App\Http\Controllers\Installer;
 use App\Http\Controllers\Job;
 use App\Http\Controllers\Update;
-use DaveJamesMiller\Breadcrumbs\Facades\Breadcrumbs;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Route;
+use Diglactic\Breadcrumbs\Breadcrumbs;
+use Diglactic\Breadcrumbs\Generator as BreadcrumbTrail;
 
 /*
   |--------------------------------------------------------------------------
@@ -43,18 +44,18 @@ Route::middleware('web')->group(function () {
       |
      */
     Route::get('password/email/{one?}/{two?}/{three?}/{four?}/{five?}', [Auth\PasswordController::class, 'getEmail'])->name('password.email');
-    Breadcrumbs::register('password.email', function ($breadcrumbs) {
-        $breadcrumbs->parent('/');
-        $breadcrumbs->push('Login', url('auth/login'));
-        $breadcrumbs->push('Forgot Password', url('password/email'));
+    Breadcrumbs::for('password.email', function (BreadcrumbTrail $trail) {
+        $trail->parent('/');
+        $trail->push('Login', url('auth/login'));
+        $trail->push('Forgot Password', url('password/email'));
     });
 
     // register page
     Route::get('auth/register/{one?}/{two?}/{three?}/{four?}/{five?}', [Auth\AuthController::class, 'getRegister'])->name('auth.register');
-    Breadcrumbs::register('auth.register', function ($breadcrumbs) {
-        $breadcrumbs->parent('/');
-        $breadcrumbs->push('Login', url('auth/login'));
-        $breadcrumbs->push('Create Account', url('auth/register'));
+    Breadcrumbs::for('auth.register', function (BreadcrumbTrail $trail) {
+        $trail->parent('/');
+        $trail->push('Login', url('auth/login'));
+        $trail->push('Create Account', url('auth/register'));
     });
 
     // Auth login
@@ -62,7 +63,7 @@ Route::middleware('web')->group(function () {
     Route::post('auth/login', [Auth\AuthController::class, 'postLogin'])->name('auth.post.login');
     Route::match(['get', 'post'], 'user/search', [Client\kb\UserController::class, 'search'])->name('client.search');
 
-    Breadcrumbs::register('auth.login', function ($breadcrumbs) {
+    Breadcrumbs::for('auth.login', function (BreadcrumbTrail $trail) {
 //        $breadcrumbs->parent('/');
 //        $breadcrumbs->push('Create Account', url('auth/register'));
 //        $breadcrumbs->push('Login', url('auth/login'));
@@ -100,9 +101,9 @@ Route::middleware('web')->group(function () {
 
         Route::resource('teams', Admin\helpdesk\TeamController::class); // in teams module, for CRUD
         Route::get('/teams/show/{id}', [Admin\helpdesk\TeamController::class, 'show'])->name('teams.show'); /*  Get Team View */
-        Breadcrumbs::register('teams.show', function ($breadcrumbs) {
-            $breadcrumbs->parent('teams.index');
-            $breadcrumbs->push(Lang::get('lang.show'), url('teams/{teams}/show'));
+        Breadcrumbs::for('teams.show', function (BreadcrumbTrail $trail) {
+            $trail->parent('teams.index');
+            $trail->push(Lang::get('lang.show'), url('teams/{teams}/show'));
         });
         Route::get('getshow/{id}', [Admin\helpdesk\TeamController::class, 'getshow'])->name('teams.getshow.list');
         Route::resource('agents', Admin\helpdesk\AgentController::class); // in agents module, for CRUD

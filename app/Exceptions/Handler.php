@@ -3,6 +3,7 @@
 namespace App\Exceptions;
 
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
+use Diglactic\Breadcrumbs\Breadcrumbs;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -28,7 +29,7 @@ class Handler extends ExceptionHandler
         ModelNotFoundException::class,
         \Symfony\Component\HttpKernel\Exception\HttpException::class,
         ValidationException::class,
-        \DaveJamesMiller\Breadcrumbs\BreadcrumbsException::class,
+        Breadcrumbs::class,
     ];
 
     /**
