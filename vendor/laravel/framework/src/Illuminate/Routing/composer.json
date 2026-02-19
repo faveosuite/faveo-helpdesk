@@ -14,20 +14,22 @@
         }
     ],
     "require": {
-        "php": "^8.1",
+        "php": "^8.2",
         "ext-filter": "*",
         "ext-hash": "*",
-        "illuminate/collections": "^10.0",
-        "illuminate/container": "^10.0",
-        "illuminate/contracts": "^10.0",
-        "illuminate/http": "^10.0",
-        "illuminate/macroable": "^10.0",
-        "illuminate/pipeline": "^10.0",
-        "illuminate/session": "^10.0",
-        "illuminate/support": "^10.0",
-        "symfony/http-foundation": "^6.4",
-        "symfony/http-kernel": "^6.2",
-        "symfony/routing": "^6.2"
+        "illuminate/collections": "^12.0",
+        "illuminate/container": "^12.0",
+        "illuminate/contracts": "^12.0",
+        "illuminate/http": "^12.0",
+        "illuminate/macroable": "^12.0",
+        "illuminate/pipeline": "^12.0",
+        "illuminate/session": "^12.0",
+        "illuminate/support": "^12.0",
+        "symfony/http-foundation": "^7.2.0",
+        "symfony/http-kernel": "^7.2.0",
+        "symfony/polyfill-php84": "^1.33",
+        "symfony/polyfill-php85": "^1.33",
+        "symfony/routing": "^7.2.0"
     },
     "autoload": {
         "psr-4": {
@@ -36,16 +38,19 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "10.x-dev"
+            "dev-master": "12.x-dev"
         }
     },
     "suggest": {
-        "illuminate/console": "Required to use the make commands (^10.0).",
-        "nyholm/psr7": "Required to use PSR-7 bridging features (^1.2).",
-        "symfony/psr-http-message-bridge": "Required to use PSR-7 bridging features (^2.0)."
+        "illuminate/console": "Required to use the make commands (^12.0).",
+        "php-http/discovery": "Required to use PSR-7 bridging features (^1.15).",
+        "symfony/psr-http-message-bridge": "Required to use PSR-7 bridging features (^7.2)."
     },
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "php-http/discovery": false
+        }
     },
     "minimum-stability": "dev"
 }

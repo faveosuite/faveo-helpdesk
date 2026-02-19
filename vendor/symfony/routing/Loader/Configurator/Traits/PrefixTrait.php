@@ -27,22 +27,33 @@ trait PrefixTrait
             foreach ($prefix as $locale => $localePrefix) {
                 $prefix[$locale] = trim(trim($localePrefix), '/');
             }
+            $aliases = [];
+            foreach ($routes->getAliases() as $name => $alias) {
+                $aliases[$alias->getId()][] = $name;
+            }
             foreach ($routes->all() as $name => $route) {
                 if (null === $locale = $route->getDefault('_locale')) {
+                    $priority = $routes->getPriority($name) ?? 0;
                     $routes->remove($name);
+                    foreach ($aliases[$name] ?? [] as $aliasName) {
+                        $routes->remove($aliasName);
+                    }
                     foreach ($prefix as $locale => $localePrefix) {
                         $localizedRoute = clone $route;
                         $localizedRoute->setDefault('_locale', $locale);
                         $localizedRoute->setRequirement('_locale', preg_quote($locale));
                         $localizedRoute->setDefault('_canonical_route', $name);
                         $localizedRoute->setPath($localePrefix.(!$trailingSlashOnRoot && '/' === $route->getPath() ? '' : $route->getPath()));
-                        $routes->add($name.'.'.$locale, $localizedRoute);
+                        $routes->add($name.'.'.$locale, $localizedRoute, $priority);
+                        foreach ($aliases[$name] ?? [] as $aliasName) {
+                            $routes->addAlias($aliasName.'.'.$locale, $name.'.'.$locale);
+                        }
                     }
                 } elseif (!isset($prefix[$locale])) {
-                    throw new \InvalidArgumentException(sprintf('Route "%s" with locale "%s" is missing a corresponding prefix in its parent collection.', $name, $locale));
+                    throw new \InvalidArgumentException(\sprintf('Route "%s" with locale "%s" is missing a corresponding prefix in its parent collection.', $name, $locale));
                 } else {
                     $route->setPath($prefix[$locale].(!$trailingSlashOnRoot && '/' === $route->getPath() ? '' : $route->getPath()));
-                    $routes->add($name, $route);
+                    $routes->add($name, $route, $routes->getPriority($name) ?? 0);
                 }
             }
 

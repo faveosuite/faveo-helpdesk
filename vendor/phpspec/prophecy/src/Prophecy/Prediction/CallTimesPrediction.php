@@ -32,10 +32,10 @@ class CallTimesPrediction implements PredictionInterface
     /**
      * @param int        $times
      */
-    public function __construct($times, StringUtil $util = null)
+    public function __construct($times, ?StringUtil $util = null)
     {
         $this->times = intval($times);
-        $this->util  = $util ?: new StringUtil;
+        $this->util  = $util ?: new StringUtil();
     }
 
     public function check(array $calls, ObjectProphecy $object, MethodProphecy $method)
@@ -46,14 +46,14 @@ class CallTimesPrediction implements PredictionInterface
 
         $methodCalls = $object->findProphecyMethodCalls(
             $method->getMethodName(),
-            new ArgumentsWildcard(array(new AnyValuesToken))
+            new ArgumentsWildcard(array(new AnyValuesToken()))
         );
 
         if (count($calls)) {
             $message = sprintf(
-                "Expected exactly %d calls that match:\n".
-                "  %s->%s(%s)\n".
-                "but %d were made:\n%s",
+                "Expected exactly %d calls that match:\n"
+                ."  %s->%s(%s)\n"
+                ."but %d were made:\n%s",
 
                 $this->times,
                 get_class($object->reveal()),
@@ -64,10 +64,10 @@ class CallTimesPrediction implements PredictionInterface
             );
         } elseif (count($methodCalls)) {
             $message = sprintf(
-                "Expected exactly %d calls that match:\n".
-                "  %s->%s(%s)\n".
-                "but none were made.\n".
-                "Recorded `%s(...)` calls:\n%s",
+                "Expected exactly %d calls that match:\n"
+                ."  %s->%s(%s)\n"
+                ."but none were made.\n"
+                ."Recorded `%s(...)` calls:\n%s",
 
                 $this->times,
                 get_class($object->reveal()),
@@ -78,9 +78,9 @@ class CallTimesPrediction implements PredictionInterface
             );
         } else {
             $message = sprintf(
-                "Expected exactly %d calls that match:\n".
-                "  %s->%s(%s)\n".
-                "but none were made.",
+                "Expected exactly %d calls that match:\n"
+                ."  %s->%s(%s)\n"
+                ."but none were made.",
 
                 $this->times,
                 get_class($object->reveal()),

@@ -1,22 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Driver\SQLite3;
 
-use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
-use Doctrine\DBAL\ParameterType;
+use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
+use Doctrine\DBAL\Driver\Exception\NoIdentityValue;
 use SQLite3;
 
 use function assert;
 use function sprintf;
 
-final class Connection implements ServerInfoAwareConnection
+final class Connection implements ConnectionInterface
 {
-    private SQLite3 $connection;
-
     /** @internal The connection can be only instantiated by its driver. */
-    public function __construct(SQLite3 $connection)
+    public function __construct(private readonly SQLite3 $connection)
     {
-        $this->connection = $connection;
     }
 
     public function prepare(string $sql): Statement
@@ -45,8 +44,7 @@ final class Connection implements ServerInfoAwareConnection
         return new Result($result, $this->connection->changes());
     }
 
-    /** @inheritdoc */
-    public function quote($value, $type = ParameterType::STRING): string
+    public function quote(string $value): string
     {
         return sprintf('\'%s\'', SQLite3::escapeString($value));
     }
@@ -62,36 +60,40 @@ final class Connection implements ServerInfoAwareConnection
         return $this->connection->changes();
     }
 
-    /** @inheritdoc */
-    public function lastInsertId($name = null): int
+    public function lastInsertId(): int
     {
-        return $this->connection->lastInsertRowID();
+        $value = $this->connection->lastInsertRowID();
+        if ($value === 0) {
+            throw NoIdentityValue::new();
+        }
+
+        return $value;
     }
 
-    public function beginTransaction(): bool
+    public function beginTransaction(): void
     {
         try {
-            return $this->connection->exec('BEGIN');
+            $this->connection->exec('BEGIN');
         } catch (\Exception $e) {
-            return false;
+            throw Exception::new($e);
         }
     }
 
-    public function commit(): bool
+    public function commit(): void
     {
         try {
-            return $this->connection->exec('COMMIT');
+            $this->connection->exec('COMMIT');
         } catch (\Exception $e) {
-            return false;
+            throw Exception::new($e);
         }
     }
 
-    public function rollBack(): bool
+    public function rollBack(): void
     {
         try {
-            return $this->connection->exec('ROLLBACK');
+            $this->connection->exec('ROLLBACK');
         } catch (\Exception $e) {
-            return false;
+            throw Exception::new($e);
         }
     }
 

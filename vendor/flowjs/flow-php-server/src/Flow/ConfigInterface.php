@@ -2,47 +2,42 @@
 
 namespace Flow;
 
+use MongoDB\GridFS\Bucket;
+
 interface ConfigInterface
 {
     /**
      * Get path to temporary directory for chunks storage
-     *
-     * @return string
      */
-    public function getTempDir();
+    public function getTempDir(): string;
 
     /**
      * Generate chunk identifier
-     *
-     * @return callable
      */
-    public function getHashNameCallback();
+    public function getHashNameCallback(): callable | array;
 
     /**
      * Callback to pre-process chunk
-     *
-     * @param callable $callback
      */
-    public function setPreprocessCallback($callback);
+    public function setPreprocessCallback(callable | array $callback): static;
 
     /**
      * Callback to preprocess chunk
-     *
-     * @return callable|null
      */
-    public function getPreprocessCallback();
+    public function getPreprocessCallback(): callable | array | null;
 
     /**
      * Delete chunks on save
-     *
-     * @param bool $delete
      */
-    public function setDeleteChunksOnSave($delete);
+    public function setDeleteChunksOnSave(bool $delete): static;
 
     /**
      * Delete chunks on save
-     *
-     * @return bool
      */
-    public function getDeleteChunksOnSave();
+    public function getDeleteChunksOnSave(): bool;
+
+    /**
+     * Only defined for MongoConfig
+     */
+    public function getGridFs(): ?Bucket;
 }

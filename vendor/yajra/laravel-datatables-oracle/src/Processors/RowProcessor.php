@@ -8,12 +8,9 @@ use Yajra\DataTables\Utilities\Helper;
 class RowProcessor
 {
     /**
-     * @param  array  $data
      * @param  array|object  $row
      */
-    public function __construct(protected array $data, protected $row)
-    {
-    }
+    public function __construct(protected array $data, protected $row) {}
 
     /**
      * Process DT RowId and Class value.
@@ -21,6 +18,8 @@ class RowProcessor
      * @param  string  $attribute
      * @param  string|callable  $template
      * @return $this
+     *
+     * @throws \ReflectionException
      */
     public function rowValue($attribute, $template)
     {
@@ -39,8 +38,9 @@ class RowProcessor
      * Process DT Row Data and Attr.
      *
      * @param  string  $attribute
-     * @param  array  $template
      * @return $this
+     *
+     * @throws \ReflectionException
      */
     public function rowData($attribute, array $template)
     {

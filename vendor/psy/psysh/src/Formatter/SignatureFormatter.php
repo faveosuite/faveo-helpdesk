@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,9 +11,11 @@
 
 namespace Psy\Formatter;
 
-use Psy\Reflection\ReflectionClassConstant;
-use Psy\Reflection\ReflectionConstant_;
+use Psy\Manual\ManualInterface;
+use Psy\Reflection\ReflectionConstant;
 use Psy\Reflection\ReflectionLanguageConstruct;
+use Psy\Reflection\ReflectionMagicMethod;
+use Psy\Reflection\ReflectionMagicProperty;
 use Psy\Util\Json;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 
@@ -22,10 +24,46 @@ use Symfony\Component\Console\Formatter\OutputFormatter;
  */
 class SignatureFormatter implements ReflectorFormatter
 {
+    private static ?ManualInterface $manual = null;
+
+    /**
+     * Set the manual interface for generating hyperlinks.
+     */
+    public static function setManual(?ManualInterface $manual): void
+    {
+        self::$manual = $manual;
+    }
+
+    /**
+     * Set styles for formatting hyperlinks.
+     *
+     * @deprecated Use LinkFormatter::setStyles() instead
+     *
+     * @param array $styles Map of style name to inline style string
+     */
+    public static function setStyles(array $styles): void
+    {
+        // Delegate to LinkFormatter which now handles this
+        LinkFormatter::setStyles($styles);
+    }
+
+    /**
+     * Set the manual database for generating hyperlinks.
+     *
+     * @deprecated Manual database is now set via Configuration::setManual()
+     *
+     * @param \PDO|null $db
+     */
+    public static function setManualDb(?\PDO $db): void
+    {
+        // The functionality is now handled through setManual()
+    }
+
     /**
      * Format a signature for the given reflector.
      *
      * Defers to subclasses to do the actual formatting.
+     * Automatically generates hyperlinks if manual database is set.
      *
      * @param \Reflector $reflector
      *
@@ -42,17 +80,22 @@ class SignatureFormatter implements ReflectorFormatter
                 // this case also covers \ReflectionObject
                 return self::formatClass($reflector);
 
-            case $reflector instanceof ReflectionClassConstant:
             case $reflector instanceof \ReflectionClassConstant:
                 return self::formatClassConstant($reflector);
+
+            case $reflector instanceof ReflectionMagicMethod:
+                return self::formatMagicMethod($reflector);
 
             case $reflector instanceof \ReflectionMethod:
                 return self::formatMethod($reflector);
 
+            case $reflector instanceof ReflectionMagicProperty:
+                return self::formatMagicProperty($reflector);
+
             case $reflector instanceof \ReflectionProperty:
                 return self::formatProperty($reflector);
 
-            case $reflector instanceof ReflectionConstant_:
+            case $reflector instanceof ReflectionConstant:
                 return self::formatConstant($reflector);
 
             default:
@@ -63,7 +106,7 @@ class SignatureFormatter implements ReflectorFormatter
     /**
      * Print the signature name.
      *
-     * @param \ReflectionClass|ReflectionClassConstant|\ReflectionClassConstant|\ReflectionFunctionAbstract $reflector
+     * @param \ReflectionClass|\ReflectionClassConstant|\ReflectionFunctionAbstract $reflector
      *
      * @return string Formatted name
      */
@@ -107,11 +150,12 @@ class SignatureFormatter implements ReflectorFormatter
             $chunks[] = $reflector->isInterface() ? 'interface' : 'class';
         }
 
-        $chunks[] = \sprintf('<class>%s</class>', self::formatName($reflector));
+        $chunks[] = LinkFormatter::styleWithHref('class', self::formatName($reflector), self::getManualHref($reflector));
 
         if ($parent = $reflector->getParentClass()) {
             $chunks[] = 'extends';
-            $chunks[] = \sprintf('<class>%s</class>', $parent->getName());
+            $parentHref = self::getManualHref($parent);
+            $chunks[] = LinkFormatter::styleWithHref('class', $parent->getName(), $parentHref);
         }
 
         $interfaces = $reflector->getInterfaceNames();
@@ -120,7 +164,13 @@ class SignatureFormatter implements ReflectorFormatter
 
             $chunks[] = $reflector->isInterface() ? 'extends' : 'implements';
             $chunks[] = \implode(', ', \array_map(function ($name) {
-                return \sprintf('<class>%s</class>', $name);
+                try {
+                    $interfaceHref = self::getManualHref(new \ReflectionClass($name));
+                } catch (\ReflectionException $e) {
+                    $interfaceHref = null;
+                }
+
+                return LinkFormatter::styleWithHref('class', $name, $interfaceHref);
             }, $interfaces));
         }
 
@@ -130,7 +180,7 @@ class SignatureFormatter implements ReflectorFormatter
     /**
      * Format a constant signature.
      *
-     * @param ReflectionClassConstant|\ReflectionClassConstant $reflector
+     * @param \ReflectionClassConstant $reflector
      *
      * @return string Formatted signature
      */
@@ -140,8 +190,8 @@ class SignatureFormatter implements ReflectorFormatter
         $style = self::getTypeStyle($value);
 
         return \sprintf(
-            '<keyword>const</keyword> <const>%s</const> = <%s>%s</%s>',
-            self::formatName($reflector),
+            '<keyword>const</keyword> %s = <%s>%s</%s>',
+            LinkFormatter::styleWithHref('const', self::formatName($reflector), self::getManualHref($reflector)),
             $style,
             OutputFormatter::escape(Json::encode($value)),
             $style
@@ -151,11 +201,11 @@ class SignatureFormatter implements ReflectorFormatter
     /**
      * Format a constant signature.
      *
-     * @param ReflectionConstant_ $reflector
+     * @param ReflectionConstant $reflector
      *
      * @return string Formatted signature
      */
-    private static function formatConstant(ReflectionConstant_ $reflector): string
+    private static function formatConstant(ReflectionConstant $reflector): string
     {
         $value = $reflector->getValue();
         $style = self::getTypeStyle($value);
@@ -213,9 +263,9 @@ class SignatureFormatter implements ReflectorFormatter
     private static function formatFunction(\ReflectionFunctionAbstract $reflector): string
     {
         return \sprintf(
-            '<keyword>function</keyword> %s<function>%s</function>(%s)%s',
+            '<keyword>function</keyword> %s%s(%s)%s',
             $reflector->returnsReference() ? '&' : '',
-            self::formatName($reflector),
+            LinkFormatter::styleWithHref('function', self::formatName($reflector), self::getManualHref($reflector)),
             \implode(', ', self::formatFunctionParams($reflector)),
             self::formatFunctionReturnType($reflector)
         );
@@ -234,7 +284,7 @@ class SignatureFormatter implements ReflectorFormatter
             return '';
         }
 
-        return \sprintf(': %s', self::formatReflectionType($reflector->getReturnType()));
+        return \sprintf(': %s', self::formatReflectionType($reflector->getReturnType(), true));
     }
 
     /**
@@ -254,6 +304,68 @@ class SignatureFormatter implements ReflectorFormatter
     }
 
     /**
+     * Format a magic method signature.
+     *
+     * @param ReflectionMagicMethod $reflector
+     *
+     * @return string Formatted signature
+     */
+    private static function formatMagicMethod(ReflectionMagicMethod $reflector): string
+    {
+        $parts = [];
+
+        $parts[] = self::formatModifiers($reflector);
+        $parts[] = '<keyword>function</keyword>';
+
+        $ref = $reflector->returnsReference() ? '&' : '';
+
+        $signature = \sprintf(
+            '%s<function>%s</function>(%s)',
+            $ref,
+            $reflector->getName(),
+            OutputFormatter::escape($reflector->getParameterString())
+        );
+
+        $returnType = $reflector->getDocblockReturnType();
+        if ($returnType !== null) {
+            $signature .= \sprintf(': <keyword>%s</keyword>', OutputFormatter::escape($returnType));
+        }
+
+        $parts[] = $signature;
+
+        return \implode(' ', \array_filter($parts));
+    }
+
+    /**
+     * Format a magic property signature.
+     *
+     * @param ReflectionMagicProperty $reflector
+     *
+     * @return string Formatted signature
+     */
+    private static function formatMagicProperty(ReflectionMagicProperty $reflector): string
+    {
+        $parts = [];
+
+        $parts[] = self::formatModifiers($reflector);
+
+        $type = $reflector->getDocblockType();
+        if ($type !== null) {
+            $parts[] = \sprintf('<keyword>%s</keyword>', OutputFormatter::escape($type));
+        }
+
+        $parts[] = \sprintf('<strong>$%s</strong>', $reflector->getName());
+
+        if ($reflector->isReadOnly()) {
+            $parts[] = '<aside>(read-only)</aside>';
+        } elseif ($reflector->isWriteOnly()) {
+            $parts[] = '<aside>(write-only)</aside>';
+        }
+
+        return \implode(' ', \array_filter($parts));
+    }
+
+    /**
      * Print the function params.
      *
      * @param \ReflectionFunctionAbstract $reflector
@@ -267,12 +379,14 @@ class SignatureFormatter implements ReflectorFormatter
             $hint = '';
             try {
                 if (\method_exists($param, 'getType')) {
-                    $hint = self::formatReflectionType($param->getType());
+                    // Only include the inquisitive nullable type iff param default value is not null.
+                    $defaultIsNull = $param->isOptional() && $param->isDefaultValueAvailable() && @$param->getDefaultValue() === null;
+                    $hint = self::formatReflectionType($param->getType(), !$defaultIsNull);
                 } else {
                     if ($param->isArray()) {
                         $hint = '<keyword>array</keyword>';
                     } elseif ($class = $param->getClass()) {
-                        $hint = \sprintf('<class>%s</class>', $class->getName());
+                        $hint = LinkFormatter::styleWithHref('class', $class->getName(), self::getManualHref($class));
                     }
                 }
             } catch (\Throwable $e) {
@@ -296,7 +410,7 @@ class SignatureFormatter implements ReflectorFormatter
                     $value = 'unknown';
                     $typeStyle = 'urgent';
                 } else {
-                    $value = $param->getDefaultValue();
+                    $value = @$param->getDefaultValue();
                     $typeStyle = self::getTypeStyle($value);
                     $value = \is_array($value) ? '[]' : ($value === null ? 'null' : \var_export($value, true));
                 }
@@ -321,27 +435,148 @@ class SignatureFormatter implements ReflectorFormatter
     /**
      * Print function param or return type(s).
      *
-     * @param \ReflectionType $type
+     * @param \ReflectionType|null $type
      */
-    private static function formatReflectionType(\ReflectionType $type = null): string
+    private static function formatReflectionType(?\ReflectionType $type, bool $indicateNullable): string
     {
         if ($type === null) {
             return '';
         }
 
-        $types = $type instanceof \ReflectionUnionType ? $type->getTypes() : [$type];
-        $formattedTypes = [];
-
-        foreach ($types as $type) {
-            $typeStyle = $type->isBuiltin() ? 'keyword' : 'class';
-
-            // PHP 7.0 didn't have `getName` on reflection types, so wheee!
-            $typeName = \method_exists($type, 'getName') ? $type->getName() : (string) $type;
-
-            // @todo Do we want to include the ? for nullable types? Maybe only sometimes?
-            $formattedTypes[] = \sprintf('<%s>%s</%s>', $typeStyle, OutputFormatter::escape($typeName), $typeStyle);
+        if ($type instanceof \ReflectionUnionType) {
+            $delimeter = '|';
+        } elseif ($type instanceof \ReflectionIntersectionType) {
+            $delimeter = '&';
+        } else {
+            return self::formatReflectionNamedType($type, $indicateNullable);
         }
 
-        return \implode('|', $formattedTypes);
+        $formattedTypes = [];
+        foreach ($type->getTypes() as $namedType) {
+            $formattedTypes[] = self::formatReflectionNamedType($namedType, $indicateNullable);
+        }
+
+        return \implode($delimeter, $formattedTypes);
+    }
+
+    /**
+     * Print a single named type.
+     */
+    private static function formatReflectionNamedType(\ReflectionNamedType $type, bool $indicateNullable): string
+    {
+        $nullable = $indicateNullable && $type->allowsNull() ? '?' : '';
+        $typeName = $type->getName();
+
+        if ($type->isBuiltin()) {
+            return \sprintf('<keyword>%s%s</keyword>', $nullable, OutputFormatter::escape($typeName));
+        }
+
+        // Non-builtin type is a class - try to get href for it
+        $href = null;
+        try {
+            $classReflector = new \ReflectionClass($typeName);
+            $href = self::getManualHref($classReflector);
+        } catch (\ReflectionException $e) {
+            // Class doesn't exist or can't be reflected, no href
+        }
+
+        return $nullable.LinkFormatter::styleWithHref('class', $typeName, $href);
+    }
+
+    /**
+     * Wrap text in a style tag, optionally including an href.
+     *
+     * @deprecated use LinkFormatter::styleWithHref directly
+     *
+     * @param string      $style The style name (e.g., 'class', 'function')
+     * @param string      $text  The text to wrap
+     * @param string|null $href  Optional hyperlink URL
+     *
+     * @return string Formatted text with style and optional href
+     */
+    private static function styleWithHref(string $style, string $text, ?string $href = null): string
+    {
+        return LinkFormatter::styleWithHref($style, $text, $href);
+    }
+
+    /**
+     * Get a hyperlink URL for a reflector if it's in the PHP manual.
+     *
+     * @param \Reflector $reflector
+     *
+     * @return string|null URL to php.net or null if not in manual
+     */
+    private static function getManualHref(\Reflector $reflector): ?string
+    {
+        // If it's not in the manual, assume it's not on php.net
+        if (!self::getManualDoc($reflector)) {
+            return null;
+        }
+
+        switch (\get_class($reflector)) {
+            case \ReflectionClass::class:
+            case \ReflectionObject::class:
+            case \ReflectionFunction::class:
+                $query = $reflector->name;
+                break;
+
+            case \ReflectionMethod::class:
+                $query = $reflector->class.'.'.$reflector->name;
+                break;
+
+            case \ReflectionProperty::class:
+            case \ReflectionClassConstant::class:
+                // No simple redirect URLs for properties/constants, link to class instead
+                $query = $reflector->class;
+                break;
+
+            default:
+                return null;
+        }
+
+        return \sprintf('https://php.net/%s', $query);
+    }
+
+    /**
+     * Get manual documentation for a reflector.
+     *
+     * @param \Reflector $reflector
+     *
+     * @return string|array|false Documentation string or structured data, or false if not found
+     */
+    private static function getManualDoc(\Reflector $reflector)
+    {
+        if (!self::$manual) {
+            return false;
+        }
+
+        switch (\get_class($reflector)) {
+            case \ReflectionClass::class:
+            case \ReflectionObject::class:
+            case \ReflectionFunction::class:
+                $id = $reflector->name;
+                break;
+
+            case \ReflectionMethod::class:
+                $id = $reflector->class.'::'.$reflector->name;
+                break;
+
+            case \ReflectionProperty::class:
+                $id = $reflector->class.'::$'.$reflector->name;
+                break;
+
+            case \ReflectionClassConstant::class:
+                $id = $reflector->class.'::'.$reflector->name;
+                break;
+
+            case ReflectionConstant::class:
+                $id = $reflector->name;
+                break;
+
+            default:
+                return false;
+        }
+
+        return self::$manual->get($id) ?? false;
     }
 }

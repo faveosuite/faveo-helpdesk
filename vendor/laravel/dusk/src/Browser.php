@@ -449,6 +449,30 @@ class Browser
     }
 
     /**
+     * Take a screenshot of a specific element and store it with the given name.
+     *
+     * @param  string  $selector
+     * @param  string  $name
+     * @return $this
+     */
+    public function screenshotElement($selector, $name)
+    {
+        $filePath = sprintf('%s/%s.png', rtrim(static::$storeScreenshotsAt, '/'), $name);
+
+        $directoryPath = dirname($filePath);
+
+        if (! is_dir($directoryPath)) {
+            mkdir($directoryPath, 0777, true);
+        }
+
+        $this->scrollIntoView($selector)
+            ->driver->findElement(WebDriverBy::cssSelector($this->resolver->format($selector)))
+            ->takeElementScreenshot($filePath);
+
+        return $this;
+    }
+
+    /**
      * Store the console output with the given name.
      *
      * @param  string  $name
@@ -460,8 +484,16 @@ class Browser
             $console = $this->driver->manage()->getLog('browser');
 
             if (! empty($console)) {
+                $filePath = sprintf('%s/%s.log', rtrim(static::$storeConsoleLogAt, '/'), $name);
+
+                $directoryPath = dirname($filePath);
+
+                if (! is_dir($directoryPath)) {
+                    mkdir($directoryPath, 0777, true);
+                }
+
                 file_put_contents(
-                    sprintf('%s/%s.log', rtrim(static::$storeConsoleLogAt, '/'), $name), json_encode($console, JSON_PRETTY_PRINT)
+                    $filePath, json_encode($console, JSON_PRETTY_PRINT)
                 );
             }
         }
@@ -480,9 +512,15 @@ class Browser
         $source = $this->driver->getPageSource();
 
         if (! empty($source)) {
-            file_put_contents(
-                sprintf('%s/%s.txt', rtrim(static::$storeSourceAt, '/'), $name), $source
-            );
+            $filePath = sprintf('%s/%s.txt', rtrim(static::$storeSourceAt, '/'), $name);
+
+            $directoryPath = dirname($filePath);
+
+            if (! is_dir($directoryPath)) {
+                mkdir($directoryPath, 0777, true);
+            }
+
+            file_put_contents($filePath, $source);
         }
 
         return $this;
@@ -583,6 +621,27 @@ class Browser
         return $this->elsewhere('', function ($browser) use ($selector, $callback, $seconds) {
             $browser->whenAvailable($selector, $callback, $seconds);
         });
+    }
+
+    /**
+     * Return a browser scoped to the given component.
+     *
+     * @param  \Laravel\Dusk\Component  $component
+     * @return \Laravel\Dusk\Browser
+     */
+    public function component(Component $component)
+    {
+        $browser = new static(
+            $this->driver, new ElementResolver($this->driver, $this->resolver->format($component))
+        );
+
+        if ($this->page) {
+            $browser->onWithoutAssert($this->page);
+        }
+
+        $browser->onComponent($component, $this->resolver);
+
+        return $browser;
     }
 
     /**
@@ -693,11 +752,27 @@ class Browser
     /**
      * Dump the content from the last response.
      *
-     * @return void
+     * @return $this
      */
     public function dump()
     {
-        dd($this->driver->getPageSource());
+        dump($this->driver->getPageSource());
+
+        return $this;
+    }
+
+    /**
+     * Dump and die the content from the last response.
+     *
+     * @return void
+     */
+    public function dd()
+    {
+        dump($this->driver->getPageSource());
+
+        $this->quit();
+
+        exit;
     }
 
     /**
@@ -707,7 +782,7 @@ class Browser
      */
     public function tinker()
     {
-        \Psy\Shell::debug([
+        \Psy\debug([
             'browser' => $this,
             'driver' => $this->driver,
             'resolver' => $this->resolver,

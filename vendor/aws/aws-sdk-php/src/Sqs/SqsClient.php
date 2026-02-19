@@ -9,7 +9,7 @@ use GuzzleHttp\Psr7\UriResolver;
 use Psr\Http\Message\RequestInterface;
 
 /**
- * Client used to interact Amazon Simple Queue Service (Amazon SQS)
+ * Client used to interact with **Amazon Simple Queue Service (Amazon SQS)**.
  *
  * @method \Aws\Result addPermission(array $args = [])
  * @method \GuzzleHttp\Promise\Promise addPermissionAsync(array $args = [])
@@ -169,7 +169,7 @@ class SqsClient extends AwsClient
         return static function (callable $handler) {
             return function (
                 CommandInterface $c,
-                RequestInterface $r = null
+                ?RequestInterface $r = null
             ) use ($handler) {
                 if ($c->getName() !== 'ReceiveMessage') {
                     return $handler($c, $r);

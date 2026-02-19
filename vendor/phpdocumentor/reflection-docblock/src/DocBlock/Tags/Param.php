@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace phpDocumentor\Reflection\DocBlock\Tags;
 
+use Doctrine\Deprecations\Deprecation;
 use phpDocumentor\Reflection\DocBlock\Description;
 use phpDocumentor\Reflection\DocBlock\DescriptionFactory;
 use phpDocumentor\Reflection\Type;
@@ -34,14 +35,13 @@ use const PREG_SPLIT_DELIM_CAPTURE;
  */
 final class Param extends TagWithType implements Factory\StaticMethod
 {
-    /** @var string|null */
-    private $variableName;
+    private ?string $variableName = null;
 
     /** @var bool determines whether this is a variadic argument */
-    private $isVariadic;
+    private bool $isVariadic;
 
     /** @var bool determines whether this is passed by reference */
-    private $isReference;
+    private bool $isReference;
 
     public function __construct(
         ?string $variableName,
@@ -58,12 +58,23 @@ final class Param extends TagWithType implements Factory\StaticMethod
         $this->isReference  = $isReference;
     }
 
+    /**
+     * @deprecated Create using static factory is deprecated,
+     *  this method should not be called directly by library consumers
+     */
     public static function create(
         string $body,
         ?TypeResolver $typeResolver = null,
         ?DescriptionFactory $descriptionFactory = null,
         ?TypeContext $context = null
     ): self {
+        Deprecation::triggerIfCalledFromOutside(
+            'phpdocumentor/reflection-docblock',
+            'https://github.com/phpDocumentor/ReflectionDocBlock/issues/361',
+            'Create using static factory is deprecated, this method should not be called directly
+             by library consumers',
+        );
+
         Assert::stringNotEmpty($body);
         Assert::notNull($typeResolver);
         Assert::notNull($descriptionFactory);
@@ -149,7 +160,7 @@ final class Param extends TagWithType implements Factory\StaticMethod
         }
 
         $variableName = '';
-        if ($this->variableName) {
+        if ($this->variableName !== null && $this->variableName !== '') {
             $variableName .= ($this->isReference ? '&' : '') . ($this->isVariadic ? '...' : '');
             $variableName .= '$' . $this->variableName;
         }

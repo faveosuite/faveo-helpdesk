@@ -20,7 +20,6 @@ class InvokedProcess implements InvokedProcessContract
      * Create a new invoked process instance.
      *
      * @param  \Symfony\Component\Process\Process  $process
-     * @return void
      */
     public function __construct(Process $process)
     {
@@ -38,6 +37,16 @@ class InvokedProcess implements InvokedProcessContract
     }
 
     /**
+     * Get the command line for the process.
+     *
+     * @return string
+     */
+    public function command()
+    {
+        return $this->process->getCommandLine();
+    }
+
+    /**
      * Send a signal to the process.
      *
      * @param  int  $signal
@@ -48,6 +57,18 @@ class InvokedProcess implements InvokedProcessContract
         $this->process->signal($signal);
 
         return $this;
+    }
+
+    /**
+     * Stop the process if it is still running.
+     *
+     * @param  float  $timeout
+     * @param  int|null  $signal
+     * @return int|null
+     */
+    public function stop(float $timeout = 10, ?int $signal = null)
+    {
+        return $this->process->stop($timeout, $signal);
     }
 
     /**
@@ -101,6 +122,22 @@ class InvokedProcess implements InvokedProcessContract
     }
 
     /**
+     * Ensure that the process has not timed out.
+     *
+     * @return void
+     *
+     * @throws \Illuminate\Process\Exceptions\ProcessTimedOutException
+     */
+    public function ensureNotTimedOut()
+    {
+        try {
+            $this->process->checkTimeout();
+        } catch (SymfonyTimeoutException $e) {
+            throw new ProcessTimedOutException($e, new ProcessResult($this->process));
+        }
+    }
+
+    /**
      * Wait for the process to finish.
      *
      * @param  callable|null  $output
@@ -108,10 +145,29 @@ class InvokedProcess implements InvokedProcessContract
      *
      * @throws \Illuminate\Process\Exceptions\ProcessTimedOutException
      */
-    public function wait(callable $output = null)
+    public function wait(?callable $output = null)
     {
         try {
             $this->process->wait($output);
+
+            return new ProcessResult($this->process);
+        } catch (SymfonyTimeoutException $e) {
+            throw new ProcessTimedOutException($e, new ProcessResult($this->process));
+        }
+    }
+
+    /**
+     * Wait until the given callback returns true.
+     *
+     * @param  callable|null  $output
+     * @return \Illuminate\Process\ProcessResult
+     *
+     * @throws \Illuminate\Process\Exceptions\ProcessTimedOutException
+     */
+    public function waitUntil(?callable $output = null)
+    {
+        try {
+            $this->process->waitUntil($output);
 
             return new ProcessResult($this->process);
         } catch (SymfonyTimeoutException $e) {

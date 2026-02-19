@@ -11,6 +11,7 @@
 
 namespace Monolog\Handler;
 
+use DateTimeZone;
 use InvalidArgumentException;
 use Monolog\Level;
 use Monolog\Utils;
@@ -37,18 +38,20 @@ class RotatingFileHandler extends StreamHandler
     protected \DateTimeImmutable $nextRotation;
     protected string $filenameFormat;
     protected string $dateFormat;
+    protected DateTimeZone|null $timezone = null;
 
     /**
      * @param int      $maxFiles       The maximal amount of files to keep (0 means unlimited)
      * @param int|null $filePermission Optional file permissions (default (0644) are only for owner read/write)
      * @param bool     $useLocking     Try to lock log file before doing any writes
      */
-    public function __construct(string $filename, int $maxFiles = 0, int|string|Level $level = Level::Debug, bool $bubble = true, ?int $filePermission = null, bool $useLocking = false, string $dateFormat = self::FILE_PER_DAY, string $filenameFormat  = '{filename}-{date}')
+    public function __construct(string $filename, int $maxFiles = 0, int|string|Level $level = Level::Debug, bool $bubble = true, ?int $filePermission = null, bool $useLocking = false, string $dateFormat = self::FILE_PER_DAY, string $filenameFormat  = '{filename}-{date}', DateTimeZone|null $timezone = null)
     {
         $this->filename = Utils::canonicalizePath($filename);
         $this->maxFiles = $maxFiles;
         $this->setFilenameFormat($filenameFormat, $dateFormat);
         $this->nextRotation = $this->getNextRotation();
+        $this->timezone = $timezone;
 
         parent::__construct($this->getTimedFilename(), $level, $bubble, $filePermission, $useLocking);
     }
@@ -71,10 +74,6 @@ class RotatingFileHandler extends StreamHandler
     public function reset(): void
     {
         parent::reset();
-
-        if (true === $this->mustRotate) {
-            $this->rotate();
-        }
     }
 
     /**
@@ -100,17 +99,22 @@ class RotatingFileHandler extends StreamHandler
      */
     protected function write(LogRecord $record): void
     {
-        // on the first record written, if the log is new, we should rotate (once per day)
+        // on the first record written, if the log is new, we rotate (once per day) after the log has been written so that the new file exists
         if (null === $this->mustRotate) {
             $this->mustRotate = null === $this->url || !file_exists($this->url);
         }
 
+        // if the next rotation is expired, then we rotate immediately
         if ($this->nextRotation <= $record->datetime) {
             $this->mustRotate = true;
-            $this->close();
+            $this->close(); // triggers rotation
         }
 
         parent::write($record);
+
+        if (true === $this->mustRotate) {
+            $this->close(); // triggers rotation
+        }
     }
 
     /**
@@ -121,6 +125,8 @@ class RotatingFileHandler extends StreamHandler
         // update filename
         $this->url = $this->getTimedFilename();
         $this->nextRotation = $this->getNextRotation();
+
+        $this->mustRotate = false;
 
         // skip GC of old logs if files are unlimited
         if (0 === $this->maxFiles) {
@@ -133,7 +139,7 @@ class RotatingFileHandler extends StreamHandler
             return;
         }
 
-        if ($this->maxFiles >= count($logFiles)) {
+        if ($this->maxFiles >= \count($logFiles)) {
             // no files to remove
             return;
         }
@@ -143,19 +149,30 @@ class RotatingFileHandler extends StreamHandler
             return strcmp($b, $a);
         });
 
-        foreach (array_slice($logFiles, $this->maxFiles) as $file) {
+        $basePath = dirname($this->filename);
+
+        foreach (\array_slice($logFiles, $this->maxFiles) as $file) {
             if (is_writable($file)) {
                 // suppress errors here as unlink() might fail if two processes
                 // are cleaning up/rotating at the same time
                 set_error_handler(function (int $errno, string $errstr, string $errfile, int $errline): bool {
-                    return false;
+                    return true;
                 });
                 unlink($file);
+
+                $dir = dirname($file);
+                while ($dir !== $basePath) {
+                    $entries = scandir($dir);
+                    if ($entries === false || \count(array_diff($entries, ['.', '..'])) > 0) {
+                        break;
+                    }
+
+                    rmdir($dir);
+                    $dir = dirname($dir);
+                }
                 restore_error_handler();
             }
         }
-
-        $this->mustRotate = false;
     }
 
     protected function getTimedFilename(): string
@@ -163,7 +180,7 @@ class RotatingFileHandler extends StreamHandler
         $fileInfo = pathinfo($this->filename);
         $timedFilename = str_replace(
             ['{filename}', '{date}'],
-            [$fileInfo['filename'], date($this->dateFormat)],
+            [$fileInfo['filename'], (new \DateTimeImmutable(timezone: $this->timezone))->format($this->dateFormat)],
             ($fileInfo['dirname'] ?? '') . '/' . $this->filenameFormat
         );
 
@@ -182,8 +199,8 @@ class RotatingFileHandler extends StreamHandler
             [$fileInfo['filename'], str_replace(
                 ['Y', 'y', 'm', 'd'],
                 ['[0-9][0-9][0-9][0-9]', '[0-9][0-9]', '[0-9][0-9]', '[0-9][0-9]'],
-                $this->dateFormat)
-            ],
+                $this->dateFormat
+            )],
             ($fileInfo['dirname'] ?? '') . '/' . $this->filenameFormat
         );
         if (isset($fileInfo['extension'])) {

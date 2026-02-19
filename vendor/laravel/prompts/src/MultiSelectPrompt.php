@@ -42,8 +42,9 @@ class MultiSelectPrompt extends Prompt
         array|Collection $default = [],
         public int $scroll = 5,
         public bool|string $required = false,
-        public ?Closure $validate = null,
-        public string $hint = ''
+        public mixed $validate = null,
+        public string $hint = '',
+        public ?Closure $transform = null,
     ) {
         $this->options = $options instanceof Collection ? $options->all() : $options;
         $this->default = $default instanceof Collection ? $default->all() : $default;
@@ -54,9 +55,10 @@ class MultiSelectPrompt extends Prompt
         $this->on('key', fn ($key) => match ($key) {
             Key::UP, Key::UP_ARROW, Key::LEFT, Key::LEFT_ARROW, Key::SHIFT_TAB, Key::CTRL_P, Key::CTRL_B, 'k', 'h' => $this->highlightPrevious(count($this->options)),
             Key::DOWN, Key::DOWN_ARROW, Key::RIGHT, Key::RIGHT_ARROW, Key::TAB, Key::CTRL_N, Key::CTRL_F, 'j', 'l' => $this->highlightNext(count($this->options)),
-            Key::oneOf([Key::HOME, Key::CTRL_A], $key) => $this->highlight(0),
-            Key::oneOf([Key::END, Key::CTRL_E], $key) => $this->highlight(count($this->options) - 1),
+            Key::oneOf(Key::HOME, $key) => $this->highlight(0),
+            Key::oneOf(Key::END, $key) => $this->highlight(count($this->options) - 1),
             Key::SPACE => $this->toggleHighlighted(),
+            Key::CTRL_A => $this->toggleAll(),
             Key::ENTER => $this->submit(),
             default => null,
         });
@@ -114,6 +116,20 @@ class MultiSelectPrompt extends Prompt
     public function isSelected(string $value): bool
     {
         return in_array($value, $this->values);
+    }
+
+    /**
+     * Toggle all options.
+     */
+    protected function toggleAll(): void
+    {
+        if (count($this->values) === count($this->options)) {
+            $this->values = [];
+        } else {
+            $this->values = array_is_list($this->options)
+                ? array_values($this->options)
+                : array_keys($this->options);
+        }
     }
 
     /**

@@ -2,7 +2,89 @@
 
 All notable changes in `sebastianbergmann/environment` are documented in this file using the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
-## [5.1.5] - 2023-02-03
+## [8.0.3] - 2025-08-12
+
+### Changed
+
+* [#75](https://github.com/sebastianbergmann/environment/pull/75): Make `Runtime::isOpcacheActive()` public
+
+## [8.0.2] - 2025-05-21
+
+### Fixed
+
+* [#74](https://github.com/sebastianbergmann/environment/pull/74): Regression introduced in version 8.0.0
+
+## [8.0.1] - 2025-05-21
+
+### Fixed
+
+* Take Xdebug mode into account for `Runtime::canCollectCodeCoverage()`
+
+## [8.0.0] - 2025-02-07
+
+### Removed
+
+* This component is no longer supported on PHP 8.2
+
+## [7.2.1] - 2025-05-21
+
+### Fixed
+
+* Take Xdebug mode into account for `Runtime::canCollectCodeCoverage()`
+
+## [7.2.0] - 2024-07-03
+
+### Changed
+
+* Synced `Console::hasColorSupport()` with Symfony's `StreamOutput::hasColorSupport()` implementation
+* Removed code left over from a time before PHP 5.4 and when HHVM was still supported
+* This project now uses PHPStan instead of Psalm for static analysis
+
+### Deprecated
+
+* The `Runtime::getBinary()` method is now deprecated, use `escapeshellarg(PHP_BINARY)` instead
+* The `Runtime::getRawBinary()` method is now deprecated, use the `PHP_BINARY` constant instead
+
+## [7.1.0] - 2024-03-23
+
+### Added
+
+* [#72](https://github.com/sebastianbergmann/environment/pull/72): `Runtime::getRawBinary()`
+
+## [7.0.0] - 2024-02-02
+
+### Removed
+
+* This component is no longer supported on PHP 8.1
+
+## [6.1.1] - 2024-MM-DD
+
+### Changed
+
+* Synced `Console::hasColorSupport()` with Symfony's `StreamOutput::hasColorSupport()` implementation
+
+## [6.1.0] - 2024-03-23
+
+### Added
+
+* [#72](https://github.com/sebastianbergmann/environment/pull/72): `Runtime::getRawBinary()`
+
+## [6.0.1] - 2023-04-11
+
+### Fixed
+
+* [#68](https://github.com/sebastianbergmann/environment/pull/68): The Just-in-Time compiler is disabled when `opcache.jit_buffer_size` is set to `0`
+* [#70](https://github.com/sebastianbergmann/environment/pull/70): The first `0` of `opcache.jit` only disables CPU-specific optimizations, not the Just-in-Time compiler itself
+
+## [6.0.0] - 2023-02-03
+
+### Removed
+
+* Removed `SebastianBergmann\Environment\OperatingSystem::getFamily()` because this component is no longer supported on PHP versions that do not have `PHP_OS_FAMILY`
+* Removed `SebastianBergmann\Environment\Runtime::isHHVM()`
+* This component is no longer supported on PHP 7.3, PHP 7.4, and PHP 8.0
+
+## [5.1.5] - 2022-MM-DD
 
 ### Fixed
 
@@ -157,6 +239,18 @@ All notable changes in `sebastianbergmann/environment` are documented in this fi
 
 * This component is no longer supported on PHP 5.6
 
+[8.0.3]: https://github.com/sebastianbergmann/environment/compare/8.0.2...8.0.3
+[8.0.2]: https://github.com/sebastianbergmann/environment/compare/8.0.1...8.0.2
+[8.0.1]: https://github.com/sebastianbergmann/environment/compare/8.0.0...8.0.1
+[8.0.0]: https://github.com/sebastianbergmann/environment/compare/7.2...8.0.0
+[7.2.1]: https://github.com/sebastianbergmann/environment/compare/7.2.0...7.2.1
+[7.2.0]: https://github.com/sebastianbergmann/environment/compare/7.1.0...7.2.0
+[7.1.0]: https://github.com/sebastianbergmann/environment/compare/7.0.0...7.1.0
+[7.0.0]: https://github.com/sebastianbergmann/environment/compare/6.1...7.0.0
+[6.1.1]: https://github.com/sebastianbergmann/environment/compare/6.1.0...6.1
+[6.1.0]: https://github.com/sebastianbergmann/environment/compare/6.0.1...6.1.0
+[6.0.1]: https://github.com/sebastianbergmann/environment/compare/6.0.0...6.0.1
+[6.0.0]: https://github.com/sebastianbergmann/environment/compare/5.1.5...6.0.0
 [5.1.5]: https://github.com/sebastianbergmann/environment/compare/5.1.4...5.1.5
 [5.1.4]: https://github.com/sebastianbergmann/environment/compare/5.1.3...5.1.4
 [5.1.3]: https://github.com/sebastianbergmann/environment/compare/5.1.2...5.1.3

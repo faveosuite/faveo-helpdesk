@@ -30,27 +30,7 @@ class PostgresProcessor extends Processor
         return is_numeric($id) ? (int) $id : $id;
     }
 
-    /**
-     * Process the results of a column listing query.
-     *
-     * @deprecated Will be removed in a future Laravel version.
-     *
-     * @param  array  $results
-     * @return array
-     */
-    public function processColumnListing($results)
-    {
-        return array_map(function ($result) {
-            return ((object) $result)->column_name;
-        }, $results);
-    }
-
-    /**
-     * Process the results of a types query.
-     *
-     * @param  array  $results
-     * @return array
-     */
+    /** @inheritDoc */
     public function processTypes($results)
     {
         return array_map(function ($result) {
@@ -59,6 +39,7 @@ class PostgresProcessor extends Processor
             return [
                 'name' => $result->name,
                 'schema' => $result->schema,
+                'schema_qualified_name' => $result->schema.'.'.$result->name,
                 'implicit' => (bool) $result->implicit,
                 'type' => match (strtolower($result->type)) {
                     'b' => 'base',
@@ -93,12 +74,7 @@ class PostgresProcessor extends Processor
         }, $results);
     }
 
-    /**
-     * Process the results of a columns query.
-     *
-     * @param  array  $results
-     * @return array
-     */
+    /** @inheritDoc */
     public function processColumns($results)
     {
         return array_map(function ($result) {
@@ -107,24 +83,27 @@ class PostgresProcessor extends Processor
             $autoincrement = $result->default !== null && str_starts_with($result->default, 'nextval(');
 
             return [
-                'name' => str_starts_with($result->name, '"') ? str_replace('"', '', $result->name) : $result->name,
+                'name' => $result->name,
                 'type_name' => $result->type_name,
                 'type' => $result->type,
                 'collation' => $result->collation,
                 'nullable' => (bool) $result->nullable,
-                'default' => $autoincrement ? null : $result->default,
+                'default' => $result->generated ? null : $result->default,
                 'auto_increment' => $autoincrement,
                 'comment' => $result->comment,
+                'generation' => $result->generated ? [
+                    'type' => match ($result->generated) {
+                        's' => 'stored',
+                        'v' => 'virtual',
+                        default => null,
+                    },
+                    'expression' => $result->default,
+                ] : null,
             ];
         }, $results);
     }
 
-    /**
-     * Process the results of an indexes query.
-     *
-     * @param  array  $results
-     * @return array
-     */
+    /** @inheritDoc */
     public function processIndexes($results)
     {
         return array_map(function ($result) {
@@ -132,7 +111,7 @@ class PostgresProcessor extends Processor
 
             return [
                 'name' => strtolower($result->name),
-                'columns' => explode(',', $result->columns),
+                'columns' => $result->columns ? explode(',', $result->columns) : [],
                 'type' => strtolower($result->type),
                 'unique' => (bool) $result->unique,
                 'primary' => (bool) $result->primary,
@@ -140,12 +119,7 @@ class PostgresProcessor extends Processor
         }, $results);
     }
 
-    /**
-     * Process the results of a foreign keys query.
-     *
-     * @param  array  $results
-     * @return array
-     */
+    /** @inheritDoc */
     public function processForeignKeys($results)
     {
         return array_map(function ($result) {

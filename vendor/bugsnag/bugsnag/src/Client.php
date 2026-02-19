@@ -123,9 +123,9 @@ class Client implements FeatureDataStore
      */
     public function __construct(
         Configuration $config,
-        ResolverInterface $resolver = null,
-        GuzzleHttp\ClientInterface $guzzle = null,
-        ShutdownStrategyInterface $shutdownStrategy = null
+        $resolver = null,
+        $guzzle = null,
+        $shutdownStrategy = null
     ) {
         $guzzle = $guzzle ?: self::makeGuzzle();
 
@@ -271,10 +271,10 @@ class Client implements FeatureDataStore
     public function registerDefaultCallbacks()
     {
         $this->registerCallback(new GlobalMetaData($this->config))
-             ->registerCallback(new RequestMetaData($this->resolver))
-             ->registerCallback(new RequestSession($this->resolver))
-             ->registerCallback(new RequestUser($this->resolver))
-             ->registerCallback(new RequestContext($this->resolver));
+            ->registerCallback(new RequestMetaData($this->resolver))
+            ->registerCallback(new RequestSession($this->resolver))
+            ->registerCallback(new RequestUser($this->resolver))
+            ->registerCallback(new RequestContext($this->resolver));
 
         return $this;
     }
@@ -327,7 +327,7 @@ class Client implements FeatureDataStore
      *
      * @return void
      */
-    public function notifyException($throwable, callable $callback = null)
+    public function notifyException($throwable, $callback = null)
     {
         $report = Report::fromPHPThrowable($this->config, $throwable);
 
@@ -343,7 +343,7 @@ class Client implements FeatureDataStore
      *
      * @return void
      */
-    public function notifyError($name, $message, callable $callback = null)
+    public function notifyError($name, $message, $callback = null)
     {
         $report = Report::fromNamedError($this->config, $name, $message);
 
@@ -360,7 +360,7 @@ class Client implements FeatureDataStore
      *
      * @return void
      */
-    public function notify(Report $report, callable $callback = null)
+    public function notify(Report $report, $callback = null)
     {
         $this->pipeline->execute($report, function ($report) use ($callback) {
             if ($callback) {
@@ -511,7 +511,7 @@ class Client implements FeatureDataStore
      *
      * @return $this
      */
-    public function setNotifyReleaseStages(array $notifyReleaseStages = null)
+    public function setNotifyReleaseStages($notifyReleaseStages = null)
     {
         $this->config->setNotifyReleaseStages($notifyReleaseStages);
 

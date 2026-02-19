@@ -20,51 +20,28 @@ use PhpSpec\Specification;
 use PhpSpec\Runner\MatcherManager;
 use PhpSpec\Runner\CollaboratorManager;
 use PhpSpec\Formatter\Presenter\Presenter;
+use PhpSpec\Wrapper\SubjectContainer;
 use PhpSpec\Wrapper\Unwrapper;
 use PhpSpec\Wrapper\Wrapper;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 final class SubjectMaintainer implements Maintainer
 {
-    /**
-     * @var Presenter
-     */
-    private $presenter;
-    /**
-     * @var Unwrapper
-     */
-    private $unwrapper;
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $dispatcher;
-    /**
-     * @var AccessInspector
-     */
-    private $accessInspector;
-
-    
     public function __construct(
-        Presenter $presenter,
-        Unwrapper $unwrapper,
-        EventDispatcherInterface $dispatcher,
-        AccessInspector $accessInspector
+        private Presenter $presenter,
+        private Unwrapper $unwrapper,
+        private EventDispatcherInterface $dispatcher,
+        private AccessInspector $accessInspector
     ) {
-        $this->presenter = $presenter;
-        $this->unwrapper = $unwrapper;
-        $this->dispatcher = $dispatcher;
-        $this->accessInspector = $accessInspector;
     }
 
-    
     public function supports(ExampleNode $example): bool
     {
         return $example->getSpecification()->getClassReflection()->implementsInterface(
-            'PhpSpec\Wrapper\SubjectContainer'
+            SubjectContainer::class
         );
     }
 
-    
     public function prepare(
         ExampleNode $example,
         Specification $context,
@@ -82,7 +59,6 @@ final class SubjectMaintainer implements Maintainer
         }
     }
 
-    
     public function teardown(
         ExampleNode $example,
         Specification $context,
@@ -91,7 +67,6 @@ final class SubjectMaintainer implements Maintainer
     ): void {
     }
 
-    
     public function getPriority(): int
     {
         return 100;

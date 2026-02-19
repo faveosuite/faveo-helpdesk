@@ -3,9 +3,9 @@
 namespace Spatie\LaravelIgnition\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Spatie\Ignition\Contracts\RunnableSolution;
-use Spatie\Ignition\Contracts\Solution;
-use Spatie\Ignition\Contracts\SolutionProviderRepository;
+use Spatie\ErrorSolutions\Contracts\RunnableSolution;
+use Spatie\ErrorSolutions\Contracts\Solution;
+use Spatie\ErrorSolutions\Contracts\SolutionProviderRepository;
 
 class ExecuteSolutionRequest extends FormRequest
 {
@@ -20,7 +20,7 @@ class ExecuteSolutionRequest extends FormRequest
     public function getSolution(): Solution
     {
         $solution = app(SolutionProviderRepository::class)
-            ->getSolutionForClass($this->get('solution'));
+            ->getSolutionForClass($this->input('solution'));
 
         abort_if(is_null($solution), 404, 'Solution could not be found');
 

@@ -11,18 +11,17 @@ use LogicException;
 use Traversable;
 
 use function array_shift;
-use function func_num_args;
+use function assert;
+use function count;
+use function get_debug_type;
+use function method_exists;
+use function sprintf;
 
 class Result
 {
-    private DriverResult $result;
-    private Connection $connection;
-
     /** @internal The result can be only instantiated by {@see Connection} or {@see Statement}. */
-    public function __construct(DriverResult $result, Connection $connection)
+    public function __construct(private readonly DriverResult $result, private readonly Connection $connection)
     {
-        $this->result     = $result;
-        $this->connection = $connection;
     }
 
     /**
@@ -32,7 +31,7 @@ class Result
      *
      * @throws Exception
      */
-    public function fetchNumeric()
+    public function fetchNumeric(): array|false
     {
         try {
             return $this->result->fetchNumeric();
@@ -48,7 +47,7 @@ class Result
      *
      * @throws Exception
      */
-    public function fetchAssociative()
+    public function fetchAssociative(): array|false
     {
         try {
             return $this->result->fetchAssociative();
@@ -60,11 +59,9 @@ class Result
     /**
      * Returns the first value of the next row of the result or FALSE if there are no more rows.
      *
-     * @return mixed|false
-     *
      * @throws Exception
      */
-    public function fetchOne()
+    public function fetchOne(): mixed
     {
         try {
             return $this->result->fetchOne();
@@ -118,8 +115,10 @@ class Result
 
         $data = [];
 
-        foreach ($this->fetchAllNumeric() as [$key, $value]) {
-            $data[$key] = $value;
+        foreach ($this->fetchAllNumeric() as $row) {
+            assert(count($row) >= 2);
+            [$key, $value] = $row;
+            $data[$key]    = $value;
         }
 
         return $data;
@@ -183,7 +182,7 @@ class Result
     }
 
     /**
-     * {@inheritDoc}
+     * @return Traversable<mixed, mixed>
      *
      * @throws Exception
      */
@@ -191,7 +190,10 @@ class Result
     {
         $this->ensureHasKeyValue();
 
-        foreach ($this->iterateNumeric() as [$key, $value]) {
+        foreach ($this->iterateNumeric() as $row) {
+            assert(count($row) >= 2);
+            [$key, $value] = $row;
+
             yield $key => $value;
         }
     }
@@ -223,8 +225,20 @@ class Result
         }
     }
 
-    /** @throws Exception */
-    public function rowCount(): int
+    /**
+     * Returns the number of rows affected by the DELETE, INSERT, or UPDATE statement that produced the result.
+     *
+     * If the statement executed a SELECT query or a similar platform-specific SQL (e.g. DESCRIBE, SHOW, etc.),
+     * some database drivers may return the number of rows returned by that query. However, this behaviour
+     * is not guaranteed for all drivers and should not be relied on in portable applications.
+     *
+     * If the number of rows exceeds {@see PHP_INT_MAX}, it might be returned as string if the driver supports it.
+     *
+     * @return int|numeric-string
+     *
+     * @throws Exception
+     */
+    public function rowCount(): int|string
     {
         try {
             return $this->result->rowCount();
@@ -243,6 +257,29 @@ class Result
         }
     }
 
+    /**
+     * Returns the name of the column in the result set for the given 0-based index.
+     *
+     * If the index is not a valid column index ({@see columnCount}), an exception will be thrown.
+     *
+     * @throws Exception
+     */
+    public function getColumnName(int $index): string
+    {
+        if (! method_exists($this->result, 'getColumnName')) {
+            throw new LogicException(sprintf(
+                'The driver result %s does not support accessing the column name.',
+                get_debug_type($this->result),
+            ));
+        }
+
+        try {
+            return $this->result->getColumnName($index);
+        } catch (DriverException $e) {
+            throw $this->connection->convertException($e);
+        }
+    }
+
     public function free(): void
     {
         $this->result->free();
@@ -256,65 +293,5 @@ class Result
         if ($columnCount < 2) {
             throw NoKeyValue::fromColumnCount($columnCount);
         }
-    }
-
-    /**
-     * BC layer for a wide-spread use-case of old DBAL APIs
-     *
-     * @deprecated This API is deprecated and will be removed after 2022
-     *
-     * @return mixed
-     *
-     * @throws Exception
-     */
-    public function fetch(int $mode = FetchMode::ASSOCIATIVE)
-    {
-        if (func_num_args() > 1) {
-            throw new LogicException('Only invocations with one argument are still supported by this legacy API.');
-        }
-
-        if ($mode === FetchMode::ASSOCIATIVE) {
-            return $this->fetchAssociative();
-        }
-
-        if ($mode === FetchMode::NUMERIC) {
-            return $this->fetchNumeric();
-        }
-
-        if ($mode === FetchMode::COLUMN) {
-            return $this->fetchOne();
-        }
-
-        throw new LogicException('Only fetch modes declared on Doctrine\DBAL\FetchMode are supported by legacy API.');
-    }
-
-    /**
-     * BC layer for a wide-spread use-case of old DBAL APIs
-     *
-     * @deprecated This API is deprecated and will be removed after 2022
-     *
-     * @return list<mixed>
-     *
-     * @throws Exception
-     */
-    public function fetchAll(int $mode = FetchMode::ASSOCIATIVE): array
-    {
-        if (func_num_args() > 1) {
-            throw new LogicException('Only invocations with one argument are still supported by this legacy API.');
-        }
-
-        if ($mode === FetchMode::ASSOCIATIVE) {
-            return $this->fetchAllAssociative();
-        }
-
-        if ($mode === FetchMode::NUMERIC) {
-            return $this->fetchAllNumeric();
-        }
-
-        if ($mode === FetchMode::COLUMN) {
-            return $this->fetchFirstColumn();
-        }
-
-        throw new LogicException('Only fetch modes declared on Doctrine\DBAL\FetchMode are supported by legacy API.');
     }
 }

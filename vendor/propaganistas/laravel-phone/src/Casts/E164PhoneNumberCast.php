@@ -2,12 +2,16 @@
 
 namespace Propaganistas\LaravelPhone\Casts;
 
+use Illuminate\Database\Eloquent\Model;
 use Propaganistas\LaravelPhone\PhoneNumber;
 use UnexpectedValueException;
 
 class E164PhoneNumberCast extends PhoneNumberCast
 {
-    public function get($model, string $key, $value, array $attributes)
+    /**
+     * Transform the attribute from the underlying model values.
+     */
+    public function get(Model $model, string $key, mixed $value, array $attributes): ?PhoneNumber
     {
         if (! $value) {
             return null;
@@ -22,7 +26,12 @@ class E164PhoneNumberCast extends PhoneNumberCast
         return $phone;
     }
 
-    public function set($model, string $key, $value, array $attributes)
+    /**
+     * Transform the attribute to its underlying model values.
+     *
+     * @param  PhoneNumber|string|null  $value
+     */
+    public function set(Model $model, string $key, mixed $value, array $attributes): ?string
     {
         if (! $value) {
             return null;
@@ -37,7 +46,10 @@ class E164PhoneNumberCast extends PhoneNumberCast
         return $value->formatE164();
     }
 
-    public function serialize($model, string $key, $value, array $attributes)
+    /**
+     * Serialize the attribute when converting the model to an array.
+     */
+    public function serialize(Model $model, string $key, mixed $value, array $attributes): ?string
     {
         if (! $value) {
             return null;

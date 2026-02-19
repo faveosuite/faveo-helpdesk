@@ -11,9 +11,7 @@ class EndlessCycleStream implements StreamInterface
 {
     private int $offset = 0;
 
-    public function __construct(private readonly string $toRepeat = '0')
-    {
-    }
+    public function __construct(private readonly string $toRepeat = '0') {}
 
     public function __toString(): string
     {
@@ -55,7 +53,7 @@ class EndlessCycleStream implements StreamInterface
 
     public function seek(int $offset, int $whence = SEEK_SET): void
     {
-        switch($whence) {
+        switch ($whence) {
             case SEEK_SET:
                 $this->offset = $offset;
                 break;
@@ -99,7 +97,7 @@ class EndlessCycleStream implements StreamInterface
         throw new RuntimeException('Infinite Stream!');
     }
 
-    public function getMetadata(?string $key = null): array|null
+    public function getMetadata(?string $key = null): ?array
     {
         return $key !== null ? null : [];
     }

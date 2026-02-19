@@ -2,6 +2,196 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.14.8](https://github.com/brick/math/releases/tag/0.14.8) - 2026-02-10
+
+🗑️ **Deprecations**
+
+- Method `BigInteger::testBit()` is deprecated, use `isBitSet()` instead
+
+✨ **New features**
+
+- New method: `BigInteger::isBitSet()` (replaces `testBit()`)
+- New method: `BigNumber::toString()` (alias of magic method `__toString()`)
+
+👌 **Improvements**
+
+- Performance optimization of `BigRational` comparison methods
+- More exceptions have been documented with `@throws` annotations
+
+## [0.14.7](https://github.com/brick/math/releases/tag/0.14.7) - 2026-02-07
+
+✨ **New features**
+
+- `clamp()` is now available on the base `BigNumber` class
+
+👌 **Improvements**
+
+- Improved `@throws` exception documentation
+
+## [0.14.6](https://github.com/brick/math/releases/tag/0.14.6) - 2026-02-05
+
+🗑️ **Deprecations**
+
+- Not passing a `$scale` to `BigDecimal::dividedBy()` is deprecated; **`$scale` will be required in 0.15**
+
+👌 **Improvements**
+
+- `BigRational::toFloat()` never returns `NAN` anymore
+
+## [0.14.5](https://github.com/brick/math/releases/tag/0.14.5) - 2026-02-03
+
+🗑️ **Deprecations**
+
+- Not passing a rounding mode to `BigInteger::sqrt()` and `BigDecimal::sqrt()` triggers a deprecation notice: **the default rounding mode will change from `Down` to `Unnecessary` in 0.15**
+
+✨ **New features**
+
+- `BigInteger::sqrt()` and `BigDecimal::sqrt()` now support rounding
+- `abs()` and `negated()` methods are now available on the base `BigNumber` class
+
+👌 **Improvements**
+
+- Alphabet is now checked for duplicate characters in `BigInteger::(from|to)ArbitraryBase()`
+- `BigNumber::ofNullable()` is now marked as `@pure`
+
+## [0.14.4](https://github.com/brick/math/releases/tag/0.14.4) - 2026-02-02
+
+🗑️ **Deprecations**
+
+- Passing a negative modulus to `BigInteger::mod()` is deprecated to align with Euclidean modulo semantics; it will throw `NegativeNumberException` in 0.15
+- Method `BigDecimal::stripTrailingZeros()` is deprecated, use `strippedOfTrailingZeros()` instead
+
+✨ **New features**
+
+- `BigInteger::modPow()` now accepts negative bases
+- New method: `BigDecimal::strippedOfTrailingZeros()` (replaces `stripTrailingZeros()`)
+
+👌 **Improvements**
+
+- `clamp()` methods are now marked as `@pure`
+
+## [0.14.3](https://github.com/brick/math/releases/tag/0.14.3) - 2026-02-01
+
+✨ **New features**
+
+- New method: `BigInteger::lcm()`
+- New method: `BigInteger::lcmAll()`
+- New method: `BigRational::toRepeatingDecimalString()`
+
+🐛 **Bug fixes**
+
+- `BigInteger::gcdAll()` / `gcdMultiple()` could return a negative result when used with a single negative number
+
+## [0.14.2](https://github.com/brick/math/releases/tag/0.14.2) - 2026-01-30
+
+🗑️ **Deprecations**
+
+- **Passing `float` values to `of()` or arithmetic methods is deprecated** and will be removed in 0.15; cast to string explicitly to preserve the previous behaviour (#105)
+- **Accessing `RoundingMode` enum cases through upper snake case (e.g. `HALF_UP`) is deprecated**, use the pascal case version (e.g. `HalfUp`) instead
+- Method `BigInteger::gcdMultiple()` is deprecated, use `gcdAll()` instead
+- Method `BigDecimal::exactlyDividedBy()` is deprecated, use `dividedByExact()` instead
+- Method `BigDecimal::getIntegralPart()` is deprecated (will be removed in 0.15, and re-introduced as returning `BigInteger` in 0.16)
+- Method `BigDecimal::getFractionalPart()` is deprecated (will be removed in 0.15, and re-introduced as returning `BigDecimal` with a different meaning in 0.16)
+- Method `BigRational::nd()` is deprecated, use `ofFraction()` instead
+- Method `BigRational::quotient()` is deprecated, use `getIntegralPart()` instead
+- Method `BigRational::remainder()` is deprecated, use `$number->getNumerator()->remainder($number->getDenominator())` instead
+- Method `BigRational::quotientAndRemainder()` is deprecated, use `$number->getNumerator()->quotientAndRemainder($number->getDenominator())` instead
+
+✨ **New features**
+
+- New method: `BigInteger::gcdAll()` (replaces `gcdMultiple()`)
+- New method: `BigRational::clamp()`
+- New method: `BigRational::ofFraction()` (replaces `nd()`)
+- New method: `BigRational::getIntegralPart()` (replaces `quotient()`)
+- New method: `BigRational::getFractionalPart()`
+
+👌 **Improvements**
+
+- `BigInteger::modInverse()` now accepts `BigNumber|int|float|string` instead of just `BigInteger`
+- `BigInteger::gcdMultiple()` now accepts `BigNumber|int|float|string` instead of just `BigInteger`
+
+🐛 **Bug fixes**
+
+- `BigInteger::clamp()` and `BigDecimal::clamp()` now throw an exception on inverted bounds, instead of returning an incorrect result
+
+## [0.14.1](https://github.com/brick/math/releases/tag/0.14.1) - 2025-11-24
+
+✨ **New features**
+
+- New method: `BigNumber::ofNullable()` (#94 by @mrkh995)
+
+✨ **Compatibility fixes**
+
+- Fixed warnings on PHP 8.5 (#101 and #102 by @julien-boudry)
+
+## [0.14.0](https://github.com/brick/math/releases/tag/0.14.0) - 2025-08-29
+
+✨ **New features**
+
+- New methods: `BigInteger::clamp()` and `BigDecimal::clamp()` (#96 by @JesterIruka)
+
+✨ **Improvements**
+
+- All pure methods in `BigNumber` classes are now marked as `@pure` for better static analysis
+
+💥 **Breaking changes**
+
+- Minimum PHP version is now 8.2
+- `BigNumber` classes are now `readonly`
+- `BigNumber` is now marked as sealed: it must not be extended outside of this package
+- Exception classes are now `final`
+
+## [0.13.1](https://github.com/brick/math/releases/tag/0.13.1) - 2025-03-29
+
+✨ **Improvements**
+
+- `__toString()` methods of `BigInteger` and `BigDecimal` are now type-hinted as returning `numeric-string` instead of `string` (#90 by @vudaltsov)
+
+## [0.13.0](https://github.com/brick/math/releases/tag/0.13.0) - 2025-03-03
+
+💥 **Breaking changes**
+
+- `BigDecimal::ofUnscaledValue()` no longer throws an exception if the scale is negative
+- `MathException` now extends `RuntimeException` instead of `Exception`; this reverts the change introduced in version `0.11.0` (#82)
+
+✨ **New features**
+
+- `BigDecimal::ofUnscaledValue()` allows a negative scale (and converts the values to create a zero scale number)
+
+## [0.12.3](https://github.com/brick/math/releases/tag/0.12.3) - 2025-02-28
+
+✨ **New features**
+
+- `BigDecimal::getPrecision()` Returns the number of significant digits in a decimal number
+
+## [0.12.2](https://github.com/brick/math/releases/tag/0.12.2) - 2025-02-26
+
+⚡️ **Performance improvements**
+
+- Division in `NativeCalculator` is now faster for small divisors, thanks to [@Izumi-kun](https://github.com/Izumi-kun) in [#87](https://github.com/brick/math/pull/87).
+
+👌 **Improvements**
+
+- Add missing `RoundingNecessaryException` to the `@throws` annotation of `BigNumber::of()`
+
+## [0.12.1](https://github.com/brick/math/releases/tag/0.12.1) - 2023-11-29
+
+⚡️ **Performance improvements**
+
+- `BigNumber::of()` is now faster, thanks to [@SebastienDug](https://github.com/SebastienDug) in [#77](https://github.com/brick/math/pull/77).
+
+## [0.12.0](https://github.com/brick/math/releases/tag/0.12.0) - 2023-11-26
+
+💥 **Breaking changes**
+
+- Minimum PHP version is now 8.1
+- `RoundingMode` is now an `enum`; if you're type-hinting rounding modes, you need to type-hint against `RoundingMode` instead of `int` now
+- `BigNumber` classes do not implement the `Serializable` interface anymore (they use the [new custom object serialization mechanism](https://wiki.php.net/rfc/custom_object_serialization))
+- The following breaking changes only affect you if you're creating your own `BigNumber` subclasses:
+  - the return type of `BigNumber::of()` is now `static`
+  - `BigNumber` has a new abstract method `from()`
+  - all `public` and `protected` functions of `BigNumber` are now `final`
+
 ## [0.11.0](https://github.com/brick/math/releases/tag/0.11.0) - 2023-01-16
 
 💥 **Breaking changes**
@@ -442,4 +632,3 @@ Added `BigDecimal::divideAndRemainder()`
 ## [0.1.0](https://github.com/brick/math/releases/tag/0.1.0) - 2014-08-31
 
 First beta release.
-

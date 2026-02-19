@@ -28,7 +28,6 @@ class Redirector
      * Create a new Redirector instance.
      *
      * @param  \Illuminate\Routing\UrlGenerator  $generator
-     * @return void
      */
     public function __construct(UrlGenerator $generator)
     {
@@ -74,8 +73,8 @@ class Redirector
         $request = $this->generator->getRequest();
 
         $intended = $request->isMethod('GET') && $request->route() && ! $request->expectsJson()
-                        ? $this->generator->full()
-                        : $this->generator->previous();
+            ? $this->generator->full()
+            : $this->generator->previous();
 
         if ($intended) {
             $this->setIntendedUrl($intended);
@@ -143,7 +142,7 @@ class Redirector
     /**
      * Create a new redirect response to a named route.
      *
-     * @param  string  $route
+     * @param  \BackedEnum|string  $route
      * @param  mixed  $parameters
      * @param  int  $status
      * @param  array  $headers
@@ -157,7 +156,7 @@ class Redirector
     /**
      * Create a new redirect response to a signed named route.
      *
-     * @param  string  $route
+     * @param  \BackedEnum|string  $route
      * @param  mixed  $parameters
      * @param  \DateTimeInterface|\DateInterval|int|null  $expiration
      * @param  int  $status
@@ -172,7 +171,7 @@ class Redirector
     /**
      * Create a new redirect response to a signed named route.
      *
-     * @param  string  $route
+     * @param  \BackedEnum|string  $route
      * @param  \DateTimeInterface|\DateInterval|int|null  $expiration
      * @param  mixed  $parameters
      * @param  int  $status

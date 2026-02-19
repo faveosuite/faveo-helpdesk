@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sabberworm\CSS\CSSList;
 
 use Sabberworm\CSS\OutputFormat;
@@ -8,96 +10,77 @@ use Sabberworm\CSS\Property\AtRule;
 class KeyFrame extends CSSList implements AtRule
 {
     /**
-     * @var string|null
+     * @var non-empty-string
      */
-    private $vendorKeyFrame;
+    private $vendorKeyFrame = 'keyframes';
 
     /**
-     * @var string|null
+     * @var non-empty-string
      */
-    private $animationName;
+    private $animationName = 'none';
 
     /**
-     * @param int $iLineNo
+     * @param non-empty-string $vendorKeyFrame
      */
-    public function __construct($iLineNo = 0)
-    {
-        parent::__construct($iLineNo);
-        $this->vendorKeyFrame = null;
-        $this->animationName = null;
-    }
-
-    /**
-     * @param string $vendorKeyFrame
-     */
-    public function setVendorKeyFrame($vendorKeyFrame)
+    public function setVendorKeyFrame(string $vendorKeyFrame): void
     {
         $this->vendorKeyFrame = $vendorKeyFrame;
     }
 
     /**
-     * @return string|null
+     * @return non-empty-string
      */
-    public function getVendorKeyFrame()
+    public function getVendorKeyFrame(): string
     {
         return $this->vendorKeyFrame;
     }
 
     /**
-     * @param string $animationName
+     * @param non-empty-string $animationName
      */
-    public function setAnimationName($animationName)
+    public function setAnimationName(string $animationName): void
     {
         $this->animationName = $animationName;
     }
 
     /**
-     * @return string|null
+     * @return non-empty-string
      */
-    public function getAnimationName()
+    public function getAnimationName(): string
     {
         return $this->animationName;
     }
 
     /**
-     * @return string
+     * @return non-empty-string
      */
-    public function __toString()
+    public function render(OutputFormat $outputFormat): string
     {
-        return $this->render(new OutputFormat());
+        $formatter = $outputFormat->getFormatter();
+        $result = $formatter->comments($this);
+        $result .= "@{$this->vendorKeyFrame} {$this->animationName}{$formatter->spaceBeforeOpeningBrace()}{";
+        $result .= $this->renderListContents($outputFormat);
+        $result .= '}';
+        return $result;
     }
 
-    /**
-     * @return string
-     */
-    public function render(OutputFormat $oOutputFormat)
-    {
-        $sResult = "@{$this->vendorKeyFrame} {$this->animationName}{$oOutputFormat->spaceBeforeOpeningBrace()}{";
-        $sResult .= parent::render($oOutputFormat);
-        $sResult .= '}';
-        return $sResult;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isRootList()
+    public function isRootList(): bool
     {
         return false;
     }
 
     /**
-     * @return string|null
+     * @return non-empty-string
      */
-    public function atRuleName()
+    public function atRuleName(): string
     {
         return $this->vendorKeyFrame;
     }
 
     /**
-     * @return string|null
+     * @return non-empty-string
      */
-    public function atRuleArgs()
+    public function atRuleArgs(): string
     {
         return $this->animationName;
     }

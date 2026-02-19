@@ -60,7 +60,6 @@ class FakeInvokedProcess implements InvokedProcessContract
      *
      * @param  string  $command
      * @param  \Illuminate\Process\FakeProcessDescription  $process
-     * @return void
      */
     public function __construct(string $command, FakeProcessDescription $process)
     {
@@ -78,6 +77,16 @@ class FakeInvokedProcess implements InvokedProcessContract
         $this->invokeOutputHandlerWithNextLineOfOutput();
 
         return $this->process->processId;
+    }
+
+    /**
+     * Get the command line for the process.
+     *
+     * @return string
+     */
+    public function command()
+    {
+        return $this->command;
     }
 
     /**
@@ -116,8 +125,8 @@ class FakeInvokedProcess implements InvokedProcessContract
         $this->invokeOutputHandlerWithNextLineOfOutput();
 
         $this->remainingRunIterations = is_null($this->remainingRunIterations)
-                ? $this->process->runIterations
-                : $this->remainingRunIterations;
+            ? $this->process->runIterations
+            : $this->remainingRunIterations;
 
         if ($this->remainingRunIterations === 0) {
             while ($this->invokeOutputHandlerWithNextLineOfOutput()) {
@@ -226,7 +235,7 @@ class FakeInvokedProcess implements InvokedProcessContract
             $this->nextOutputIndex = $i + 1;
         }
 
-        return isset($output) ? $output : '';
+        return $output ?? '';
     }
 
     /**
@@ -249,7 +258,7 @@ class FakeInvokedProcess implements InvokedProcessContract
             $this->nextErrorOutputIndex = $i + 1;
         }
 
-        return isset($output) ? $output : '';
+        return $output ?? '';
     }
 
     /**
@@ -258,7 +267,7 @@ class FakeInvokedProcess implements InvokedProcessContract
      * @param  callable|null  $output
      * @return \Illuminate\Contracts\Process\ProcessResult
      */
-    public function wait(callable $output = null)
+    public function wait(?callable $output = null)
     {
         $this->outputHandler = $output ?: $this->outputHandler;
 
@@ -269,6 +278,37 @@ class FakeInvokedProcess implements InvokedProcessContract
         }
 
         while ($this->invokeOutputHandlerWithNextLineOfOutput()) {
+            //
+        }
+
+        $this->remainingRunIterations = 0;
+
+        return $this->process->toProcessResult($this->command);
+    }
+
+    /**
+     * Wait until the given callback returns true.
+     *
+     * @param  callable|null  $output
+     * @return \Illuminate\Contracts\Process\ProcessResult
+     */
+    public function waitUntil(?callable $output = null)
+    {
+        $shouldStop = false;
+
+        $this->outputHandler = $output
+            ? function ($type, $buffer) use ($output, &$shouldStop) {
+                $shouldStop = call_user_func($output, $type, $buffer);
+            }
+        : $this->outputHandler;
+
+        if (! $this->outputHandler) {
+            $this->remainingRunIterations = 0;
+
+            return $this->predictProcessResult();
+        }
+
+        while ($this->running() && ! $shouldStop) {
             //
         }
 
@@ -290,7 +330,7 @@ class FakeInvokedProcess implements InvokedProcessContract
     /**
      * Set the general output handler for the fake invoked process.
      *
-     * @param  callable|null  $output
+     * @param  callable|null  $outputHandler
      * @return $this
      */
     public function withOutputHandler(?callable $outputHandler)

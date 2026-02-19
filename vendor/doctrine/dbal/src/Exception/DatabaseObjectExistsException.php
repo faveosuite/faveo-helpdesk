@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Exception;
 
 /**
@@ -8,8 +10,6 @@ namespace Doctrine\DBAL\Exception;
  * A database object is considered any asset that can be created in a database
  * such as schemas, tables, views, sequences, triggers,  constraints, indexes,
  * functions, stored procedures etc.
- *
- * @psalm-immutable
  */
 class DatabaseObjectExistsException extends ServerException
 {

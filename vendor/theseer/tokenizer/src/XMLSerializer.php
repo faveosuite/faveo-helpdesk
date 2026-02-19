@@ -2,24 +2,20 @@
 namespace TheSeer\Tokenizer;
 
 use DOMDocument;
+use XMLWriter;
+use function count;
+use const ENT_DISALLOWED;
+use const ENT_NOQUOTES;
+use const ENT_XML1;
 
 class XMLSerializer {
-
-    /** @var \XMLWriter */
-    private $writer;
-
-    /** @var Token */
-    private $previousToken;
-
     /** @var NamespaceUri */
     private $xmlns;
 
     /**
      * XMLSerializer constructor.
-     *
-     * @param NamespaceUri $xmlns
      */
-    public function __construct(NamespaceUri $xmlns = null) {
+    public function __construct(?NamespaceUri $xmlns = null) {
         if ($xmlns === null) {
             $xmlns = new NamespaceUri('https://github.com/theseer/tokenizer');
         }
@@ -35,45 +31,53 @@ class XMLSerializer {
     }
 
     public function toXML(TokenCollection $tokens): string {
-        $this->writer = new \XMLWriter();
-        $this->writer->openMemory();
-        $this->writer->setIndent(true);
-        $this->writer->startDocument();
-        $this->writer->startElement('source');
-        $this->writer->writeAttribute('xmlns', $this->xmlns->asString());
+        $writer = new XMLWriter();
+        $writer->openMemory();
+        $writer->setIndent(true);
 
-        if (\count($tokens) > 0) {
-            $this->writer->startElement('line');
-            $this->writer->writeAttribute('no', '1');
+        $writer->startDocument();
+        $this->appendToWriter($writer, $tokens);
+        $writer->endDocument();
 
-            $this->previousToken = $tokens[0];
-
-            foreach ($tokens as $token) {
-                $this->addToken($token);
-            }
-        }
-
-        $this->writer->endElement();
-        $this->writer->endElement();
-        $this->writer->endDocument();
-
-        return $this->writer->outputMemory();
+        return $writer->outputMemory();
     }
 
-    private function addToken(Token $token): void {
-        if ($this->previousToken->getLine() < $token->getLine()) {
-            $this->writer->endElement();
+    public function appendToWriter(XMLWriter $writer, TokenCollection $tokens): void {
+        $writer->startElement('source');
+        $writer->writeAttribute('xmlns', $this->xmlns->asString());
 
-            $this->writer->startElement('line');
-            $this->writer->writeAttribute('no', (string)$token->getLine());
-            $this->previousToken = $token;
+        if (count($tokens) > 0) {
+            $writer->startElement('line');
+            $writer->writeAttribute('no', '1');
+
+            $iterator      = $tokens->getIterator();
+            $previousToken = $iterator->current();
+            $previousLine  = $previousToken->getLine();
+
+            foreach ($iterator as $token) {
+                $line = $token->getLine();
+
+                if ($previousLine < $line) {
+                    $writer->endElement();
+
+                    $writer->startElement('line');
+                    $writer->writeAttribute('no', (string)$line);
+                    $previousLine = $line;
+                }
+
+                $value = $token->getValue();
+
+                if ($value !== '') {
+                    $writer->startElement('token');
+                    $writer->writeAttribute('name', $token->getName());
+                    $writer->writeRaw(htmlspecialchars($value, ENT_NOQUOTES | ENT_DISALLOWED | ENT_XML1));
+                    $writer->endElement();
+                }
+            }
+
+            $writer->endElement();
         }
 
-        if ($token->getValue() !== '') {
-            $this->writer->startElement('token');
-            $this->writer->writeAttribute('name', $token->getName());
-            $this->writer->writeRaw(\htmlspecialchars($token->getValue(), \ENT_NOQUOTES | \ENT_DISALLOWED | \ENT_XML1));
-            $this->writer->endElement();
-        }
+        $writer->endElement();
     }
 }

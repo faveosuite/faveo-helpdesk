@@ -2,8 +2,10 @@
 
 namespace Illuminate\Validation\Rules;
 
+use ArrayIterator;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Validation\DataAwareRule;
+use Illuminate\Contracts\Validation\ImplicitRule;
 use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Contracts\Validation\UncompromisedVerifier;
 use Illuminate\Contracts\Validation\ValidatorAwareRule;
@@ -11,8 +13,10 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Traits\Conditionable;
 use InvalidArgumentException;
+use IteratorAggregate;
+use Traversable;
 
-class Password implements Rule, DataAwareRule, ValidatorAwareRule
+class Password implements DataAwareRule, ImplicitRule, IteratorAggregate, Rule, ValidatorAwareRule
 {
     use Conditionable;
 
@@ -36,6 +40,27 @@ class Password implements Rule, DataAwareRule, ValidatorAwareRule
      * @var int
      */
     protected $min = 8;
+
+    /**
+     * The maximum size of the password.
+     *
+     * @var int
+     */
+    protected $max;
+
+    /**
+     * If the password is required.
+     *
+     * @var bool
+     */
+    protected $required = false;
+
+    /**
+     * If the password should only be validated when present.
+     *
+     * @var bool
+     */
+    protected $sometimes = false;
 
     /**
      * If the password requires at least one uppercase and one lowercase letter.
@@ -104,7 +129,6 @@ class Password implements Rule, DataAwareRule, ValidatorAwareRule
      * Create a new rule instance.
      *
      * @param  int  $min
-     * @return void
      */
     public function __construct($min)
     {
@@ -117,7 +141,9 @@ class Password implements Rule, DataAwareRule, ValidatorAwareRule
      * If no arguments are passed, the default password rule configuration will be returned.
      *
      * @param  static|callable|null  $callback
-     * @return static|null
+     * @return static|void
+     *
+     * @throws \InvalidArgumentException
      */
     public static function defaults($callback = null)
     {
@@ -140,8 +166,8 @@ class Password implements Rule, DataAwareRule, ValidatorAwareRule
     public static function default()
     {
         $password = is_callable(static::$defaultCallback)
-                            ? call_user_func(static::$defaultCallback)
-                            : static::$defaultCallback;
+            ? call_user_func(static::$defaultCallback)
+            : static::$defaultCallback;
 
         return $password instanceof Rule ? $password : static::min(8);
     }
@@ -149,21 +175,29 @@ class Password implements Rule, DataAwareRule, ValidatorAwareRule
     /**
      * Get the default configuration of the password rule and mark the field as required.
      *
-     * @return array
+     * @return static
      */
     public static function required()
     {
-        return ['required', static::default()];
+        $password = static::default();
+
+        $password->required = true;
+
+        return $password;
     }
 
     /**
      * Get the default configuration of the password rule and mark the field as sometimes being required.
      *
-     * @return array
+     * @return static
      */
     public static function sometimes()
     {
-        return ['sometimes', static::default()];
+        $password = static::default();
+
+        $password->sometimes = true;
+
+        return $password;
     }
 
     /**
@@ -193,7 +227,7 @@ class Password implements Rule, DataAwareRule, ValidatorAwareRule
     }
 
     /**
-     * Sets the minimum size of the password.
+     * Set the minimum size of the password.
      *
      * @param  int  $size
      * @return $this
@@ -201,6 +235,19 @@ class Password implements Rule, DataAwareRule, ValidatorAwareRule
     public static function min($size)
     {
         return new static($size);
+    }
+
+    /**
+     * Set the maximum size of the password.
+     *
+     * @param  int  $size
+     * @return $this
+     */
+    public function max($size)
+    {
+        $this->max = $size;
+
+        return $this;
     }
 
     /**
@@ -290,9 +337,17 @@ class Password implements Rule, DataAwareRule, ValidatorAwareRule
     {
         $this->messages = [];
 
+        if (! $this->required && ! $this->sometimes && ! Arr::has($this->data ?? [], $attribute)) {
+            return true;
+        }
+
+        if (blank($value) && ! $this->required && $this->validator?->hasRule($attribute, ['Nullable'])) {
+            return true;
+        }
+
         $validator = Validator::make(
             $this->data,
-            [$attribute => array_merge(['string', 'min:'.$this->min], $this->customRules)],
+            [$attribute => [...$this]],
             $this->validator->customMessages,
             $this->validator->customAttributes
         )->after(function ($validator) use ($attribute, $value) {
@@ -354,5 +409,42 @@ class Password implements Rule, DataAwareRule, ValidatorAwareRule
         $this->messages = array_merge($this->messages, Arr::wrap($messages));
 
         return false;
+    }
+
+    /**
+     * Get information about the current state of the password validation rules.
+     *
+     * @return array
+     */
+    public function appliedRules()
+    {
+        return [
+            'min' => $this->min,
+            'max' => $this->max,
+            'mixedCase' => $this->mixedCase,
+            'letters' => $this->letters,
+            'numbers' => $this->numbers,
+            'symbols' => $this->symbols,
+            'uncompromised' => $this->uncompromised,
+            'compromisedThreshold' => $this->compromisedThreshold,
+            'customRules' => $this->customRules,
+        ];
+    }
+
+    /**
+     * Get an iterator for the password validation rules.
+     *
+     * @return \ArrayIterator<TKey, TValue>
+     */
+    public function getIterator(): Traversable
+    {
+        return new ArrayIterator([
+            ...($this->required ? ['required'] : []),
+            ...($this->sometimes ? ['sometimes'] : []),
+            'string',
+            'min:'.$this->min,
+            ...($this->max ? ['max:'.$this->max] : []),
+            ...$this->customRules,
+        ]);
     }
 }

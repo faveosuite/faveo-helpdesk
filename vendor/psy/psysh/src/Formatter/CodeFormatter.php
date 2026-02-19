@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -35,7 +35,7 @@ class CodeFormatter implements ReflectorFormatter
     const HIGHLIGHT_COMMENT = 'code_comment';
     const HIGHLIGHT_INLINE_HTML = 'inline_html';
 
-    private static $tokenMap = [
+    private const TOKEN_MAP = [
         // Not highlighted
         \T_OPEN_TAG           => self::HIGHLIGHT_DEFAULT,
         \T_OPEN_TAG_WITH_ECHO => self::HIGHLIGHT_DEFAULT,
@@ -76,15 +76,16 @@ class CodeFormatter implements ReflectorFormatter
     /**
      * Format the code represented by $reflector for shell output.
      *
-     * @param \Reflector  $reflector
-     * @param string|null $colorMode (deprecated and ignored)
+     * @param \Reflector $reflector
      *
      * @return string formatted code
      */
-    public static function format(\Reflector $reflector, string $colorMode = null): string
+    public static function format(\Reflector $reflector): string
     {
         if (self::isReflectable($reflector)) {
+            // @phan-suppress-next-line PhanUndeclaredMethod - getFileName/getEndLine exist on ReflectionClass/ReflectionFunctionAbstract
             if ($code = @\file_get_contents($reflector->getFileName())) {
+                // @phan-suppress-next-line PhanUndeclaredMethod - getEndLine exists on ReflectionClass/ReflectionFunctionAbstract
                 return self::formatCode($code, self::getStartLine($reflector), $reflector->getEndLine());
             }
         }
@@ -104,7 +105,7 @@ class CodeFormatter implements ReflectorFormatter
      *
      * @return string formatted code
      */
-    public static function formatCode(string $code, int $startLine = 1, int $endLine = null, int $markLine = null): string
+    public static function formatCode(string $code, int $startLine = 1, ?int $endLine = null, ?int $markLine = null): string
     {
         $spans = self::tokenizeSpans($code);
         $lines = self::splitLines($spans, $startLine, $endLine);
@@ -188,8 +189,8 @@ class CodeFormatter implements ReflectorFormatter
                 return $currentType;
             }
 
-            if (\array_key_exists($token[0], self::$tokenMap)) {
-                return self::$tokenMap[$token[0]];
+            if (\array_key_exists($token[0], self::TOKEN_MAP)) {
+                return self::TOKEN_MAP[$token[0]];
             }
         }
 
@@ -207,7 +208,7 @@ class CodeFormatter implements ReflectorFormatter
      *
      * @return \Generator lines, each an array of [$spanType, $spanText] pairs
      */
-    private static function splitLines(\Generator $spans, int $startLine = 1, int $endLine = null): \Generator
+    private static function splitLines(\Generator $spans, int $startLine = 1, ?int $endLine = null): \Generator
     {
         $lineNum = 1;
         $buffer = [];
@@ -274,7 +275,7 @@ class CodeFormatter implements ReflectorFormatter
      *
      * @return \Generator Numbered, formatted lines
      */
-    private static function numberLines(\Generator $lines, int $markLine = null): \Generator
+    private static function numberLines(\Generator $lines, ?int $markLine = null): \Generator
     {
         $lines = \iterator_to_array($lines);
 

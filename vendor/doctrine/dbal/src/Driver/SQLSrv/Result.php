@@ -6,9 +6,11 @@ namespace Doctrine\DBAL\Driver\SQLSrv;
 
 use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
+use Doctrine\DBAL\Exception\InvalidColumnIndex;
 
 use function sqlsrv_fetch;
 use function sqlsrv_fetch_array;
+use function sqlsrv_field_metadata;
 use function sqlsrv_num_fields;
 use function sqlsrv_rows_affected;
 
@@ -17,39 +19,26 @@ use const SQLSRV_FETCH_NUMERIC;
 
 final class Result implements ResultInterface
 {
-    /** @var resource */
-    private $statement;
-
     /**
      * @internal The result can be only instantiated by its driver connection or statement.
      *
-     * @param resource $stmt
+     * @param resource $statement
      */
-    public function __construct($stmt)
+    public function __construct(private readonly mixed $statement)
     {
-        $this->statement = $stmt;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function fetchNumeric()
+    public function fetchNumeric(): array|false
     {
         return $this->fetch(SQLSRV_FETCH_NUMERIC);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function fetchAssociative()
+    public function fetchAssociative(): array|false
     {
         return $this->fetch(SQLSRV_FETCH_ASSOC);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function fetchOne()
+    public function fetchOne(): mixed
     {
         return FetchUtils::fetchOne($this);
     }
@@ -100,18 +89,28 @@ final class Result implements ResultInterface
         return 0;
     }
 
+    public function getColumnName(int $index): string
+    {
+        $meta = sqlsrv_field_metadata($this->statement);
+
+        if ($meta === false || ! isset($meta[$index])) {
+            throw InvalidColumnIndex::new($index);
+        }
+
+        return $meta[$index]['Name'];
+    }
+
     public function free(): void
     {
         // emulate it by fetching and discarding rows, similarly to what PDO does in this case
         // @link http://php.net/manual/en/pdostatement.closecursor.php
         // @link https://github.com/php/php-src/blob/php-7.0.11/ext/pdo/pdo_stmt.c#L2075
         // deliberately do not consider multiple result sets, since doctrine/dbal doesn't support them
-        while (sqlsrv_fetch($this->statement)) {
+        while (sqlsrv_fetch($this->statement) === true) {
         }
     }
 
-    /** @return mixed|false */
-    private function fetch(int $fetchType)
+    private function fetch(int $fetchType): mixed
     {
         return sqlsrv_fetch_array($this->statement, $fetchType) ?? false;
     }

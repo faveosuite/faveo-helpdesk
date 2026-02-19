@@ -12,7 +12,7 @@ class IntersectionTypeNode implements TypeNode
 	use NodeAttributes;
 
 	/** @var TypeNode[] */
-	public $types;
+	public array $types;
 
 	/**
 	 * @param TypeNode[] $types
@@ -21,7 +21,6 @@ class IntersectionTypeNode implements TypeNode
 	{
 		$this->types = $types;
 	}
-
 
 	public function __toString(): string
 	{
@@ -32,6 +31,20 @@ class IntersectionTypeNode implements TypeNode
 
 			return (string) $type;
 		}, $this->types)) . ')';
+	}
+
+	/**
+	 * @param array<string, mixed> $properties
+	 */
+	public static function __set_state(array $properties): self
+	{
+		$instance = new self($properties['types']);
+		if (isset($properties['attributes'])) {
+			foreach ($properties['attributes'] as $key => $value) {
+				$instance->setAttribute($key, $value);
+			}
+		}
+		return $instance;
 	}
 
 }

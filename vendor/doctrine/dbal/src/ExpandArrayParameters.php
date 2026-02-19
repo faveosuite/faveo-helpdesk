@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL;
 
 use Doctrine\DBAL\ArrayParameters\Exception\MissingNamedParameter;
@@ -13,14 +15,9 @@ use function count;
 use function implode;
 use function substr;
 
+/** @phpstan-import-type WrapperParameterTypeArray from Connection */
 final class ExpandArrayParameters implements Visitor
 {
-    /** @var array<int,mixed>|array<string,mixed> */
-    private array $originalParameters;
-
-    /** @var array<int,Type|int|string|null>|array<string,Type|int|string|null> */
-    private array $originalTypes;
-
     private int $originalParameterIndex = 0;
 
     /** @var list<string> */
@@ -29,28 +26,28 @@ final class ExpandArrayParameters implements Visitor
     /** @var list<mixed> */
     private array $convertedParameters = [];
 
-    /** @var array<int,Type|int|string|null> */
+    /** @var array<int<0, max>,string|ParameterType|Type> */
     private array $convertedTypes = [];
 
     /**
-     * @param array<int, mixed>|array<string, mixed>                             $parameters
-     * @param array<int,Type|int|string|null>|array<string,Type|int|string|null> $types
+     * @param array<int, mixed>|array<string, mixed> $parameters
+     * @phpstan-param WrapperParameterTypeArray $types
      */
-    public function __construct(array $parameters, array $types)
-    {
-        $this->originalParameters = $parameters;
-        $this->originalTypes      = $types;
+    public function __construct(
+        private readonly array $parameters,
+        private readonly array $types,
+    ) {
     }
 
     public function acceptPositionalParameter(string $sql): void
     {
         $index = $this->originalParameterIndex;
 
-        if (! array_key_exists($index, $this->originalParameters)) {
+        if (! array_key_exists($index, $this->parameters)) {
             throw MissingPositionalParameter::new($index);
         }
 
-        $this->acceptParameter($index, $this->originalParameters[$index]);
+        $this->acceptParameter($index, $this->parameters[$index]);
 
         $this->originalParameterIndex++;
     }
@@ -59,11 +56,11 @@ final class ExpandArrayParameters implements Visitor
     {
         $name = substr($sql, 1);
 
-        if (! array_key_exists($name, $this->originalParameters)) {
+        if (! array_key_exists($name, $this->parameters)) {
             throw MissingNamedParameter::new($name);
         }
 
-        $this->acceptParameter($name, $this->originalParameters[$name]);
+        $this->acceptParameter($name, $this->parameters[$name]);
     }
 
     public function acceptOther(string $sql): void
@@ -82,26 +79,18 @@ final class ExpandArrayParameters implements Visitor
         return $this->convertedParameters;
     }
 
-    /**
-     * @param int|string $key
-     * @param mixed      $value
-     */
-    private function acceptParameter($key, $value): void
+    private function acceptParameter(int|string $key, mixed $value): void
     {
-        if (! isset($this->originalTypes[$key])) {
+        if (! isset($this->types[$key])) {
             $this->convertedSQL[]        = '?';
             $this->convertedParameters[] = $value;
 
             return;
         }
 
-        $type = $this->originalTypes[$key];
+        $type = $this->types[$key];
 
-        if (
-            $type !== ArrayParameterType::INTEGER
-            && $type !== ArrayParameterType::STRING
-            && $type !== ArrayParameterType::ASCII
-        ) {
+        if (! $type instanceof ArrayParameterType) {
             $this->appendTypedParameter([$value], $type);
 
             return;
@@ -116,17 +105,14 @@ final class ExpandArrayParameters implements Visitor
         $this->appendTypedParameter($value, ArrayParameterType::toElementParameterType($type));
     }
 
-    /** @return array<int,Type|int|string|null> */
+    /** @return array<int<0, max>,string|ParameterType|Type> */
     public function getTypes(): array
     {
         return $this->convertedTypes;
     }
 
-    /**
-     * @param list<mixed>          $values
-     * @param Type|int|string|null $type
-     */
-    private function appendTypedParameter(array $values, $type): void
+    /** @param list<mixed> $values */
+    private function appendTypedParameter(array $values, string|ParameterType|Type $type): void
     {
         $this->convertedSQL[] = implode(', ', array_fill(0, count($values), '?'));
 

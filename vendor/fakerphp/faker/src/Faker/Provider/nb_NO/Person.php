@@ -288,12 +288,11 @@ class Person extends \Faker\Provider\Person
      *
      * @see https://no.wikipedia.org/wiki/Personnummer
      *
-     * @param \DateTime $birthdate
-     * @param string    $gender    Person::GENDER_MALE || Person::GENDER_FEMALE
+     * @param string $gender Person::GENDER_MALE || Person::GENDER_FEMALE
      *
      * @return string on format DDMMYY#####
      */
-    public function personalIdentityNumber(\DateTime $birthdate = null, $gender = null)
+    public function personalIdentityNumber(?\DateTime $birthdate = null, $gender = null)
     {
         if (!$birthdate) {
             $birthdate = \Faker\Provider\DateTime::dateTimeThisCentury();

@@ -1,154 +1,97 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sabberworm\CSS\Property;
 
-use Sabberworm\CSS\Comment\Comment;
+use Sabberworm\CSS\Comment\CommentContainer;
 use Sabberworm\CSS\OutputFormat;
+use Sabberworm\CSS\Position\Position;
+use Sabberworm\CSS\Position\Positionable;
+use Sabberworm\CSS\Value\CSSString;
+use Sabberworm\CSS\Value\URL;
 
 /**
  * `CSSNamespace` represents an `@namespace` rule.
  */
-class CSSNamespace implements AtRule
+class CSSNamespace implements AtRule, Positionable
 {
-    /**
-     * @var string
-     */
-    private $mUrl;
+    use CommentContainer;
+    use Position;
 
     /**
-     * @var string
+     * @var CSSString|URL
      */
-    private $sPrefix;
+    private $url;
 
     /**
-     * @var int
+     * @var string|null
      */
-    private $iLineNo;
+    private $prefix;
 
     /**
-     * @var array<array-key, Comment>
+     * @param CSSString|URL $url
+     * @param int<1, max>|null $lineNumber
      */
-    protected $aComments;
-
-    /**
-     * @param string $mUrl
-     * @param string|null $sPrefix
-     * @param int $iLineNo
-     */
-    public function __construct($mUrl, $sPrefix = null, $iLineNo = 0)
+    public function __construct($url, ?string $prefix = null, ?int $lineNumber = null)
     {
-        $this->mUrl = $mUrl;
-        $this->sPrefix = $sPrefix;
-        $this->iLineNo = $iLineNo;
-        $this->aComments = [];
+        $this->url = $url;
+        $this->prefix = $prefix;
+        $this->setPosition($lineNumber);
     }
 
     /**
-     * @return int
+     * @return non-empty-string
      */
-    public function getLineNo()
+    public function render(OutputFormat $outputFormat): string
     {
-        return $this->iLineNo;
+        return '@namespace ' . ($this->prefix === null ? '' : $this->prefix . ' ')
+            . $this->url->render($outputFormat) . ';';
     }
 
     /**
-     * @return string
-     */
-    public function __toString()
-    {
-        return $this->render(new OutputFormat());
-    }
-
-    /**
-     * @return string
-     */
-    public function render(OutputFormat $oOutputFormat)
-    {
-        return '@namespace ' . ($this->sPrefix === null ? '' : $this->sPrefix . ' ')
-            . $this->mUrl->render($oOutputFormat) . ';';
-    }
-
-    /**
-     * @return string
+     * @return CSSString|URL
      */
     public function getUrl()
     {
-        return $this->mUrl;
+        return $this->url;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getPrefix()
+    public function getPrefix(): ?string
     {
-        return $this->sPrefix;
+        return $this->prefix;
     }
 
     /**
-     * @param string $mUrl
-     *
-     * @return void
+     * @param CSSString|URL $url
      */
-    public function setUrl($mUrl)
+    public function setUrl($url): void
     {
-        $this->mUrl = $mUrl;
+        $this->url = $url;
     }
 
-    /**
-     * @param string $sPrefix
-     *
-     * @return void
-     */
-    public function setPrefix($sPrefix)
+    public function setPrefix(string $prefix): void
     {
-        $this->sPrefix = $sPrefix;
+        $this->prefix = $prefix;
     }
 
     /**
-     * @return string
+     * @return non-empty-string
      */
-    public function atRuleName()
+    public function atRuleName(): string
     {
         return 'namespace';
     }
 
     /**
-     * @return array<int, string>
+     * @return array{0: CSSString|URL|non-empty-string, 1?: CSSString|URL}
      */
-    public function atRuleArgs()
+    public function atRuleArgs(): array
     {
-        $aResult = [$this->mUrl];
-        if ($this->sPrefix) {
-            array_unshift($aResult, $this->sPrefix);
+        $result = [$this->url];
+        if (\is_string($this->prefix) && $this->prefix !== '') {
+            \array_unshift($result, $this->prefix);
         }
-        return $aResult;
-    }
-
-    /**
-     * @param array<array-key, Comment> $aComments
-     *
-     * @return void
-     */
-    public function addComments(array $aComments)
-    {
-        $this->aComments = array_merge($this->aComments, $aComments);
-    }
-
-    /**
-     * @return array<array-key, Comment>
-     */
-    public function getComments()
-    {
-        return $this->aComments;
-    }
-
-    /**
-     * @param array<array-key, Comment> $aComments
-     *
-     * @return void
-     */
-    public function setComments(array $aComments)
-    {
-        $this->aComments = $aComments;
+        return $result;
     }
 }
