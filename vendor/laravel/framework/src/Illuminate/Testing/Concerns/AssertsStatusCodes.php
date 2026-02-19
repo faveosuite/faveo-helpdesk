@@ -212,13 +212,23 @@ trait AssertsStatusCodes
     }
 
     /**
-     * Assert that the response has a 422 "Unprocessable Entity" status code.
+     * Assert that the response has a 422 "Unprocessable Content" status code.
      *
      * @return $this
      */
     public function assertUnprocessable()
     {
         return $this->assertStatus(422);
+    }
+
+    /**
+     * Assert that the response has a 424 "Failed Dependency" status code.
+     *
+     * @return $this
+     */
+    public function assertFailedDependency()
+    {
+        return $this->assertStatus(424);
     }
 
     /**

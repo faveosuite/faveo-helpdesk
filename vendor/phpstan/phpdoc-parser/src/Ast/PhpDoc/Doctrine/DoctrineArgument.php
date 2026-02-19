@@ -15,8 +15,7 @@ class DoctrineArgument implements Node
 
 	use NodeAttributes;
 
-	/** @var IdentifierTypeNode|null */
-	public $key;
+	public ?IdentifierTypeNode $key = null;
 
 	/** @var ValueType */
 	public $value;
@@ -30,7 +29,6 @@ class DoctrineArgument implements Node
 		$this->value = $value;
 	}
 
-
 	public function __toString(): string
 	{
 		if ($this->key === null) {
@@ -38,6 +36,20 @@ class DoctrineArgument implements Node
 		}
 
 		return $this->key . '=' . $this->value;
+	}
+
+	/**
+	 * @param array<string, mixed> $properties
+	 */
+	public static function __set_state(array $properties): self
+	{
+		$instance = new self($properties['key'], $properties['value']);
+		if (isset($properties['attributes'])) {
+			foreach ($properties['attributes'] as $key => $value) {
+				$instance->setAttribute($key, $value);
+			}
+		}
+		return $instance;
 	}
 
 }

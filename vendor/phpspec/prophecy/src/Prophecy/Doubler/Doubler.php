@@ -40,12 +40,12 @@ class Doubler
      */
     private $instantiator;
 
-    public function __construct(ClassMirror $mirror = null, ClassCreator $creator = null,
-                                NameGenerator $namer = null)
+    public function __construct(?ClassMirror $mirror = null, ?ClassCreator $creator = null,
+        ?NameGenerator $namer = null)
     {
-        $this->mirror  = $mirror  ?: new ClassMirror;
-        $this->creator = $creator ?: new ClassCreator;
-        $this->namer   = $namer   ?: new NameGenerator;
+        $this->mirror  = $mirror ?: new ClassMirror();
+        $this->creator = $creator ?: new ClassCreator();
+        $this->namer   = $namer ?: new NameGenerator();
     }
 
     /**
@@ -87,13 +87,13 @@ class Doubler
      *
      * @throws \Prophecy\Exception\InvalidArgumentException
      */
-    public function double(ReflectionClass $class = null, array $interfaces, array $args = null)
+    public function double(?ReflectionClass $class, array $interfaces, ?array $args = null)
     {
         foreach ($interfaces as $interface) {
             if (!$interface instanceof ReflectionClass) {
                 throw new InvalidArgumentException(sprintf(
-                    "[ReflectionClass \$interface1 [, ReflectionClass \$interface2]] array expected as\n".
-                    "a second argument to `Doubler::double(...)`, but got %s.",
+                    "[ReflectionClass \$interface1 [, ReflectionClass \$interface2]] array expected as\n"
+                    ."a second argument to `Doubler::double(...)`, but got %s.",
                     is_object($interface) ? get_class($interface).' class' : gettype($interface)
                 ));
             }
@@ -127,7 +127,7 @@ class Doubler
      *
      * @return class-string<T&DoubleInterface>
      */
-    protected function createDoubleClass(ReflectionClass $class = null, array $interfaces)
+    protected function createDoubleClass(?ReflectionClass $class, array $interfaces)
     {
         $name = $this->namer->name($class, $interfaces);
         $node = $this->mirror->reflect($class, $interfaces);

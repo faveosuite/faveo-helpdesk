@@ -6,6 +6,7 @@ use Aws\Api\Validator;
 use Aws\Credentials\CredentialsInterface;
 use Aws\EndpointV2\EndpointProviderV2;
 use Aws\Exception\AwsException;
+use Aws\Signature\DpopSignature;
 use Aws\Signature\S3ExpressSignature;
 use Aws\Token\TokenAuthorization;
 use Aws\Token\TokenInterface;
@@ -38,7 +39,7 @@ final class Middleware
         ) {
             return function (
                 CommandInterface $command,
-                RequestInterface $request = null)
+                ?RequestInterface $request = null)
             use (
                 $handler,
                 $api,
@@ -51,8 +52,28 @@ final class Middleware
                 if ($source !== null
                     && $operation->getInput()->hasMember($bodyParameter)
                 ) {
-                    $command[$bodyParameter] = new LazyOpenStream($source, 'r');
+                    $lazyOpenStream = new LazyOpenStream($source, 'r');
+                    $command[$bodyParameter] = $lazyOpenStream;
                     unset($command[$sourceParameter]);
+
+                    $next = $handler($command, $request);
+                    // To avoid failures in some tests cases
+                    if ($next !== null && method_exists($next, 'then')) {
+                        return $next->then(
+                            function ($result) use ($lazyOpenStream) {
+                                // To make sure the resource is closed.
+                                $lazyOpenStream->close();
+
+                                return $result;
+                            }
+                        )->otherwise(function (\Throwable $e) use ($lazyOpenStream) {
+                            $lazyOpenStream->close();
+
+                            throw $e;
+                        });
+                    }
+
+                    return $next;
                 }
 
                 return $handler($command, $request);
@@ -67,13 +88,13 @@ final class Middleware
      *
      * @return callable
      */
-    public static function validation(Service $api, Validator $validator = null)
+    public static function validation(Service $api, ?Validator $validator = null)
     {
         $validator = $validator ?: new Validator();
         return function (callable $handler) use ($api, $validator) {
             return function (
                 CommandInterface $command,
-                RequestInterface $request = null
+                ?RequestInterface $request = null
             ) use ($api, $validator, $handler) {
                 if ($api->isModifiedModel()) {
                     $api = new Service(
@@ -122,41 +143,53 @@ final class Middleware
      *
      * @return callable
      */
-    public static function signer(callable $credProvider, callable $signatureFunction, $tokenProvider = null, $config = [])
-    {
+    public static function signer(
+        callable $credProvider,
+        callable $signatureFunction,
+        $tokenProvider = null,
+        $config = []
+    ) {
         return function (callable $handler) use ($signatureFunction, $credProvider, $tokenProvider, $config) {
             return function (
                 CommandInterface $command,
                 RequestInterface $request
             ) use ($handler, $signatureFunction, $credProvider, $tokenProvider, $config) {
                 $signer = $signatureFunction($command);
+
+                // Token authorization path
                 if ($signer instanceof TokenAuthorization) {
-                    return $tokenProvider()->then(
-                        function (TokenInterface $token)
-                        use ($handler, $command, $signer, $request) {
-                            return $handler(
-                                $command,
-                                $signer->authorizeRequest($request, $token)
-                            );
-                        }
-                    );
+                    return $tokenProvider()->then(function (TokenInterface $token) use ($handler, $command, $signer, $request) {
+                        $command->getMetricsBuilder()->identifyMetricByValueAndAppend('token', $token);
+                        return $handler($command, $signer->authorizeRequest($request, $token));
+                    });
                 }
 
-                if ($signer instanceof S3ExpressSignature) {
-                    $credentialPromise = $config['s3_express_identity_provider']($command);
-                } else {
-                    $credentialPromise = $credProvider();
-                }
-
-                return $credentialPromise->then(
-                    function (CredentialsInterface $creds)
-                    use ($handler, $command, $signer, $request) {
-                        return $handler(
-                            $command,
-                            $signer->signRequest($request, $creds)
+                // DPoP path
+                if ($signer instanceof DpopSignature) {
+                    if (empty($key = $command['dpopKey'])
+                        || !($key instanceof \OpenSSLAsymmetricKey)
+                    ) {
+                        throw new \RuntimeException(
+                            'A valid DPoP key must be present for DPoP signatures'
                         );
                     }
-                );
+
+                    return $handler($command, $signer->signRequest($request, $key));
+                }
+
+                // Credential signing path
+                $credentialPromise = ($signer instanceof S3ExpressSignature)
+                    ? $config['s3_express_identity_provider']($command)
+                    : $credProvider();
+
+                return $credentialPromise->then(function (CredentialsInterface $creds) use ($handler,
+                    $command,
+                    $signer,
+                    $request
+                ) {
+                    $command->getMetricsBuilder()->identifyMetricByValueAndAppend('credentials', $creds);
+                    return $handler($command, $signer->signRequest($request, $creds));
+                });
             };
         };
     }
@@ -178,7 +211,7 @@ final class Middleware
         return function (callable $handler) use ($fn) {
             return function (
                 CommandInterface $command,
-                RequestInterface $request = null
+                ?RequestInterface $request = null
             ) use ($handler, $fn) {
                 $fn($command, $request);
                 return $handler($command, $request);
@@ -204,8 +237,8 @@ final class Middleware
      * @return callable
      */
     public static function retry(
-        callable $decider = null,
-        callable $delay = null,
+        ?callable $decider = null,
+        ?callable $delay = null,
         $stats = false
     ) {
         $decider = $decider ?: RetryMiddleware::createDefaultDecider();
@@ -253,7 +286,7 @@ final class Middleware
         return function (callable $handler) use ($operations) {
             return function (
                 CommandInterface $command,
-                RequestInterface $request = null
+                ?RequestInterface $request = null
             ) use ($handler, $operations) {
                 if (!$request->hasHeader('Content-Type')
                     && in_array($command->getName(), $operations, true)
@@ -322,7 +355,7 @@ final class Middleware
         return function (callable $handler) use ($history) {
             return function (
                 CommandInterface $command,
-                RequestInterface $request = null
+                ?RequestInterface $request = null
             ) use ($handler, $history) {
                 $ticket = $history->start($command, $request);
                 return $handler($command, $request)
@@ -354,7 +387,7 @@ final class Middleware
         return function (callable $handler) use ($f) {
             return function (
                 CommandInterface $command,
-                RequestInterface $request = null
+                ?RequestInterface $request = null
             ) use ($handler, $f) {
                 return $handler($command, $f($request));
             };
@@ -375,7 +408,7 @@ final class Middleware
         return function (callable $handler) use ($f) {
             return function (
                 CommandInterface $command,
-                RequestInterface $request = null
+                ?RequestInterface $request = null
             ) use ($handler, $f) {
                 return $handler($f($command), $request);
             };
@@ -395,7 +428,7 @@ final class Middleware
         return function (callable $handler) use ($f) {
             return function (
                 CommandInterface $command,
-                RequestInterface $request = null
+                ?RequestInterface $request = null
             ) use ($handler, $f) {
                 return $handler($command, $request)->then($f);
             };
@@ -407,7 +440,7 @@ final class Middleware
         return function (callable $handler) {
             return function (
                 CommandInterface $command,
-                RequestInterface $request = null
+                ?RequestInterface $request = null
             ) use ($handler) {
                 $start = microtime(true);
                 return $handler($command, $request)

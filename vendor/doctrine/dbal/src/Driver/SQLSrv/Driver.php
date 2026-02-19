@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Driver\SQLSrv;
 
 use Doctrine\DBAL\Driver\AbstractSQLServerDriver;
@@ -17,13 +19,11 @@ final class Driver extends AbstractSQLServerDriver
 {
     /**
      * {@inheritDoc}
-     *
-     * @return Connection
      */
     public function connect(
         #[SensitiveParameter]
-        array $params
-    ) {
+        array $params,
+    ): Connection {
         $serverName = '';
 
         if (isset($params['host'])) {

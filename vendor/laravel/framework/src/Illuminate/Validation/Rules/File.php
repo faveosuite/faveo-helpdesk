@@ -14,8 +14,7 @@ use InvalidArgumentException;
 
 class File implements Rule, DataAwareRule, ValidatorAwareRule
 {
-    use Conditionable;
-    use Macroable;
+    use Conditionable, Macroable;
 
     /**
      * The MIME types that the given file should match. This array may also contain file extensions.
@@ -44,6 +43,13 @@ class File implements Rule, DataAwareRule, ValidatorAwareRule
      * @var null|int
      */
     protected $maximumFileSize = null;
+
+    /**
+     * The required file encoding.
+     *
+     * @var string|null
+     */
+    protected $encoding = null;
 
     /**
      * An array of custom rules that will be merged into the validation rules.
@@ -86,7 +92,9 @@ class File implements Rule, DataAwareRule, ValidatorAwareRule
      * If no arguments are passed, the default file rule configuration will be returned.
      *
      * @param  static|callable|null  $callback
-     * @return static|null
+     * @return static|void
+     *
+     * @throws \InvalidArgumentException
      */
     public static function defaults($callback = null)
     {
@@ -118,11 +126,12 @@ class File implements Rule, DataAwareRule, ValidatorAwareRule
     /**
      * Limit the uploaded file to only image types.
      *
+     * @param  bool  $allowSvg
      * @return ImageFile
      */
-    public static function image()
+    public static function image($allowSvg = false)
     {
-        return new ImageFile();
+        return new ImageFile($allowSvg);
     }
 
     /**
@@ -205,10 +214,25 @@ class File implements Rule, DataAwareRule, ValidatorAwareRule
     }
 
     /**
+     * Indicate that the uploaded file should be in the given encoding.
+     *
+     * @param  string  $encoding
+     * @return $this
+     */
+    public function encoding($encoding)
+    {
+        $this->encoding = $encoding;
+
+        return $this;
+    }
+
+    /**
      * Convert a potentially human-friendly file size to kilobytes.
      *
      * @param  string|int  $size
-     * @return mixed
+     * @return ($size is int ? int : int|float)
+     *
+     * @throws \InvalidArgumentException
      */
     protected function toKilobytes($size)
     {
@@ -216,13 +240,15 @@ class File implements Rule, DataAwareRule, ValidatorAwareRule
             return $size;
         }
 
-        $value = floatval($size);
+        $size = strtolower(trim($size));
+
+        $value = (float) $size;
 
         return round(match (true) {
             Str::endsWith($size, 'kb') => $value * 1,
-            Str::endsWith($size, 'mb') => $value * 1000,
-            Str::endsWith($size, 'gb') => $value * 1000000,
-            Str::endsWith($size, 'tb') => $value * 1000000000,
+            Str::endsWith($size, 'mb') => $value * 1_000,
+            Str::endsWith($size, 'gb') => $value * 1_000_000,
+            Str::endsWith($size, 'tb') => $value * 1_000_000_000,
             default => throw new InvalidArgumentException('Invalid file size suffix.'),
         });
     }
@@ -277,7 +303,7 @@ class File implements Rule, DataAwareRule, ValidatorAwareRule
         $rules = array_merge($rules, $this->buildMimetypes());
 
         if (! empty($this->allowedExtensions)) {
-            $rules[] = 'extensions:'.implode(',', array_map('strtolower', $this->allowedExtensions));
+            $rules[] = 'extensions:'.implode(',', array_map(strtolower(...), $this->allowedExtensions));
         }
 
         $rules[] = match (true) {
@@ -288,11 +314,15 @@ class File implements Rule, DataAwareRule, ValidatorAwareRule
             default => "size:{$this->minimumFileSize}",
         };
 
+        if ($this->encoding) {
+            $rules[] = 'encoding:'.$this->encoding;
+        }
+
         return array_merge(array_filter($rules), $this->customRules);
     }
 
     /**
-     * Separate the given mimetypes from extensions and return an array of correct rules to validate against.
+     * Separate the given MIME types from extensions and return an array of correct rules to validate against.
      *
      * @return array
      */
@@ -330,11 +360,7 @@ class File implements Rule, DataAwareRule, ValidatorAwareRule
      */
     protected function fail($messages)
     {
-        $messages = collect(Arr::wrap($messages))->map(function ($message) {
-            return $this->validator->getTranslator()->get($message);
-        })->all();
-
-        $this->messages = array_merge($this->messages, $messages);
+        $this->messages = array_merge($this->messages, Arr::wrap($messages));
 
         return false;
     }

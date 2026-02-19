@@ -1,6 +1,24 @@
 # CHANGELOG
 
-## [Unreleased](https://github.com/FakerPHP/Faker/compare/v1.23.0...main)
+## [Unreleased](https://github.com/FakerPHP/Faker/compare/v1.24.0...1.24.1)
+
+- Removed domain `gmail.com.au` from `Provider\en_AU\Internet` (#886)
+
+## [2024-11-09, v1.24.0](https://github.com/FakerPHP/Faker/compare/v1.23.1..v1.24.0)
+
+- Fix internal deprecations in Doctrine's populator by @gnutix in (#889)
+- Fix mobile phone number pattern for France by @ker0x in (#859)
+- PHP 8.4 Support by @Jubeki in (#904)
+
+- Added support for PHP 8.4 (#904)
+
+## [2023-09-29, v1.23.1](https://github.com/FakerPHP/Faker/compare/v1.23.0..v1.23.1)
+
+- Fixed double `а` female lastName in `ru_RU/Person::name()` (#832)
+- Fixed polish license plates (#685)
+- Stopped using `static` in callables in `Provider\pt_BR\PhoneNumber` (#785)
+- Fixed incorrect female name (#794)
+- Stopped using the deprecated `MT_RAND_PHP` constant to seed the random generator on PHP 8.3 (#844)
 
 ## [2023-06-12, v1.23.0](https://github.com/FakerPHP/Faker/compare/v1.22.0..v1.23.0)
 

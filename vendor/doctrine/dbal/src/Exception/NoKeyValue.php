@@ -1,17 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Exception;
 
 use Doctrine\DBAL\Exception;
 
 use function sprintf;
 
-/**
- * @internal
- *
- * @psalm-immutable
- */
-final class NoKeyValue extends Exception
+/** @internal */
+final class NoKeyValue extends \Exception implements Exception
 {
     public static function fromColumnCount(int $columnCount): self
     {

@@ -1,11 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Portability;
 
 use Doctrine\DBAL\Driver\Connection as ConnectionInterface;
 use Doctrine\DBAL\Driver\Middleware\AbstractConnectionMiddleware;
-use Doctrine\DBAL\Driver\Result as DriverResult;
-use Doctrine\DBAL\Driver\Statement as DriverStatement;
 
 /**
  * Portability wrapper for a Connection.
@@ -18,16 +18,12 @@ final class Connection extends AbstractConnectionMiddleware
     public const PORTABILITY_EMPTY_TO_NULL = 4;
     public const PORTABILITY_FIX_CASE      = 8;
 
-    private Converter $converter;
-
-    public function __construct(ConnectionInterface $connection, Converter $converter)
+    public function __construct(ConnectionInterface $connection, private readonly Converter $converter)
     {
         parent::__construct($connection);
-
-        $this->converter = $converter;
     }
 
-    public function prepare(string $sql): DriverStatement
+    public function prepare(string $sql): Statement
     {
         return new Statement(
             parent::prepare($sql),
@@ -35,7 +31,7 @@ final class Connection extends AbstractConnectionMiddleware
         );
     }
 
-    public function query(string $sql): DriverResult
+    public function query(string $sql): Result
     {
         return new Result(
             parent::query($sql),

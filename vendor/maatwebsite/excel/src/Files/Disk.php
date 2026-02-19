@@ -32,7 +32,7 @@ class Disk
      * @param  string|null  $name
      * @param  array  $diskOptions
      */
-    public function __construct(IlluminateFilesystem $disk, string $name = null, array $diskOptions = [])
+    public function __construct(IlluminateFilesystem $disk, ?string $name = null, array $diskOptions = [])
     {
         $this->disk        = $disk;
         $this->name        = $name;
@@ -67,6 +67,10 @@ class Disk
     public function copy(TemporaryFile $source, string $destination): bool
     {
         $readStream = $source->readStream();
+
+        if (!is_resource($readStream)) {
+            return false;
+        }
 
         if (realpath($destination)) {
             $tempStream = fopen($destination, 'rb+');

@@ -1,8 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Schema;
 
-use Doctrine\DBAL\Schema\Visitor\Visitor;
+use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
+use Doctrine\DBAL\Schema\Name\Parser\OptionallyQualifiedNameParser;
+use Doctrine\DBAL\Schema\Name\Parsers;
 use Doctrine\Deprecations\Deprecation;
 
 use function count;
@@ -10,89 +14,124 @@ use function sprintf;
 
 /**
  * Sequence structure.
+ *
+ * @final
+ * @extends AbstractNamedObject<OptionallyQualifiedName>
  */
-class Sequence extends AbstractAsset
+class Sequence extends AbstractNamedObject
 {
-    /** @var int */
-    protected $allocationSize = 1;
+    protected int $allocationSize = 1;
 
-    /** @var int */
-    protected $initialValue = 1;
-
-    /** @var int|null */
-    protected $cache;
+    protected int $initialValue = 1;
 
     /**
-     * @param string   $name
-     * @param int      $allocationSize
-     * @param int      $initialValue
-     * @param int|null $cache
+     * @internal Use {@link Sequence::editor()} to instantiate an editor and {@link SequenceEditor::create()} to create
+     *           a sequence.
+     *
+     * @param ?non-negative-int $cache
      */
-    public function __construct($name, $allocationSize = 1, $initialValue = 1, $cache = null)
-    {
-        $this->_setName($name);
+    public function __construct(
+        string $name,
+        int $allocationSize = 1,
+        int $initialValue = 1,
+        protected ?int $cache = null,
+    ) {
+        parent::__construct($name);
+
+        if ($cache < 0) {
+            Deprecation::triggerIfCalledFromOutside(
+                'doctrine/dbal',
+                'https://github.com/doctrine/dbal/pull/7108',
+                'Passing a negative value as sequence cache size is deprecated.',
+            );
+        }
+
         $this->setAllocationSize($allocationSize);
         $this->setInitialValue($initialValue);
-        $this->cache = $cache;
     }
 
-    /** @return int */
-    public function getAllocationSize()
+    protected function getNameParser(): OptionallyQualifiedNameParser
+    {
+        return Parsers::getOptionallyQualifiedNameParser();
+    }
+
+    public function getAllocationSize(): int
     {
         return $this->allocationSize;
     }
 
-    /** @return int */
-    public function getInitialValue()
+    public function getInitialValue(): int
     {
         return $this->initialValue;
     }
 
-    /** @return int|null */
-    public function getCache()
+    /**
+     * @deprecated Use {@see getCacheSize()} instead.
+     *
+     * @return ?non-negative-int
+     */
+    public function getCache(): ?int
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7108',
+            '%s is deprecated, use `getCacheSize()` instead.',
+            __METHOD__,
+        );
+
         return $this->cache;
     }
 
-    /**
-     * @param int $allocationSize
-     *
-     * @return Sequence
-     */
-    public function setAllocationSize($allocationSize)
+    /** @return ?non-negative-int */
+    public function getCacheSize(): ?int
     {
-        if ($allocationSize > 0) {
-            $this->allocationSize = $allocationSize;
-        } else {
-            $this->allocationSize = 1;
-        }
+        return $this->getCache();
+    }
+
+    /** @deprecated Use {@see edit()} and {@see SequenceEditor::setAllocationSize()} instead. */
+    public function setAllocationSize(int $allocationSize): self
+    {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7115',
+            '%s is deprecated. Use Sequence::edit() and SequenceEditor::setAllocationSize() instead.',
+            __METHOD__,
+        );
+
+        $this->allocationSize = $allocationSize;
+
+        return $this;
+    }
+
+    /** @deprecated Use {@see edit()} and {@see SequenceEditor::setInitialValue()} instead. */
+    public function setInitialValue(int $initialValue): self
+    {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7115',
+            '%s is deprecated. Use Sequence::edit() and SequenceEditor::setInitialValue() instead.',
+            __METHOD__,
+        );
+
+        $this->initialValue = $initialValue;
 
         return $this;
     }
 
     /**
-     * @param int $initialValue
+     * @deprecated Use {@see edit()} and {@see SequenceEditor::setCacheSize()} instead.
      *
-     * @return Sequence
+     * @param non-negative-int $cache
      */
-    public function setInitialValue($initialValue)
+    public function setCache(int $cache): self
     {
-        if ($initialValue > 0) {
-            $this->initialValue = $initialValue;
-        } else {
-            $this->initialValue = 1;
-        }
+        Deprecation::trigger(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/7115',
+            '%s is deprecated. Use Sequence::edit() and SequenceEditor::setCacheSize() instead.',
+            __METHOD__,
+        );
 
-        return $this;
-    }
-
-    /**
-     * @param int $cache
-     *
-     * @return Sequence
-     */
-    public function setCache($cache)
-    {
         $this->cache = $cache;
 
         return $this;
@@ -104,10 +143,17 @@ class Sequence extends AbstractAsset
      * This is used inside the comparator to not report sequences as missing,
      * when the "from" schema implicitly creates the sequences.
      *
-     * @return bool
+     * @deprecated
      */
-    public function isAutoIncrementsFor(Table $table)
+    public function isAutoIncrementsFor(Table $table): bool
     {
+        Deprecation::triggerIfCalledFromOutside(
+            'doctrine/dbal',
+            'https://github.com/doctrine/dbal/pull/6654',
+            '%s is deprecated and will be removed in 5.0.',
+            __METHOD__,
+        );
+
         $primaryKey = $table->getPrimaryKey();
 
         if ($primaryKey === null) {
@@ -134,18 +180,22 @@ class Sequence extends AbstractAsset
     }
 
     /**
-     * @deprecated
-     *
-     * @return void
+     * Instantiates a new sequence editor.
      */
-    public function visit(Visitor $visitor)
+    public static function editor(): SequenceEditor
     {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5435',
-            'Sequence::visit() is deprecated.',
-        );
+        return new SequenceEditor();
+    }
 
-        $visitor->acceptSequence($this);
+    /**
+     * Instantiates a new sequence editor and initializes it with the sequence's properties.
+     */
+    public function edit(): SequenceEditor
+    {
+        return self::editor()
+            ->setName($this->getObjectName())
+            ->setAllocationSize($this->getAllocationSize())
+            ->setInitialValue($this->getInitialValue())
+            ->setCacheSize($this->getCacheSize());
     }
 }

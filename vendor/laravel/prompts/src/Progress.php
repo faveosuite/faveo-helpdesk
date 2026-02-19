@@ -34,10 +34,12 @@ class Progress extends Prompt
      */
     public function __construct(public string $label, public iterable|int $steps, public string $hint = '')
     {
+        /** @phpstan-ignore assign.propertyType (PHPStan doesn't parse that we convert from iterable to int in the below match) */
         $this->total = match (true) {
             is_int($this->steps) => $this->steps,
             is_countable($this->steps) => count($this->steps),
             is_iterable($this->steps) => iterator_count($this->steps),
+            /** @phpstan-ignore match.unreachable (Technically we shouldn't be able to reach the default as should be int|countable|iterable ) */
             default => throw new InvalidArgumentException('Unable to count steps.'),
         };
 
@@ -53,6 +55,8 @@ class Progress extends Prompt
      *
      * @param  Closure((TSteps is int ? int : value-of<TSteps>), $this): TReturn  $callback
      * @return array<TReturn>
+     *
+     * @throws Throwable
      */
     public function map(Closure $callback): array
     {
@@ -108,9 +112,9 @@ class Progress extends Prompt
             });
         }
 
-        $this->state = 'active';
         $this->hideCursor();
         $this->render();
+        $this->state = 'active';
     }
 
     /**
@@ -136,6 +140,14 @@ class Progress extends Prompt
         $this->render();
         $this->restoreCursor();
         $this->resetSignals();
+    }
+
+    /**
+     * Force the progress bar to re-render.
+     */
+    public function render(): void
+    {
+        parent::render();
     }
 
     /**

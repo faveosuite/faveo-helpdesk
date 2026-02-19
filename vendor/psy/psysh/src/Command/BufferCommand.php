@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,8 +11,7 @@
 
 namespace Psy\Command;
 
-use Psy\Exception\RuntimeException;
-use Psy\Output\ShellOutput;
+use Psy\Output\ShellOutputAdapter;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -27,7 +26,7 @@ class BufferCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('buffer')
@@ -50,19 +49,17 @@ HELP
      *
      * @return int 0 if everything went fine, or an exit code
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $app = $this->getApplication();
-        if (!$app instanceof \Psy\Shell) {
-            throw new RuntimeException('Buffer command requires a \Psy\Shell application');
-        }
+        $shell = $this->getShell();
+        $shellOutput = $this->shellOutput($output);
 
-        $buf = $app->getCodeBuffer();
+        $buf = $shell->getCodeBuffer();
         if ($input->getOption('clear')) {
-            $app->resetCodeBuffer();
-            $output->writeln($this->formatLines($buf, 'urgent'), ShellOutput::NUMBER_LINES);
+            $shell->resetCodeBuffer();
+            $shellOutput->writeln($this->formatLines($buf, 'urgent'), ShellOutputAdapter::NUMBER_LINES);
         } else {
-            $output->writeln($this->formatLines($buf), ShellOutput::NUMBER_LINES);
+            $shellOutput->writeln($this->formatLines($buf), ShellOutputAdapter::NUMBER_LINES);
         }
 
         return 0;

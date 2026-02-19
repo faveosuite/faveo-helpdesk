@@ -2,6 +2,7 @@
 
 namespace Illuminate\Console\Scheduling;
 
+use Illuminate\Console\Application;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\ProcessUtils;
@@ -17,7 +18,9 @@ class ScheduleWorkCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'schedule:work {--run-output-file= : The file to direct <info>schedule:run</info> output to}';
+    protected $signature = 'schedule:work
+        {--run-output-file= : The file to direct <info>schedule:run</info> output to}
+        {--whisper : Do not output message indicating that no jobs were ready to run}';
 
     /**
      * The console command description.
@@ -29,22 +32,22 @@ class ScheduleWorkCommand extends Command
     /**
      * Execute the console command.
      *
-     * @return void
+     * @return never
      */
     public function handle()
     {
         $this->components->info(
-            'Running scheduled tasks every minute.',
-            $this->getLaravel()->isLocal() ? OutputInterface::VERBOSITY_NORMAL : OutputInterface::VERBOSITY_VERBOSE
+            'Running scheduled tasks.',
+            $this->getLaravel()->environment('local') ? OutputInterface::VERBOSITY_NORMAL : OutputInterface::VERBOSITY_VERBOSE
         );
 
         [$lastExecutionStartedAt, $executions] = [Carbon::now()->subMinutes(10), []];
 
-        $command = implode(' ', array_map(fn ($arg) => ProcessUtils::escapeArgument($arg), [
-            PHP_BINARY,
-            defined('ARTISAN_BINARY') ? ARTISAN_BINARY : 'artisan',
-            'schedule:run',
-        ]));
+        $command = Application::formatCommandString('schedule:run');
+
+        if ($this->option('whisper')) {
+            $command .= ' --whisper';
+        }
 
         if ($this->option('run-output-file')) {
             $command .= ' >> '.ProcessUtils::escapeArgument($this->option('run-output-file')).' 2>&1';
@@ -55,7 +58,7 @@ class ScheduleWorkCommand extends Command
 
             if (Carbon::now()->second === 0 &&
                 ! Carbon::now()->startOfMinute()->equalTo($lastExecutionStartedAt)) {
-                $executions[] = $execution = Process::fromShellCommandline($command);
+                $executions[] = $execution = Process::fromShellCommandline($command, base_path());
 
                 $execution->start();
 

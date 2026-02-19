@@ -1,3 +1,94 @@
+5.3.5
+
+- added support for PHPUnit 11 and Pest 3 (reported by simbig, thanks!)
+- Added Xdebug support to vanilla integration (reported by edxeth, thanks!)
+- improved collecting of Eloquent queries to better support escaped and named bindings (reported by DeBug88, thanks!)
+- fixed crash when no response is returned when collecting Guzzle HTTP requests (implemented by N1ebieski, thanks!)
+- fixed calling Artisan command inside Artisan command leading to multiple invalid requests being collected (reported by mattvb91, thanks!)
+- fixed duplicate N+1 queries being collected when running on Laravel Octane (implemented by yahya09, thanks!)
+
+5.3.4
+
+- fixed handling of Guzzle exceptions with no response when collecting HTTP requests
+- fixed compatibility with old PHP versions (<7.4) in file storage (reported by SheylaSilvana, thanks!)
+
+5.3.3
+
+- fixed collecting HTTP requests consuming the response body (reported by mikethea1, thanks!)
+- fixed PHP 8.4 incompatibility in vanilla integration (implemented by txdFabio, thanks!)
+- updated Clockwork App (5.3.2)
+
+5.3.2
+
+- fixed crash collecting Laravel on-demand notifications with database or broadcast channels (reported by michaelthedev, thanks!) 
+
+5.3.1
+
+- fixed storing HTTP requests in SQL and Redis storage (reported by andrew-bannister, thanks!)
+- updated Clockwork App (5.3.1)
+
+5.3
+
+- added support for collecting HTTP requests, with seamless Laravel and generic Guzzle implementation
+- added generic PSR-compatible middleware to the Vanilla integration (partially implemented by UlrichEckhardt, thanks!)
+- added support for Symfony 6+
+- added support for Doctrine 3+ (idea by DominicDetta, thanks!)
+- added support for Monolog 3 (implemented by Fedorov.Sergey, thanks!)
+- improved collecting database queries in Laravel to include transaction queries (implemented by congnv0330, thanks!)
+- improved collecting notifications in Laravel to include "To" field for database and broadcast notifications and improved email recipient formatting
+- improved Vanilla integration to support serving the Web UI without copying the assets (implemented by UlrichEckhardt, thanks!)
+- improved Request apis to automatically compute number of database queries, cache queries and model actions (idea by MarkusJLechner, thanks!)
+- improved Artisan clockwork:clean to include clockwork:clear alias (implemented by wilsenhc, thanks!)
+- improved Vanilla integration config to use getenv() instead of $_ENV (implemented by UlrichEckhardt and Fedorov.Sergey, thanks!)
+- improved Symfony integration to disable profiler for Clockwork Web UI requests
+- improved Monolog data source to automatically use correct handler (implemented by DominicDetta and Fedorov.Sergey, thanks!)
+- improved Laravel and Vanilla integration to clean up the x-clockwork cookie when it's no longer needed (idea by ssnepenthe, thanks!)
+- improved collecting models in Laravel to avoid crash when model's primary key is not set to string
+- changed file_exists call to is_dir/is_file (idea by staabm, thanks!)
+- fixed PHP 8.4 deprecation notices (reported by gharlan, thanks!)
+- fixed not being able to read first collected request in files storage (reported by UlrichEckhardt, thanks!)
+- fixed connecting to Redis without login or database set in Redit storage (reported by reeslo, thanks!)
+- updated Clockwork App (5.3)
+- BREAKING dropped PHP <7.1 support
+- BREAKING Vanilla integration default value for web.path has changed to false
+
+5.2.2
+
+- fixed collecting Laravel artisan command output on Laravel 11 (reported by uderline, thanks!)
+
+5.2.1
+
+- fixed collecting Laravel database notifications using toDatabase and broadcast notifications using toArray (implemented by ryzr, thanks!)
+- fixed serialization of incomplete PHP classes (implemented by hamedghaderi, thanks!)
+
+5.2
+
+- added new security protection - running Clockwork is now restricted to local domains unless explicitly enabled
+- added Redis storage implementation (implemented by christopherh0rn, thanks!)
+- added support for collecting tests with Pest 2 and PHPUnit 10 (reported by CadenP, idea by kdevan, thanks!)
+- added support for all Twig versions in the Twig profiler integration (idea by ericktucto, thanks!)
+- improved collecting of notifications in Laravel to support latest version of laravel/slack-notification-channel (implemented by maximepvrt, thanks!)
+- improved Laravel installation process to be able to use "clockwork" tag for publishing the config file
+- improved default Laravel config to ignore Telescope Toolbar requests by default (implemented by lloricode, thanks!)
+- improved Eloquent data source to support Crate PDO (implemented by JulianMar, thanks!)
+- improved Slim integration to support retrieving latest requests in the rest api (implemented by UlrichEckhardt, thanks!)
+- fixed compatibility with Laravel <5.5 when collecting database queries (reported by sbahr001, thanks!)
+- fixed compatibility with Laravel 5.6 when client-metrics or toolbar is enabled (reported by Smolinsky, thanks!)
+- fixed checking of notification type when collecting Laravel notifications (reported by faraweilyas, idea by jameshulse, thanks!)
+- fixed collecting of Slack notifications content in Laravel (implemented by maximepvrt, thanks!)
+- fixed collecting of Laravel cache expiration times (implemented by FeBe95, thanks!)
+- fixed ability to use custom should-collect and should-record callbacks (implemented by thattomperson, thanks!)
+- fixed a possible crash with SQL storage when creating backup table or inserting duplicate ids (reported by davidp-celtra, thanks!)
+- fixed an exception being thrown when Clockwork metadata path is not writable even when Clockwork was disabled (reported by joelharkes, thanks!)
+- fixed an issue with file storage causing some non-http requests might not be shown in the app (reported by mattvb91, thanks!)
+- fixed compatibility with using Filebeat to collect Clockwork metadata (implemented by JConseil, thanks!)
+- fixed Request::addModelAction method not storing the action properly (reported by UlrichEckhardt, thanks!)
+
+*BREAKING*
+
+- Running Clockwork is now restricted to local domains - localhost, local, test, wip and 127.0.0.1 - unless explicitly enabled.
+  If you want to use Clockwork on a different domain, please explicitly enable it by setting CLOCKWORK_ENABLE to true. 
+
 5.1.12
 
 - improved Timeline event run method to stop the event in case of an exception (implemented by UlrichEckhardt, thanks!)

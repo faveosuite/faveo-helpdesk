@@ -19,7 +19,6 @@ class ProcessResult implements ProcessResultContract
      * Create a new process result instance.
      *
      * @param  \Symfony\Component\Process\Process  $process
-     * @return void
      */
     public function __construct(Process $process)
     {
@@ -116,7 +115,7 @@ class ProcessResult implements ProcessResultContract
      *
      * @throws \Illuminate\Process\Exceptions\ProcessFailedException
      */
-    public function throw(callable $callback = null)
+    public function throw(?callable $callback = null)
     {
         if ($this->successful()) {
             return $this;
@@ -140,7 +139,7 @@ class ProcessResult implements ProcessResultContract
      *
      * @throws \Throwable
      */
-    public function throwIf(bool $condition, callable $callback = null)
+    public function throwIf(bool $condition, ?callable $callback = null)
     {
         if ($condition) {
             return $this->throw($callback);

@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -22,7 +22,7 @@ class ClassEnumerator extends Enumerator
     /**
      * {@inheritdoc}
      */
-    protected function listItems(InputInterface $input, \Reflector $reflector = null, $target = null): array
+    protected function listItems(InputInterface $input, ?\Reflector $reflector = null, $target = null): array
     {
         // if we have a reflector, ensure that it's a namespace reflector
         if (($target !== null || $reflector !== null) && !$reflector instanceof ReflectionNamespace) {
@@ -58,15 +58,15 @@ class ClassEnumerator extends Enumerator
      * If $internal or $user is defined, results will be limited to internal or
      * user-defined classes as appropriate.
      *
-     * @param string $key
-     * @param array  $classes
-     * @param bool   $internal
-     * @param bool   $user
-     * @param string $prefix
+     * @param string      $key
+     * @param array       $classes
+     * @param bool        $internal
+     * @param bool        $user
+     * @param string|null $prefix
      *
      * @return array
      */
-    protected function filterClasses(string $key, array $classes, bool $internal, bool $user, string $prefix = null): array
+    protected function filterClasses(string $key, array $classes, bool $internal, bool $user, ?string $prefix = null): array
     {
         $ret = [];
 

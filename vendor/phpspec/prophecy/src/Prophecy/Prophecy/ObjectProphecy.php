@@ -49,13 +49,13 @@ class ObjectProphecy implements ProphecyInterface
      */
     public function __construct(
         LazyDouble $lazyDouble,
-        CallCenter $callCenter = null,
-        RevealerInterface $revealer = null,
-        ComparatorFactory $comparatorFactory = null
+        ?CallCenter $callCenter = null,
+        ?RevealerInterface $revealer = null,
+        ?ComparatorFactory $comparatorFactory = null
     ) {
         $this->lazyDouble = $lazyDouble;
-        $this->callCenter = $callCenter ?: new CallCenter;
-        $this->revealer   = $revealer ?: new Revealer;
+        $this->callCenter = $callCenter ?: new CallCenter();
+        $this->revealer   = $revealer ?: new Revealer();
 
         $this->comparatorFactory = $comparatorFactory ?: FactoryProvider::getInstance();
     }
@@ -103,7 +103,7 @@ class ObjectProphecy implements ProphecyInterface
      *
      * @return $this
      */
-    public function willBeConstructedWith(array $arguments = null)
+    public function willBeConstructedWith(?array $arguments = null)
     {
         $this->lazyDouble->setArguments($arguments);
 
@@ -125,8 +125,8 @@ class ObjectProphecy implements ProphecyInterface
 
         if (!$double instanceof ProphecySubjectInterface) {
             throw new ObjectProphecyException(
-                "Generated double must implement ProphecySubjectInterface, but it does not.\n".
-                'It seems you have wrongly configured doubler without required ClassPatch.',
+                "Generated double must implement ProphecySubjectInterface, but it does not.\n"
+                .'It seems you have wrongly configured doubler without required ClassPatch.',
                 $this
             );
         }
@@ -148,7 +148,7 @@ class ObjectProphecy implements ProphecyInterface
         $methodName = strtolower($methodProphecy->getMethodName());
 
         if (!isset($this->methodProphecies[$methodName])) {
-            $this->methodProphecies[$methodName] = array();
+            $this->methodProphecies[$methodName] = [];
         }
 
         $this->methodProphecies[$methodName][] = $methodProphecy;
@@ -172,7 +172,7 @@ class ObjectProphecy implements ProphecyInterface
         $methodName = strtolower($methodName);
 
         if (!isset($this->methodProphecies[$methodName])) {
-            return array();
+            return [];
         }
 
         return $this->methodProphecies[$methodName];
@@ -261,7 +261,8 @@ class ObjectProphecy implements ProphecyInterface
             try {
                 $comparator->assertEquals($argumentsWildcard, $arguments);
                 return $prophecy;
-            } catch (ComparisonFailure $failure) {}
+            } catch (ComparisonFailure $failure) {
+            }
         }
 
         return new MethodProphecy($this, $methodName, $arguments);

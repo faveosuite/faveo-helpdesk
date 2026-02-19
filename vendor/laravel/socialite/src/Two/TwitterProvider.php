@@ -12,7 +12,7 @@ class TwitterProvider extends AbstractProvider implements ProviderInterface
      *
      * @var array
      */
-    protected $scopes = ['users.read', 'tweet.read'];
+    protected $scopes = ['users.read', 'users.email', 'tweet.read'];
 
     /**
      * Indicates if PKCE should be used.
@@ -58,7 +58,7 @@ class TwitterProvider extends AbstractProvider implements ProviderInterface
     {
         $response = $this->getHttpClient()->get('https://api.twitter.com/2/users/me', [
             RequestOptions::HEADERS => ['Authorization' => 'Bearer '.$token],
-            RequestOptions::QUERY => ['user.fields' => 'profile_image_url'],
+            RequestOptions::QUERY => ['user.fields' => 'profile_image_url,confirmed_email'],
         ]);
 
         return Arr::get(json_decode($response->getBody(), true), 'data');
@@ -71,6 +71,7 @@ class TwitterProvider extends AbstractProvider implements ProviderInterface
     {
         return (new User)->setRaw($user)->map([
             'id' => $user['id'],
+            'email' => $user['confirmed_email'] ?? null,
             'nickname' => $user['username'],
             'name' => $user['name'],
             'avatar' => $user['profile_image_url'],

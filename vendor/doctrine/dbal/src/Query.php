@@ -4,45 +4,22 @@ declare(strict_types=1);
 
 namespace Doctrine\DBAL;
 
-use Doctrine\DBAL\Types\Type;
-
 /**
  * An SQL query together with its bound parameters.
  *
- * @psalm-immutable
+ * @phpstan-import-type WrapperParameterType from Connection
  */
 final class Query
 {
     /**
-     * The SQL query.
+     * @param array<mixed> $params
+     * @phpstan-param array<WrapperParameterType> $types
      */
-    private string $sql;
-
-    /**
-     * The parameters bound to the query.
-     *
-     * @var array<mixed>
-     */
-    private array $params;
-
-    /**
-     * The types of the parameters bound to the query.
-     *
-     * @var array<Type|int|string|null>
-     */
-    private array $types;
-
-    /**
-     * @param array<mixed>                $params
-     * @param array<Type|int|string|null> $types
-     *
-     * @psalm-suppress ImpurePropertyAssignment
-     */
-    public function __construct(string $sql, array $params, array $types)
-    {
-        $this->sql    = $sql;
-        $this->params = $params;
-        $this->types  = $types;
+    public function __construct(
+        private readonly string $sql,
+        private readonly array $params,
+        private readonly array $types,
+    ) {
     }
 
     public function getSQL(): string
@@ -56,7 +33,7 @@ final class Query
         return $this->params;
     }
 
-    /** @return array<Type|int|string|null> */
+    /** @phpstan-return array<WrapperParameterType> */
     public function getTypes(): array
     {
         return $this->types;

@@ -1,9 +1,7 @@
 <?php
 /**
  * @package dompdf
- * @link    http://dompdf.github.com/
- * @author  Benj Carson <benjcarson@digitaljunkies.ca>
- * @author  Helmut Tischer <htischer@weihenstephan.org>
+ * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
 namespace Dompdf\FrameDecorator;
@@ -15,7 +13,6 @@ use Dompdf\Exception;
 /**
  * Decorates frames for inline layout
  *
- * @access  private
  * @package dompdf
  */
 class Inline extends AbstractFrameDecorator
@@ -68,33 +65,40 @@ class Inline extends AbstractFrameDecorator
         $this->revert_counter_increment();
         $node = $this->_frame->get_node();
         $split = $this->copy($node->cloneNode());
-        // if this is a generated node don't propagate the content style
-        if ($split->get_node()->nodeName == "dompdf_generated") {
-            $split->get_style()->content = "normal";
-        }
-        $this->get_parent()->insert_child_after($split, $this);
+
+        $style = $this->_frame->get_style();
+        $split_style = $split->get_style();
 
         // Unset the current node's right style properties
-        $style = $this->_frame->get_style();
-        $style->margin_right = 0;
-        $style->padding_right = 0;
-        $style->border_right_width = 0;
+        $style->margin_right = 0.0;
+        $style->padding_right = 0.0;
+        $style->border_right_width = 0.0;
+        $style->border_top_right_radius = 0.0;
+        $style->border_bottom_right_radius = 0.0;
 
         // Unset the split node's left style properties since we don't want them
         // to propagate
-        $style = $split->get_style();
-        $style->margin_left = 0;
-        $style->padding_left = 0;
-        $style->border_left_width = 0;
+        $split_style->margin_left = 0.0;
+        $split_style->padding_left = 0.0;
+        $split_style->border_left_width = 0.0;
+        $split_style->border_top_left_radius = 0.0;
+        $split_style->border_bottom_left_radius = 0.0;
+
+        // If this is a generated node don't propagate the content style
+        if ($split->get_node()->nodeName == "dompdf_generated") {
+            $split_style->content = "normal";
+        }
 
         //On continuation of inline element on next line,
-        //don't repeat non-vertically repeatable background images
+        //don't repeat non-horizontally repeatable background images
         //See e.g. in testcase image_variants, long descriptions
         if (($url = $style->background_image) && $url !== "none"
-            && ($repeat = $style->background_repeat) && $repeat !== "repeat" && $repeat !== "repeat-y"
+            && ($repeat = $style->background_repeat) && $repeat !== "repeat" && $repeat !== "repeat-x"
         ) {
-            $style->background_image = "none";
+            $split_style->background_image = "none";
         }
+
+        $this->get_parent()->insert_child_after($split, $this);
 
         // Add $child and all following siblings to the new split node
         $iter = $child;

@@ -8,7 +8,10 @@ $baseDir = dirname($vendorDir);
 return array(
     'thomaswelton\\GravatarLib\\' => array($vendorDir . '/thomaswelton/gravatarlib'),
     'PhpSpec' => array($vendorDir . '/phpspec/phpspec/src'),
+    'Mremi\\UrlShortener' => array($vendorDir . '/mremi/url-shortener/src'),
     'HTMLPurifier' => array($vendorDir . '/ezyang/htmlpurifier/library'),
+    'Guzzle\\Tests' => array($vendorDir . '/guzzle/guzzle/tests'),
+    'Guzzle' => array($vendorDir . '/guzzle/guzzle/src'),
     'ForceUTF8\\' => array($vendorDir . '/neitanod/forceutf8/src'),
     'Flow' => array($vendorDir . '/flowjs/flow-php-server/src'),
     'Fetch' => array($vendorDir . '/tedivm/fetch/src'),

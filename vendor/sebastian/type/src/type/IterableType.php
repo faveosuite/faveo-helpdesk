@@ -13,14 +13,13 @@ use function assert;
 use function class_exists;
 use function is_iterable;
 use ReflectionClass;
-use ReflectionException;
 
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for this library
+ */
 final class IterableType extends Type
 {
-    /**
-     * @var bool
-     */
-    private $allowsNull;
+    private bool $allowsNull;
 
     public function __construct(bool $nullable)
     {
@@ -46,24 +45,18 @@ final class IterableType extends Type
 
         if ($other instanceof ObjectType) {
             $className = $other->className()->qualifiedName();
+
             assert(class_exists($className));
 
-            try {
-                return (new ReflectionClass($className))->isIterable();
-                // @codeCoverageIgnoreStart
-            } catch (ReflectionException $e) {
-                throw new RuntimeException(
-                    $e->getMessage(),
-                    (int) $e->getCode(),
-                    $e
-                );
-                // @codeCoverageIgnoreEnd
-            }
+            return (new ReflectionClass($className))->isIterable();
         }
 
         return false;
     }
 
+    /**
+     * @return 'iterable'
+     */
     public function name(): string
     {
         return 'iterable';
@@ -74,9 +67,6 @@ final class IterableType extends Type
         return $this->allowsNull;
     }
 
-    /**
-     * @psalm-assert-if-true IterableType $this
-     */
     public function isIterable(): bool
     {
         return true;

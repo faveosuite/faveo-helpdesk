@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -21,7 +21,7 @@ use Psy\TabCompletion\Matcher\AbstractMatcher;
 class AutoCompleter
 {
     /** @var Matcher\AbstractMatcher[] */
-    protected $matchers;
+    protected $matchers = [];
 
     /**
      * Register a tab completion Matcher.
@@ -74,7 +74,7 @@ class AutoCompleter
         $matches = [];
         foreach ($this->matchers as $matcher) {
             if ($matcher->hasMatched($tokens)) {
-                $matches = \array_merge($matcher->getMatches($tokens), $matches);
+                $matches = \array_merge($matcher->getMatches($tokens, $info), $matches);
             }
         }
 

@@ -1,17 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Driver\SQLite3;
 
-use Doctrine\DBAL\Driver\Exception\UnknownParameterType;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
-use Doctrine\Deprecations\Deprecation;
 use SQLite3;
 use SQLite3Stmt;
 
 use function assert;
-use function func_num_args;
-use function is_int;
 
 use const SQLITE3_BLOB;
 use const SQLITE3_INTEGER;
@@ -20,83 +18,25 @@ use const SQLITE3_TEXT;
 
 final class Statement implements StatementInterface
 {
-    private const PARAM_TYPE_MAP = [
-        ParameterType::NULL => SQLITE3_NULL,
-        ParameterType::INTEGER => SQLITE3_INTEGER,
-        ParameterType::STRING => SQLITE3_TEXT,
-        ParameterType::ASCII => SQLITE3_TEXT,
-        ParameterType::BINARY => SQLITE3_BLOB,
-        ParameterType::LARGE_OBJECT => SQLITE3_BLOB,
-        ParameterType::BOOLEAN => SQLITE3_INTEGER,
-    ];
-
-    private SQLite3 $connection;
-    private SQLite3Stmt $statement;
+    private const TYPE_BLOB    = SQLITE3_BLOB;
+    private const TYPE_INTEGER = SQLITE3_INTEGER;
+    private const TYPE_NULL    = SQLITE3_NULL;
+    private const TYPE_TEXT    = SQLITE3_TEXT;
 
     /** @internal The statement can be only instantiated by its driver connection. */
-    public function __construct(SQLite3 $connection, SQLite3Stmt $statement)
-    {
-        $this->connection = $connection;
-        $this->statement  = $statement;
+    public function __construct(
+        private readonly SQLite3 $connection,
+        private readonly SQLite3Stmt $statement,
+    ) {
     }
 
-    /** @inheritdoc */
-    public function bindValue($param, $value, $type = ParameterType::STRING): bool
+    public function bindValue(int|string $param, mixed $value, ParameterType $type): void
     {
-        if (func_num_args() < 3) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/5558',
-                'Not passing $type to Statement::bindValue() is deprecated.'
-                . ' Pass the type corresponding to the parameter being bound.',
-            );
-        }
-
-        return $this->statement->bindValue($param, $value, $this->convertParamType($type));
+        $this->statement->bindValue($param, $value, $this->convertParamType($type));
     }
 
-    /** @inheritdoc */
-    public function bindParam($param, &$variable, $type = ParameterType::STRING, $length = null): bool
+    public function execute(): Result
     {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5563',
-            '%s is deprecated. Use bindValue() instead.',
-            __METHOD__,
-        );
-
-        if (func_num_args() < 3) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/5558',
-                'Not passing $type to Statement::bindParam() is deprecated.'
-                . ' Pass the type corresponding to the parameter being bound.',
-            );
-        }
-
-        return $this->statement->bindParam($param, $variable, $this->convertParamType($type));
-    }
-
-    /** @inheritdoc */
-    public function execute($params = null): Result
-    {
-        if ($params !== null) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/5556',
-                'Passing $params to Statement::execute() is deprecated. Bind parameters using'
-                . ' Statement::bindParam() or Statement::bindValue() instead.',
-            );
-
-            foreach ($params as $param => $value) {
-                if (is_int($param)) {
-                    $this->bindValue($param + 1, $value, ParameterType::STRING);
-                } else {
-                    $this->bindValue($param, $value, ParameterType::STRING);
-                }
-            }
-        }
-
         try {
             $result = $this->statement->execute();
         } catch (\Exception $e) {
@@ -108,12 +48,14 @@ final class Statement implements StatementInterface
         return new Result($result, $this->connection->changes());
     }
 
-    private function convertParamType(int $type): int
+    /** @phpstan-return self::TYPE_* */
+    private function convertParamType(ParameterType $type): int
     {
-        if (! isset(self::PARAM_TYPE_MAP[$type])) {
-            throw UnknownParameterType::new($type);
-        }
-
-        return self::PARAM_TYPE_MAP[$type];
+        return match ($type) {
+            ParameterType::NULL => self::TYPE_NULL,
+            ParameterType::INTEGER, ParameterType::BOOLEAN => self::TYPE_INTEGER,
+            ParameterType::STRING, ParameterType::ASCII => self::TYPE_TEXT,
+            ParameterType::BINARY, ParameterType::LARGE_OBJECT => self::TYPE_BLOB,
+        };
     }
 }

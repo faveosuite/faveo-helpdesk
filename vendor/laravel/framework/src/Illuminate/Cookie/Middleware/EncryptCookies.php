@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Contracts\Encryption\Encrypter as EncrypterContract;
 use Illuminate\Cookie\CookieValuePrefix;
+use Illuminate\Support\Arr;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,6 +28,13 @@ class EncryptCookies
     protected $except = [];
 
     /**
+     * The globally ignored cookies that should not be encrypted.
+     *
+     * @var array
+     */
+    protected static $neverEncrypt = [];
+
+    /**
      * Indicates if cookies should be serialized.
      *
      * @var bool
@@ -37,7 +45,6 @@ class EncryptCookies
      * Create a new CookieGuard instance.
      *
      * @param  \Illuminate\Contracts\Encryption\Encrypter  $encrypter
-     * @return void
      */
     public function __construct(EncrypterContract $encrypter)
     {
@@ -96,14 +103,16 @@ class EncryptCookies
      * Validate and remove the cookie value prefix from the value.
      *
      * @param  string  $key
-     * @param  string  $value
-     * @return string|array|null
+     * @param  array<string, string>|string  $value
+     * @return array|string|null
+     *
+     * @phpstan-return ($value is array ? array<string|null> : string|null)
      */
     protected function validateValue(string $key, $value)
     {
         return is_array($value)
-                    ? $this->validateArray($key, $value)
-                    : CookieValuePrefix::validate($key, $value, $this->encrypter->getKey());
+            ? $this->validateArray($key, $value)
+            : CookieValuePrefix::validate($key, $value, $this->encrypter->getAllKeys());
     }
 
     /**
@@ -134,8 +143,8 @@ class EncryptCookies
     protected function decryptCookie($name, $cookie)
     {
         return is_array($cookie)
-                        ? $this->decryptArray($cookie)
-                        : $this->encrypter->decrypt($cookie, static::serialized($name));
+            ? $this->decryptArray($cookie)
+            : $this->encrypter->decrypt($cookie, static::serialized($name));
     }
 
     /**
@@ -206,7 +215,20 @@ class EncryptCookies
      */
     public function isDisabled($name)
     {
-        return in_array($name, $this->except);
+        return in_array($name, array_merge($this->except, static::$neverEncrypt));
+    }
+
+    /**
+     * Indicate that the given cookies should never be encrypted.
+     *
+     * @param  array|string  $cookies
+     * @return void
+     */
+    public static function except($cookies)
+    {
+        static::$neverEncrypt = array_values(array_unique(
+            array_merge(static::$neverEncrypt, Arr::wrap($cookies))
+        ));
     }
 
     /**
@@ -218,5 +240,17 @@ class EncryptCookies
     public static function serialized($name)
     {
         return static::$serialize;
+    }
+
+    /**
+     * Flush the middleware's global state.
+     *
+     * @return void
+     */
+    public static function flushState()
+    {
+        static::$neverEncrypt = [];
+
+        static::$serialize = false;
     }
 }

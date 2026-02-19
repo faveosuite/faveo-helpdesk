@@ -56,7 +56,7 @@ class UploadedFile extends SymfonyUploadedFile
      * Store the uploaded file on a filesystem disk with public visibility.
      *
      * @param  string  $path
-     * @param  string  $name
+     * @param  array|string|null  $name
      * @param  array|string  $options
      * @return string|false
      */
@@ -77,7 +77,7 @@ class UploadedFile extends SymfonyUploadedFile
      * Store the uploaded file on a filesystem disk.
      *
      * @param  string  $path
-     * @param  string|array  $name
+     * @param  array|string|null  $name
      * @param  array|string  $options
      * @return string|false
      */
@@ -133,7 +133,7 @@ class UploadedFile extends SymfonyUploadedFile
     {
         return $file instanceof static ? $file : new static(
             $file->getPathname(),
-            $file->getClientOriginalName(),
+            $file->getClientOriginalPath(),
             $file->getClientMimeType(),
             $file->getError(),
             $test

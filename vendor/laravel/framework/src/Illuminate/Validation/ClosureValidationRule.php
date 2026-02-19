@@ -42,7 +42,6 @@ class ClosureValidationRule implements RuleContract, ValidatorAwareRule
      * Create a new Closure based validation rule.
      *
      * @param  \Closure  $callback
-     * @return void
      */
     public function __construct($callback)
     {
@@ -72,7 +71,7 @@ class ClosureValidationRule implements RuleContract, ValidatorAwareRule
     /**
      * Get the validation error messages.
      *
-     * @return string
+     * @return array
      */
     public function message()
     {

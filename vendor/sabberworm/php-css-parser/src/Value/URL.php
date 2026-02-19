@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sabberworm\CSS\Value;
 
 use Sabberworm\CSS\OutputFormat;
@@ -8,75 +10,74 @@ use Sabberworm\CSS\Parsing\SourceException;
 use Sabberworm\CSS\Parsing\UnexpectedEOFException;
 use Sabberworm\CSS\Parsing\UnexpectedTokenException;
 
+/**
+ * This class represents URLs in CSS. `URL`s always output in `URL("")` notation.
+ */
 class URL extends PrimitiveValue
 {
     /**
      * @var CSSString
      */
-    private $oURL;
+    private $url;
 
     /**
-     * @param int $iLineNo
+     * @param int<1, max>|null $lineNumber
      */
-    public function __construct(CSSString $oURL, $iLineNo = 0)
+    public function __construct(CSSString $url, ?int $lineNumber = null)
     {
-        parent::__construct($iLineNo);
-        $this->oURL = $oURL;
+        parent::__construct($lineNumber);
+        $this->url = $url;
     }
 
     /**
-     * @return URL
-     *
      * @throws SourceException
      * @throws UnexpectedEOFException
      * @throws UnexpectedTokenException
+     *
+     * @internal since V8.8.0
      */
-    public static function parse(ParserState $oParserState)
+    public static function parse(ParserState $parserState): URL
     {
-        $bUseUrl = $oParserState->comes('url', true);
-        if ($bUseUrl) {
-            $oParserState->consume('url');
-            $oParserState->consumeWhiteSpace();
-            $oParserState->consume('(');
+        $anchor = $parserState->anchor();
+        $identifier = '';
+        for ($i = 0; $i < 3; $i++) {
+            $character = $parserState->parseCharacter(true);
+            if ($character === null) {
+                break;
+            }
+            $identifier .= $character;
         }
-        $oParserState->consumeWhiteSpace();
-        $oResult = new URL(CSSString::parse($oParserState), $oParserState->currentLine());
-        if ($bUseUrl) {
-            $oParserState->consumeWhiteSpace();
-            $oParserState->consume(')');
+        $useUrl = $parserState->streql($identifier, 'url');
+        if ($useUrl) {
+            $parserState->consumeWhiteSpace();
+            $parserState->consume('(');
+        } else {
+            $anchor->backtrack();
         }
-        return $oResult;
+        $parserState->consumeWhiteSpace();
+        $result = new URL(CSSString::parse($parserState), $parserState->currentLine());
+        if ($useUrl) {
+            $parserState->consumeWhiteSpace();
+            $parserState->consume(')');
+        }
+        return $result;
+    }
+
+    public function setURL(CSSString $url): void
+    {
+        $this->url = $url;
+    }
+
+    public function getURL(): CSSString
+    {
+        return $this->url;
     }
 
     /**
-     * @return void
+     * @return non-empty-string
      */
-    public function setURL(CSSString $oURL)
+    public function render(OutputFormat $outputFormat): string
     {
-        $this->oURL = $oURL;
-    }
-
-    /**
-     * @return CSSString
-     */
-    public function getURL()
-    {
-        return $this->oURL;
-    }
-
-    /**
-     * @return string
-     */
-    public function __toString()
-    {
-        return $this->render(new OutputFormat());
-    }
-
-    /**
-     * @return string
-     */
-    public function render(OutputFormat $oOutputFormat)
-    {
-        return "url({$this->oURL->render($oOutputFormat)})";
+        return "url({$this->url->render($outputFormat)})";
     }
 }

@@ -3,9 +3,12 @@
 namespace Illuminate\Filesystem;
 
 use Closure;
+use Illuminate\Container\Container;
+use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Contracts\Filesystem\Cloud as CloudFilesystemContract;
 use Illuminate\Contracts\Filesystem\Filesystem as FilesystemContract;
 use Illuminate\Http\File;
+use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -74,6 +77,13 @@ class FilesystemAdapter implements CloudFilesystemContract
     protected $prefixer;
 
     /**
+     * The file server callback.
+     *
+     * @var \Closure|null
+     */
+    protected $serveCallback;
+
+    /**
      * The temporary URL builder callback.
      *
      * @var \Closure|null
@@ -81,12 +91,18 @@ class FilesystemAdapter implements CloudFilesystemContract
     protected $temporaryUrlCallback;
 
     /**
+     * The temporary upload URL builder callback.
+     *
+     * @var \Closure|null
+     */
+    protected $temporaryUploadUrlCallback;
+
+    /**
      * Create a new filesystem adapter instance.
      *
      * @param  \League\Flysystem\FilesystemOperator  $driver
      * @param  \League\Flysystem\FilesystemAdapter  $adapter
      * @param  array  $config
-     * @return void
      */
     public function __construct(FilesystemOperator $driver, FlysystemAdapter $adapter, array $config = [])
     {
@@ -130,6 +146,27 @@ class FilesystemAdapter implements CloudFilesystemContract
                 );
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * Assert that the number of files in path equals the expected count.
+     *
+     * @param  string  $path
+     * @param  int  $count
+     * @param  bool  $recursive
+     * @return $this
+     */
+    public function assertCount($path, $count, $recursive = false)
+    {
+        clearstatcache();
+
+        $actual = count($this->files($path, $recursive));
+
+        PHPUnit::assertEquals(
+            $count, $actual, "Expected [{$count}] files at [{$path}], but found [{$actual}]."
+        );
 
         return $this;
     }
@@ -237,7 +274,7 @@ class FilesystemAdapter implements CloudFilesystemContract
     }
 
     /**
-     * Get the full path for the file at the given "short" path.
+     * Get the full path to the file that exists at the given relative path.
      *
      * @param  string  $path
      * @return string
@@ -259,6 +296,8 @@ class FilesystemAdapter implements CloudFilesystemContract
             return $this->driver->read($path);
         } catch (UnableToReadFile $e) {
             throw_if($this->throwsExceptions(), $e);
+
+            $this->report($e);
         }
     }
 
@@ -316,8 +355,25 @@ class FilesystemAdapter implements CloudFilesystemContract
     /**
      * Create a streamed download response for a given file.
      *
+     * @param  \Illuminate\Http\Request  $request
      * @param  string  $path
      * @param  string|null  $name
+     * @param  array  $headers
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse
+     */
+    public function serve(Request $request, $path, $name = null, array $headers = [])
+    {
+        return isset($this->serveCallback)
+            ? call_user_func($this->serveCallback, $request, $path, $headers)
+            : $this->response($path, $name, $headers);
+    }
+
+    /**
+     * Create a streamed download response for a given file.
+     *
+     * @param  string  $path
+     * @param  string|null  $name
+     * @param  array  $headers
      * @return \Symfony\Component\HttpFoundation\StreamedResponse
      */
     public function download($path, $name = null, array $headers = [])
@@ -347,8 +403,8 @@ class FilesystemAdapter implements CloudFilesystemContract
     public function put($path, $contents, $options = [])
     {
         $options = is_string($options)
-                     ? ['visibility' => $options]
-                     : (array) $options;
+            ? ['visibility' => $options]
+            : (array) $options;
 
         // If the given contents is actually a file or uploaded file instance than we will
         // automatically store the file using a stream. This provides a convenient path
@@ -370,6 +426,8 @@ class FilesystemAdapter implements CloudFilesystemContract
                 : $this->driver->write($path, $contents, $options);
         } catch (UnableToWriteFile|UnableToSetVisibility $e) {
             throw_if($this->throwsExceptions(), $e);
+
+            $this->report($e);
 
             return false;
         }
@@ -456,6 +514,8 @@ class FilesystemAdapter implements CloudFilesystemContract
         } catch (UnableToSetVisibility $e) {
             throw_if($this->throwsExceptions(), $e);
 
+            $this->report($e);
+
             return false;
         }
 
@@ -514,6 +574,8 @@ class FilesystemAdapter implements CloudFilesystemContract
             } catch (UnableToDeleteFile $e) {
                 throw_if($this->throwsExceptions(), $e);
 
+                $this->report($e);
+
                 $success = false;
             }
         }
@@ -535,6 +597,8 @@ class FilesystemAdapter implements CloudFilesystemContract
         } catch (UnableToCopyFile $e) {
             throw_if($this->throwsExceptions(), $e);
 
+            $this->report($e);
+
             return false;
         }
 
@@ -554,6 +618,8 @@ class FilesystemAdapter implements CloudFilesystemContract
             $this->driver->move($from, $to);
         } catch (UnableToMoveFile $e) {
             throw_if($this->throwsExceptions(), $e);
+
+            $this->report($e);
 
             return false;
         }
@@ -586,6 +652,8 @@ class FilesystemAdapter implements CloudFilesystemContract
         } catch (UnableToProvideChecksum $e) {
             throw_if($this->throwsExceptions(), $e);
 
+            $this->report($e);
+
             return false;
         }
     }
@@ -602,6 +670,8 @@ class FilesystemAdapter implements CloudFilesystemContract
             return $this->driver->mimeType($path);
         } catch (UnableToRetrieveMetadata $e) {
             throw_if($this->throwsExceptions(), $e);
+
+            $this->report($e);
         }
 
         return false;
@@ -627,6 +697,8 @@ class FilesystemAdapter implements CloudFilesystemContract
             return $this->driver->readStream($path);
         } catch (UnableToReadFile $e) {
             throw_if($this->throwsExceptions(), $e);
+
+            $this->report($e);
         }
     }
 
@@ -639,6 +711,8 @@ class FilesystemAdapter implements CloudFilesystemContract
             $this->driver->writeStream($path, $resource, $options);
         } catch (UnableToWriteFile|UnableToSetVisibility $e) {
             throw_if($this->throwsExceptions(), $e);
+
+            $this->report($e);
 
             return false;
         }
@@ -684,8 +758,8 @@ class FilesystemAdapter implements CloudFilesystemContract
     protected function getFtpUrl($path)
     {
         return isset($this->config['url'])
-                ? $this->concatPathToUrl($this->config['url'], $path)
-                : $path;
+            ? $this->concatPathToUrl($this->config['url'], $path)
+            : $path;
     }
 
     /**
@@ -723,6 +797,16 @@ class FilesystemAdapter implements CloudFilesystemContract
     public function providesTemporaryUrls()
     {
         return method_exists($this->adapter, 'getTemporaryUrl') || isset($this->temporaryUrlCallback);
+    }
+
+    /**
+     * Determine if temporary upload URLs can be generated.
+     *
+     * @return bool
+     */
+    public function providesTemporaryUploadUrls()
+    {
+        return method_exists($this->adapter, 'temporaryUploadUrl') || isset($this->temporaryUploadUrlCallback);
     }
 
     /**
@@ -764,6 +848,12 @@ class FilesystemAdapter implements CloudFilesystemContract
     {
         if (method_exists($this->adapter, 'temporaryUploadUrl')) {
             return $this->adapter->temporaryUploadUrl($path, $expiration, $options);
+        }
+
+        if ($this->temporaryUploadUrlCallback) {
+            return $this->temporaryUploadUrlCallback->bindTo($this, static::class)(
+                $path, $expiration, $options
+            );
         }
 
         throw new RuntimeException('This driver does not support creating temporary upload URLs.');
@@ -872,6 +962,8 @@ class FilesystemAdapter implements CloudFilesystemContract
         } catch (UnableToCreateDirectory|UnableToSetVisibility $e) {
             throw_if($this->throwsExceptions(), $e);
 
+            $this->report($e);
+
             return false;
         }
 
@@ -890,6 +982,8 @@ class FilesystemAdapter implements CloudFilesystemContract
             $this->driver->deleteDirectory($directory);
         } catch (UnableToDeleteDirectory $e) {
             throw_if($this->throwsExceptions(), $e);
+
+            $this->report($e);
 
             return false;
         }
@@ -949,6 +1043,17 @@ class FilesystemAdapter implements CloudFilesystemContract
     }
 
     /**
+     * Define a custom callback that generates file download responses.
+     *
+     * @param  \Closure  $callback
+     * @return void
+     */
+    public function serveUsing(Closure $callback)
+    {
+        $this->serveCallback = $callback;
+    }
+
+    /**
      * Define a custom temporary URL builder callback.
      *
      * @param  \Closure  $callback
@@ -960,6 +1065,17 @@ class FilesystemAdapter implements CloudFilesystemContract
     }
 
     /**
+     * Define a custom temporary upload URL builder callback.
+     *
+     * @param  \Closure  $callback
+     * @return void
+     */
+    public function buildTemporaryUploadUrlsUsing(Closure $callback)
+    {
+        $this->temporaryUploadUrlCallback = $callback;
+    }
+
+    /**
      * Determine if Flysystem exceptions should be thrown.
      *
      * @return bool
@@ -967,6 +1083,31 @@ class FilesystemAdapter implements CloudFilesystemContract
     protected function throwsExceptions(): bool
     {
         return (bool) ($this->config['throw'] ?? false);
+    }
+
+    /**
+     * Report the exception.
+     *
+     * @param  \Throwable  $exception
+     * @return void
+     *
+     * @throws \Throwable
+     */
+    protected function report($exception)
+    {
+        if ($this->shouldReport() && Container::getInstance()->bound(ExceptionHandler::class)) {
+            Container::getInstance()->make(ExceptionHandler::class)->report($exception);
+        }
+    }
+
+    /**
+     * Determine if Flysystem exceptions should be reported.
+     *
+     * @return bool
+     */
+    protected function shouldReport(): bool
+    {
+        return (bool) ($this->config['report'] ?? false);
     }
 
     /**

@@ -1,6 +1,80 @@
 Unreleased
 ==========
 
+1.25.0
+======
+
+**Added:**
+
+* Add support for PHPUnit 13 (@Jean85)
+
+1.24.0
+======
+
+**Added:**
+
+* Add support for PHP 8.5 (@andypost)
+
+1.23.1
+======
+
+**Changed:**
+
+* Refactor the ProphecyComparator to use composition instead of extending internal comparator classes (@stof)
+
+1.23.0
+======
+
+**Removed:**
+
+* Remove support for PHP lower than 8.2 (@Nek-)
+
+**Added:**
+
+* Add support for doubling classes using intersection types and DNF types (@Nek-)
+
+**Fixed:**
+
+* Fix deprecation for `SplObjectStorage` changes in PHP 8.5 (@Nek-)
+
+**Changed:**
+
+* Improve error message for unsupported default return values (@stof)
+
+1.22.0
+======
+
+**Removed:**
+
+* Support for PHP 7.2 and 7.3 (@jean85)
+
+1.21.0
+======
+
+**Added:**
+
+* Add support for PHPUnit 12 (@jean85)
+
+1.20.0
+======
+
+**Added:**
+
+* Add support for PHP 8.4 (@andypost)
+
+**Fixed:**
+
+* Fix support for doubling methods using an enum case as default value of a parameter (@jdreesen)
+* Fix deprecation when doubling a class with constructor parameters (@singinwhale, @W0rma)
+* Fix deprecation warning when using phpdocumentor/reflection-docblock 5.4+ (@jrfnl)
+
+1.19.0
+======
+
+**Added:**
+
+* Allow sebastian/comparator and sebastian/recursion-context 6
+
 1.18.0 / 2023-12-07
 ===================
 

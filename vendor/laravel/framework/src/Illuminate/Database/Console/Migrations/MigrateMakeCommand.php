@@ -6,7 +6,9 @@ use Illuminate\Contracts\Console\PromptsForMissingInput;
 use Illuminate\Database\Migrations\MigrationCreator;
 use Illuminate\Support\Composer;
 use Illuminate\Support\Str;
+use Symfony\Component\Console\Attribute\AsCommand;
 
+#[AsCommand(name: 'make:migration')]
 class MigrateMakeCommand extends BaseCommand implements PromptsForMissingInput
 {
     /**
@@ -49,7 +51,6 @@ class MigrateMakeCommand extends BaseCommand implements PromptsForMissingInput
      *
      * @param  \Illuminate\Database\Migrations\MigrationCreator  $creator
      * @param  \Illuminate\Support\Composer  $composer
-     * @return void
      */
     public function __construct(MigrationCreator $creator, Composer $composer)
     {
@@ -111,6 +112,10 @@ class MigrateMakeCommand extends BaseCommand implements PromptsForMissingInput
             $name, $this->getMigrationPath(), $table, $create
         );
 
+        if (windows_os()) {
+            $file = str_replace('/', '\\', $file);
+        }
+
         $this->components->info(sprintf('Migration [%s] created successfully.', $file));
     }
 
@@ -123,8 +128,8 @@ class MigrateMakeCommand extends BaseCommand implements PromptsForMissingInput
     {
         if (! is_null($targetPath = $this->input->getOption('path'))) {
             return ! $this->usingRealPath()
-                            ? $this->laravel->basePath().'/'.$targetPath
-                            : $targetPath;
+                ? $this->laravel->basePath().'/'.$targetPath
+                : $targetPath;
         }
 
         return parent::getMigrationPath();

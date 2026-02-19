@@ -1,35 +1,32 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Driver;
 
-use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Driver\API\ExceptionConverter;
-use Doctrine\DBAL\Driver\API\PostgreSQL;
-use Doctrine\DBAL\Exception;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Platforms\PostgreSQL100Platform;
-use Doctrine\DBAL\Platforms\PostgreSQL94Platform;
+use Doctrine\DBAL\Driver;
+use Doctrine\DBAL\Driver\API\ExceptionConverter as ExceptionConverterInterface;
+use Doctrine\DBAL\Driver\API\PostgreSQL\ExceptionConverter;
+use Doctrine\DBAL\Platforms\Exception\InvalidPlatformVersion;
+use Doctrine\DBAL\Platforms\PostgreSQL120Platform;
 use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
-use Doctrine\DBAL\Schema\PostgreSQLSchemaManager;
-use Doctrine\DBAL\VersionAwarePlatformDriver;
+use Doctrine\DBAL\ServerVersionProvider;
 use Doctrine\Deprecations\Deprecation;
 
-use function assert;
 use function preg_match;
 use function version_compare;
 
 /**
  * Abstract base implementation of the {@see Driver} interface for PostgreSQL based drivers.
  */
-abstract class AbstractPostgreSQLDriver implements VersionAwarePlatformDriver
+abstract class AbstractPostgreSQLDriver implements Driver
 {
-    /**
-     * {@inheritDoc}
-     */
-    public function createDatabasePlatformForVersion($version)
+    public function getDatabasePlatform(ServerVersionProvider $versionProvider): PostgreSQLPlatform
     {
-        if (preg_match('/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?/', $version, $versionParts) === 0) {
-            throw Exception::invalidPlatformVersionSpecified(
+        $version = $versionProvider->getServerVersion();
+
+        if (preg_match('/^(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?/', $version, $versionParts) !== 1) {
+            throw InvalidPlatformVersion::new(
                 $version,
                 '<major_version>.<minor_version>.<patch_version>',
             );
@@ -40,49 +37,21 @@ abstract class AbstractPostgreSQLDriver implements VersionAwarePlatformDriver
         $patchVersion = $versionParts['patch'] ?? 0;
         $version      = $majorVersion . '.' . $minorVersion . '.' . $patchVersion;
 
-        if (version_compare($version, '10.0', '>=')) {
-            return new PostgreSQL100Platform();
+        if (version_compare($version, '12.0', '>=')) {
+            return new PostgreSQL120Platform();
         }
 
         Deprecation::trigger(
             'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5060',
-            'PostgreSQL 9 support is deprecated and will be removed in DBAL 4.'
-                . ' Consider upgrading to Postgres 10 or later.',
+            'https://github.com/doctrine/dbal/pull/6495',
+            'Support for Postgres < 12 is deprecated and will be removed in DBAL 5',
         );
 
-        return new PostgreSQL94Platform();
+        return new PostgreSQLPlatform();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getDatabasePlatform()
+    public function getExceptionConverter(): ExceptionConverterInterface
     {
-        return new PostgreSQL94Platform();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @deprecated Use {@link PostgreSQLPlatform::createSchemaManager()} instead.
-     */
-    public function getSchemaManager(Connection $conn, AbstractPlatform $platform)
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5458',
-            'AbstractPostgreSQLDriver::getSchemaManager() is deprecated.'
-                . ' Use PostgreSQLPlatform::createSchemaManager() instead.',
-        );
-
-        assert($platform instanceof PostgreSQLPlatform);
-
-        return new PostgreSQLSchemaManager($conn, $platform);
-    }
-
-    public function getExceptionConverter(): ExceptionConverter
-    {
-        return new PostgreSQL\ExceptionConverter();
+        return new ExceptionConverter();
     }
 }

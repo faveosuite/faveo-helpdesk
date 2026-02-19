@@ -10,19 +10,6 @@ use Illuminate\Http\Request as BaseRequest;
 class Request
 {
     /**
-     * @var BaseRequest
-     */
-    protected BaseRequest $request;
-
-    /**
-     * Request constructor.
-     */
-    public function __construct()
-    {
-        $this->request = app('request');
-    }
-
-    /**
      * Proxy non-existing method calls to base request class.
      *
      * @param  string  $name
@@ -31,10 +18,20 @@ class Request
      */
     public function __call($name, $arguments)
     {
-        $callback = [$this->request, $name];
+        $callback = [request(), $name];
         if (is_callable($callback)) {
             return call_user_func_array($callback, $arguments);
         }
+    }
+
+    /**
+     * Determine if an attribute exists on the base request.
+     *
+     * @param  string  $name
+     */
+    public function __isset($name): bool
+    {
+        return isset(request()->$name);
     }
 
     /**
@@ -45,44 +42,35 @@ class Request
      */
     public function __get($name)
     {
-        return $this->request->__get($name);
+        return request()->__get($name);
     }
 
     /**
      * Get all columns request input.
-     *
-     * @return array
      */
     public function columns(): array
     {
-        return (array) $this->request->input('columns');
+        return (array) request()->input('columns');
     }
 
     /**
      * Check if DataTables is searchable.
-     *
-     * @return bool
      */
     public function isSearchable(): bool
     {
-        return $this->request->input('search.value') != '';
+        return request()->input('search.value') != '';
     }
 
     /**
      * Check if DataTables must uses regular expressions.
-     *
-     * @param  int  $index
-     * @return bool
      */
     public function isRegex(int $index): bool
     {
-        return $this->request->input("columns.$index.search.regex") === 'true';
+        return request()->input("columns.$index.search.regex") === 'true';
     }
 
     /**
      * Get orderable columns.
-     *
-     * @return array
      */
     public function orderableColumns(): array
     {
@@ -91,14 +79,14 @@ class Request
         }
 
         $orderable = [];
-        for ($i = 0, $c = count((array) $this->request->input('order')); $i < $c; $i++) {
+        for ($i = 0, $c = count((array) request()->input('order')); $i < $c; $i++) {
             /** @var int $order_col */
-            $order_col = $this->request->input("order.$i.column");
+            $order_col = request()->input("order.$i.column");
 
             /** @var string $direction */
-            $direction = $this->request->input("order.$i.dir");
+            $direction = request()->input("order.$i.dir");
 
-            $order_dir = strtolower($direction) === 'asc' ? 'asc' : 'desc';
+            $order_dir = $direction && strtolower($direction) === 'asc' ? 'asc' : 'desc';
             if ($this->isColumnOrderable($order_col)) {
                 $orderable[] = ['column' => $order_col, 'direction' => $order_dir];
             }
@@ -109,23 +97,18 @@ class Request
 
     /**
      * Check if DataTables ordering is enabled.
-     *
-     * @return bool
      */
     public function isOrderable(): bool
     {
-        return $this->request->input('order') && count((array) $this->request->input('order')) > 0;
+        return request()->input('order') && count((array) request()->input('order')) > 0;
     }
 
     /**
      * Check if a column is orderable.
-     *
-     * @param  int  $index
-     * @return bool
      */
     public function isColumnOrderable(int $index): bool
     {
-        return $this->request->input("columns.$index.orderable", 'true') == 'true';
+        return request()->input("columns.$index.orderable", 'true') == 'true';
     }
 
     /**
@@ -136,7 +119,7 @@ class Request
     public function searchableColumnIndex()
     {
         $searchable = [];
-        $columns = (array) $this->request->input('columns');
+        $columns = (array) request()->input('columns');
         for ($i = 0, $c = count($columns); $i < $c; $i++) {
             if ($this->isColumnSearchable($i, false)) {
                 $searchable[] = $i;
@@ -148,48 +131,48 @@ class Request
 
     /**
      * Check if a column is searchable.
-     *
-     * @param  int  $i
-     * @param  bool  $column_search
-     * @return bool
      */
     public function isColumnSearchable(int $i, bool $column_search = true): bool
     {
         if ($column_search) {
             return
                 (
-                    $this->request->input("columns.$i.searchable", 'true') === 'true'
+                    request()->input("columns.$i.searchable", 'true') === 'true'
                     ||
-                    $this->request->input("columns.$i.searchable", 'true') === true
+                    request()->input("columns.$i.searchable", 'true') === true
                 )
                 && $this->columnKeyword($i) != '';
         }
 
         return
-            $this->request->input("columns.$i.searchable", 'true') === 'true'
+            request()->input("columns.$i.searchable", 'true') === 'true'
             ||
-            $this->request->input("columns.$i.searchable", 'true') === true;
+            request()->input("columns.$i.searchable", 'true') === true;
     }
 
     /**
      * Get column's search value.
-     *
-     * @param  int  $index
-     * @return string
      */
     public function columnKeyword(int $index): string
     {
         /** @var string $keyword */
-        $keyword = $this->request->input("columns.$index.search.value") ?? '';
+        $keyword = request()->input("columns.$index.search.value") ?? '';
 
         return $this->prepareKeyword($keyword);
     }
 
+    public function columnControl(int $index): array
+    {
+        return request()->array("columns.$index.columnControl");
+    }
+
+    public function columnControlSearch(int $index): array
+    {
+        return request()->array("columns.$index.columnControl.search");
+    }
+
     /**
      * Prepare keyword string value.
-     *
-     * @param  float|array|int|string  $keyword
-     * @return string
      */
     protected function prepareKeyword(float|array|int|string $keyword): string
     {
@@ -202,83 +185,67 @@ class Request
 
     /**
      * Get global search keyword.
-     *
-     * @return string
      */
     public function keyword(): string
     {
         /** @var string $keyword */
-        $keyword = $this->request->input('search.value') ?? '';
+        $keyword = request()->input('search.value') ?? '';
 
         return $this->prepareKeyword($keyword);
     }
 
     /**
      * Get column name by index.
-     *
-     * @param  int  $i
-     * @return string|null
      */
     public function columnName(int $i): ?string
     {
         /** @var string[] $column */
-        $column = $this->request->input("columns.$i");
+        $column = request()->input("columns.$i");
 
         return (isset($column['name']) && $column['name'] != '') ? $column['name'] : $column['data'];
     }
 
     /**
      * Check if DataTables allow pagination.
-     *
-     * @return bool
      */
     public function isPaginationable(): bool
     {
-        return ! is_null($this->request->input('start')) &&
-            ! is_null($this->request->input('length')) &&
-            $this->request->input('length') != -1;
+        return ! is_null(request()->input('start')) &&
+            ! is_null(request()->input('length')) &&
+            request()->input('length') != -1;
     }
 
-    /**
-     * @return BaseRequest
-     */
     public function getBaseRequest(): BaseRequest
     {
-        return $this->request;
+        return request();
     }
 
     /**
      * Get starting record value.
-     *
-     * @return int
      */
     public function start(): int
     {
-        $start = $this->request->input('start', 0);
+        $start = request()->input('start', 0);
 
         return is_numeric($start) ? intval($start) : 0;
     }
 
     /**
      * Get per page length.
-     *
-     * @return int
      */
     public function length(): int
     {
-        $length = $this->request->input('length', 10);
+        $length = request()->input('length', 10);
 
         return is_numeric($length) ? intval($length) : 10;
     }
 
     /**
      * Get draw request.
-     *
-     * @return int
      */
     public function draw(): int
     {
-        $draw = $this->request->input('draw', 0);
+        $draw = request()->input('draw', 0);
 
         return is_numeric($draw) ? intval($draw) : 0;
     }

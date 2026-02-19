@@ -8,19 +8,34 @@ use InvalidArgumentException;
 class Configuration implements FeatureDataStore
 {
     /**
-     * The default endpoint for event notifications.
+     * The default endpoint for event notifications with Bugsnag.
      */
     const NOTIFY_ENDPOINT = 'https://notify.bugsnag.com';
 
     /**
-     * The default endpoint for session tracking.
+     * The default endpoint for session tracking with Bugsnag.
      */
     const SESSION_ENDPOINT = 'https://sessions.bugsnag.com';
 
     /**
-     * The default endpoint for build notifications.
+     * The default endpoint for build notifications with Bugsnag.
      */
     const BUILD_ENDPOINT = 'https://build.bugsnag.com';
+
+    /**
+     * The secondary instance endpoint for event notifications.
+     */
+    const SECONDARY_NOTIFY_ENDPOINT = 'https://notify.bugsnag.smartbear.com';
+
+    /**
+     * The secondary instance endpoint for session tracking.
+     */
+    const SECONDARY_SESSION_ENDPOINT = 'https://sessions.bugsnag.smartbear.com';
+
+    /**
+     * The secondary instance endpoint for build notifications.
+     */
+    const SECONDARY_BUILD_ENDPOINT = 'https://build.bugsnag.smartbear.com';
 
     /**
      * @var string
@@ -85,7 +100,7 @@ class Configuration implements FeatureDataStore
      */
     protected $notifier = [
         'name' => 'Bugsnag PHP (Official)',
-        'version' => '3.29.1',
+        'version' => '3.30.1',
         'url' => 'https://bugsnag.com',
     ];
 
@@ -150,17 +165,17 @@ class Configuration implements FeatureDataStore
     /**
      * @var string
      */
-    protected $notifyEndpoint = self::NOTIFY_ENDPOINT;
+    protected $notifyEndpoint;
 
     /**
      * @var string
      */
-    protected $sessionEndpoint = self::SESSION_ENDPOINT;
+    protected $sessionEndpoint;
 
     /**
      * @var string
      */
-    protected $buildEndpoint = self::BUILD_ENDPOINT;
+    protected $buildEndpoint;
 
     /**
      * The amount to increase the memory_limit to handle an OOM.
@@ -201,13 +216,34 @@ class Configuration implements FeatureDataStore
         if (!is_string($apiKey)) {
             throw new InvalidArgumentException('Invalid API key');
         }
-
         $this->apiKey = $apiKey;
+
+        if ($this->isSecondaryApiKey()) {
+            $this->notifyEndpoint = self::SECONDARY_NOTIFY_ENDPOINT;
+            $this->sessionEndpoint = self::SECONDARY_SESSION_ENDPOINT;
+            $this->buildEndpoint = self::SECONDARY_BUILD_ENDPOINT;
+        } else {
+            $this->notifyEndpoint = self::NOTIFY_ENDPOINT;
+            $this->sessionEndpoint = self::SESSION_ENDPOINT;
+            $this->buildEndpoint = self::BUILD_ENDPOINT;
+        }
+
         $this->fallbackType = php_sapi_name();
         $this->featureFlags = new FeatureFlagDelegate();
 
         // Add PHP runtime version to device data
         $this->mergeDeviceData(['runtimeVersions' => ['php' => phpversion()]]);
+    }
+
+    /**
+     * Checks if the API Key is associated with the secondary instance.
+     *
+     * @return bool
+     */
+    public function isSecondaryApiKey()
+    {
+        // Does the API key start with 00000
+        return strpos($this->apiKey, '00000') === 0;
     }
 
     /**
@@ -253,7 +289,7 @@ class Configuration implements FeatureDataStore
      *
      * @return $this
      */
-    public function setNotifyReleaseStages(array $notifyReleaseStages = null)
+    public function setNotifyReleaseStages($notifyReleaseStages = null)
     {
         $this->notifyReleaseStages = $notifyReleaseStages;
 
@@ -313,7 +349,7 @@ class Configuration implements FeatureDataStore
      */
     public function setProjectRoot($projectRoot)
     {
-        $projectRootRegex = $projectRoot ? '/^'.preg_quote($projectRoot, '/').'[\\/]?/i' : null;
+        $projectRootRegex = $projectRoot ? '/^' . preg_quote($projectRoot, '/') . '[\\/]?/i' : null;
         $this->setProjectRootRegex($projectRootRegex);
     }
 
@@ -327,7 +363,7 @@ class Configuration implements FeatureDataStore
     public function setProjectRootRegex($projectRootRegex)
     {
         if ($projectRootRegex && @preg_match($projectRootRegex, '') === false) {
-            throw new InvalidArgumentException('Invalid project root regex: '.$projectRootRegex);
+            throw new InvalidArgumentException('Invalid project root regex: ' . $projectRootRegex);
         }
 
         $this->projectRootRegex = $projectRootRegex;
@@ -355,7 +391,7 @@ class Configuration implements FeatureDataStore
      */
     public function setStripPath($stripPath)
     {
-        $stripPathRegex = $stripPath ? '/^'.preg_quote($stripPath, '/').'[\\/]?/i' : null;
+        $stripPathRegex = $stripPath ? '/^' . preg_quote($stripPath, '/') . '[\\/]?/i' : null;
         $this->setStripPathRegex($stripPathRegex);
     }
 
@@ -369,7 +405,7 @@ class Configuration implements FeatureDataStore
     public function setStripPathRegex($stripPathRegex)
     {
         if ($stripPathRegex && @preg_match($stripPathRegex, '') === false) {
-            throw new InvalidArgumentException('Invalid strip path regex: '.$stripPathRegex);
+            throw new InvalidArgumentException('Invalid strip path regex: ' . $stripPathRegex);
         }
 
         $this->stripPathRegex = $stripPathRegex;
@@ -670,7 +706,7 @@ class Configuration implements FeatureDataStore
         if (!$this->isSubsetOfErrorReporting($errorReportingLevel)) {
             $missingLevels = implode(', ', $this->getMissingErrorLevelNames($errorReportingLevel));
             $message =
-                'Bugsnag Warning: errorReportingLevel cannot contain values that are not in error_reporting. '.
+                'Bugsnag Warning: errorReportingLevel cannot contain values that are not in error_reporting. ' .
                 "Any errors of these levels will be ignored: {$missingLevels}.";
 
             error_log($message);

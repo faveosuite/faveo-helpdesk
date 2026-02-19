@@ -9,40 +9,27 @@ use Doctrine\DBAL\Driver\Result as ResultInterface;
 
 final class Result extends AbstractResultMiddleware
 {
-    private Converter $converter;
-
     /** @internal The result can be only instantiated by the portability connection or statement. */
-    public function __construct(ResultInterface $result, Converter $converter)
+    public function __construct(ResultInterface $result, private readonly Converter $converter)
     {
         parent::__construct($result);
-
-        $this->converter = $converter;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function fetchNumeric()
+    public function fetchNumeric(): array|false
     {
         return $this->converter->convertNumeric(
             parent::fetchNumeric(),
         );
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function fetchAssociative()
+    public function fetchAssociative(): array|false
     {
         return $this->converter->convertAssociative(
             parent::fetchAssociative(),
         );
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function fetchOne()
+    public function fetchOne(): mixed
     {
         return $this->converter->convertOne(
             parent::fetchOne(),
@@ -76,6 +63,13 @@ final class Result extends AbstractResultMiddleware
     {
         return $this->converter->convertFirstColumn(
             parent::fetchFirstColumn(),
+        );
+    }
+
+    public function getColumnName(int $index): string
+    {
+        return $this->converter->convertColumnName(
+            parent::getColumnName($index),
         );
     }
 }

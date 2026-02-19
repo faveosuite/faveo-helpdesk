@@ -10,20 +10,15 @@ class ConditionalTypeNode implements TypeNode
 
 	use NodeAttributes;
 
-	/** @var TypeNode */
-	public $subjectType;
+	public TypeNode $subjectType;
 
-	/** @var TypeNode */
-	public $targetType;
+	public TypeNode $targetType;
 
-	/** @var TypeNode */
-	public $if;
+	public TypeNode $if;
 
-	/** @var TypeNode */
-	public $else;
+	public TypeNode $else;
 
-	/** @var bool */
-	public $negated;
+	public bool $negated;
 
 	public function __construct(TypeNode $subjectType, TypeNode $targetType, TypeNode $if, TypeNode $else, bool $negated)
 	{
@@ -42,8 +37,22 @@ class ConditionalTypeNode implements TypeNode
 			$this->negated ? 'is not' : 'is',
 			$this->targetType,
 			$this->if,
-			$this->else
+			$this->else,
 		);
+	}
+
+	/**
+	 * @param array<string, mixed> $properties
+	 */
+	public static function __set_state(array $properties): self
+	{
+		$instance = new self($properties['subjectType'], $properties['targetType'], $properties['if'], $properties['else'], $properties['negated']);
+		if (isset($properties['attributes'])) {
+			foreach ($properties['attributes'] as $key => $value) {
+				$instance->setAttribute($key, $value);
+			}
+		}
+		return $instance;
 	}
 
 }

@@ -29,8 +29,6 @@ class DatabaseTransactionsManager
 
     /**
      * Create a new database transactions manager instance.
-     *
-     * @return void
      */
     public function __construct()
     {
@@ -83,7 +81,8 @@ class DatabaseTransactionsManager
         // shouldn't be any pending transactions, but going to clear them here anyways just
         // in case. This method could be refactored to receive a level in the future too.
         $this->pendingTransactions = $this->pendingTransactions->reject(
-            fn ($transaction) => $transaction->connection === $connection
+            fn ($transaction) => $transaction->connection === $connection &&
+                $transaction->level >= $levelBeingCommitted
         )->values();
 
         [$forThisConnection, $forOtherConnections] = $this->committedTransactions->partition(
@@ -140,6 +139,8 @@ class DatabaseTransactionsManager
                 do {
                     $this->removeCommittedTransactionsThatAreChildrenOf($this->currentTransaction[$connection]);
 
+                    $this->currentTransaction[$connection]->executeCallbacksForRollback();
+
                     $this->currentTransaction[$connection] = $this->currentTransaction[$connection]->parent;
                 } while (
                     isset($this->currentTransaction[$connection]) &&
@@ -157,6 +158,12 @@ class DatabaseTransactionsManager
      */
     protected function removeAllTransactionsForConnection($connection)
     {
+        if ($this->currentTransaction) {
+            for ($currentTransaction = $this->currentTransaction[$connection]; isset($currentTransaction); $currentTransaction = $currentTransaction->parent) {
+                $currentTransaction->executeCallbacksForRollback();
+            }
+        }
+
         $this->currentTransaction[$connection] = null;
 
         $this->pendingTransactions = $this->pendingTransactions->reject(
@@ -202,6 +209,19 @@ class DatabaseTransactionsManager
         }
 
         $callback();
+    }
+
+    /**
+     * Register a callback for transaction rollback.
+     *
+     * @param  callable  $callback
+     * @return void
+     */
+    public function addCallbackForRollback($callback)
+    {
+        if ($current = $this->callbackApplicableTransactions()->last()) {
+            return $current->addCallbackForRollback($callback);
+        }
     }
 
     /**

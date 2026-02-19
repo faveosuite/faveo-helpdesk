@@ -19,38 +19,43 @@ use function current;
 use function explode;
 use function is_array;
 use function is_int;
-use function is_string;
 use function key;
+use function levenshtein;
 use function next;
 use function preg_replace;
 use function reset;
+use function rtrim;
 use function sort;
+use function str_ends_with;
+use function str_starts_with;
 use function strlen;
-use function strpos;
 use function strstr;
 use function substr;
+use function usort;
 
 final class Parser
 {
     /**
-     * @psalm-param list<string> $argv
-     * @psalm-param list<string> $longOptions
+     * @param list<string> $argv
+     * @param list<string> $longOptions
      *
      * @throws AmbiguousOptionException
-     * @throws RequiredOptionArgumentMissingException
      * @throws OptionDoesNotAllowArgumentException
+     * @throws RequiredOptionArgumentMissingException
      * @throws UnknownOptionException
+     *
+     * @return array{0: list<array{0: string, 1: ?string}>, 1: list<string>}
      */
-    public function parse(array $argv, string $shortOptions, array $longOptions = null): array
+    public function parse(array $argv, string $shortOptions, ?array $longOptions = null): array
     {
-        if (empty($argv)) {
+        if ($argv === []) {
             return [[], []];
         }
 
-        $options     = [];
-        $nonOptions  = [];
+        $options    = [];
+        $nonOptions = [];
 
-        if ($longOptions) {
+        if ($longOptions !== null) {
             sort($longOptions);
         }
 
@@ -79,7 +84,7 @@ final class Parser
                 break;
             }
 
-            if ($arg[0] !== '-' || (strlen($arg) > 1 && $arg[1] === '-' && !$longOptions)) {
+            if ($arg[0] !== '-' || (strlen($arg) > 1 && $arg[1] === '-' && $longOptions === null)) {
                 $nonOptions[] = $arg;
 
                 continue;
@@ -90,84 +95,94 @@ final class Parser
                     substr($arg, 2),
                     $longOptions,
                     $options,
-                    $argv
+                    $argv,
                 );
-            } else {
-                $this->parseShortOption(
-                    substr($arg, 1),
-                    $shortOptions,
-                    $options,
-                    $argv
-                );
+
+                continue;
             }
+
+            $this->parseShortOption(
+                substr($arg, 1),
+                $shortOptions,
+                $options,
+                $argv,
+            );
         }
 
         return [$options, $nonOptions];
     }
 
     /**
+     * @param list<array{0: string, 1: ?string}> $options
+     * @param list<string>                       $argv
+     *
      * @throws RequiredOptionArgumentMissingException
      */
-    private function parseShortOption(string $arg, string $shortOptions, array &$opts, array &$args): void
+    private function parseShortOption(string $argument, string $shortOptions, array &$options, array &$argv): void
     {
-        $argLength = strlen($arg);
+        $argumentLength = strlen($argument);
 
-        for ($i = 0; $i < $argLength; $i++) {
-            $option         = $arg[$i];
+        for ($i = 0; $i < $argumentLength; $i++) {
+            $option         = $argument[$i];
             $optionArgument = null;
 
-            if ($arg[$i] === ':' || ($spec = strstr($shortOptions, $option)) === false) {
-                throw new UnknownOptionException('-' . $option);
+            if ($argument[$i] === ':' || ($spec = strstr($shortOptions, $option)) === false) {
+                throw new UnknownOptionException('-' . $option, []);
             }
 
-            assert(is_string($spec));
-
             if (strlen($spec) > 1 && $spec[1] === ':') {
-                if ($i + 1 < $argLength) {
-                    $opts[] = [$option, substr($arg, $i + 1)];
+                if ($i + 1 < $argumentLength) {
+                    $options[] = [$option, substr($argument, $i + 1)];
 
                     break;
                 }
 
                 if (!(strlen($spec) > 2 && $spec[2] === ':')) {
-                    $optionArgument = current($args);
+                    $optionArgument = current($argv);
 
-                    if (!$optionArgument) {
+                    if ($optionArgument === false) {
                         throw new RequiredOptionArgumentMissingException('-' . $option);
                     }
 
-                    assert(is_string($optionArgument));
-
-                    next($args);
+                    next($argv);
                 }
             }
 
-            $opts[] = [$option, $optionArgument];
+            $options[] = [$option, $optionArgument];
         }
     }
 
     /**
-     * @psalm-param list<string> $longOptions
+     * @param list<string>                       $longOptions
+     * @param list<array{0: string, 1: ?string}> $options
+     * @param list<string>                       $argv
      *
      * @throws AmbiguousOptionException
-     * @throws RequiredOptionArgumentMissingException
      * @throws OptionDoesNotAllowArgumentException
+     * @throws RequiredOptionArgumentMissingException
      * @throws UnknownOptionException
      */
-    private function parseLongOption(string $arg, array $longOptions, array &$opts, array &$args): void
+    private function parseLongOption(string $argument, array $longOptions, array &$options, array &$argv): void
     {
         $count          = count($longOptions);
-        $list           = explode('=', $arg);
+        $list           = explode('=', $argument);
         $option         = $list[0];
         $optionArgument = null;
 
         if (count($list) > 1) {
+            /** @phpstan-ignore offsetAccess.notFound */
             $optionArgument = $list[1];
         }
 
         $optionLength = strlen($option);
 
+        $similarOptions = [];
+
         foreach ($longOptions as $i => $longOption) {
+            $similarOptions[] = [
+                levenshtein($longOption, $option),
+                '--' . rtrim($longOption, '='),
+            ];
             $opt_start = substr($longOption, 0, $optionLength);
 
             if ($opt_start !== $option) {
@@ -176,29 +191,62 @@ final class Parser
 
             $opt_rest = substr($longOption, $optionLength);
 
-            if ($opt_rest !== '' && $i + 1 < $count && $option[0] !== '=' && strpos($longOptions[$i + 1], $option) === 0) {
-                throw new AmbiguousOptionException('--' . $option);
+            if ($opt_rest !== '' &&
+                $i + 1 < $count &&
+                $option[0] !== '=' &&
+                /** @phpstan-ignore offsetAccess.notFound */
+                str_starts_with($longOptions[$i + 1], $option)
+            ) {
+                $candidates = [];
+
+                foreach ($longOptions as $aLongOption) {
+                    if (str_starts_with($aLongOption, $option)) {
+                        $candidates[] = '--' . rtrim($aLongOption, '=');
+                    }
+                }
+
+                throw new AmbiguousOptionException('--' . $option, $candidates);
             }
 
-            if (substr($longOption, -1) === '=') {
-                /* @noinspection StrlenInEmptyStringCheckContextInspection */
-                if (substr($longOption, -2) !== '==' && !strlen((string) $optionArgument)) {
-                    if (false === $optionArgument = current($args)) {
+            if (str_ends_with($longOption, '=')) {
+                if (!str_ends_with($longOption, '==') && (string) $optionArgument === '') {
+                    if (false === $optionArgument = current($argv)) {
                         throw new RequiredOptionArgumentMissingException('--' . $option);
                     }
 
-                    next($args);
+                    next($argv);
                 }
-            } elseif ($optionArgument) {
+            } elseif ($optionArgument !== null) {
                 throw new OptionDoesNotAllowArgumentException('--' . $option);
             }
 
             $fullOption = '--' . preg_replace('/={1,2}$/', '', $longOption);
-            $opts[]     = [$fullOption, $optionArgument];
+            $options[]  = [$fullOption, $optionArgument];
 
             return;
         }
 
-        throw new UnknownOptionException('--' . $option);
+        throw new UnknownOptionException('--' . $option, $this->formatSimilarOptions($similarOptions));
+    }
+
+    /**
+     * @param list<array{int, string}> $similarOptions
+     *
+     * @return array<string>
+     */
+    private function formatSimilarOptions(array $similarOptions): array
+    {
+        usort($similarOptions, static function (array $a, array $b)
+        {
+            return $a[0] <=> $b[0];
+        });
+
+        $similarFormatted = [];
+
+        foreach (array_slice($similarOptions, 0, 5) as [$distance, $label]) {
+            $similarFormatted[] = $label;
+        }
+
+        return $similarFormatted;
     }
 }
