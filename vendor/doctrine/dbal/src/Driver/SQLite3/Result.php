@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Driver\SQLite3;
 
 use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
+use Doctrine\DBAL\Exception\InvalidColumnIndex;
 use SQLite3Result;
 
 use const SQLITE3_ASSOC;
@@ -12,17 +15,14 @@ use const SQLITE3_NUM;
 final class Result implements ResultInterface
 {
     private ?SQLite3Result $result;
-    private int $changes;
 
     /** @internal The result can be only instantiated by its driver connection or statement. */
-    public function __construct(SQLite3Result $result, int $changes)
+    public function __construct(SQLite3Result $result, private readonly int $changes)
     {
-        $this->result  = $result;
-        $this->changes = $changes;
+        $this->result = $result;
     }
 
-    /** @inheritdoc */
-    public function fetchNumeric()
+    public function fetchNumeric(): array|false
     {
         if ($this->result === null) {
             return false;
@@ -31,8 +31,7 @@ final class Result implements ResultInterface
         return $this->result->fetchArray(SQLITE3_NUM);
     }
 
-    /** @inheritdoc */
-    public function fetchAssociative()
+    public function fetchAssociative(): array|false
     {
         if ($this->result === null) {
             return false;
@@ -41,25 +40,24 @@ final class Result implements ResultInterface
         return $this->result->fetchArray(SQLITE3_ASSOC);
     }
 
-    /** @inheritdoc */
-    public function fetchOne()
+    public function fetchOne(): mixed
     {
         return FetchUtils::fetchOne($this);
     }
 
-    /** @inheritdoc */
+    /** @inheritDoc */
     public function fetchAllNumeric(): array
     {
         return FetchUtils::fetchAllNumeric($this);
     }
 
-    /** @inheritdoc */
+    /** @inheritDoc */
     public function fetchAllAssociative(): array
     {
         return FetchUtils::fetchAllAssociative($this);
     }
 
-    /** @inheritdoc */
+    /** @inheritDoc */
     public function fetchFirstColumn(): array
     {
         return FetchUtils::fetchFirstColumn($this);
@@ -77,6 +75,21 @@ final class Result implements ResultInterface
         }
 
         return $this->result->numColumns();
+    }
+
+    public function getColumnName(int $index): string
+    {
+        if ($this->result === null) {
+            throw InvalidColumnIndex::new($index);
+        }
+
+        $name = $this->result->columnName($index);
+
+        if ($name === false) {
+            throw InvalidColumnIndex::new($index);
+        }
+
+        return $name;
     }
 
     public function free(): void

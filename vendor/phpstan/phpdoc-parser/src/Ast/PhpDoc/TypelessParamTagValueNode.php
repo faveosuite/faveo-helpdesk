@@ -10,19 +10,16 @@ class TypelessParamTagValueNode implements PhpDocTagValueNode
 
 	use NodeAttributes;
 
-	/** @var bool */
-	public $isReference;
+	public bool $isReference;
 
-	/** @var bool */
-	public $isVariadic;
+	public bool $isVariadic;
 
-	/** @var string */
-	public $parameterName;
+	public string $parameterName;
 
 	/** @var string (may be empty) */
-	public $description;
+	public string $description;
 
-	public function __construct(bool $isVariadic, string $parameterName, string $description, bool $isReference = false)
+	public function __construct(bool $isVariadic, string $parameterName, string $description, bool $isReference)
 	{
 		$this->isReference = $isReference;
 		$this->isVariadic = $isVariadic;
@@ -30,12 +27,25 @@ class TypelessParamTagValueNode implements PhpDocTagValueNode
 		$this->description = $description;
 	}
 
-
 	public function __toString(): string
 	{
 		$reference = $this->isReference ? '&' : '';
 		$variadic = $this->isVariadic ? '...' : '';
 		return trim("{$reference}{$variadic}{$this->parameterName} {$this->description}");
+	}
+
+	/**
+	 * @param array<string, mixed> $properties
+	 */
+	public static function __set_state(array $properties): self
+	{
+		$instance = new self($properties['isVariadic'], $properties['parameterName'], $properties['description'], $properties['isReference']);
+		if (isset($properties['attributes'])) {
+			foreach ($properties['attributes'] as $key => $value) {
+				$instance->setAttribute($key, $value);
+			}
+		}
+		return $instance;
 	}
 
 }

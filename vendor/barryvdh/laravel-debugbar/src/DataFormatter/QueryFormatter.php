@@ -48,27 +48,12 @@ class QueryFormatter extends DataFormatter
     }
 
     /**
-     * Make the bindings safe for outputting.
-     *
-     * @param array $bindings
-     * @return array
-     */
-    public function escapeBindings($bindings)
-    {
-        foreach ($bindings as &$binding) {
-            $binding = htmlentities((string) $binding, ENT_QUOTES, 'UTF-8', false);
-        }
-
-        return $bindings;
-    }
-
-    /**
      * Format a source object.
      *
      * @param  object|null  $source  If the backtrace is disabled, the $source will be null.
      * @return string
      */
-    public function formatSource($source)
+    public function formatSource($source, $short = false)
     {
         if (! is_object($source)) {
             return '';
@@ -76,11 +61,11 @@ class QueryFormatter extends DataFormatter
 
         $parts = [];
 
-        if ($source->namespace) {
+        if (!$short && $source->namespace) {
             $parts['namespace'] = $source->namespace . '::';
         }
 
-        $parts['name'] = $source->name;
+        $parts['name'] = $short ? basename($source->name) : $source->name;
         $parts['line'] = ':' . $source->line;
 
         return implode($parts);

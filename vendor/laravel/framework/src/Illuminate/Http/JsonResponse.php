@@ -23,7 +23,6 @@ class JsonResponse extends BaseJsonResponse
      * @param  array  $headers
      * @param  int  $options
      * @param  bool  $json
-     * @return void
      */
     public function __construct($data = null, $status = 200, $headers = [], $options = 0, $json = false)
     {
@@ -37,6 +36,7 @@ class JsonResponse extends BaseJsonResponse
      *
      * @return static
      */
+    #[\Override]
     public static function fromJsonString(?string $data = null, int $status = 200, array $headers = []): static
     {
         return new static($data, $status, $headers, 0, true);
@@ -54,7 +54,7 @@ class JsonResponse extends BaseJsonResponse
     }
 
     /**
-     * Get the json_decoded data from the response.
+     * Get the decoded JSON data from the response.
      *
      * @param  bool  $assoc
      * @param  int  $depth
@@ -69,7 +69,10 @@ class JsonResponse extends BaseJsonResponse
      * {@inheritdoc}
      *
      * @return static
+     *
+     * @throws \InvalidArgumentException
      */
+    #[\Override]
     public function setData($data = []): static
     {
         $this->original = $data;
@@ -116,6 +119,7 @@ class JsonResponse extends BaseJsonResponse
      *
      * @return static
      */
+    #[\Override]
     public function setEncodingOptions($options): static
     {
         $this->encodingOptions = (int) $options;

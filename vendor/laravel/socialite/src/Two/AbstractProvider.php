@@ -141,7 +141,7 @@ abstract class AbstractProvider implements ProviderContract
      * Get the raw user for the given access token.
      *
      * @param  string  $token
-     * @return array
+     * @return mixed
      */
     abstract protected function getUserByToken($token);
 
@@ -294,7 +294,7 @@ abstract class AbstractProvider implements ProviderContract
      * Get the access token response for the given code.
      *
      * @param  string  $code
-     * @return array
+     * @return mixed
      */
     public function getAccessTokenResponse($code)
     {
@@ -337,7 +337,7 @@ abstract class AbstractProvider implements ProviderContract
             $fields['code_verifier'] = $this->request->session()->pull('code_verifier');
         }
 
-        return $fields;
+        return array_merge($fields, $this->parameters);
     }
 
     /**
@@ -362,7 +362,7 @@ abstract class AbstractProvider implements ProviderContract
      * Get the refresh token response for the given refresh token.
      *
      * @param  string  $refreshToken
-     * @return array
+     * @return mixed
      */
     protected function getRefreshTokenResponse($refreshToken)
     {
@@ -395,7 +395,7 @@ abstract class AbstractProvider implements ProviderContract
      */
     public function scopes($scopes)
     {
-        $this->scopes = array_unique(array_merge($this->scopes, (array) $scopes));
+        $this->scopes = array_values(array_unique(array_merge($this->scopes, (array) $scopes)));
 
         return $this;
     }
@@ -408,7 +408,7 @@ abstract class AbstractProvider implements ProviderContract
      */
     public function setScopes($scopes)
     {
-        $this->scopes = array_unique((array) $scopes);
+        $this->scopes = array_values(array_unique((array) $scopes));
 
         return $this;
     }

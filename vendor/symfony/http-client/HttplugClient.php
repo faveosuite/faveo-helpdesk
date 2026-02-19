@@ -32,7 +32,6 @@ use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriFactoryInterface;
 use Psr\Http\Message\UriInterface;
 use Symfony\Component\HttpClient\Internal\HttplugWaitLoop;
-use Symfony\Component\HttpClient\Internal\LegacyHttplugInterface;
 use Symfony\Component\HttpClient\Response\HttplugPromise;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -57,11 +56,12 @@ if (!interface_exists(RequestFactoryInterface::class)) {
  *
  * @author Nicolas Grekas <p@tchwork.com>
  */
-final class HttplugClient implements ClientInterface, HttpAsyncClient, RequestFactoryInterface, StreamFactoryInterface, UriFactoryInterface, ResetInterface, LegacyHttplugInterface
+final class HttplugClient implements ClientInterface, HttpAsyncClient, RequestFactoryInterface, StreamFactoryInterface, UriFactoryInterface, ResetInterface
 {
     private HttpClientInterface $client;
     private ResponseFactoryInterface $responseFactory;
     private StreamFactoryInterface $streamFactory;
+    private bool $autoUpgradeHttpVersion = true;
 
     /**
      * @var \SplObjectStorage<ResponseInterface, array{RequestInterface, Promise}>|null
@@ -70,7 +70,7 @@ final class HttplugClient implements ClientInterface, HttpAsyncClient, RequestFa
 
     private HttplugWaitLoop $waitLoop;
 
-    public function __construct(HttpClientInterface $client = null, ResponseFactoryInterface $responseFactory = null, StreamFactoryInterface $streamFactory = null)
+    public function __construct(?HttpClientInterface $client = null, ?ResponseFactoryInterface $responseFactory = null, ?StreamFactoryInterface $streamFactory = null)
     {
         $this->client = $client ?? HttpClient::create();
         $streamFactory ??= $responseFactory instanceof StreamFactoryInterface ? $responseFactory : null;
@@ -97,6 +97,10 @@ final class HttplugClient implements ClientInterface, HttpAsyncClient, RequestFa
     public function withOptions(array $options): static
     {
         $clone = clone $this;
+        if (\array_key_exists('auto_upgrade_http_version', $options)) {
+            $clone->autoUpgradeHttpVersion = $options['auto_upgrade_http_version'];
+            unset($options['auto_upgrade_http_version']);
+        }
         $clone->client = $clone->client->withOptions($options);
 
         return $clone;
@@ -114,7 +118,7 @@ final class HttplugClient implements ClientInterface, HttpAsyncClient, RequestFa
     public function sendAsyncRequest(RequestInterface $request): HttplugPromise
     {
         if (!$promisePool = $this->promisePool) {
-            throw new \LogicException(sprintf('You cannot use "%s()" as the "guzzlehttp/promises" package is not installed. Try running "composer require guzzlehttp/promises".', __METHOD__));
+            throw new \LogicException(\sprintf('You cannot use "%s()" as the "guzzlehttp/promises" package is not installed. Try running "composer require guzzlehttp/promises".', __METHOD__));
         }
 
         try {
@@ -144,20 +148,16 @@ final class HttplugClient implements ClientInterface, HttpAsyncClient, RequestFa
      *
      * @return int The number of remaining pending promises
      */
-    public function wait(float $maxDuration = null, float $idleTimeout = null): int
+    public function wait(?float $maxDuration = null, ?float $idleTimeout = null): int
     {
         return $this->waitLoop->wait(null, $maxDuration, $idleTimeout);
     }
 
     /**
-     * @param string              $method
      * @param UriInterface|string $uri
      */
-    public function createRequest($method, $uri, array $headers = [], $body = null, $protocolVersion = '1.1'): RequestInterface
+    public function createRequest(string $method, $uri = ''): RequestInterface
     {
-        if (2 < \func_num_args()) {
-            trigger_deprecation('symfony/http-client', '6.2', 'Passing more than 2 arguments to "%s()" is deprecated.', __METHOD__);
-        }
         if ($this->responseFactory instanceof RequestFactoryInterface) {
             $request = $this->responseFactory->createRequest($method, $uri);
         } elseif (class_exists(Psr17FactoryDiscovery::class)) {
@@ -165,47 +165,15 @@ final class HttplugClient implements ClientInterface, HttpAsyncClient, RequestFa
         } elseif (class_exists(Request::class)) {
             $request = new Request($method, $uri);
         } else {
-            throw new \LogicException(sprintf('You cannot use "%s()" as no PSR-17 factories have been found. Try running "composer require php-http/discovery psr/http-factory-implementation:*".', __METHOD__));
-        }
-
-        $request = $request
-            ->withProtocolVersion($protocolVersion)
-            ->withBody($this->createStream($body ?? ''))
-        ;
-
-        foreach ($headers as $name => $value) {
-            $request = $request->withAddedHeader($name, $value);
+            throw new \LogicException(\sprintf('You cannot use "%s()" as no PSR-17 factories have been found. Try running "composer require php-http/discovery psr/http-factory-implementation:*".', __METHOD__));
         }
 
         return $request;
     }
 
-    /**
-     * @param string $content
-     */
-    public function createStream($content = ''): StreamInterface
+    public function createStream(string $content = ''): StreamInterface
     {
-        if (!\is_string($content)) {
-            trigger_deprecation('symfony/http-client', '6.2', 'Passing a "%s" to "%s()" is deprecated, use "createStreamFrom*()" instead.', get_debug_type($content), __METHOD__);
-        }
-
-        if ($content instanceof StreamInterface) {
-            return $content;
-        }
-
-        if (\is_string($content ?? '')) {
-            $stream = $this->streamFactory->createStream($content ?? '');
-        } elseif (\is_resource($content)) {
-            $stream = $this->streamFactory->createStreamFromResource($content);
-        } else {
-            throw new \InvalidArgumentException(sprintf('"%s()" expects string, resource or StreamInterface, "%s" given.', __METHOD__, get_debug_type($content)));
-        }
-
-        if ($stream->isSeekable()) {
-            $stream->seek(0);
-        }
-
-        return $stream;
+        return $this->streamFactory->createStream($content);
     }
 
     public function createStreamFromFile(string $filename, string $mode = 'r'): StreamInterface
@@ -218,40 +186,29 @@ final class HttplugClient implements ClientInterface, HttpAsyncClient, RequestFa
         return $this->streamFactory->createStreamFromResource($resource);
     }
 
-    /**
-     * @param string $uri
-     */
-    public function createUri($uri = ''): UriInterface
+    public function createUri(string $uri = ''): UriInterface
     {
-        if (!\is_string($uri)) {
-            trigger_deprecation('symfony/http-client', '6.2', 'Passing a "%s" to "%s()" is deprecated, pass a string instead.', get_debug_type($uri), __METHOD__);
-        }
-
-        if ($uri instanceof UriInterface) {
-            return $uri;
-        }
-
         if ($this->responseFactory instanceof UriFactoryInterface) {
             return $this->responseFactory->createUri($uri);
         }
 
         if (class_exists(Psr17FactoryDiscovery::class)) {
-            return Psr17FactoryDiscovery::findUrlFactory()->createUri($uri);
+            return Psr17FactoryDiscovery::findUriFactory()->createUri($uri);
         }
 
         if (class_exists(Uri::class)) {
             return new Uri($uri);
         }
 
-        throw new \LogicException(sprintf('You cannot use "%s()" as no PSR-17 factories have been found. Try running "composer require php-http/discovery psr/http-factory-implementation:*".', __METHOD__));
+        throw new \LogicException(\sprintf('You cannot use "%s()" as no PSR-17 factories have been found. Try running "composer require php-http/discovery psr/http-factory-implementation:*".', __METHOD__));
     }
 
-    public function __sleep(): array
+    public function __serialize(): array
     {
         throw new \BadMethodCallException('Cannot serialize '.__CLASS__);
     }
 
-    public function __wakeup(): void
+    public function __unserialize(array $data): void
     {
         throw new \BadMethodCallException('Cannot unserialize '.__CLASS__);
     }
@@ -268,23 +225,53 @@ final class HttplugClient implements ClientInterface, HttpAsyncClient, RequestFa
         }
     }
 
-    private function sendPsr7Request(RequestInterface $request, bool $buffer = null): ResponseInterface
+    private function sendPsr7Request(RequestInterface $request, ?bool $buffer = null): ResponseInterface
     {
         try {
             $body = $request->getBody();
+            $headers = $request->getHeaders();
 
-            if ($body->isSeekable()) {
-                $body->seek(0);
+            $size = $request->getHeader('content-length')[0] ?? -1;
+            if (0 > $size && 0 < $size = $body->getSize() ?? -1) {
+                $headers['Content-Length'] = [$size];
+            }
+
+            if (0 === $size) {
+                $body = '';
+            } elseif (0 < $size && $size < 1 << 21) {
+                if ($body->isSeekable()) {
+                    try {
+                        $body->seek(0);
+                    } catch (\RuntimeException) {
+                        // ignore
+                    }
+                }
+
+                $body = $body->getContents();
+            } else {
+                $body = static function (int $size) use ($body) {
+                    if ($body->isSeekable()) {
+                        try {
+                            $body->seek(0);
+                        } catch (\RuntimeException) {
+                            // ignore
+                        }
+                    }
+
+                    while (!$body->eof()) {
+                        yield $body->read($size);
+                    }
+                };
             }
 
             $options = [
-                'headers' => $request->getHeaders(),
-                'body' => $body->getContents(),
+                'headers' => $headers,
+                'body' => $body,
                 'buffer' => $buffer,
             ];
 
-            if ('1.0' === $request->getProtocolVersion()) {
-                $options['http_version'] = '1.0';
+            if (!$this->autoUpgradeHttpVersion || '1.0' === $request->getProtocolVersion()) {
+                $options['http_version'] = $request->getProtocolVersion();
             }
 
             return $this->client->request($request->getMethod(), (string) $request->getUri(), $options);

@@ -1,28 +1,9 @@
 <?php
 
-namespace Carbon\Doctrine;
+declare(strict_types=1);
 
-use Doctrine\DBAL\Platforms\AbstractPlatform;
+namespace Carbon\Doctrine;
 
 class CarbonImmutableType extends DateTimeImmutableType implements CarbonDoctrineType
 {
-    /**
-     * {@inheritdoc}
-     *
-     * @return string
-     */
-    public function getName()
-    {
-        return 'carbon_immutable';
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @return bool
-     */
-    public function requiresSQLCommentHint(AbstractPlatform $platform)
-    {
-        return true;
-    }
 }

@@ -42,7 +42,7 @@ class ClearCommand extends Command
         }
 
         $connection = $this->argument('connection')
-                        ?: $this->laravel['config']['queue.default'];
+            ?: $this->laravel['config']['queue.default'];
 
         // We need to get the right queue for the connection which is set in the queue
         // configuration file for the application. We will pull it based on the set
@@ -57,6 +57,8 @@ class ClearCommand extends Command
             $this->components->info('Cleared '.$count.' '.Str::plural('job', $count).' from the ['.$queueName.'] queue');
         } else {
             $this->components->error('Clearing queues is not supported on ['.(new ReflectionClass($queue))->getShortName().']');
+
+            return 1;
         }
 
         return 0;

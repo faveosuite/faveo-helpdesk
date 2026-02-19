@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Driver\Mysqli;
 
 use Doctrine\DBAL\Driver\AbstractMySQLDriver;
@@ -17,13 +19,11 @@ final class Driver extends AbstractMySQLDriver
 {
     /**
      * {@inheritDoc}
-     *
-     * @return Connection
      */
     public function connect(
         #[SensitiveParameter]
-        array $params
-    ) {
+        array $params,
+    ): Connection {
         if (! empty($params['persistent'])) {
             if (! isset($params['host'])) {
                 throw HostRequired::forPersistentConnection();
@@ -31,7 +31,7 @@ final class Driver extends AbstractMySQLDriver
 
             $host = 'p:' . $params['host'];
         } else {
-            $host = $params['host'] ?? null;
+            $host = $params['host'] ?? '';
         }
 
         $connection = new mysqli();
@@ -43,11 +43,11 @@ final class Driver extends AbstractMySQLDriver
         try {
             $success = @$connection->real_connect(
                 $host,
-                $params['user'] ?? null,
-                $params['password'] ?? null,
-                $params['dbname'] ?? null,
-                $params['port'] ?? null,
-                $params['unix_socket'] ?? null,
+                $params['user'] ?? '',
+                $params['password'] ?? '',
+                $params['dbname'] ?? '',
+                $params['port'] ?? 0,
+                $params['unix_socket'] ?? '',
                 $params['driverOptions'][Connection::OPTION_FLAGS] ?? 0,
             );
         } catch (mysqli_sql_exception $e) {
@@ -72,7 +72,7 @@ final class Driver extends AbstractMySQLDriver
      */
     private function compilePreInitializers(
         #[SensitiveParameter]
-        array $params
+        array $params,
     ): Generator {
         unset($params['driverOptions'][Connection::OPTION_FLAGS]);
 
@@ -106,7 +106,7 @@ final class Driver extends AbstractMySQLDriver
      */
     private function compilePostInitializers(
         #[SensitiveParameter]
-        array $params
+        array $params,
     ): Generator {
         if (! isset($params['charset'])) {
             return;

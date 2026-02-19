@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -28,24 +28,21 @@ class TimeitCommand extends Command
     const AVG_RESULT_MSG = '<info>Command took %.6f seconds on average (%.6f median; %.6f total) to complete.</info>';
 
     // All times stored as nanoseconds!
-    private static $useHrtime;
-    private static $start = null;
-    private static $times = [];
+    private static ?int $start = null;
+    private static array $times = [];
 
-    private $parser;
-    private $traverser;
-    private $printer;
+    private CodeArgumentParser $parser;
+    private NodeTraverser $traverser;
+    private Printer $printer;
 
     /**
      * {@inheritdoc}
      */
     public function __construct($name = null)
     {
-        // @todo Remove microtime use after we drop support for PHP < 7.3
-        self::$useHrtime = \function_exists('hrtime');
-
         $this->parser = new CodeArgumentParser();
 
+        // @todo Pass visitor directly to once we drop support for PHP-Parser 4.x
         $this->traverser = new NodeTraverser();
         $this->traverser->addVisitor(new TimeitVisitor());
 
@@ -57,7 +54,7 @@ class TimeitCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('timeit')
@@ -82,18 +79,19 @@ HELP
      *
      * @return int 0 if everything went fine, or an exit code
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $code = $input->getArgument('code');
         $num = (int) ($input->getOption('num') ?: 1);
-        $shell = $this->getApplication();
+
+        $shell = $this->getShell();
 
         $instrumentedCode = $this->instrumentCode($code);
 
         self::$times = [];
 
         do {
-            $_ = $shell->execute($instrumentedCode);
+            $_ = $shell->execute($instrumentedCode, true);
             $this->ensureEndMarked();
         } while (\count(self::$times) < $num);
 
@@ -103,11 +101,13 @@ HELP
         self::$times = [];
 
         if ($num === 1) {
+            // @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible (guaranteed by loop: count($times) >= $num)
             $output->writeln(\sprintf(self::RESULT_MSG, $times[0] / 1e+9));
         } else {
             $total = \array_sum($times);
             \rsort($times);
-            $median = $times[\round($num / 2)];
+            // @phpstan-ignore-next-line offsetAccess.nonOffsetAccessible (guaranteed by loop: count($times) >= $num)
+            $median = $times[(int) \round($num / 2)];
 
             $output->writeln(\sprintf(self::AVG_RESULT_MSG, ($total / $num) / 1e+9, $median / 1e+9, $total / 1e+9));
         }
@@ -124,7 +124,7 @@ HELP
      */
     public static function markStart()
     {
-        self::$start = self::$useHrtime ? \hrtime(true) : (\microtime(true) * 1e+6);
+        self::$start = \hrtime(true);
     }
 
     /**
@@ -143,7 +143,7 @@ HELP
      */
     public static function markEnd($ret = null)
     {
-        self::$times[] = (self::$useHrtime ? \hrtime(true) : (\microtime(true) * 1e+6)) - self::$start;
+        self::$times[] = \hrtime(true) - self::$start;
         self::$start = null;
 
         return $ret;

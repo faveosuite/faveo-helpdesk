@@ -11,12 +11,8 @@ use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider;
 /** @internal */
 final class ConnectionCollationMetadataProvider implements CollationMetadataProvider
 {
-    /** @var Connection */
-    private $connection;
-
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     /** @throws Exception */

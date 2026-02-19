@@ -1,13 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Query\Expression;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\Deprecations\Deprecation;
+use Doctrine\DBAL\Exception;
 
-use function func_get_arg;
-use function func_get_args;
-use function func_num_args;
 use function implode;
 use function sprintf;
 
@@ -16,98 +15,50 @@ use function sprintf;
  */
 class ExpressionBuilder
 {
-    public const EQ  = '=';
-    public const NEQ = '<>';
-    public const LT  = '<';
-    public const LTE = '<=';
-    public const GT  = '>';
-    public const GTE = '>=';
-
-    /**
-     * The DBAL Connection.
-     */
-    private Connection $connection;
+    final public const EQ  = '=';
+    final public const NEQ = '<>';
+    final public const LT  = '<';
+    final public const LTE = '<=';
+    final public const GT  = '>';
+    final public const GTE = '>=';
 
     /**
      * Initializes a new <tt>ExpressionBuilder</tt>.
      *
      * @param Connection $connection The DBAL Connection.
      */
-    public function __construct(Connection $connection)
+    public function __construct(private readonly Connection $connection)
     {
-        $this->connection = $connection;
     }
 
     /**
      * Creates a conjunction of the given expressions.
-     *
-     * @param string|CompositeExpression $expression
-     * @param string|CompositeExpression ...$expressions
      */
-    public function and($expression, ...$expressions): CompositeExpression
-    {
+    public function and(
+        string|CompositeExpression $expression,
+        string|CompositeExpression ...$expressions,
+    ): CompositeExpression {
         return CompositeExpression::and($expression, ...$expressions);
     }
 
     /**
      * Creates a disjunction of the given expressions.
-     *
-     * @param string|CompositeExpression $expression
-     * @param string|CompositeExpression ...$expressions
      */
-    public function or($expression, ...$expressions): CompositeExpression
-    {
+    public function or(
+        string|CompositeExpression $expression,
+        string|CompositeExpression ...$expressions,
+    ): CompositeExpression {
         return CompositeExpression::or($expression, ...$expressions);
-    }
-
-    /**
-     * @deprecated Use `and()` instead.
-     *
-     * @param mixed $x Optional clause. Defaults = null, but requires
-     *                 at least one defined when converting to string.
-     *
-     * @return CompositeExpression
-     */
-    public function andX($x = null)
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/3851',
-            'ExpressionBuilder::andX() is deprecated, use ExpressionBuilder::and() instead.',
-        );
-
-        return new CompositeExpression(CompositeExpression::TYPE_AND, func_get_args());
-    }
-
-    /**
-     * @deprecated Use `or()` instead.
-     *
-     * @param mixed $x Optional clause. Defaults = null, but requires
-     *                 at least one defined when converting to string.
-     *
-     * @return CompositeExpression
-     */
-    public function orX($x = null)
-    {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/3851',
-            'ExpressionBuilder::orX() is deprecated, use ExpressionBuilder::or() instead.',
-        );
-
-        return new CompositeExpression(CompositeExpression::TYPE_OR, func_get_args());
     }
 
     /**
      * Creates a comparison expression.
      *
-     * @param mixed  $x        The left expression.
-     * @param string $operator One of the ExpressionBuilder::* constants.
-     * @param mixed  $y        The right expression.
-     *
-     * @return string
+     * @param string $x        The left expression.
+     * @param string $operator The comparison operator.
+     * @param string $y        The right expression.
      */
-    public function comparison($x, $operator, $y)
+    public function comparison(string $x, string $operator, string $y): string
     {
         return $x . ' ' . $operator . ' ' . $y;
     }
@@ -122,12 +73,10 @@ class ExpressionBuilder
      *     // u.id = ?
      *     $expr->eq('u.id', '?');
      *
-     * @param mixed $x The left expression.
-     * @param mixed $y The right expression.
-     *
-     * @return string
+     * @param string $x The left expression.
+     * @param string $y The right expression.
      */
-    public function eq($x, $y)
+    public function eq(string $x, string $y): string
     {
         return $this->comparison($x, self::EQ, $y);
     }
@@ -141,12 +90,10 @@ class ExpressionBuilder
      *     // u.id <> 1
      *     $q->where($q->expr()->neq('u.id', '1'));
      *
-     * @param mixed $x The left expression.
-     * @param mixed $y The right expression.
-     *
-     * @return string
+     * @param string $x The left expression.
+     * @param string $y The right expression.
      */
-    public function neq($x, $y)
+    public function neq(string $x, string $y): string
     {
         return $this->comparison($x, self::NEQ, $y);
     }
@@ -160,12 +107,10 @@ class ExpressionBuilder
      *     // u.id < ?
      *     $q->where($q->expr()->lt('u.id', '?'));
      *
-     * @param mixed $x The left expression.
-     * @param mixed $y The right expression.
-     *
-     * @return string
+     * @param string $x The left expression.
+     * @param string $y The right expression.
      */
-    public function lt($x, $y)
+    public function lt(string $x, string $y): string
     {
         return $this->comparison($x, self::LT, $y);
     }
@@ -179,12 +124,10 @@ class ExpressionBuilder
      *     // u.id <= ?
      *     $q->where($q->expr()->lte('u.id', '?'));
      *
-     * @param mixed $x The left expression.
-     * @param mixed $y The right expression.
-     *
-     * @return string
+     * @param string $x The left expression.
+     * @param string $y The right expression.
      */
-    public function lte($x, $y)
+    public function lte(string $x, string $y): string
     {
         return $this->comparison($x, self::LTE, $y);
     }
@@ -198,12 +141,10 @@ class ExpressionBuilder
      *     // u.id > ?
      *     $q->where($q->expr()->gt('u.id', '?'));
      *
-     * @param mixed $x The left expression.
-     * @param mixed $y The right expression.
-     *
-     * @return string
+     * @param string $x The left expression.
+     * @param string $y The right expression.
      */
-    public function gt($x, $y)
+    public function gt(string $x, string $y): string
     {
         return $this->comparison($x, self::GT, $y);
     }
@@ -217,12 +158,10 @@ class ExpressionBuilder
      *     // u.id >= ?
      *     $q->where($q->expr()->gte('u.id', '?'));
      *
-     * @param mixed $x The left expression.
-     * @param mixed $y The right expression.
-     *
-     * @return string
+     * @param string $x The left expression.
+     * @param string $y The right expression.
      */
-    public function gte($x, $y)
+    public function gte(string $x, string $y): string
     {
         return $this->comparison($x, self::GTE, $y);
     }
@@ -231,10 +170,8 @@ class ExpressionBuilder
      * Creates an IS NULL expression with the given arguments.
      *
      * @param string $x The expression to be restricted by IS NULL.
-     *
-     * @return string
      */
-    public function isNull($x)
+    public function isNull(string $x): string
     {
         return $x . ' IS NULL';
     }
@@ -243,40 +180,34 @@ class ExpressionBuilder
      * Creates an IS NOT NULL expression with the given arguments.
      *
      * @param string $x The expression to be restricted by IS NOT NULL.
-     *
-     * @return string
      */
-    public function isNotNull($x)
+    public function isNotNull(string $x): string
     {
         return $x . ' IS NOT NULL';
     }
 
     /**
-     * Creates a LIKE() comparison expression with the given arguments.
+     * Creates a LIKE comparison expression.
      *
-     * @param string $x The expression to be inspected by the LIKE comparison
-     * @param mixed  $y The pattern to compare against
-     *
-     * @return string
+     * @param string $expression The expression to be inspected by the LIKE comparison
+     * @param string $pattern    The pattern to compare against
      */
-    public function like($x, $y/*, ?string $escapeChar = null */)
+    public function like(string $expression, string $pattern, ?string $escapeChar = null): string
     {
-        return $this->comparison($x, 'LIKE', $y) .
-            (func_num_args() >= 3 ? sprintf(' ESCAPE %s', func_get_arg(2)) : '');
+        return $this->comparison($expression, 'LIKE', $pattern) .
+            ($escapeChar !== null ? sprintf(' ESCAPE %s', $escapeChar) : '');
     }
 
     /**
-     * Creates a NOT LIKE() comparison expression with the given arguments.
+     * Creates a NOT LIKE comparison expression
      *
-     * @param string $x The expression to be inspected by the NOT LIKE comparison
-     * @param mixed  $y The pattern to compare against
-     *
-     * @return string
+     * @param string $expression The expression to be inspected by the NOT LIKE comparison
+     * @param string $pattern    The pattern to compare against
      */
-    public function notLike($x, $y/*, ?string $escapeChar = null */)
+    public function notLike(string $expression, string $pattern, ?string $escapeChar = null): string
     {
-        return $this->comparison($x, 'NOT LIKE', $y) .
-            (func_num_args() >= 3 ? sprintf(' ESCAPE %s', func_get_arg(2)) : '');
+        return $this->comparison($expression, 'NOT LIKE', $pattern) .
+            ($escapeChar !== null ? sprintf(' ESCAPE %s', $escapeChar) : '');
     }
 
     /**
@@ -284,10 +215,8 @@ class ExpressionBuilder
      *
      * @param string          $x The SQL expression to be matched against the set.
      * @param string|string[] $y The SQL expression or an array of SQL expressions representing the set.
-     *
-     * @return string
      */
-    public function in($x, $y)
+    public function in(string $x, string|array $y): string
     {
         return $this->comparison($x, 'IN', '(' . implode(', ', (array) $y) . ')');
     }
@@ -297,27 +226,22 @@ class ExpressionBuilder
      *
      * @param string          $x The SQL expression to be matched against the set.
      * @param string|string[] $y The SQL expression or an array of SQL expressions representing the set.
-     *
-     * @return string
      */
-    public function notIn($x, $y)
+    public function notIn(string $x, string|array $y): string
     {
         return $this->comparison($x, 'NOT IN', '(' . implode(', ', (array) $y) . ')');
     }
 
     /**
-     * Builds an SQL literal from a given input parameter.
+     * Creates an SQL literal expression from the string.
      *
      * The usage of this method is discouraged. Use prepared statements
      * or {@see AbstractPlatform::quoteStringLiteral()} instead.
      *
-     * @param mixed    $input The parameter to be quoted.
-     * @param int|null $type  The type of the parameter.
-     *
-     * @return string
+     * @throws Exception
      */
-    public function literal($input, $type = null)
+    public function literal(string $input): string
     {
-        return $this->connection->quote($input, $type);
+        return $this->connection->quote($input);
     }
 }

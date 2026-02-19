@@ -20,20 +20,10 @@ class JavascriptRenderer extends BaseJavascriptRenderer
         parent::__construct($debugBar, $baseUrl, $basePath);
 
         $this->cssFiles['laravel'] = __DIR__ . '/Resources/laravel-debugbar.css';
-        $this->cssVendors['fontawesome'] = __DIR__ . '/Resources/vendor/font-awesome/style.css';
-        $this->jsFiles['laravel-sql'] = __DIR__ . '/Resources/sqlqueries/widget.js';
         $this->jsFiles['laravel-cache'] = __DIR__ . '/Resources/cache/widget.js';
+        $this->jsFiles['laravel-queries'] = __DIR__ . '/Resources/queries/widget.js';
 
-        $theme = config('debugbar.theme', 'auto');
-        switch ($theme) {
-            case 'dark':
-                $this->cssFiles['laravel-dark'] = __DIR__ . '/Resources/laravel-debugbar-dark-mode.css';
-                break;
-            case 'auto':
-                $this->cssFiles['laravel-dark-0'] = __DIR__ . '/Resources/laravel-debugbar-dark-mode-media-start.css';
-                $this->cssFiles['laravel-dark-1'] = __DIR__ . '/Resources/laravel-debugbar-dark-mode.css';
-                $this->cssFiles['laravel-dark-2'] = __DIR__ . '/Resources/laravel-debugbar-dark-mode-media-end.css';
-        }
+        $this->setTheme(config('debugbar.theme', 'auto'));
     }
 
     /**
@@ -51,26 +41,28 @@ class JavascriptRenderer extends BaseJavascriptRenderer
      */
     public function renderHead()
     {
-        $cssRoute = route('debugbar.assets.css', [
+        $cssRoute = preg_replace('/\Ahttps?:\/\/[^\/]+/', '', route('debugbar.assets.css', [
             'v' => $this->getModifiedTime('css'),
-            'theme' => config('debugbar.theme', 'auto'),
-        ]);
+        ]));
 
-        $jsRoute = route('debugbar.assets.js', [
+        $jsRoute = preg_replace('/\Ahttps?:\/\/[^\/]+/', '', route('debugbar.assets.js', [
             'v' => $this->getModifiedTime('js')
-        ]);
+        ]));
 
-        $cssRoute = preg_replace('/\Ahttps?:/', '', $cssRoute);
-        $jsRoute  = preg_replace('/\Ahttps?:/', '', $jsRoute);
+        $nonce = $this->getNonceAttribute();
 
         $html  = "<link rel='stylesheet' type='text/css' property='stylesheet' href='{$cssRoute}' data-turbolinks-eval='false' data-turbo-eval='false'>";
-        $html .= "<script src='{$jsRoute}' data-turbolinks-eval='false' data-turbo-eval='false'></script>";
+        $html .= "<script{$nonce} src='{$jsRoute}' data-turbolinks-eval='false' data-turbo-eval='false'></script>";
 
         if ($this->isJqueryNoConflictEnabled()) {
-            $html .= '<script data-turbo-eval="false">jQuery.noConflict(true);</script>' . "\n";
+            $html .= "<script{$nonce} data-turbo-eval='false'>jQuery.noConflict(true);</script>" . "\n";
         }
 
-        $html .= $this->getInlineHtml();
+        $inlineHtml = $this->getInlineHtml();
+        if ($nonce != '') {
+            $inlineHtml = preg_replace("/<(script|style)>/", "<$1{$nonce}>", $inlineHtml);
+        }
+        $html .= $inlineHtml;
 
 
         return $html;

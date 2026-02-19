@@ -2,18 +2,15 @@
  * dompdf default stylesheet.
  *
  * @package dompdf
- * @link    http://dompdf.github.com/
- * @author  Benj Carson <benjcarson@digitaljunkies.ca>
- * @author  Blake Ross <BlakeR1234@aol.com>
- * @author  Fabien Ménager <fabien.menager@gmail.com>
+ * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  *
  * Portions from Mozilla
  * @link https://dxr.mozilla.org/mozilla-central/source/layout/style/res/html.css
- * @license http://mozilla.org/MPL/2.0/ Mozilla Public License, v. 2.0 
+ * @license http://mozilla.org/MPL/2.0/ Mozilla Public License, v. 2.0
  *
  * Portions from W3C
- * @link https://drafts.csswg.org/css-ui-3/#default-style-sheet
+ * @link https://www.w3.org/TR/css-ui-3/#default-style-sheet
  *
  */
 
@@ -148,25 +145,22 @@ table {
 }
 
 table[border] {
-  border-style: outset;
-  border-color: gray;
+  border: outset gray;
 }
 
-/* This won't work (???) */
-/*
 table[border] td,
 table[border] th {
-  border: 1pt solid grey;
-}*/
+  border: 1px inset gray;
+}
+
+table[border="0"] td,
+table[border="0"] th {
+  border-width: 0;
+}
 
 /* make sure backgrounds are inherited in tables  -- see bug 4510 */
 td, th, tr {
-  background-color: inherit;
-  background-image: inherit;
-  background-image-resolution: inherit;
-  background-position: inherit;
-  background-repeat: inherit;
-  background-size: inherit;
+  background: inherit;
 }
 
 /* caption inherits from table not table-outer */
@@ -224,15 +218,12 @@ th {
 }
 
 /* inlines */
-q {
-  quotes: '"' '"' "'" "'"; /* FIXME only the first level is used */
-}
 
-q:before {
+q::before {
   content: open-quote;
 }
 
-q:after {
+q::after {
   content: close-quote;
 }
 
@@ -316,7 +307,7 @@ li {
   display: list-item;
 }
 
-/*li:before {
+/*li::before {
   display: -dompdf-list-bullet !important;
   content: counter(-dompdf-default-counter) ". ";
   padding-right: 0.5em;
@@ -334,9 +325,8 @@ li {
 
 /* 2 deep unordered lists use a circle */
 :matches(ul, ol, dir, menu) ul,
-:matches(ul, ol, dir, menu) ul,
-:matches(ul, ol, dir, menu) ul,
-:matches(ul, ol, dir, menu) ul {
+:matches(ul, ol, dir, menu) menu,
+:matches(ul, ol, dir, menu) dir {
   list-style-type: circle;
 }
 
@@ -348,7 +338,7 @@ li {
 }
 
 /* forms */
-/* From https://drafts.csswg.org/css-ui-3/#default-style-sheet */
+/* From https://www.w3.org/TR/css-ui-3/#default-style-sheet */
 form {
   display: block;
 }
@@ -358,25 +348,28 @@ input, button, select {
   font-family: sans-serif;
 }
 
-input[type=text],
-input[type=password],
-select {
-  width: 12em;
-}
-
-input[type=text],
-input[type=password],
-input[type=button],
-input[type=submit],
-input[type=reset],
-input[type=file],
-button,
-textarea,
-select {
+input, button, textarea, select {
   background: #FFF;
   border: 1px solid #999;
   padding: 2px;
   margin: 2px;
+}
+
+input, select {
+  width: 12em;
+}
+
+input[type=hidden] {
+  display: none !important;
+}
+
+input[type=checkbox],
+input[type=radio],
+input[type=image] {
+  width: auto;
+  border: none;
+  padding: 0;
+  margin: 0;
 }
 
 input[type=button],
@@ -384,6 +377,7 @@ input[type=submit],
 input[type=reset],
 input[type=file],
 button {
+  width: auto;
   background: #CCC;
   text-align: center;
 }
@@ -392,44 +386,49 @@ input[type=file] {
   width: 8em;
 }
 
-input[type=text]:before,
-input[type=button]:before,
-input[type=submit]:before,
-input[type=reset]:before {
+input::before {
   content: attr(value);
 }
 
-input[type=file]:before {
+input[type=image][alt]::before {
+  content: attr(alt);
+}
+
+input[type=file]::before {
   content: "Choose a file";
 }
 
-input[type=password][value]:before {
+input[type=password][value]::before {
   font-family: "DejaVu Sans" !important;
   content: "\2022\2022\2022\2022\2022\2022\2022\2022";
   line-height: 1em;
 }
 
+input[type=password][value=""]::before {
+  content: none;
+}
+
 input[type=checkbox],
 input[type=radio],
-select:after {
+select::after {
   font-family: "DejaVu Sans" !important;
   font-size: 18px;
   line-height: 1;
 }
 
-input[type=checkbox]:before {
+input[type=checkbox]::before {
   content: "\2610";
 }
 
-input[type=checkbox][checked]:before {
+input[type=checkbox][checked]::before {
   content: "\2611";
 }
 
-input[type=radio]:before {
+input[type=radio]::before {
   content: "\25CB";
 }
 
-input[type=radio][checked]:before {
+input[type=radio][checked]::before {
   content: "\25C9";
 }
 
@@ -439,15 +438,15 @@ textarea {
   overflow: hidden;
   font-family: monospace;
   white-space: pre-wrap;
-  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 select {
-  position: relative!important;
-  overflow: hidden!important;
+  position: relative !important;
+  overflow: hidden !important;
 }
 
-select:after {
+select::after {
   position: absolute;
   right: 0;
   top: 0;

@@ -2,7 +2,9 @@
 
 namespace Illuminate\Hashing;
 
+use Error;
 use Illuminate\Contracts\Hashing\Hasher as HasherContract;
+use InvalidArgumentException;
 use RuntimeException;
 
 class BcryptHasher extends AbstractHasher implements HasherContract
@@ -22,15 +24,22 @@ class BcryptHasher extends AbstractHasher implements HasherContract
     protected $verifyAlgorithm = false;
 
     /**
+     * The maximum allowed length of strings that can be hashed.
+     *
+     * @var int|null
+     */
+    protected $limit;
+
+    /**
      * Create a new hasher instance.
      *
      * @param  array  $options
-     * @return void
      */
     public function __construct(array $options = [])
     {
         $this->rounds = $options['rounds'] ?? $this->rounds;
         $this->verifyAlgorithm = $options['verify'] ?? $this->verifyAlgorithm;
+        $this->limit = $options['limit'] ?? $this->limit;
     }
 
     /**
@@ -41,14 +50,19 @@ class BcryptHasher extends AbstractHasher implements HasherContract
      * @return string
      *
      * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      */
-    public function make($value, array $options = [])
+    public function make(#[\SensitiveParameter] $value, array $options = [])
     {
-        $hash = password_hash($value, PASSWORD_BCRYPT, [
-            'cost' => $this->cost($options),
-        ]);
+        try {
+            if ($this->limit && strlen($value) > $this->limit) {
+                throw new InvalidArgumentException('Value is too long to hash. Value must be less than '.$this->limit.' bytes.');
+            }
 
-        if ($hash === false) {
+            $hash = password_hash($value, PASSWORD_BCRYPT, [
+                'cost' => $this->cost($options),
+            ]);
+        } catch (Error) {
             throw new RuntimeException('Bcrypt hashing not supported.');
         }
 
@@ -65,8 +79,12 @@ class BcryptHasher extends AbstractHasher implements HasherContract
      *
      * @throws \RuntimeException
      */
-    public function check($value, $hashedValue, array $options = [])
+    public function check(#[\SensitiveParameter] $value, $hashedValue, array $options = [])
     {
+        if (is_null($hashedValue) || strlen($hashedValue) === 0) {
+            return false;
+        }
+
         if ($this->verifyAlgorithm && ! $this->isUsingCorrectAlgorithm($hashedValue)) {
             throw new RuntimeException('This password does not use the Bcrypt algorithm.');
         }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Portability;
 
 use Doctrine\DBAL\Driver\Middleware\AbstractStatementMiddleware;
@@ -11,25 +13,18 @@ use Doctrine\DBAL\Driver\Statement as DriverStatement;
  */
 final class Statement extends AbstractStatementMiddleware
 {
-    private Converter $converter;
-
     /**
      * Wraps <tt>Statement</tt> and applies portability measures.
      */
-    public function __construct(DriverStatement $stmt, Converter $converter)
+    public function __construct(DriverStatement $stmt, private readonly Converter $converter)
     {
         parent::__construct($stmt);
-
-        $this->converter = $converter;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function execute($params = null): ResultInterface
+    public function execute(): ResultInterface
     {
         return new Result(
-            parent::execute($params),
+            parent::execute(),
             $this->converter,
         );
     }

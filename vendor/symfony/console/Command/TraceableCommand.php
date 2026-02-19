@@ -27,7 +27,7 @@ use Symfony\Component\Stopwatch\Stopwatch;
  *
  * @author Jules Pietri <jules@heahprod.com>
  */
-final class TraceableCommand extends Command implements SignalableCommandInterface
+final class TraceableCommand extends Command
 {
     public readonly Command $command;
     public int $exitCode;
@@ -45,6 +45,7 @@ final class TraceableCommand extends Command implements SignalableCommandInterfa
     /** @var array<string, mixed> */
     public array $interactiveInputs = [];
     public array $handledSignals = [];
+    public ?array $invokableCommandInfo = null;
 
     public function __construct(
         Command $command,
@@ -88,15 +89,11 @@ final class TraceableCommand extends Command implements SignalableCommandInterfa
 
     public function getSubscribedSignals(): array
     {
-        return $this->command instanceof SignalableCommandInterface ? $this->command->getSubscribedSignals() : [];
+        return $this->command->getSubscribedSignals();
     }
 
     public function handleSignal(int $signal, int|false $previousExitCode = 0): int|false
     {
-        if (!$this->command instanceof SignalableCommandInterface) {
-            return false;
-        }
-
         $event = $this->stopwatch->start($this->getName().'.handle_signal');
 
         $exit = $this->command->handleSignal($signal, $previousExitCode);
@@ -134,7 +131,7 @@ final class TraceableCommand extends Command implements SignalableCommandInterfa
         parent::ignoreValidationErrors();
     }
 
-    public function setApplication(Application $application = null): void
+    public function setApplication(?Application $application = null): void
     {
         $this->command->setApplication($application);
     }
@@ -171,6 +168,18 @@ final class TraceableCommand extends Command implements SignalableCommandInterfa
      */
     public function setCode(callable $code): static
     {
+        if ($code instanceof InvokableCommand) {
+            $r = \Closure::bind(function () {
+                return $this->invokable;
+            }, $code, InvokableCommand::class)();
+
+            $this->invokableCommandInfo = [
+                'class' => $r->getClosureScopeClass()->name,
+                'file' => $r->getFileName(),
+                'line' => $r->getStartLine(),
+            ];
+        }
+
         $this->command->setCode($code);
 
         return parent::setCode(function (InputInterface $input, OutputInterface $output) use ($code): int {
@@ -209,14 +218,14 @@ final class TraceableCommand extends Command implements SignalableCommandInterfa
         return $this->command->getNativeDefinition();
     }
 
-    public function addArgument(string $name, int $mode = null, string $description = '', mixed $default = null, array|\Closure $suggestedValues = []): static
+    public function addArgument(string $name, ?int $mode = null, string $description = '', mixed $default = null, array|\Closure $suggestedValues = []): static
     {
         $this->command->addArgument($name, $mode, $description, $default, $suggestedValues);
 
         return $this;
     }
 
-    public function addOption(string $name, string|array $shortcut = null, int $mode = null, string $description = '', mixed $default = null, array|\Closure $suggestedValues = []): static
+    public function addOption(string $name, string|array|null $shortcut = null, ?int $mode = null, string $description = '', mixed $default = null, array|\Closure $suggestedValues = []): static
     {
         $this->command->addOption($name, $shortcut, $mode, $description, $default, $suggestedValues);
 
@@ -283,7 +292,7 @@ final class TraceableCommand extends Command implements SignalableCommandInterfa
         $event = $this->stopwatch->start($this->getName(), 'command');
 
         try {
-            $this->exitCode = parent::run($input, $output);
+            $this->exitCode = $this->command->run($input, $output);
         } finally {
             $event->stop();
 

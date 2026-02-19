@@ -6,7 +6,6 @@ use Closure;
 use Illuminate\Filesystem\Filesystem;
 use RuntimeException;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
 
 class Composer
@@ -30,7 +29,6 @@ class Composer
      *
      * @param  \Illuminate\Filesystem\Filesystem  $files
      * @param  string|null  $workingPath
-     * @return void
      */
     public function __construct(Filesystem $files, $workingPath = null)
     {
@@ -44,9 +42,9 @@ class Composer
      * @param  string  $package
      * @return bool
      *
-     * @throw \RuntimeException
+     * @throws \RuntimeException
      */
-    protected function hasPackage($package)
+    public function hasPackage($package)
     {
         $composer = json_decode(file_get_contents($this->findComposerFile()), true);
 
@@ -63,16 +61,16 @@ class Composer
      * @param  string|null  $composerBinary
      * @return bool
      */
-    public function requirePackages(array $packages, bool $dev = false, Closure|OutputInterface $output = null, $composerBinary = null)
+    public function requirePackages(array $packages, bool $dev = false, Closure|OutputInterface|null $output = null, $composerBinary = null)
     {
-        $command = collect([
+        $command = (new Collection([
             ...$this->findComposer($composerBinary),
             'require',
             ...$packages,
-        ])
-        ->when($dev, function ($command) {
-            $command->push('--dev');
-        })->all();
+        ]))
+            ->when($dev, function ($command) {
+                $command->push('--dev');
+            })->all();
 
         return 0 === $this->getProcess($command, ['COMPOSER_MEMORY_LIMIT' => '-1'])
             ->run(
@@ -92,16 +90,16 @@ class Composer
      * @param  string|null  $composerBinary
      * @return bool
      */
-    public function removePackages(array $packages, bool $dev = false, Closure|OutputInterface $output = null, $composerBinary = null)
+    public function removePackages(array $packages, bool $dev = false, Closure|OutputInterface|null $output = null, $composerBinary = null)
     {
-        $command = collect([
+        $command = (new Collection([
             ...$this->findComposer($composerBinary),
             'remove',
             ...$packages,
-        ])
-        ->when($dev, function ($command) {
-            $command->push('--dev');
-        })->all();
+        ]))
+            ->when($dev, function ($command) {
+                $command->push('--dev');
+            })->all();
 
         return 0 === $this->getProcess($command, ['COMPOSER_MEMORY_LIMIT' => '-1'])
             ->run(
@@ -118,7 +116,7 @@ class Composer
      * @param  callable(array):array  $callback
      * @return void
      *
-     * @throw \RuntimeException
+     * @throws \RuntimeException
      */
     public function modify(callable $callback)
     {
@@ -184,7 +182,7 @@ class Composer
      *
      * @return string
      *
-     * @throw \RuntimeException
+     * @throws \RuntimeException
      */
     protected function findComposerFile()
     {
@@ -204,7 +202,7 @@ class Composer
      */
     protected function phpBinary()
     {
-        return ProcessUtils::escapeArgument((new PhpExecutableFinder)->find(false));
+        return php_binary();
     }
 
     /**

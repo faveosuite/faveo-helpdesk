@@ -1,28 +1,9 @@
 <?php
 
-namespace Carbon\Doctrine;
+declare(strict_types=1);
 
-use Doctrine\DBAL\Platforms\AbstractPlatform;
+namespace Carbon\Doctrine;
 
 class CarbonType extends DateTimeType implements CarbonDoctrineType
 {
-    /**
-     * {@inheritdoc}
-     *
-     * @return string
-     */
-    public function getName()
-    {
-        return 'carbon';
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @return bool
-     */
-    public function requiresSQLCommentHint(AbstractPlatform $platform)
-    {
-        return true;
-    }
 }

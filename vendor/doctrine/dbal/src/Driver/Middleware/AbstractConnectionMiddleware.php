@@ -1,26 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Driver\Middleware;
 
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\Result;
-use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement;
-use Doctrine\DBAL\ParameterType;
-use Doctrine\Deprecations\Deprecation;
-use LogicException;
 
-use function get_class;
-use function method_exists;
-use function sprintf;
-
-abstract class AbstractConnectionMiddleware implements ServerInfoAwareConnection
+abstract class AbstractConnectionMiddleware implements Connection
 {
-    private Connection $wrappedConnection;
-
-    public function __construct(Connection $wrappedConnection)
+    public function __construct(private readonly Connection $wrappedConnection)
     {
-        $this->wrappedConnection = $wrappedConnection;
     }
 
     public function prepare(string $sql): Statement
@@ -33,81 +24,46 @@ abstract class AbstractConnectionMiddleware implements ServerInfoAwareConnection
         return $this->wrappedConnection->query($sql);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function quote($value, $type = ParameterType::STRING)
+    public function quote(string $value): string
     {
-        return $this->wrappedConnection->quote($value, $type);
+        return $this->wrappedConnection->quote($value);
     }
 
-    public function exec(string $sql): int
+    public function exec(string $sql): int|string
     {
         return $this->wrappedConnection->exec($sql);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function lastInsertId($name = null)
+    public function lastInsertId(): int|string
     {
-        if ($name !== null) {
-            Deprecation::triggerIfCalledFromOutside(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/issues/4687',
-                'The usage of Connection::lastInsertId() with a sequence name is deprecated.',
-            );
-        }
-
-        return $this->wrappedConnection->lastInsertId($name);
+        return $this->wrappedConnection->lastInsertId();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function beginTransaction()
+    public function beginTransaction(): void
     {
-        return $this->wrappedConnection->beginTransaction();
+        $this->wrappedConnection->beginTransaction();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function commit()
+    public function commit(): void
     {
-        return $this->wrappedConnection->commit();
+        $this->wrappedConnection->commit();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function rollBack()
+    public function rollBack(): void
     {
-        return $this->wrappedConnection->rollBack();
+        $this->wrappedConnection->rollBack();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getServerVersion()
+    public function getServerVersion(): string
     {
-        if (! $this->wrappedConnection instanceof ServerInfoAwareConnection) {
-            throw new LogicException('The underlying connection is not a ServerInfoAwareConnection');
-        }
-
         return $this->wrappedConnection->getServerVersion();
     }
 
-    /** @return resource|object */
+    /**
+     * {@inheritDoc}
+     */
     public function getNativeConnection()
     {
-        if (! method_exists($this->wrappedConnection, 'getNativeConnection')) {
-            throw new LogicException(sprintf(
-                'The driver connection %s does not support accessing the native connection.',
-                get_class($this->wrappedConnection),
-            ));
-        }
-
         return $this->wrappedConnection->getNativeConnection();
     }
 }

@@ -2,6 +2,8 @@
 
 namespace Illuminate\Database\Query\Processors;
 
+use Illuminate\Database\Query\Builder;
+
 class MySqlProcessor extends Processor
 {
     /**
@@ -20,11 +22,24 @@ class MySqlProcessor extends Processor
     }
 
     /**
-     * Process the results of a columns query.
+     * Process an  "insert get ID" query.
      *
-     * @param  array  $results
-     * @return array
+     * @param  \Illuminate\Database\Query\Builder  $query
+     * @param  string  $sql
+     * @param  array  $values
+     * @param  string|null  $sequence
+     * @return int
      */
+    public function processInsertGetId(Builder $query, $sql, $values, $sequence = null)
+    {
+        $query->getConnection()->insert($sql, $values, $sequence);
+
+        $id = $query->getConnection()->getLastInsertId();
+
+        return is_numeric($id) ? (int) $id : $id;
+    }
+
+    /** @inheritDoc */
     public function processColumns($results)
     {
         return array_map(function ($result) {
@@ -38,17 +53,20 @@ class MySqlProcessor extends Processor
                 'nullable' => $result->nullable === 'YES',
                 'default' => $result->default,
                 'auto_increment' => $result->extra === 'auto_increment',
-                'comment' => $result->comment,
+                'comment' => $result->comment ?: null,
+                'generation' => $result->expression ? [
+                    'type' => match ($result->extra) {
+                        'STORED GENERATED' => 'stored',
+                        'VIRTUAL GENERATED' => 'virtual',
+                        default => null,
+                    },
+                    'expression' => $result->expression,
+                ] : null,
             ];
         }, $results);
     }
 
-    /**
-     * Process the results of an indexes query.
-     *
-     * @param  array  $results
-     * @return array
-     */
+    /** @inheritDoc */
     public function processIndexes($results)
     {
         return array_map(function ($result) {
@@ -56,7 +74,7 @@ class MySqlProcessor extends Processor
 
             return [
                 'name' => $name = strtolower($result->name),
-                'columns' => explode(',', $result->columns),
+                'columns' => $result->columns ? explode(',', $result->columns) : [],
                 'type' => strtolower($result->type),
                 'unique' => (bool) $result->unique,
                 'primary' => $name === 'primary',
@@ -64,12 +82,7 @@ class MySqlProcessor extends Processor
         }, $results);
     }
 
-    /**
-     * Process the results of a foreign keys query.
-     *
-     * @param  array  $results
-     * @return array
-     */
+    /** @inheritDoc */
     public function processForeignKeys($results)
     {
         return array_map(function ($result) {

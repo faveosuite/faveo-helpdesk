@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,10 +16,10 @@ namespace Psy;
  */
 class ConfigPaths
 {
-    private $configDir;
-    private $dataDir;
-    private $runtimeDir;
-    private $env;
+    private ?string $configDir = null;
+    private ?string $dataDir = null;
+    private ?string $runtimeDir = null;
+    private EnvInterface $env;
 
     /**
      * ConfigPaths constructor.
@@ -28,10 +28,10 @@ class ConfigPaths
      *
      * @see self::overrideDirs
      *
-     * @param string[]     $overrides Directory overrides
-     * @param EnvInterface $env
+     * @param string[]          $overrides Directory overrides
+     * @param EnvInterface|null $env
      */
-    public function __construct(array $overrides = [], EnvInterface $env = null)
+    public function __construct(array $overrides = [], ?EnvInterface $env = null)
     {
         $this->overrideDirs($overrides);
 
@@ -63,10 +63,8 @@ class ConfigPaths
 
     /**
      * Get the current home directory.
-     *
-     * @return string|null
      */
-    public function homeDir()
+    public function homeDir(): ?string
     {
         if ($homeDir = $this->getEnv('HOME') ?: $this->windowsHomeDir()) {
             return \strtr($homeDir, '\\', '/');
@@ -75,7 +73,7 @@ class ConfigPaths
         return null;
     }
 
-    private function windowsHomeDir()
+    private function windowsHomeDir(): ?string
     {
         if (\defined('PHP_WINDOWS_VERSION_MAJOR')) {
             $homeDrive = $this->getEnv('HOMEDRIVE');
@@ -88,13 +86,16 @@ class ConfigPaths
         return null;
     }
 
-    private function homeConfigDir()
+    private function homeConfigDir(): ?string
     {
         if ($homeConfigDir = $this->getEnv('XDG_CONFIG_HOME')) {
             return $homeConfigDir;
         }
 
         $homeDir = $this->homeDir();
+        if ($homeDir === null) {
+            return null;
+        }
 
         return $homeDir === '/' ? $homeDir.'.config' : $homeDir.'/.config';
     }
@@ -121,32 +122,6 @@ class ConfigPaths
     }
 
     /**
-     * @deprecated
-     */
-    public static function getConfigDirs(): array
-    {
-        return (new self())->configDirs();
-    }
-
-    /**
-     * Get potential home config directory paths.
-     *
-     * Returns `~/.psysh`, `%APPDATA%/PsySH` (when on Windows), and the
-     * XDG Base Directory home config directory:
-     *
-     *     http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
-     *
-     * @deprecated
-     *
-     * @return string[]
-     */
-    public static function getHomeConfigDirs(): array
-    {
-        // Not quite the same, but this is deprecated anyway /shrug
-        return self::getConfigDirs();
-    }
-
-    /**
      * Get the current home config directory.
      *
      * Returns the highest precedence home config directory which actually
@@ -156,7 +131,7 @@ class ConfigPaths
      *
      * @see self::homeConfigDir
      */
-    public function currentConfigDir(): string
+    public function currentConfigDir(): ?string
     {
         if ($this->configDir !== null) {
             return $this->configDir;
@@ -170,15 +145,7 @@ class ConfigPaths
             }
         }
 
-        return $configDirs[0];
-    }
-
-    /**
-     * @deprecated
-     */
-    public static function getCurrentConfigDir(): string
-    {
-        return (new self())->currentConfigDir();
+        return $configDirs[0] ?? null;
     }
 
     /**
@@ -191,14 +158,6 @@ class ConfigPaths
     public function configFiles(array $names): array
     {
         return $this->allRealFiles($this->configDirs(), $names);
-    }
-
-    /**
-     * @deprecated
-     */
-    public static function getConfigFiles(array $names, $configDir = null): array
-    {
-        return (new self(['configDir' => $configDir]))->configFiles($names);
     }
 
     /**
@@ -226,11 +185,92 @@ class ConfigPaths
     }
 
     /**
-     * @deprecated
+     * Get the current home data directory.
+     *
+     * Returns the highest precedence home data directory which actually
+     * exists and is writable. If none of them exists, returns the highest
+     * precedence home data directory.
      */
-    public static function getDataDirs(): array
+    public function currentDataDir(): ?string
     {
-        return (new self())->dataDirs();
+        if ($this->dataDir !== null) {
+            return $this->dataDir;
+        }
+
+        $dataDirs = $this->dataDirs();
+
+        // Find first writable directory
+        foreach ($dataDirs as $dir) {
+            if (@\is_dir($dir) && @\is_writable($dir)) {
+                return $dir;
+            }
+        }
+
+        // Return first (user) directory even if it doesn't exist yet
+        return $dataDirs[0] ?? null;
+    }
+
+    /**
+     * Get the local config root directory (cwd only, no ancestor walking).
+     *
+     * Used for local `.psysh.php` config file detection. Returns the current
+     * working directory, or null if getcwd() fails.
+     */
+    public function localConfigRoot(): ?string
+    {
+        $cwd = \getcwd();
+        if ($cwd === false) {
+            return null;
+        }
+
+        return \strtr($cwd, '\\', '/');
+    }
+
+    /**
+     * Find a project root for trust decisions.
+     *
+     * Walks up ancestors to find the nearest composer.json or composer.lock.
+     * If none found, falls back to the nearest .psysh.php, then to the current
+     * working directory.
+     *
+     * Used for trust decisions on Composer autoload and project-level features.
+     */
+    public function projectRoot(?string $cwd = null): ?string
+    {
+        $cwd = $cwd ?? \getcwd();
+        if ($cwd === false) {
+            return null;
+        }
+
+        $dir = \strtr($cwd, '\\', '/');
+        $root = null;
+        $localConfigRoot = null;
+
+        $current = $dir;
+        $parent = \dirname($current);
+
+        while ($current !== $parent) {
+            if ($root === null && (@\is_file($current.'/composer.json') || @\is_file($current.'/composer.lock'))) {
+                $root = $current;
+            }
+
+            if ($localConfigRoot === null && @\is_file($current.'/.psysh.php')) {
+                $localConfigRoot = $current;
+            }
+
+            $current = $parent;
+            $parent = \dirname($current);
+        }
+
+        if ($root !== null) {
+            return $root;
+        }
+
+        if ($localConfigRoot !== null) {
+            return $localConfigRoot;
+        }
+
+        return $dir;
     }
 
     /**
@@ -243,14 +283,6 @@ class ConfigPaths
     public function dataFiles(array $names): array
     {
         return $this->allRealFiles($this->dataDirs(), $names);
-    }
-
-    /**
-     * @deprecated
-     */
-    public static function getDataFiles(array $names, $dataDir = null): array
-    {
-        return (new self(['dataDir' => $dataDir]))->dataFiles($names);
     }
 
     /**
@@ -268,14 +300,6 @@ class ConfigPaths
         $runtimeDir = $this->getEnv('XDG_RUNTIME_DIR') ?: \sys_get_temp_dir();
 
         return \strtr($runtimeDir, '\\', '/').'/psysh';
-    }
-
-    /**
-     * @deprecated
-     */
-    public static function getRuntimeDir(): string
-    {
-        return (new self())->runtimeDir();
     }
 
     /**
@@ -297,11 +321,13 @@ class ConfigPaths
      * If $PATH is unset/empty it defaults to '/usr/sbin:/usr/bin:/sbin:/bin'.
      *
      * @param string $command the executable to locate
-     *
-     * @return string
      */
-    public function which($command)
+    public function which($command): ?string
     {
+        if (!\is_string($command) || $command === '') {
+            return null;
+        }
+
         foreach ($this->pathDirs() as $path) {
             $fullpath = $path.\DIRECTORY_SEPARATOR.$command;
             if (@\is_file($fullpath) && @\is_executable($fullpath)) {
@@ -325,6 +351,7 @@ class ConfigPaths
      */
     private function allDirNames(array $baseDirs): array
     {
+        $baseDirs = \array_filter($baseDirs);
         $dirs = \array_map(function ($dir) {
             return \strtr($dir, '\\', '/').'/psysh';
         }, $baseDirs);
@@ -371,6 +398,44 @@ class ConfigPaths
         }
 
         return $files;
+    }
+
+    /**
+     * Make a path prettier by replacing cwd with . or home directory with ~.
+     *
+     * @param string|mixed $path       Path to prettify
+     * @param string|null  $relativeTo Directory to make path relative to (defaults to cwd)
+     * @param string|null  $homeDir    Home directory to replace with ~ (defaults to actual home)
+     *
+     * @return string|mixed Pretty path, or original value if not a string
+     */
+    public static function prettyPath($path, ?string $relativeTo = null, ?string $homeDir = null)
+    {
+        if (!\is_string($path)) {
+            return $path;
+        }
+
+        $path = \strtr($path, '\\', '/');
+
+        // Try replacing relativeTo directory first (more specific)
+        $relativeTo = $relativeTo ?: \getcwd();
+        if ($relativeTo !== false) {
+            $relativeTo = \rtrim(\strtr($relativeTo, '\\', '/'), '/').'/';
+            if (\strpos($path, $relativeTo) === 0) {
+                return './'.\substr($path, \strlen($relativeTo));
+            }
+        }
+
+        // Fall back to replacing home directory
+        $homeDir = $homeDir ?: (new self())->homeDir();
+        if ($homeDir && $homeDir !== '/') {
+            $homeDir = \rtrim(\strtr($homeDir, '\\', '/'), '/').'/';
+            if (\strpos($path, $homeDir) === 0) {
+                return '~/'.\substr($path, \strlen($homeDir));
+            }
+        }
+
+        return $path;
     }
 
     /**
@@ -428,12 +493,12 @@ class ConfigPaths
         return $file;
     }
 
-    private function getEnv($key)
+    private function getEnv(string $key)
     {
         return $this->env->get($key);
     }
 
-    private function getEnvArray($key)
+    private function getEnvArray(string $key)
     {
         if ($value = $this->getEnv($key)) {
             return \explode(\PATH_SEPARATOR, $value);

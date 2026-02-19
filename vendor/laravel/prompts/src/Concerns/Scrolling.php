@@ -24,7 +24,7 @@ trait Scrolling
     /**
      * Initialize scrolling.
      */
-    protected function initializeScrolling(int $highlighted = null): void
+    protected function initializeScrolling(?int $highlighted = null): void
     {
         $this->highlighted = $highlighted;
 
@@ -38,7 +38,7 @@ trait Scrolling
     {
         $reservedLines = ($renderer = $this->getRenderer()) instanceof ScrollingRenderer ? $renderer->reservedLines() : 0;
 
-        $this->scroll = min($this->scroll, $this->terminal()->lines() - $reservedLines);
+        $this->scroll = max(1, min($this->scroll, $this->terminal()->lines() - $reservedLines));
     }
 
     /**

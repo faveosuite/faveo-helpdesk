@@ -1,16 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Driver\Mysqli;
 
 use Doctrine\DBAL\Driver\Exception;
-use Doctrine\DBAL\Driver\Exception\UnknownParameterType;
 use Doctrine\DBAL\Driver\Mysqli\Exception\FailedReadingStreamOffset;
 use Doctrine\DBAL\Driver\Mysqli\Exception\NonStreamResourceUsedAsLargeObject;
 use Doctrine\DBAL\Driver\Mysqli\Exception\StatementError;
-use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
-use Doctrine\Deprecations\Deprecation;
 use mysqli_sql_exception;
 use mysqli_stmt;
 
@@ -19,7 +18,6 @@ use function assert;
 use function count;
 use function feof;
 use function fread;
-use function func_num_args;
 use function get_resource_type;
 use function is_int;
 use function is_resource;
@@ -27,18 +25,9 @@ use function str_repeat;
 
 final class Statement implements StatementInterface
 {
-    /** @var string[] */
-    private static array $paramTypeMap = [
-        ParameterType::ASCII => 's',
-        ParameterType::STRING => 's',
-        ParameterType::BINARY => 's',
-        ParameterType::BOOLEAN => 'i',
-        ParameterType::NULL => 's',
-        ParameterType::INTEGER => 'i',
-        ParameterType::LARGE_OBJECT => 'b',
-    ];
-
-    private mysqli_stmt $stmt;
+    private const PARAMETER_TYPE_STRING  = 's';
+    private const PARAMETER_TYPE_INTEGER = 'i';
+    private const PARAMETER_TYPE_BINARY  = 'b';
 
     /** @var mixed[] */
     private array $boundValues;
@@ -53,110 +42,42 @@ final class Statement implements StatementInterface
     private array $values = [];
 
     /** @internal The statement can be only instantiated by its driver connection. */
-    public function __construct(mysqli_stmt $stmt)
+    public function __construct(private readonly mysqli_stmt $stmt)
     {
-        $this->stmt = $stmt;
-
         $paramCount        = $this->stmt->param_count;
-        $this->types       = str_repeat('s', $paramCount);
+        $this->types       = str_repeat(self::PARAMETER_TYPE_STRING, $paramCount);
         $this->boundValues = array_fill(1, $paramCount, null);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @deprecated Use {@see bindValue()} instead.
-     */
-    public function bindParam($param, &$variable, $type = ParameterType::STRING, $length = null): bool
+    public function __destruct()
     {
-        Deprecation::trigger(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5563',
-            '%s is deprecated. Use bindValue() instead.',
-            __METHOD__,
-        );
-
-        assert(is_int($param));
-
-        if (func_num_args() < 3) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/5558',
-                'Not passing $type to Statement::bindParam() is deprecated.'
-                    . ' Pass the type corresponding to the parameter being bound.',
-            );
-        }
-
-        if (! isset(self::$paramTypeMap[$type])) {
-            throw UnknownParameterType::new($type);
-        }
-
-        $this->boundValues[$param] =& $variable;
-        $this->types[$param - 1]   = self::$paramTypeMap[$type];
-
-        return true;
+        @$this->stmt->close();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function bindValue($param, $value, $type = ParameterType::STRING): bool
+    public function bindValue(int|string $param, mixed $value, ParameterType $type): void
     {
         assert(is_int($param));
 
-        if (func_num_args() < 3) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/5558',
-                'Not passing $type to Statement::bindValue() is deprecated.'
-                    . ' Pass the type corresponding to the parameter being bound.',
-            );
-        }
-
-        if (! isset(self::$paramTypeMap[$type])) {
-            throw UnknownParameterType::new($type);
-        }
-
+        $this->types[$param - 1]   = $this->convertParameterType($type);
         $this->values[$param]      = $value;
         $this->boundValues[$param] =& $this->values[$param];
-        $this->types[$param - 1]   = self::$paramTypeMap[$type];
-
-        return true;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function execute($params = null): ResultInterface
+    public function execute(): Result
     {
-        if ($params !== null) {
-            Deprecation::trigger(
-                'doctrine/dbal',
-                'https://github.com/doctrine/dbal/pull/5556',
-                'Passing $params to Statement::execute() is deprecated. Bind parameters using'
-                    . ' Statement::bindParam() or Statement::bindValue() instead.',
-            );
-        }
-
-        if ($params !== null && count($params) > 0) {
-            if (! $this->bindUntypedValues($params)) {
-                throw StatementError::new($this->stmt);
-            }
-        } elseif (count($this->boundValues) > 0) {
-            $this->bindTypedParameters();
+        if (count($this->boundValues) > 0) {
+            $this->bindParameters();
         }
 
         try {
-            $result = $this->stmt->execute();
+            if (! $this->stmt->execute()) {
+                throw StatementError::new($this->stmt);
+            }
         } catch (mysqli_sql_exception $e) {
             throw StatementError::upcast($e);
         }
 
-        if (! $result) {
-            throw StatementError::new($this->stmt);
-        }
-
-        return new Result($this->stmt);
+        return new Result($this->stmt, $this);
     }
 
     /**
@@ -164,19 +85,18 @@ final class Statement implements StatementInterface
      *
      * @throws Exception
      */
-    private function bindTypedParameters(): void
+    private function bindParameters(): void
     {
         $streams = $values = [];
         $types   = $this->types;
 
         foreach ($this->boundValues as $parameter => $value) {
             assert(is_int($parameter));
-
             if (! isset($types[$parameter - 1])) {
-                $types[$parameter - 1] = self::$paramTypeMap[ParameterType::STRING];
+                $types[$parameter - 1] = self::PARAMETER_TYPE_STRING;
             }
 
-            if ($types[$parameter - 1] === self::$paramTypeMap[ParameterType::LARGE_OBJECT]) {
+            if ($types[$parameter - 1] === self::PARAMETER_TYPE_BINARY) {
                 if (is_resource($value)) {
                     if (get_resource_type($value) !== 'stream') {
                         throw NonStreamResourceUsedAsLargeObject::new($parameter);
@@ -187,7 +107,7 @@ final class Statement implements StatementInterface
                     continue;
                 }
 
-                $types[$parameter - 1] = self::$paramTypeMap[ParameterType::STRING];
+                $types[$parameter - 1] = self::PARAMETER_TYPE_STRING;
             }
 
             $values[$parameter] = $value;
@@ -224,13 +144,16 @@ final class Statement implements StatementInterface
         }
     }
 
-    /**
-     * Binds a array of values to bound parameters.
-     *
-     * @param mixed[] $values
-     */
-    private function bindUntypedValues(array $values): bool
+    private function convertParameterType(ParameterType $type): string
     {
-        return $this->stmt->bind_param(str_repeat('s', count($values)), ...$values);
+        return match ($type) {
+            ParameterType::NULL,
+            ParameterType::STRING,
+            ParameterType::ASCII,
+            ParameterType::BINARY => self::PARAMETER_TYPE_STRING,
+            ParameterType::INTEGER,
+            ParameterType::BOOLEAN => self::PARAMETER_TYPE_INTEGER,
+            ParameterType::LARGE_OBJECT => self::PARAMETER_TYPE_BINARY,
+        };
     }
 }

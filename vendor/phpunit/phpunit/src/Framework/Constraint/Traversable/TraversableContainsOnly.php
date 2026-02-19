@@ -10,37 +10,33 @@
 namespace PHPUnit\Framework\Constraint;
 
 use PHPUnit\Framework\ExpectationFailedException;
-use Traversable;
+use PHPUnit\Framework\NativeType;
 
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
 final class TraversableContainsOnly extends Constraint
 {
-    /**
-     * @var Constraint
-     */
-    private $constraint;
+    private readonly Constraint $constraint;
+    private readonly string $type;
 
-    /**
-     * @var string
-     */
-    private $type;
-
-    /**
-     * @throws \PHPUnit\Framework\Exception
-     */
-    public function __construct(string $type, bool $isNativeType = true)
+    public static function forNativeType(NativeType $type): self
     {
-        if ($isNativeType) {
-            $this->constraint = new IsType($type);
-        } else {
-            $this->constraint = new IsInstanceOf(
-                $type,
-            );
-        }
+        return new self(new IsType($type), $type->value);
+    }
 
-        $this->type = $type;
+    /**
+     * @param class-string $type
+     */
+    public static function forClassOrInterface(string $type): self
+    {
+        return new self(new IsInstanceOf($type), $type);
+    }
+
+    private function __construct(IsInstanceOf|IsType $constraint, string $type)
+    {
+        $this->constraint = $constraint;
+        $this->type       = $type;
     }
 
     /**
@@ -53,12 +49,9 @@ final class TraversableContainsOnly extends Constraint
      * a boolean value instead: true in case of success, false in case of a
      * failure.
      *
-     * @param mixed|Traversable $other
-     *
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
      * @throws ExpectationFailedException
      */
-    public function evaluate($other, string $description = '', bool $returnResult = false): ?bool
+    public function evaluate(mixed $other, string $description = '', bool $returnResult = false): bool
     {
         $success = true;
 
@@ -70,15 +63,11 @@ final class TraversableContainsOnly extends Constraint
             }
         }
 
-        if ($returnResult) {
-            return $success;
-        }
-
-        if (!$success) {
+        if (!$success && !$returnResult) {
             $this->fail($other, $description);
         }
 
-        return null;
+        return $success;
     }
 
     /**

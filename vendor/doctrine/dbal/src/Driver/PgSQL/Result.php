@@ -1,21 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Driver\PgSQL;
 
 use Doctrine\DBAL\Driver\FetchUtils;
 use Doctrine\DBAL\Driver\PgSQL\Exception\UnexpectedValue;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
+use Doctrine\DBAL\Exception\InvalidColumnIndex;
 use PgSql\Result as PgSqlResult;
-use TypeError;
+use ValueError;
 
 use function array_keys;
 use function array_map;
 use function assert;
-use function get_class;
-use function gettype;
 use function hex2bin;
-use function is_object;
-use function is_resource;
 use function pg_affected_rows;
 use function pg_fetch_all;
 use function pg_fetch_all_columns;
@@ -25,7 +24,6 @@ use function pg_field_name;
 use function pg_field_type;
 use function pg_free_result;
 use function pg_num_fields;
-use function sprintf;
 use function substr;
 
 use const PGSQL_ASSOC;
@@ -34,20 +32,10 @@ use const PHP_INT_SIZE;
 
 final class Result implements ResultInterface
 {
-    /** @var PgSqlResult|resource|null */
-    private $result;
+    private ?PgSqlResult $result;
 
-    /** @param PgSqlResult|resource $result */
-    public function __construct($result)
+    public function __construct(PgSqlResult $result)
     {
-        if (! is_resource($result) && ! $result instanceof PgSqlResult) {
-            throw new TypeError(sprintf(
-                'Expected result to be a resource or an instance of %s, got %s.',
-                PgSqlResult::class,
-                is_object($result) ? get_class($result) : gettype($result),
-            ));
-        }
-
         $this->result = $result;
     }
 
@@ -61,7 +49,7 @@ final class Result implements ResultInterface
     }
 
     /** {@inheritDoc} */
-    public function fetchNumeric()
+    public function fetchNumeric(): array|false
     {
         if ($this->result === null) {
             return false;
@@ -76,7 +64,7 @@ final class Result implements ResultInterface
     }
 
     /** {@inheritDoc} */
-    public function fetchAssociative()
+    public function fetchAssociative(): array|false
     {
         if ($this->result === null) {
             return false;
@@ -91,7 +79,7 @@ final class Result implements ResultInterface
     }
 
     /** {@inheritDoc} */
-    public function fetchOne()
+    public function fetchOne(): mixed
     {
         return FetchUtils::fetchOne($this);
     }
@@ -103,17 +91,11 @@ final class Result implements ResultInterface
             return [];
         }
 
-        $resultSet = pg_fetch_all($this->result, PGSQL_NUM);
-        // On PHP 7.4, pg_fetch_all() might return false for empty result sets.
-        if ($resultSet === false) {
-            return [];
-        }
-
         $types = $this->fetchNumericColumnTypes();
 
         return array_map(
             fn (array $row) => $this->mapNumericRow($row, $types),
-            $resultSet,
+            pg_fetch_all($this->result, PGSQL_NUM),
         );
     }
 
@@ -124,17 +106,11 @@ final class Result implements ResultInterface
             return [];
         }
 
-        $resultSet = pg_fetch_all($this->result, PGSQL_ASSOC);
-        // On PHP 7.4, pg_fetch_all() might return false for empty result sets.
-        if ($resultSet === false) {
-            return [];
-        }
-
         $types = $this->fetchAssociativeColumnTypes();
 
         return array_map(
             fn (array $row) => $this->mapAssociativeRow($row, $types),
-            $resultSet,
+            pg_fetch_all($this->result, PGSQL_ASSOC),
         );
     }
 
@@ -169,6 +145,19 @@ final class Result implements ResultInterface
         }
 
         return pg_num_fields($this->result);
+    }
+
+    public function getColumnName(int $index): string
+    {
+        if ($this->result === null) {
+            throw InvalidColumnIndex::new($index);
+        }
+
+        try {
+            return pg_field_name($this->result, $index);
+        } catch (ValueError) {
+            throw InvalidColumnIndex::new($index);
+        }
     }
 
     public function free(): void
@@ -244,39 +233,23 @@ final class Result implements ResultInterface
         return $mappedRow;
     }
 
-    /** @return string|int|float|bool|null */
-    private function mapType(string $postgresType, ?string $value)
+    private function mapType(string $postgresType, ?string $value): string|int|float|bool|null
     {
         if ($value === null) {
             return null;
         }
 
-        switch ($postgresType) {
-            case 'bool':
-                switch ($value) {
-                    case 't':
-                        return true;
-                    case 'f':
-                        return false;
-                }
-
-                throw UnexpectedValue::new($value, $postgresType);
-
-            case 'bytea':
-                return hex2bin(substr($value, 2));
-
-            case 'float4':
-            case 'float8':
-                return (float) $value;
-
-            case 'int2':
-            case 'int4':
-                return (int) $value;
-
-            case 'int8':
-                return PHP_INT_SIZE >= 8 ? (int) $value : $value;
-        }
-
-        return $value;
+        return match ($postgresType) {
+            'bool' => match ($value) {
+                't' => true,
+                'f' => false,
+                default => throw UnexpectedValue::new($value, $postgresType),
+            },
+            'bytea' => hex2bin(substr($value, 2)),
+            'float4', 'float8' => (float) $value,
+            'int2', 'int4' => (int) $value,
+            'int8' => PHP_INT_SIZE >= 8 ? (int) $value : $value,
+            default => $value,
+        };
     }
 }

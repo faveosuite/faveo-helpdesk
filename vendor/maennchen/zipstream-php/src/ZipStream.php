@@ -59,11 +59,13 @@ use ZipStream\Exception\ResourceActionException;
  *
  * // read and add each file to the archive
  * foreach ($files as $path)
- *   $zip->addFileFormPath(fileName: $path, $path);
+ *   $zip->addFileFromPath(fileName: $path, $path);
  *
  * // write archive footer to stream
  * $zip->finish();
  * ```
+ *
+ * @api
  */
 class ZipStream
 {
@@ -263,7 +265,7 @@ class ZipStream
     ): void {
         $this->addFileFromCallback(
             fileName: $fileName,
-            callback: fn () => $data,
+            callback: fn() => $data,
             comment: $comment,
             compressionMethod: $compressionMethod,
             deflateLevel: $deflateLevel,
@@ -293,7 +295,7 @@ class ZipStream
      * // add a file named 'bigfile.rar' from the local file
      * // '/usr/share/bigfile.rar' with a comment and a last-modified
      * // time of two hours ago
-     * $zip->addFile(
+     * $zip->addFileFromPath(
      *   fileName: 'bigfile.rar',
      *   path: '/usr/share/bigfile.rar',
      *   comment: 'this is a comment about bigfile.rar',
@@ -330,7 +332,8 @@ class ZipStream
             throw new FileNotReadableException($path);
         }
 
-        if ($fileTime = filemtime($path)) {
+        $fileTime = filemtime($path);
+        if ($fileTime !== false) {
             $lastModificationDateTime ??= (new DateTimeImmutable())->setTimestamp($fileTime);
         }
 
@@ -394,7 +397,7 @@ class ZipStream
     ): void {
         $this->addFileFromCallback(
             fileName: $fileName,
-            callback: fn () => $stream,
+            callback: fn() => $stream,
             comment: $comment,
             compressionMethod: $compressionMethod,
             deflateLevel: $deflateLevel,
@@ -473,7 +476,7 @@ class ZipStream
     ): void {
         $this->addFileFromCallback(
             fileName: $fileName,
-            callback: fn () => $stream,
+            callback: fn() => $stream,
             comment: $comment,
             compressionMethod: $compressionMethod,
             deflateLevel: $deflateLevel,
@@ -494,7 +497,7 @@ class ZipStream
      *
      * ```php
      * foreach($files as $name => $size) {
-     *   $archive->addFileFromPsr7Stream(
+     *   $archive->addFileFromCallback(
      *     fileName: 'streamfile.txt',
      *     exactSize: $size,
      *     callback: function() use($name): Psr\Http\Message\StreamInterface {
@@ -563,11 +566,11 @@ class ZipStream
             dataCallback: function () use ($callback, $maxSize) {
                 $data = $callback();
 
-                if(is_resource($data)) {
+                if (is_resource($data)) {
                     return $data;
                 }
 
-                if($data instanceof StreamInterface) {
+                if ($data instanceof StreamInterface) {
                     return StreamWrapper::getResource($data);
                 }
 
@@ -611,7 +614,7 @@ class ZipStream
             enableZeroHeader: $enableZeroHeader ?? $this->defaultEnableZeroHeader,
         );
 
-        if($this->operationMode !== OperationMode::NORMAL) {
+        if ($this->operationMode !== OperationMode::NORMAL) {
             $this->recordedSimulation[] = $file;
         }
 
@@ -629,7 +632,7 @@ class ZipStream
      *
      * ```php
      * // add a directory named 'world/'
-     * $zip->addFile(fileName: 'world/');
+     * $zip->addDirectory(fileName: 'world/');
      * ```
      */
     public function addDirectory(
@@ -676,11 +679,11 @@ class ZipStream
      */
     public function executeSimulation(): void
     {
-        if($this->operationMode !== OperationMode::NORMAL) {
+        if ($this->operationMode !== OperationMode::NORMAL) {
             throw new RuntimeException('Zip simulation is not finished.');
         }
 
-        foreach($this->recordedSimulation as $file) {
+        foreach ($this->recordedSimulation as $file) {
             $this->centralDirectoryRecords[] = $file->cloneSimulationExecution()->process();
         }
 
@@ -690,7 +693,7 @@ class ZipStream
     /**
      * Write zip footer to stream.
      *
-     * The clase is left in an unusable state after `finish`.
+     * The class is left in an unusable state after `finish`.
      *
      * ##### Example
      *
@@ -711,9 +714,9 @@ class ZipStream
         }
 
         // Add 64bit headers (if applicable)
-        if (count($this->centralDirectoryRecords) >= 0xFFFF ||
-            $centralDirectoryStartOffsetOnDisk > 0xFFFFFFFF ||
-            $sizeOfCentralDirectory > 0xFFFFFFFF) {
+        if (count($this->centralDirectoryRecords) >= 0xFFFF
+            || $centralDirectoryStartOffsetOnDisk > 0xFFFFFFFF
+            || $sizeOfCentralDirectory > 0xFFFFFFFF) {
             if (!$this->enableZip64) {
                 throw new OverflowException();
             }
@@ -769,7 +772,13 @@ class ZipStream
         if (is_resource($outputStream)) {
             return $outputStream;
         }
-        return fopen('php://output', 'wb');
+        $resource = fopen('php://output', 'wb');
+
+        if ($resource === false) {
+            throw new RuntimeException('fopen of php://output failed');
+        }
+
+        return $resource;
     }
 
     /**
@@ -815,15 +824,15 @@ class ZipStream
         }
     }
 
-     /**
-     * Send HTTP headers for this stream.
-     */
+    /**
+    * Send HTTP headers for this stream.
+    */
     private function sendHttpHeaders(): void
     {
         // grab content disposition
         $disposition = $this->contentDisposition;
 
-        if ($this->outputName) {
+        if ($this->outputName !== null) {
             // Various different browsers dislike various characters here. Strip them all for safety.
             $safeOutput = trim(str_replace(['"', "'", '\\', ';', "\n", "\r"], '', $this->outputName));
 
@@ -854,7 +863,7 @@ class ZipStream
         $this->centralDirectoryRecords = [];
         $this->offset = 0;
 
-        if($this->operationMode === OperationMode::NORMAL) {
+        if ($this->operationMode === OperationMode::NORMAL) {
             $this->ready = false;
             $this->recordedSimulation = [];
         } else {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\ArrayParameters\Exception;
 
 use Doctrine\DBAL\ArrayParameters\Exception;
@@ -7,7 +9,6 @@ use LogicException;
 
 use function sprintf;
 
-/** @psalm-immutable */
 class MissingNamedParameter extends LogicException implements Exception
 {
     public static function new(string $name): self

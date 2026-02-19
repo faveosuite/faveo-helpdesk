@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 use PhpCsFixer\Config;
 use PhpCsFixer\Finder;
+use PhpCsFixer\Runner;
 
 $finder = Finder::create()
     ->exclude('.github')
@@ -26,7 +27,9 @@ $config = new Config();
 return $config->setRules([
         '@PER' => true,
         '@PER:risky' => true,
-        '@PHP82Migration' => true,
+        '@PHP83Migration' => true,
+        // Enable once PHP 8.4 is the minimum version
+        // '@PHP84Migration' => true,
         '@PHPUnit84Migration:risky' => true,
         'array_syntax' => ['syntax' => 'short'],
         'class_attributes_separation' => true,
@@ -50,7 +53,6 @@ return $config->setRules([
         'semicolon_after_instruction' => true,
         'short_scalar_cast' => true,
         'simplified_null_return' => true,
-        'single_blank_line_before_namespace' => true,
         'single_class_element_per_statement' => true,
         'single_line_comment_style' => true,
         'single_quote' => true,
@@ -68,4 +70,6 @@ return $config->setRules([
         ],
     ])
     ->setFinder($finder)
-    ->setRiskyAllowed(true);
+    ->setRiskyAllowed(true)
+    ->setUnsupportedPhpVersionAllowed(true)
+    ->setParallelConfig(Runner\Parallel\ParallelConfigFactory::detect());

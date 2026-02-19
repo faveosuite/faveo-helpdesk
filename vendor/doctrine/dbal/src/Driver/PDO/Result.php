@@ -5,40 +5,30 @@ declare(strict_types=1);
 namespace Doctrine\DBAL\Driver\PDO;
 
 use Doctrine\DBAL\Driver\Result as ResultInterface;
+use Doctrine\DBAL\Exception\InvalidColumnIndex;
 use PDO;
 use PDOException;
 use PDOStatement;
+use ValueError;
 
 final class Result implements ResultInterface
 {
-    private PDOStatement $statement;
-
     /** @internal The result can be only instantiated by its driver connection or statement. */
-    public function __construct(PDOStatement $statement)
+    public function __construct(private readonly PDOStatement $statement)
     {
-        $this->statement = $statement;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function fetchNumeric()
+    public function fetchNumeric(): array|false
     {
         return $this->fetch(PDO::FETCH_NUM);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function fetchAssociative()
+    public function fetchAssociative(): array|false
     {
         return $this->fetch(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function fetchOne()
+    public function fetchOne(): mixed
     {
         return $this->fetch(PDO::FETCH_COLUMN);
     }
@@ -85,19 +75,35 @@ final class Result implements ResultInterface
         }
     }
 
+    /** @throws Exception */
+    public function getColumnName(int $index): string
+    {
+        try {
+            $meta = $this->statement->getColumnMeta($index);
+        } catch (ValueError $exception) {
+            throw InvalidColumnIndex::new($index, $exception);
+        } catch (PDOException $exception) {
+            throw Exception::new($exception);
+        }
+
+        if ($meta === false) {
+            throw InvalidColumnIndex::new($index);
+        }
+
+        return $meta['name'];
+    }
+
     public function free(): void
     {
         $this->statement->closeCursor();
     }
 
     /**
-     * @psalm-param PDO::FETCH_* $mode
-     *
-     * @return mixed
+     * @phpstan-param PDO::FETCH_* $mode
      *
      * @throws Exception
      */
-    private function fetch(int $mode)
+    private function fetch(int $mode): mixed
     {
         try {
             return $this->statement->fetch($mode);
@@ -107,7 +113,7 @@ final class Result implements ResultInterface
     }
 
     /**
-     * @psalm-param PDO::FETCH_* $mode
+     * @phpstan-param PDO::FETCH_* $mode
      *
      * @return list<mixed>
      *

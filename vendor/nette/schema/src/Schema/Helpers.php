@@ -11,6 +11,7 @@ namespace Nette\Schema;
 
 use Nette;
 use Nette\Utils\Reflection;
+use function count, explode, get_debug_type, implode, in_array, is_array, is_float, is_int, is_object, is_scalar, is_string, method_exists, preg_match, preg_quote, preg_replace, preg_replace_callback, settype, str_replace, strlen, trim, var_export;
 
 
 /**
@@ -21,14 +22,12 @@ final class Helpers
 	use Nette\StaticClass;
 
 	public const PreventMerging = '_prevent_merging';
-	public const PREVENT_MERGING = self::PreventMerging;
 
 
 	/**
 	 * Merges dataset. Left has higher priority than right one.
-	 * @return array|string
 	 */
-	public static function merge($value, $base)
+	public static function merge(mixed $value, mixed $base): mixed
 	{
 		if (is_array($value) && isset($value[self::PreventMerging])) {
 			unset($value[self::PreventMerging]);
@@ -57,17 +56,16 @@ final class Helpers
 	}
 
 
-	public static function getPropertyType(\ReflectionProperty $prop): ?string
+	public static function getPropertyType(\ReflectionProperty|\ReflectionParameter $prop): ?string
 	{
-		if (!class_exists(Nette\Utils\Type::class)) {
-			throw new Nette\NotSupportedException('Expect::from() requires nette/utils 3.x');
-		} elseif ($type = Nette\Utils\Type::fromReflection($prop)) {
+		if ($type = Nette\Utils\Type::fromReflection($prop)) {
 			return (string) $type;
-		} elseif ($type = preg_replace('#\s.*#', '', (string) self::parseAnnotation($prop, 'var'))) {
+		} elseif (
+			($prop instanceof \ReflectionProperty)
+			&& ($type = preg_replace('#\s.*#', '', (string) self::parseAnnotation($prop, 'var')))
+		) {
 			$class = Reflection::getPropertyDeclaringClass($prop);
-			return preg_replace_callback('#[\w\\\\]+#', function ($m) use ($class) {
-				return Reflection::expandClassName($m[0], $class);
-			}, $type);
+			return preg_replace_callback('#[\w\\\]+#', fn($m) => Reflection::expandClassName($m[0], $class), $type);
 		}
 
 		return null;
@@ -93,24 +91,23 @@ final class Helpers
 	}
 
 
-	/**
-	 * @param  mixed  $value
-	 */
-	public static function formatValue($value): string
+	public static function formatValue(mixed $value): string
 	{
-		if (is_object($value)) {
-			return 'object ' . get_class($value);
+		if ($value instanceof DynamicParameter) {
+			return 'dynamic';
+		} elseif (is_object($value)) {
+			return 'object ' . $value::class;
 		} elseif (is_string($value)) {
 			return "'" . Nette\Utils\Strings::truncate($value, 15, '...') . "'";
 		} elseif (is_scalar($value)) {
-			return var_export($value, true);
+			return var_export($value, return: true);
 		} else {
-			return strtolower(gettype($value));
+			return get_debug_type($value);
 		}
 	}
 
 
-	public static function validateType($value, string $expected, Context $context): void
+	public static function validateType(mixed $value, string $expected, Context $context): void
 	{
 		if (!Nette\Utils\Validators::is($value, $expected)) {
 			$expected = str_replace(DynamicParameter::class . '|', '', $expected);
@@ -118,18 +115,19 @@ final class Helpers
 			$context->addError(
 				'The %label% %path% expects to be %expected%, %value% given.',
 				Message::TypeMismatch,
-				['value' => $value, 'expected' => $expected]
+				['value' => $value, 'expected' => $expected],
 			);
 		}
 	}
 
 
-	public static function validateRange($value, array $range, Context $context, string $types = ''): void
+	/** @param  array{?float, ?float}  $range */
+	public static function validateRange(mixed $value, array $range, Context $context, string $types = ''): void
 	{
 		if (is_array($value) || is_string($value)) {
 			[$length, $label] = is_array($value)
 				? [count($value), 'items']
-				: (in_array('unicode', explode('|', $types), true)
+				: (in_array('unicode', explode('|', $types), strict: true)
 					? [Nette\Utils\Strings::length($value), 'characters']
 					: [strlen($value), 'bytes']);
 
@@ -137,20 +135,21 @@ final class Helpers
 				$context->addError(
 					"The length of %label% %path% expects to be in range %expected%, %length% $label given.",
 					Message::LengthOutOfRange,
-					['value' => $value, 'length' => $length, 'expected' => implode('..', $range)]
+					['value' => $value, 'length' => $length, 'expected' => implode('..', $range)],
 				);
 			}
 		} elseif ((is_int($value) || is_float($value)) && !self::isInRange($value, $range)) {
 			$context->addError(
 				'The %label% %path% expects to be in range %expected%, %value% given.',
 				Message::ValueOutOfRange,
-				['value' => $value, 'expected' => implode('..', $range)]
+				['value' => $value, 'expected' => implode('..', $range)],
 			);
 		}
 	}
 
 
-	public static function isInRange($value, array $range): bool
+	/** @param  array{?float, ?float}  $range */
+	public static function isInRange(mixed $value, array $range): bool
 	{
 		return ($range[0] === null || $value >= $range[0])
 			&& ($range[1] === null || $value <= $range[1]);
@@ -163,36 +162,26 @@ final class Helpers
 			$context->addError(
 				"The %label% %path% expects to match pattern '%pattern%', %value% given.",
 				Message::PatternMismatch,
-				['value' => $value, 'pattern' => $pattern]
+				['value' => $value, 'pattern' => $pattern],
 			);
 		}
 	}
 
 
+	/** @return \Closure(mixed): mixed */
 	public static function getCastStrategy(string $type): \Closure
 	{
-		if (Nette\Utils\Reflection::isBuiltinType($type)) {
+		if (Nette\Utils\Validators::isBuiltinType($type)) {
 			return static function ($value) use ($type) {
 				settype($value, $type);
 				return $value;
 			};
 		} elseif (method_exists($type, '__construct')) {
-			return static function ($value) use ($type) {
-				if (PHP_VERSION_ID < 80000 && is_array($value)) {
-					throw new Nette\NotSupportedException("Creating $type objects is supported since PHP 8.0");
-				}
-				return is_array($value)
-					? new $type(...$value)
-					: new $type($value);
-			};
+			return static fn($value) => is_array($value) || $value instanceof \stdClass
+				? new $type(...(array) $value)
+				: new $type($value);
 		} else {
-			return static function ($value) use ($type) {
-				$object = new $type;
-				foreach ($value as $k => $v) {
-					$object->$k = $v;
-				}
-				return $object;
-			};
+			return static fn($value) => Nette\Utils\Arrays::toObject((array) $value, new $type);
 		}
 	}
 }

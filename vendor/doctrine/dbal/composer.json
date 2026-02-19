@@ -31,32 +31,27 @@
         {"name": "Jonathan Wage", "email": "jonwage@gmail.com"}
     ],
     "require": {
-        "php": "^7.4 || ^8.0",
-        "composer-runtime-api": "^2",
-        "doctrine/cache": "^1.11|^2.0",
-        "doctrine/deprecations": "^0.5.3|^1",
-        "doctrine/event-manager": "^1|^2",
+        "php": "^8.2",
+        "doctrine/deprecations": "^1.1.5",
         "psr/cache": "^1|^2|^3",
         "psr/log": "^1|^2|^3"
     },
     "require-dev": {
-        "doctrine/coding-standard": "12.0.0",
+        "doctrine/coding-standard": "14.0.0",
         "fig/log-test": "^1",
-        "jetbrains/phpstorm-stubs": "2023.1",
-        "phpstan/phpstan": "1.10.34",
-        "phpstan/phpstan-strict-rules": "^1.5",
-        "phpunit/phpunit": "9.6.12",
-        "psalm/plugin-phpunit": "0.18.4",
-        "slevomat/coding-standard": "8.13.1",
-        "squizlabs/php_codesniffer": "3.7.2",
-        "symfony/cache": "^5.4|^6.0",
-        "symfony/console": "^4.4|^5.4|^6.0",
-        "vimeo/psalm": "4.30.0"
+        "jetbrains/phpstorm-stubs": "2023.2",
+        "phpstan/phpstan": "2.1.30",
+        "phpstan/phpstan-phpunit": "2.0.7",
+        "phpstan/phpstan-strict-rules": "^2",
+        "phpunit/phpunit": "11.5.23",
+        "slevomat/coding-standard": "8.24.0",
+        "squizlabs/php_codesniffer": "4.0.0",
+        "symfony/cache": "^6.3.8|^7.0|^8.0",
+        "symfony/console": "^5.4|^6.3|^7.0|^8.0"
     },
     "suggest": {
         "symfony/console": "For helpful console commands such as SQL execution and import of files."
     },
-    "bin": ["bin/doctrine-dbal"],
     "config": {
         "sort-packages": true,
         "allow-plugins": {
@@ -69,5 +64,8 @@
     },
     "autoload-dev": {
         "psr-4": { "Doctrine\\DBAL\\Tests\\": "tests" }
+    },
+    "scripts": {
+        "docs": "composer --working-dir docs update && ./docs/vendor/bin/build-docs.sh @additional_args"
     }
 }

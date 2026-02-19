@@ -44,6 +44,7 @@ class SignatureProvider
     private static $s3v4SignedServices = [
         's3' => true,
         's3control' => true,
+        's3-outposts' => true,
         's3-object-lambda' => true,
         's3express' => true
     ];
@@ -64,6 +65,7 @@ class SignatureProvider
         $result = $provider($version, $service, $region);
         if ($result instanceof SignatureInterface
             || $result instanceof BearerTokenAuthorization
+            || $result instanceof DpopSignature
         ) {
             return $result;
         }
@@ -138,6 +140,8 @@ class SignatureProvider
                     return new BearerTokenAuthorization();
                 case 'anonymous':
                     return new AnonymousSignature();
+                case 'dpop':
+                    return new DpopSignature($service);
                 default:
                     return null;
             }

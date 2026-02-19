@@ -4,8 +4,10 @@ namespace Illuminate\Foundation\Console;
 
 use Closure;
 use Illuminate\Console\Command;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Composer;
 use Illuminate\Support\Str;
+use Illuminate\Support\Stringable;
 use Symfony\Component\Console\Attribute\AsCommand;
 
 #[AsCommand(name: 'about')]
@@ -51,7 +53,6 @@ class AboutCommand extends Command
      * Create a new command instance.
      *
      * @param  \Illuminate\Support\Composer  $composer
-     * @return void
      */
     public function __construct(Composer $composer)
     {
@@ -69,8 +70,8 @@ class AboutCommand extends Command
     {
         $this->gatherApplicationInformation();
 
-        collect(static::$data)
-            ->map(fn ($items) => collect($items)
+        (new Collection(static::$data))
+            ->map(fn ($items) => (new Collection($items))
                 ->map(function ($value) {
                     if (is_array($value)) {
                         return [$value];
@@ -80,7 +81,7 @@ class AboutCommand extends Command
                         $value = $this->laravel->make($value);
                     }
 
-                    return collect($this->laravel->call($value))
+                    return (new Collection($this->laravel->call($value)))
                         ->map(fn ($value, $key) => [$key, $value])
                         ->values()
                         ->all();
@@ -143,7 +144,7 @@ class AboutCommand extends Command
     {
         $output = $data->flatMap(function ($data, $section) {
             return [
-                (string) Str::of($section)->snake() => $data->mapWithKeys(fn ($item, $key) => [
+                (new Stringable($section))->snake()->value() => $data->mapWithKeys(fn ($item, $key) => [
                     $this->toSearchKeyword($item[0]) => value($item[1], true),
                 ]),
             ];
@@ -159,8 +160,11 @@ class AboutCommand extends Command
      */
     protected function gatherApplicationInformation()
     {
+        self::$data = [];
+
         $formatEnabledStatus = fn ($value) => $value ? '<fg=yellow;options=bold>ENABLED</>' : 'OFF';
         $formatCachedStatus = fn ($value) => $value ? '<fg=green;options=bold>CACHED</>' : '<fg=yellow;options=bold>NOT CACHED</>';
+        $formatStorageLinkedStatus = fn ($value) => $value ? '<fg=green;options=bold>LINKED</>' : '<fg=yellow;options=bold>NOT LINKED</>';
 
         static::addToSection('Environment', fn () => [
             'Application Name' => config('app.name'),
@@ -171,24 +175,40 @@ class AboutCommand extends Command
             'Debug Mode' => static::format(config('app.debug'), console: $formatEnabledStatus),
             'URL' => Str::of(config('app.url'))->replace(['http://', 'https://'], ''),
             'Maintenance Mode' => static::format($this->laravel->isDownForMaintenance(), console: $formatEnabledStatus),
+            'Timezone' => config('app.timezone'),
+            'Locale' => config('app.locale'),
         ]);
 
         static::addToSection('Cache', fn () => [
             'Config' => static::format($this->laravel->configurationIsCached(), console: $formatCachedStatus),
             'Events' => static::format($this->laravel->eventsAreCached(), console: $formatCachedStatus),
             'Routes' => static::format($this->laravel->routesAreCached(), console: $formatCachedStatus),
-            'Views' => static::format($this->hasPhpFiles($this->laravel->storagePath('framework/views')), console: $formatCachedStatus),
+            'Views' => static::format($this->hasPhpFiles(config('view.compiled')), console: $formatCachedStatus),
         ]);
 
         static::addToSection('Drivers', fn () => array_filter([
             'Broadcasting' => config('broadcasting.default'),
-            'Cache' => config('cache.default'),
+            'Cache' => function ($json) {
+                $cacheStore = config('cache.default');
+
+                if (config('cache.stores.'.$cacheStore.'.driver') === 'failover') {
+                    $secondary = new Collection(config('cache.stores.'.$cacheStore.'.stores'));
+
+                    return value(static::format(
+                        value: $cacheStore,
+                        console: fn ($value) => '<fg=yellow;options=bold>'.$value.'</> <fg=gray;options=bold>/</> '.$secondary->implode(', '),
+                        json: fn () => $secondary->all(),
+                    ), $json);
+                }
+
+                return $cacheStore;
+            },
             'Database' => config('database.default'),
             'Logs' => function ($json) {
                 $logChannel = config('logging.default');
 
                 if (config('logging.channels.'.$logChannel.'.driver') === 'stack') {
-                    $secondary = collect(config('logging.channels.'.$logChannel.'.channels'));
+                    $secondary = new Collection(config('logging.channels.'.$logChannel.'.channels'));
 
                     return value(static::format(
                         value: $logChannel,
@@ -201,14 +221,63 @@ class AboutCommand extends Command
 
                 return $logs;
             },
-            'Mail' => config('mail.default'),
+            'Mail' => function ($json) {
+                $mailMailer = config('mail.default');
+
+                if (in_array(config('mail.mailers.'.$mailMailer.'.transport'), ['failover', 'roundrobin'])) {
+                    $secondary = new Collection(config('mail.mailers.'.$mailMailer.'.mailers'));
+
+                    return value(static::format(
+                        value: $mailMailer,
+                        console: fn ($value) => '<fg=yellow;options=bold>'.$value.'</> <fg=gray;options=bold>/</> '.$secondary->implode(', '),
+                        json: fn () => $secondary->all(),
+                    ), $json);
+                }
+
+                return $mailMailer;
+            },
             'Octane' => config('octane.server'),
-            'Queue' => config('queue.default'),
+            'Queue' => function ($json) {
+                $queueConnection = config('queue.default');
+
+                if (config('queue.connections.'.$queueConnection.'.driver') === 'failover') {
+                    $secondary = new Collection(config('queue.connections.'.$queueConnection.'.connections'));
+
+                    return value(static::format(
+                        value: $queueConnection,
+                        console: fn ($value) => '<fg=yellow;options=bold>'.$value.'</> <fg=gray;options=bold>/</> '.$secondary->implode(', '),
+                        json: fn () => $secondary->all(),
+                    ), $json);
+                }
+
+                return $queueConnection;
+            },
             'Scout' => config('scout.driver'),
             'Session' => config('session.driver'),
         ]));
 
-        collect(static::$customDataResolvers)->each->__invoke();
+        static::addToSection('Storage', fn () => [
+            ...$this->determineStoragePathLinkStatus($formatStorageLinkedStatus),
+        ]);
+
+        (new Collection(static::$customDataResolvers))->each->__invoke();
+    }
+
+    /**
+     * Determine storage symbolic links status.
+     *
+     * @param  callable  $formatStorageLinkedStatus
+     * @return array<string,mixed>
+     */
+    protected function determineStoragePathLinkStatus(callable $formatStorageLinkedStatus): array
+    {
+        return (new Collection(config('filesystems.links', [])))
+            ->mapWithKeys(function ($target, $link) use ($formatStorageLinkedStatus) {
+                $path = Str::replace(public_path(), '', $link);
+
+                return [public_path($path) => static::format(file_exists($link), console: $formatStorageLinkedStatus)];
+            })
+            ->toArray();
     }
 
     /**
@@ -230,7 +299,7 @@ class AboutCommand extends Command
      * @param  string|null  $value
      * @return void
      */
-    public static function add(string $section, $data, string $value = null)
+    public static function add(string $section, $data, ?string $value = null)
     {
         static::$customDataResolvers[] = fn () => static::addToSection($section, $data, $value);
     }
@@ -243,7 +312,7 @@ class AboutCommand extends Command
      * @param  string|null  $value
      * @return void
      */
-    protected static function addToSection(string $section, $data, string $value = null)
+    protected static function addToSection(string $section, $data, ?string $value = null)
     {
         if (is_array($data)) {
             foreach ($data as $key => $value) {
@@ -263,7 +332,7 @@ class AboutCommand extends Command
      */
     protected function sections()
     {
-        return collect(explode(',', $this->option('only') ?? ''))
+        return (new Collection(explode(',', $this->option('only') ?? '')))
             ->filter()
             ->map(fn ($only) => $this->toSearchKeyword($only))
             ->all();
@@ -277,7 +346,7 @@ class AboutCommand extends Command
      * @param  (\Closure(mixed):(mixed))|null  $json
      * @return \Closure(bool):mixed
      */
-    public static function format($value, Closure $console = null, Closure $json = null)
+    public static function format($value, ?Closure $console = null, ?Closure $json = null)
     {
         return function ($isJson) use ($value, $console, $json) {
             if ($isJson === true && $json instanceof Closure) {
@@ -298,6 +367,18 @@ class AboutCommand extends Command
      */
     protected function toSearchKeyword(string $value)
     {
-        return (string) Str::of($value)->lower()->snake();
+        return (new Stringable($value))->lower()->snake()->value();
+    }
+
+    /**
+     * Flush the registered about data.
+     *
+     * @return void
+     */
+    public static function flushState()
+    {
+        static::$data = [];
+
+        static::$customDataResolvers = [];
     }
 }

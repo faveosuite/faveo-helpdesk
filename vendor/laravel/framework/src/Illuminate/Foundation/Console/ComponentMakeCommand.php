@@ -5,6 +5,7 @@ namespace Illuminate\Foundation\Console;
 use Illuminate\Console\Concerns\CreatesMatchingTest;
 use Illuminate\Console\GeneratorCommand;
 use Illuminate\Foundation\Inspiring;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputOption;
@@ -43,15 +44,11 @@ class ComponentMakeCommand extends GeneratorCommand
     public function handle()
     {
         if ($this->option('view')) {
-            $this->writeView(function () {
-                $this->components->info($this->type.' created successfully.');
-            });
-
-            return;
+            return $this->writeView();
         }
 
         if (parent::handle() === false && ! $this->option('force')) {
-            return false;
+            return;
         }
 
         if (! $this->option('inline')) {
@@ -62,13 +59,18 @@ class ComponentMakeCommand extends GeneratorCommand
     /**
      * Write the view for the component.
      *
-     * @param  callable|null  $onSuccess
      * @return void
      */
-    protected function writeView($onSuccess = null)
+    protected function writeView()
     {
+        $separator = '/';
+
+        if (windows_os()) {
+            $separator = '\\';
+        }
+
         $path = $this->viewPath(
-            str_replace('.', '/', 'components.'.$this->getView()).'.blade.php'
+            str_replace('.', $separator, $this->getView()).'.blade.php'
         );
 
         if (! $this->files->isDirectory(dirname($path))) {
@@ -88,9 +90,7 @@ class ComponentMakeCommand extends GeneratorCommand
 </div>'
         );
 
-        if ($onSuccess) {
-            $onSuccess();
-        }
+        $this->components->info(sprintf('%s [%s] created successfully.', 'View', $path));
     }
 
     /**
@@ -111,24 +111,33 @@ class ComponentMakeCommand extends GeneratorCommand
 
         return str_replace(
             ['DummyView', '{{ view }}'],
-            'view(\'components.'.$this->getView().'\')',
+            'view(\''.$this->getView().'\')',
             parent::buildClass($name)
         );
     }
 
     /**
-     * Get the view name relative to the components directory.
+     * Get the view name relative to the view path.
      *
      * @return string view
      */
     protected function getView()
     {
-        $name = str_replace('\\', '/', $this->argument('name'));
+        $segments = explode('/', str_replace('\\', '/', $this->argument('name')));
 
-        return collect(explode('/', $name))
-            ->map(function ($part) {
-                return Str::kebab($part);
-            })
+        $name = array_pop($segments);
+
+        $path = is_string($this->option('path'))
+            ? explode('/', trim($this->option('path'), '/'))
+            : [
+                'components',
+                ...$segments,
+            ];
+
+        $path[] = $name;
+
+        return (new Collection($path))
+            ->map(fn ($segment) => Str::kebab($segment))
             ->implode('.');
     }
 
@@ -151,8 +160,8 @@ class ComponentMakeCommand extends GeneratorCommand
     protected function resolveStubPath($stub)
     {
         return file_exists($customPath = $this->laravel->basePath(trim($stub, '/')))
-                        ? $customPath
-                        : __DIR__.$stub;
+            ? $customPath
+            : __DIR__.$stub;
     }
 
     /**
@@ -174,9 +183,10 @@ class ComponentMakeCommand extends GeneratorCommand
     protected function getOptions()
     {
         return [
-            ['force', 'f', InputOption::VALUE_NONE, 'Create the class even if the component already exists'],
             ['inline', null, InputOption::VALUE_NONE, 'Create a component that renders an inline view'],
             ['view', null, InputOption::VALUE_NONE, 'Create an anonymous component with only a view'],
+            ['path', null, InputOption::VALUE_REQUIRED, 'The location where the component view should be created'],
+            ['force', 'f', InputOption::VALUE_NONE, 'Create the class even if the component already exists'],
         ];
     }
 }

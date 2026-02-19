@@ -20,8 +20,9 @@ class ConfirmPrompt extends Prompt
         public string $yes = 'Yes',
         public string $no = 'No',
         public bool|string $required = false,
-        public ?Closure $validate = null,
-        public string $hint = ''
+        public mixed $validate = null,
+        public string $hint = '',
+        public ?Closure $transform = null,
     ) {
         $this->confirmed = $default;
 

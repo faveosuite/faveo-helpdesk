@@ -2,7 +2,6 @@
 
 namespace Illuminate\Database\Schema\Grammars;
 
-use Illuminate\Database\Connection;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Fluent;
@@ -38,123 +37,95 @@ class SqlServerGrammar extends Grammar
     protected $fluentCommands = ['Default'];
 
     /**
-     * Compile a create database command.
+     * Compile the query to determine the schemas.
      *
-     * @param  string  $name
-     * @param  \Illuminate\Database\Connection  $connection
      * @return string
      */
-    public function compileCreateDatabase($name, $connection)
+    public function compileSchemas()
     {
-        return sprintf(
-            'create database %s',
-            $this->wrapValue($name),
-        );
+        return 'select name, iif(schema_id = schema_id(), 1, 0) as [default] from sys.schemas '
+            ."where name not in ('information_schema', 'sys') and name not like 'db[_]%' order by name";
     }
 
     /**
-     * Compile a drop database if exists command.
+     * Compile the query to determine if the given table exists.
      *
-     * @param  string  $name
+     * @param  string|null  $schema
+     * @param  string  $table
      * @return string
      */
-    public function compileDropDatabaseIfExists($name)
+    public function compileTableExists($schema, $table)
     {
         return sprintf(
-            'drop database if exists %s',
-            $this->wrapValue($name)
+            'select (case when object_id(%s, \'U\') is null then 0 else 1 end) as [exists]',
+            $this->quoteString($schema ? $schema.'.'.$table : $table)
         );
-    }
-
-    /**
-     * Compile the query to determine if a table exists.
-     *
-     * @deprecated Will be removed in a future Laravel version.
-     *
-     * @return string
-     */
-    public function compileTableExists()
-    {
-        return "select * from sys.sysobjects where id = object_id(?) and xtype in ('U', 'V')";
     }
 
     /**
      * Compile the query to determine the tables.
      *
+     * @param  string|string[]|null  $schema
      * @return string
      */
-    public function compileTables()
+    public function compileTables($schema)
     {
-        return 'select t.name as name, SCHEMA_NAME(t.schema_id) as [schema], sum(u.total_pages) * 8 * 1024 as size '
+        return 'select t.name as name, schema_name(t.schema_id) as [schema], sum(u.total_pages) * 8 * 1024 as size '
             .'from sys.tables as t '
             .'join sys.partitions as p on p.object_id = t.object_id '
             .'join sys.allocation_units as u on u.container_id = p.hobt_id '
-            .'group by t.name, t.schema_id '
-            .'order by t.name';
+            ."where t.is_ms_shipped = 0 and t.name <> 'sysdiagrams'"
+            .$this->compileSchemaWhereClause($schema, 'schema_name(t.schema_id)')
+            .' group by t.name, t.schema_id '
+            .'order by [schema], t.name';
     }
 
     /**
      * Compile the query to determine the views.
      *
+     * @param  string|string[]|null  $schema
      * @return string
      */
-    public function compileViews()
+    public function compileViews($schema)
     {
-        return 'select name, SCHEMA_NAME(v.schema_id) as [schema], definition from sys.views as v '
+        return 'select name, schema_name(v.schema_id) as [schema], definition from sys.views as v '
             .'inner join sys.sql_modules as m on v.object_id = m.object_id '
-            .'order by name';
+            .'where v.is_ms_shipped = 0'
+            .$this->compileSchemaWhereClause($schema, 'schema_name(v.schema_id)')
+            .' order by [schema], name';
     }
 
     /**
-     * Compile the SQL needed to retrieve all table names.
+     * Compile the query to compare the schema.
      *
-     * @deprecated Will be removed in a future Laravel version.
-     *
+     * @param  string|string[]|null  $schema
+     * @param  string  $column
      * @return string
      */
-    public function compileGetAllTables()
+    protected function compileSchemaWhereClause($schema, $column)
     {
-        return "select name, type from sys.tables where type = 'U'";
-    }
-
-    /**
-     * Compile the SQL needed to retrieve all view names.
-     *
-     * @deprecated Will be removed in a future Laravel version.
-     *
-     * @return string
-     */
-    public function compileGetAllViews()
-    {
-        return "select name, type from sys.objects where type = 'V'";
-    }
-
-    /**
-     * Compile the query to determine the list of columns.
-     *
-     * @deprecated Will be removed in a future Laravel version.
-     *
-     * @param  string  $table
-     * @return string
-     */
-    public function compileColumnListing($table)
-    {
-        return "select name from sys.columns where object_id = object_id('$table')";
+        return match (true) {
+            ! empty($schema) && is_array($schema) => " and $column in (".$this->quoteString($schema).')',
+            ! empty($schema) => " and $column = ".$this->quoteString($schema),
+            default => '',
+        };
     }
 
     /**
      * Compile the query to determine the columns.
      *
+     * @param  string|null  $schema
      * @param  string  $table
      * @return string
      */
-    public function compileColumns($table)
+    public function compileColumns($schema, $table)
     {
         return sprintf(
             'select col.name, type.name as type_name, '
             .'col.max_length as length, col.precision as precision, col.scale as places, '
             .'col.is_nullable as nullable, def.definition as [default], '
             .'col.is_identity as autoincrement, col.collation_name as collation, '
+            .'com.definition as [expression], is_persisted as [persisted], '
             .'cast(prop.value as nvarchar(max)) as comment '
             .'from sys.columns as col '
             .'join sys.types as type on col.user_type_id = type.user_type_id '
@@ -162,18 +133,22 @@ class SqlServerGrammar extends Grammar
             .'join sys.schemas as scm on obj.schema_id = scm.schema_id '
             .'left join sys.default_constraints def on col.default_object_id = def.object_id and col.object_id = def.parent_object_id '
             ."left join sys.extended_properties as prop on obj.object_id = prop.major_id and col.column_id = prop.minor_id and prop.name = 'MS_Description' "
-            ."where obj.type = 'U' and obj.name = %s and scm.name = SCHEMA_NAME()",
+            .'left join sys.computed_columns as com on col.column_id = com.column_id and col.object_id = com.object_id '
+            ."where obj.type in ('U', 'V') and obj.name = %s and scm.name = %s "
+            .'order by col.column_id',
             $this->quoteString($table),
+            $schema ? $this->quoteString($schema) : 'schema_name()',
         );
     }
 
     /**
      * Compile the query to determine the indexes.
      *
+     * @param  string|null  $schema
      * @param  string  $table
      * @return string
      */
-    public function compileIndexes($table)
+    public function compileIndexes($schema, $table)
     {
         return sprintf(
             "select idx.name as name, string_agg(col.name, ',') within group (order by idxcol.key_ordinal) as columns, "
@@ -183,19 +158,21 @@ class SqlServerGrammar extends Grammar
             .'join sys.schemas as scm on tbl.schema_id = scm.schema_id '
             .'join sys.index_columns as idxcol on idx.object_id = idxcol.object_id and idx.index_id = idxcol.index_id '
             .'join sys.columns as col on idxcol.object_id = col.object_id and idxcol.column_id = col.column_id '
-            .'where tbl.name = %s and scm.name = SCHEMA_NAME() '
+            .'where tbl.name = %s and scm.name = %s '
             .'group by idx.name, idx.type_desc, idx.is_unique, idx.is_primary_key',
             $this->quoteString($table),
+            $schema ? $this->quoteString($schema) : 'schema_name()',
         );
     }
 
     /**
      * Compile the query to determine the foreign keys.
      *
+     * @param  string|null  $schema
      * @param  string  $table
      * @return string
      */
-    public function compileForeignKeys($table)
+    public function compileForeignKeys($schema, $table)
     {
         return sprintf(
             'select fk.name as name, '
@@ -212,9 +189,10 @@ class SqlServerGrammar extends Grammar
             .'join sys.tables as ft on ft.object_id = fk.referenced_object_id '
             .'join sys.schemas as fs on ft.schema_id = fs.schema_id '
             .'join sys.columns as fc on fkc.referenced_object_id = fc.object_id and fkc.referenced_column_id = fc.column_id '
-            .'where lt.name = %s and ls.name = SCHEMA_NAME() '
+            .'where lt.name = %s and ls.name = %s '
             .'group by fk.name, fs.name, ft.name, fk.update_referential_action_desc, fk.delete_referential_action_desc',
-            $this->quoteString($table)
+            $this->quoteString($table),
+            $schema ? $this->quoteString($schema) : 'schema_name()',
         );
     }
 
@@ -227,9 +205,10 @@ class SqlServerGrammar extends Grammar
      */
     public function compileCreate(Blueprint $blueprint, Fluent $command)
     {
-        $columns = implode(', ', $this->getColumns($blueprint));
-
-        return 'create table '.$this->wrapTable($blueprint)." ($columns)";
+        return sprintf('create table %s (%s)',
+            $this->wrapTable($blueprint, $blueprint->temporary ? '#'.$this->connection->getTablePrefix() : null),
+            implode(', ', $this->getColumns($blueprint))
+        );
     }
 
     /**
@@ -243,63 +222,29 @@ class SqlServerGrammar extends Grammar
     {
         return sprintf('alter table %s add %s',
             $this->wrapTable($blueprint),
-            implode(', ', $this->getColumns($blueprint))
+            $this->getColumn($blueprint, $command->column)
         );
     }
 
-    /**
-     * Compile a rename column command.
-     *
-     * @param  \Illuminate\Database\Schema\Blueprint  $blueprint
-     * @param  \Illuminate\Support\Fluent  $command
-     * @param  \Illuminate\Database\Connection  $connection
-     * @return array|string
-     */
-    public function compileRenameColumn(Blueprint $blueprint, Fluent $command, Connection $connection)
+    /** @inheritDoc */
+    public function compileRenameColumn(Blueprint $blueprint, Fluent $command)
     {
-        return $connection->usingNativeSchemaOperations()
-            ? sprintf("sp_rename '%s', %s, 'COLUMN'",
-                $this->wrap($blueprint->getTable().'.'.$command->from),
-                $this->wrap($command->to)
-            )
-            : parent::compileRenameColumn($blueprint, $command, $connection);
+        return sprintf("sp_rename %s, %s, N'COLUMN'",
+            $this->quoteString($this->wrapTable($blueprint).'.'.$this->wrap($command->from)),
+            $this->wrap($command->to)
+        );
     }
 
-    /**
-     * Compile a change column command into a series of SQL statements.
-     *
-     * @param  \Illuminate\Database\Schema\Blueprint  $blueprint
-     * @param  \Illuminate\Support\Fluent  $command
-     * @param  \Illuminate\Database\Connection  $connection
-     * @return array|string
-     *
-     * @throws \RuntimeException
-     */
-    public function compileChange(Blueprint $blueprint, Fluent $command, Connection $connection)
+    /** @inheritDoc */
+    public function compileChange(Blueprint $blueprint, Fluent $command)
     {
-        if (! $connection->usingNativeSchemaOperations()) {
-            return parent::compileChange($blueprint, $command, $connection);
-        }
-
-        $changes = [$this->compileDropDefaultConstraint($blueprint, $command)];
-
-        foreach ($blueprint->getChangedColumns() as $column) {
-            $sql = sprintf('alter table %s alter column %s %s',
+        return [
+            $this->compileDropDefaultConstraint($blueprint, $command),
+            sprintf('alter table %s alter column %s',
                 $this->wrapTable($blueprint),
-                $this->wrap($column),
-                $this->getType($column)
-            );
-
-            foreach ($this->modifiers as $modifier) {
-                if (method_exists($this, $method = "modify{$modifier}")) {
-                    $sql .= $this->{$method}($blueprint, $column);
-                }
-            }
-
-            $changes[] = $sql;
-        }
-
-        return $changes;
+                $this->getColumn($blueprint, $command->column),
+            ),
+        ];
     }
 
     /**
@@ -327,10 +272,11 @@ class SqlServerGrammar extends Grammar
      */
     public function compileUnique(Blueprint $blueprint, Fluent $command)
     {
-        return sprintf('create unique index %s on %s (%s)',
+        return sprintf('create unique index %s on %s (%s)%s',
             $this->wrap($command->index),
             $this->wrapTable($blueprint),
-            $this->columnize($command->columns)
+            $this->columnize($command->columns),
+            $command->online ? ' with (online = on)' : ''
         );
     }
 
@@ -343,10 +289,11 @@ class SqlServerGrammar extends Grammar
      */
     public function compileIndex(Blueprint $blueprint, Fluent $command)
     {
-        return sprintf('create index %s on %s (%s)',
+        return sprintf('create index %s on %s (%s)%s',
             $this->wrap($command->index),
             $this->wrapTable($blueprint),
-            $this->columnize($command->columns)
+            $this->columnize($command->columns),
+            $command->online ? ' with (online = on)' : ''
         );
     }
 
@@ -405,8 +352,8 @@ class SqlServerGrammar extends Grammar
      */
     public function compileDropIfExists(Blueprint $blueprint, Fluent $command)
     {
-        return sprintf('if exists (select * from sys.sysobjects where id = object_id(%s, \'U\')) drop table %s',
-            "'".str_replace("'", "''", $this->getTablePrefix().$blueprint->getTable())."'",
+        return sprintf('if object_id(%s, \'U\') is not null drop table %s',
+            $this->quoteString($this->wrapTable($blueprint)),
             $this->wrapTable($blueprint)
         );
     }
@@ -447,15 +394,16 @@ class SqlServerGrammar extends Grammar
     public function compileDropDefaultConstraint(Blueprint $blueprint, Fluent $command)
     {
         $columns = $command->name === 'change'
-            ? "'".collect($blueprint->getChangedColumns())->pluck('name')->implode("','")."'"
-            : "'".implode("','", $command->columns)."'";
+            ? "'".$command->column->name."'"
+            : "'".implode("', '", $command->columns)."'";
 
-        $tableName = $this->getTablePrefix().$blueprint->getTable();
+        $table = $this->wrapTable($blueprint);
+        $tableName = $this->quoteString($this->wrapTable($blueprint));
 
         $sql = "DECLARE @sql NVARCHAR(MAX) = '';";
-        $sql .= "SELECT @sql += 'ALTER TABLE [dbo].[{$tableName}] DROP CONSTRAINT ' + OBJECT_NAME([default_object_id]) + ';' ";
+        $sql .= "SELECT @sql += 'ALTER TABLE $table DROP CONSTRAINT ' + OBJECT_NAME([default_object_id]) + ';' ";
         $sql .= 'FROM sys.columns ';
-        $sql .= "WHERE [object_id] = OBJECT_ID('[dbo].[{$tableName}]') AND [name] in ({$columns}) AND [default_object_id] <> 0;";
+        $sql .= "WHERE [object_id] = OBJECT_ID($tableName) AND [name] in ($columns) AND [default_object_id] <> 0;";
         $sql .= 'EXEC(@sql)';
 
         return $sql;
@@ -538,9 +486,10 @@ class SqlServerGrammar extends Grammar
      */
     public function compileRename(Blueprint $blueprint, Fluent $command)
     {
-        $from = $this->wrapTable($blueprint);
-
-        return "sp_rename {$from}, ".$this->wrapTable($command->to);
+        return sprintf('sp_rename %s, %s',
+            $this->quoteString($this->wrapTable($blueprint)),
+            $this->wrapTable($command->to)
+        );
     }
 
     /**
@@ -552,8 +501,8 @@ class SqlServerGrammar extends Grammar
      */
     public function compileRenameIndex(Blueprint $blueprint, Fluent $command)
     {
-        return sprintf("sp_rename N'%s', %s, N'INDEX'",
-            $this->wrap($blueprint->getTable().'.'.$command->from),
+        return sprintf("sp_rename %s, %s, N'INDEX'",
+            $this->quoteString($this->wrapTable($blueprint).'.'.$this->wrap($command->from)),
             $this->wrap($command->to)
         );
     }
@@ -737,6 +686,10 @@ class SqlServerGrammar extends Grammar
      */
     protected function typeFloat(Fluent $column)
     {
+        if ($column->precision) {
+            return "float({$column->precision})";
+        }
+
         return 'float';
     }
 
@@ -748,7 +701,7 @@ class SqlServerGrammar extends Grammar
      */
     protected function typeDouble(Fluent $column)
     {
-        return 'float';
+        return 'double precision';
     }
 
     /**
@@ -818,6 +771,10 @@ class SqlServerGrammar extends Grammar
      */
     protected function typeDate(Fluent $column)
     {
+        if ($column->useCurrent) {
+            $column->default(new Expression('CAST(GETDATE() AS DATE)'));
+        }
+
         return 'date';
     }
 
@@ -905,6 +862,10 @@ class SqlServerGrammar extends Grammar
      */
     protected function typeYear(Fluent $column)
     {
+        if ($column->useCurrent) {
+            $column->default(new Expression('CAST(YEAR(GETDATE()) AS INTEGER)'));
+        }
+
         return $this->typeInteger($column);
     }
 
@@ -916,6 +877,10 @@ class SqlServerGrammar extends Grammar
      */
     protected function typeBinary(Fluent $column)
     {
+        if ($column->length) {
+            return $column->fixed ? "binary({$column->length})" : "varbinary({$column->length})";
+        }
+
         return 'varbinary(max)';
     }
 
@@ -958,84 +923,18 @@ class SqlServerGrammar extends Grammar
      * @param  \Illuminate\Support\Fluent  $column
      * @return string
      */
-    public function typeGeometry(Fluent $column)
+    protected function typeGeometry(Fluent $column)
     {
-        return 'geography';
+        return 'geometry';
     }
 
     /**
-     * Create the column definition for a spatial Point type.
+     * Create the column definition for a spatial Geography type.
      *
      * @param  \Illuminate\Support\Fluent  $column
      * @return string
      */
-    public function typePoint(Fluent $column)
-    {
-        return 'geography';
-    }
-
-    /**
-     * Create the column definition for a spatial LineString type.
-     *
-     * @param  \Illuminate\Support\Fluent  $column
-     * @return string
-     */
-    public function typeLineString(Fluent $column)
-    {
-        return 'geography';
-    }
-
-    /**
-     * Create the column definition for a spatial Polygon type.
-     *
-     * @param  \Illuminate\Support\Fluent  $column
-     * @return string
-     */
-    public function typePolygon(Fluent $column)
-    {
-        return 'geography';
-    }
-
-    /**
-     * Create the column definition for a spatial GeometryCollection type.
-     *
-     * @param  \Illuminate\Support\Fluent  $column
-     * @return string
-     */
-    public function typeGeometryCollection(Fluent $column)
-    {
-        return 'geography';
-    }
-
-    /**
-     * Create the column definition for a spatial MultiPoint type.
-     *
-     * @param  \Illuminate\Support\Fluent  $column
-     * @return string
-     */
-    public function typeMultiPoint(Fluent $column)
-    {
-        return 'geography';
-    }
-
-    /**
-     * Create the column definition for a spatial MultiLineString type.
-     *
-     * @param  \Illuminate\Support\Fluent  $column
-     * @return string
-     */
-    public function typeMultiLineString(Fluent $column)
-    {
-        return 'geography';
-    }
-
-    /**
-     * Create the column definition for a spatial MultiPolygon type.
-     *
-     * @param  \Illuminate\Support\Fluent  $column
-     * @return string
-     */
-    public function typeMultiPolygon(Fluent $column)
+    protected function typeGeography(Fluent $column)
     {
         return 'geography';
     }
@@ -1103,7 +1002,7 @@ class SqlServerGrammar extends Grammar
     protected function modifyIncrement(Blueprint $blueprint, Fluent $column)
     {
         if (! $column->change && in_array($column->type, $this->serials) && $column->autoIncrement) {
-            return ' identity primary key';
+            return $this->hasCommand($blueprint, 'primary') ? ' identity' : ' identity primary key';
         }
     }
 
@@ -1130,24 +1029,9 @@ class SqlServerGrammar extends Grammar
     }
 
     /**
-     * Wrap a table in keyword identifiers.
-     *
-     * @param  \Illuminate\Database\Schema\Blueprint|\Illuminate\Contracts\Database\Query\Expression|string  $table
-     * @return string
-     */
-    public function wrapTable($table)
-    {
-        if ($table instanceof Blueprint && $table->temporary) {
-            $this->setTablePrefix('#');
-        }
-
-        return parent::wrapTable($table);
-    }
-
-    /**
      * Quote the given string literal.
      *
-     * @param  string|array  $value
+     * @param  string|array<string>  $value
      * @return string
      */
     public function quoteString($value)

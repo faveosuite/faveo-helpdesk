@@ -18,9 +18,13 @@ use Yajra\DataTables\Exceptions\Exception;
 class EloquentDataTable extends QueryDataTable
 {
     /**
+     * Flag to enable the generation of unique table aliases on eagerly loaded join columns.
+     * You may want to enable it if you encounter a "Not unique table/alias" error when performing a search or applying ordering.
+     */
+    protected bool $enableEagerJoinAliases = false;
+
+    /**
      * EloquentEngine constructor.
-     *
-     * @param  Model|EloquentBuilder  $model
      */
     public function __construct(Model|EloquentBuilder $model)
     {
@@ -39,7 +43,6 @@ class EloquentDataTable extends QueryDataTable
      * Can the DataTable engine be created with these parameters.
      *
      * @param  mixed  $source
-     * @return bool
      */
     public static function canCreate($source): bool
     {
@@ -49,7 +52,6 @@ class EloquentDataTable extends QueryDataTable
     /**
      * Add columns in collection.
      *
-     * @param  array  $names
      * @param  bool|int  $order
      * @return $this
      */
@@ -60,9 +62,7 @@ class EloquentDataTable extends QueryDataTable
                 $name = $attribute;
             }
 
-            $this->addColumn($name, function ($model) use ($attribute) {
-                return $model->getAttribute($attribute);
-            }, is_int($order) ? $order++ : $order);
+            $this->addColumn($name, fn ($model) => $model->getAttribute($attribute), is_int($order) ? $order++ : $order);
         }
 
         return $this;
@@ -70,8 +70,6 @@ class EloquentDataTable extends QueryDataTable
 
     /**
      * If column name could not be resolved then use primary key.
-     *
-     * @return string
      */
     protected function getPrimaryKeyName(): string
     {
@@ -79,7 +77,7 @@ class EloquentDataTable extends QueryDataTable
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function compileQuerySearch($query, string $column, string $keyword, string $boolean = 'or', bool $nested = false): void
     {
@@ -163,10 +161,7 @@ class EloquentDataTable extends QueryDataTable
     }
 
     /**
-     * Resolve the proper column name be used.
-     *
-     * @param  string  $column
-     * @return string
+     * {@inheritDoc}
      *
      * @throws \Yajra\DataTables\Exceptions\Exception
      */
@@ -174,10 +169,10 @@ class EloquentDataTable extends QueryDataTable
     {
         $parts = explode('.', $column);
         $columnName = array_pop($parts);
-        $relation = implode('.', $parts);
+        $relation = preg_replace('/\[.*?\]/', '', implode('.', $parts));
 
         if ($this->isNotEagerLoaded($relation)) {
-            return $column;
+            return parent::resolveRelationColumn($column);
         }
 
         return $this->joinEagerLoadedColumn($relation, $columnName);
@@ -194,64 +189,107 @@ class EloquentDataTable extends QueryDataTable
      */
     protected function joinEagerLoadedColumn($relation, $relationColumn)
     {
-        $table = '';
+        $tableAlias = $pivotAlias = '';
         $lastQuery = $this->query;
         foreach (explode('.', $relation) as $eachRelation) {
             $model = $lastQuery->getRelation($eachRelation);
+            if ($this->enableEagerJoinAliases) {
+                $lastAlias = $tableAlias ?: $this->getTablePrefix($lastQuery);
+                $tableAlias = $tableAlias.'_'.$eachRelation;
+                $pivotAlias = $tableAlias.'_pivot';
+            } else {
+                $lastAlias = $tableAlias ?: $lastQuery->getModel()->getTable();
+            }
             switch (true) {
                 case $model instanceof BelongsToMany:
-                    $pivot = $model->getTable();
-                    $pivotPK = $model->getExistenceCompareKey();
-                    $pivotFK = $model->getQualifiedParentKeyName();
+                    if ($this->enableEagerJoinAliases) {
+                        $pivot = $model->getTable().' as '.$pivotAlias;
+                    } else {
+                        $pivot = $pivotAlias = $model->getTable();
+                    }
+                    $pivotPK = $pivotAlias.'.'.$model->getForeignPivotKeyName();
+                    $pivotFK = ltrim($lastAlias.'.'.$model->getParentKeyName(), '.');
                     $this->performJoin($pivot, $pivotPK, $pivotFK);
 
                     $related = $model->getRelated();
-                    $table = $related->getTable();
+                    if ($this->enableEagerJoinAliases) {
+                        $table = $related->getTable().' as '.$tableAlias;
+                    } else {
+                        $table = $tableAlias = $related->getTable();
+                    }
                     $tablePK = $model->getRelatedPivotKeyName();
-                    $foreign = $pivot.'.'.$tablePK;
-                    $other = $related->getQualifiedKeyName();
+                    $foreign = $pivotAlias.'.'.$tablePK;
+                    $other = $tableAlias.'.'.$related->getKeyName();
 
-                    $lastQuery->addSelect($table.'.'.$relationColumn);
-                    $this->performJoin($table, $foreign, $other);
+                    $lastQuery->addSelect($tableAlias.'.'.$relationColumn);
 
                     break;
 
                 case $model instanceof HasOneThrough:
-                    $pivot = explode('.', $model->getQualifiedParentKeyName())[0]; // extract pivot table from key
-                    $pivotPK = $pivot.'.'.$model->getFirstKeyName();
-                    $pivotFK = $model->getQualifiedLocalKeyName();
+                    if ($this->enableEagerJoinAliases) {
+                        $pivot = explode('.', $model->getQualifiedParentKeyName())[0].' as '.$pivotAlias;
+                    } else {
+                        $pivot = $pivotAlias = explode('.', $model->getQualifiedParentKeyName())[0];
+                    }
+                    $pivotPK = $pivotAlias.'.'.$model->getFirstKeyName();
+                    $pivotFK = ltrim($lastAlias.'.'.$model->getLocalKeyName(), '.');
                     $this->performJoin($pivot, $pivotPK, $pivotFK);
 
                     $related = $model->getRelated();
-                    $table = $related->getTable();
+                    if ($this->enableEagerJoinAliases) {
+                        $table = $related->getTable().' as '.$tableAlias;
+                    } else {
+                        $table = $tableAlias = $related->getTable();
+                    }
                     $tablePK = $model->getSecondLocalKeyName();
-                    $foreign = $pivot.'.'.$tablePK;
-                    $other = $related->getQualifiedKeyName();
+                    $foreign = $pivotAlias.'.'.$tablePK;
+                    $other = $tableAlias.'.'.$related->getKeyName();
 
                     $lastQuery->addSelect($lastQuery->getModel()->getTable().'.*');
 
                     break;
 
                 case $model instanceof HasOneOrMany:
-                    $table = $model->getRelated()->getTable();
-                    $foreign = $model->getQualifiedForeignKeyName();
-                    $other = $model->getQualifiedParentKeyName();
+                    if ($this->enableEagerJoinAliases) {
+                        $table = $model->getRelated()->getTable().' as '.$tableAlias;
+                    } else {
+                        $table = $tableAlias = $model->getRelated()->getTable();
+                    }
+                    $foreign = $tableAlias.'.'.$model->getForeignKeyName();
+                    $other = ltrim($lastAlias.'.'.$model->getLocalKeyName(), '.');
                     break;
 
                 case $model instanceof BelongsTo:
-                    $table = $model->getRelated()->getTable();
-                    $foreign = $model->getQualifiedForeignKeyName();
-                    $other = $model->getQualifiedOwnerKeyName();
+                    if ($this->enableEagerJoinAliases) {
+                        $table = $model->getRelated()->getTable().' as '.$tableAlias;
+                    } else {
+                        $table = $tableAlias = $model->getRelated()->getTable();
+                    }
+                    $foreign = ltrim($lastAlias.'.'.$model->getForeignKeyName(), '.');
+                    $other = $tableAlias.'.'.$model->getOwnerKeyName();
                     break;
 
                 default:
-                    throw new Exception('Relation '.get_class($model).' is not yet supported.');
+                    throw new Exception('Relation '.$model::class.' is not yet supported.');
             }
             $this->performJoin($table, $foreign, $other);
             $lastQuery = $model->getQuery();
         }
 
-        return $table.'.'.$relationColumn;
+        return $tableAlias.'.'.$relationColumn;
+    }
+
+    /**
+     * Enable the generation of unique table aliases on eagerly loaded join columns.
+     * You may want to enable it if you encounter a "Not unique table/alias" error when performing a search or applying ordering.
+     *
+     * @return $this
+     */
+    public function enableEagerJoinAliases(): static
+    {
+        $this->enableEagerJoinAliases = true;
+
+        return $this;
     }
 
     /**
@@ -261,12 +299,12 @@ class EloquentDataTable extends QueryDataTable
      * @param  string  $foreign
      * @param  string  $other
      * @param  string  $type
-     * @return void
      */
     protected function performJoin($table, $foreign, $other, $type = 'left'): void
     {
         $joins = [];
-        foreach ((array) $this->getBaseQueryBuilder()->joins as $key => $join) {
+        $builder = $this->getBaseQueryBuilder();
+        foreach ($builder->joins ?? [] as $join) {
             $joins[] = $join->table;
         }
 

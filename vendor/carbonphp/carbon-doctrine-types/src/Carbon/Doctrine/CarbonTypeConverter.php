@@ -1,12 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Carbon\Doctrine;
 
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use DateTimeInterface;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Types\ConversionException;
+use Doctrine\DBAL\Platforms\DB2Platform;
+use Doctrine\DBAL\Platforms\OraclePlatform;
+use Doctrine\DBAL\Platforms\SQLitePlatform;
+use Doctrine\DBAL\Platforms\SQLServerPlatform;
+use Doctrine\DBAL\Types\Exception\InvalidType;
+use Doctrine\DBAL\Types\Exception\ValueNotConvertible;
 use Exception;
 
 /**
@@ -19,10 +26,8 @@ trait CarbonTypeConverter
      * from the ones embedded previously in nesbot/carbon source directly.
      *
      * @readonly
-     *
-     * @var bool
      */
-    public $external = true;
+    public bool $external = true;
 
     /**
      * @return class-string<T>
@@ -32,21 +37,12 @@ trait CarbonTypeConverter
         return Carbon::class;
     }
 
-    /**
-     * @return string
-     */
-    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform)
+    public function getSQLDeclaration(array $fieldDeclaration, AbstractPlatform $platform): string
     {
-        $maximum = CarbonDoctrineType::MAXIMUM_PRECISION;
-        $precision = ($fieldDeclaration['precision'] ?? null) ?: $maximum;
-
-        if ($fieldDeclaration['secondPrecision'] ?? false) {
-            $precision = 0;
-        }
-
-        if ($precision === $maximum) {
-            $precision = DateTimeDefaultPrecision::get();
-        }
+        $precision = min(
+            $fieldDeclaration['precision'] ?? DateTimeDefaultPrecision::get(),
+            $this->getMaximumPrecision($platform),
+        );
 
         $type = parent::getSQLDeclaration($fieldDeclaration, $platform);
 
@@ -65,10 +61,25 @@ trait CarbonTypeConverter
 
     /**
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     *
-     * @return T|null
      */
-    public function convertToPHPValue($value, AbstractPlatform $platform)
+    public function convertToDatabaseValue($value, AbstractPlatform $platform): ?string
+    {
+        if ($value === null) {
+            return $value;
+        }
+
+        if ($value instanceof DateTimeInterface) {
+            return $value->format('Y-m-d H:i:s.u');
+        }
+
+        throw InvalidType::new(
+            $value,
+            static::class,
+            ['null', 'DateTime', 'Carbon']
+        );
+    }
+
+    private function doConvertToPHPValue(mixed $value)
     {
         $class = $this->getCarbonClassName();
 
@@ -90,9 +101,9 @@ trait CarbonTypeConverter
         }
 
         if (!$date) {
-            throw ConversionException::conversionFailedFormat(
+            throw ValueNotConvertible::new(
                 $value,
-                $this->getName(),
+                static::class,
                 'Y-m-d H:i:s.u or any format supported by '.$class.'::parse()',
                 $error
             );
@@ -101,29 +112,20 @@ trait CarbonTypeConverter
         return $date;
     }
 
-    /**
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     *
-     * @return string|null
-     */
-    public function convertToDatabaseValue($value, AbstractPlatform $platform)
+    private function getMaximumPrecision(AbstractPlatform $platform): int
     {
-        if ($value === null) {
-            return $value;
+        if ($platform instanceof DB2Platform) {
+            return 12;
         }
 
-        if ($value instanceof DateTimeInterface) {
-            return $value->format('Y-m-d H:i:s.u');
+        if ($platform instanceof OraclePlatform) {
+            return 9;
         }
 
-        $method = method_exists(ConversionException::class, 'conversionFailedInvalidType')
-            ? 'conversionFailedInvalidType'
-            : 'conversionFailed'; // @codeCoverageIgnore
+        if ($platform instanceof SQLServerPlatform || $platform instanceof SQLitePlatform) {
+            return 3;
+        }
 
-        throw ConversionException::$method(
-            $value,
-            $this->getName(),
-            ['null', 'DateTime', 'Carbon']
-        );
+        return 6;
     }
 }

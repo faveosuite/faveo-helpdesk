@@ -2,9 +2,10 @@
 
 namespace Yajra\DataTables;
 
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
-use Yajra\DataTables\Utilities\Config;
+use Yajra\DataTables\Utilities\Config as DataTablesConfig;
 use Yajra\DataTables\Utilities\Request;
 
 class DataTablesServiceProvider extends ServiceProvider
@@ -23,15 +24,11 @@ class DataTablesServiceProvider extends ServiceProvider
         $this->setupAssets();
 
         $this->app->alias('datatables', DataTables::class);
-        $this->app->singleton('datatables', function () {
-            return new DataTables;
-        });
+        $this->app->singleton('datatables', fn () => new DataTables);
 
-        $this->app->singleton('datatables.request', function () {
-            return new Request;
-        });
+        $this->app->singleton('datatables.request', fn () => new Request);
 
-        $this->app->singleton('datatables.config', Config::class);
+        $this->app->singleton('datatables.config', DataTablesConfig::class);
     }
 
     /**
@@ -41,7 +38,7 @@ class DataTablesServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $engines = (array) config('datatables.engines');
+        $engines = Config::get('datatables.engines', []);
         foreach ($engines as $engine => $class) {
             $engine = Str::camel($engine);
 
@@ -49,7 +46,7 @@ class DataTablesServiceProvider extends ServiceProvider
                 DataTables::macro($engine, function () use ($class) {
                     $canCreate = [$class, 'canCreate'];
                     if (is_callable($canCreate) && ! call_user_func_array($canCreate, func_get_args())) {
-                        throw new \InvalidArgumentException();
+                        throw new \InvalidArgumentException;
                     }
 
                     $create = [$class, 'create'];

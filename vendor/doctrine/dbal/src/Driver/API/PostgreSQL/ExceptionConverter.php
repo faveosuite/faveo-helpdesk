@@ -7,6 +7,7 @@ namespace Doctrine\DBAL\Driver\API\PostgreSQL;
 use Doctrine\DBAL\Driver\API\ExceptionConverter as ExceptionConverterInterface;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Exception\ConnectionException;
+use Doctrine\DBAL\Exception\ConnectionLost;
 use Doctrine\DBAL\Exception\DatabaseDoesNotExist;
 use Doctrine\DBAL\Exception\DeadlockException;
 use Doctrine\DBAL\Exception\DriverException;
@@ -21,7 +22,7 @@ use Doctrine\DBAL\Exception\TableNotFoundException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Query;
 
-use function strpos;
+use function str_contains;
 
 /** @internal */
 final class ExceptionConverter implements ExceptionConverterInterface
@@ -37,7 +38,7 @@ final class ExceptionConverter implements ExceptionConverterInterface
             case '0A000':
                 // Foreign key constraint violations during a TRUNCATE operation
                 // are considered "feature not supported" in PostgreSQL.
-                if (strpos($exception->getMessage(), 'truncate') !== false) {
+                if (str_contains($exception->getMessage(), 'truncate')) {
                     return new ForeignKeyConstraintViolationException($exception, $query);
                 }
 
@@ -77,11 +78,8 @@ final class ExceptionConverter implements ExceptionConverterInterface
                 return new ConnectionException($exception, $query);
         }
 
-        // Prior to fixing https://bugs.php.net/bug.php?id=64705 (PHP 7.4.10),
-        // in some cases (mainly connection errors) the PDO exception wouldn't provide a SQLSTATE via its code.
-        // We have to match against the SQLSTATE in the error message in these cases.
-        if ($exception->getCode() === 7 && strpos($exception->getMessage(), 'SQLSTATE[08006]') !== false) {
-            return new ConnectionException($exception, $query);
+        if (str_contains($exception->getMessage(), 'terminating connection')) {
+            return new ConnectionLost($exception, $query);
         }
 
         return new DriverException($exception, $query);

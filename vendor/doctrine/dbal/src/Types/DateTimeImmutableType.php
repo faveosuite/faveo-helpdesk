@@ -1,36 +1,36 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Doctrine\DBAL\Types;
 
 use DateTimeImmutable;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\Deprecations\Deprecation;
-
-use function date_create_immutable;
+use Doctrine\DBAL\Types\Exception\InvalidFormat;
+use Doctrine\DBAL\Types\Exception\InvalidType;
+use Exception;
 
 /**
  * Immutable type of {@see DateTimeType}.
  */
-class DateTimeImmutableType extends DateTimeType
+class DateTimeImmutableType extends Type implements PhpDateTimeMappingType
 {
     /**
      * {@inheritDoc}
      */
-    public function getName()
+    public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
-        return Types::DATETIME_IMMUTABLE;
+        return $platform->getDateTimeTypeDeclarationSQL($column);
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @param T $value
      *
      * @return (T is null ? null : string)
      *
      * @template T
      */
-    public function convertToDatabaseValue($value, AbstractPlatform $platform)
+    public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): ?string
     {
         if ($value === null) {
             return $value;
@@ -40,23 +40,21 @@ class DateTimeImmutableType extends DateTimeType
             return $value->format($platform->getDateTimeFormatString());
         }
 
-        throw ConversionException::conversionFailedInvalidType(
+        throw InvalidType::new(
             $value,
-            $this->getName(),
+            static::class,
             ['null', DateTimeImmutable::class],
         );
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @param T $value
      *
      * @return (T is null ? null : DateTimeImmutable)
      *
      * @template T
      */
-    public function convertToPHPValue($value, AbstractPlatform $platform)
+    public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?DateTimeImmutable
     {
         if ($value === null || $value instanceof DateTimeImmutable) {
             return $value;
@@ -64,35 +62,19 @@ class DateTimeImmutableType extends DateTimeType
 
         $dateTime = DateTimeImmutable::createFromFormat($platform->getDateTimeFormatString(), $value);
 
-        if ($dateTime === false) {
-            $dateTime = date_create_immutable($value);
+        if ($dateTime !== false) {
+            return $dateTime;
         }
 
-        if ($dateTime === false) {
-            throw ConversionException::conversionFailedFormat(
+        try {
+            return new DateTimeImmutable($value);
+        } catch (Exception $e) {
+            throw InvalidFormat::new(
                 $value,
-                $this->getName(),
+                static::class,
                 $platform->getDateTimeFormatString(),
+                $e,
             );
         }
-
-        return $dateTime;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @deprecated
-     */
-    public function requiresSQLCommentHint(AbstractPlatform $platform)
-    {
-        Deprecation::triggerIfCalledFromOutside(
-            'doctrine/dbal',
-            'https://github.com/doctrine/dbal/pull/5509',
-            '%s is deprecated.',
-            __METHOD__,
-        );
-
-        return true;
     }
 }

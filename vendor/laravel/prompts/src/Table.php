@@ -28,7 +28,7 @@ class Table extends Prompt
      *
      * @phpstan-param ($rows is null ? list<list<string>>|Collection<int, list<string>> : list<string|list<string>>|Collection<int, string|list<string>>) $headers
      */
-    public function __construct(array|Collection $headers = [], array|Collection $rows = null)
+    public function __construct(array|Collection $headers = [], array|Collection|null $rows = null)
     {
         if ($rows === null) {
             $rows = $headers;

@@ -764,7 +764,7 @@ class Report implements FeatureDataStore
         $event = [
             'app' => $this->config->getAppData(),
             'device' => array_merge(['time' => $this->time], $this->config->getDeviceData()),
-            'user' => $this->getUser(),
+            'user' => $this->cleanupObj($this->getUser(), true),
             'context' => $this->getContext(),
             'payloadVersion' => HttpClient::NOTIFY_PAYLOAD_VERSION,
             'severity' => $this->getSeverity(),

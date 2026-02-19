@@ -2,6 +2,7 @@
 
 namespace PHPStan\PhpDocParser\Lexer;
 
+use PHPStan\PhpDocParser\ParserConfig;
 use function implode;
 use function preg_match_all;
 use const PREG_SET_ORDER;
@@ -50,6 +51,8 @@ class Lexer
 	public const TOKEN_NEGATED = 35;
 	public const TOKEN_ARROW = 36;
 
+	public const TOKEN_COMMENT = 37;
+
 	public const TOKEN_LABELS = [
 		self::TOKEN_REFERENCE => '\'&\'',
 		self::TOKEN_UNION => '\'|\'',
@@ -65,6 +68,7 @@ class Lexer
 		self::TOKEN_OPEN_CURLY_BRACKET => '\'{\'',
 		self::TOKEN_CLOSE_CURLY_BRACKET => '\'}\'',
 		self::TOKEN_COMMA => '\',\'',
+		self::TOKEN_COMMENT => '\'//\'',
 		self::TOKEN_COLON => '\':\'',
 		self::TOKEN_VARIADIC => '\'...\'',
 		self::TOKEN_DOUBLE_COLON => '\'::\'',
@@ -94,15 +98,13 @@ class Lexer
 	public const TYPE_OFFSET = 1;
 	public const LINE_OFFSET = 2;
 
-	/** @var bool */
-	private $parseDoctrineAnnotations;
+	private ParserConfig $config; // @phpstan-ignore property.onlyWritten
 
-	/** @var string|null */
-	private $regexp;
+	private ?string $regexp = null;
 
-	public function __construct(bool $parseDoctrineAnnotations = false)
+	public function __construct(ParserConfig $config)
 	{
-		$this->parseDoctrineAnnotations = $parseDoctrineAnnotations;
+		$this->config = $config;
 	}
 
 	/**
@@ -133,7 +135,6 @@ class Lexer
 		return $tokens;
 	}
 
-
 	private function generateRegexp(): string
 	{
 		$patterns = [
@@ -160,6 +161,7 @@ class Lexer
 			self::TOKEN_CLOSE_CURLY_BRACKET => '\\}',
 
 			self::TOKEN_COMMA => ',',
+			self::TOKEN_COMMENT => '\/\/[^\\r\\n]*(?=\n|\r|\*/)',
 			self::TOKEN_VARIADIC => '\\.\\.\\.',
 			self::TOKEN_DOUBLE_COLON => '::',
 			self::TOKEN_DOUBLE_ARROW => '=>',
@@ -170,23 +172,20 @@ class Lexer
 			self::TOKEN_OPEN_PHPDOC => '/\\*\\*(?=\\s)\\x20?+',
 			self::TOKEN_CLOSE_PHPDOC => '\\*/',
 			self::TOKEN_PHPDOC_TAG => '@(?:[a-z][a-z0-9-\\\\]+:)?[a-z][a-z0-9-\\\\]*+',
+			self::TOKEN_DOCTRINE_TAG => '@[a-z_\\\\][a-z0-9_\:\\\\]*[a-z_][a-z0-9_]*',
 			self::TOKEN_PHPDOC_EOL => '\\r?+\\n[\\x09\\x20]*+(?:\\*(?!/)\\x20?+)?',
 
 			self::TOKEN_FLOAT => '[+\-]?(?:(?:[0-9]++(_[0-9]++)*\\.[0-9]*+(_[0-9]++)*(?:e[+\-]?[0-9]++(_[0-9]++)*)?)|(?:[0-9]*+(_[0-9]++)*\\.[0-9]++(_[0-9]++)*(?:e[+\-]?[0-9]++(_[0-9]++)*)?)|(?:[0-9]++(_[0-9]++)*e[+\-]?[0-9]++(_[0-9]++)*))',
 			self::TOKEN_INTEGER => '[+\-]?(?:(?:0b[0-1]++(_[0-1]++)*)|(?:0o[0-7]++(_[0-7]++)*)|(?:0x[0-9a-f]++(_[0-9a-f]++)*)|(?:[0-9]++(_[0-9]++)*))',
 			self::TOKEN_SINGLE_QUOTED_STRING => '\'(?:\\\\[^\\r\\n]|[^\'\\r\\n\\\\])*+\'',
 			self::TOKEN_DOUBLE_QUOTED_STRING => '"(?:\\\\[^\\r\\n]|[^"\\r\\n\\\\])*+"',
+			self::TOKEN_DOCTRINE_ANNOTATION_STRING => '"(?:""|[^"])*+"',
 
 			self::TOKEN_WILDCARD => '\\*',
+
+			// anything but TOKEN_CLOSE_PHPDOC or TOKEN_HORIZONTAL_WS or TOKEN_EOL
+			self::TOKEN_OTHER => '(?:(?!\\*/)[^\\s])++',
 		];
-
-		if ($this->parseDoctrineAnnotations) {
-			$patterns[self::TOKEN_DOCTRINE_TAG] = '@[a-z_\\\\][a-z0-9_\:\\\\]*[a-z_][a-z0-9_]*';
-			$patterns[self::TOKEN_DOCTRINE_ANNOTATION_STRING] = '"(?:""|[^"])*+"';
-		}
-
-		// anything but TOKEN_CLOSE_PHPDOC or TOKEN_HORIZONTAL_WS or TOKEN_EOL
-		$patterns[self::TOKEN_OTHER] = '(?:(?!\\*/)[^\\s])++';
 
 		foreach ($patterns as $type => &$pattern) {
 			$pattern = '(?:' . $pattern . ')(*MARK:' . $type . ')';

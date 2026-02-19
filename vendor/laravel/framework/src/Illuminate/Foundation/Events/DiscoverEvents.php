@@ -2,6 +2,8 @@
 
 namespace Illuminate\Foundation\Events;
 
+use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Reflector;
 use Illuminate\Support\Str;
 use ReflectionClass;
@@ -15,21 +17,25 @@ class DiscoverEvents
     /**
      * The callback to be used to guess class names.
      *
-     * @var callable(SplFileInfo, string): string|null
+     * @var (callable(SplFileInfo, string): class-string)|null
      */
     public static $guessClassNamesUsingCallback;
 
     /**
      * Get all of the events and listeners by searching the given listener directory.
      *
-     * @param  string  $listenerPath
+     * @param  array<int, string>|string  $listenerPath
      * @param  string  $basePath
      * @return array
      */
     public static function within($listenerPath, $basePath)
     {
-        $listeners = collect(static::getListenerEvents(
-            (new Finder)->files()->in($listenerPath), $basePath
+        if (Arr::wrap($listenerPath) === []) {
+            return [];
+        }
+
+        $listeners = new Collection(static::getListenerEvents(
+            Finder::create()->files()->in($listenerPath), $basePath
         ));
 
         $discoveredEvents = [];
@@ -50,7 +56,7 @@ class DiscoverEvents
     /**
      * Get all of the listeners and their corresponding events.
      *
-     * @param  iterable  $listeners
+     * @param  iterable<string, SplFileInfo>  $listeners
      * @param  string  $basePath
      * @return array
      */
@@ -90,7 +96,7 @@ class DiscoverEvents
      *
      * @param  \SplFileInfo  $file
      * @param  string  $basePath
-     * @return string
+     * @return class-string
      */
     protected static function classFromFile(SplFileInfo $file, $basePath)
     {
@@ -100,17 +106,17 @@ class DiscoverEvents
 
         $class = trim(Str::replaceFirst($basePath, '', $file->getRealPath()), DIRECTORY_SEPARATOR);
 
-        return str_replace(
+        return ucfirst(Str::camel(str_replace(
             [DIRECTORY_SEPARATOR, ucfirst(basename(app()->path())).'\\'],
             ['\\', app()->getNamespace()],
             ucfirst(Str::replaceLast('.php', '', $class))
-        );
+        )));
     }
 
     /**
      * Specify a callback to be used to guess class names.
      *
-     * @param  callable(SplFileInfo, string): string  $callback
+     * @param  callable(SplFileInfo, string): class-string  $callback
      * @return void
      */
     public static function guessClassNamesUsing(callable $callback)

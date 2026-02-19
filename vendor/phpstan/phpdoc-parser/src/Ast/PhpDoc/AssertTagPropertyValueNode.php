@@ -11,25 +11,20 @@ class AssertTagPropertyValueNode implements PhpDocTagValueNode
 
 	use NodeAttributes;
 
-	/** @var TypeNode */
-	public $type;
+	public TypeNode $type;
 
-	/** @var string */
-	public $parameter;
+	public string $parameter;
 
-	/** @var string */
-	public $property;
+	public string $property;
 
-	/** @var bool */
-	public $isNegated;
+	public bool $isNegated;
 
-	/** @var bool */
-	public $isEquality;
+	public bool $isEquality;
 
 	/** @var string (may be empty) */
-	public $description;
+	public string $description;
 
-	public function __construct(TypeNode $type, string $parameter, string $property, bool $isNegated, string $description, bool $isEquality = false)
+	public function __construct(TypeNode $type, string $parameter, string $property, bool $isNegated, string $description, bool $isEquality)
 	{
 		$this->type = $type;
 		$this->parameter = $parameter;
@@ -39,12 +34,25 @@ class AssertTagPropertyValueNode implements PhpDocTagValueNode
 		$this->description = $description;
 	}
 
-
 	public function __toString(): string
 	{
 		$isNegated = $this->isNegated ? '!' : '';
 		$isEquality = $this->isEquality ? '=' : '';
 		return trim("{$isNegated}{$isEquality}{$this->type} {$this->parameter}->{$this->property} {$this->description}");
+	}
+
+	/**
+	 * @param array<string, mixed> $properties
+	 */
+	public static function __set_state(array $properties): self
+	{
+		$instance = new self($properties['type'], $properties['parameter'], $properties['property'], $properties['isNegated'], $properties['description'], $properties['isEquality']);
+		if (isset($properties['attributes'])) {
+			foreach ($properties['attributes'] as $key => $value) {
+				$instance->setAttribute($key, $value);
+			}
+		}
+		return $instance;
 	}
 
 }

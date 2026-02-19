@@ -1,0 +1,66 @@
+{
+    "name": "php-debugbar/php-debugbar",
+    "description": "Debug bar in the browser for php application",
+    "keywords": ["debug", "debugbar", "debug bar", "dev"],
+    "homepage": "https://github.com/php-debugbar/php-debugbar",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Maxime Bouroumeau-Fuseau",
+            "email": "maxime.bouroumeau@gmail.com",
+            "homepage": "http://maximebf.com"
+        },
+        {
+            "name": "Barry vd. Heuvel",
+            "email": "barryvdh@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^8.1",
+        "psr/log": "^1|^2|^3",
+        "symfony/var-dumper": "^5.4|^6.4|^7.3|^8.0"
+    },
+    "replace": {
+        "maximebf/debugbar": "self.version"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10",
+        "twig/twig": "^3.11.2",
+        "symfony/browser-kit": "^6.0|7.0",
+        "symfony/panther": "^1|^2.1",
+        "dbrekelmans/bdi": "^1"
+    },
+    "autoload": {
+        "psr-4": {
+            "DebugBar\\": "src/DebugBar/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "DebugBar\\Tests\\": "tests/DebugBar/Tests"
+        }
+    },
+    "scripts": {
+        "demo": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php -S localhost:8000"
+        ],
+        "unit-test": "@php vendor/bin/phpunit --testsuite=Unit",
+        "browser-test": "@php vendor/bin/phpunit --testsuite=Browser",
+        "browser-debug": [
+            "@putenv PANTHER_NO_HEADLESS=1",
+            "@php vendor/bin/phpunit --testsuite=Browser --debug"
+        ]
+    },
+    "suggest": {
+        "kriswallsmith/assetic": "The best way to manage assets",
+        "monolog/monolog": "Log using Monolog",
+        "predis/predis": "Redis storage"
+    },
+     "extra": {
+        "branch-alias": {
+            "dev-master": "2.2-dev"
+        }
+    }
+}

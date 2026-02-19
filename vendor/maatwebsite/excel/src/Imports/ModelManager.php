@@ -4,12 +4,15 @@ namespace Maatwebsite\Excel\Imports;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Maatwebsite\Excel\Concerns\PersistRelations;
 use Maatwebsite\Excel\Concerns\SkipsOnError;
 use Maatwebsite\Excel\Concerns\ToModel;
+use Maatwebsite\Excel\Concerns\WithSkipDuplicates;
 use Maatwebsite\Excel\Concerns\WithUpsertColumns;
 use Maatwebsite\Excel\Concerns\WithUpserts;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Exceptions\RowSkippedException;
+use Maatwebsite\Excel\Imports\Persistence\CascadePersistManager;
 use Maatwebsite\Excel\Validators\RowValidator;
 use Maatwebsite\Excel\Validators\ValidationException;
 use Throwable;
@@ -31,11 +34,17 @@ class ModelManager
     private $remembersRowNumber = false;
 
     /**
+     * @var CascadePersistManager
+     */
+    private $cascade;
+
+    /**
      * @param  RowValidator  $validator
      */
-    public function __construct(RowValidator $validator)
+    public function __construct(RowValidator $validator, CascadePersistManager $cascade)
     {
         $this->validator = $validator;
+        $this->cascade   = $cascade;
     }
 
     /**
@@ -115,6 +124,10 @@ class ModelManager
                          );
 
                          return;
+                     } elseif ($import instanceof WithSkipDuplicates) {
+                         $model::query()->insertOrIgnore($models->toArray());
+
+                         return;
                      }
 
                      $model::query()->insert($models->toArray());
@@ -142,9 +155,17 @@ class ModelManager
                             );
 
                             return;
+                        } elseif ($import instanceof WithSkipDuplicates) {
+                            $model::query()->insertOrIgnore([$model->getAttributes()]);
+
+                            return;
                         }
 
-                        $model->saveOrFail();
+                        if ($import instanceof PersistRelations) {
+                            $this->cascade->persist($model);
+                        } else {
+                            $model->saveOrFail();
+                        }
                     } catch (Throwable $e) {
                         $this->handleException($import, $e);
                     }

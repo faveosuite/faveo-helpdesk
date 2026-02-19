@@ -26,7 +26,7 @@ abstract class Utils
      *
      * This function is inspired by {@link https://github.com/thecodingmachine/safe/blob/master/generated/pcre.php}. But
      * since this library is all about performance we decided to strip everything we don't need. Reducing the amount
-     * of files that have to be loaded, ect.
+     * of files that have to be loaded, etc.
      *
      * @param string $pattern The pattern to search for, as a string.
      * @param string $subject The input string.

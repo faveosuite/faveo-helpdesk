@@ -11,14 +11,12 @@ class PropertyTagValueNode implements PhpDocTagValueNode
 
 	use NodeAttributes;
 
-	/** @var TypeNode */
-	public $type;
+	public TypeNode $type;
 
-	/** @var string */
-	public $propertyName;
+	public string $propertyName;
 
 	/** @var string (may be empty) */
-	public $description;
+	public string $description;
 
 	public function __construct(TypeNode $type, string $propertyName, string $description)
 	{
@@ -27,10 +25,23 @@ class PropertyTagValueNode implements PhpDocTagValueNode
 		$this->description = $description;
 	}
 
-
 	public function __toString(): string
 	{
 		return trim("{$this->type} {$this->propertyName} {$this->description}");
+	}
+
+	/**
+	 * @param array<string, mixed> $properties
+	 */
+	public static function __set_state(array $properties): self
+	{
+		$instance = new self($properties['type'], $properties['propertyName'], $properties['description']);
+		if (isset($properties['attributes'])) {
+			foreach ($properties['attributes'] as $key => $value) {
+				$instance->setAttribute($key, $value);
+			}
+		}
+		return $instance;
 	}
 
 }

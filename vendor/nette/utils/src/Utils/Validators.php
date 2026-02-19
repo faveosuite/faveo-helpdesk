@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Nette\Utils;
 
 use Nette;
+use function array_key_exists, class_exists, explode, gettype, interface_exists, is_callable, is_float, is_int, is_iterable, is_numeric, is_object, is_string, preg_match, str_ends_with, str_replace, str_starts_with, strlen, strtolower, substr, trait_exists, var_export;
 
 
 /**
@@ -25,7 +26,7 @@ class Validators
 		'never' => 1, 'true' => 1,
 	];
 
-	/** @var array<string,?callable> */
+	/** @var array<string, ?(callable(mixed): bool)> */
 	protected static $validators = [
 		// PHP types
 		'array' => 'is_array',
@@ -75,7 +76,7 @@ class Validators
 		'type' => [self::class, 'isType'],
 	];
 
-	/** @var array<string,callable> */
+	/** @var array<string, callable(mixed): int> */
 	protected static $counters = [
 		'string' => 'strlen',
 		'unicode' => [Strings::class, 'length'],
@@ -119,16 +120,16 @@ class Validators
 	 */
 	public static function assertField(
 		array $array,
-		$key,
+		int|string $key,
 		?string $expected = null,
 		string $label = "item '%' in array",
 	): void
 	{
 		if (!array_key_exists($key, $array)) {
-			throw new AssertionException('Missing ' . str_replace('%', $key, $label) . '.');
+			throw new AssertionException('Missing ' . str_replace('%', (string) $key, $label) . '.');
 
 		} elseif ($expected) {
-			static::assert($array[$key], $expected, str_replace('%', $key, $label));
+			static::assert($array[$key], $expected, str_replace('%', (string) $key, $label));
 		}
 	}
 
@@ -158,7 +159,7 @@ class Validators
 					if (!static::$validators[$type]($value)) {
 						continue;
 					}
-				} catch (\TypeError $e) {
+				} catch (\TypeError) {
 					continue;
 				}
 			} elseif ($type === 'pattern') {
@@ -260,7 +261,7 @@ class Validators
 
 	/**
 	 * Checks if the value is 0, '', false or null.
-	 * @return ($value is 0|''|false|null ? true : false)
+	 * @return ($value is 0|0.0|''|false|null ? true : false)
 	 */
 	public static function isNone(mixed $value): bool
 	{
@@ -289,6 +290,7 @@ class Validators
 	/**
 	 * Checks if the value is in the given range [min, max], where the upper or lower limit can be omitted (null).
 	 * Numbers, strings and DateTime objects can be compared.
+	 * @param  array{int|float|string|\DateTimeInterface|null, int|float|string|\DateTimeInterface|null}  $range
 	 */
 	public static function isInRange(mixed $value, array $range): bool
 	{
