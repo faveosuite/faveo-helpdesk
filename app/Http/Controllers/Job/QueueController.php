@@ -7,7 +7,6 @@ use App\Http\Requests\helpdesk\Queue\QueueRequest;
 use App\Model\MailJob\FaveoQueue;
 use App\Model\MailJob\QueueService;
 use Exception;
-use Form;
 use Illuminate\Http\Request;
 
 class QueueController extends Controller
