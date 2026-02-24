@@ -361,19 +361,19 @@ class FormController extends Controller
                 return self::selectForm($field_type, $field, $required, $required_class);
 
             case 'text':
-                return html()->label($field->label, $field->label)->class($required_class) .
+                return html()->label($field->label, $field->label)->class($required_class).
                     html()->text($field->name)->attributes($attrs);
 
             case 'email':
-                return html()->label($field->label, $field->label)->class($required_class) .
+                return html()->label($field->label, $field->label)->class($required_class).
                     html()->email($field->name)->attributes($attrs);
 
             case 'password':
-                return html()->label($field->label, $field->label)->class($required_class) .
+                return html()->label($field->label, $field->label)->class($required_class).
                     html()->password($field->name)->attributes($attrs);
 
             case 'textarea':
-                return html()->label($field->label, $field->label)->class($required_class) .
+                return html()->label($field->label, $field->label)->class($required_class).
                     html()->textarea($field->name)->attributes($attrs);
 
             case 'radio':
@@ -558,7 +558,7 @@ class FormController extends Controller
     {
         $session = self::getSession();
         $script = self::jqueryScript($field->id, $field->name, $field_type);
-        $form_hidden = html()->hidden('fieldid[]', $field->id)->id('hidden'.$session.$field->id) .
+        $form_hidden = html()->hidden('fieldid[]', $field->id)->id('hidden'.$session.$field->id).
             html()->label($field->label, $field->label)->class($required_class);
 
         $options = ['' => 'Select', 'Selects' => self::removeUnderscoreFromDB(
@@ -573,12 +573,12 @@ class FormController extends Controller
             $attrs['required'] = 'required';
         }
 
-        $select = html()->select($field->name, $options)->attributes($attrs) . '</br>';
+        $select = html()->select($field->name, $options)->attributes($attrs).'</br>';
 
-        $html = $script . $form_hidden . $select;
-        $response_div = '<div id=' . $session . $field->name . '></div>';
+        $html = $script.$form_hidden.$select;
+        $response_div = '<div id='.$session.$field->name.'></div>';
 
-        return $html . $response_div;
+        return $html.$response_div;
     }
 
     public static function radioForm($field_type, $field, $required, $required_class)
@@ -589,14 +589,14 @@ class FormController extends Controller
         if (count($values) > 0) {
             foreach ($values as $field_value) {
                 $script = self::jqueryScript($field_value, $field->id, $field->name, $field_type);
-                $radio .= '<div>' . html()->hidden('fieldid[]', $field->id)->id($field->id . Str::slug($field_value));
+                $radio .= '<div>'.html()->hidden('fieldid[]', $field->id)->id($field->id.Str::slug($field_value));
                 $radio .= html()->radio($field->name, false, $field_value)->attributes([
-                        'class' => "$field->id",
-                        'id'    => Str::slug($field_value),
-                        'required' => $required,
-                    ]) . $script . '<span>   ' . removeUnderscore($field_value) . '</span></div>';
+                    'class'    => "$field->id",
+                    'id'       => Str::slug($field_value),
+                    'required' => $required,
+                ]).$script.'<span>   '.removeUnderscore($field_value).'</span></div>';
             }
-            $html = html()->label($field->label, $field->label)->class($required_class) . '</br>' . $radio . '<div id=' . $field->name . '></br></div>';
+            $html = html()->label($field->label, $field->label)->class($required_class).'</br>'.$radio.'<div id='.$field->name.'></br></div>';
         }
 
         return $html;
@@ -614,8 +614,8 @@ class FormController extends Controller
                 $script = self::jqueryScript($field_value, $field->id, $field->name, $field_type, $i);
                 $checkbox .= html()->hidden('fieldid[]', $field->id)->id('f'.$session.$i);
                 $checkbox .= html()->checkbox($field->name, false, $field_value)->attributes([
-                    'class' => "$field->id",
-                    'id'    => $session.$field->id.'_'.$i,
+                    'class'    => "$field->id",
+                    'id'       => $session.$field->id.'_'.$i,
                     'required' => $required,
                 ]);
                 $checkbox .= '<span>   '.removeUnderscore($field_value).'</span>';
