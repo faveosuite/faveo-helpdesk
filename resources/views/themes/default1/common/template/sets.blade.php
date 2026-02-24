@@ -89,14 +89,18 @@ class="nav-link active"
                         @if($set->name == $settings->template)
                        <button class="btn btn-success btn-sm {!! $dis !!}" data-toggle="modal" data-target="">{!! Lang::get('lang.activate_this_set') !!}</button>
                         @else()
-                        {!! link_to_route('active.template-set',Lang::get('lang.activate_this_set'),[$set->name],['class'=>'btn btn-success btn-sm $dis']) !!}
-                         @endif
+                            <a href="{{ route('active.template-set', [$set->name]) }}" class="btn btn-success btn-sm {{ $dis }}">
+                                {{ Lang::get('lang.activate_this_set') }}
+                            </a>
+                        @endif
 
-                        {!! link_to_route('show.templates',Lang::get('lang.show'),[$set->id],['class'=>'btn btn-success btn-sm']) !!}
+                        <a href="{{ route('show.templates', [$set->id]) }}" class="btn btn-success btn-sm">
+                            {{ Lang::get('lang.show') }}
+                        </a>
                         <div class="modal fade" id="{{$set->id}}">
                             <div class="modal-dialog">
                                 <div class="modal-content">
-                                    {!! Form::model($set,['route'=>['template-sets.update', $set->id],'method'=>'PATCH','files' => true]) !!}
+                                    {!! html()->modelForm($set, 'PATCH', route('template-sets.update', [$set->id]))->acceptsFiles()->open() !!}
                                     <div class="modal-header">
                                         <h4 class="modal-title">{!! Lang::get('lang.edit_details') !!}</h4>
                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -105,15 +109,15 @@ class="nav-link active"
                                         <div class="form-group">
                                             <div class="form-control">
                                                 <label for="title">Name:</label><br>
-                                                {!! Form::text('name',null,['class'=>'form-control'])!!}
+                                                {!! html()->text('name', null)->class('form-control') !!}
                                             </div>
                                         </div>
                                     </div>
                                     <div class="modal-footer justify-content-between">
                                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                        {!! Form::submit('Update Details',['class'=>'btn btn-primary'])!!}
+                                        {!! html()->submit('Update Details')->class('btn btn-primary') !!}
                                     </div>
-                                    {!! Form::close() !!}
+                                    {!! html()->closeModelForm() !!}
                                 </div> 
                             </div>
                         </div>
@@ -138,7 +142,9 @@ class="nav-link active"
                                     </div>
                                     <div class="modal-footer justify-content-between">
                                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                        {!! link_to_route('sets.delete',Lang::get('lang.delete'),[$set->id],['id'=>'delete','class'=>'btn btn-danger btn-sm']) !!}
+                                        <a href="{{ route('sets.delete', [$set->id]) }}" id="delete" class="btn btn-danger btn-sm">
+                                            {{ Lang::get('lang.delete') }}
+                                        </a>
                                     </div>
                                 </div> 
                             </div>
@@ -154,7 +160,7 @@ class="nav-link active"
 <div class="modal fade" id="create" class="modal fade in {{ $errors->has('name') ? 'has-error' : '' }}">
     <div class="modal-dialog">
         <div class="modal-content">
-            {!! Form::open(['route'=>'template-sets.store']) !!}
+            {!! html()->form('POST', route('template-sets.store'))->open() !!}
             <div class="modal-header">
                 <h4 class="modal-title">{!! Lang::get('lang.create') !!}</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -176,14 +182,14 @@ class="nav-link active"
                 @endforeach 
                 <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                     <label for="title">{!! Lang::get('lang.name') !!}:<span style="color:red;">*</span></label><br>
-                    {!! Form::text('name',null,['class'=>'form-control'])!!}
+                    {!! html()->text('name', null)->class('form-control') !!}
                 </div>
             </div>
             <div class="modal-footer justify-content-between">
                 <button type="button" class="btn btn-default" data-dismiss="modal">{!! Lang::get('lang.close') !!}</button>
-                {!! Form::submit(Lang::get('lang.create_set'),['class'=>'btn btn-primary'])!!}
+                {!! html()->submit(Lang::get('lang.create_set'))->class('btn btn-primary') !!}
             </div>
-            {!! Form::close() !!}
+            {!! html()->closeModelForm() !!}
         </div> 
     </div>
 </div>  

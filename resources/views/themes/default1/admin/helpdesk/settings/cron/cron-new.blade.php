@@ -1,4 +1,4 @@
-{!! Form::model($emails,['url' => 'post-scheduler', 'method' => 'PATCH']) !!}
+{!! html()->modelForm($emails, 'PATCH', url('post-scheduler'))->open() !!}
 @if (count($errors) > 0)
 <div class="alert alert-danger">
     <strong>{{Lang::get('lang.woops')}}</strong> {{Lang::get('lang.theirisproblem')}}<br><br>
@@ -68,15 +68,15 @@
                             
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    {!! Form::label('email_fetching',Lang::get('lang.email_fetch')) !!}<br>
-                                    {!! Form::checkbox('email_fetching',1,$condition->checkActiveJob()['fetching'],['id'=>'email_fetching']) !!}&nbsp;{{Lang::get('lang.fetch_auto-corn')}}
+                                    {!! html()->label(Lang::get('lang.email_fetch'), 'email_fetching') !!}<br>
+                                    {!! html()->checkbox('email_fetching', $condition->checkActiveJob()['fetching'], 1)->id('email_fetching') !!}&nbsp;{{Lang::get('lang.fetch_auto-corn')}}
                                 </div>
 
                             </div>
                             <div class="col-md-6" id="fetching">
-                                {!! Form::select('fetching-commands',$commands,$condition->getConditionValue('fetching')['condition'],['class'=>'form-control','id'=>'fetching-command']) !!}
+                                {!! html()->select('fetching-commands', $commands, $condition->getConditionValue('fetching')['condition'])->class('form-control')->id('fetching-command') !!}
                                 <div id='fetching-daily-at'>
-                                    {!! Form::text('fetching-dailyAt',$condition->getConditionValue('fetching')['at'],['class'=>'form-control']) !!}
+                                    {!! html()->text('fetching-dailyAt', $condition->getConditionValue('fetching')['at'])->class('form-control') !!}
 
                                 </div>
                             </div>
@@ -94,14 +94,14 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                {!! Form::label('notification_cron',Lang::get('lang.notification-email')) !!}<br>
-                                {!! Form::checkbox('notification_cron',1,$condition->checkActiveJob()['notification'],['id'=>'notification_cron']) !!}&nbsp;{{Lang::get('lang.cron_notification')}}
+                                {!! html()->label(Lang::get('lang.notification-email'), 'notification_cron') !!}<br>
+                                {!! html()->checkbox('notification_cron', $condition->checkActiveJob()['notification'], 1)->id('notification_cron') !!}&nbsp;{{Lang::get('lang.cron_notification')}}
                             </div>
                         </div>
                         <div class="col-md-6" id="notification">
-                            {!! Form::select('notification-commands',$commands,$condition->getConditionValue('notification')['condition'],['class'=>'form-control','id'=>'notification-command']) !!}
+                            {!! html()->select('notification-commands', $commands, $condition->getConditionValue('notification')['condition'])->class('form-control')->id('notification-command') !!}
                             <div id='notification-daily-at'>
-                                {!! Form::text('notification-dailyAt',$condition->getConditionValue('notification')['at'],['class'=>'form-control']) !!}
+                                {!! html()->text('notification-dailyAt', $condition->getConditionValue('notification')['at'])->class('form-control') !!}
                             </div>
                         </div>
                     </div>
@@ -119,15 +119,15 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                {!! Form::label('condition',Lang::get('lang.auto_close_workflow')) !!}<br>
-                                {!! Form::checkbox('condition',1,$condition->checkActiveJob()['work'],['id'=>'auto_close']) !!}
+                                {!! html()->label(Lang::get('lang.auto_close_workflow'), 'condition') !!}<br>
+                                {!! html()->checkbox('condition', $condition->checkActiveJob()['work'], 1)->id('auto_close') !!}
                                        {{Lang::get('lang.enable_workflow')}}
                             </div>
                         </div>
                         <div class="col-md-6" id="workflow">
-                            {!! Form::select('work-commands',$commands,$condition->getConditionValue('work')['condition'],['class'=>'form-control','id'=>'workflow-command']) !!}
+                            {!! html()->select('work-commands', $commands, $condition->getConditionValue('work')['condition'])->class('form-control')->id('workflow-command') !!}
                             <div id='workflow-daily-at'>
-                                {!! Form::text('workflow-dailyAt',$condition->getConditionValue('work')['at'],['class'=>'form-control']) !!}
+                                {!! html()->text('workflow-dailyAt', $condition->getConditionValue('work')['at'])->class('form-control') !!}
                             </div>
                         </div>
                     </div>
@@ -138,7 +138,7 @@
 
     </div>
     <div class="card-footer">
-        {!! Form::submit(Lang::get('lang.submit'),['class'=>'btn btn-primary'])!!}
+        {!! html()->submit(Lang::get('lang.submit'))->class('btn btn-primary') !!}
     </div>
 </div>
 <script>

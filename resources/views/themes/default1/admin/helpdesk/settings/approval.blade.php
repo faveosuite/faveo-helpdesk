@@ -58,7 +58,7 @@ class="active"
                     <div class="col-md-12">
                         <div class="col-md-3 no-padding">
                             <div class="form-group">
-                                {!! Form::label('del_noti', Lang::get('lang.close_all_ticket_for_approval')) !!}
+                                {!! html()->label(Lang::get('lang.close_all_ticket_for_approval'), 'del_noti') !!}
                             </div>
                         </div>
      

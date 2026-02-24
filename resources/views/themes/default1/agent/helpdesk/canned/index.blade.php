@@ -66,15 +66,11 @@ class="nav-link active"
             <tr>
                 <td>{{$Canned->title }}</td>
                 <td>
-                    {!! Form::open(['route'=>['canned.destroy', $Canned->id],'method'=>'DELETE']) !!}
+                    {!! html()->form('DELETE', route('canned.destroy', [$Canned->id]))->open() !!}
                     <a data-toggle="modal" data-target="#view{!! $Canned->id !!}" href="#" class="btn btn-info btn-xs" onClick="updateModelTitle('{{$Canned->title}}')">{!! Lang::get('lang.view') !!}</a>
                     <a href="{!! URL::route('canned.edit',$Canned->id) !!}" class="btn btn-primary btn-xs">{!! Lang::get('lang.edit') !!}</a>
-                    {!! Form::button(' '.Lang::get('lang.delete'),
-                    ['type' => 'submit',
-                    'class'=> 'btn btn-warning btn-xs',
-                    'onclick'=>'return confirm("Are you sure?")'])
-                    !!}
-                    {!! Form::close() !!}
+                    {!! html()->button(' '.Lang::get('lang.delete'))->class('btn btn-warning btn-xs')->attributes(['type' => 'submit', 'onclick' => 'return confirm("Are you sure?")']) !!}
+                    {!! html()->closeModelForm() !!}
                 </td>
             </tr>
             <!-- Surrender Modal -->

@@ -99,7 +99,7 @@ class="nav-link active"
                     <label>{!! Lang::get('lang.to') !!} <span class="text-red">*</span> :</label>
                 </div>
                 <div class="col-md-4">
-                    {!! Form::text('to',null,['class' => 'form-control']) !!}
+                    {!! html()->text('to', null)->class('form-control') !!}
                 </div>
             </div>
             <div class="row form-group no-padding {!! $errors->has('subject') ? 'has-error' : '' !!}">
@@ -107,7 +107,7 @@ class="nav-link active"
                     <label>{!! Lang::get('lang.subject') !!} <span class="text-red">*</span> :</label>
                 </div>
                 <div class="col-md-8">
-                    {!! Form::text('subject',null,['class' => 'form-control']) !!}
+                    {!! html()->text('subject', null)->class('form-control') !!}
                 </div>
             </div>
             <div class="row form-group no-padding {!! $errors->has('message') ? 'has-error' : '' !!}">
@@ -120,7 +120,7 @@ class="nav-link active"
             </div>
         </div>
         <div class="card-footer">
-            {!! Form::submit(Lang::get('lang.send'),['class'=>'btn btn-primary'])!!}
+            {!! html()->submit(Lang::get('lang.send'))->class('btn btn-primary') !!}
         </div>
     </div>
 </form>

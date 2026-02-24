@@ -68,14 +68,14 @@ class="nav-link active"
 
     <div class="card-body">
         
-        {!! Form::model($form,['route'=>['forms.update',$form->id],'method'=>'PATCH']) !!}
+        {!! html()->modelForm($form, 'PATCH', route('forms.update', [$form->id]))->open() !!}
         
         <div class="row">
 
             <div class="form-group col-sm-6">
 
                 <label>{!! Lang::get('lang.form_name') !!}: <span class="text-red"> *</span></label>
-                 {!! Form::text('formname',null,['class'=>'form-control']) !!}
+                 {!! html()->text('formname', null)->class('form-control') !!}
             </div>
         </div>
         
@@ -113,10 +113,10 @@ class="nav-link active"
                             <td><input type="text" name="label[]" value="{{$field->label}}" class="form-control"></td>
                             <td><input type="text" name="name[]" value="{{$field->name}}" class="form-control"></td>
                             
-                            <td>{!! Form::select('type[]',['text'=>'text','email'=>'email','password'=>'password','textarea'=>'textarea','select'=>'select','radio'=>'radio','checkbox'=>'checkbox','hidden'=>'hidden'],$field->type,['class'=>'form-control']) !!}</td>
+                            <td>{!! html()->select('type[]', ['text'=>'text','email'=>'email','password'=>'password','textarea'=>'textarea','select'=>'select','radio'=>'radio','checkbox'=>'checkbox','hidden'=>'hidden'], $field->type)->class('form-control') !!}</td>
                             <td><input type="text" name="value[]" value="{{$field->valuesAsString()}}" class="form-control"></td>
                             
-                            <td>{!! Form::radio('required['.$key.']',1,true) !!}&nbsp;&nbsp;{!! Lang::get("lang.yes") !!}&nbsp;&nbsp;{!! Form::radio('required['.$key.']',0,$field->nonRequiredFieldForCheck()) !!}&nbsp;&nbsp;{!! Lang::get("lang.no") !!}</td>
+                            <td>{!! html()->radio('required['.$key.']', true, 1) !!}&nbsp;&nbsp;{!! Lang::get("lang.yes") !!}&nbsp;&nbsp;{!! html()->radio('required['.$key.']', $field->nonRequiredFieldForCheck(), 0) !!}&nbsp;&nbsp;{!! Lang::get("lang.no") !!}</td>
                             <td><button type="button" class="remove_field btn btn-danger"><i class="fas fa-trash"></i></button></td>
                         </tr> 
                         @empty 
@@ -132,7 +132,7 @@ class="nav-link active"
         <input type="submit" class="btn btn-primary" value="{!! Lang::get('lang.save_form') !!}">
     </div>
 </div>
-{!! Form::close() !!}
+{!! html()->closeModelForm() !!}
 <script>
     function showDiv() {
         document.getElementById('welcomeDiv').style.display = "block";

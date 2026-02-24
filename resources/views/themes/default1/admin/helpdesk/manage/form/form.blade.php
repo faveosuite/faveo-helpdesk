@@ -66,7 +66,7 @@ class="nav-link active"
     </div>
     <div class="card-body">
 
-        {!! Form::open(['route'=>'forms.store']) !!}
+        {!! html()->form('POST', route('forms.store'))->open() !!}
 
         <div class="row">
             <div class="form-group col-sm-6">
@@ -131,7 +131,7 @@ class="nav-link active"
         <input type="submit" class="btn btn-primary" value="{!! Lang::get('lang.save_form') !!}">
     </div>
 </div>
-{!! Form::close() !!}
+{!! html()->closeModelForm() !!}
 <script>
     function showDiv() {
         document.getElementById('welcomeDiv').style.display = "block";

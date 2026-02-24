@@ -7,7 +7,7 @@
             <div class="modal-header">
                 <h4 class="modal-title">Add Child</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                {!! Form::model($field,['url'=>'forms/field/'.$field->id.'/child','method'=>'POST']) !!}
+                {!! html()->modelForm($field, 'POST', url('forms/field/'.$field->id.'/child'))->open() !!}
             </div>
             <div class="modal-body">
                 <!-- Form  -->
@@ -15,7 +15,7 @@
                     @forelse($field->values()->get() as $value)
                     <div class="col-md-12">
                         <b>{{$value->field_value}}</b>
-                         {!! Form::select($value->id,[''=>'Select','Forms'=>$select_forms],$value->childId(),['class'=>'form-control']) !!}
+                         {!! html()->select($value->id, [''=>'Select','Forms'=>$select_forms], $value->childId())->class('form-control') !!}
                     </div>
                     @empty 
                     <div class="col-md-12">
@@ -28,7 +28,7 @@
             <div class="modal-footer justify-content-between">
                 <button type="button" id="close" class="btn btn-default" data-dismiss="modal">Close</button>
                 <input type="submit" class="btn btn-primary" value="{{Lang::get('lang.save')}}">
-                {!! Form::close() !!}
+                {!! html()->closeModelForm() !!}
             </div>
             <!-- /Form -->
         </div><!-- /.modal-content -->

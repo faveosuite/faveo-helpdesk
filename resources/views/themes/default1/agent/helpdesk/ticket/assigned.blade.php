@@ -73,7 +73,7 @@ if (Auth::user()->role == 'agent') {
     </div>
     @endif
     
-        {!! Form::open(['id'=>'modalpopup', 'route'=>'select_all','method'=>'post']) !!}
+        {!! html()->form('POST', route('select_all'))->attributes(['id' => 'modalpopup'])->open() !!}
         <!--<div class="mailbox-controls">-->
         <!-- Check all button -->
         <a class="btn btn-default btn-sm checkbox-toggle"><i class="fa fa-square-o"></i></a>
@@ -89,7 +89,7 @@ if (Auth::user()->role == 'agent') {
             <!-- table -->
              {!!$table->render('vendor.Chumper.template')!!}
         </div><!-- /.mail-box-messages -->
-        {!! Form::close() !!}
+        {!! html()->closeModelForm() !!}
     </div><!-- /.box-body -->
 </div><!-- /. box -->
 
@@ -129,7 +129,7 @@ if (Auth::user()->role == 'agent') {
                     <div id="merge-body-form">
                         <div class="row">
                             <div class="col-md-6">
-                                {!! Form::open(['id'=>'merge-form','method' => 'PATCH'] )!!}
+                                {!! html()->form('PATCH', url()->current())->attributes(['id' => 'merge-form'])->open() !!}
                                 <label>{!! Lang::get('lang.title') !!}</label>
                                 <input type="text" name='title' class="form-control" value="" placeholder="Optional" />
                             </div>
@@ -151,7 +151,7 @@ if (Auth::user()->role == 'agent') {
             <div class="modal-footer">
                 <button type="button" class="btn btn-default pull-left" data-dismiss="modal" id="dismis2">{!! Lang::get('lang.close') !!}</button>
                 <input  type="submit" id="merge-btn" class="btn btn-primary pull-right" value="{!! Lang::get('lang.merge') !!}"></input>
-                {!! Form::close() !!}
+                {!! html()->closeModelForm() !!}
             </div><!-- /.modal-footer -->
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
@@ -175,7 +175,7 @@ if (Auth::user()->role == 'agent') {
                 <div id="assign_body">
                         <div class="row">
                             <div class="col-md-12">
-                                {!! Form::open(['id'=>'assign-form','method' => 'PATCH'] )!!}
+                                {!! html()->form('PATCH', url()->current())->attributes(['id' => 'assign-form'])->open() !!}
                                 <label>{!! Lang::get('lang.whome_do_you_want_to_assign_ticket') !!}</label>
                                 <select class="form-control" id="select-assign-agent"  name="assign_to" data-placeholder="{!! Lang::get('lang.select_agent') !!}" style="width: 100%;"><option value=""></option></select>
                             </div>
@@ -185,7 +185,7 @@ if (Auth::user()->role == 'agent') {
             <div class="modal-footer">
                 <button type="button" class="btn btn-default pull-left" data-dismiss="modal" id="dismis2">{!! Lang::get('lang.close') !!}</button>
                 <input  type="submit" id="merge-btn" class="btn btn-primary pull-right" value="{!! Lang::get('lang.assign') !!}"></input>
-                {!! Form::close() !!}
+                {!! html()->closeModelForm() !!}
             </div><!-- /.modal-footer -->
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->

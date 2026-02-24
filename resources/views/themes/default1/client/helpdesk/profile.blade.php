@@ -72,7 +72,7 @@ class="nav-item active"
 
                 <div class="col-md-6">
 
-                     {!! Form::model($user,['url'=>'client-profile-edit', 'id' => 'client-profile', 'method' => 'PATCH','files'=>true]) !!}
+                     {!! html()->modelForm($user, 'PATCH', url('client-profile-edit'))->acceptsFiles()->attributes(['id' => 'client-profile'])->open() !!}
 
                     <div id="form-border" class="comment-respond form-border" style="background : #fff">
 
@@ -87,76 +87,76 @@ class="nav-item active"
 
                                 <div class="form-group {{ $errors->has('first_name') ? 'has-error' : '' }}">
                                     <!-- first name -->
-                                    {!! Form::label('first_name',Lang::get('lang.first_name')) !!}<span class="text-red"> *</span>
+                                    {!! html()->label(Lang::get('lang.first_name'), 'first_name') !!}<span class="text-red"> *</span>
 
-                                    {!! Form::text('first_name',null,['class' => 'form-control']) !!}
+                                    {!! html()->text('first_name', null)->class('form-control') !!}
                                 </div>
                                 <div class="form-group {{ $errors->has('last_name') ? 'has-error' : '' }}">
                                     <!-- last name -->
-                                    {!! Form::label('last_name',Lang::get('lang.last_name')) !!}
+                                    {!! html()->label(Lang::get('lang.last_name'), 'last_name') !!}
 
-                                    {!! Form::text('last_name',null,['class' => 'form-control']) !!}
+                                    {!! html()->text('last_name', null)->class('form-control') !!}
                                 </div>
                                 <div class="form-group">
                                     <!-- gender -->
-                                    {!! Form::label('gender',Lang::get('lang.gender')) !!}
+                                    {!! html()->label(Lang::get('lang.gender'), 'gender') !!}
                                     <div class="row">
                                         <div class="col-sm-3">
-                                            {!! Form::radio('gender','1',true) !!}&nbsp;&nbsp;{{Lang::get('lang.male')}}
+                                            {!! html()->radio('gender', true, '1') !!}&nbsp;&nbsp;{{Lang::get('lang.male')}}
                                         </div>
                                         <div class="col-sm-3">
-                                            {!! Form::radio('gender','0') !!}&nbsp;&nbsp;{{Lang::get('lang.female')}}
+                                            {!! html()->radio('gender', null, '0') !!}&nbsp;&nbsp;{{Lang::get('lang.female')}}
                                         </div>
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <!-- email -->
-                                    {!! Form::label('email',Lang::get('lang.email_address')) !!}
+                                    {!! html()->label(Lang::get('lang.email_address'), 'email') !!}
                                     <div>
                                         {{$user->email}}
                                     </div>
                                 </div>
                                 <div class="form-group {{ $errors->has('company') ? 'has-error' : '' }}">
                                     <!-- company -->
-                                    {!! Form::label('company',Lang::get('lang.company')) !!}
+                                    {!! html()->label(Lang::get('lang.company'), 'company') !!}
 
-                                    {!! Form::text('company',null,['class' => 'form-control']) !!}
+                                    {!! html()->text('company', null)->class('form-control') !!}
                                 </div>
                                 <div class="row">
                                     <div class="col-sm-2 form-group {{ $errors->has('country_code') ? 'has-error' : '' }}">
                                         <!-- phone extensionn -->
-                                        {!! Form::label('country_code',Lang::get('lang.country-code')) !!}
-                                        {!! Form::text('country_code',null,['class' => 'form-control', 'placeholder' => $phonecode, 'title' => Lang::get('lang.enter-country-phone-code'), 'id' => 'code']) !!}
+                                        {!! html()->label(Lang::get('lang.country-code'), 'country_code') !!}
+                                        {!! html()->text('country_code', null)->class('form-control')->placeholder($phonecode)->id('code')->attributes(['title' => Lang::get('lang.enter-country-phone-code')]) !!}
 
                                     </div>
                                     <div class="col-sm-2 form-group {{ $errors->has('ext') ? 'has-error' : '' }}">
                                         <!-- phone extensionn -->
-                                        {!! Form::label('ext',Lang::get('lang.ext')) !!}
+                                        {!! html()->label(Lang::get('lang.ext'), 'ext') !!}
 
-                                        {!! Form::text('ext',null,['class' => 'form-control']) !!}
+                                        {!! html()->text('ext', null)->class('form-control') !!}
                                     </div>
                                     <div class="col-sm-8 form-group {{ $errors->has('phone_number') ? 'has-error' : '' }}">
                                         <!-- phone number -->
-                                        {!! Form::label('phone_number',Lang::get('lang.phone')) !!}
+                                        {!! html()->label(Lang::get('lang.phone'), 'phone_number') !!}
 
-                                        {!! Form::text('phone_number',null,['class' => 'form-control']) !!}
+                                        {!! html()->text('phone_number', null)->class('form-control') !!}
                                     </div>
                                 </div>
                                 <div class="form-group {{ $errors->has('mobile') ? 'has-error' : '' }}">
                                     <!-- mobile -->
-                                    {!! Form::label('mobile',Lang::get('lang.mobile_number')) !!}
+                                    {!! html()->label(Lang::get('lang.mobile_number'), 'mobile') !!}
 
-                                    {!! Form::input('number', 'mobile',null,['class' => 'form-control', 'id' => 'mobile']) !!}
+                                    {!! html()->number('mobile', null)->class('form-control')->id('mobile') !!}
                                 </div>
                                 <div class="form-group {{ $errors->has('profile_pic') ? 'has-error' : '' }}">
                                     <!-- profile pic -->
-                                    {!! Form::label('profile_pic',Lang::get('lang.profile_pic')) !!}
+                                    {!! html()->label(Lang::get('lang.profile_pic'), 'profile_pic') !!}
 
-                                    {!! Form::file('profile_pic') !!}
+                                    {!! html()->file('profile_pic') !!}
                                 </div>
 
-                                {!! Form::token() !!}
-                                {!! Form::close() !!}
+                                {!! html()->token() !!}
+                                {!! html()->closeModelForm() !!}
 
                                 <div class="form-group" style="padding-bottom: 10px;">
 
@@ -171,7 +171,7 @@ class="nav-item active"
 
                 <div class="col-md-6">
 
-                    {!! Form::model($user,['url'=>'client-profile-password' , 'method' => 'PATCH']) !!}
+                    {!! html()->modelForm($user, 'PATCH', url('client-profile-password'))->open() !!}
 
                     <div id="form-border" class="comment-respond form-border" style="background : #fff">
 
@@ -183,25 +183,25 @@ class="nav-item active"
                             </h2>
 
                             <div>
-                                 {!! Form::label('old_password',Lang::get('lang.old_password')) !!}<span class="text-red"> *</span>
+                                 {!! html()->label(Lang::get('lang.old_password'), 'old_password') !!}<span class="text-red"> *</span>
                                 <div class="form-group has-feedback {{ $errors->has('old_password') ? 'has-error' : '' }}" style="display: -webkit-box;">
-                                    {!! Form::password('old_password',['class' => 'form-control']) !!}
+                                    {!! html()->password('old_password')->class('form-control') !!}
                                     <span class="fa fa-lock form-control-feedback" style="top: 9px;left: -25px;color: #6c757d !important;"></span> <!--change the "glyphicon glyphicon-lock form-control-feedback" to "fa fa-lock form-control-feedback" bcoz bs5 has removed the Glyphicons icon font that was included in earlier versions of Bootstrap-->
                                 </div>
                                 <!-- new password -->
-                                  {!! Form::label('new_password',Lang::get('lang.new_password')) !!}<span class="text-red"> *</span>
+                                  {!! html()->label(Lang::get('lang.new_password'), 'new_password') !!}<span class="text-red"> *</span>
                                 <div class="form-group has-feedback {{ $errors->has('new_password') ? 'has-error' : '' }}" style="display: -webkit-box;">
-                                    {!! Form::password('new_password',['class' => 'form-control']) !!}
+                                    {!! html()->password('new_password')->class('form-control') !!}
                                     <span class="fa fa-lock form-control-feedback" style="top: 9px;left: -25px;color: #6c757d !important;"></span>
                                 </div>
                                 <!-- cofirm password -->
-                                 {!! Form::label('confirm_password',Lang::get('lang.confirm_password')) !!}<span class="text-red"> *</span>
+                                 {!! html()->label(Lang::get('lang.confirm_password'), 'confirm_password') !!}<span class="text-red"> *</span>
                                 <div class="form-group has-feedback {{ $errors->has('confirm_password') ? 'has-error' : '' }}" style="display: -webkit-box;">
-                                    {!! Form::password('confirm_password',['class' => 'form-control']) !!}
+                                    {!! html()->password('confirm_password')->class('form-control') !!}
                                     <span class="fa fa-lock form-control-feedback" style="top: 9px;left: -25px;color: #6c757d !important;"></span>
                                 </div>
 
-                                {!! Form::close() !!}
+                                {!! html()->closeModelForm() !!}
 
                                 <div class="form-group" style="padding-bottom: 10px;">
 
@@ -245,13 +245,13 @@ class="nav-item active"
                         </div>
                     </div>
                     <div id="verify-number-form">
-                    {!! Form::open(['id'=>'verify-otp','method' => 'POST'] )!!}
+                    {!! html()->form('POST', url()->current())->attributes(['id' => 'verify-otp'])->open() !!}
                         <div class="row">
                             <div class="col-md-8">
                                 {{ Lang::get('lang.get-verify-message') }}
                             </div>
                             <div class="col-md-4">
-                                {!! Form::text('token','',['class' => 'form-control', 'required' => true, 'placeholder' => Lang::get('lang.enter-otp'), 'id' => 'otp']) !!}
+                                {!! html()->text('token', '')->class('form-control')->required()->placeholder(Lang::get('lang.enter-otp'))->id('otp') !!}
                             </div>
                         </div>
                     </div>
@@ -260,7 +260,7 @@ class="nav-item active"
                     <button type="button" id="close-last" class="btn btn-default closemodal float-left">{{Lang::get('lang.close')}}</button>
                     <div id="last-submit"><input  type="submit" id="merge-btn" class="btn btn-primary float-right" value="{!! Lang::get('lang.verify') !!}"></input></div>
                 </div>
-                {!! Form::close() !!}
+                {!! html()->closeModelForm() !!}
             </div>
         </div>
     </div>

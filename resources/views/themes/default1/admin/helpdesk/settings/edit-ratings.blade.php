@@ -26,7 +26,7 @@ class="nav-link active"
 
 <!-- content -->
 @section('content')
-{!! Form::model($rating,['route'=>['settings.rating', $rating->id],'method'=>'PATCH','files' => true]) !!}
+{!! html()->modelForm($rating, 'PATCH', route('settings.rating', [$rating->id]))->acceptsFiles()->open() !!}
 @if(Session::has('success'))
 <div class="alert alert-success alert-dismissable">
     <i class="fas fa-check-circle"></i>
@@ -68,46 +68,46 @@ class="nav-link active"
     <div class="card-body">
         <div class="row">
             <div class="col-md-6 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                {!! Form::label('name',Lang::get('lang.rating_label')) !!}<span style="color:red;">*</span>
-                {!! Form::text('name',null,['class' => 'form-control']) !!}
+                {!! html()->label(Lang::get('lang.rating_label'), 'name') !!}<span style="color:red;">*</span>
+                {!! html()->text('name', null)->class('form-control') !!}
             </div>
             <div class="col-md-6 form-group {{ $errors->has('display_order') ? 'has-error' : '' }}">
-                {!! Form::label('display_order',Lang::get('lang.display_order')) !!}<span style="color:red;">*</span>
-                {!! Form::text('display_order',null,['class' => 'form-control']) !!}
+                {!! html()->label(Lang::get('lang.display_order'), 'display_order') !!}<span style="color:red;">*</span>
+                {!! html()->text('display_order', null)->class('form-control') !!}
             </div>
         </div>
         <div class="form-group {{ $errors->has('rating_scale') ? 'has-error' : '' }}">
-            {!! Form::label('rating_scale',Lang::get('lang.rating_scale')) !!}<span style="color:red;">*</span>
+            {!! html()->label(Lang::get('lang.rating_scale'), 'rating_scale') !!}<span style="color:red;">*</span>
             <div class="callout callout-default" style="font-style: oblique;">{!! Lang::get('lang.rating-msg1') !!}</div>
-            {!! Form::select('rating_scale',['1' => '1','2'=>'2','3'=>'3','4'=>'4','5'=>'5','6'=>'6','7'=>'7','8'=>'8'],null,['class' => 'form-control']) !!}
+            {!! html()->select('rating_scale', ['1' => '1','2'=>'2','3'=>'3','4'=>'4','5'=>'5','6'=>'6','7'=>'7','8'=>'8'], null)->class('form-control') !!}
         </div>
         <div class="form-group {{ $errors->has('rating_area') ? 'has-error' : '' }}">
-            {!! Form::label('rating_area',Lang::get('lang.rating_area')) !!}<span style="color:red;">*</span>
-            {!! Form::select('rating_area',['Helpdesk Area' => 'Helpdesk Area','Comment Area'=>'Comment Area'],null,['class' => 'form-control','disabled' => 'disabled']) !!}
+            {!! html()->label(Lang::get('lang.rating_area'), 'rating_area') !!}<span style="color:red;">*</span>
+            {!! html()->select('rating_area', ['Helpdesk Area' => 'Helpdesk Area','Comment Area'=>'Comment Area'], null)->class('form-control')->disabled() !!}
         </div>
         <div class="form-group {{ $errors->has('restrict') ? 'has-error' : '' }}">
             <!-- gender -->
-            {!! Form::label('gender',Lang::get('lang.rating_restrict')) !!}<span style="color:red;">*</span>
+            {!! html()->label(Lang::get('lang.rating_restrict'), 'gender') !!}<span style="color:red;">*</span>
             <div class="callout callout-default" style="font-style: oblique;">{!! Lang::get('lang.rating-msg2') !!}</div>
-            {!! Form::select('restrict',['General' => 'general','Support'=>'support'],null,['class' => 'form-control']) !!}
+            {!! html()->select('restrict', ['General' => 'general','Support'=>'support'], null)->class('form-control') !!}
         </div>
         <div class="form-group {{ $errors->has('allow_modification') ? 'has-error' : '' }}">
             <!-- Email user -->
-            {!! Form::label('allow_modification',Lang::get('lang.rating_change')) !!}<span style="color:red;">*</span>
+            {!! html()->label(Lang::get('lang.rating_change'), 'allow_modification') !!}<span style="color:red;">*</span>
             <div class="callout callout-default" style="font-style: oblique;">{!! Lang::get('lang.rating-msg3') !!}</div>
             <div class="row">
                 <div class="col-sm-2">
-                    {!! Form::radio('allow_modification','1') !!} {{Lang::get('lang.yes')}}
+                    {!! html()->radio('allow_modification', null, '1') !!} {{Lang::get('lang.yes')}}
                 </div>
                 <div class="col-sm-2">
-                    {!! Form::radio('allow_modification','0') !!} {{Lang::get('lang.no')}}
+                    {!! html()->radio('allow_modification', null, '0') !!} {{Lang::get('lang.no')}}
                 </div>
             </div>        
         </div>
     </div>
     <div class="card-footer">
-        {!! Form::submit(Lang::get('lang.update'),['class'=>'btn btn-primary'])!!}
+        {!! html()->submit(Lang::get('lang.update'))->class('btn btn-primary') !!}
     </div>
 </div>
-{!! Form::close() !!}
+{!! html()->closeModelForm() !!}
 @stop

@@ -21,7 +21,7 @@ class="nav-link active"
 @stop
 
 @section('content')
-{!! Form::model($template,['url'=>'templates/'.$template->id,'method'=>'patch']) !!}
+{!! html()->modelForm($template, 'PATCH', url('templates/'.$template->id))->open() !!}
 @if (count($errors) > 0)
 <div class="alert alert-danger">
     <i class="fa fa-ban"></i>  
@@ -62,34 +62,34 @@ class="nav-link active"
             </div>
             <div class="col-md-4 form-group {{ $errors->has('type') ? 'has-error' : '' }}">
                 <!-- last name -->
-                {!! Form::label('type',Lang::get('lang.template-types'),['class'=>'required']) !!}<span style="color:red;">*</span>
-                {!! Form::select('type',[''=>'Select','Type'=>$type],null,['class' => 'form-control']) !!}
+                {!! html()->label(Lang::get('lang.template-types'), 'type')->class('required') !!}<span style="color:red;">*</span>
+                {!! html()->select('type', [''=>'Select','Type'=>$type], null)->class('form-control') !!}
             </div>
         </div>
         <div class="row">
             <div class="col-md-8 form-group {{ $errors->has('subject') ? 'has-error' : '' }}">
-                {!! Form::label('subject',Lang::get('lang.subject')) !!}
-                {!! Form::text('subject',null,['class' => 'form-control', 'id' =>'subject']) !!}
+                {!! html()->label(Lang::get('lang.subject'), 'subject') !!}
+                {!! html()->text('subject', null)->class('form-control')->id('subject') !!}
             </div>
             <div class="col-md-3 form-group" id = "use-subject" style="margin-top: 15px;">
                 <br/>
-                {!! Form::hidden('variable','0') !!}
-                {!! Form::checkbox('variable','1') !!}
-                {!! Form::label('subject',Lang::get('lang.use_subject')) !!}
+                {!! html()->hidden('variable', '0') !!}
+                {!! html()->checkbox('variable', null, '1') !!}
+                {!! html()->label(Lang::get('lang.use_subject'), 'subject') !!}
             </div>
         </div>
         <div class="row">
             <div class="col-md-12 form-group {{ $errors->has('message') ? 'has-error' : '' }}">
-                {!! Form::label('message',Lang::get('lang.content'),['class'=>'required']) !!}<span style="color:red;">*</span>
-                {!! Form::textarea('message',null,['class'=>'form-control','id'=>'textarea']) !!}
+                {!! html()->label(Lang::get('lang.content'), 'message')->class('required') !!}<span style="color:red;">*</span>
+                {!! html()->textarea('message', null)->class('form-control')->id('textarea') !!}
             </div>
         </div>
     </div>
     <div class="card-footer">
-        {!! Form::submit(Lang::get('lang.update'),['class'=>'btn btn-primary'])!!}
+        {!! html()->submit(Lang::get('lang.update'))->class('btn btn-primary') !!}
     </div>
 </div>
-{!! Form::close() !!}
+{!! html()->closeModelForm() !!}
 
 <script>
     $(document).ready(function() {

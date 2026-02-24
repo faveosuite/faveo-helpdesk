@@ -67,13 +67,19 @@ class="nav-link active"
                     <td>{!! $form->formname !!}</td>
                     <td>
                         <div class="btn-group">
-                            {!! link_to_route('forms.edit', Lang::get('lang.edit') ,[$form->id],['id'=>'View','class'=>'btn btn-primary btn-sm']) !!}
+                            <a href="{{ route('forms.edit', [$form->id]) }}" id="View" class="btn btn-primary btn-sm">
+                                {{ Lang::get('lang.edit') }}
+                            </a>
                         </div>
                         <div class="btn-group">
-                            {!! link_to_route('forms.show', Lang::get('lang.view_this_form') ,[$form->id],['id'=>'View','class'=>'btn btn-primary btn-sm']) !!}
+                            <a href="{{ route('forms.show', [$form->id]) }}" id="View" class="btn btn-primary btn-sm">
+                                {{ Lang::get('lang.view_this_form') }}
+                            </a>
                         </div>
                         <div class="btn-group">
-                            {!! link_to_route('forms.add.child', Lang::get('lang.add-child') ,[$form->id],['id'=>'add-child','class'=>'btn btn-primary btn-sm']) !!}
+                            <a href="{{ route('forms.add.child', [$form->id]) }}" id="add-child" class="btn btn-primary btn-sm">
+                                {{ Lang::get('lang.add-child') }}
+                            </a>
                         </div>
                         <div class="btn-group">
                             <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#delete{{$form->id}}">{!! Lang::get('lang.delete_from') !!}
@@ -91,7 +97,9 @@ class="nav-link active"
                                     </div>
                                     <div class="modal-footer justify-content-between">
                                         <button type="button" class="btn btn-default" data-dismiss="modal">{!! Lang::get('lang.close') !!}</button>
-                                        {!! link_to_route('forms.delete', Lang::get('lang.delete'),[$form->id],['id'=>'delete','class'=>'btn btn-danger']) !!}
+                                        <a href="{{ route('forms.delete', [$form->id]) }}" id="delete" class="btn btn-danger">
+                                            {{ Lang::get('lang.delete') }}
+                                        </a>
                                     </div>
                                 </div> 
                             </div> 

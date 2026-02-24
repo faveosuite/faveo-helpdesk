@@ -36,7 +36,7 @@ class="active"
                                   <div class="modal fade" id="createtemp">
                                        <div class="modal-dialog">
                                           <div class="modal-content">
-                                  {!! Form::open(['route'=>'template.createnew']) !!}
+                                  {!! html()->form('POST', route('template.createnew'))->open() !!}
                     <div class="modal-header">
                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             <h4 class="modal-title">{{Lang::get('lang.create_template')}}</h4>
@@ -44,9 +44,9 @@ class="active"
                      <div class="modal-body">
                               <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
 
-    {!! Form::label('folder_name', 'Template Set Name:',['style'=>'display: block']) !!}
+    {!! html()->label('Template Set Name:', 'folder_name')->attributes(['style' => 'display: block']) !!}
 
-    {!! Form::text('folder_name',null,['class'=>'form-control'])!!}
+    {!! html()->text('folder_name', null)->class('form-control') !!}
 
     {!! $errors->first('folder', '<spam class="help-block">:message</spam>') !!}
   
@@ -54,11 +54,11 @@ class="active"
                                      </div>
                                                                         <div class="modal-footer">
                                                                             <div class="form-group">
-                                                                                {!! Form::submit('Create Template Set',['class'=>'btn btn-primary'])!!}
+                                                                                {!! html()->submit('Create Template Set')->class('btn btn-primary') !!}
                                                                             
                                                                             <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
                                                                         </div></div>
-                                                                        {!! Form::close() !!}
+                                                                        {!! html()->closeModelForm() !!}
                                                                     </div> 
                                                                 </div>
                                                             </div></div>
@@ -103,8 +103,9 @@ class="active"
                 <?php $status = DB::table('settings_email')->first();  ?>
                 <td><input type="radio" disabled="disabled" value="Active"<?php echo ($status->template == $dir)?'checked':'' ?> /></td>
                 <td>
-                  {!! link_to_route('active.set','Activate This Set',[$dir],['class'=>'btn btn-success btn-xs']) !!} 
-
+                    <a href="{{ route('active.set', [$dir]) }}" class="btn btn-success btn-xs">
+                        Activate This Set
+                    </a>
 <?php 
 if($dir == 'default')  {
   $dis = "disabled";  
@@ -124,8 +125,10 @@ if($dir == 'default')  {
                                                 </div>
                                                         <div class="modal-footer">
                                                             <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
-                                                                            {!! link_to_route('templates.delete','Delete',[$dir,$directory],['id'=>'delete','class'=>'btn btn-danger btn-sm']) !!}
-                                                                        </div>
+                                                            <a href="{{ route('templates.delete', [$dir, $directory]) }}" id="delete" class="btn btn-danger btn-sm">
+                                                                Delete
+                                                            </a>
+                                                        </div>
                                                                     </div> 
                                                                 </div>
                                                             </div> </td>

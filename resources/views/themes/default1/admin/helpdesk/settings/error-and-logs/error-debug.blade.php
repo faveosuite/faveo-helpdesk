@@ -56,11 +56,11 @@ class="nav-link active"
 
     <!-- Helpdesk Status: radio Online Offline -->
     <div class="card-body">
-        {!! Form::open(['url' => route('post.error.debug.settings'), 'method' => 'POST']) !!}
+        {!! html()->form('POST', route('post.error.debug.settings'))->open() !!}
         <div class="row">
             <div class="col-md-4">
                 <div class="form-group">
-                    {!! Form::label('debug',Lang::get('lang.debugging')) !!}
+                    {!! html()->label(Lang::get('lang.debugging'), 'debug') !!}
                     <div class="row">
                         <div class="col-sm-3">
                             <input type="radio" name="debug" value="true" @if($debug == true) checked="true" @endif> {{Lang::get('lang.enable')}}
@@ -73,7 +73,7 @@ class="nav-link active"
             </div>
             <div class="col-md-6">
                 <div class="form-group">
-                    {!! Form::label('bugsnag',Lang::get('lang.bugsnag-debugging')) !!}
+                    {!! html()->label(Lang::get('lang.bugsnag-debugging'), 'bugsnag') !!}
                     <div class="row">
                         <div class="col-sm-3">
                             <input type="radio" name="bugsnag" value="true" @if($bugsnag == true) checked="true" @endif> {{Lang::get('lang.yes')}}
@@ -87,8 +87,8 @@ class="nav-link active"
         </div>
     </div>
     <div class="card-footer">
-        {!! Form::submit(Lang::get('lang.save'),['onclick'=>'sendForm()','class'=>'btn btn-primary'])!!}
+        {!! html()->submit(Lang::get('lang.save'))->class('btn btn-primary')->attributes(['onclick' => 'sendForm()']) !!}
     </div>
-    {!! Form::close() !!}  
+    {!! html()->closeModelForm() !!}  
 </div>
 @stop

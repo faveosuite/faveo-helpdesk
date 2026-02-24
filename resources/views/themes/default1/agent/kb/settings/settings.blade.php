@@ -19,7 +19,7 @@ class="nav-link active"
 
 @section('content')
 <!-- open a form -->
-{!! Form::model($settings,['url' => 'postsettings/'.$settings->id, 'method' => 'PATCH','files'=>true]) !!}
+{!! html()->modelForm($settings, 'PATCH', url('postsettings/'.$settings->id))->acceptsFiles()->open() !!}
 
 <!-- check whether success or not -->
 @if(Session::has('success'))
@@ -59,14 +59,14 @@ class="nav-link active"
         
         <div class="row">
             <div class="col-md-3">
-                {!! Form::label('pagination',Lang::get('lang.numberofelementstodisplay')) !!} <span class="text-red"> *</span>
+                {!! html()->label(Lang::get('lang.numberofelementstodisplay'), 'pagination') !!} <span class="text-red"> *</span>
                 <input type="number" class="form-control" name='pagination' value="{!! $settings->pagination !!}" min="2" required>
             </div>
         </div>
     </div>
 
      <div class="card-footer">
-        {!! Form::submit(Lang::get('lang.submit'),['class'=>'btn btn-primary'])!!}
+        {!! html()->submit(Lang::get('lang.submit'))->class('btn btn-primary') !!}
     </div>
 </div>
 @stop

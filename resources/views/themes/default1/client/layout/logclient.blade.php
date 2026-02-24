@@ -214,7 +214,7 @@
                 </div>
             </nav>
             <div id="header-search" class="site-search clearfix" style="margin-right: 90%; width: 100%"><!-- #header-search -->
-                {!!Form::open(['route' => 'client.search','class'=>'search-form clearfix'])!!}
+                {!! html()->form('POST', route('client.search'))->attributes(['class' => 'search-form clearfix'])->open() !!}
                 <div class="form-border" style="z-index: 0;width: 95%;">
                     <div class="form-inline">
                         <div  class="form-group input-group" style="width: 100%;">
@@ -231,7 +231,7 @@
                         </style>
                     </div>
                 </div>
-                {!! Form::close() !!}
+                {!! html()->closeModelForm() !!}
 
             </div>
     </header>

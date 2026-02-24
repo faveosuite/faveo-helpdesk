@@ -15,14 +15,14 @@ class="active"
 @section('content')
 <!-- open a form -->
 
-	{!! Form::model($footer2,['url' => 'post-create-footer2/'.$footer2->id, 'method' => 'PATCH','files'=>true]) !!}
+	{!! html()->modelForm($footer2, 'PATCH', url('post-create-footer2/'.$footer2->id))->acceptsFiles()->open() !!}
 
 <!-- <div class="form-group {{ $errors->has('company_name') ? 'has-error' : '' }}"> -->
 	<!-- table  -->
 
 <div class="box box-primary">
 	<div class="box-header">
-        	<h4 class="box-title">{!! Lang::get('lang.footer2') !!}</h4> {!! Form::submit(Lang::get('lang.save'),['class'=>'form-group btn btn-primary pull-right'])!!}
+        	<h4 class="box-title">{!! Lang::get('lang.footer2') !!}</h4> {!! html()->submit(Lang::get('lang.save'))->class('form-group btn btn-primary pull-right') !!}
     </div>
     <!-- check whether success or not -->
     @if(Session::has('success'))
@@ -45,14 +45,14 @@ class="active"
 		<!-- Name text form Required -->
  		<div class="box-body table-responsive"style="overflow:hidden;">
             <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
-                {!! Form::label('title',Lang::get('lang.title') ) !!}
+                {!! html()->label(Lang::get('lang.title'), 'title') !!}
                 {!! $errors->first('title', '<spam class="help-block">:message</spam>') !!}
-                {!! Form::text('title',null,['class' => 'form-control']) !!}
+                {!! html()->text('title', null)->class('form-control') !!}
             </div>
             <div class="form-group {{ $errors->has('footer') ? 'has-error' : '' }}">
-                {!! Form::label('footer', Lang::get('lang.footer') ) !!}
+                {!! html()->label(Lang::get('lang.footer'), 'footer') !!}
                 {!! $errors->first('footer', '<spam class="help-block">:message</spam>') !!}
-                {!! Form::textarea('footer',null,['class' => 'form-control','size' => '30x5','id'=>'footer']) !!}
+                {!! html()->textarea('footer', null)->class('form-control')->id('footer')->attributes(['size' => '30x5']) !!}
             </div>
         </div>
         <div class="box-footer">

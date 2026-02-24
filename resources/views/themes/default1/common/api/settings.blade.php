@@ -43,7 +43,7 @@ class="nav-link active"
 </div>
 @endif
 
-{!! Form::open(['url'=>'api','method'=>'post','files'=>true]) !!}
+{!! html()->form('POST', url('api'))->acceptsFiles()->open() !!}
 <div class="card card-light">
     <div class="card-header">
         <h3 class="card-title">{{Lang::get('lang.api_settings')}}</h3>     
@@ -61,32 +61,32 @@ class="nav-link active"
                 <div class="row">
                     <div class="col-md-3">
                         <div class="form-group {{ $errors->has('api_enable') ? 'has-error' : '' }}">
-                            {!! Form::label('api',Lang::get('lang.api')) !!}
+                            {!! html()->label(Lang::get('lang.api'), 'api') !!}
                             {!! $errors->first('api_enable', '<spam class="help-block">:message</spam>') !!}
                             <div class="row">
                                 <div class="col-sm-5">
                                     <input type="radio" name="api_enable" value="1" @if($systems->api_enable ==1) checked @endif>&nbsp;{{Lang::get('lang.enable')}}
-                                    <!-- {!! Form::radio('api_enable','1',true) !!} {{Lang::get('lang.enable')}} -->
+                                    <!-- {!! html()->radio('api_enable', true, '1') !!} {{Lang::get('lang.enable')}} -->
                                 </div>
                                 <div class="col-sm-5">
                                     <input type="radio" name="api_enable" value="0" @if($systems->api_enable == 0) checked @endif>&nbsp;{{Lang::get('lang.disable')}}
-                                    <!-- {!! Form::radio('api_enable','0') !!} {{Lang::get('lang.disable')}} -->
+                                    <!-- {!! html()->radio('api_enable', null, '0') !!} {{Lang::get('lang.disable')}} -->
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="form-group {{ $errors->has('api_key_mandatory') ? 'has-error' : '' }}">
-                            {!! Form::label('api_key_mandatory',Lang::get('lang.api_key_mandatory')) !!}
+                            {!! html()->label(Lang::get('lang.api_key_mandatory'), 'api_key_mandatory') !!}
                             {!! $errors->first('api_key_mandatory', '<spam class="help-block">:message</spam>') !!}
                             <div class="row">
                                 <div class="col-sm-5">
                                     <input type="radio" name="api_key_mandatory" value="1" @if($systems->api_key_mandatory == 1) checked @endif>&nbsp;{{Lang::get('lang.enable')}}
-                                    <!-- {!! Form::radio('api_key_mandatory','1',true) !!} {{Lang::get('lang.enable')}} -->
+                                    <!-- {!! html()->radio('api_key_mandatory', true, '1') !!} {{Lang::get('lang.enable')}} -->
                                 </div>
                                 <div class="col-sm-5">
                                      <input type="radio" name="api_key_mandatory" value="0" @if($systems->api_key_mandatory == 0) checked @endif>&nbsp;{{Lang::get('lang.disable')}}
-                                    <!-- {!! Form::radio('api_key_mandatory','0') !!} {{Lang::get('lang.disable')}} -->
+                                    <!-- {!! html()->radio('api_key_mandatory', null, '0') !!} {{Lang::get('lang.disable')}} -->
                                 </div>
                             </div>
                         </div>
@@ -94,9 +94,9 @@ class="nav-link active"
                     <!-- Date and Time Format: text: required: eg - 03/25/2015 7:14 am -->
                     <div class="col-md-3">
                         <div class="form-group {{ $errors->has('api_key') ? 'has-error' : '' }}">
-                            {!! Form::label('api_key',Lang::get('lang.api_key')) !!}
+                            {!! html()->label(Lang::get('lang.api_key'), 'api_key') !!}
                             {!! $errors->first('api_key', '<spam class="help-block">:message</spam>') !!}
-                            {!! Form::text('api_key',$systems->api_key,['class' => 'form-control']) !!}
+                            {!! html()->text('api_key', $systems->api_key)->class('form-control') !!}
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -119,8 +119,8 @@ class="nav-link active"
                 <div class="row">
                     
                     <div class="form-group col-md-6 {{ $errors->has('ticket_detail') ? 'has-error' : '' }}">
-                        {!! Form::label('ticket_detail',Lang::get('lang.enter_url_to_send_ticket_details'),['class'=>'required']) !!}
-                        {!! Form::text('ticket_detail',$ticket_detail,['class' => 'form-control','placeholder'=>'http://www.example.com']) !!}
+                        {!! html()->label(Lang::get('lang.enter_url_to_send_ticket_details'), 'ticket_detail')->class('required') !!}
+                        {!! html()->text('ticket_detail', $ticket_detail)->class('form-control')->placeholder('http://www.example.com') !!}
                     </div>
                 </div>
             </div>
@@ -128,9 +128,9 @@ class="nav-link active"
     </div>
 
     <div class="card-footer">
-        {!! Form::submit(Lang::get('lang.update'),['class'=>'btn btn-primary'])!!} 
+        {!! html()->submit(Lang::get('lang.update'))->class('btn btn-primary') !!} 
     </div>
-    {!! Form::close() !!}   
+    {!! html()->closeModelForm() !!}   
 </div>
 
 <a href="#" id="clickGenerate" data-toggle="modal" data-target="#generateModal"></a>    

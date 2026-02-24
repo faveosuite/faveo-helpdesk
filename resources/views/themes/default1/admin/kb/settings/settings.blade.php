@@ -8,10 +8,10 @@
 </script>
 @section('content')
 <!-- open a form -->
-    {!! Form::model($settings,['url' => 'postsettings/'.$settings->id, 'method' => 'PATCH','files'=>true]) !!}
+    {!! html()->modelForm($settings, 'PATCH', url('postsettings/'.$settings->id))->acceptsFiles()->open() !!}
 
             <div class="box-header">
-                <h3 class="box-title">{{Lang::get('lang.settings')}}</h3>  {!! Form::submit(Lang::get('lang.save'),['class'=>'form-group btn btn-primary pull-right'])!!}
+                <h3 class="box-title">{{Lang::get('lang.settings')}}</h3>  {!! html()->submit(Lang::get('lang.save'))->class('form-group btn btn-primary pull-right') !!}
             </div>
             <div class="box-body">
               <!-- Custom Tabs -->
@@ -44,79 +44,79 @@
         <!-- Name text form Required -->
             <div class="row">
                 <div class="col-md-3 form-group {{ $errors->has('company_name') ? 'has-error' : '' }}">
-                    {!! Form::label('company_name',Lang::get('lang.companyname')) !!}
+                    {!! html()->label(Lang::get('lang.companyname'), 'company_name') !!}
                     {!! $errors->first('company_name', '<spam class="help-block">:message</spam>') !!}
-                    {!! Form::text('company_name',$settings->company_name,['class' => 'form-control']) !!}
+                    {!! html()->text('company_name', $settings->company_name)->class('form-control') !!}
                 </div>
                 <div class="col-md-3 form-group {{ $errors->has('website') ? 'has-error' : '' }}">
-                    {!! Form::label('website',Lang::get('lang.website')) !!}
+                    {!! html()->label(Lang::get('lang.website'), 'website') !!}
                     {!! $errors->first('website', '<spam class="help-block">:message</spam>') !!}
-                    {!! Form::text('website',$settings->website,['class' => 'form-control']) !!}
+                    {!! html()->text('website', $settings->website)->class('form-control') !!}
                 </div>
                 <div class="col-md-3 form-group {{ $errors->has('phone') ? 'has-error' : '' }}">
-                    {!! Form::label('phone',Lang::get('lang.phone')) !!}
+                    {!! html()->label(Lang::get('lang.phone'), 'phone') !!}
                     {!! $errors->first('phone', '<spam class="help-block">:message</spam>') !!}
-                    {!! Form::text('phone',$settings->phone,['class' => 'form-control']) !!}
+                    {!! html()->text('phone', $settings->phone)->class('form-control') !!}
                 </div>
                 {{--  <div class="col-md-3 form-group {{ $errors->has('phone') ? 'has-error' : '' }}">
-                    {!! Form::label('language',Lang::get('lang.language')) !!}
-                        {!!Form::select('language',['en'=>'English','ch'=>'Chinese'] ,null,['class' => 'form-control select']) !!}
+                    {!! html()->label(Lang::get('lang.language'), 'language') !!}
+                        {!! html()->select('language', ['en'=>'English','ch'=>'Chinese'], null)->class('form-control select') !!}
                 </div>
  --}}
                     <div class="col-md-12 form-group {{ $errors->has('address') ? 'has-error' : '' }}">
-                {!! Form::label('address',Lang::get('lang.address')) !!}
+                {!! html()->label(Lang::get('lang.address'), 'address') !!}
                 {!! $errors->first('address', '<spam class="help-block">:message</spam>') !!}
-                    {!! Form::textarea('address',null,['class' => 'form-control','size' => '128x10','id'=>'address','placeholder'=>'Enter the address']) !!}
+                    {!! html()->textarea('address', null)->class('form-control')->id('address')->placeholder('Enter the address')->attributes(['size' => '128x10']) !!}
                 </div>
                     <div class="col-md-3 form-group">
-                           {!! Form::label('logo',Lang::get('lang.logo')) !!}
-                           {!! Form::file('logo') !!}
+                           {!! html()->label(Lang::get('lang.logo'), 'logo') !!}
+                           {!! html()->file('logo') !!}
                         @if($settings->logo)
                            <img src="{{asset('lb-faveo/dist/image/'.$settings->logo)}}" />
                            <a href="{{url('delete-logo/'.$settings->id)}}">{{Lang::get('lang.delete')}}</a>
                         @endif
                     </div>
                     <div class="col-md-3 form-group">
-                        {!! Form::label('pagination',Lang::get('lang.numberofelementstodisplay')) !!}
+                        {!! html()->label(Lang::get('lang.numberofelementstodisplay'), 'pagination') !!}
                         {!! $errors->first('pagination', '<spam class="help-block">:message</spam>') !!}
-                        {!! Form::text('pagination',$settings->pagination,['class' => 'form-control']) !!}
+                        {!! html()->text('pagination', $settings->pagination)->class('form-control') !!}
                     </div>
                     <div class="col-md-3 form-group">
-                        {!! Form::label('timezone',Lang::get('lang.timezone')) !!}
-                        {!!Form::select('timezone',$time->pluck('location','location') ,null,['class' => 'form-control select']) !!}
+                        {!! html()->label(Lang::get('lang.timezone'), 'timezone') !!}
+                        {!! html()->select('timezone', $time->pluck('location','location'), null)->class('form-control select') !!}
                     </div>
                      </div>
                   </div><!-- /.tab-pane -->
         <div class="tab-pane" id="tab_2">
             <div class="row">
                 <div class="col-md-4 form-group {{ $errors->has('port') ? 'has-error' : '' }}">
-                    {!! Form::label('port',Lang::get('lang.portnumber')) !!}
+                    {!! html()->label(Lang::get('lang.portnumber'), 'port') !!}
                     {!! $errors->first('port', '<spam class="help-block">:message</spam>') !!}
-                    {!! Form::text('port',$settings->port,['class' => 'form-control']) !!}
+                    {!! html()->text('port', $settings->port)->class('form-control') !!}
                 </div>
                 <div class="col-md-4 form-group {{ $errors->has('host') ? 'has-error' : '' }}">
-                    {!! Form::label('host',Lang::get('lang.host')) !!}
+                    {!! html()->label(Lang::get('lang.host'), 'host') !!}
                     {!! $errors->first('host', '<spam class="help-block">:message</spam>') !!}
-                    {!! Form::text('host',$settings->host,['class' => 'form-control']) !!}
+                    {!! html()->text('host', $settings->host)->class('form-control') !!}
                 </div>
                 <div class="col-md-4 form-group {{ $errors->has('encryption') ? 'has-error' : '' }}">
-                    {!! Form::label('encryption',Lang::get('lang.encryption')) !!}
+                    {!! html()->label(Lang::get('lang.encryption'), 'encryption') !!}
                     {!! $errors->first('encryption', '<spam class="help-block">:message</spam>') !!}
-                    {!! Form::text('encryption',$settings->encryption,['class' => 'form-control']) !!}
+                    {!! html()->text('encryption', $settings->encryption)->class('form-control') !!}
                 </div>
                 <div class="col-md-4 form-group {{ $errors->has('email') ? 'has-error' : '' }}">
-                    {!! Form::label('email',Lang::get('lang.settingsemail')) !!}
+                    {!! html()->label(Lang::get('lang.settingsemail'), 'email') !!}
                     {!! $errors->first('email', '<spam class="help-block">:message</spam>') !!}
-                    {!! Form::text('email',$settings->email,['class' => 'form-control']) !!}
+                    {!! html()->text('email', $settings->email)->class('form-control') !!}
                 </div>
                 <div class="col-md-4 form-group {{ $errors->has('password') ? 'has-error' : '' }}">
-                    {!! Form::label('password',Lang::get('lang.password')) !!}
+                    {!! html()->label(Lang::get('lang.password'), 'password') !!}
                     {!! $errors->first('password', '<spam class="help-block">:message</spam>') !!}
-                    {!! Form::password('password',['class' => 'form-control']) !!}
+                    {!! html()->password('password')->class('form-control') !!}
                 </div>
                 <div class="col-md-4 form-group">
-                        {!! Form::label('dateformat',Lang::get('lang.dateformat')) !!}
-                        {!!Form::select('dateformat',$date->pluck('format','format') ,null,['class' => 'form-control select']) !!}
+                        {!! html()->label(Lang::get('lang.dateformat'), 'dateformat') !!}
+                        {!! html()->select('dateformat', $date->pluck('format','format'), null)->class('form-control select') !!}
                     </div>
             </div>
                   </div><!-- /.tab-pane -->

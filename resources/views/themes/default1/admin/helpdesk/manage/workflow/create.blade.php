@@ -87,7 +87,7 @@ class="nav-link active"
             <div class="row">
                 <div class="form-group col-sm-6 {!! $errors->has('name') ? 'has-error' : '' !!}">
                     <label for="inputName">{!! Lang::get('lang.name') !!} <span class="text-red"> *</span></label>
-                    {!! Form::text('name',null,['class' => 'form-control', 'placeholder' => Lang::get('lang.name'), 'id' => 'name']) !!}
+                    {!! html()->text('name', null)->class('form-control')->placeholder(Lang::get('lang.name'))->id('name') !!}
                 </div>
 
                 <div class="form-group col-sm-6 {!! $errors->has('status') ? 'has-error' : '' !!}">
@@ -102,12 +102,12 @@ class="nav-link active"
             <div class="row">
                 <div class="form-group col-sm-6 {!! $errors->has('execution_order') ? 'has-error' : '' !!}">
                     <label for="Exceution">{!! Lang::get('lang.execution_order') !!} <span class="text-red"> *</span></label>
-                    {!! Form::input('number', 'execution_order',null,['class' => 'form-control', 'placeholder' => Lang::get('lang.execution_order'), 'id' => 'execution_order', 'min' => '0']) !!}
+                    {!! html()->number('execution_order', null)->class('form-control')->placeholder(Lang::get('lang.execution_order'))->id('execution_order')->attributes(['min' => '0']) !!}
                 </div>
 
                 <div class="form-group col-sm-6 {!! $errors->has('target_channel') ? 'has-error' : '' !!}">
                     <label>{!! Lang::get('lang.target_channel') !!} <span class="text-red"> *</span></label>
-                    {!! Form::select('target_channel', [''=> '-- '.Lang::get('lang.select_a_channel').' --', 'A-0' => 'Any', 'A-1' => 'Web Forms', 'A-4' => 'API Calls', 'A-2' => 'Emails'], null,['class' => 'form-control', 'id' => 'execution_order']) !!}
+                    {!! html()->select('target_channel', [''=> '-- '.Lang::get('lang.select_a_channel').' --', 'A-0' => 'Any', 'A-1' => 'Web Forms', 'A-4' => 'API Calls', 'A-2' => 'Emails'], null)->class('form-control')->id('execution_order') !!}
                 </div>
             </div>
 

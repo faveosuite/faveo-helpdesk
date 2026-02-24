@@ -37,7 +37,7 @@ class="nav-link active"
 </style>
 
 @section('content')
-{!! Form::model($status,['route'=>['statuss.update', $status->id],'method'=>'PATCH','files' => true]) !!}
+{!! html()->modelForm($status, 'PATCH', route('statuss.update', [$status->id]))->acceptsFiles()->open() !!}
  @if(Session::has('errors'))
 <div class="alert alert-danger alert-dismissable">
     <i class="fas fa-ban"></i>
@@ -74,7 +74,7 @@ class="nav-link active"
             <div class="col-md-4">
                 <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                     <label>{!! Lang::get('lang.name') !!}: <span class="text-red"> *</span></label><br>
-                    {!! Form::text('name',null,['class'=>'form-control'])!!}
+                    {!! html()->text('name', null)->class('form-control') !!}
                 </div>
             </div>
             <div class="col-md-4">
@@ -156,48 +156,48 @@ class="nav-link active"
         </div>
         <div class="form-group">
             <!-- gender -->
-            {!! Form::label('gender',Lang::get('lang.resolved_status')) !!}
+            {!! html()->label(Lang::get('lang.resolved_status'), 'gender') !!}
             <div class="callout callout-default" style="font-style: oblique;">{!! Lang::get('lang.status_msg3') !!}</div>
             <div class="row">
                 <div class="col-sm-3">
-                    {!! Form::radio('state','closed',true) !!} {{Lang::get('lang.yes')}}
+                    {!! html()->radio('state', true, 'closed') !!} {{Lang::get('lang.yes')}}
                 </div>
                 <div class="col-sm-3">
-                    {!! Form::radio('state','open') !!} {{Lang::get('lang.no')}}
+                    {!! html()->radio('state', null, 'open') !!} {{Lang::get('lang.no')}}
                 </div>
             </div>
         </div>
         <div class="form-group">
             <!-- Email user -->
-            {!! Form::label('gender',Lang::get('lang.deleted_status')) !!}
+            {!! html()->label(Lang::get('lang.deleted_status'), 'gender') !!}
             <div class="callout callout-default" style="font-style: oblique;">{!! Lang::get('lang.status_msg2') !!}</div>
             <div class="row">
                 <div class="col-sm-3">
-                    {!! Form::radio('delete','yes') !!} {{Lang::get('lang.yes')}}
+                    {!! html()->radio('delete', null, 'yes') !!} {{Lang::get('lang.yes')}}
                 </div>
                 <div class="col-sm-3">
-                    {!! Form::radio('delete','no') !!} {{Lang::get('lang.no')}}
+                    {!! html()->radio('delete', null, 'no') !!} {{Lang::get('lang.no')}}
                 </div>
             </div>        
         </div>
         <div class="form-group">
             <!-- gender -->
-            {!! Form::label('gender',Lang::get('lang.notify_user')) !!}
+            {!! html()->label(Lang::get('lang.notify_user'), 'gender') !!}
             <div class="callout callout-default" style="font-style: oblique;">{!! Lang::get('lang.status_msg1') !!}</div>
             <div class="row">
                 <div class="col-sm-3">
-                    {!! Form::radio('email_user','yes') !!} {{Lang::get('lang.yes')}}
+                    {!! html()->radio('email_user', null, 'yes') !!} {{Lang::get('lang.yes')}}
                 </div>
                 <div class="col-sm-3">
-                    {!! Form::radio('email_user','no') !!} {{Lang::get('lang.no')}}
+                    {!! html()->radio('email_user', null, 'no') !!} {{Lang::get('lang.no')}}
                 </div>
             </div>        
         </div>
     </div>
     <div class="card-footer">
-        {!! Form::submit(Lang::get('lang.update'),['class'=>'btn btn-primary'])!!}
+        {!! html()->submit(Lang::get('lang.update'))->class('btn btn-primary') !!}
     </div>
-    {!! Form::close() !!}
+    {!! html()->closeModelForm() !!}
 </div> 
 <script src="{{asset("lb-faveo/plugins/select2/select2.full.min.js")}}" type="text/javascript"></script>
 <script type="text/javascript">

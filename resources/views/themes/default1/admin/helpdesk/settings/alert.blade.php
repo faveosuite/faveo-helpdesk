@@ -34,7 +34,7 @@ class="nav-link active"
 <!-- content -->
 @section('content')
 <!-- open a form -->
-{!! Form::model($alerts,['url' => 'postalert/'.$alerts->id, 'method' => 'PATCH']) !!}
+{!! html()->modelForm($alerts, 'PATCH', url('postalert/'.$alerts->id))->open() !!}
 @if(Session::has('success'))
 <div class="alert alert-success alert-dismissable">
     <i class="fas fa-check-circle"></i>
@@ -68,18 +68,18 @@ class="nav-link active"
                     <div class="card-body">
                         <div class="form-group">
                             <!-- Status:     Enable   Disable     -->
-                            {!! Form::label('ticket_status',Lang::get('lang.status').":") !!}&nbsp;&nbsp;
-                            {!! Form::radio('ticket_status',1) !!} {!! Lang::get('lang.enable') !!} &nbsp;&nbsp; {!! Form::radio('ticket_status',0) !!}  {!! Lang::get('lang.disable') !!}
+                            {!! html()->label(Lang::get('lang.status').":", 'ticket_status') !!}&nbsp;&nbsp;
+                            {!! html()->radio('ticket_status', null, 1) !!} {!! Lang::get('lang.enable') !!} &nbsp;&nbsp; {!! html()->radio('ticket_status', null, 0) !!}  {!! Lang::get('lang.disable') !!}
                         </div>
                         <div class="form-group">
                             <!-- Admin Email -->
-                            {!! Form::checkbox('ticket_admin_email',1) !!}
-                            {!! Form::label('ticket_admin_email',Lang::get('lang.admin_email_2')) !!}
+                            {!! html()->checkbox('ticket_admin_email', null, 1) !!}
+                            {!! html()->label(Lang::get('lang.admin_email_2'), 'ticket_admin_email') !!}
                         </div>
                         <!-- Department Members -->
                         <div class="form-group">
-                            {!! Form::checkbox('ticket_department_member',1) !!}
-                            {!! Form::label('ticket_department_member',Lang::get('lang.department_members')) !!}
+                            {!! html()->checkbox('ticket_department_member', null, 1) !!}
+                            {!! html()->label(Lang::get('lang.department_members'), 'ticket_department_member') !!}
                         </div>
                     </div><!-- /.box-body -->
                 </div><!-- /.box -->
@@ -93,18 +93,18 @@ class="nav-link active"
                     <div class="card-body">
                         <!-- Status:     Enable      Disable      -->
                         <div class="form-group">
-                            {!! Form::label('assignment_status',Lang::get('lang.status').":") !!}
-                            {!! Form::radio('assignment_status',1) !!} {!! Lang::get('lang.enable') !!} &nbsp;&nbsp; {!! Form::radio('assignment_status',0) !!}  {!! Lang::get('lang.disable') !!}
+                            {!! html()->label(Lang::get('lang.status').":", 'assignment_status') !!}
+                            {!! html()->radio('assignment_status', null, 1) !!} {!! Lang::get('lang.enable') !!} &nbsp;&nbsp; {!! html()->radio('assignment_status', null, 0) !!}  {!! Lang::get('lang.disable') !!}
                         </div>
                         <!-- Assigned Agent / Team -->
                         <div class="form-group">
-                            {!! Form::checkbox('assignment_assigned_agent',1) !!}
-                            {!! Form::label('assignment_assigned_agent',Lang::get('lang.agent')) !!}
+                            {!! html()->checkbox('assignment_assigned_agent', null, 1) !!}
+                            {!! html()->label(Lang::get('lang.agent'), 'assignment_assigned_agent') !!}
                         </div>
                         <!-- Team Members -->
                         <div class="form-group">
-                            {!! Form::checkbox('assignment_team_member',1) !!}
-                            {!! Form::label('assignment_team_member',Lang::get('lang.team_members')) !!}
+                            {!! html()->checkbox('assignment_team_member', null, 1) !!}
+                            {!! html()->label(Lang::get('lang.team_members'), 'assignment_team_member') !!}
                         </div>
                     </div><!-- /.box-body -->
                 </div><!-- /.box -->
@@ -113,7 +113,7 @@ class="nav-link active"
     </div>
 
     <div class="card-footer">
-        {!! Form::submit(Lang::get('lang.submit'),['class'=>' btn btn-primary'])!!}
+        {!! html()->submit(Lang::get('lang.submit'))->class(' btn btn-primary') !!}
     </div>
 </div>
 @stop

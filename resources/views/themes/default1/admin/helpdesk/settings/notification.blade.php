@@ -58,7 +58,7 @@ class="nav-link active"
         <div class="row">
             <div class="col-md-3 no-padding">
                 <div class="form-group">
-                    {!! Form::label('del_noti', Lang::get('lang.delete_noti')) !!}
+                    {!! html()->label(Lang::get('lang.delete_noti'), 'del_noti') !!}
                 </div>
             </div>
             <div class="col-md-6">
@@ -68,7 +68,7 @@ class="nav-link active"
         <div class="row">
             <div class="col-md-3 no-padding">
                 <div class="form-group">
-                    {!! Form::label('del_noti', Lang::get('lang.noti_msg1')) !!}<span class="text-red"> *</span>
+                    {!! html()->label(Lang::get('lang.noti_msg1'), 'del_noti') !!}<span class="text-red"> *</span>
                 </div>
             </div>
             <div class="col-md-6">
