@@ -32,7 +32,7 @@ class="nav-link active"
 <!-- content -->
 @section('content')
 <!-- open a form -->
-{!! Form::open(array('url'=>'language/add' , 'method' => 'post', 'files'=>true) )!!}
+{!! html()->form('POST', url('language/add'))->acceptsFiles()->open() !!}
 @if(Session::has('success'))
 <div class="alert alert-success alert-dismissable">
     <i class="fas fa-check-circle"></i>
@@ -80,25 +80,25 @@ class="nav-link active"
         <div class="row">
             <!-- username -->
             <div class="col-sm-4 form-group {{ $errors->has('language-name') ? 'has-error' : '' }}">
-                {!! Form::label('language-name',Lang::get('lang.language-name')) !!} <span class="text-red"> *</span>
-                {!! Form::text('language-name',null,['placeholder'=>'English','class' => 'form-control']) !!}
+                {!! html()->label(Lang::get('lang.language-name'), 'language-name') !!} <span class="text-red"> *</span>
+                {!! html()->text('language-name', null)->placeholder('English')->class('form-control') !!}
             </div>
             <div class="col-sm-4 form-group {{ $errors->has('iso-code') ? 'has-error' : '' }}">
-                {!! Form::label('iso-code',Lang::get('lang.iso-code')) !!} <span class="text-red"> *</span>
-                {!! Form::text('iso-code',null,['placeholder'=>'en','class' => 'form-control']) !!}
+                {!! html()->label(Lang::get('lang.iso-code'), 'iso-code') !!} <span class="text-red"> *</span>
+                {!! html()->text('iso-code', null)->placeholder('en')->class('form-control') !!}
             </div>
         </div>
         <div class="row">
             <div class="col-sm-4 form-group {{ $errors->has('File') ? 'has-error' : '' }}">
-                {!! Form::label('File',Lang::get('lang.file')) !!} <span class="text-red"> *</span>&nbsp
+                {!! html()->label(Lang::get('lang.file'), 'File') !!} <span class="text-red"> *</span>&nbsp
                 <div class="btn bg-olive btn-file" style="color:blue"> {!! Lang::get('lang.upload_file') !!}
-                    {!! Form::file('File') !!}
+                    {!! html()->file('File') !!}
                 </div>
             </div>
         </div>
     </div>
     <div class="card-footer">
-        {!! Form::submit(Lang::get('lang.submit'),['class'=>'btn btn-primary'])!!}
+        {!! html()->submit(Lang::get('lang.submit'))->class('btn btn-primary') !!}
     </div>
 </div>
 @stop

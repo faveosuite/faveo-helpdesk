@@ -32,7 +32,7 @@ class="nav-link active"
 <!-- content -->
 @section('content')
 <!-- open a form -->
-{!! Form::model($orgs,['url'=>'organizations/'.$orgs->id,'method'=>'PATCH']) !!}
+{!! html()->modelForm($orgs, 'PATCH', url('organizations/'.$orgs->id))->open() !!}
 @if(Session::has('errors'))
 <?php //dd($errors); ?>
 <div class="alert alert-danger alert-dismissable">
@@ -59,34 +59,34 @@ class="nav-link active"
         <!-- name : text : Required -->
         <div class="row">
             <div class="col-sm-4 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                {!! Form::label('name',Lang::get('lang.name')) !!} <span class="text-red"> *</span>
-                {!! Form::text('name',null,['class' => 'form-control']) !!}
+                {!! html()->label(Lang::get('lang.name'), 'name') !!} <span class="text-red"> *</span>
+                {!! html()->text('name', null)->class('form-control') !!}
             </div>
             <!-- phone : Text : -->
             <div class="col-sm-4 form-group {{ $errors->has('phone') ? 'has-error' : '' }}">
-                {!! Form::label('phone',Lang::get('lang.phone')) !!}
-                {!! Form::text('phone',null,['class' => 'form-control']) !!}
+                {!! html()->label(Lang::get('lang.phone'), 'phone') !!}
+                {!! html()->text('phone', null)->class('form-control') !!}
             </div>
             <!--website : Text :  -->
             <div class="col-sm-4 form-group {{ $errors->has('website') ? 'has-error' : '' }}">
-                {!! Form::label('website',Lang::get('lang.website')) !!}
-                {!! Form::text('website',null,['class' => 'form-control']) !!}
+                {!! html()->label(Lang::get('lang.website'), 'website') !!}
+                {!! html()->text('website', null)->class('form-control') !!}
             </div>
         </div>
         <!-- Internal Notes : Textarea -->
         <div class="row">
             <div class="col-sm-6 form-group">
-                {!! Form::label('address',Lang::get('lang.address')) !!}
-                {!! Form::textarea('address',null,['class' => 'form-control']) !!}
+                {!! html()->label(Lang::get('lang.address'), 'address') !!}
+                {!! html()->textarea('address', null)->class('form-control') !!}
             </div>
             <div class="col-sm-6 form-group">
-                {!! Form::label('internal_notes',Lang::get('lang.internal_notes')) !!}
-                {!! Form::textarea('internal_notes',null,['class' => 'form-control']) !!}
+                {!! html()->label(Lang::get('lang.internal_notes'), 'internal_notes') !!}
+                {!! html()->textarea('internal_notes', null)->class('form-control') !!}
             </div>
         </div>
     </div>
     <div class="card-footer">
-        {!! Form::submit(Lang::get('lang.submit'),['class'=>'btn btn-primary'])!!}
+        {!! html()->submit(Lang::get('lang.submit'))->class('btn btn-primary') !!}
     </div>
 </div>
 <script type="text/javascript">

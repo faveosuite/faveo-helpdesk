@@ -32,7 +32,7 @@ class="active"
 @section('content')
 
 <!-- Main content -->
-{!! Form::open(['route'=>'post.newticket','method'=>'post','id'=>'form']) !!}
+{!! html()->form('POST', route('post.newticket'))->attributes(['id' => 'form'])->open() !!}
 @if(Session::has('success'))       
 <div class="alert alert-success alert-dismissable">
     <i class="fas fa-check-circle"></i>
@@ -100,20 +100,20 @@ class="active"
                         <div class="col-md-4">
                             <!-- email -->
                             <div class="form-group {{ $errors->has('email') ? 'has-error' : '' }}">
-                                {!! Form::label('email',Lang::get('lang.email')) !!}
+                                {!! html()->label(Lang::get('lang.email'), 'email') !!}
                                 @if ($email_mandatory->status == 1)
                                 <span class="text-red"> *</span>
                                 @endif
 
-                                {!! Form::text('email',null,['class' => 'form-control', 'id' => 'email']) !!}
+                                {!! html()->text('email', null)->class('form-control')->id('email') !!}
                             </div>
                         </div>
                         
                         <div class="col-md-4">
                             <!-- email -->
                             <div class="form-group {{ $errors->has('first_name') ? 'has-error' : '' }}">
-                                {!! Form::label('email',Lang::get('lang.first_name')) !!} <span class="text-red"> *</span>
-                               <!--  {!! Form::text('email',null,['class' => 'form-control'],['id' => 'email']) !!} -->
+                                {!! html()->label(Lang::get('lang.first_name'), 'email') !!} <span class="text-red"> *</span>
+                               <!--  {!! html()->text('email', null)->class('form-control') !!} -->
                                <input type="text" name="first_name" id="first_name" class="form-control">
                             </div>
                         </div>
@@ -121,7 +121,7 @@ class="active"
                         <div class="col-md-4">
                             <!-- full name -->
                             <div class="form-group {{ $errors->has('last_name') ? 'has-error' : '' }}">
-                                {!! Form::label('fullname',Lang::get('lang.last_name')) !!} <span class="text-red"></span>
+                                {!! html()->label(Lang::get('lang.last_name'), 'fullname') !!} <span class="text-red"></span>
                                 <input type="text" name="last_name" id="last_name" class="form-control">
                             </div>
                         </div>
@@ -129,12 +129,12 @@ class="active"
                     <div class="row">
                         <div class="col-md-1 form-group {{ Session::has('country_code_error') ? 'has-error' : '' }}">
                             <div class="form-group {{ $errors->has('code') ? 'has-error' : '' }}">
-                            {!! Form::label('code',Lang::get('lang.country-code')) !!}
+                            {!! html()->label(Lang::get('lang.country-code'), 'code') !!}
                             @if ($email_mandatory->status == 0 || $settings->status == 1)
                                  <span class="text-red"> *</span>
                             @endif
 
-                            {!! Form::text('code',null,['class' => 'form-control', 'id' => 'country_code', 'placeholder' => $phonecode, 'title' => Lang::get('lang.enter-country-phone-code')]) !!}
+                            {!! html()->text('code', null)->class('form-control')->id('country_code')->placeholder($phonecode)->attributes(['title' => Lang::get('lang.enter-country-phone-code')]) !!}
                             </div>
                         </div>
                         <div class="col-md-5">
@@ -144,14 +144,14 @@ class="active"
                                 @if ($email_mandatory->status == 0 || $settings->status == 1)
                                  <span class="text-red"> *</span>
                                 @endif
-                                {!! Form::input('number','mobile',null,['class' => 'form-control', 'id' => 'mobile']) !!}
+                                {!! html()->number('mobile', null)->class('form-control')->id('mobile') !!}
                             </div>
                         </div>
                         <div class="col-md-6">
                             <!-- phone -->
                             <div class="form-group {{ $errors->has('phone') ? 'has-error' : '' }}">
                                 <label>{!! Lang::get('lang.phone') !!}:</label>
-                                {!! Form::input('number','phone',null,['class' => 'form-control', 'id' => 'phone_number']) !!}
+                                {!! html()->number('phone', null)->class('form-control')->id('phone_number') !!}
                                 {!! $errors->first('phone', '<spam class="help-block text-red">:message</spam>') !!}
                             </div>
                         </div>
@@ -185,7 +185,7 @@ class="active"
                                 <label>{!! Lang::get('lang.help_topic') !!}:</label>
                                 <!-- helptopic -->
                                 <?php $helptopic = App\Model\helpdesk\Manage\Help_topic::where('status', '=', 1)->select('topic', 'id')->get(); ?>
-                                {!! Form::select('helptopic', ['Helptopic'=>$helptopic->pluck('topic','id')->toArray()],null,['class' => 'form-control select','id'=>'selectid']) !!}
+                                {!! html()->select('helptopic', ['Helptopic'=>$helptopic->pluck('topic','id')->toArray()], null)->class('form-control select')->id('selectid') !!}
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -193,14 +193,14 @@ class="active"
                             <div class="form-group">
                                 <label>{!! Lang::get('lang.sla_plan') !!}:</label>
                                 <?php $sla_plan = App\Model\helpdesk\Manage\Sla_plan::where('status', '=', 1)->select('grace_period', 'id')->get(); ?>
-                                {!! Form::select('sla', ['SLA'=>$sla_plan->pluck('grace_period','id')->toArray()],null,['class' => 'form-control select']) !!}
+                                {!! html()->select('sla', ['SLA'=>$sla_plan->pluck('grace_period','id')->toArray()], null)->class('form-control select') !!}
                             </div>
                         </div>
                         <div class="col-md-3">
                             <!-- due date -->
                             <div class="form-group" id="duedate">
                                 <label>{!! Lang::get('lang.due_date') !!}:</label>
-                                {!! Form::text('duedate',null,['class' => 'form-control','id'=>'datemask']) !!}
+                                {!! html()->text('duedate', null)->class('form-control')->id('datemask') !!}
                                 <button class="btn  clear-input" id="duedates" style="display: none" type="button"><i class="fas fa-times"></i></button>
                             </div>
                         </div>
@@ -209,7 +209,7 @@ class="active"
                             <div class="form-group">
                                 <label>{!! Lang::get('lang.assign_to') !!}:</label>
                                 <?php $agents = App\User::where('role', '!=', 'user')->where('active', '=', 1)->get(); ?>
-                                {!! Form::select('assignto', [''=>'Select an Agent','Agents'=>$agents->pluck('first_name','id')->toArray()],null,['class' => 'form-control select']) !!}
+                                {!! html()->select('assignto', [''=>'Select an Agent','Agents'=>$agents->pluck('first_name','id')->toArray()], null)->class('form-control select') !!}
                             </div>
                         </div>
                         <div id="response" class="col-md-6 form-group"></div>
@@ -238,7 +238,7 @@ class="active"
                                 <label>{!! Lang::get('lang.subject') !!}:<span class="text-red"> *</span></label>
                             </div>
                             <div class="col-md-11">
-                                {!! Form::text('subject',null,['class' => 'form-control']) !!}
+                                {!! html()->text('subject', null)->class('form-control') !!}
                             </div>
                         </div>
                     </div>
@@ -249,7 +249,7 @@ class="active"
                                 <label>{!! Lang::get('lang.detail') !!}:<span class="text-red"> *</span></label>
                             </div>
                             <div class="col-md-11">
-                                {!! Form::textarea('body',null,['class' => 'form-control','id' => 'body', 'style'=>"width:100%; height:150px;"]) !!}
+                                {!! html()->textarea('body', null)->class('form-control')->id('body')->attributes(['style' => "width:100%; height:150px;"]) !!}
 
                             </div>
                         </div>
@@ -262,7 +262,7 @@ class="active"
                             </div>
                             <div class="col-md-5">
                                 <?php $Priority = App\Model\helpdesk\Ticket\Ticket_Priority::where('status','=',1)->get(); ?>
-                                {!! Form::select('priority', [Lang::get('lang.priorities')=>$Priority->pluck('priority_desc','priority_id')->toArray()],null,['class' => 'form-control select']) !!}
+                                {!! html()->select('priority', [Lang::get('lang.priorities')=>$Priority->pluck('priority_desc','priority_id')->toArray()], null)->class('form-control select') !!}
                             </div>
                             
                         </div>
@@ -280,7 +280,7 @@ class="active"
         </div>
     </div>
 </div><!-- /. box -->
-{!! Form::close() !!}
+{!! html()->closeModelForm() !!}
 <script type="text/javascript">
     $(document).ready(function () {
         var helpTopic = $("#selectid").val();

@@ -66,7 +66,7 @@ class="nav-link active"
                             <h4 class="modal-title">{!! Lang::get('lang.add_plugin') !!}</h4>
                         </div>
                         <div class="modal-body">
-                            {!! Form::open(['url'=>'post-plugin','files'=>true]) !!}
+                            {!! html()->form('POST', url('post-plugin'))->acceptsFiles()->open() !!}
                             <label>{!! Lang::get('lang.plugin') !!} :</label> 
                             <div class="btn bg-olive btn-file" style="color:blue">
                                 {!! Lang::get('lang.upload_file') !!}<input type="file" name="plugin">
@@ -76,7 +76,7 @@ class="nav-link active"
                             <button type="button" class="btn btn-default" data-dismiss="modal" id="dismis">{!! Lang::get('lang.close') !!}</button>
                             <input type="submit" class="btn btn-primary" value="{!! Lang::get('lang.upload') !!}">
                         </div>
-                        {!! Form::close() !!}
+                        {!! html()->closeModelForm() !!}
                     </div>
                 </div><!-- /.modal-dialog -->
             </div><!-- /.modal -->           

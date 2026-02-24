@@ -3,8 +3,8 @@
 <div class="box box-primary">
 
     <div class="content-header">
-        {!! Form::open(['route'=>'templates.store','method'=>'post']) !!}
-        <h4>{{Lang::get('lang.templates')}}	{!! Form::submit(Lang::get('lang.save'),['class'=>'form-group btn btn-primary pull-right'])!!}</h4>
+        {!! html()->form('POST', route('templates.store'))->open() !!}
+        <h4>{{Lang::get('lang.templates')}}	{!! html()->submit(Lang::get('lang.save'))->class('form-group btn btn-primary pull-right') !!}</h4>
 
     </div>
 
@@ -47,15 +47,15 @@
 
                     <div class="col-md-6 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
                         <!-- first name -->
-                        {!! Form::label('name',Lang::get('lang.name'),['class'=>'required']) !!}
-                        {!! Form::text('name',null,['class' => 'form-control']) !!}
+                        {!! html()->label(Lang::get('lang.name'), 'name')->class('required') !!}
+                        {!! html()->text('name', null)->class('form-control') !!}
 
                     </div>
 
                     <div class="col-md-6 form-group {{ $errors->has('type') ? 'has-error' : '' }}">
                         <!-- last name -->
-                        {!! Form::label('type',Lang::get('lang.template-types'),['class'=>'required']) !!}
-                        {!! Form::select('type',[''=>'Select','Type'=>$type],null,['class' => 'form-control']) !!}
+                        {!! html()->label(Lang::get('lang.template-types'), 'type')->class('required') !!}
+                        {!! html()->select('type', [''=>'Select','Type'=>$type], null)->class('form-control') !!}
 
                     </div>
                                         
@@ -64,8 +64,8 @@
 <!--                <div class="row">
                     <div class="col-md-12 form-group {{ $errors->has('subject') ? 'has-error' : '' }}">
          
-                        {!! Form::label('subject',Lang::get('lang.subject')) !!}
-                        {!! Form::text('subject',null,['class' => 'form-control']) !!}
+                        {!! html()->label(Lang::get('lang.subject'), 'subject') !!}
+                        {!! html()->text('subject', null)->class('form-control') !!}
 
                     </div>
                 </div>-->
@@ -74,8 +74,8 @@
                     <div class="col-md-12 form-group {{ $errors->has('message') ? 'has-error' : '' }}">
                        
                         
-                        {!! Form::label('message',Lang::get('lang.content'),['class'=>'required']) !!}
-                        {!! Form::textarea('message',null,['class'=>'form-control','id'=>'textarea']) !!}
+                        {!! html()->label(Lang::get('lang.content'), 'message')->class('required') !!}
+                        {!! html()->textarea('message', null)->class('form-control')->id('textarea') !!}
                        
                     </div>
 
@@ -91,5 +91,5 @@
 </div>
 
 
-{!! Form::close() !!}
+{!! html()->closeModelForm() !!}
 @stop

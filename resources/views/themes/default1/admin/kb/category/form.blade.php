@@ -20,9 +20,9 @@
 
 		<div class="col-xs-4 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
 
-			{!! Form::label('name','Name') !!}
+			{!! html()->label('Name', 'name') !!}
 			{!! $errors->first('name', '<spam class="help-block">:message</spam>') !!}
-			{!! Form::text('name',null,['class' => 'form-control']) !!}
+			{!! html()->text('name', null)->class('form-control') !!}
 
 		</div>
 
@@ -30,24 +30,24 @@
 
 		<div class="col-xs-4 form-group {{ $errors->has('status') ? 'has-error' : '' }}">
 
-			{!! Form::label('status','Status') !!}
+			{!! html()->label('Status', 'status') !!}
 			{!! $errors->first('status', '<spam class="help-block">:message</spam>') !!}
 			<div class="row">
 				<div class="col-xs-3">
-					{!! Form::radio('status','1',true) !!}Active
+					{!! html()->radio('status', true, '1') !!}Active
 				</div>
 				<div class="col-xs-3">
-					{!! Form::radio('status','0',null) !!}Inactive
+					{!! html()->radio('status', null, '0') !!}Inactive
 				</div>
 			</div>
 		</div>
 
 	</div>
 		<div class="form-group {{ $errors->has('description') ? 'has-error' : '' }}">
-				{!! Form::label('description','Description') !!}
+				{!! html()->label('Description', 'description') !!}
 				{!! $errors->first('description', '<spam class="help-block">:message</spam>') !!}
 
-					{!! Form::textarea('description',null,['class' => 'form-control','size' => '50x10','id'=>'myNicEditor','placeholder'=>'Enter the description']) !!}
+					{!! html()->textarea('description', null)->class('form-control')->id('myNicEditor')->placeholder('Enter the description')->attributes(['size' => '50x10']) !!}
 		</div>
 </div>
 

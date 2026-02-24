@@ -87,15 +87,11 @@ class="active"
 		<td> {!! UTC::usertimezone($template->updated_at) !!} </td>
 		<!-- Deleting Fields -->
 		<td>
-			{!! Form::open(['route'=>['template.destroy', $template->id],'method'=>'DELETE']) !!}
+			{!! html()->form('DELETE', route('template.destroy', [$template->id]))->open() !!}
 			<a href="{{route('template.edit',$template->id)}}" class="btn btn-info btn-xs btn-flat"><i class="fa fa-edit" style="color:black;"> </i> Edit</a>
 			<!-- To pop up a confirm Message -->
-				{!! Form::button('<i class="fa fa-trash" style="color:black;"> </i> Delete',
-            		['type' => 'submit',
-            		'class'=> 'btn btn-warning btn-xs btn-flat',
-            		'onclick'=>'return confirm("Are you sure?")'])
-            	!!}
-			{!! Form::close() !!}
+				{!! html()->button('<i class="fa fa-trash" style="color:black;"> </i> Delete')->class('btn btn-warning btn-xs btn-flat')->attributes(['type' => 'submit', 'onclick' => 'return confirm("Are you sure?")']) !!}
+			{!! html()->closeModelForm() !!}
 		</td>
 		@endforeach
 	</tr>

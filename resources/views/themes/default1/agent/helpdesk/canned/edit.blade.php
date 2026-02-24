@@ -23,7 +23,7 @@ class="nav-link active"
 <!-- content -->
 @section('content')
 <!-- open a form -->
-{!! Form::model($canned, ['url' => 'canned/update/'.$canned->id,'method' => 'PATCH'] )!!}
+{!! html()->modelForm($canned, 'PATCH', url('canned/update/'.$canned->id))->open() !!}
 @if(Session::has('errors'))
         <?php //dd($errors); ?>
         <div class="alert alert-danger alert-dismissable">
@@ -49,18 +49,18 @@ class="nav-link active"
         <div class="row">
             <!-- username -->
             <div class="col-sm-6 form-group {{ $errors->has('title') ? 'has-error' : '' }}">
-                {!! Form::label('title',Lang::get('lang.title')) !!}         <span class="text-red"> *</span>       
-                {!! Form::text('title',null,['class' => 'form-control']) !!}
+                {!! html()->label(Lang::get('lang.title'), 'title') !!}         <span class="text-red"> *</span>       
+                {!! html()->text('title', null)->class('form-control') !!}
             </div>
             <!-- firstname -->
             <div class="col-sm-12 form-group {{ $errors->has('message') ? 'has-error' : '' }}">
-                {!! Form::label('message',Lang::get('lang.message')) !!}         <span class="text-red"> *</span>      
-                {!! Form::textarea('message',null,['class' => 'form-control']) !!}
+                {!! html()->label(Lang::get('lang.message'), 'message') !!}         <span class="text-red"> *</span>      
+                {!! html()->textarea('message', null)->class('form-control') !!}
             </div>
         </div>
     </div>
     <div class="card-footer">
-        {!! Form::submit(Lang::get('lang.submit'),['class'=>'btn btn-primary'])!!}
+        {!! html()->submit(Lang::get('lang.submit'))->class('btn btn-primary') !!}
     </div>
 </div>
 <script>

@@ -83,7 +83,7 @@ $thread = App\Model\helpdesk\Ticket\Ticket_Thread::where('ticket_id', '=', $tick
                                 </a>
                             </div>
                         </div>
-                    {!! Form::close() !!}
+                    {!! html()->closeModelForm() !!}
                 </div>
             </div>
         <br/>
@@ -453,9 +453,9 @@ foreach ($conversations as $conversation) {
 
                     <h3 id="reply-title" class="comment-reply-title section-title"><i class="line"></i>{!! Lang::get('lang.leave_a_reply') !!}</h3>
                     @if(Auth::user())
-                        {!! Form::open(['url'=>'post/reply/'.$id2.'#formabc']) !!}
+                        {!! html()->form('POST', url('post/reply/'.$id2.'#formabc'))->open() !!}
                     @else
-                        {!! Form::open(['url'=>'post-ticket-reply/'.$tickets->id.'#formabc']) !!}
+                        {!! html()->form('POST', url('post-ticket-reply/'.$tickets->id.'#formabc'))->open() !!}
                     @endif
                     <div class="row">
                         <div class="col-md-12">
@@ -469,7 +469,7 @@ foreach ($conversations as $conversation) {
 
                         <button type="submit" onClick="return checkFunction();" class="btn btn-custom btn-lg" style="background-color: #009aba; hov: #00c0ef; color: #fff">{!! Lang::get('lang.post_comment') !!}</button>
                     </div>
-                    {!! Form::close() !!}
+                    {!! html()->closeModelForm() !!}
                 </div>
             </div>
         </div>

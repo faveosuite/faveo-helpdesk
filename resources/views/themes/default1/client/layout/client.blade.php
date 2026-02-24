@@ -269,7 +269,7 @@
                             <div id="login-form" class="{{$loginFormClass}}">
                                  <div class="row">
                                     <div class="col-md-12">
-                                        {!!  Form::open(['route' => 'post.login']) !!}
+                                        {!! html()->form('POST', route('post.login'))->open() !!}
                                         @if(Session::has('errors'))
                                         @if(Session::has('check'))
                                         <?php goto b; ?>
@@ -284,10 +284,10 @@
                                         <?php b: ?>
                                         @endif
                                         <div class="form-group has-feedback @if(isset($errors)) {!! $errors->has('email') ? 'has-error' : '' !!} @endif">
-                                            {!! Form::text('email',null,['placeholder'=>Lang::get('lang.e-mail'),'class' => 'form-control']) !!}
+                                            {!! html()->text('email', null)->placeholder(Lang::get('lang.e-mail'))->class('form-control') !!}
                                         </div>
                                         <div class="form-group has-feedback @if(isset($errors)) {!! $errors->has('password') ? 'has-error' : '' !!} @endif">
-                                            {!! Form::password('password',['placeholder'=>Lang::get('lang.password'),'class' => 'form-control']) !!}
+                                            {!! html()->password('password')->placeholder(Lang::get('lang.password'))->class('form-control') !!}
                                             <?php \Illuminate\Support\Facades\Event::dispatch('auth.login.form'); ?>
                                             <a href="{{url('password/email')}}" style="font-size: .8em" class="pull-left">{!! Lang::get('lang.forgot_password') !!}</a>
                                         </div>
@@ -297,7 +297,7 @@
                                     </div>
                                     <div class="col-md-12 text-center">
                                             <button type="submit" class="btn btn-custom" style="background-color: #009aba; hov: #00c0ef; color: #fff ">{!! Lang::get('lang.login') !!}</button>
-                                        {!! Form::close() !!}
+                                        {!! html()->closeModelForm() !!}
                                     </div>
 
                                 <div class="col-md-12 text-center">
@@ -315,7 +315,7 @@
                     </nav>
 
                     <div id="header-search" class="site-search clearfix" style="margin-right: 90%; width: 100%"><!-- #header-search -->
-                        {!!Form::open(['route' => 'client.search','class'=>'search-form clearfix'])!!}
+                        {!! html()->form('POST', route('client.search'))->attributes(['class' => 'search-form clearfix'])->open() !!}
                         <div class="form-border" style="z-index: 0;width: 85%;">
                             <div class="form-inline ">
                                 <div class="form-group input-group " style="width: 98% ">
@@ -332,7 +332,7 @@
                                 </style>
                             </div>
                         </div>
-                        {!! Form::close() !!}
+                        {!! html()->closeModelForm() !!}
                     </div>
                 </div>
             </header>

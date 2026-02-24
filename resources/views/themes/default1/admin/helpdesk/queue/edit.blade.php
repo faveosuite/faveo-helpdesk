@@ -65,15 +65,15 @@ class="nav-link active"
         <h3 class="card-title">{!! Lang::get('lang.queues') !!}</h3>
     </div>
     <div class="card-body">
-        {!! Form::open(['url'=>'queue/'.$queue->id,'method'=>'post','id'=>'form']) !!}
+        {!! html()->form('POST', url('queue/'.$queue->id))->attributes(['id' => 'form'])->open() !!}
         <div id="response">
 
         </div>
     </div>
 
     <div class="card-footer">
-        {!! Form::submit(Lang::get('lang.save'),['class'=>'btn btn-primary']) !!}
-        {!! Form::close() !!}
+        {!! html()->submit(Lang::get('lang.save'))->class('btn btn-primary') !!}
+        {!! html()->closeModelForm() !!}
     </div>
 </div>
 <script>

@@ -112,22 +112,16 @@ class="nav-link active"
 		<td> {!! UTC::usertimezone($sla->updated_at) !!} </td>
 		<!-- Deleting Fields -->
 		<td>
-			{!! Form::open(['route'=>['sla.destroy', $sla->id],'method'=>'DELETE']) !!}
+			{!! html()->form('DELETE', route('sla.destroy', [$sla->id]))->open() !!}
 			<a href="{{route('sla.edit',$sla->id)}}" class="btn btn-primary btn-xs"><i class="fas fa-edit"> </i> {!! Lang::get('lang.edit') !!}</a>
 			<!-- To pop up a confirm Message -->
 			@if($sla->id == $default_sla)
-				{!! Form::button('<i class="fas fa-trash"> </i> '.Lang::get('lang.delete'),
-		   		['class'=> 'btn btn-danger btn-xs '.$disable])
-		   	!!}
+				{!! html()->button('<i class="fas fa-trash"> </i> '.Lang::get('lang.delete'))->class('btn btn-danger btn-xs '.$disable) !!}
 			@else
-			{!! Form::button('<i class="fas fa-trash"> </i> '.Lang::get('lang.delete'),
-	   		['type' => 'submit',
-	   		'class'=> 'btn btn-danger btn-xs',
-	   		'onclick'=>'return confirm("Are you sure?")'])
-	   	!!}
+			{!! html()->button('<i class="fas fa-trash"> </i> '.Lang::get('lang.delete'))->class('btn btn-danger btn-xs')->attributes(['type' => 'submit', 'onclick' => 'return confirm("Are you sure?")']) !!}
 			@endif
 				
-			{!! Form::close() !!}
+			{!! html()->closeModelForm() !!}
 		</td>
 		@endforeach
 	</tr>

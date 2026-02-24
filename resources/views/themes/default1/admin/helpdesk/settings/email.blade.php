@@ -32,7 +32,7 @@ class="nav-link active"
 <!-- content -->
 @section('content')
 <!-- open a form -->
-{!! Form::model($emails,['url' => 'postemail/'.$emails->id, 'method' => 'PATCH']) !!}
+{!! html()->modelForm($emails, 'PATCH', url('postemail/'.$emails->id))->open() !!}
 <!-- check whether success or not -->
 @if(Session::has('success'))
 <div class="alert alert-success alert-dismissable">
@@ -71,7 +71,7 @@ class="nav-link active"
         <div class="row">
             <div class="col-md-6">
                 <div class="form-group">
-                    {!! Form::checkbox('all_emails',1,true) !!}&nbsp;{{Lang::get('lang.accept_all_email')}}
+                    {!! html()->checkbox('all_emails', true, 1) !!}&nbsp;{{Lang::get('lang.accept_all_email')}}
                 </div>
             </div>
         </div>
@@ -82,7 +82,7 @@ class="nav-link active"
         <div class="row">
             <div class="col-md-4">
                 <div class="form-group">
-                    {!! Form::checkbox('email_collaborator',1) !!}&nbsp;{{Lang::get('lang.accept_email_collab')}}
+                    {!! html()->checkbox('email_collaborator', null, 1) !!}&nbsp;{{Lang::get('lang.accept_email_collab')}}
                 </div>
             </div>
         </div>
@@ -90,13 +90,13 @@ class="nav-link active"
         <div class="row">
             <div class="col-md-4">
                 <div class="form-group">
-                    {!! Form::checkbox('attachment',1) !!}&nbsp;{{Lang::get('lang.attachments')}}
+                    {!! html()->checkbox('attachment', null, 1) !!}&nbsp;{{Lang::get('lang.attachments')}}
                 </div>
             </div>
         </div>
     </div>
     <div class="card-footer">
-        {!! Form::submit(Lang::get('lang.submit'),['class'=>'btn btn-primary'])!!}
+        {!! html()->submit(Lang::get('lang.submit'))->class('btn btn-primary') !!}
     </div>
 </div>
 @stop

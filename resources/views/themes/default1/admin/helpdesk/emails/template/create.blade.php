@@ -29,7 +29,7 @@ class="active"
 <!-- content -->
 @section('content')
 
-{!! Form::open(['action' => 'Admin\helpdesk\TemplateController@store','method' => 'post']) !!}
+{!! html()->form('POST', action('Admin\helpdesk\TemplateController@store'))->open() !!}
 	<div class="row">
 <div class="col-md-12">
 <div class="box box-primary">
@@ -37,7 +37,7 @@ class="active"
 <div class="box-header">
 <h2 class="box-title">{{Lang::get('lang.create')}}</h2>
 <div class="pull-right">
-   {!! Form::submit(Lang::get('lang.save'),['class'=>'btn btn-primary'])!!}</div>
+   {!! html()->submit(Lang::get('lang.save'))->class('btn btn-primary') !!}</div>
    </div>
 
 	 <div class="box-body table-responsive no-padding"style="overflow:hidden">
@@ -46,14 +46,14 @@ class="active"
 		<!--  Status : Radio form : Required -->
 		<div class="col-md-6 form-group {{ $errors->has('ban_status') ? 'has-error' : ''}}">
 			<div class="row col-xs-3">
-			{!! Form::label('status',Lang::get('lang.status')) !!}
+			{!! html()->label(Lang::get('lang.status'), 'status') !!}
 			</div>
 			<div class="row">
 				<div class="col-xs-3">
-					{!! Form::radio('ban_status','active',true) !!}{{Lang::get('lang.active')}}
+					{!! html()->radio('ban_status', true, 'active') !!}{{Lang::get('lang.active')}}
 				</div>
 				<div class="col-xs-3">
-					{!! Form::radio('ban_status','disabled') !!}{{Lang::get('lang.disabled')}}
+					{!! html()->radio('ban_status', null, 'disabled') !!}{{Lang::get('lang.disabled')}}
 				</div>
 			</div>
 			</div>
@@ -63,27 +63,27 @@ class="active"
 		<div class="row">
            <div class="col-md-4">
 		        <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-			      {!! Form::label('name',Lang::get('lang.name')) !!}
+			      {!! html()->label(Lang::get('lang.name'), 'name') !!}
 			      {!! $errors->first('name', '<spam class="help-block">:message</spam>') !!}
-			       {!! Form::text('name',null,['class' => 'form-control']) !!}
+			       {!! html()->text('name', null)->class('form-control') !!}
 			</div>
 		</div>
 
 		<!-- Form for template set to clone From template table : Drop down : required -->
              <div class="col-md-4">
 		<div class="form-group {{ $errors->has('template_set_to_clone') ? 'has-error' : '' }}">
-			{!! Form::label('template_set_to_clone',Lang::get('lang.template_set_to_clone')) !!}
+			{!! html()->label(Lang::get('lang.template_set_to_clone'), 'template_set_to_clone') !!}
 			{!! $errors->first('template_set_to_clone', '<spam class="help-block">:message</spam>') !!}
-			{!!Form::select('template_set_to_clone', [''=>'Select a Template','Templates'=>$templates->pluck('name','name')],1,['class' => 'form-control']) !!}
+			{!! html()->select('template_set_to_clone', [''=>'Select a Template','Templates'=>$templates->pluck('name','name')], 1)->class('form-control') !!}
 			</div>
 		</div>
 
 		<!-- Language field to Set the language in the template -->
            <div class="col-md-4">
 		<div class="form-group {{ $errors->has('language') ? 'has-error' : '' }}">
-			{!! Form::label('language',Lang::get('lang.language')) !!}
+			{!! html()->label(Lang::get('lang.language'), 'language') !!}
 			{!! $errors->first('language', '<spam class="help-block">:message</spam>') !!}
-			{!!Form::select('language', [''=>'Select a Language','Languages'=>$languages->pluck('name','name')],null,['class' => 'form-control']) !!}
+			{!! html()->select('language', [''=>'Select a Language','Languages'=>$languages->pluck('name','name')], null)->class('form-control') !!}
 			</div>
 		</div>
 
@@ -91,8 +91,8 @@ class="active"
 
              <div class="col-md-12">
 		      <div class="form-group">
-			     {!! Form::label('internal_note',Lang::get('lang.internal_notes')) !!}
-			     {!! Form::textarea('internal_note',null,['class' => 'form-control']) !!}
+			     {!! html()->label(Lang::get('lang.internal_notes'), 'internal_note') !!}
+			     {!! html()->textarea('internal_note', null)->class('form-control') !!}
 		     </div>
            </div>
 

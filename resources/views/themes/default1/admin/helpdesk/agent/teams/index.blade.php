@@ -93,7 +93,7 @@ class="nav-link active"
                 <td>{{count($assign_team_agent->where('team_id',$team->id))}}</td>
                 <td>{{ $team_lead }}</td>
                 <td>
-                    {!! Form::open(['route'=>['teams.destroy', $team->id],'method'=>'DELETE']) !!}
+                    {!! html()->form('DELETE', route('teams.destroy', [$team->id]))->open() !!}
 
                     <!-- To pop up a confirm Message -->
                    @if ($team->status == 0) 
@@ -107,12 +107,8 @@ class="nav-link active"
 
                     <a href="{{route('teams.edit', $team->id)}}" class="btn btn-primary btn-xs"><i class="fas fa-edit"> </i> {!! Lang::get('lang.edit') !!}</a>
                     
-                    {!! Form::button('<i class="fas fa-trash"> </i> '.Lang::get('lang.delete'),
-                    ['type' => 'submit',
-                    'class'=> 'btn btn-danger btn-xs',
-                    'onclick'=>'return confirm("Are you sure?")'])
-                    !!}
-                    {!! Form::close() !!}
+                    {!! html()->button('<i class="fas fa-trash"> </i> '.Lang::get('lang.delete'))->class('btn btn-danger btn-xs')->attributes(['type' => 'submit', 'onclick' => 'return confirm("Are you sure?")']) !!}
+                    {!! html()->closeModelForm() !!}
                 </td>
             </tr>
             @endforeach

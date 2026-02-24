@@ -221,7 +221,7 @@ echo UTC::usertimezone(date_format($time, 'd/m/Y H:i:s'));
                         </br>
                     </div>
 
-                    {!! Form::model($tickets->id, ['id'=>'form3','method' => 'PATCH', 'enctype'=>'multipart/form-data'] )!!}
+                    {!! html()->modelForm($tickets->id, 'PATCH', url()->current())->attributes(['id' => 'form3'])->open() !!}
                     <div id="t1">
 
                         <div class="form-group">
@@ -230,10 +230,10 @@ echo UTC::usertimezone(date_format($time, 'd/m/Y H:i:s'));
                                 <input type="hidden" name="ticket_ID" value="{{$tickets->id}}">
                                 <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
                                     <div class="col-md-2">
-                                        {!! Form::label('To', 'To:') !!}
+                                        {!! html()->label('To:', 'To') !!}
                                     </div>
                                     <div class="col-md-10">
-                                        {!! Form::text('To',$user->email,['id'=>'email','class'=>'form-control','style'=>'width:55%'])!!}
+                                        {!! html()->text('To', $user->email)->id('email')->class('form-control')->attributes(['style' => 'width:55%']) !!}
                                         {!! $errors->first('To', '<spam class="help-block text-red">:message</spam>') !!}
                         
                                         <input type="checkbox"> <a href="#" onclick="AddCcc()" data-toggle="modal" data-target="#addccc"> Add Ccc </a>
@@ -261,7 +261,7 @@ echo UTC::usertimezone(date_format($time, 'd/m/Y H:i:s'));
                             <!-- reply content -->
                                 <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
                                     <div class="col-md-2">
-                                        {!! Form::label('Reply Content', 'reply_content:') !!}
+                                        {!! html()->label('reply_content:', 'Reply Content') !!}
                                     </div>
                                     <div class="col-md-10">
                                         <textarea style="width:98%;height:200px;" name="reply_content" id="reply_content"></textarea>
@@ -285,11 +285,11 @@ echo UTC::usertimezone(date_format($time, 'd/m/Y H:i:s'));
                             </div>
                         </div>
                     </div>
-                    {!!Form::close()!!}
+                    {!! html()->closeModelForm() !!}
 
                     <!-- Internal Content -->
                     <div id="t2" style="display:none">
-                        {!! Form::model($tickets->id, ['id'=>'form2','method' => 'PATCH'] )!!}
+                        {!! html()->modelForm($tickets->id, 'PATCH', url()->current())->attributes(['id' => 'form2'])->open() !!}
                         <div id="t4">
                             <div class="form-group">
                                 <div class="row">
@@ -316,7 +316,7 @@ echo UTC::usertimezone(date_format($time, 'd/m/Y H:i:s'));
                                 </div>
                             </div>
                         </div>
-                        {!!Form::close()!!}
+                        {!! html()->closeModelForm() !!}
                     </div>
                 </div>
                 <!-- ticket foreward -->
@@ -605,7 +605,7 @@ $data = $ConvDate[0];
     <div class="modal fade" id="Edit" >
         <div class="modal-dialog" style="width:60%;height:70%;">
             <div class="modal-content">
-                {!! Form::model($tickets->id, ['id'=>'form','method' => 'PATCH'] )!!}
+                {!! html()->modelForm($tickets->id, 'PATCH', url()->current())->attributes(['id' => 'form'])->open() !!}
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title">Edit <b>[#{!! $tickets->ticket_number !!}]</b>[{!! $user->user_name !!}]</h4>
@@ -635,7 +635,7 @@ $data = $ConvDate[0];
                     <button type="button" class="btn btn-default pull-left" data-dismiss="modal" id="dismis">Close</button>
                     <input type="submit" class="btn btn-primary pull-right" value="Update">
                 </div>
-                {!! Form::close() !!}
+                {!! html()->closeModelForm() !!}
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
@@ -663,7 +663,7 @@ $data = $ConvDate[0];
     <div class="modal fade" id="ChangeOwner">
         <div class="modal-dialog">
             <div class="modal-content">
-                {!! Form::model($tickets->id, ['id'=>'form4','method' => 'PATCH'] )!!}
+                {!! html()->modelForm($tickets->id, 'PATCH', url()->current())->attributes(['id' => 'form4'])->open() !!}
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title">Change Owner for ticket <b>#{!! $tickets->ticket_number !!}</b></h4>
@@ -701,7 +701,7 @@ $data = $ConvDate[0];
                     <button type="button" class="btn btn-default pull-left" data-dismiss="modal" id="dismis2">Close</button>
                     <button id="ban" type="button" class="btn btn-warning pull-right" >Submit</button>
                 </div>
-                {!! Form::close() !!}
+                {!! html()->closeModelForm() !!}
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
@@ -709,7 +709,7 @@ $data = $ConvDate[0];
     <div class="modal fade" id="{{$tickets->id}}assign">
         <div class="modal-dialog">
             <div class="modal-content">
-                {!! Form::open(['id'=>'form1','method' => 'PATCH'] )!!}
+                {!! html()->form('PATCH', url()->current())->attributes(['id' => 'form1'])->open() !!}
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title">Assign</h4>
@@ -728,7 +728,7 @@ $data = $ConvDate[0];
                     <button type="button" class="btn btn-default pull-left" data-dismiss="modal" id="dismis4">Close</button>
                     <button type="submit" class="btn btn-success pull-right" id="submt2">Assign</button>
                 </div>
-                {!! Form::close()!!}
+                {!! html()->closeModelForm() !!}
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->

@@ -71,49 +71,49 @@ class="active"
         <div class="box-title">
             New Label
         </div>
-        {!! Form::open(['url'=>'labels','method'=>'post', 'id' => 'label-form']) !!}
+        {!! html()->form('POST', url('labels'))->attributes(['id' => 'label-form'])->open() !!}
     </div>
     <div class="box-body">
         <table class="table table-borderless">
             
             <tr>
                 <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
-                <td>{!! Form::label('title','Title') !!}<span class="text-red"> *</span></td>
+                <td>{!! html()->label('Title', 'title') !!}<span class="text-red"> *</span></td>
                 <td>
                     <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
-                        {!! Form::text('title',null,['class'=>'form-control']) !!}
+                        {!! html()->text('title', null)->class('form-control') !!}
                     </div>
                 </td>
                 </div>
             </tr>
              <tr>
-                <td>{!! Form::label('color','Color') !!}<span class="text-red"> *</span></td>
+                <td>{!! html()->label('Color', 'color') !!}<span class="text-red"> *</span></td>
                 <td>
                     <div class="form-group {{ $errors->has('color') ? 'has-error' : '' }}">
-                    {!! Form::text('color', null,['class'=>'form-control my-colorpicker1 colorpicker-element']) !!}
+                    {!! html()->text('color', null)->class('form-control my-colorpicker1 colorpicker-element') !!}
                     </div>
                 </td>
             </tr>
             
              <tr>
-                <td>{!! Form::label('order','Order') !!}<span class="text-red"> *</span></td>
+                <td>{!! html()->label('Order', 'order') !!}<span class="text-red"> *</span></td>
                 <td>
                     <div class="form-group {{ $errors->has('order') ? 'has-error' : '' }}">
-                    {!! Form::input('number', 'order', null, array('class' => 'form-control')) !!}
+                    {!! html()->number('order', null)->class('form-control') !!}
                     </div>
                 </td>
             </tr>
             
              <tr>
-                <td>{!! Form::label('status','Status') !!}</td>
+                <td>{!! html()->label('Status', 'status') !!}</td>
                 <td><input type="checkbox" name="status" id="status" checked="true">&nbsp;&nbsp;{{Lang::get('lang.enable')}}</td>
             </tr>
             
         </table>
     </div>
     <div class="box-footer">
-        {!! Form::submit('Save',['class'=>'btn btn-success']) !!}
-        {!! Form::close() !!}
+        {!! html()->submit('Save')->class('btn btn-success') !!}
+        {!! html()->closeModelForm() !!}
     </div>
 </div>
 @stop

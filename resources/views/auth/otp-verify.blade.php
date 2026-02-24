@@ -60,20 +60,20 @@
 @endif
 
 <!-- form open -->
-{!!  Form::open(['route'=> 'otp-verification', 'method'=>'post']) !!}
+{!! html()->form('POST', route('otp-verification'))->open() !!}
 <!-- Email -->
 <div class="form-group has-feedback {{ $errors->has('email') ? 'has-error' : '' }}">
-    {!! Form::hidden('email',null,['placeholder'=> Lang::get("lang.email") ,'class' => 'form-control']) !!}
+    {!! html()->hidden('email', null)->placeholder(Lang::get("lang.email"))->class('form-control') !!}
     <!-- {!! $errors->first('email', '<spam class="help-block">:message</spam>') !!} -->
 </div>
 
 <!-- Password -->
 <div class="form-group has-feedback {{ $errors->has('password') ? 'has-error' : '' }}">
-    {!! Form::hidden('password',['placeholder'=>Lang::get("lang.password"),'class' => 'form-control']) !!}
+    {!! html()->hidden('password', ['placeholder'=>Lang::get("lang.password"),'class' => 'form-control']) !!}
     <!-- {!! $errors->first('password', '<spam class="help-block">:message</spam>') !!} -->
 </div>
 <div class="form-group has-feedback {{ $errors->has('otp') ? 'has-error' : '' }}">
-    {!! Form::input('text','otp',null,['placeholder'=> Lang::get("lang.enter-otp") ,'class' => 'form-control' , 'required' => true, 'pattern' => "[0-9]{6}", "title" => Lang::get('lang.otp-input-title')]) !!}
+    {!! html()->text('otp', null)->placeholder(Lang::get("lang.enter-otp"))->class('form-control')->required()->attributes(['pattern' => "[0-9]{6}", 'title' => Lang::get('lang.otp-input-title')]) !!}
     <!-- {!! $errors->first('email', '<spam class="help-block">:message</spam>') !!} -->
 </div>
 @if (Session::has('referer'))

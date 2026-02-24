@@ -82,16 +82,16 @@
 							<li><a href="#" class="collapsed" data-toggle="collapse" data-target="#login-form">Login <i class="sub-indicator fa fa-chevron-circle-down fa-fw text-muted"></i></a></li>
 						</ul><!-- .navbar-login -->
 						<div id="login-form" class="login-form collapse fade clearfix">
-            {!!  Form::open(['route' => 'post.login']) !!}
+            {!! html()->form('POST', route('post.login'))->open() !!}
 
 			<div class="form-group has-feedback {{ $errors->has('email') ? 'has-error' : '' }}">
-				{!! Form::text('email',null,['placeholder'=>'Email','class' => 'form-control']) !!}
+				{!! html()->text('email', null)->placeholder('Email')->class('form-control') !!}
 				{!! $errors->first('email', '<spam class="help-block">:message</spam>') !!}
 				<span class="glyphicon glyphicon-envelope form-control-feedback"></span>
           	</div>
 
 			<div class="form-group has-feedback {{ $errors->has('password') ? 'has-error' : '' }}">
-	            {!! Form::password('password',['placeholder'=>'Password','class' => 'form-control']) !!}
+	            {!! html()->password('password')->placeholder('Password')->class('form-control') !!}
 				{!! $errors->first('password', '<spam class="help-block">:message</spam>') !!}
 	            <span class="glyphicon glyphicon-lock form-control-feedback"></span>
           	</div>
@@ -100,7 +100,7 @@
 									<li><a href="#">Create Account</a></li>
 								</ul>
 								<button type="submit" class="btn btn-custom pull-right">Login</button>
-							{!! Form::close() !!}
+							{!! html()->closeModelForm() !!}
 						</div><!-- #login-form -->
                         @endif
 					</nav><!-- #site-navigation -->

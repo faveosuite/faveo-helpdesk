@@ -32,7 +32,7 @@ class="nav-link active"
 <!-- content -->
 @section('content')
 <!-- open a form -->
-{!! Form::model($slas,['url' => 'sla/'.$slas->id, 'method' => 'PATCH']) !!}
+{!! html()->modelForm($slas, 'PATCH', url('sla/'.$slas->id))->open() !!}
 @if(Session::has('errors'))
 <?php //dd($errors); ?>
 <div class="alert alert-danger alert-dismissable">
@@ -60,23 +60,23 @@ class="nav-link active"
         <div class="row">
             <div class="col-md-4">
                 <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                    {!! Form::label('name',Lang::get('lang.name')) !!} <span class="text-red"> *</span>
-                    {!! Form::text('name',null,['class' => 'form-control']) !!}
+                    {!! html()->label(Lang::get('lang.name'), 'name') !!} <span class="text-red"> *</span>
+                    {!! html()->text('name', null)->class('form-control') !!}
                 </div>
             </div>
             <!-- Grace Period text form Required -->
             <div class="col-md-4">
                 <div class="form-group {{ $errors->has('grace_period') ? 'has-error' : '' }}">
-                    {!! Form::label('grace_period',Lang::get('lang.grace_period')) !!}
-                    {!! Form::select('grace_period',['6 Hours'=>'6 Hours', '12 Hours'=>'12 Hours', '18 Hours'=>'18 Hours', '24 Hours'=>'24 Hours', '36 Hours'=>'36 Hours', '48 Hours'=>'48 Hours'],null,['class' => 'form-control']) !!}
+                    {!! html()->label(Lang::get('lang.grace_period'), 'grace_period') !!}
+                    {!! html()->select('grace_period', ['6 Hours'=>'6 Hours', '12 Hours'=>'12 Hours', '18 Hours'=>'18 Hours', '24 Hours'=>'24 Hours', '36 Hours'=>'36 Hours', '48 Hours'=>'48 Hours'], null)->class('form-control') !!}
                 </div>
             </div>
             <!-- status radio: required: Active|Dissable -->
             <div class="col-md-4">
                 <div class="form-group {{ $errors->has('status') ? 'has-error' : '' }}">
-                    {!! Form::label('status',Lang::get('lang.status')) !!}&nbsp;<br/>
-                    {!! Form::radio('status','1',true) !!} &nbsp; {{Lang::get('lang.active')}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    {!! Form::radio('status','0') !!} &nbsp; {{Lang::get('lang.inactive')}}
+                    {!! html()->label(Lang::get('lang.status'), 'status') !!}&nbsp;<br/>
+                    {!! html()->radio('status', true, '1') !!} &nbsp; {{Lang::get('lang.active')}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    {!! html()->radio('status', null, '0') !!} &nbsp; {{Lang::get('lang.inactive')}}
                 </div>
             </div>
         </div>
@@ -84,8 +84,8 @@ class="nav-link active"
         <div class="row">
             <div class="col-md-12">
                 <div class="form-group">
-                    {!! Form::label('admin_note',Lang::get('lang.admin_notes')) !!}
-                    {!! Form::textarea('admin_note',null,['class' => 'form-control','size' => '30x5']) !!}
+                    {!! html()->label(Lang::get('lang.admin_notes'), 'admin_note') !!}
+                    {!! html()->textarea('admin_note', null)->class('form-control')->attributes(['size' => '30x5']) !!}
                 </div>
             </div>
         </div>
@@ -95,9 +95,9 @@ class="nav-link active"
         </div>
     </div>
     <div class="card-footer">
-        {!! Form::submit(Lang::get('lang.update'),['class'=>'btn btn-primary'])!!}
+        {!! html()->submit(Lang::get('lang.update'))->class('btn btn-primary') !!}
     </div>
 </div>
 <!-- close form -->
-{!! Form::close() !!}
+{!! html()->closeModelForm() !!}
 @stop

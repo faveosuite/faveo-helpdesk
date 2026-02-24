@@ -167,8 +167,8 @@ class="active"
             <div  class="form-group">
                 <div class="row">
                     <div class='col-sm-2'>
-                        {!! Form::label('date', 'Start Date:',['class' => 'lead']) !!}
-                        {!! Form::text('start_date',null,['class'=>'form-control','id'=>'datepicker4'])!!}
+                        {!! html()->label('Start Date:', 'date')->class('lead') !!}
+                        {!! html()->text('start_date', null)->class('form-control')->id('datepicker4') !!}
                     </div>
                     <?php
                     $start_date = App\Model\helpdesk\Ticket\Tickets::where('id', '=', '1')->first();
@@ -194,8 +194,8 @@ class="active"
                         });
                     </script>
                     <div class='col-sm-2'>
-                        {!! Form::label('start_time', 'End Date:' ,['class' => 'lead']) !!}
-                        {!! Form::text('end_date',null,['class'=>'form-control','id'=>'datetimepicker3'])!!}
+                        {!! html()->label('End Date:', 'start_time')->class('lead') !!}
+                        {!! html()->text('end_date', null)->class('form-control')->id('datetimepicker3') !!}
                     </div>
                     <script type="text/javascript">
                         $(function() {
@@ -209,7 +209,7 @@ class="active"
                         });
                     </script>
                     <div class='col-sm-1'>
-                        {!! Form::label('filter', 'Filter:',['class' => 'lead']) !!}<br>
+                        {!! html()->label('Filter:', 'filter')->class('lead') !!}<br>
                         <input type="submit" class="btn btn-primary">
                     </div>
                 </div>

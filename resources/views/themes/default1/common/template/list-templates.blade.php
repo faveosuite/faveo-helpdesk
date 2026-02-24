@@ -57,7 +57,9 @@ class="nav-link active"
                     <td>{!! $type->name !!}</td>
                     <td>{!! $template->name !!}</td>
                     <td>
-                        {!! link_to_route('templates.edit', Lang::get('lang.edit_templates'),[$template->id],['class'=>'btn btn-success btn-sm']) !!}
+                        <a href="{{ route('templates.edit', [$template->id]) }}" class="btn btn-success btn-sm">
+                            {{ Lang::get('lang.edit_templates') }}
+                        </a>
                     </td>
                 </tr>
                 @endforeach

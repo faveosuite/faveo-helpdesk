@@ -36,7 +36,7 @@ class="nav-item menu-open"
 
 @section('content')
 
-{!! Form::open(array('route' => 'article.store' , 'method' => 'post') )!!}
+{!! html()->form('POST', route('article.store'))->open() !!}
 
 @if(Session::has('success'))
 <div class="alert alert-success alert-dismissable">
@@ -105,14 +105,14 @@ class="nav-item menu-open"
                 <div class="row">
                     
                     <div class="col-md-12 form-group {{ $errors->has('name') ? 'has-error' : '' }}" >
-                        {!! Form::label('name',Lang::get('lang.name')) !!}<span class="text-red"> *</span>
-                        {!! Form::text('name',null,['class' => 'form-control']) !!}
+                        {!! html()->label(Lang::get('lang.name'), 'name') !!}<span class="text-red"> *</span>
+                        {!! html()->text('name', null)->class('form-control') !!}
                     </div>
 
                     <div class="form-group col-md-12 {{ $errors->has('description') ? 'has-error' : '' }}">
-                        {!! Form::label('description',Lang::get('lang.description')) !!}<span class="text-red"> *</span>
+                        {!! html()->label(Lang::get('lang.description'), 'description') !!}<span class="text-red"> *</span>
                         <div class="form-group" style="background-color:white">
-                            {!! Form::textarea('description',null,['class' => 'form-control article_desc','id'=>'editor','size' => '128x20','placeholder'=>Lang::get('lang.enter_the_description')]) !!}
+                            {!! html()->textarea('description', null)->class('form-control article_desc')->id('editor')->placeholder(Lang::get('lang.enter_the_description'))->attributes(['size' => '128x20']) !!}
                         </div>
                     </div>
                 </div>
@@ -131,16 +131,16 @@ class="nav-item menu-open"
             <div class="card-body">
                 
                 <div class="form-group {{ $errors->has('type') ? 'has-error' : '' }}">
-                    {!! Form::label('type',Lang::get('lang.status')) !!}
+                    {!! html()->label(Lang::get('lang.status'), 'type') !!}
                     <div class="row">
                         <div class="col-sm-1">
-                            {!! Form::radio('type','1',true) !!}
+                            {!! html()->radio('type', true, '1') !!}
                         </div>
                         <div class="col-sm-4">
                             {{Lang::get('lang.published')}}
                         </div>
                         <div class="col-sm-1">
-                            {!! Form::radio('type','0',null) !!}
+                            {!! html()->radio('type', null, '0') !!}
                         </div>
                         <div class="col-sm-4">
                             {{Lang::get('lang.draft')}}
@@ -149,16 +149,16 @@ class="nav-item menu-open"
                 </div>
 
                 <div class="form-group {{ $errors->has('status') ? 'has-error' : '' }}">
-                    {!! Form::label('status',Lang::get('lang.visibility')) !!}
+                    {!! html()->label(Lang::get('lang.visibility'), 'status') !!}
                     <div class="row">
                         <div class="col-sm-1">
-                            {!! Form::radio('status','1',true) !!}
+                            {!! html()->radio('status', true, '1') !!}
                         </div>
                         <div class="col-sm-4">  
                             {{Lang::get('lang.public')}}
                         </div>
                          <div class="col-sm-1">
-                            {!! Form::radio('status','0',null) !!}
+                            {!! html()->radio('status', null, '0') !!}
                         </div>
                         <div class="col-sm-4"> 
                             {{Lang::get('lang.private')}}
@@ -184,13 +184,13 @@ class="nav-item menu-open"
                 ?>
                 <div class="row">
                     <div class="col-md-12">
-                        {!! Form::label('month',Lang::get('lang.publish_immediately')) !!}
+                        {!! html()->label(Lang::get('lang.publish_immediately'), 'month') !!}
                     </div>
                     <div class="col-md-12">
                         <span class="d-flex">
-                            {!! Form::selectMonth('month', $month,['class'=>'form-control mr-1','style'=>'width: 120px;'])  !!}
-                            {!! Form::selectRange('day', 1, 31, $day,['class'=>'form-control mr-1','style'=>'width: 65px;'])  !!}
-                            {!! Form::text('year',date('Y'),['class'=>'form-control mr-1','style'=>'width: 58px;'])  !!}@
+                            {!! html()->select('month', array_combine(range(1, 12), array_map(function($m) { return date('F', mktime(0, 0, 0, $m, 1)); }, range(1, 12))), $month)->class('form-control mr-1')->attributes(['style' => 'width: 120px;']) !!}
+                            {!! html()->select('day', array_combine(range(1, 31), range(1, 31)), $day)->class('form-control mr-1')->attributes(['style' => 'width: 65px;']) !!}
+                            {!! html()->text('year', date('Y'))->class('form-control mr-1')->attributes(['style' => 'width: 58px;']) !!}@
                             &nbsp;<input type="text" name="hour" value="{{$hour}}" class="form-control" style="width: 50px;">&nbsp;:&nbsp;<input type="text" name="minute" value="{{$minute}}" class="form-control" style="width: 50px;" >
                         </span>
                     </div>
@@ -198,7 +198,7 @@ class="nav-item menu-open"
             </div>
             
             <div class="card-footer">
-                {!! Form::submit(Lang::get('lang.publish'),['class'=>'btn btn-primary'])!!}
+                {!! html()->submit(Lang::get('lang.publish'))->class('btn btn-primary') !!}
             </div>
         </div>
 
@@ -215,7 +215,7 @@ class="nav-item menu-open"
             
                 <div class="form-group {{ $errors->has('category_id') ? 'has-error' : '' }}">
             
-                    {{-- {!! Form::label('category_id','Category') !!} --}}
+                    {{-- {!! html()->label('Category', 'category_id') !!} --}}
 
                     @foreach($category->toArray() as $key=>$val)
                     <div class="row">
@@ -226,7 +226,7 @@ class="nav-item menu-open"
                     @endforeach
                 </div>
             </div>
-            {!! Form::close() !!}
+            {!! html()->closeModelForm() !!}
 
             <div class="card-footer">
 
@@ -237,7 +237,7 @@ class="nav-item menu-open"
                     <div class="modal-dialog">
                     
                         <div class="modal-content">
-                            {!! Form::open(['method'=>'post','route'=>'category.store']) !!}
+                            {!! html()->form('POST', route('category.store'))->open() !!}
                             
                             <div class="modal-header">          
                                 <h4 class="modal-title">{{Lang::get('lang.addcategory')}}</h4>
@@ -251,10 +251,10 @@ class="nav-item menu-open"
                             <div class="modal-footer justify-content-between" style="margin: -15px;">
                                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                                 <div class="form-group">
-                                    {!! Form::submit('Add',['class'=>'btn btn-primary'])!!}
+                                    {!! html()->submit('Add')->class('btn btn-primary') !!}
                                 </div>
                             </div>
-                            {!! Form::close() !!}
+                            {!! html()->closeModelForm() !!}
                         </div>
                     </div>
                 </div>

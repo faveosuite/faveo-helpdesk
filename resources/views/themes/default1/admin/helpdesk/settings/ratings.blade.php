@@ -56,7 +56,9 @@ class="nav-link active"
                     <td>{!! $rating->display_order !!}</td>
                     <td>{!! $rating->rating_area !!}</td>
                     <td>
-                        {!! link_to_route('rating.edit',trans('lang.edit_ratings'),[$rating->id],['class'=>'btn btn-primary btn-sm']) !!}
+                        <a href="{{ route('rating.edit', [$rating->id]) }}" class="btn btn-primary btn-sm">
+                            {{ trans('lang.edit_ratings') }}
+                        </a>
                         <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#delete{{$rating->id}}">{{trans('lang.delete')}}</button>
                         <div class="modal fade" id="delete{{$rating->id}}">
                             <div class="modal-dialog">
@@ -70,7 +72,9 @@ class="nav-link active"
                                     </div>
                                     <div class="modal-footer justify-content-between">
                                         <button type="button" class="btn btn-default btn-sm" data-dismiss="modal">{!! Lang::get('lang.close') !!}</button>
-                                        {!! link_to_route('ratings.delete',Lang::get('lang.delete'),[$rating->id],['id'=>'delete','class'=>'btn btn-danger btn-sm']) !!}
+                                        <a href="{{ route('ratings.delete', [$rating->id]) }}" id="delete" class="btn btn-danger btn-sm">
+                                            {{ Lang::get('lang.delete') }}
+                                        </a>
                                     </div>
                                 </div> 
                             </div>

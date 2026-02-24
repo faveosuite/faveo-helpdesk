@@ -118,27 +118,21 @@ class="nav-link active"
                 <td>{{ $sla }}</td>
                 <td>{{ $manager }}</td>
                 <td>
-                    {!! Form::open(['route'=>['departments.destroy', $department->id],'method'=>'DELETE']) !!}
+                    {!! html()->form('DELETE', route('departments.destroy', [$department->id]))->open() !!}
                     <a href="{{route('departments.edit', $department->id)}}" class="btn btn-primary btn-xs"><i class="fas fa-edit"> </i> {!! Lang::get('lang.edit') !!}</a>
                     {{-- @if($default_department == $department->id) --}}
                     {{-- @else --}}
                     <!-- To pop up a confirm Message -->
                    
                     @if($default_department == $department->id)
-                    {!! Form::button('<i class="fas fa-trash"> </i> '.Lang::get('lang.delete'),
-                    ['class'=> 'btn btn-danger btn-xs '.$disable])
-                    !!}
+                    {!! html()->button('<i class="fas fa-trash"> </i> '.Lang::get('lang.delete'))->class('btn btn-danger btn-xs '.$disable) !!}
                     @else
-                     {!! Form::button('<i class="fas fa-trash"> </i> '.Lang::get('lang.delete'),
-                    ['type' => 'submit',
-                    'class'=> 'btn btn-danger btn-xs',
-                    'onclick'=>'return confirm("Are you sure?")'])
-                    !!}
+                     {!! html()->button('<i class="fas fa-trash"> </i> '.Lang::get('lang.delete'))->class('btn btn-danger btn-xs')->attributes(['type' => 'submit', 'onclick' => 'return confirm("Are you sure?")']) !!}
                     @endif
 
                     {{-- @endif --}}
 
-                    {!! Form::close() !!}
+                    {!! html()->closeModelForm() !!}
                 </td>
             </tr>
             @endforeach

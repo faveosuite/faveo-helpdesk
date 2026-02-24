@@ -44,7 +44,7 @@ active
     </div>
     @endif
 
-    {!! Form::open(['url'=> '/step4post', 'id' => 'databaseform']) !!}
+    {!! html()->form('POST', url('/step4post'))->attributes(['id' => 'databaseform'])->open() !!}
     <table ng-controller="MainController">
         <tr>
             <td>
@@ -69,7 +69,7 @@ active
                 <label for="box1">Host<span style="color: red;font-size:12px;">*</span></label>
             </td>
             <td>
-                {!! Form::text('host', null, ['required' => true]) !!}
+                {!! html()->text('host', null)->required() !!}
             </td>
             <td>
                 <button type="button" data-toggle="popover" data-placement="right" data-arrowcolor="#eeeeee" data-bordercolor="#bbbbbb" data-title-backcolor="#cccccc" data-title-bordercolor="#bbbbbb" data-title-textcolor="#444444" data-content-backcolor="#eeeeee" data-content-textcolor="#888888" title="@{{Hosttitle}}" data-content="@{{Hostcontent}}" style="padding: 0px;border: 0px; border-radius: 5px;"><i class="fa fa-question-circle" style="padding: 0px;"></i>
@@ -81,7 +81,7 @@ active
                 <label for="box2">Port</label>
             </td>
             <td>
-                {!! Form::text('port', null, ['onkeydown' => 'return CheckPortForInput(event)']) !!}
+                {!! html()->text('port', null)->attributes(['onkeydown' => 'return CheckPortForInput(event)']) !!}
             </td>
             <td>
                 <button type="button" data-toggle="popover" data-placement="right" data-arrowcolor="#eeeeee" data-bordercolor="#bbbbbb" data-title-backcolor="#cccccc" data-title-bordercolor="#bbbbbb" data-title-textcolor="#444444" data-content-backcolor="#eeeeee" data-content-textcolor="#888888" title="@{{Porttitle}}" data-content="@{{Portcontent}}" style="padding: 0px;border: 0px; border-radius: 5px;"><i class="fa fa-question-circle" style="padding: 0px;"></i>
@@ -93,7 +93,7 @@ active
                 <label for="box3">Database Name<span style="color: red;font-size:12px;">*</span></label>
             </td>
             <td>
-                {!! Form::text('databasename', null, ['required' => true]) !!}
+                {!! html()->text('databasename', null)->required() !!}
             </td>
             <td>
                 <button type="button" data-toggle="popover" data-placement="right" data-arrowcolor="#eeeeee" data-bordercolor="#bbbbbb" data-title-backcolor="#cccccc" data-title-bordercolor="#bbbbbb" data-title-textcolor="#444444" data-content-backcolor="#eeeeee" data-content-textcolor="#888888" title="@{{Databasenametitle}}" data-content="@{{Databasenamecontent}}" style="padding: 0px;border: 0px; border-radius: 5px;"><i class="fa fa-question-circle" style="padding: 0px;"></i>
@@ -105,7 +105,7 @@ active
                 <label for="box4">User Name<span style="color: red; font-size: 12px;">*</span></label>
             </td>
             <td>
-                {!! Form::text('username', null, ['required' => true]) !!}
+                {!! html()->text('username', null)->required() !!}
             </td>
             <td>
                 <button type="button" data-toggle="popover" data-placement="right" data-arrowcolor="#eeeeee" data-bordercolor="#bbbbbb" data-title-backcolor="#cccccc" data-title-bordercolor="#bbbbbb" data-title-textcolor="#444444" data-content-backcolor="#eeeeee" data-content-textcolor="#888888" title="@{{Usertitle}}" data-content="@{{Usercontent}}" style="padding: 0px;border: 0px; border-radius: 5px;"><i class="fa fa-question-circle" style="padding: 0px;"></i>

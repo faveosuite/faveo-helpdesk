@@ -183,11 +183,11 @@ class QueueController extends Controller
         $queues = new QueueService();
         $queue = $queues->find($queueid);
         if ($queue) {
-            $form = "<div class='".$class."'>".Form::label($name, $label)."<span class='text-red'> *</span>".
-                    Form::text($name, $queue->getExtraField($name), ['class' => 'form-control', 'placeholder' => $placeholder]).'</div>';
+            $form = "<div class='".$class."'>".html()->label($label, $name)."<span class='text-red'> *</span>".
+                    html()->text($name, $queue->getExtraField($name))->class('form-control')->placeholder($placeholder).'</div>';
         } else {
-            $form = "<div class='".$class."'>".Form::label($name, $label)."<span class='text-red'> *</span>".
-                    Form::text($name, null, ['class' => 'form-control', 'placeholder' => $placeholder]).'</div>';
+            $form = "<div class='".$class."'>".html()->label($label, $name)."<span class='text-red'> *</span>".
+                    html()->text($name, null)->class('form-control')->placeholder($placeholder).'</div>';
         }
 
         return $form;

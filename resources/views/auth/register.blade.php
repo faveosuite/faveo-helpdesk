@@ -104,60 +104,60 @@
                 </div>      
 
                 <!-- form open -->
-                {!!  Form::open(['url'=>'auth/register', 'method'=>'post']) !!}
+                {!! html()->form('POST', url('auth/register'))->open() !!}
 
                 <!-- fullname -->
                 <div class="form-group has-feedback {{ $errors->has('full_name') ? 'has-error' : '' }}" style="display: -webkit-box;">
             
-                    {!! Form::text('full_name',null,['placeholder'=>Lang::get('lang.full_name'),'class' => 'form-control']) !!}
+                    {!! html()->text('full_name', null)->placeholder(Lang::get('lang.full_name'))->class('form-control') !!}
                     <span class="fas fa-user   form-control-feedback" style="top: 9px;left: -25px;color: #6c757d;"></span>
                 </div>
 
                 <!-- Email -->
                 @if (($email_mandatory->status == 1 || $email_mandatory->status == '1'))
                 <div class="form-group has-feedback {{ $errors->has('email') ? 'has-error' : '' }}" style="display: -webkit-box;">
-                    {!! Form::text('email',null,['placeholder'=>Lang::get('lang.email'),'class' => 'form-control']) !!}
+                    {!! html()->text('email', null)->placeholder(Lang::get('lang.email'))->class('form-control') !!}
                     <span class="far fa-envelope text-muted form-control-feedback" style="top: 9px;left: -25px;color: #6c757d;"></span>
                 </div>
                 @elseif (($settings->status == 0 || $settings->status == '0') && ($email_mandatory->status == 0 || $email_mandatory->status == '0'))
                 <div class="form-group has-feedback {{ $errors->has('email') ? 'has-error' : '' }}" style="display: -webkit-box;">
-                    {!! Form::text('email',null,['placeholder'=>Lang::get('lang.email'),'class' => 'form-control']) !!}
+                    {!! html()->text('email', null)->placeholder(Lang::get('lang.email'))->class('form-control') !!}
                     <span class="far fa-envelope text-muted form-control-feedback" style="top: 9px;left: -25px;color: #6c757d;"></span>
                 </div>
                 @else
-                    {!! Form::hidden('email', null) !!}
+                    {!! html()->hidden('email', null) !!}
                 @endif
 
                 @if($settings->status == '1' || $settings->status == 1)
                 <div class='row'>
                     <div class="col-md-3">
                         <div class="form-group {{ $errors->has('code') ? 'has-error' : '' }}">
-                        {!! Form::text('code',null,['placeholder'=>91,'class' => 'form-control']) !!}
+                        {!! html()->text('code', null)->placeholder(91)->class('form-control') !!}
                         </div>    
                     </div>
                     <div class="col-md-9">
                         <div class="form-group has-feedback {{ $errors->has('mobile') ? 'has-error' : '' }}" style="display: -webkit-box;">
-                        {!! Form::text('mobile',null,['placeholder'=>Lang::get('lang.mobile'),'class' => 'form-control']) !!}
+                        {!! html()->text('mobile', null)->placeholder(Lang::get('lang.mobile'))->class('form-control') !!}
                         <span class="fas fa-phone  form-control-feedback" style="top: 9px;left: -25px;color: #6c757d;"></span>
                         </div>
                     </div>
                 </div>
                 @else
-                    {!! Form::hidden('mobile', null) !!}
-                    {!! Form::hidden('code', null) !!}
+                    {!! html()->hidden('mobile', null) !!}
+                    {!! html()->hidden('code', null) !!}
 
                 @endif
                 <!-- Password -->
                 <div class="form-group has-feedback {{ $errors->has('password') ? 'has-error' : '' }}" style="display: -webkit-box;">
                            
-                    {!! Form::password('password',['placeholder'=>Lang::get('lang.password'),'class' => 'form-control']) !!}
+                    {!! html()->password('password')->placeholder(Lang::get('lang.password'))->class('form-control') !!}
                     <span class="fa fa-lock  form-control-feedback" style="top: 9px;left: -25px;color: #6c757d;"></span>
 
                 </div>
                 <!-- Confirm password -->
                 <div class="form-group has-feedback {{ $errors->has('password_confirmation') ? 'has-error' : '' }}" style="display: -webkit-box;">
                            
-                    {!! Form::password('password_confirmation',['placeholder'=>Lang::get('lang.retype_password'),'class' => 'form-control']) !!}
+                    {!! html()->password('password_confirmation')->placeholder(Lang::get('lang.retype_password'))->class('form-control') !!}
                     <span class="fas fa-sign-in-alt form-control-feedback" style="top: 9px;left: -25px;color: #6c757d;"></span>
 
                 </div>
@@ -184,6 +184,6 @@
         </div>
     </div>
 </div>
-{!! Form::close()!!}  
+{!! html()->closeModelForm() !!}  
 
 @stop

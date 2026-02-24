@@ -153,8 +153,8 @@ class="nav-item d-none d-sm-inline-block active"
 				<div class="row">
 					
 					<div class='col-sm-2'>
-						{!! Form::label('date', trans('lang.start_date')) !!}
-						{!! Form::text('start_date',null,['class'=>'form-control','id'=>'datepicker4'])!!}
+						{!! html()->label(trans('lang.start_date'), 'date') !!}
+						{!! html()->text('start_date', null)->class('form-control')->id('datepicker4') !!}
 					</div>
 					
 					<?php
@@ -184,8 +184,8 @@ class="nav-item d-none d-sm-inline-block active"
 
 					<div class='col-sm-2'>
 
-						{!! Form::label('start_time', trans('lang.end_date')) !!}
-						{!! Form::text('end_date',null,['class'=>'form-control','id'=>'datetimepicker3'])!!}
+						{!! html()->label(trans('lang.end_date'), 'start_time') !!}
+						{!! html()->text('end_date', null)->class('form-control')->id('datetimepicker3') !!}
 					</div>
 
 					<script type="text/javascript">
@@ -201,7 +201,7 @@ class="nav-item d-none d-sm-inline-block active"
 					</script>
 
 					<div class='col-sm-1'>
-						{!! Form::label('filter', 'Filter:',['style' => 'visibility:hidden;']) !!}<br>
+						{!! html()->label('Filter:', 'filter')->attributes(['style' => 'visibility:hidden;']) !!}<br>
 						<button type="submit" class="btn btn-primary">{{trans('lang.submit')}}</button>
 					</div>
 				</div>

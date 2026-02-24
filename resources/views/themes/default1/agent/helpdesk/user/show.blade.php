@@ -163,7 +163,9 @@ class="nav-link active"
                                     </div>
                                     <div class="modal-footer justify-content-between">
                                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                        {!! link_to_route('removeuser.org','Remove User',[$org_id],['id'=>'delete','class'=>'btn btn-danger']) !!}
+                                        <a href="{{ route('removeuser.org', [$org_id]) }}" id="delete" class="btn btn-danger">
+                                            Remove User
+                                        </a>
                                     </div>
                                 </div> 
                             </div>
@@ -399,7 +401,7 @@ class="nav-link active"
                         </div>
                         @endif
 
-                        {!! Form::open(['route'=>'select_all','method'=>'post']) !!}
+                        {!! html()->form('POST', route('select_all'))->open() !!}
                         
                         <div class="mailbox-controls">
 
@@ -443,7 +445,7 @@ class="nav-link active"
                 </div>
             </div>
         </div>
-        {!!Form::close()!!}
+        {!! html()->closeModelForm() !!}
            
          @endif
 
@@ -466,8 +468,8 @@ class="nav-link active"
                     <div  class="form-group">
                         <div class="row">
                             <div class='col-sm-3'>
-                                {!! Form::label('date', Lang::get("lang.start_date").':') !!}
-                                {!! Form::text('start_date',null,['class'=>'form-control','id'=>'datepicker4'])!!}
+                                {!! html()->label(Lang::get("lang.start_date").':', 'date') !!}
+                                {!! html()->text('start_date', null)->class('form-control')->id('datepicker4') !!}
                             </div>
                             <?php
                             $start_date = App\Model\helpdesk\Ticket\Tickets::where('id', '=', '1')->first();
@@ -493,8 +495,8 @@ class="nav-link active"
                                 });
                             </script>
                             <div class='col-sm-3'>
-                                {!! Form::label('start_time', Lang::get("lang.end_date").':') !!}
-                                {!! Form::text('end_date',null,['class'=>'form-control','id'=>'datetimepicker3'])!!}
+                                {!! html()->label(Lang::get("lang.end_date").':', 'start_time') !!}
+                                {!! html()->text('end_date', null)->class('form-control')->id('datetimepicker3') !!}
                             </div>
                             <script type="text/javascript">
                                 $(function() {
@@ -508,7 +510,7 @@ class="nav-link active"
                                 });
                             </script>
                             <div class='col-sm-3'>
-                                {!! Form::label('filter', 'Filter:',['style' => 'visibility:hidden;']) !!}<br>
+                                {!! html()->label('Filter:', 'filter')->attributes(['style' => 'visibility:hidden;']) !!}<br>
                                 <input type="submit" value="{!! Lang::get('lang.submit') !!}" class="btn btn-primary">
                             </div>
                             <div class="col-sm-10">
@@ -547,7 +549,7 @@ class="nav-link active"
     <div class="modal fade" id="create_org">
         <div class="modal-dialog" style="width:84%;height:70%;">
             <div class="modal-content">
-                {!! Form::model($users->id, ['id'=>'form','method' => 'PATCH'] )!!}
+                {!! html()->modelForm($users->id, 'PATCH', url()->current())->attributes(['id' => 'form'])->open() !!}
                 <div class="modal-header">
                     
                     <h4 class="modal-title">{!! Lang::get('lang.create_organization') !!}</h4>
@@ -614,7 +616,7 @@ class="nav-link active"
                     <button type="button" class="btn btn-default" data-dismiss="modal" id="dismis">{!! Lang::get('lang.close') !!}</button>
                     <input type="submit" class="btn btn-primary" value="{!! Lang::get('lang.update') !!}">
                 </div>
-                {!! Form::close() !!}
+                {!! html()->closeModelForm() !!}
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
         <script>
@@ -671,7 +673,7 @@ class="nav-link active"
     <div class="modal fade" id="assign">
         <div class="modal-dialog">
             <div class="modal-content">
-                {!! Form::model($users->id, ['id'=>'org_assign','method' => 'PATCH'] )!!}
+                {!! html()->modelForm($users->id, 'PATCH', url()->current())->attributes(['id' => 'org_assign'])->open() !!}
                 <div class="modal-header">
 
                     <h4 class="modal-title">{!! Lang::get('lang.assign') !!}</h4>
@@ -712,7 +714,7 @@ class="nav-link active"
                     });
                 </script>
 
-                {!! Form::close()!!}
+                {!! html()->closeModelForm() !!}
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
@@ -733,7 +735,7 @@ class="nav-link active"
         <div class="modal-dialog">
 
             <div class="modal-content">
-                {!! Form::model($users->id, ['id'=>'org_edit_assign','method' => 'PATCH'] )!!}
+                {!! html()->modelForm($users->id, 'PATCH', url()->current())->attributes(['id' => 'org_edit_assign'])->open() !!}
                 <div class="modal-header">
                     
                     <h4 class="modal-title">{!! Lang::get('lang.assign') !!}</h4>
@@ -770,7 +772,7 @@ class="nav-link active"
                     <button type="button" class="btn btn-default" data-dismiss="modal" id="dismis4">{!! Lang::get('lang.close') !!}</button>
                     <button type="submit" class="btn btn-success" id="submt3">{!! Lang::get('lang.assign') !!}</button>
                 </div>
-                {!! Form::close()!!}
+                {!! html()->closeModelForm() !!}
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
@@ -1301,7 +1303,7 @@ class="nav-link active"
 <br>
                             <?php $user = App\User::where('id', $users->id)->first(); ?>
                             @if($user->role == 'agent')
-                            {!! Form::label('delete_all_content',Lang::get('lang.delete_all_content')) !!} <span class="text-red"> *</span>
+                            {!! html()->label(Lang::get('lang.delete_all_content'), 'delete_all_content') !!} <span class="text-red"> *</span>
                             <?php
                             $open = App\Model\helpdesk\Ticket\Tickets::where('assigned_to', '=', $users->id)->where('status', '=', '1')->get();
                             ?>
@@ -1358,7 +1360,7 @@ class="nav-link active"
                         </div>
 
                         <div class="modal-footer">
-                            {!! Form::submit(Lang::get('lang.confirm_deletion'),['class'=>'btn btn-primary float-right'])!!}
+                            {!! html()->submit(Lang::get('lang.confirm_deletion'))->class('btn btn-primary float-right') !!}
                         </div>
                     </div>
                 </div>
@@ -1389,19 +1391,19 @@ class="nav-link active"
                         ?>
 
                         <!-- <div class="col-sm-4 form-group {{ $errors->has('group') ? 'has-error' : '' }}"> -->
-                        {!! Form::label('assign_group',Lang::get('lang.assigned_group')) !!} <span class="text-red"> *</span>
-                        {!!Form::select('group',[Lang::get('lang.groups')=>$groups->pluck('name','id')->toArray()],null,['class' => 'form-control select']) !!}
+                        {!! html()->label(Lang::get('lang.assigned_group'), 'assign_group') !!} <span class="text-red"> *</span>
+                        {!! html()->select('group', [Lang::get('lang.groups')=>$groups->pluck('name','id')->toArray()], null)->class('form-control select') !!}
                         <!-- </div> -->
                         <!-- primary dept -->
                         <!-- <div class="col-sm-4 form-group {{ $errors->has('primary_department') ? 'has-error' : '' }}"> -->
-                        {!! Form::label('primary_dpt',Lang::get('lang.primary_department')) !!} <span class="text-red"> *</span>
-                        {!! Form::select('primary_department', [Lang::get('lang.departments')=>$departments->pluck('name','id')->toArray()],null,['class' => 'form-control select']) !!}
+                        {!! html()->label(Lang::get('lang.primary_department'), 'primary_dpt') !!} <span class="text-red"> *</span>
+                        {!! html()->select('primary_department', [Lang::get('lang.departments')=>$departments->pluck('name','id')->toArray()], null)->class('form-control select') !!}
                         <!-- </div> -->
 
                     </div>
 
                     <div class="modal-footer">
-                        {!! Form::submit(Lang::get('lang.submit'),['class'=>'btn btn-primary float-right'])!!}
+                        {!! html()->submit(Lang::get('lang.submit'))->class('btn btn-primary float-right') !!}
                     </div>
                 </div>
             </div>
@@ -1432,7 +1434,7 @@ class="nav-link active"
                     </div>
 
                     <div class="modal-footer">
-                        {!! Form::submit(Lang::get('lang.submit'),['class'=>'btn btn-primary float-right'])!!}
+                        {!! html()->submit(Lang::get('lang.submit'))->class('btn btn-primary float-right') !!}
                     </div>
                 </div>
             </div>
@@ -1461,19 +1463,19 @@ class="nav-link active"
                         ?>
 
                         <!-- <div class="col-sm-4 form-group {{ $errors->has('group') ? 'has-error' : '' }}"> -->
-                        {!! Form::label('assign_group',Lang::get('lang.assigned_group')) !!} <span class="text-red"> *</span>
-                        {!!Form::select('group',[Lang::get('lang.groups')=>$groups->pluck('name','id')->toArray()],null,['class' => 'form-control select']) !!}
+                        {!! html()->label(Lang::get('lang.assigned_group'), 'assign_group') !!} <span class="text-red"> *</span>
+                        {!! html()->select('group', [Lang::get('lang.groups')=>$groups->pluck('name','id')->toArray()], null)->class('form-control select') !!}
                         <!-- </div> -->
                         <!-- primary dept -->
                         <!-- <div class="col-sm-4 form-group {{ $errors->has('primary_department') ? 'has-error' : '' }}"> -->
-                        {!! Form::label('primary_dpt',Lang::get('lang.primary_department')) !!} <span class="text-red"> *</span>
-                        {!! Form::select('primary_department', [Lang::get('lang.departments')=>$departments->pluck('name','id')->toArray()],null,['class' => 'form-control select']) !!}
+                        {!! html()->label(Lang::get('lang.primary_department'), 'primary_dpt') !!} <span class="text-red"> *</span>
+                        {!! html()->select('primary_department', [Lang::get('lang.departments')=>$departments->pluck('name','id')->toArray()], null)->class('form-control select') !!}
                         <!-- </div> -->
 
                     </div>
 
                     <div class="modal-footer">
-                        {!! Form::submit(Lang::get('lang.submit'),['class'=>'btn btn-primary float-right'])!!}
+                        {!! html()->submit(Lang::get('lang.submit'))->class('btn btn-primary float-right') !!}
                     </div>
                 </div>
             </div>
@@ -1502,7 +1504,7 @@ class="nav-link active"
                         <div class="form-group">
 
                             <!-- <div class="form-group {{ $errors->has('change_password') ? 'has-error' : '' }}"> -->
-                            {!! Form::label('New password',Lang::get('lang.new_password')) !!} <span class="text-red"> *</span>
+                            {!! html()->label(Lang::get('lang.new_password'), 'New password') !!} <span class="text-red"> *</span>
                             <input type="text" class="form-control" name="change_password" id="changepassword1" >
 
                             <p id="demo" style="color:red"></p>
@@ -1514,7 +1516,7 @@ class="nav-link active"
                 </div>
 
                 <div class="modal-footer">
-                    {!! Form::submit(Lang::get('lang.submit'),['class'=>'btn btn-primary float-right','id'=>'savepassword'])!!}
+                    {!! html()->submit(Lang::get('lang.submit'))->class('btn btn-primary float-right')->id('savepassword') !!}
                 </div>
             </div>
             </form>
@@ -1544,7 +1546,7 @@ class="nav-link active"
                     </div>
 
                     <div class="modal-footer">
-                        {!! Form::submit(Lang::get('lang.submit'),['class'=>'btn btn-primary float-right'])!!}
+                        {!! html()->submit(Lang::get('lang.submit'))->class('btn btn-primary float-right') !!}
                     </div>
                 </div>
             </div>
