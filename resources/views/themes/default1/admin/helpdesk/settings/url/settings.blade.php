@@ -30,7 +30,7 @@ class="nav-link active"
 @stop
 
 @section('content')
-{!! Form::open(['url' => 'url/settings', 'method' => 'PATCH']) !!}
+{!! html()->form('PATCH', url('url/settings'))->open() !!}
 
 @if (count($errors) > 0)
 <div class="alert alert-danger">
@@ -70,23 +70,23 @@ class="nav-link active"
         <div class="row">
 
             <div class="col-md-3">
-                {!! Form::label('www','WWW/non-WWW') !!}<br/>
-                {!! Form::radio('www','yes',$www['www'],['class'=>'option']) !!} WWW&nbsp;&nbsp;
-                {!! Form::radio('www','no',$www['nonwww'],['class'=>'option']) !!} Non WWW
+                {!! html()->label('WWW/non-WWW', 'www') !!}<br/>
+                {!! html()->radio('www', $www['www'], 'yes')->class('option') !!} WWW&nbsp;&nbsp;
+                {!! html()->radio('www', $www['nonwww'], 'no')->class('option') !!} Non WWW
             </div>
  
             <div class="col-md-3">
                 
-                {!! Form::label('option','SSl') !!}<br/>
-                {!! Form::radio('ssl','yes',$https['https'],['class'=>'option']) !!} HTTPS&nbsp;&nbsp;
-                {!! Form::radio('ssl','no',$https['http'],['class'=>'option']) !!} HTTP
+                {!! html()->label('SSl', 'option') !!}<br/>
+                {!! html()->radio('ssl', $https['https'], 'yes')->class('option') !!} HTTPS&nbsp;&nbsp;
+                {!! html()->radio('ssl', $https['http'], 'no')->class('option') !!} HTTP
             </div>
         </div>
     </div>
     
     <div class="card-footer">
-        {!! Form::submit(Lang::get('lang.submit'),['class'=>'btn btn-primary'])!!}
+        {!! html()->submit(Lang::get('lang.submit'))->class('btn btn-primary') !!}
     </div>
 </div>
-{!! Form::close() !!}
+{!! html()->closeModelForm() !!}
 @stop

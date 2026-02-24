@@ -239,7 +239,7 @@ class="nav-link active"
                             <?php $open = count(App\Model\helpdesk\Ticket\Tickets::whereIn('user_id', $user_orga_relation_id)->where('status', '=', '1')->get()); ?>
                             
                             <div>
-                                {!! Form::open(['route'=>'select_all','method'=>'post']) !!}
+                                {!! html()->form('POST', route('select_all'))->open() !!}
                                 <div class="mailbox-controls p-0 mt-2 mb-2">
                                     <!-- Check all button -->
                                     <a class="btn btn-default btn-sm checkbox-toggle"><i class="far fa-square"></i></a>
@@ -334,7 +334,7 @@ class="nav-link active"
                                         <?php echo $tickets->setPath(url('/organizations/' . $orgs->id))->render(); ?>&nbsp;
                                     </div>
                                 </div><!-- /.mail-box-messages -->
-                                {!! Form::close() !!}
+                                {!! html()->closeModelForm() !!}
 
                                 {{-- end deleted tickets --}}
                             </div>
@@ -344,7 +344,7 @@ class="nav-link active"
                             <?php $closed = count(App\Model\helpdesk\Ticket\Tickets::whereIn('user_id', $user_orga_relation_id)->where('status', 2)->get()); ?>
                             
                             <div>
-                                {!! Form::open(['route'=>'select_all','method'=>'post']) !!}
+                                {!! html()->form('POST', route('select_all'))->open() !!}
                                 <div class="mailbox-controls p-0 mt-2 mb-2">
                                     <!-- Check all button -->
                                     <a class="btn btn-default btn-sm checkbox-toggle"><i class="far fa-square"></i></a>
@@ -440,7 +440,7 @@ class="nav-link active"
                                         <?php echo $tickets->setPath(url('/organizations/' . $orgs->id))->render(); ?>&nbsp;
                                     </div>
                                 </div><!-- /.mail-box-messages -->
-                                {!! Form::close() !!}
+                                {!! html()->closeModelForm() !!}
 
                                 {{-- end deleted tickets --}}
                             </div>
@@ -450,7 +450,7 @@ class="nav-link active"
                             <?php $deleted = count(App\Model\helpdesk\Ticket\Tickets::whereIn('user_id', $user_orga_relation_id)->where('status', '=', '5')->get()); ?>
                             <div>
 
-                                {!! Form::open(['route'=>'select_all','method'=>'post']) !!}
+                                {!! html()->form('POST', route('select_all'))->open() !!}
                                 <div class="mailbox-controls p-0 mt-2 mb-2">
                                     <!-- Check all button -->
                                     <a class="btn btn-default btn-sm checkbox-toggle"><i class="far fa-square"></i></a>
@@ -546,7 +546,7 @@ class="nav-link active"
                                         <?php echo $tickets->setPath(url('/organizations/' . $orgs->id))->render(); ?>&nbsp;
                                     </div>
                                 </div><!-- /.mail-box-messages -->
-                                {!! Form::close() !!}
+                                {!! html()->closeModelForm() !!}
                             </div><!-- /.tab-pane -->
                         </div><!-- /.tab-content -->
                     </div><!-- nav-tabs-custom -->
@@ -566,8 +566,8 @@ class="nav-link active"
                     <div  class="form-group">
                         <div class="row">
                             <div class='col-sm-3'>
-                                {!! Form::label('date', Lang::get("lang.start_date").':') !!}
-                                {!! Form::text('start_date',null,['class'=>'form-control','id'=>'datepicker4'])!!}
+                                {!! html()->label(Lang::get("lang.start_date").':', 'date') !!}
+                                {!! html()->text('start_date', null)->class('form-control')->id('datepicker4') !!}
                             </div>
                             <?php
                             $start_date = App\Model\helpdesk\Ticket\Tickets::where('id', '=', '1')->first();
@@ -593,8 +593,8 @@ class="nav-link active"
                                 });
                             </script>
                             <div class='col-sm-3'>
-                                {!! Form::label('start_time', Lang::get("lang.end_date").':') !!}
-                                {!! Form::text('end_date',null,['class'=>'form-control','id'=>'datetimepicker3'])!!}
+                                {!! html()->label(Lang::get("lang.end_date").':', 'start_time') !!}
+                                {!! html()->text('end_date', null)->class('form-control')->id('datetimepicker3') !!}
                             </div>
                             <script type="text/javascript">
                                 $(function() {
@@ -608,7 +608,7 @@ class="nav-link active"
                                 });
                             </script>
                             <div class='col-sm-2'>
-                                {!! Form::label('filter', 'Filter:',['style' => 'visibility:hidden;']) !!}<br>
+                                {!! html()->label('Filter:', 'filter')->attributes(['style' => 'visibility:hidden;']) !!}<br>
                                 <input type="submit" value="{!! Lang::get('lang.submit') !!}" class="btn btn-primary">
                             </div>
                             
@@ -908,7 +908,7 @@ class="nav-link active"
 <div class="modal fade" id="assign_head">
     <div class="modal-dialog">
         <div class="modal-content">
-            {!! Form::model($orgs->id, ['id'=>'org_head','method' => 'PATCH'] )!!}
+            {!! html()->modelForm($orgs->id, 'PATCH', url()->current())->attributes(['id' => 'org_head'])->open() !!}
             <div class="modal-header">
                 <h4 class="modal-title">{!! Lang::get('lang.assign') !!}</h4>
                 <button type="button" class="close" data-dismiss="modal" id="dismiss" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -940,7 +940,7 @@ class="nav-link active"
                 <button type="button" class="btn btn-default" data-dismiss="modal" id="dismis4">{!! Lang::get('lang.close') !!}</button>
                 <button type="submit" class="btn btn-success" id="submt2">{!! Lang::get('lang.assign') !!}</button>
             </div>
-            {!! Form::close()!!}
+            {!! html()->closeModelForm() !!}
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->

@@ -31,7 +31,7 @@ class="active"
 	<div class="row">
 <div class="col-md-12">
 <div class="box box-primary">
-    {!! Form::model($contents,['route'=>['template.write', $template,$path],'method'=>'PATCH','files' => true]) !!}
+    {!! html()->modelForm($contents, 'PATCH', route('template.write', [$template, $path]))->acceptsFiles()->open() !!}
 <div class="box-header">
 
 	<h2 class="box-title">{{Lang::get('lang.edit_template')}}: <b><?php $parts = explode('.',$template); $names  = $parts[0]; $name = str_replace('-', ' ', $names); $cname = ucfirst($name); echo $cname?></b></h2><button type="submit" class="btn btn-primary pull-right">Save changes</button>
@@ -60,10 +60,10 @@ class="active"
 
 				<!-- <div class="box-body"> -->
 
-                  {!! Form::textarea('templatedata',$contents,['class'=>'form-control'])!!}
+                  {!! html()->textarea('templatedata', $contents)->class('form-control') !!}
 
 <!-- </div> -->
-  {!! Form::close() !!}
+  {!! html()->closeModelForm() !!}
 @stop
 </div><!-- /.box -->
 @section('FooterInclude')

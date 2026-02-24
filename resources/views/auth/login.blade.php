@@ -105,16 +105,16 @@
                     </div>
 
                     <!-- form open -->
-                    {!!  Form::open(['route' => 'auth.post.login']) !!}
+                    {!! html()->form('POST', route('auth.post.login'))->open() !!}
 
                         <div class="form-group has-feedback {{ $errors->has('email') ? 'has-error' : '' }}" style="display: -webkit-box;">
-                            {!! Form::text('email',null,['placeholder'=> Lang::get("lang.email") ,'class' => 'form-control']) !!}
+                            {!! html()->text('email', null)->placeholder(Lang::get("lang.email"))->class('form-control') !!}
                             <span class="far fa-envelope form-control-feedback" style="top: 9px;left: -25px;color: #6c757d;"></span>
                         </div>
 
                         <div class="form-group has-feedback {{ $errors->has('password') ? 'has-error' : '' }}" style="display: -webkit-box;">
 
-                            {!! Form::password('password',['placeholder'=>Lang::get("lang.password"),'class' => 'form-control']) !!}
+                            {!! html()->password('password')->placeholder(Lang::get("lang.password"))->class('form-control') !!}
                             <span class="  fa fa-lock form-control-feedback" style="top: 9px;left: -25px;color: #6c757d;"></span>
                         </div>
 
@@ -149,7 +149,7 @@
                             @include('themes.default1.client.layout.social-login')
                         </div>
 
-                    {!! Form::close()!!}
+                    {!! html()->closeModelForm() !!}
                 </div>
             </div>
         </div>

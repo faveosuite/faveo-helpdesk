@@ -71,7 +71,7 @@ if (Auth::user()->role == 'agent') {
             {{Session::get('fails')}}
         </div>
         @endif
-        {!! Form::open(['id'=>'modalpopup', 'route'=>'select_all','method'=>'post']) !!}
+        {!! html()->form('POST', route('select_all'))->attributes(['id' => 'modalpopup'])->open() !!}
         <!--<div class="mailbox-controls">-->
         <!-- Check all button -->
         <a class="btn btn-default btn-sm checkbox-toggle"><i class="fa fa-square-o"></i></a>
@@ -99,7 +99,7 @@ if (Auth::user()->role == 'agent') {
             {!!$table->render('vendor.Chumper.template')!!}
 
         </div><!-- /.mail-box-messages -->
-        {!! Form::close() !!}
+        {!! html()->closeModelForm() !!}
     </div><!-- /.box-body -->
 </div><!-- /. box -->
 <!-- Modal -->   

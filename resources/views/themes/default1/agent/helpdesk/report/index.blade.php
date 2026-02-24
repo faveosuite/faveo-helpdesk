@@ -62,7 +62,7 @@ class="active"
                 <div class="row">
          
                     <div class='col-sm-2'>
-                        {!! Form::label('helptopic', Lang::get('lang.help_topic')) !!}
+                        {!! html()->label(Lang::get('lang.help_topic'), 'helptopic') !!}
                         <select name="help_topic" id="help_topic" class="form-control">
                             <?php $helptopics = App\Model\helpdesk\Manage\Help_topic::where('status', '=', '1')->get([ 'id', 'topic']); ?>
                             @foreach($helptopics as $helptopic)
@@ -72,8 +72,8 @@ class="active"
                     </div>
 
                     <div class='col-sm-2 form-group' id="start_date">
-                        {!! Form::label('date', Lang::get('lang.start_date').':') !!}
-                        {!! Form::text('start_date',null,['class'=>'form-control','id'=>'datepicker4'])!!}
+                        {!! html()->label(Lang::get('lang.start_date').':', 'date') !!}
+                        {!! html()->text('start_date', null)->class('form-control')->id('datepicker4') !!}
                     </div>
                     <?php
                     $start_date = App\Model\helpdesk\Ticket\Tickets::where('id', '=', '1')->first();
@@ -99,8 +99,8 @@ class="active"
                     </script>
 
                     <div class='col-sm-2 form-group' id="end_date">
-                        {!! Form::label('start_time', Lang::get('lang.end_date').':') !!}
-                        {!! Form::text('end_date',null,['class'=>'form-control','id'=>'datetimepicker3'])!!}
+                        {!! html()->label(Lang::get('lang.end_date').':', 'start_time') !!}
+                        {!! html()->text('end_date', null)->class('form-control')->id('datetimepicker3') !!}
                     </div>
                     <script type="text/javascript">
                         $(function() {
@@ -137,13 +137,13 @@ class="active"
                     </div>
 
                     <div class='col-sm-1'>
-                        {!! Form::label('filter', 'Filter:',['style' => 'visibility:hidden;']) !!}<br>
+                        {!! html()->label('Filter:', 'filter')->attributes(['style' => 'visibility:hidden;']) !!}<br>
                         <input type="submit" class="btn btn-primary" value="{{trans('lang.submit')}}" id="submit">
                     </div>
                     <br/>
                     <div class="col-md-4">
 
-                        {!! Form::label('filter', 'Filter:',['style' => 'visibility:hidden;']) !!}<br>
+                        {!! html()->label('Filter:', 'filter')->attributes(['style' => 'visibility:hidden;']) !!}<br>
 
                         <a class="btn btn-primary" href="#" id="pdf">{!! Lang::get('lang.generate_pdf') !!}</a>
 

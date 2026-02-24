@@ -20,7 +20,7 @@ class="active"
 <!-- content -->
 @section('content')
 <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
-{!! Form::open(['url'=>'user-export','method'=>'post']) !!}
+{!! html()->form('POST', url('user-export'))->open() !!}
 <div class="box box-primary">
     @if (count($errors) > 0)
     <div class="alert alert-danger">
@@ -60,13 +60,13 @@ class="active"
                 </div>
             </div>
             <div class="col-md-6">
-                {!! Form::hidden('date',null,['id'=>'hidden']) !!}
-                {!! Form::submit('Export',['class'=>'btn btn-success','id'=>'submit']) !!}
+                {!! html()->hidden('date', null)->id('hidden') !!}
+                {!! html()->submit('Export')->class('btn btn-success')->id('submit') !!}
             </div>
         </div>
     </div>
 </div>
-{!! Form::close() !!}
+{!! html()->closeModelForm() !!}
 @stop
 @section('FooterInclude')
 <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>

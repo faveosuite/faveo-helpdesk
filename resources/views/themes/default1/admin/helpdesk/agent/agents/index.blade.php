@@ -114,11 +114,11 @@ class="nav-link active"
                 <td>{{ UTC::usertimezone($use->created_at) }}</td>
                 {{-- <td>{{$use->Lastlogin_at}}</td> --}}
                 <td>
-                    {!! Form::open(['route'=>['agents.destroy', $use->id],'method'=>'DELETE']) !!}
+                    {!! html()->form('DELETE', route('agents.destroy', [$use->id]))->open() !!}
                     <a href="{{route('agents.edit', $use->id)}}" class="btn btn-primary btn-xs"><i class="fas fa-edit"> </i> {!! Lang::get('lang.edit') !!} </a>
                     <!-- To pop up a confirm Message -->
-                    {{-- {!! Form::button(' <i class="fas fa-trash"> </i> '  . Lang::get('lang.delete') ,['type' => 'submit', 'class'=> 'btn btn-danger btn-xs','onclick'=>'return confirm("Are you sure?")']) !!} --}}
-                    {!! Form::close() !!}
+                    {{-- {!! html()->button(' <i class="fas fa-trash"> </i> '  . Lang::get('lang.delete'))->class('btn btn-danger btn-xs')->attributes(['type' => 'submit', 'onclick' => 'return confirm("Are you sure?")']) !!} --}}
+                    {!! html()->closeModelForm() !!}
                 </td>
             </tr>
             @endif

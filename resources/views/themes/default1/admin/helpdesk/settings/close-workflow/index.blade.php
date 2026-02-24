@@ -65,7 +65,7 @@ class="nav-link active"
         <h3 class="card-title">{!! Lang::get('lang.close_ticket_workflow_settings') !!}</h3>
     </div><!-- /.box-header -->
     <div class="card-body">
-        {!! Form::model($security,['route'=>['close-workflow.update', $security->id],'method'=>'PATCH','files' => true]) !!}
+        {!! html()->modelForm($security, 'PATCH', route('close-workflow.update', [$security->id]))->acceptsFiles()->open() !!}
         <div class="form-group {{ $errors->has('days') ? 'has-error' : '' }}">
             <div class="row">
                 <div class="col-md-3">
@@ -73,7 +73,7 @@ class="nav-link active"
                 </div>
                 <div  class="col-md-9">
                     <div class="callout callout-default" style="font-style: oblique;">{!! Lang::get('lang.close-msg1') !!}</div>
-                    {!! Form::text('days',null,['class'=>'form-control'])!!}
+                    {!! html()->text('days', null)->class('form-control') !!}
                 </div>
             </div>
         </div>
@@ -86,10 +86,10 @@ class="nav-link active"
                     <div class="callout callout-default" style="font-style: oblique;">{!! Lang::get('lang.close-msg4') !!}</div>
                     <div class="row">
                         <div class="col-sm-3">
-                            {!! Form::radio('send_email','1') !!} {{Lang::get('lang.yes')}}
+                            {!! html()->radio('send_email', null, '1') !!} {{Lang::get('lang.yes')}}
                         </div>
                         <div class="col-sm-3">
-                            {!! Form::radio('send_email','0') !!} {{Lang::get('lang.no')}}
+                            {!! html()->radio('send_email', null, '0') !!} {{Lang::get('lang.no')}}
                         </div>
                     </div>       
                 </div>
@@ -103,7 +103,7 @@ class="nav-link active"
                 <div class="col-md-6">
                     <div class="callout callout-default" style="font-style: oblique;">{!! Lang::get('lang.close-msg3') !!}</div>
                     <?php $user = \App\Model\helpdesk\Ticket\Ticket_Status::where('state', '=', 'closed')->get(); ?>
-                    {!! Form::select('status',[ Lang::get('lang.status')=>$user->pluck('name','id')->toArray()],null,['class' => 'form-control']) !!}	
+                    {!! html()->select('status', [ Lang::get('lang.status')=>$user->pluck('name','id')->toArray()], null)->class('form-control') !!}	
                 </div>
             </div>
         </div>
@@ -111,6 +111,6 @@ class="nav-link active"
     <div class="card-footer">
         <button type="submit" class="btn btn-primary">{!! Lang::get('lang.submit') !!}</button>
     </div>
-    {!! Form::close() !!}
+    {!! html()->closeModelForm() !!}
 </div>
 @stop

@@ -47,13 +47,16 @@
                                 <td>{!! $song->id !!}</td>
                                 <td>{!! $song->title !!}</td>
                                 <td>{!! $song->slug !!}</td>
-                                <td>{!! link_to_route('songs.show','Show',[$song->slug],['id'=>'show','class'=>'btn btn-primary btn-sm']) !!}
+                                <td>
+                                    <a href="{{ route('songs.show', [$song->slug]) }}" id="show" class="btn btn-primary btn-sm">
+                                        Show
+                                    </a>
 
                                     <button class="btn btn-info btn-sm" data-toggle="modal" data-target="#{{$song->slug}}">Modal Edit</button>
                                     <div class="modal fade" id="{{$song->slug}}">
                                         <div class="modal-dialog">
                                             <div class="modal-content">
-                                                {!! Form::model($song,['route'=>['songs.update', $song->slug],'method'=>'PATCH']) !!}
+                                                {!! html()->modelForm($song, 'PATCH', route('songs.update', [$song->slug]))->open() !!}
                                                 <div class="modal-header">
                                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                                                     <h4 class="modal-title">Edit Song</h4>
@@ -63,11 +66,11 @@
                                                 </div>
                                                 <div class="modal-footer">
                                                     <div class="form-group">
-                                                        {!! Form::submit('Update Song',['class'=>'btn btn-primary'])!!}
+                                                        {!! html()->submit('Update Song')->class('btn btn-primary') !!}
                                                     </div>
                                                     <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
                                                 </div>
-                                                {!! Form::close() !!}
+                                                {!! html()->closeModelForm() !!}
                                             </div><!-- /.modal-content -->
                                         </div><!-- /.modal-dialog -->
                                     </div><!-- /.modal -->
@@ -85,7 +88,9 @@
                                                 </div>
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
-                                                    {!! link_to_route('songs.delete','Delete',[$song->slug],['id'=>'delete','class'=>'btn btn-danger btn-sm']) !!}
+                                                    <a href="{{ route('songs.delete', [$song->slug]) }}" id="delete" class="btn btn-danger btn-sm">
+                                                        Delete
+                                                    </a>
                                                 </div>
                                             </div><!-- /.modal-content -->
                                         </div><!-- /.modal-dialog -->

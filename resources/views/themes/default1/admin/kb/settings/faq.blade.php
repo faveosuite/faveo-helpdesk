@@ -2,7 +2,7 @@
 @section('content')
 <!-- open a form -->
 
-	{!! Form::model($faq,['url' => 'post-create-faq/'.$faq->id, 'method' => 'PATCH','files'=>true]) !!}
+	{!! html()->modelForm($faq, 'PATCH', url('post-create-faq/'.$faq->id))->acceptsFiles()->open() !!}
 
 <!-- <div class="form-group {{ $errors->has('company_name') ? 'has-error' : '' }}"> -->
 	<!-- table  -->
@@ -13,7 +13,7 @@
 	<div class="content-header">
 
 		<div>
-        	<h4>Faqs {!! Form::submit('save',['class'=>'form-group btn btn-primary pull-right'])!!}</h4>
+        	<h4>Faqs {!! html()->submit('save')->class('form-group btn btn-primary pull-right') !!}</h4>
     	</div>
 
     </div>
@@ -44,10 +44,10 @@
             <div class="row">
 
         <div class="col-md-10 form-group {{ $errors->has('faq') ? 'has-error' : '' }}">
-        {!! Form::label('faq','Description') !!}
+        {!! html()->label('Description', 'faq') !!}
         {!! $errors->first('faq', '<spam class="help-block">:message</spam>') !!}
 
-            {!! Form::textarea('faq',null,['class' => 'form-control','size' => '30x5','id'=>'faq']) !!}
+            {!! html()->textarea('faq', null)->class('form-control')->id('faq')->attributes(['size' => '30x5']) !!}
 
         </div>
             <script language="JavaScript" type="text/javascript">

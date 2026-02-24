@@ -124,7 +124,7 @@ $category_id = $all->pluck('category_id')->toArray();
 {{--                <i class="line" style="border-color: rgb(0, 154, 186);"<></i>{!! Lang::get('lang.leave_a_reply') !!}--}}
 {{--            </h3>--}}
 
-            {!! Form::open(['method'=>'post','url'=>'postcomment/'.$arti->slug,'id'=>'comment-form']) !!}
+            {!! html()->form('POST', url('postcomment/'.$arti->slug))->attributes(['id' => 'comment-form'])->open() !!}
             {!! csrf_field() !!}
 
             <div id="respond" class="comment-respond form-border">
@@ -150,8 +150,8 @@ $category_id = $all->pluck('category_id')->toArray();
 
                         <div class="col-md-10" style="width: 65%">
                             <div class="form-group {{ $errors->has('comment') ? 'has-error' : '' }}">
-                                {!! Form::label('comment',Lang::get('lang.message'),['class' => 'label']) !!}
-                                {!! Form::textarea('comment',null,['class' => 'form-control','size' => '30x8','id'=>'comment']) !!}
+                                {!! html()->label(Lang::get('lang.message'), 'comment')->class('label') !!}
+                                {!! html()->textarea('comment', null)->class('form-control')->id('comment')->attributes(['size' => '30x8']) !!}
                                 {!! $errors->first('comment', '<spam class="help-block">:message</spam>') !!}
                             </div>
                             <button type="submit" class="btn btn-custom btn-lg float-right" style="background-color: #009aba; hov: #00c0ef; color: #fff">
@@ -206,26 +206,26 @@ $category_id = $all->pluck('category_id')->toArray();
 
 
                     </script></div>
-                    {!! Form::close() !!}
+                    {!! html()->closeModelForm() !!}
                 @else
-                    {!! Form::open(['method'=>'post','url'=>'postcomment/'.$arti->slug,'id'=>'comment-form']) !!}
+                    {!! html()->form('POST', url('postcomment/'.$arti->slug))->attributes(['id' => 'comment-form'])->open() !!}
                     <div class="row">
                         <div class="col-md-4">
                             <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                                {!! Form::label('name', Lang::get('lang.name'), ['class' => 'label']) !!}
-                                {!! Form::text('name', null, ['class' => 'form-control', 'id' => 'comment-name']) !!}
+                                {!! html()->label(Lang::get('lang.name'), 'name')->class('label') !!}
+                                {!! html()->text('name', null)->class('form-control')->id('comment-name') !!}
                                 {!! $errors->first('name', '<span class="help-block">:message</span>') !!}
                             </div>
 
                             <div class="form-group {{ $errors->has('email') ? 'has-error' : '' }}">
-                                {!! Form::label('email', Lang::get('lang.email'), ['class' => 'label']) !!}
-                                {!! Form::text('email', null, ['class' => 'form-control', 'id' => 'comment-email']) !!}
+                                {!! html()->label(Lang::get('lang.email'), 'email')->class('label') !!}
+                                {!! html()->text('email', null)->class('form-control')->id('comment-email') !!}
                                 {!! $errors->first('email', '<span class="help-block">:message</span>') !!}
                             </div>
 
                             <div class="form-group {{ $errors->has('website') ? 'has-error' : '' }}">
-                                {!! Form::label('website', Lang::get('lang.website'), ['class' => 'label']) !!}
-                                {!! Form::text('website', null, ['class' => 'form-control']) !!}
+                                {!! html()->label(Lang::get('lang.website'), 'website')->class('label') !!}
+                                {!! html()->text('website', null)->class('form-control') !!}
                                 {!! $errors->first('website', '<span class="help-block">:message</span>') !!}
                             </div>
 
@@ -233,8 +233,8 @@ $category_id = $all->pluck('category_id')->toArray();
 
                         <div class="col-md-10" style="width: 65%">
                             <div class="form-group {{ $errors->has('comment') ? 'has-error' : '' }}">
-                                {!! Form::label('comment',Lang::get('lang.message'),['class' => 'label']) !!}
-                                {!! Form::textarea('comment',null,['class' => 'form-control','size' => '30x8','id'=>'comment']) !!}
+                                {!! html()->label(Lang::get('lang.message'), 'comment')->class('label') !!}
+                                {!! html()->textarea('comment', null)->class('form-control')->id('comment')->attributes(['size' => '30x8']) !!}
                                 {!! $errors->first('comment', '<spam class="help-block">:message</spam>') !!}
                             </div>
                             <button type="submit" class="btn btn-custom btn-lg float-right" style="background-color: #009aba; hov: #00c0ef; color: #fff">
@@ -316,7 +316,7 @@ $category_id = $all->pluck('category_id')->toArray();
                     </div>
                 @endif
             </div><!-- #respond -->
-            {!! Form::close() !!}
+            {!! html()->closeModelForm() !!}
 
 
 

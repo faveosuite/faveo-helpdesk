@@ -23,7 +23,7 @@
         <hr>
         <p></p>
     </article>
-    {!! Form::open(['method'=>'post','action'=>'Client\kb\UserController@postContact']) !!}
+    {!! html()->form('POST', action('Client\kb\UserController@postContact'))->open() !!}
     @if(Session::has('success'))
     <div class="alert alert-success alert-dismissable">
         <i class="fa  fa-check-circle"></i>
@@ -42,41 +42,41 @@
 
     <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
 
-        {!! Form::label('name','Name') !!}
+        {!! html()->label('Name', 'name') !!}
         {!! $errors->first('name', '<spam class="help-block">:message</spam>') !!}
-        {!! Form::text('name',null,['class' => 'form-control']) !!}
+        {!! html()->text('name', null)->class('form-control') !!}
 
     </div>
 
     <div class="form-group {{ $errors->has('email') ? 'has-error' : '' }}">
 
-        {!! Form::label('email','Email') !!}
+        {!! html()->label('Email', 'email') !!}
         {!! $errors->first('email', '<spam class="help-block">:message</spam>') !!}
-        {!! Form::text('email',null,['class' => 'form-control']) !!}
+        {!! html()->text('email', null)->class('form-control') !!}
 
     </div>
 
     <div class="form-group {{ $errors->has('subject') ? 'has-error' : '' }}">
 
-        {!! Form::label('subject','Subject') !!}
+        {!! html()->label('Subject', 'subject') !!}
         {!! $errors->first('subject', '<spam class="help-block">:message</spam>') !!}
-        {!! Form::text('subject',null,['class' => 'form-control']) !!}
+        {!! html()->text('subject', null)->class('form-control') !!}
 
     </div>
 
     <div class="form-group {{ $errors->has('message') ? 'has-	error' : '' }}">
-        {!! Form::label('message','Messege', ['style' => 'display: block']) !!}
+        {!! html()->label('Messege', 'message')->attributes(['style' => 'display: block']) !!}
         {!! $errors->first('message', '<spam class="help-block">:message</spam>') !!}
-        {!! Form::textarea('message',null,['class' => 'form-control','size' => '30x7','id'=>'message']) !!}
+        {!! html()->textarea('message', null)->class('form-control')->id('message')->attributes(['size' => '30x7']) !!}
 
     </div>
     <div>
 
-        {!! Form::submit('Send Message',['class'=>'form-group btn btn-primary'])!!}
+        {!! html()->submit('Send Message')->class('form-group btn btn-primary') !!}
 
     </div>
 
-    {!! Form::close() !!}
+    {!! html()->closeModelForm() !!}
 
 
 </div>

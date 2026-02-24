@@ -15,18 +15,18 @@
 	<div class="banner-wrapper text-center clearfix">
 		<h3 class="banner-title text-info h4">Have a Ticket?</h3>
         <div class="banner-content">
-        {!! Form::open(['url' => 'checkmyticket' , 'method' => 'POST'] )!!}
+        {!! html()->form('POST', url('checkmyticket'))->open() !!}
 
-            {!! Form::label('email',Lang::get('lang.email')) !!}
+            {!! html()->label(Lang::get('lang.email'), 'email') !!}
     		{!! $errors->first('email', '<spam class="help-block">:message</spam>') !!}
-    		{!! Form::text('email',null,['class' => 'form-control']) !!}
+    		{!! html()->text('email', null)->class('form-control') !!}
 
-            {!! Form::label('ticket_number',Lang::get('lang.ticket_number'),['style' => 'display: block']) !!}
+            {!! html()->label(Lang::get('lang.ticket_number'), 'ticket_number')->attributes(['style' => 'display: block']) !!}
     		{!! $errors->first('ticket_number', '<spam class="help-block">:message</spam>') !!}
-    		{!! Form::text('ticket_number',null,['class' => 'form-control']) !!}
+    		{!! html()->text('ticket_number', null)->class('form-control') !!}
             <br/><input type="submit" value="Check Ticket Status" class="btn btn-info">
 
-        {!! Form::close() !!}
+        {!! html()->closeModelForm() !!}
 		</div>
 	</div>
 @stop
@@ -56,10 +56,10 @@
         $encrypted_token = $encrypter->encrypt(csrf_token());
  ?>
 <input id="token" type="hidden" value="{{$encrypted_token}}">
-{!! Form::open(['route'=>'client.form.post','method'=>'post']) !!}
+{!! html()->form('POST', route('client.form.post'))->open() !!}
 <div>
     <div class="content-header">
-        <h4>Ticket {!! Form::submit(Lang::get('lang.send'),['class'=>'form-group btn btn-info pull-right'])!!}</h4>
+        <h4>Ticket {!! html()->submit(Lang::get('lang.send'))->class('form-group btn btn-info pull-right') !!}</h4>
     </div>
     <br/>
     <div>
@@ -77,7 +77,7 @@
         @endif
 
 		<div class="form-group {{ $errors->has('help_topic') ? 'has-error' : '' }}">
-			{!! Form::label('help_topic', 'Choose a Help Topic') !!}
+			{!! html()->label('Choose a Help Topic', 'help_topic') !!}
 			{!! $errors->first('help_topic', '<spam class="help-block">:message</spam>') !!}
             <select name="help_topic" class="form-control" id="selectid">
                 <option>--Select--</option>
@@ -94,7 +94,7 @@
     </div>
 </div>
 </div>
-{!! Form::close() !!}
+{!! html()->closeModelForm() !!}
 </div>
 <!--
 |====================================================

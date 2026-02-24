@@ -43,7 +43,7 @@ $thread = App\Model\helpdesk\Ticket\Ticket_Thread::where('ticket_id','=',\Crypt:
                                         <li><a href="#" id="resolved"><i class="fa fa-check-circle " style="color:#0EF1BE;"> </i> {!! Lang::get('lang.resolved') !!}</a></li>
                                     </ul>
                                 </div>
-                                {!! Form::close() !!}
+                                {!! html()->closeModelForm() !!}
                             </div>
                         </div>
                             </div>
@@ -354,9 +354,9 @@ foreach ($conversations as $conversation) {
 <div id="respond" class="comment-respond form-border">
     <h3 id="reply-title" class="comment-reply-title section-title"><i class="line"></i>{!! Lang::get('lang.leave_a_reply') !!}</h3>
     @if(Auth::user())
-        {!! Form::open(['url'=>'post/reply/'.$id2.'#formabc']) !!}
+        {!! html()->form('POST', url('post/reply/'.$id2.'#formabc'))->open() !!}
     @else
-        {!! Form::open(['url'=>'post-ticket-reply/'.$id.'#formabc']) !!}
+        {!! html()->form('POST', url('post-ticket-reply/'.$id.'#formabc'))->open() !!}
     @endif
         <div class="row">
             <div class="form-group">
@@ -370,7 +370,7 @@ foreach ($conversations as $conversation) {
         <div class="text-right">
             <button type="submit" class="btn btn-custom btn-lg">{!! Lang::get('lang.post_comment') !!}</button>
         </div>
-    {!! Form::close() !!}
+    {!! html()->closeModelForm() !!}
 </div>
 
 

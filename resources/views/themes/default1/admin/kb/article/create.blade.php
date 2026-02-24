@@ -11,7 +11,7 @@
             bkLib.onDomLoaded(function() { nicEditors.allTextAreas() });
         </script>
 @section('content')
-{!! Form::open(array('action' => 'Admin\kb\ArticleController@store' , 'method' => 'post') )!!}
+{!! html()->form('POST', action('Admin\kb\ArticleController@store'))->open() !!}
 
 <div class="row">
 	@if(Session::has('success'))
@@ -48,24 +48,24 @@
 
 				<div class="col-md-6 form-group {{ $errors->has('name') ? 'has-error' : '' }}" >
 
-					{!! Form::label('name',Lang::get('lang.name')) !!}
+					{!! html()->label(Lang::get('lang.name'), 'name') !!}
 					{!! $errors->first('name', '<spam class="help-block">:message</spam>') !!}
-					{!! Form::text('name',null,['class' => 'form-control']) !!}
+					{!! html()->text('name', null)->class('form-control') !!}
 				</div>
 
 				<div class="col-md-6 form-group {{ $errors->has('slug') ? 'has-error' : '' }}" >
 
-					{!! Form::label('slug',Lang::get('lang.slug')) !!}
+					{!! html()->label(Lang::get('lang.slug'), 'slug') !!}
 					{!! $errors->first('slug', '<spam class="help-block">:message</spam>') !!}
-					{!! Form::text('slug',null,['class' => 'form-control']) !!}
+					{!! html()->text('slug', null)->class('form-control') !!}
 				</div>
 			</div>
 
 				<div class="form-group {{ $errors->has('description') ? 'has-error' : '' }}">
-				{!! Form::label('description',Lang::get('lang.description')) !!}
+				{!! html()->label(Lang::get('lang.description'), 'description') !!}
 				{!! $errors->first('description', '<spam class="help-block">:message</spam>') !!}
 				<div class="form-group" style="background-color:white">
-					{!! Form::textarea('description',null,['class' => 'form-control color','size' => '128x20','id'=>'myNicEditor','placeholder'=>'Enter the description']) !!}
+					{!! html()->textarea('description', null)->class('form-control color')->id('myNicEditor')->placeholder('Enter the description')->attributes(['size' => '128x20']) !!}
 				</div>
 				</div>
 			</div>
@@ -83,14 +83,14 @@
 				<div class="box-body">
 					<div class="form-group {{ $errors->has('type') ? 'has-error' : '' }}">
 
-						{!! Form::label('type',Lang::get('lang.status')) !!}
+						{!! html()->label(Lang::get('lang.status'), 'type') !!}
 						{!! $errors->first('type', '<spam class="help-block">:message</spam>') !!}
 						<div class="row">
 							<div class="col-xs-4">
-								{!! Form::radio('type','1',true) !!}{{Lang::get('lang.published')}}
+								{!! html()->radio('type', true, '1') !!}{{Lang::get('lang.published')}}
 							</div>
 							<div class="col-xs-3">
-								{!! Form::radio('type','0',null) !!}{{Lang::get('lang.draft')}}
+								{!! html()->radio('type', null, '0') !!}{{Lang::get('lang.draft')}}
 							</div>
 						</div>
 					</div>
@@ -98,15 +98,15 @@
 
 					<div class="form-group {{ $errors->has('status') ? 'has-error' : '' }}">
 
-						{!! Form::label('status',Lang::get('lang.visibility')) !!}
+						{!! html()->label(Lang::get('lang.visibility'), 'status') !!}
 						{!! $errors->first('status', '<spam class="help-block">:message</spam>') !!}
 						<div class="row">
 							<div class="col-xs-3">
-								{!! Form::radio('status','1',true) !!}{{Lang::get('lang.public')}}
+								{!! html()->radio('status', true, '1') !!}{{Lang::get('lang.public')}}
 								</div>
 								<div class="row">
 							<div class="col-xs-3">
-								{!! Form::radio('status','0',null) !!}{{Lang::get('lang.private')}}
+								{!! html()->radio('status', null, '0') !!}{{Lang::get('lang.private')}}
 								</div>
 					</div>
 
@@ -117,7 +117,7 @@
 		<div class="box-footer" style="background-color:#f5f5f5;">
 		<div style="margin-left:140px;">
 
-				{!! Form::submit(Lang::get('lang.publish'),['class'=>'btn btn-primary'])!!}
+				{!! html()->submit(Lang::get('lang.publish'))->class('btn btn-primary') !!}
 		</div>
 
 		</div>
@@ -132,7 +132,7 @@
 			<div class="box-body" style="height:190px; overflow-y:auto;">
 
 				<div class="form-group {{ $errors->has('category_id') ? 'has-error' : '' }}">
-		{{-- {!! Form::label('category_id','Category') !!} --}}
+		{{-- {!! html()->label('Category', 'category_id') !!} --}}
 				{!! $errors->first('category_id', '<spam class="help-block">:message</spam>') !!}
 					@while (list($key, $val) = each($category))
 					<div class="row">
@@ -149,14 +149,14 @@
 
 				</div>
 		</div>
-		{!! Form::close() !!}
+		{!! html()->closeModelForm() !!}
 		<div class="box-footer" style="background-color:#f5f5f5;">
 
 				<span class="btn btn-info btn-sm" data-toggle="modal" data-target="#j">{{Lang::get('lang.addcategory')}}</span>
 				<div class="modal" id="j">
                     <div class="modal-dialog">
                         <div class="modal-content">
-                        {!! Form::open(['method'=>'post','action'=>'Admin\kb\CategoryController@store']) !!}
+                        {!! html()->form('POST', action('Admin\kb\CategoryController@store'))->open() !!}
                             <div class="modal-header">
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                                 <h4 class="modal-title">{{Lang::get('lang.addcategory')}}</h4>
@@ -166,11 +166,11 @@
                             </div>
                             <div class="modal-footer">
                               	<div class="form-group">
-                                    {!! Form::submit('Add')!!}
+                                    {!! html()->submit('Add') !!}
                                 </div>
                             	<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
                             </div>
-                        {!! Form::close() !!}
+                        {!! html()->closeModelForm() !!}
                       	</div>
                      </div>
                     </div>
@@ -179,7 +179,7 @@
 </div>
 </li>
 </ul>
-{{-- {!! Form::close() !!} --}}
+{{-- {!! html()->closeModelForm() !!} --}}
 @stop
 @section('FooterInclude')
 

@@ -32,7 +32,7 @@ class="nav-link active"
 <!-- content -->
 @section('content')
 <!-- open a form -->
-{!! Form::model($companys,['url' => 'postcompany/'.$companys->id, 'method' => 'PATCH','files'=>true]) !!}
+{!! html()->modelForm($companys, 'PATCH', url('postcompany/'.$companys->id))->acceptsFiles()->open() !!}
 <!-- check whether success or not -->
 @if(Session::has('success'))
 <div class="alert alert-success alert-dismissable">
@@ -79,37 +79,37 @@ class="nav-link active"
             <div class="col-md-4">
                 <!-- comapny name -->
                 <div class="form-group {{ $errors->has('company_name') ? 'has-error' : '' }}">
-                    {!! Form::label('company_name',Lang::get('lang.name')) !!} <span class="text-red"> *</span>
-                    {!! Form::text('company_name',$companys->company_name,['class' => 'form-control']) !!}
+                    {!! html()->label(Lang::get('lang.name'), 'company_name') !!} <span class="text-red"> *</span>
+                    {!! html()->text('company_name', $companys->company_name)->class('form-control') !!}
                 </div>
             </div>
             <div class="col-md-4">
                 <!-- website -->
                 <div class="form-group {{ $errors->has('website') ? 'has-error' : '' }}">
-                    {!! Form::label('website',Lang::get('lang.website')) !!}
-                    {!! Form::url('website',$companys->website,['class' => 'form-control']) !!}
+                    {!! html()->label(Lang::get('lang.website'), 'website') !!}
+                    {!! html()->input('url', 'website', $companys->website)->class('form-control') !!}
                 </div>
             </div>
             <div class="col-md-4">
                 <!-- phone -->
                 <div class="form-group {{ $errors->has('phone') ? 'has-error' : '' }}">
-                    {!! Form::label('phone',Lang::get('lang.phone')) !!}
-                    {!! Form::text('phone',$companys->phone,['class' => 'form-control']) !!}
+                    {!! html()->label(Lang::get('lang.phone'), 'phone') !!}
+                    {!! html()->text('phone', $companys->phone)->class('form-control') !!}
                 </div>
             </div>
         </div>
 
          <div class="{{ $errors->has('address') ? 'has-error' : '' }}">
-            {!! Form::label('address',Lang::get('lang.address')) !!}
-            {!! Form::textarea('address',$companys->address,['class' => 'form-control','size' => '30x5']) !!}
+            {!! html()->label(Lang::get('lang.address'), 'address') !!}
+            {!! html()->textarea('address', $companys->address)->class('form-control')->attributes(['size' => '30x5']) !!}
         </div>
 
         <div class="row">
             <div class="col-md-2">
                 <!-- logo -->
-                {!! Form::label('logo',Lang::get('lang.logo')) !!}
+                {!! html()->label(Lang::get('lang.logo'), 'logo') !!}
                 <div class="btn bg-olive btn-file" style="color:blue"> {{Lang::get('lang.upload_file')}}
-                    {!! Form::file('logo') !!}
+                    {!! html()->file('logo') !!}
                 </div>
             </div>
             <div class="col-sm-10">
@@ -117,7 +117,7 @@ class="nav-link active"
                     <div class="row">
                         @if($companys->logo != null)
                         <div class="col-sm-2">
-                            {!! Form::checkbox('use_logo') !!} <label> {!! Lang::get('lang.use_logo') !!}</label>
+                            {!! html()->checkbox('use_logo') !!} <label> {!! Lang::get('lang.use_logo') !!}</label>
                         </div>
                         @endif
                         <?php $company = App\Model\helpdesk\Settings\Company::where('id', '=', '1')->first(); ?>
@@ -132,7 +132,7 @@ class="nav-link active"
         </div>
     </div>
     <div class="card-footer">
-        {!! Form::submit(Lang::get('lang.submit'),['class'=>'btn btn-primary'])!!}
+        {!! html()->submit(Lang::get('lang.submit'))->class('btn btn-primary') !!}
     </div>
     <!-- Modal -->   
     <div class="modal fade" id="myModal">

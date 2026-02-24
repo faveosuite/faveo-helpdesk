@@ -61,7 +61,7 @@ class="nav-link active"
         <h3 class="card-title">{!! Lang::get('lang.security_settings') !!}</h3>
     </div><!-- /.card-header -->
     <div class="card-body">
-        {!! Form::model($security,['route'=>['securitys.update', $security->id],'method'=>'PATCH','files' => true]) !!}
+        {!! html()->modelForm($security, 'PATCH', route('securitys.update', [$security->id]))->acceptsFiles()->open() !!}
         <div class="form-group {{ $errors->has('lockout_message') ? 'has-error' : '' }}">
             <div class="row">
                 <div class="col-md-3">
@@ -69,7 +69,7 @@ class="nav-link active"
                 </div>
                 <div  class="col-md-9">
                     <div class="callout callout-default" style="font-style: oblique;">{!! Lang::get('lang.security_msg1') !!}</div>
-                    {!! Form::textarea('lockout_message',null,['class'=>'form-control'])!!}
+                    {!! html()->textarea('lockout_message', null)->class('form-control') !!}
                 </div>
             </div>
         </div>
@@ -80,7 +80,7 @@ class="nav-link active"
                 </div>
                 <div class="col-md-9">
                     <div class="callout callout-default" style="font-style: oblique;">{!! Lang::get('lang.security_msg2') !!}</div>
-                    <span>{!! Form::text('backlist_threshold',null,['class'=>'form-control'])!!} {!! Lang::get('lang.lockouts') !!}</span>
+                    <span>{!! html()->text('backlist_threshold', null)->class('form-control') !!} {!! Lang::get('lang.lockouts') !!}</span>
                 </div>     
             </div>
         </div>
@@ -91,7 +91,7 @@ class="nav-link active"
                 </div>
                 <div class="col-md-8">
                     <div class="callout callout-default" style="font-style: oblique;">{!! Lang::get('lang.security_msg3') !!}</div>
-                    <span> {!! Form::text('lockout_period',null,['class'=>'form-control'])!!} {!! Lang::get('lang.minutes') !!}</span>
+                    <span> {!! html()->text('lockout_period', null)->class('form-control') !!} {!! Lang::get('lang.minutes') !!}</span>
                 </div>
             </div>
         </div>
@@ -99,6 +99,6 @@ class="nav-link active"
     <div class="card-footer">
         <button type="submit" class="btn btn-primary">{!! lang::get('lang.submit') !!}</button>
     </div>
-    {!! Form::close() !!}
+    {!! html()->closeModelForm() !!}
 </div>
 @stop

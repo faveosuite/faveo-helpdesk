@@ -387,11 +387,11 @@ if ($thread->title != "") {
                                 <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
                                     <div class="row">
                                         <div class="col-md-2">
-                                            {!! Form::label('To', Lang::get('lang.to').':') !!}
+                                            {!! html()->label(Lang::get('lang.to').':', 'To') !!}
                                         </div>
                                         <div class="col-md-10">
                                             <div id="refreshTo">
-                                            {!! Form::text('To',$user->email,['disabled'=>'disabled','id'=>'email','class'=>'form-control','style'=>'width:55%'])!!}
+                                            {!! html()->text('To', $user->email)->disabled()->id('email')->class('form-control')->attributes(['style' => 'width:55%']) !!}
                                             {!! $errors->first('To', '<spam class="help-block text-red">:message</spam>') !!}
                                                 <a href="#" data-toggle="modal" data-target="#addccc"> {!! Lang::get('lang.add_cc') !!} </a>
                                                 <div id="recepients">
@@ -433,7 +433,7 @@ if ($thread->title != "") {
                             <div class="row">
                                 <!-- reply content -->
                                     <div class="col-md-2">
-                                        {!! Form::label('Reply Content', Lang::get('lang.reply_content').':') !!}<span class="text-red"> *</span>
+                                        {!! html()->label(Lang::get('lang.reply_content').':', 'Reply Content') !!}<span class="text-red"> *</span>
                                     </div>
                                     <div class="col-md-10">
                                         <div id="newtextarea">
@@ -471,7 +471,7 @@ if ($thread->title != "") {
                             </div>
                         </div>
                     </div>
-                    {!!Form::close()!!}
+                    {!! html()->closeModelForm() !!}
                 </div>
 
                 <div class="tab-pane" id="Internal">
@@ -481,7 +481,7 @@ if ($thread->title != "") {
                         
                     </div>
                     <div id="t2">
-                        {!! Form::model($tickets->id, ['id'=>'form2','method' => 'PATCH'] )!!}
+                        {!! html()->modelForm($tickets->id, 'PATCH', url()->current())->attributes(['id' => 'form2'])->open() !!}
                         <div id="t4">
                             <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}" id="internal_content_class">
                                 <div class="row">
@@ -508,7 +508,7 @@ if ($thread->title != "") {
                                 </div>
                             </div>
                         </div>
-                        {!!Form::close()!!}
+                        {!! html()->closeModelForm() !!}
                     </div>
                 </div>
                 <?php \Illuminate\Support\Facades\Event::dispatch('timeline.tab.content',[$tickets]); ?>
@@ -818,7 +818,7 @@ if ($thread->title != "") {
         <div class="modal fade" id="Edit">
             <div class="modal-dialog modal-lg" style="width:60%;height:70%;">
                 <div class="modal-content">
-                    {!! Form::model($tickets->id, ['id'=>'form','method' => 'PATCH'] )!!}
+                    {!! html()->modelForm($tickets->id, 'PATCH', url()->current())->attributes(['id' => 'form'])->open() !!}
                     <div class="modal-header">
                         <h4 class="modal-title">{!! Lang::get('lang.edit') !!} <b>[#{!! $tickets->ticket_number !!}]</b></h4>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidd en="true">&times;</span></button>
@@ -911,7 +911,7 @@ if ($thread->title != "") {
                         <button type="button" class="btn btn-default" data-dismiss="modal" id="dismis">{!! Lang::get('lang.close') !!}</button>
                         <input type="submit" class="btn btn-primary" value="{!! Lang::get('lang.update') !!}">
                     </div>
-                    {!! Form::close() !!}
+                    {!! html()->closeModelForm() !!}
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->
         </div><!-- /.modal -->
@@ -944,7 +944,7 @@ if ($thread->title != "") {
     <div class="modal fade" id="ChangeOwner">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
-                {!! Form::open(['id'=>'form4','method' => 'PATCH'] )!!}
+                {!! html()->form('PATCH', url()->current())->attributes(['id' => 'form4'])->open() !!}
                 <div class="modal-header">
                     <h4 class="modal-title">{!! Lang::get('lang.change_owner_for_ticket') !!} <b>#{!! $tickets->ticket_number !!}</b></h4>
                     <button type="button" class="close" id="close101" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
@@ -997,7 +997,7 @@ if ($thread->title != "") {
                                 <!--<input type='checkbox' name='send-mail' class='icheckbox_flat-blue' value='".$ticket->id."'><span disabled class="btn btn-sm">Check to notify user</span></input>-->
                                 <button type="submit" class="btn btn-primary" id="submt2">{!! Lang::get('lang.update') !!}</button>
                             </div>
-                            {!! Form::close()!!}
+                            {!! html()->closeModelForm() !!}
                         </div><!--tab-pane active-->
                         <div class="tab-pane" id="haha2">
                             <div id="change_alert2" class="alert alert-danger alert-dismissable" style="display:none;">
@@ -1009,7 +1009,7 @@ if ($thread->title != "") {
                                 <label>{!! Lang::get('lang.add_new_user') !!}</label>            
              
                                 <div id="here2"></div>
-                                {!! Form::model($tickets->id, ['id'=>'change-add-owner','method' => 'PATCH'] )!!} 
+                                {!! html()->modelForm($tickets->id, 'PATCH', url()->current())->attributes(['id' => 'change-add-owner'])->open() !!} 
                                 <div id="add-change-loader" class="text-center" style="display:none;">
                                     <img src="{{asset("lb-faveo/media/images/gifloader.gif")}}"> 
                                 </div>
@@ -1020,7 +1020,7 @@ if ($thread->title != "") {
                                     <input type="hidden" name="action" value="change-add-owner">
                                     <input type="submit" class="btn btn-primary" value="{!! Lang::get('lang.submit') !!}">
                                 </div>
-                                {!! Form::close() !!}
+                                {!! html()->closeModelForm() !!}
                             </div>
                         </div>
                     </div><!--tab-content-->    
@@ -1034,7 +1034,7 @@ if ($thread->title != "") {
         <div class="modal fade" id="assign{{$tickets->id}}">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    {!! Form::open(['id'=>'form1','method' => 'PATCH'] )!!}
+                    {!! html()->form('PATCH', url()->current())->attributes(['id' => 'form1'])->open() !!}
                     <div class="modal-header">
                         <h4 class="modal-title">{!! Lang::get('lang.assign') !!}</h4>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -1070,7 +1070,7 @@ if ($thread->title != "") {
                         <button type="button" class="btn btn-default" data-dismiss="modal" id="dismis4">{!! Lang::get('lang.close') !!}</button>
                         <button type="submit" class="btn btn-success" id="submt2">{!! Lang::get('lang.assign') !!}</button>
                     </div>
-                    {!! Form::close()!!}
+                    {!! html()->closeModelForm() !!}
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->
         </div><!-- /.modal -->
@@ -1116,19 +1116,19 @@ if ($thread->title != "") {
                                    <img src="{{asset("lb-faveo/media/images/gifloader.gif")}}"> 
                                 </div>
                                 
-                                {!! Form::model($tickets->id, ['id'=>'search-user','method' => 'PATCH'] )!!}    
+                                {!! html()->modelForm($tickets->id, 'PATCH', url()->current())->attributes(['id' => 'search-user'])->open() !!}    
                                 <div id="hide1234">
                                     <input type="text" class="form-control" name="search" id="tags" placeholder="{!! Lang::get('lang.search_by_email') !!}">
                                     <input type="hidden" name="ticket_id" value="{!! $tickets->id !!}">
                                     <input type="submit" class="btn btn-primary" value="{!! Lang::get('lang.submit') !!}">
                                 </div>
-                                {!! Form::close() !!}
+                                {!! html()->closeModelForm() !!}
                             </div>
                         </div>
                         <div class="tab-pane" id="haha">
                             <div class="modal-body" id="abc">           
                                 <div id="here_new"></div>
-                                {!! Form::model($tickets->id, ['id'=>'add-user','method' => 'PATCH'] )!!} 
+                                {!! html()->modelForm($tickets->id, 'PATCH', url()->current())->attributes(['id' => 'add-user'])->open() !!} 
                                 <div id="show8" style="display:none;text-align:center;">
                                     <img src="{{asset("lb-faveo/media/images/gifloader.gif")}}"> 
                                 </div>
@@ -1138,7 +1138,7 @@ if ($thread->title != "") {
                                     <input type="hidden" name="ticket_id" value="{!! $tickets->id !!}">
                                     <input type="submit" class="btn btn-primary" value="{!! Lang::get('lang.submit') !!}">
                                 </div>
-                                {!! Form::close() !!}
+                                {!! html()->closeModelForm() !!}
                             </div>
                         </div>
                     </div>
@@ -1225,7 +1225,7 @@ if ($thread->title != "") {
                     <div id="merge-body-form">
                         <div class="row">
                             <div class="col-md-6">
-                                {!! Form::open(['id'=>'merge-form','method' => 'PATCH'] )!!}
+                                {!! html()->form('PATCH', url()->current())->attributes(['id' => 'merge-form'])->open() !!}
                                 <label>{!! Lang::get('lang.title') !!}</label>
                                 <input type="text" name='title' class="form-control" value="<?php
                                        $ticket_data = App\Model\helpdesk\Ticket\Ticket_Thread::select('title')->where('ticket_id', "=", $tickets->id)->first();
@@ -1268,7 +1268,7 @@ if ($thread->title != "") {
             <div class="modal-footer justify-content-between">
                 <button type="button" class="btn btn-default" data-dismiss="modal" id="dismis2">{!! Lang::get('lang.close') !!}</button>
                 <input  type="submit" id="merge-btn" class="btn btn-primary" value="{!! Lang::get('lang.merge') !!}"></input>
-                {!! Form::close() !!}
+                {!! html()->closeModelForm() !!}
             </div><!-- /.modal-footer -->
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->

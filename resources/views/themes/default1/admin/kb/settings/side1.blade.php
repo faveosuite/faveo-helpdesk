@@ -13,7 +13,7 @@
 
 @section('content')
 
-	{!! Form::model($side,['url' => 'side1/'.$side->id, 'method' => 'PATCH','files'=>true]) !!}
+	{!! html()->modelForm($side, 'PATCH', url('side1/'.$side->id))->acceptsFiles()->open() !!}
 
 <!-- <div class="form-group {{ $errors->has('company_name') ? 'has-error' : '' }}"> -->
 	<!-- table  -->
@@ -35,7 +35,7 @@
     </div>
     @endif
     <div class="box-header">
-        <h3 class="box-title">{{Lang::get('lang.sidewidget1')}}</h3>  {!! Form::submit(Lang::get('lang.save'),['class'=>'form-group btn btn-primary pull-right'])!!}
+        <h3 class="box-title">{{Lang::get('lang.sidewidget1')}}</h3>  {!! html()->submit(Lang::get('lang.save'))->class('form-group btn btn-primary pull-right') !!}
     </div>
 
     <div class="box-body">
@@ -47,16 +47,16 @@
 
         <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
 
-            {!! Form::label('title',Lang::get('lang.title')) !!}
+            {!! html()->label(Lang::get('lang.title'), 'title') !!}
             {!! $errors->first('title', '<spam class="help-block">:message</spam>') !!}
-            {!! Form::text('title',null,['class' => 'form-control']) !!}
+            {!! html()->text('title', null)->class('form-control') !!}
 
         </div>
 
         <div class="form-group {{ $errors->has('content') ? 'has-error' : '' }}">
-            {!! Form::label('content',Lang::get('lang.content')) !!}
+            {!! html()->label(Lang::get('lang.content'), 'content') !!}
             {!! $errors->first('content', '<spam class="help-block">:message</spam>') !!}
-            {!! Form::textarea('content',null,['class' => 'form-control','size' => '128x10','id'=>'footer','placeholder'=>'Enter the description']) !!}
+            {!! html()->textarea('content', null)->class('form-control')->id('footer')->placeholder('Enter the description')->attributes(['size' => '128x10']) !!}
         </div>
 
     </div>
