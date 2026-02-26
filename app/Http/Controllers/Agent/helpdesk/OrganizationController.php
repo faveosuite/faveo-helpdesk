@@ -17,9 +17,9 @@ use App\User;
 use Exception;
 // classes
 use Illuminate\Http\Request;
-use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Request as Input;
 use Lang;
+use Yajra\DataTables\Facades\DataTables;
 
 /**
  * OrganizationController

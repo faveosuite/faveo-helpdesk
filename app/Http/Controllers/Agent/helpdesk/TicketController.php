@@ -2948,6 +2948,7 @@ class TicketController extends Controller
                 return redirect()->back()->with('fails', Lang::get('lang.unauthorized_access'));
             }
         }
+
         return view('themes.default1.agent.helpdesk.dept-ticket.tickets', compact('dept', 'status'));
     }
 

@@ -7,13 +7,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\kb\PageRequest;
 // request
 use App\Model\kb\Page;
-use Yajra\DataTables\Facades\DataTables;
-// Model
 use Exception;
-// classes
+// Model
 use Illuminate\Http\Request;
+// classes
 use Illuminate\Support\Str;
 use Lang;
+use Yajra\DataTables\Facades\DataTables;
 
 /**
  * PageController

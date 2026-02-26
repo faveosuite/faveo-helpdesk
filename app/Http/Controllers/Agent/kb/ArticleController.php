@@ -16,12 +16,12 @@ use App\Model\kb\Settings;
 use Auth;
 // Classes
 use DB;
-use Yajra\DataTables\Facades\DataTables;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Lang;
 use Redirect;
+use Yajra\DataTables\Facades\DataTables;
 
 /**
  * ArticleController
