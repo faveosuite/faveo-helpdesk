@@ -17,10 +17,9 @@ use Crypt;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
-use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Request as Input;
 use Lang;
+use Yajra\DataTables\Facades\DataTables;
 
 /**
  * ***************************

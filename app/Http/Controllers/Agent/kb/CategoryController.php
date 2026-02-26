@@ -11,12 +11,12 @@ use App\Http\Requests\kb\CategoryUpdate;
 use App\Model\kb\Category;
 // Model
 use App\Model\kb\Relationship;
-use Yajra\DataTables\Facades\DataTables;
-// Classes
 use Exception;
+// Classes
 use Illuminate\Support\Str;
 use Lang;
 use Redirect;
+use Yajra\DataTables\Facades\DataTables;
 
 /**
  * CategoryController
