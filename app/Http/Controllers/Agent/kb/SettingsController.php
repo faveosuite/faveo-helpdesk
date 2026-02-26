@@ -15,12 +15,12 @@ use App\Model\kb\Settings;
 // Classes
 use Config;
 use Exception;
-use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Request as Input;
-use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\ImageManager;
 use Lang;
+use Yajra\DataTables\Facades\DataTables;
 
 /**
  * SettingsController

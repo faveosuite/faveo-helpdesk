@@ -6,19 +6,18 @@ namespace App\Http\Controllers\Admin\helpdesk;
 use App;
 // requests
 use App\Http\Controllers\Controller;
-use Yajra\DataTables\Facades\DataTables;
-//supports
 use App\Http\Requests;
+//supports
 use Config;
-//classes
 use File;
-use Illuminate\Support\Collection;
+//classes
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
 use Lang;
 use UnAuth;
 use Validator;
+use Yajra\DataTables\Facades\DataTables;
 
 /**
  * SlaController.
@@ -103,6 +102,7 @@ class LanguageController extends Controller
                         })
                         ->addColumn('name', function ($model) {
                             $locale = $model['locale'];
+
                             return Config::get('languages.'.$locale)[1];
                         })
                         ->addColumn('id', function ($model) {

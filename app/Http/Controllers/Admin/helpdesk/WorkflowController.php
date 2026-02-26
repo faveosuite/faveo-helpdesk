@@ -20,11 +20,11 @@ use App\Model\helpdesk\Workflow\WorkflowAction;
 use App\Model\helpdesk\Workflow\WorkflowName;
 use App\Model\helpdesk\Workflow\WorkflowRules;
 use App\User;
-use Yajra\DataTables\Facades\DataTables;
-//classes
 use Exception;
+//classes
 use Illuminate\Http\Request;
 use Lang;
+use Yajra\DataTables\Facades\DataTables;
 
 /**
  * WorkflowController

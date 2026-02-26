@@ -4,12 +4,12 @@ namespace App\Http\Controllers\Common;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\helpdesk\TemplateRequest;
-use Yajra\DataTables\Facades\DataTables;
 use App\Http\Requests\helpdesk\TemplateUdate;
 use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
 use Illuminate\Http\Request;
 use Lang;
+use Yajra\DataTables\Facades\DataTables;
 
 /**
  * |======================================================
