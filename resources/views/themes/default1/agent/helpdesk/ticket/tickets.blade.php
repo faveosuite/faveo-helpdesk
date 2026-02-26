@@ -213,7 +213,19 @@ if (Request::has('assigned'))
 
             <!--datatable-->
             {!! html()->form('POST', route('select_all'))->attributes(['id' => 'modalpopup'])->open() !!}
-            {!!$table->render('vendor.Chumper.template')!!}
+            <table id="chumper" class="table table-bordered" style="width:100%;display:table;">
+                <thead>
+                    <tr>
+                        <th><a class="checkbox-toggle"><i class="far fa-square fa-2x"></i></a></th>
+                        <th>{{Lang::get('lang.subject')}}</th>
+                        <th>{{Lang::get('lang.ticket_id')}}</th>
+                        <th>{{Lang::get('lang.from')}}</th>
+                        <th>{{Lang::get('lang.assigned_to')}}</th>
+                        <th>{{Lang::get('lang.last_activity')}}</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
             {!! html()->closeModelForm() !!} 
 
             <!-- /.datatable -->
@@ -225,7 +237,7 @@ if (Request::has('assigned'))
 <!-- Modal -->   
 @include('themes.default1.agent.helpdesk.ticket.more.tickets-model')
 
-{!! $table->script('vendor.Chumper.tickets-javascript') !!}
+@include('vendor.Chumper.tickets-javascript')
 @include('themes.default1.agent.helpdesk.ticket.more.tickets-options-script')
 <script>
     $(document).ready(function () { /// Wait till page is loaded

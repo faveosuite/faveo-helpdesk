@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\kb\PageRequest;
 // request
 use App\Model\kb\Page;
-use Datatable;
+use Yajra\DataTables\Facades\DataTables;
 // Model
 use Exception;
 // classes
@@ -66,13 +66,7 @@ class PageController extends Controller
      */
     public function getData()
     {
-        /* fetching chumper datatables */
-        return Datatable::collection(Page::All())
-                        /* search column name */
-                        ->searchColumns('name')
-                        /* order column name, description and created */
-                        ->orderColumns('name', 'description', 'created')
-                        /* add column name */
+        return DataTables::of(Page::All())
                         ->addColumn('name', function ($model) {
                             return $model->name;
                         })
@@ -104,7 +98,8 @@ class PageController extends Controller
 			        </div>
     			</div>';
                         })
-                        ->make();
+                        ->rawColumns(['Actions'])
+                        ->make(true);
     }
 
     /**

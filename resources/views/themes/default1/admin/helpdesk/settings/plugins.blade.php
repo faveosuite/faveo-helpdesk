@@ -83,16 +83,37 @@ class="nav-link active"
         </div>
     </div>
     <div class="card-body">
-        
-        {!! Datatable::table()
-    ->addColumn(
-        trans('lang.name'),
-        trans('lang.description'), // Translate the 'Description' column heading
-        trans('lang.author'),      // Translate the 'Author' column heading
-        trans('lang.website'),     // Translate the 'Website' column heading
-        trans('lang.version')      // Translate the 'Version' column heading
-    )        ->setUrl('getplugin')   // this is the route where data will be retrieved
-        ->render() !!}
+        <table id="pluginsTable" class="table table-bordered" style="width:100%;display:table;">
+            <thead>
+                <tr>
+                    <th>{{trans('lang.name')}}</th>
+                    <th>{{trans('lang.description')}}</th>
+                    <th>{{trans('lang.author')}}</th>
+                    <th>{{trans('lang.website')}}</th>
+                    <th>{{trans('lang.version')}}</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <script type="text/javascript">
+            jQuery(document).ready(function () {
+                jQuery('#pluginsTable').dataTable({
+                    "sPaginationType": "full_numbers",
+                    "bProcessing": true,
+                    "bServerSide": true,
+                    "ajax": {
+                        url: "{{url('getplugin')}}"
+                    },
+                    "columns": [
+                        {data: "name"},
+                        {data: "description"},
+                        {data: "author"},
+                        {data: "website"},
+                        {data: "version"}
+                    ]
+                });
+            });
+        </script>
     </div>
 </div>
 @stop

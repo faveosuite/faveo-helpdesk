@@ -89,7 +89,21 @@ if (Auth::user()->role == 'agent') {
         <!--</div>-->
         <div class="mailbox-messages" id="refresh">
             <!--datatable-->
-            {!!$table->render('vendor.Chumper.template')!!}
+            <table id="chumper" class="table table-bordered" style="width:100%;display:table;">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>{{Lang::get('lang.subject')}}</th>
+                        <th>{{Lang::get('lang.ticket_id')}}</th>
+                        <th>{{Lang::get('lang.priority')}}</th>
+                        <th>{{Lang::get('lang.from')}}</th>
+                        <th>{{Lang::get('lang.assigned_to')}}</th>
+                        <th>{{Lang::get('lang.last_activity')}}</th>
+                        <th>{{Lang::get('lang.created-at')}}</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
              
             
             <!-- /.datatable -->
@@ -216,7 +230,7 @@ if (Auth::user()->role == 'agent') {
         </div>
     </div>
 </div>
-{!! $table->script('vendor.Chumper.ticket-dept-javascript') !!}
+@include('vendor.Chumper.ticket-dept-javascript')
 <script>
    
     var t_id = [];

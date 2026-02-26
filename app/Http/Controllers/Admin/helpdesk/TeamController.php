@@ -17,6 +17,7 @@ use App\User;
 use DB;
 use Exception;
 use Lang;
+use Yajra\DataTables\Facades\DataTables;
 
 /**
  * TeamController.
@@ -153,9 +154,7 @@ class TeamController extends Controller
 
 //           ->get();
         // dd($users);
-        return \Datatable::query($users)
-            ->showColumns('user_name')
-
+        return DataTables::of($users)
             ->addColumn('first_name', function ($model) {
                 $full_name = ucfirst($model->first_name).' '.ucfirst($model->last_name);
 
@@ -192,10 +191,8 @@ class TeamController extends Controller
                 return $role;
             })
 
-            // ->showColumns('role')
-            ->searchColumns('first_name', 'last_name')
-                        ->orderColumns('first_name', 'last_name')
-                        ->make();
+            ->rawColumns(['active', 'role'])
+            ->make(true);
     }
 
     /**
