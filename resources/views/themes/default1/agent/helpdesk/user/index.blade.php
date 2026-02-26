@@ -94,9 +94,22 @@ class="nav-link active"
     
     <div class="card-body">
 
-        {!!$table->render('vendor.Chumper.template')!!}
+        <table id="chumper" class="table table-bordered" style="width:100%;display:table;">
+            <thead>
+                <tr>
+                    <th>{{Lang::get('lang.name')}}</th>
+                    <th>{{Lang::get('lang.email')}}</th>
+                    <th>{{Lang::get('lang.phone')}}</th>
+                    <th>{{Lang::get('lang.status')}}</th>
+                    <th>{{Lang::get('lang.last_login')}}</th>
+                    <th>{{Lang::get('lang.role')}}</th>
+                    <th>{{Lang::get('lang.action')}}</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
 
-        {!! $table->script('vendor.Chumper.user-javascript') !!}
+        @include('vendor.Chumper.user-javascript')
     </div>
 </div>
 @stop

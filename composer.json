@@ -10,10 +10,6 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "https://github.com/ladybirdweb/Datatable.git"
-        },
-        {
-            "type": "vcs",
             "url": "https://github.com/ladybirdweb/Zipper.git"
         },
         {
@@ -61,7 +57,6 @@
         "laravel/ui": "^4.2",
         "guzzlehttp/guzzle": "^7.2",
         "league/flysystem-aws-s3-v3": "^3.0",
-        "chumper/datatable": "dev-master",
         "chumper/zipper": "dev-master",
         "brozot/laravel-fcm": "dev-master",
         "unisharp/laravel-ckeditor": "dev-master",

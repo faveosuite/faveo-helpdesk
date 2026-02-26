@@ -438,7 +438,20 @@ class="nav-link active"
                                 <b>{!! Lang::get('lang.loading') !!}...</b>
                             </p>
                             
-                            {!!$table->render('vendor.Chumper.template')!!}
+                            <table id="chumper" class="table table-bordered" style="width:100%;display:table;">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>{{Lang::get('lang.subject')}}</th>
+                                        <th>{{Lang::get('lang.ticket_id')}}</th>
+                                        <th>{{Lang::get('lang.priority')}}</th>
+                                        <th>{{Lang::get('lang.from')}}</th>
+                                        <th>{{Lang::get('lang.assigned_to')}}</th>
+                                        <th>{{Lang::get('lang.last_activity')}}</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
 
                         </div><!-- /.mail-box-messages -->
                     </div><!-- /.col -->          
@@ -778,7 +791,7 @@ class="nav-link active"
     </div><!-- /.modal -->
     @endif
     @endif
-    {!! $table->script('vendor.Chumper.tuser-javascript') !!}
+    @include('vendor.Chumper.tuser-javascript')
     <script type="text/javascript">
         // Assign a ticket
         jQuery(document).ready(function($) {

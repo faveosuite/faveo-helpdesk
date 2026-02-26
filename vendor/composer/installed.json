@@ -713,65 +713,6 @@
             "install-path": "../carbonphp/carbon-doctrine-types"
         },
         {
-            "name": "chumper/datatable",
-            "version": "dev-master",
-            "version_normalized": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/faveosuite/Datatable.git",
-                "reference": "017a48ac27e83f84305b8d07a814c0f13b385873"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/faveosuite/Datatable/zipball/017a48ac27e83f84305b8d07a814c0f13b385873",
-                "reference": "017a48ac27e83f84305b8d07a814c0f13b385873",
-                "shasum": ""
-            },
-            "require": {
-                "illuminate/config": "4.*|~5.0|9.*|10.*|11.*|12.*",
-                "illuminate/support": "4.*|~5.0|9.*|10.*|11.*|12.*",
-                "illuminate/view": "4.*|~5.0|9.*|10.*|11.*|12.*",
-                "php": "^8.2"
-            },
-            "require-dev": {
-                "mockery/mockery": "dev-master",
-                "orchestra/testbench": "^3.0|^4.0|^5.0|^6.0|^7.0|^8.0|^9.0|^10.0",
-                "phpunit/phpunit": "^12.0"
-            },
-            "time": "2026-02-18T11:53:34+00:00",
-            "default-branch": true,
-            "type": "library",
-            "installation-source": "dist",
-            "autoload": {
-                "psr-0": {
-                    "Chumper\\Datatable": "src/"
-                }
-            },
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Nils Plaschke",
-                    "email": "github@nilsplaschke.de",
-                    "homepage": "http://nilsplaschke.de",
-                    "role": "Developer"
-                }
-            ],
-            "description": "This is a laravel 9 package for the server and client side of datatables at http://datatables.net/",
-            "homepage": "http://github.com/Chumper/datatable",
-            "keywords": [
-                "ajax",
-                "datatables",
-                "jquery",
-                "laravel"
-            ],
-            "support": {
-                "source": "https://github.com/faveosuite/Datatable/tree/master"
-            },
-            "install-path": "../chumper/datatable"
-        },
-        {
             "name": "chumper/zipper",
             "version": "dev-master",
             "version_normalized": "dev-master",

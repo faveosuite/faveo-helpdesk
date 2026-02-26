@@ -42,12 +42,33 @@ class="nav-link active"
         <h3 class="card-title">{!! Lang::get('lang.social-widget-settings') !!} </h3>
     </div>
     <div class="card-body">
-        {!! Datatable::table()
-        ->addColumn(Lang::get('lang.name'),
-        Lang::get('lang.link'),
-        Lang::get('lang.action'))  // these are the column headings to be shown
-        ->setUrl('list-social-buttons')  // this is the route where data will be retrieved
-        ->render() !!}
+        <table id="socialTable" class="table table-bordered" style="width:100%;display:table;">
+            <thead>
+                <tr>
+                    <th>{{Lang::get('lang.name')}}</th>
+                    <th>{{Lang::get('lang.link')}}</th>
+                    <th>{{Lang::get('lang.action')}}</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <script type="text/javascript">
+            jQuery(document).ready(function () {
+                jQuery('#socialTable').dataTable({
+                    "sPaginationType": "full_numbers",
+                    "bProcessing": true,
+                    "bServerSide": true,
+                    "ajax": {
+                        url: "{{url('list-social-buttons')}}"
+                    },
+                    "columns": [
+                        {data: "name"},
+                        {data: "link"},
+                        {data: "Actions"}
+                    ]
+                });
+            });
+        </script>
     </div>
 </div>
 @stop

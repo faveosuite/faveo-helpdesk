@@ -32,7 +32,6 @@ use App\Model\helpdesk\Utility\Otp;
 use App\User;
 // classes
 use Auth;
-use Datatables;
 use DateTime;
 use DB;
 use Exception;
@@ -79,21 +78,7 @@ class UserController extends Controller
     public function index()
     {
         try {
-            /* get all values in Sys_user */
-
-            $table = \Datatable::table()
-            ->addColumn(
-                Lang::get('lang.name'),
-                Lang::get('lang.email'),
-                Lang::get('lang.phone'),
-                Lang::get('lang.status'),
-                Lang::get('lang.last_login'),
-                Lang::get('lang.role'),
-                Lang::get('lang.action')
-            )  // these are the column headings to be shown
-                ->noScript();
-
-            return view('themes.default1.agent.helpdesk.user.index', compact('table'));
+            return view('themes.default1.agent.helpdesk.user.index');
         } catch (Exception $e) {
             return redirect()->back()->with('fails', $e->getMessage());
         }

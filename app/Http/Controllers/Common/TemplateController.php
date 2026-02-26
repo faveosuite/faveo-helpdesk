@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Common;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\helpdesk\TemplateRequest;
+use Yajra\DataTables\Facades\DataTables;
 use App\Http\Requests\helpdesk\TemplateUdate;
 use App\Model\Common\Template;
 use App\Model\Common\TemplateType;
@@ -78,17 +79,15 @@ class TemplateController extends Controller
     {
         $id = $request->input('id');
 
-        return \Datatable::collection($this->template->where('set_id', '=', $id)->select('id', 'name', 'type')->get())
-                        ->showColumns('name')
+        return DataTables::of($this->template->where('set_id', '=', $id)->select('id', 'name', 'type')->get())
                         ->addColumn('type', function ($model) {
                             return $this->type->where('id', $model->type)->first()->name;
                         })
                         ->addColumn('action', function ($model) {
                             return '<a href='.url('templates/'.$model->id.'/edit')." class='btn btn-sm btn-primary'>Edit</a>";
                         })
-                        ->searchColumns('name')
-                        ->orderColumns('name')
-                        ->make();
+                        ->rawColumns(['action'])
+                        ->make(true);
     }
 
     /**

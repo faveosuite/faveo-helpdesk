@@ -71,15 +71,37 @@ class="nav-link active"
             </div>
         </div>
         <div class="priority-table" style="padding-top: 10px">
-        {!! Datatable::table()
-        ->addColumn(
-        Lang::get('lang.priority'),
-        Lang::get('lang.priority_desc'),
-        Lang::get('lang.priority_color'),
-        Lang::get('lang.status'),
-        Lang::get('lang.action'))
-        ->setUrl(route('priority.index1')) // this is the route where data will be retrieved
-        ->render() !!}
+            <table id="priorityTable" class="table table-bordered" style="width:100%;display:table;">
+                <thead>
+                    <tr>
+                        <th>{{Lang::get('lang.priority')}}</th>
+                        <th>{{Lang::get('lang.priority_desc')}}</th>
+                        <th>{{Lang::get('lang.priority_color')}}</th>
+                        <th>{{Lang::get('lang.status')}}</th>
+                        <th>{{Lang::get('lang.action')}}</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <script type="text/javascript">
+                jQuery(document).ready(function () {
+                    jQuery('#priorityTable').dataTable({
+                        "sPaginationType": "full_numbers",
+                        "bProcessing": true,
+                        "bServerSide": true,
+                        "ajax": {
+                            url: "{{route('priority.index1')}}"
+                        },
+                        "columns": [
+                            {data: "priority"},
+                            {data: "priority_desc"},
+                            {data: "priority_color"},
+                            {data: "status"},
+                            {data: "action"}
+                        ]
+                    });
+                });
+            </script>
         </div>
     </div>
 </div>
