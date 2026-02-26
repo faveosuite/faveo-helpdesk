@@ -17,6 +17,7 @@ use App\User;
 use Exception;
 // classes
 use Illuminate\Http\Request;
+use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Request as Input;
 use Lang;
 
@@ -69,13 +70,7 @@ class OrganizationController extends Controller
      */
     public function org_list()
     {
-        // chumper datable package call to display Advance datatable
-        return \Datatable::collection(Organization::all())
-                        /* searchable name */
-                        ->searchColumns('name')
-                        /* order by name and website */
-                        ->orderColumns('name', 'website')
-                        /* column name */
+        return DataTables::of(Organization::all())
                         ->addColumn('name', function ($model) {
                             // return $model->name;
                             if (strlen($model->name) > 20) {
@@ -101,8 +96,6 @@ class OrganizationController extends Controller
                         })
                         /* column action buttons */
                         ->addColumn('Actions', function ($model) {
-                            // displaying action buttons
-                            // modal popup to delete data
                             return '<span  data-toggle="modal" data-target="#deletearticle'.$model->id.'"><a href="#" ><button class="btn btn-danger btn-xs"></a> '.\Lang::get('lang.delete').' </button></span>&nbsp;<a href="'.route('organizations.edit', $model->id).'" class="btn btn-warning btn-xs">'.\Lang::get('lang.edit').'</a>&nbsp;<a href="'.route('organizations.show', $model->id).'" class="btn btn-primary btn-xs">'.\Lang::get('lang.view').'</a>
 				<div class="modal fade" id="deletearticle'.$model->id.'">
 			        <div class="modal-dialog">
@@ -122,7 +115,8 @@ class OrganizationController extends Controller
         			</div><!-- /.modal-dialog -->
     			</div>';
                         })
-                        ->make();
+                        ->rawColumns(['Actions'])
+                        ->make(true);
     }
 
     /**

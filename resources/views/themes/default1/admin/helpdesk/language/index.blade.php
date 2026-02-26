@@ -59,10 +59,37 @@ class="nav-link active"
         </div>
     </div>
     <div class="card-body">
-        {!! Datatable::table()
-        ->addColumn(Lang::get('lang.language'),Lang::get('lang.native-name'),Lang::get('lang.iso-code'),Lang::get('lang.system-language'),Lang::get('lang.Action'))       // these are the column headings to be shown
-        ->setUrl(route('getAllLanguages'))   // this is the route where data will be retrieved
-        ->render()  !!}
+        <table id="lang" class="table table-bordered" style="width:100%;display:table;">
+            <thead>
+                <tr>
+                    <th>{{Lang::get('lang.language')}}</th>
+                    <th>{{Lang::get('lang.native-name')}}</th>
+                    <th>{{Lang::get('lang.iso-code')}}</th>
+                    <th>{{Lang::get('lang.system-language')}}</th>
+                    <th>{{Lang::get('lang.Action')}}</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <script type="text/javascript">
+            jQuery(document).ready(function () {
+                jQuery('#lang').dataTable({
+                    "sPaginationType": "full_numbers",
+                    "bProcessing": true,
+                    "bServerSide": true,
+                    "ajax": {
+                        url: "{{route('getAllLanguages')}}"
+                    },
+                    "columns": [
+                        {data: "language"},
+                        {data: "name"},
+                        {data: "id"},
+                        {data: "status"},
+                        {data: "Action"}
+                    ]
+                });
+            });
+        </script>
     </div>
 </div>
 @stop

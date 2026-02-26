@@ -1059,13 +1059,6 @@ class ComposerStaticInit10c1836cea18dd9470bc2e97275d9d56
                 0 => __DIR__ . '/..' . '/phpspec/php-diff/lib',
             ),
         ),
-        'C' =>
-        array (
-            'Chumper\\Datatable' =>
-            array (
-                0 => __DIR__ . '/..' . '/chumper/datatable/src',
-            ),
-        ),
     );
 
     public static $classMap = array (

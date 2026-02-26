@@ -3,7 +3,7 @@
         'name' => 'laravel/laravel',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => 'bbaf92b36e204fcf1ca99caff9169f7f243484c5',
+        'reference' => '1229911996137986a88da6c7b922f4f176292000',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -100,17 +100,6 @@
             'type' => 'library',
             'install_path' => __DIR__ . '/../carbonphp/carbon-doctrine-types',
             'aliases' => array(),
-            'dev_requirement' => false,
-        ),
-        'chumper/datatable' => array(
-            'pretty_version' => 'dev-master',
-            'version' => 'dev-master',
-            'reference' => '017a48ac27e83f84305b8d07a814c0f13b385873',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../chumper/datatable',
-            'aliases' => array(
-                0 => '9999999-dev',
-            ),
             'dev_requirement' => false,
         ),
         'chumper/zipper' => array(
@@ -816,7 +805,7 @@
         'laravel/laravel' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => 'bbaf92b36e204fcf1ca99caff9169f7f243484c5',
+            'reference' => '1229911996137986a88da6c7b922f4f176292000',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

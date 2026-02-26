@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2ec6993a71daf0941508870ba9e78342",
+    "content-hash": "4264dbad6ed6fbbf65bcfe9f05b0b293",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -542,62 +542,6 @@
                 }
             ],
             "time": "2024-02-09T16:56:22+00:00"
-        },
-        {
-            "name": "chumper/datatable",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/faveosuite/Datatable.git",
-                "reference": "017a48ac27e83f84305b8d07a814c0f13b385873"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/faveosuite/Datatable/zipball/017a48ac27e83f84305b8d07a814c0f13b385873",
-                "reference": "017a48ac27e83f84305b8d07a814c0f13b385873",
-                "shasum": ""
-            },
-            "require": {
-                "illuminate/config": "4.*|~5.0|9.*|10.*|11.*|12.*",
-                "illuminate/support": "4.*|~5.0|9.*|10.*|11.*|12.*",
-                "illuminate/view": "4.*|~5.0|9.*|10.*|11.*|12.*",
-                "php": "^8.2"
-            },
-            "require-dev": {
-                "mockery/mockery": "dev-master",
-                "orchestra/testbench": "^3.0|^4.0|^5.0|^6.0|^7.0|^8.0|^9.0|^10.0",
-                "phpunit/phpunit": "^12.0"
-            },
-            "default-branch": true,
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Chumper\\Datatable": "src/"
-                }
-            },
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Nils Plaschke",
-                    "email": "github@nilsplaschke.de",
-                    "homepage": "http://nilsplaschke.de",
-                    "role": "Developer"
-                }
-            ],
-            "description": "This is a laravel 9 package for the server and client side of datatables at http://datatables.net/",
-            "homepage": "http://github.com/Chumper/datatable",
-            "keywords": [
-                "ajax",
-                "datatables",
-                "jquery",
-                "laravel"
-            ],
-            "support": {
-                "source": "https://github.com/faveosuite/Datatable/tree/master"
-            },
-            "time": "2026-02-18T11:53:34+00:00"
         },
         {
             "name": "chumper/zipper",
@@ -13985,7 +13929,6 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "brozot/laravel-fcm": 20,
-        "chumper/datatable": 20,
         "chumper/zipper": 20,
         "itsgoingd/clockwork": 20,
         "neitanod/forceutf8": 20,

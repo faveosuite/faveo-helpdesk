@@ -26,6 +26,7 @@ use App\User;
 /* Validate post check ticket */
 use Illuminate\Support\Facades\Request;
 use Redirect;
+use Yajra\DataTables\Facades\DataTables;
 
 /**
  * UserController.
@@ -74,9 +75,7 @@ class UserController extends Controller
      */
     public function user_list()
     {
-        return \Datatable::collection(User::where('role', '!=', 'admin')->where('role', '!=', 'agent')->get())
-                        ->searchColumns('user_name')
-                        ->orderColumns('user_name', 'email')
+        return DataTables::of(User::where('role', '!=', 'admin')->where('role', '!=', 'agent')->get())
                         ->addColumn('user_name', function ($model) {
                             return $model->user_name;
                         })
@@ -114,8 +113,6 @@ class UserController extends Controller
                             return TicketController::usertimezone($t);
                         })
                         ->addColumn('Actions', function ($model) {
-                            //return '<a href=article/delete/ ' . $model->id . ' class="btn btn-danger btn-flat" onclick="myFunction()">Delete</a>&nbsp;<a href=article/' . $model->id . '/edit class="btn btn-warning btn-flat">Edit</a>&nbsp;<a href=show/' . $model->id . ' class="btn btn-warning btn-flat">View</a>';
-                            //return '<form action="article/delete/ ' . $model->id . '" method="post" onclick="alert()"><button type="sumbit" value="Delete"></button></form><a href=article/' . $model->id . '/edit class="btn btn-warning btn-flat">Edit</a>&nbsp;<a href=show/' . $model->id . ' class="btn btn-warning btn-flat">View</a>';
                             return '<span  data-toggle="modal" data-target="#deletearticle'.$model->id.'"><a href="#" ><button class="btn btn-danger btn-xs"></a> '.\Lang::get('lang.delete').' </button></span>&nbsp;<a href="'.route('user.edit', $model->id).'" class="btn btn-warning btn-xs">'.\Lang::get('lang.edit').'</a>&nbsp;<a href="'.route('user.show', $model->id).'" class="btn btn-primary btn-xs">'.\Lang::get('lang.view').'</a>
 				<div class="modal fade" id="deletearticle'.$model->id.'">
         <div class="modal-dialog">
@@ -135,7 +132,8 @@ class UserController extends Controller
         </div><!-- /.modal-dialog -->
     </div>';
                         })
-                        ->make();
+                        ->rawColumns(['status', 'Actions'])
+                        ->make(true);
     }
 
     /**

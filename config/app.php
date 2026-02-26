@@ -178,11 +178,9 @@ return [
         Laravel\Socialite\SocialiteServiceProvider::class,
         App\FaveoLog\LaravelLogViewerServiceProvider::class,
         App\FaveoStorage\StorageServiceProvider::class,
-        Yajra\Datatables\DatatablesServiceProvider::class,
+        \Yajra\DataTables\DataTablesServiceProvider::class,
         \App\Api\ApiServiceProvider::class,
         Barryvdh\Debugbar\ServiceProvider::class,
-        \Chumper\Datatable\DatatableServiceProvider::class,
-        \Yajra\DataTables\DataTablesServiceProvider::class,
         \Bugsnag\BugsnagLaravel\BugsnagServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
         App\Providers\QueryListenProvider::class,
@@ -200,8 +198,7 @@ return [
      */
     'aliases' => Facade::defaultAliases()->merge([
         'Bugsnag'     => 'Bugsnag\BugsnagLaravel\BugsnagFacade',
-        'Datatable'   => 'Chumper\Datatable\Facades\DatatableFacade',
-        'Datatables'  => Yajra\Datatables\Facades\Datatables::class,
+        'DataTables'  => Yajra\DataTables\Facades\DataTables::class,
         'Debugbar'    => Barryvdh\Debugbar\Facades\Debugbar::class,
         'Excel'       => Maatwebsite\Excel\Facades\Excel::class,
         'FCM'         => LaravelFCM\Facades\FCM::class,

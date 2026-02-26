@@ -16,5 +16,4 @@ return array(
     'Flow' => array($vendorDir . '/flowjs/flow-php-server/src'),
     'Fetch' => array($vendorDir . '/tedivm/fetch/src'),
     'Diff' => array($vendorDir . '/phpspec/php-diff/lib'),
-    'Chumper\\Datatable' => array($vendorDir . '/chumper/datatable/src'),
 );

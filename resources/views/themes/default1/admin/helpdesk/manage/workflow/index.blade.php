@@ -57,17 +57,43 @@ class="nav-link active"
     </div>
     <!-- /.box-header -->
     <div class="card-body">
-        {!! Datatable::table()
-        ->addColumn(Lang::get('lang.name'),
-        Lang::get('lang.status'),
-        Lang::get('lang.order'),
-        Lang::get('lang.rules'),
-        Lang::get('lang.target_channel'),
-        Lang::get('lang.created'),
-        Lang::get('lang.updated'),
-        Lang::get('lang.action')) // these are the column headings to be shown
-        ->setUrl(route('workflow.list'))   // this is the route where data will be retrieved
-        ->render() !!}
+        <table id="workflowTable" class="table table-bordered" style="width:100%;display:table;">
+            <thead>
+                <tr>
+                    <th>{{Lang::get('lang.name')}}</th>
+                    <th>{{Lang::get('lang.status')}}</th>
+                    <th>{{Lang::get('lang.order')}}</th>
+                    <th>{{Lang::get('lang.rules')}}</th>
+                    <th>{{Lang::get('lang.target_channel')}}</th>
+                    <th>{{Lang::get('lang.created')}}</th>
+                    <th>{{Lang::get('lang.updated')}}</th>
+                    <th>{{Lang::get('lang.action')}}</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <script type="text/javascript">
+            jQuery(document).ready(function () {
+                jQuery('#workflowTable').dataTable({
+                    "sPaginationType": "full_numbers",
+                    "bProcessing": true,
+                    "bServerSide": true,
+                    "ajax": {
+                        url: "{{route('workflow.list')}}"
+                    },
+                    "columns": [
+                        {data: "name"},
+                        {data: "status"},
+                        {data: "order"},
+                        {data: "rules"},
+                        {data: "target"},
+                        {data: "Created"},
+                        {data: "Updated"},
+                        {data: "Actions"}
+                    ]
+                });
+            });
+        </script>
     </div>
     <!-- </div> -->
 </div>
