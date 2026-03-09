@@ -18,7 +18,7 @@ active
 @stop
 
 @section('PageHeader')
-<h1>{!! Lang::get('lang.report') !!}</h1>
+<h3>{!! Lang::get('lang.report') !!}</h3>
 @stop
 
 @section('dashboard')
@@ -147,7 +147,7 @@ class="active"
 
                         <a class="btn btn-primary" href="#" id="pdf">{!! Lang::get('lang.generate_pdf') !!}</a>
 
-                        <div class="float-right">
+                        <div class="float-end">
                             <div class="btn-group">
                                 <button type="button" class="btn btn-default" id="click_day">{{trans('lang.day')}}</button>
                                 <button type="button" class="btn btn-default" id="click_week">{{trans('lang.week')}}</button>

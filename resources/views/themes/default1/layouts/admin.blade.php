@@ -153,7 +153,7 @@
      ?>
                                         <li>
                                             <a href="{{ url('/ticket/open') }}">
-                                                <i class="fa fa-envelope"></i> <span>Inbox</span> <small class="label pull-right bg-green"><?php echo $i;?></small>
+                                                <i class="fa fa-envelope"></i> <span>Inbox</span> <small class="label pull-right text-bg-success"><?php echo $i;?></small>
                                             </a>
                                         </li>
 <?php
@@ -164,21 +164,21 @@
                                              <a href="{{url('ticket/myticket')}}">
                                                 <i class="fa fa-user"></i> <span>My Tickets</span>
 
-                                                <small class="label pull-right bg-green">{{count($myticket) }}</small>
+                                                <small class="label pull-right text-bg-success">{{count($myticket) }}</small>
                                             </a>
                                         </li>
                                         <li>
                                             <a href="{{url('unassigned')}}">
                                                 <i class="fa fa-th"></i> <span>Unassigned</span>
 
-                                                <small class="label pull-right bg-green">{{count($unassigned)}}</small>
+                                                <small class="label pull-right text-bg-success">{{count($unassigned)}}</small>
                                             </a>
                                         </li>
                                         <li>
                                             <a href="{{url('trash')}}">
                                                 <i class="fa fa-trash-o"></i> <span>Trash</span>
                                                 <?php $deleted = App\Model\helpdesk\Ticket\Tickets::where('status', '5')->get();?>
-                                                <small class="label pull-right bg-green">{{count($deleted)}}</small>
+                                                <small class="label pull-right text-bg-success">{{count($deleted)}}</small>
                                             </a>
                                         </li>
                                 </section>

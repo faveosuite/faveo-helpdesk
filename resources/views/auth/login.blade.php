@@ -6,7 +6,7 @@
 
 @section('breadcrumb')
     <ol class="breadcrumb float-sm-right ">
-        <li class="breadcrumb-item"> <i class="fas fa-home"> </i> {!! Lang::get('lang.you_are_here') !!} : &nbsp;</li>
+        <li class="breadcrumb-item"> <i class="fa-solid fa-home"> </i> {!! Lang::get('lang.you_are_here') !!} : &nbsp;</li>
             <li><a href="{!! URL::route('post.login') !!}">{!! Lang::get('lang.login') !!}</a></li>
         </ol>
     </div>
@@ -15,27 +15,27 @@
 @section('content')
 
     @if(Session::has('status'))
-    <div class="alert alert-success alert-dismissable">
-        <i class="fa  fa-check-circle"> </i> <b> {!! Lang::get('lang.success') !!} </b>
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <div class="alert alert-success alert-dismissible">
+        <i class="fa-solid fa-check-circle"> </i> <b> {!! Lang::get('lang.success') !!} </b>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         {{Session::get('status')}}
     </div>
 
     @endif
 
     @if(Session::has('error'))
-    <div class="alert alert-danger alert-dismissable">
-        <i class="fa  fa-check-circle"> </i> <b> {!! Lang::get('lang.alert') !!} </b>
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <div class="alert alert-danger alert-dismissible">
+        <i class="fa-solid fa-check-circle"> </i> <b> {!! Lang::get('lang.alert') !!} </b>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         {{Session::get('error')}}
     </div>
     @else
 
     @if (count($errors) > 0)
-    <div class="alert alert-danger alert-dismissable">
-        <i class="fa fa-ban"></i>
+    <div class="alert alert-danger alert-dismissible">
+        <i class="fa-solid fa-ban"></i>
         <b>{!! Lang::get('lang.alert') !!} !</b>
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         @foreach ($errors->all() as $error)
         <li>{{ $error }}</li>
         @endforeach
@@ -107,19 +107,21 @@
                     <!-- form open -->
                     {!! html()->form('POST', route('auth.post.login'))->open() !!}
 
-                        <div class="form-group has-feedback {{ $errors->has('email') ? 'has-error' : '' }}" style="display: -webkit-box;">
+                        <div class="input-group mb-3 {{ $errors->has('email') ? 'has-error' : '' }}">
                             {!! html()->text('email', null)->placeholder(Lang::get("lang.email"))->class('form-control') !!}
-                            <span class="far fa-envelope form-control-feedback" style="top: 9px;left: -25px;color: #6c757d;"></span>
+                            <span class="input-group-text"><i class="fa-regular fa-envelope" style="color: #6c757d;"></i></span>
                         </div>
 
-                        <div class="form-group has-feedback {{ $errors->has('password') ? 'has-error' : '' }}" style="display: -webkit-box;">
-
-                            {!! html()->password('password')->placeholder(Lang::get("lang.password"))->class('form-control') !!}
-                            <span class="  fa fa-lock form-control-feedback" style="top: 9px;left: -25px;color: #6c757d;"></span>
+                        <div class="input-group mb-3 {{ $errors->has('password') ? 'has-error' : '' }}">
+                            {!! html()->password('password')->placeholder(Lang::get("lang.password"))->class('form-control')->id('login-password') !!}
+                            <button class="input-group-text" type="button" onclick="togglePwd('login-password', this)" tabindex="-1">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
                         </div>
 
                         <div>
-                            <button type="submit" class="btn btn-primary btn-block btn-flat" STYLE="width: 100%; color: white">{!! Lang::get("lang.login") !!}</button>                        </div>
+                            <button type="submit" class="btn btn-primary w-100">{!! Lang::get("lang.login") !!}</button>
+                        </div>
 
                         <div class="row mt-2">
 
@@ -150,6 +152,19 @@
                         </div>
 
                     {!! html()->closeModelForm() !!}
+                    <script>
+                    function togglePwd(id, btn) {
+                        var input = document.getElementById(id);
+                        var icon = btn.querySelector('i');
+                        if (input.type === 'password') {
+                            input.type = 'text';
+                            icon.className = 'fa-solid fa-eye-slash';
+                        } else {
+                            input.type = 'password';
+                            icon.className = 'fa-solid fa-eye';
+                        }
+                    }
+                    </script>
                 </div>
             </div>
         </div>

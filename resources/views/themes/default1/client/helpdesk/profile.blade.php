@@ -161,7 +161,7 @@ class="nav-item active"
                                 <div class="form-group" style="padding-bottom: 10px;">
 
 
-                                    <button type="submit" class="btn btn-primary float-right" style="background-color: #337ab7 !important; border-color: #337ab7 !important; color: white;">
+                                    <button type="submit" class="btn btn-primary float-end" style="background-color: #337ab7 !important; border-color: #337ab7 !important; color: white;">
                                         <i class="fas fa-sync"></i> {{ Lang::get('lang.update') }}
                                     </button>                                </div>
                             </div>
@@ -205,7 +205,7 @@ class="nav-item active"
 
                                 <div class="form-group" style="padding-bottom: 10px;">
 
-                                    <button type="submit" class="btn btn-primary float-right" style="background-color: #337ab7 !important; border-color: #337ab7 !important; color: white;">
+                                    <button type="submit" class="btn btn-primary float-end" style="background-color: #337ab7 !important; border-color: #337ab7 !important; color: white;">
                                         <i class="fas fa-sync"></i> {{ Lang::get('lang.update') }}
                                     </button>
                                 </div>
@@ -258,7 +258,7 @@ class="nav-item active"
                 </div>
                 <div class="modal-footer" style="justify-content: space-between;">
                     <button type="button" id="close-last" class="btn btn-default closemodal float-left">{{Lang::get('lang.close')}}</button>
-                    <div id="last-submit"><input  type="submit" id="merge-btn" class="btn btn-primary float-right" value="{!! Lang::get('lang.verify') !!}"></input></div>
+                    <div id="last-submit"><input  type="submit" id="merge-btn" class="btn btn-primary float-end" value="{!! Lang::get('lang.verify') !!}"></input></div>
                 </div>
                 {!! html()->closeModelForm() !!}
             </div>

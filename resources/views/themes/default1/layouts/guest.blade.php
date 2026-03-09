@@ -216,7 +216,7 @@
             </li>
             <li>
               <a href="../widgets.html">
-                <i class="fa fa-th"></i> <span>Widgets</span> <small class="label pull-right bg-green">new</small>
+                <i class="fa fa-th"></i> <span>Widgets</span> <small class="label pull-right text-bg-success">new</small>
               </a>
             </li>
             <li class="treeview">
@@ -276,7 +276,7 @@
             <li>
               <a href="../mailbox/mailbox.html">
                 <i class="fa fa-envelope"></i> <span>Mailbox</span>
-                <small class="label pull-right bg-yellow">12</small>
+                <small class="label pull-right text-bg-warning">12</small>
               </a>
             </li>
             <li class="treeview">

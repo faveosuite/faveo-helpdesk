@@ -113,11 +113,11 @@ class="nav-link active"
                 <ul class="list-group list-group-unbordered mb-3 mt-3">
                      @if($users->user_name)
                     <li class="list-group-item mb-0">
-                        <b>{{Lang::get('lang.user_name')}}</b> <a class="float-right" title="{{$users->user_name}}">{{Str::limit($users->user_name,10) }}</a>
+                        <b>{{Lang::get('lang.user_name')}}</b> <a class="float-end" title="{{$users->user_name}}">{{Str::limit($users->user_name,10) }}</a>
                     </li>
                      @endif
                      <li class="list-group-item mb-0">
-                        <b>{{Lang::get('lang.email')}}</b> <a class="float-right" title="{{$users->email}}"> {{Str::limit($users->email,10) }}</a>
+                        <b>{{Lang::get('lang.email')}}</b> <a class="float-end" title="{{$users->email}}"> {{Str::limit($users->email,10) }}</a>
                     </li>
 
                     @if($users->is_delete != '1')
@@ -131,8 +131,8 @@ class="nav-link active"
                        
                        @if($user_org == null)
                         <b>{!! Lang::get('lang.organization') !!}</b>
-                        <a href="" class="float-right"  data-toggle="modal" data-target="#assign"><i class="fas fa-hand-point-right"> </i> {!! Lang::get('lang.assign') !!} </a>
-                        <a href="" data-toggle="modal" data-target="#create_org" class="float-right"> {{Lang::get('lang.create')}} |&nbsp;</a>
+                        <a href="" class="float-end"  data-toggle="modal" data-target="#assign"><i class="fas fa-hand-point-right"> </i> {!! Lang::get('lang.assign') !!} </a>
+                        <a href="" data-toggle="modal" data-target="#create_org" class="float-end"> {{Lang::get('lang.create')}} |&nbsp;</a>
                         @endif
 
                         @if($user_org != null)
@@ -147,7 +147,7 @@ class="nav-link active"
                         <a href=""  data-toggle="modal" data-target="#editassign" title="{{$organization->name}}"> <span style="color:green;">{{Str::limit($organization->name,10)}}</span> </a>
 
 
-                        <a class="float-right" href="#" data-toggle="modal" data-target="#delete-{{$org_id}}" title="{!! Lang::get('lang.remove') !!}"><i class="fas fa-times" style="color:red;"> </i></a> 
+                        <a class="float-end" href="#" data-toggle="modal" data-target="#delete-{{$org_id}}" title="{!! Lang::get('lang.remove') !!}"><i class="fas fa-times" style="color:red;"> </i></a>
 
                         <div class="modal fade" id="delete-{{$org_id}}">
                             <div class="modal-dialog">
@@ -175,12 +175,12 @@ class="nav-link active"
                     @endif
 
                     <li class="list-group-item mb-0">
-                        <b>{{Lang::get('lang.role')}}</b> <a class="float-right" style="color:green;"> {!! $users->role !!}</a>
+                        <b>{{Lang::get('lang.role')}}</b> <a class="float-end" style="color:green;"> {!! $users->role !!}</a>
                     </li>
 
                     <li class="list-group-item mb-0">
                         <b>{{Lang::get('lang.status')}}</b> 
-                        <a class="float-right">
+                        <a class="float-end">
                             @if($users->active == '1')
                             <span style="color:green;"> 
                                 <span class="glyphicon glyphicon-ok-circle"></span>  
@@ -197,26 +197,26 @@ class="nav-link active"
 
                     @if($users->country_code)
                     <li class="list-group-item mb-0">
-                        <b>{{Lang::get('lang.country_code')}}</b> <a class="float-right" title="{{$users->country_code}}"> 
+                        <b>{{Lang::get('lang.country_code')}}</b> <a class="float-end" title="{{$users->country_code}}">
                             {{Str::limit($users->country_code,10) }}</a>
                     </li>
                     @endif
 
                     @if($users->ext)
                     <li class="list-group-item mb-0">
-                        <b>{{Lang::get('lang.ext')}}</b> <a class="float-right" title="{{$users->ext}}"> {{Str::limit($users->ext,10)}}</a>
+                        <b>{{Lang::get('lang.ext')}}</b> <a class="float-end" title="{{$users->ext}}"> {{Str::limit($users->ext,10)}}</a>
                     </li>
                     @endif
 
                     @if($users->mobile)
                     <li class="list-group-item mb-0">
-                        <b>{{Lang::get('lang.mobile')}}</b> <a class="float-right" title="{{$users->mobile}}"> {{Str::limit($users->mobile,10)}}</a>
+                        <b>{{Lang::get('lang.mobile')}}</b> <a class="float-end" title="{{$users->mobile}}"> {{Str::limit($users->mobile,10)}}</a>
                     </li>
                     @endif
 
                     @if($users->phone_number)
                     <li class="list-group-item mb-0">
-                        <b>{{Lang::get('lang.phone')}}</b><a class="float-right" title="{{$users->phone_number}}">{{Str::limit($users->phone_number,10)}}</a>
+                        <b>{{Lang::get('lang.phone')}}</b><a class="float-end" title="{{$users->phone_number}}">{{Str::limit($users->phone_number,10)}}</a>
                     </li>
                     @endif
 
@@ -1373,7 +1373,7 @@ class="nav-link active"
                         </div>
 
                         <div class="modal-footer">
-                            {!! html()->submit(Lang::get('lang.confirm_deletion'))->class('btn btn-primary float-right') !!}
+                            {!! html()->submit(Lang::get('lang.confirm_deletion'))->class('btn btn-primary float-end') !!}
                         </div>
                     </div>
                 </div>
@@ -1416,7 +1416,7 @@ class="nav-link active"
                     </div>
 
                     <div class="modal-footer">
-                        {!! html()->submit(Lang::get('lang.submit'))->class('btn btn-primary float-right') !!}
+                        {!! html()->submit(Lang::get('lang.submit'))->class('btn btn-primary float-end') !!}
                     </div>
                 </div>
             </div>
@@ -1447,7 +1447,7 @@ class="nav-link active"
                     </div>
 
                     <div class="modal-footer">
-                        {!! html()->submit(Lang::get('lang.submit'))->class('btn btn-primary float-right') !!}
+                        {!! html()->submit(Lang::get('lang.submit'))->class('btn btn-primary float-end') !!}
                     </div>
                 </div>
             </div>
@@ -1488,7 +1488,7 @@ class="nav-link active"
                     </div>
 
                     <div class="modal-footer">
-                        {!! html()->submit(Lang::get('lang.submit'))->class('btn btn-primary float-right') !!}
+                        {!! html()->submit(Lang::get('lang.submit'))->class('btn btn-primary float-end') !!}
                     </div>
                 </div>
             </div>
@@ -1510,7 +1510,7 @@ class="nav-link active"
 
                 <div class="modal-body">
 
-                    <button class="btn btn-warning float-right btn-sm mb-1" id="changepassword">{{Lang::get('lang.password_generator')}}</button>
+                    <button class="btn btn-warning float-end btn-sm mb-1" id="changepassword">{{Lang::get('lang.password_generator')}}</button>
 
                     <form name="myForm" action="{!!URL::route('user.post.changepassword', $users->id)!!}" method="post" role="form" onsubmit="return validateForm()">
                     {{ csrf_field() }}
@@ -1529,7 +1529,7 @@ class="nav-link active"
                 </div>
 
                 <div class="modal-footer">
-                    {!! html()->submit(Lang::get('lang.submit'))->class('btn btn-primary float-right')->id('savepassword') !!}
+                    {!! html()->submit(Lang::get('lang.submit'))->class('btn btn-primary float-end')->id('savepassword') !!}
                 </div>
             </div>
             </form>
@@ -1559,7 +1559,7 @@ class="nav-link active"
                     </div>
 
                     <div class="modal-footer">
-                        {!! html()->submit(Lang::get('lang.submit'))->class('btn btn-primary float-right') !!}
+                        {!! html()->submit(Lang::get('lang.submit'))->class('btn btn-primary float-end') !!}
                     </div>
                 </div>
             </div>

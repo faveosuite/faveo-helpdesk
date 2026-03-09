@@ -34,10 +34,10 @@
 @section('content')
 <div id="content" class="site-content col-md-9">
     @if(Session::has('message'))
-    <div class="alert alert-success alert-dismissable">
-        <i class="fa  fa-check-circle"></i>
+    <div class="alert alert-success alert-dismissible">
+        <i class="fa-solid fa-check-circle"></i>
         <b>Success!</b>
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         {!! Session::get('message') !!}
     </div>
     @endif
@@ -59,15 +59,15 @@
 {!! html()->form('POST', route('client.form.post'))->open() !!}
 <div>
     <div class="content-header">
-        <h4>Ticket {!! html()->submit(Lang::get('lang.send'))->class('form-group btn btn-info pull-right') !!}</h4>
+        <h4>Ticket {!! html()->submit(Lang::get('lang.send'))->class('btn btn-info float-end') !!}</h4>
     </div>
     <br/>
     <div>
         @if($errors != null)
-        <div class="alert alert-danger alert-dismissable">
-            <i class="fa  fa-check-circle"></i>
+        <div class="alert alert-danger alert-dismissible">
+            <i class="fa-solid fa-ban"></i>
             <b>Alert!</b>
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
             {!! $errors->first('Name', '<p>:message</p>') !!}
             {!! $errors->first('Email', '<p>:message</p>') !!}
             {!! $errors->first('Phone', '<p>:message</p>') !!}
@@ -76,7 +76,7 @@
         </div>
         @endif
 
-		<div class="form-group {{ $errors->has('help_topic') ? 'has-error' : '' }}">
+		<div class="mb-3 {{ $errors->has('help_topic') ? 'has-error' : '' }}">
 			{!! html()->label('Choose a Help Topic', 'help_topic') !!}
 			{!! $errors->first('help_topic', '<spam class="help-block">:message</spam>') !!}
             <select name="help_topic" class="form-control" id="selectid">
@@ -89,7 +89,7 @@
 <!-- <label>data</label> -->
 <!-- <input name="stack" id="stack"/> -->
 
-    <div id="ss" class="xs-md-6 form-group {{ $errors->has('') ? 'has-error' : '' }}">
+    <div id="ss" class="xs-md-6 mb-3 {{ $errors->has('') ? 'has-error' : '' }}">
 
     </div>
 </div>

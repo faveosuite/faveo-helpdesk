@@ -7,7 +7,7 @@
 @section('breadcrumb')
 {{--    <div class="site-hero clearfix">--}}
         <ol class="breadcrumb float-sm-right ">
-            <li class="breadcrumb-item"> <i class="fas fa-home"> </i> {!! Lang::get('lang.you_are_here') !!} : &nbsp;</li>
+            <li class="breadcrumb-item"> <i class="fa-solid fa-home"> </i> {!! Lang::get('lang.you_are_here') !!} : &nbsp;</li>
 
             <li><a href="{!! URL::route('post.register') !!}">{!! Lang::get('lang.register') !!}</a></li>
         </ol>
@@ -23,18 +23,18 @@
 @section('content')
 
     @if(Session::has('status'))
-    <div class="alert alert-success alert-dismissable">
-        <i class="fas fa-check-circle"> </i> <b> {!! Lang::get('lang.success') !!} </b>
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <div class="alert alert-success alert-dismissible">
+        <i class="fa-solid fa-check-circle"> </i> <b> {!! Lang::get('lang.success') !!} </b>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         {{Session::get('status')}}
     </div>
     @endif
 
     @if (count($errors) > 0)
-    <div class="alert alert-danger alert-dismissable">
-        <i class="fa fa-ban"></i>
+    <div class="alert alert-danger alert-dismissible">
+        <i class="fa-solid fa-ban"></i>
         <b>{!! Lang::get('lang.alert') !!} !</b>
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         @foreach ($errors->all() as $error)
         <li>{{ $error }}</li>
         @endforeach
@@ -107,22 +107,21 @@
                 {!! html()->form('POST', url('auth/register'))->open() !!}
 
                 <!-- fullname -->
-                <div class="form-group has-feedback {{ $errors->has('full_name') ? 'has-error' : '' }}" style="display: -webkit-box;">
-            
+                <div class="input-group mb-3 {{ $errors->has('full_name') ? 'has-error' : '' }}">
                     {!! html()->text('full_name', null)->placeholder(Lang::get('lang.full_name'))->class('form-control') !!}
-                    <span class="fas fa-user   form-control-feedback" style="top: 9px;left: -25px;color: #6c757d;"></span>
+                    <span class="input-group-text"><i class="fa-solid fa-user" style="color: #6c757d;"></i></span>
                 </div>
 
                 <!-- Email -->
                 @if (($email_mandatory->status == 1 || $email_mandatory->status == '1'))
-                <div class="form-group has-feedback {{ $errors->has('email') ? 'has-error' : '' }}" style="display: -webkit-box;">
+                <div class="input-group mb-3 {{ $errors->has('email') ? 'has-error' : '' }}">
                     {!! html()->text('email', null)->placeholder(Lang::get('lang.email'))->class('form-control') !!}
-                    <span class="far fa-envelope text-muted form-control-feedback" style="top: 9px;left: -25px;color: #6c757d;"></span>
+                    <span class="input-group-text"><i class="fa-regular fa-envelope" style="color: #6c757d;"></i></span>
                 </div>
                 @elseif (($settings->status == 0 || $settings->status == '0') && ($email_mandatory->status == 0 || $email_mandatory->status == '0'))
-                <div class="form-group has-feedback {{ $errors->has('email') ? 'has-error' : '' }}" style="display: -webkit-box;">
+                <div class="input-group mb-3 {{ $errors->has('email') ? 'has-error' : '' }}">
                     {!! html()->text('email', null)->placeholder(Lang::get('lang.email'))->class('form-control') !!}
-                    <span class="far fa-envelope text-muted form-control-feedback" style="top: 9px;left: -25px;color: #6c757d;"></span>
+                    <span class="input-group-text"><i class="fa-regular fa-envelope" style="color: #6c757d;"></i></span>
                 </div>
                 @else
                     {!! html()->hidden('email', null) !!}
@@ -136,9 +135,9 @@
                         </div>    
                     </div>
                     <div class="col-md-9">
-                        <div class="form-group has-feedback {{ $errors->has('mobile') ? 'has-error' : '' }}" style="display: -webkit-box;">
+                        <div class="input-group mb-3 {{ $errors->has('mobile') ? 'has-error' : '' }}">
                         {!! html()->text('mobile', null)->placeholder(Lang::get('lang.mobile'))->class('form-control') !!}
-                        <span class="fas fa-phone  form-control-feedback" style="top: 9px;left: -25px;color: #6c757d;"></span>
+                        <span class="input-group-text"><i class="fa-solid fa-phone" style="color: #6c757d;"></i></span>
                         </div>
                     </div>
                 </div>
@@ -148,23 +147,23 @@
 
                 @endif
                 <!-- Password -->
-                <div class="form-group has-feedback {{ $errors->has('password') ? 'has-error' : '' }}" style="display: -webkit-box;">
-                           
-                    {!! html()->password('password')->placeholder(Lang::get('lang.password'))->class('form-control') !!}
-                    <span class="fa fa-lock  form-control-feedback" style="top: 9px;left: -25px;color: #6c757d;"></span>
-
+                <div class="input-group mb-3 {{ $errors->has('password') ? 'has-error' : '' }}">
+                    {!! html()->password('password')->placeholder(Lang::get('lang.password'))->class('form-control')->id('reg-password') !!}
+                    <button class="input-group-text" type="button" onclick="togglePwd('reg-password', this)" tabindex="-1">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
                 </div>
                 <!-- Confirm password -->
-                <div class="form-group has-feedback {{ $errors->has('password_confirmation') ? 'has-error' : '' }}" style="display: -webkit-box;">
-                           
-                    {!! html()->password('password_confirmation')->placeholder(Lang::get('lang.retype_password'))->class('form-control') !!}
-                    <span class="fas fa-sign-in-alt form-control-feedback" style="top: 9px;left: -25px;color: #6c757d;"></span>
-
+                <div class="input-group mb-3 {{ $errors->has('password_confirmation') ? 'has-error' : '' }}">
+                    {!! html()->password('password_confirmation')->placeholder(Lang::get('lang.retype_password'))->class('form-control')->id('reg-password-confirm') !!}
+                    <button class="input-group-text" type="button" onclick="togglePwd('reg-password-confirm', this)" tabindex="-1">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
                 </div>
                 
                 <div >
                     
-                    <button type="submit" class="btn btn-primary btn-block btn-flat" style="width: 100%; hov: #00c0ef; color: #fff">{!! Lang::get('lang.register') !!}</button>
+                    <button type="submit" class="btn btn-primary w-100">{!! Lang::get('lang.register') !!}</button>
                 </div>
 
                 <div>
@@ -184,6 +183,18 @@
         </div>
     </div>
 </div>
-{!! html()->closeModelForm() !!}  
-
+{!! html()->closeModelForm() !!}
+<script>
+function togglePwd(id, btn) {
+    var input = document.getElementById(id);
+    var icon = btn.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fa-solid fa-eye-slash';
+    } else {
+        input.type = 'password';
+        icon.className = 'fa-solid fa-eye';
+    }
+}
+</script>
 @stop

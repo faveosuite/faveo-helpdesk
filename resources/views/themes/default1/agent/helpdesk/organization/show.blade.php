@@ -80,14 +80,14 @@ class="nav-link active"
                     <li class="list-group-item">
 
                         <label>{!! Lang::get('lang.website') !!}</label> 
-                        <a class="float-right" title="{{$orgs->website}}">{!! Str::limit($orgs->website,15) !!}</a>
+                        <a class="float-end" title="{{$orgs->website}}">{!! Str::limit($orgs->website,15) !!}</a>
                     </li>
 
                     @if($orgs->phone)
                     <li class="list-group-item">
 
                         <label>{!! Lang::get('lang.phone') !!}</label> 
-                        <a class="float-right" title="{{$orgs->phone}}">{!! Str::limit($orgs->phone,15) !!}</a>
+                        <a class="float-end" title="{{$orgs->phone}}">{!! Str::limit($orgs->phone,15) !!}</a>
                     </li>
                     @endif
 
@@ -142,7 +142,7 @@ class="nav-link active"
 
                             <a href="javascript:;" class="nav-link text-dark"> {!! Lang::get('lang.e-mail') !!}  
 
-                                <span class="float-right" title="{{$users->email}}">{!! Str::limit($users->email,15) !!}</span>
+                                <span class="float-end" title="{{$users->email}}">{!! Str::limit($users->email,15) !!}</span>
                             </a>
                         </li>
 
@@ -150,7 +150,7 @@ class="nav-link active"
 
                             <a href="javascript:;" class="nav-link text-dark"> {!! Lang::get('lang.phone') !!}  
 
-                                <span class="float-right" title="{{$users->phone_number}}">{!! Str::limit($users->phone_number,15) !!}</span>
+                                <span class="float-end" title="{{$users->phone_number}}">{!! Str::limit($users->phone_number,15) !!}</span>
                             </a>
                         </li>
                     </ul>
@@ -245,7 +245,7 @@ class="nav-link active"
                                     <a class="btn btn-default btn-sm checkbox-toggle"><i class="far fa-square"></i></a>
                                     <input type="submit" class="btn btn-default text-orange btn-sm" name="submit" value="{!! Lang::get('lang.delete') !!}">
                                     <input type="submit" class="btn btn-default text-yellow btn-sm" name="submit" value="{!! Lang::get('lang.close') !!}">
-                                    <div class="float-right">
+                                    <div class="float-end">
                                         <?php
                                         $counted = count(App\Model\helpdesk\Ticket\Tickets::whereIn('user_id', $user_orga_relation_id)->where('status', '=', '1')->get());
                                         if ($counted < 20) {
@@ -330,7 +330,7 @@ class="nav-link active"
                                         @endforeach
                                         </tbody>
                                     </table><!-- /.table -->
-                                    <div class="float-right">
+                                    <div class="float-end">
                                         <?php echo $tickets->setPath(url('/organizations/' . $orgs->id))->render(); ?>&nbsp;
                                     </div>
                                 </div><!-- /.mail-box-messages -->
@@ -350,7 +350,7 @@ class="nav-link active"
                                     <a class="btn btn-default btn-sm checkbox-toggle"><i class="far fa-square"></i></a>
                                     <input type="submit" class="btn btn-default text-orange btn-sm" name="submit" value="{!! Lang::get('lang.delete') !!}">
                                     <input type="submit" class="btn btn-default text-yellow btn-sm" name="submit" value="{!! Lang::get('lang.close') !!}">
-                                    <div class="float-right">
+                                    <div class="float-end">
                                         <?php
                                         $counted = count(App\Model\helpdesk\Ticket\Tickets::whereIn('user_id', $user_orga_relation_id)->where('status', '=', '2')->get());
                                         if ($counted < 20) {
@@ -436,7 +436,7 @@ class="nav-link active"
                                         </tbody>
                                     </table><!-- /.table -->
 
-                                    <div class="float-right">
+                                    <div class="float-end">
                                         <?php echo $tickets->setPath(url('/organizations/' . $orgs->id))->render(); ?>&nbsp;
                                     </div>
                                 </div><!-- /.mail-box-messages -->
@@ -456,7 +456,7 @@ class="nav-link active"
                                     <a class="btn btn-default btn-sm checkbox-toggle"><i class="far fa-square"></i></a>
                                     <input type="submit" class="btn btn-default text-orange btn-sm" name="submit" value="{!! Lang::get('lang.delete') !!}">
                                     <input type="submit" class="btn btn-default text-yellow btn-sm" name="submit" value="{!! Lang::get('lang.close') !!}">
-                                    <div class="float-right">
+                                    <div class="float-end">
                                         <?php
                                         $counted = count(App\Model\helpdesk\Ticket\Tickets::whereIn('user_id', $user_orga_relation_id)->where('status', '=', '5')->get());
                                         if ($counted < 20) {
@@ -542,7 +542,7 @@ class="nav-link active"
                                         </tbody>
                                     </table><!-- /.table -->
 
-                                    <div class="float-right">
+                                    <div class="float-end">
                                         <?php echo $tickets->setPath(url('/organizations/' . $orgs->id))->render(); ?>&nbsp;
                                     </div>
                                 </div><!-- /.mail-box-messages -->

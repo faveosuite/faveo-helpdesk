@@ -252,7 +252,7 @@ class="nav-link active"
                         </tbody>
                     </table>
                     <div class="mt-2">
-                        <div class="float-right" >
+                        <div class="float-end" >
                             <a class="btn btn-primary btnAdd1" href="javascript:;"><i class="fas fa-plus"></i> {!! Lang::get('lang.add') !!}</a>
                         </div>
                     </div>
@@ -439,7 +439,7 @@ class="nav-link active"
                         </tbody>
                     </table>
                     <div class="mt-2">
-                        <div class="float-right">
+                        <div class="float-end">
                             <a class="btn btn-primary btnAdd" href="javascript:;"><i class="fas fa-plus"></i> {!! Lang::get('lang.add') !!}</a>                                            
                         </div>
                     </div>
