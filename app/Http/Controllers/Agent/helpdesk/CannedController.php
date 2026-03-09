@@ -69,13 +69,13 @@ class CannedController extends Controller
                 return $model->title;
             })
             ->addColumn('Actions', function ($model) {
-                $view   = '<a data-bs-toggle="modal" data-bs-target="#view'.$model->id.'" href="#" class="btn btn-info btn-sm" onclick="updateModelTitle(\''.addslashes($model->title).'\')">'.Lang::get('lang.view').'</a>';
-                $edit   = '<a href="'.route('canned.edit', $model->id).'" class="btn btn-primary btn-sm">'.Lang::get('lang.edit').'</a>';
+                $view = '<a data-bs-toggle="modal" data-bs-target="#view'.$model->id.'" href="#" class="btn btn-info btn-sm" onclick="updateModelTitle(\''.addslashes($model->title).'\')">'.Lang::get('lang.view').'</a>';
+                $edit = '<a href="'.route('canned.edit', $model->id).'" class="btn btn-primary btn-sm">'.Lang::get('lang.edit').'</a>';
                 $delete = '<form method="POST" action="'.route('canned.destroy', $model->id).'" style="display:inline;">
                     '.csrf_field().'<input type="hidden" name="_method" value="DELETE">
                     <button type="submit" class="btn btn-warning btn-sm" onclick="return confirm(\'Are you sure?\')">'.Lang::get('lang.delete').'</button>
                 </form>';
-                $modal  = '<div class="modal fade" id="view'.$model->id.'">
+                $modal = '<div class="modal fade" id="view'.$model->id.'">
                     <div class="modal-dialog"><div class="modal-content">
                         <div class="modal-header">
                             <h4 class="modal-title"></h4>
