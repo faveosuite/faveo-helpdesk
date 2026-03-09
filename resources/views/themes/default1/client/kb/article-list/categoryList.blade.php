@@ -45,7 +45,7 @@ class = "nav-item active"
 
                     <i class="far fa-folder-open fa-fw text-muted"></i>
 
-                    <small class="float-right">
+                    <small class="float-end">
 
                         <a href="{{url('category-list/'.$category->slug)}}"><i class="far fa-hdd fa-fw"></i>({{count($all)}})</a>
                     </small>

@@ -1,13 +1,13 @@
 <li class="nav-item dropdown notifications-menu">
 
-    <a href="#" class="nav-link" data-toggle="dropdown">
+    <a href="#" class="nav-link" data-bs-toggle="dropdown">
 
-        <i class="fas fa-sync"></i>
+        <i class="fa-solid fa-sync"></i>
 
-        <span class="badge badge-warning navbar-badge" id="count">{!! $notification->count() !!}</span>
+        <span class="badge bg-warning navbar-badge" id="count">{!! $notification->count() !!}</span>
     </a>
 
-    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
 
         <span class="dropdown-header">You have {!! $notification->count() !!} update(s).</span>
 
@@ -17,7 +17,7 @@
             @foreach($notification as $notify)
             @if($notify->value)
 
-            <li>&nbsp;&nbsp;&nbsp;{!! ucfirst($notify->value) !!}</li>
+            <li class="ms-2">{!! ucfirst($notify->value) !!}</li>
             <li class="clearfix"></li>
             @endif
             @endforeach
@@ -25,4 +25,5 @@
         </ul>
     </div>
 </li>
+
 

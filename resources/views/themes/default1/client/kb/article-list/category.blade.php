@@ -116,7 +116,7 @@ class = "nav-item active"
                     <h2 class="section-title h4 clearfix">
 
                         <b>   <i class="line" style="border-color: rgb(0, 154, 186);"></i>{!! Lang::get('lang.categories') !!}</b>
-                        <small class="float-right"><i class="far fa-hdd fa-fw"></i></small>
+                        <small class="float-end"><i class="far fa-hdd fa-fw"></i></small>
                     </h2>
 
                     <ul class="nav nav-pills nav-stacked nav-categories">
@@ -132,7 +132,7 @@ class = "nav-item active"
 
                             <a href="{{url('category-list/'.$category->slug)}}" class="list-group-item list-group-item-action" style="padding: 5px;">
 
-                                <span class="badge badge-pill float-right" style="margin-top: 2px;">{{$numcount}}</span>
+                                <span class="badge badge-pill float-end" style="margin-top: 2px;">{{$numcount}}</span>
 
                                 {{$category->name}}
                             </a>

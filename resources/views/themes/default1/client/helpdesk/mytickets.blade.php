@@ -70,7 +70,7 @@ class="nav-item active"
                     <a class="btn btn-light btn-sm checkbox-toggle" style="background-color: whitesmoke"><i class="far fa-square"></i></a>
                     <a class="btn btn-light btn-sm" id="click1" style="background-color: whitesmoke"><i class="fas fa-sync"></i></a>
                     <input type="submit" class="btn btn-light text-warning btn-sm" name="submit" value="{!! Lang::get('lang.close') !!}"style="color: #F39C12;background-color: whitesmoke">
-                    <div class="float-right" id="refresh21">
+                    <div class="float-end" id="refresh21">
                         {!! $open->count().'-'.$open->total(); !!}
                     </div>
                 </div>
@@ -146,7 +146,7 @@ class="nav-item active"
                         @endforeach
                         </tbody>
                     </table><!-- /.table -->
-                    <div class="float-right">
+                    <div class="float-end">
                         <?php echo $open->setPath(url('mytickets'))->render(); ?>&nbsp;
                     </div>
                 </div><!-- /.mail-box-messages -->
@@ -160,7 +160,7 @@ class="nav-item active"
                     <a class="btn btn-light btn-sm checkbox-toggle" style="background-color: whitesmoke"><i class="far fa-square" ></i></a>
                     <a class="btn btn-light btn-sm" id="click2" style="background-color: whitesmoke"><i class="fas fa-sync"></i></a>
                     <input type="submit" class="btn btn-light text-primary btn-sm" name="submit" value="{!! Lang::get('lang.open') !!}" style="background-color: whitesmoke">
-                    <div class="float-right" id="refresh22">
+                    <div class="float-end" id="refresh22">
                         {!! $close->count().'-'.$close->total(); !!}
                     </div>
                 </div>
@@ -232,7 +232,7 @@ class="nav-item active"
                         @endforeach
                         </tbody>
                     </table><!-- /.table -->
-                    <div class="float-right">
+                    <div class="float-end">
                         <?php echo $close->setPath(url('mytickets'))->render(); ?>&nbsp;
                     </div>
                 </div><!-- /.mail-box-messages -->

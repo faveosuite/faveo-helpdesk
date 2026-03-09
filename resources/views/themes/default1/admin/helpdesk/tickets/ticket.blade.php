@@ -121,22 +121,22 @@
                         <li class="header">TICKETS</li>
                         <li>
                             <a href="../widgets.html">
-                                <i class="fa fa-envelope"></i> <span>Inbox</span> <small class="label pull-right bg-green">5</small>
+                                <i class="fa fa-envelope"></i> <span>Inbox</span> <small class="label pull-right text-bg-success">5</small>
                             </a>
                         </li>
                         <li>
                             <a href="../widgets.html">
-                                <i class="fa fa-user"></i> <span>My Tickets</span> <small class="label pull-right bg-green">2</small>
+                                <i class="fa fa-user"></i> <span>My Tickets</span> <small class="label pull-right text-bg-success">2</small>
                             </a>
                         </li>
                         <li>
                             <a href="../widgets.html">
-                                <i class="fa fa-th"></i> <span>Unassigned</span> <small class="label pull-right bg-green">4</small>
+                                <i class="fa fa-th"></i> <span>Unassigned</span> <small class="label pull-right text-bg-success">4</small>
                             </a>
                         </li>
                         <li>
                             <a href="../widgets.html">
-                                <i class="fa fa-trash-o"></i> <span>Trash</span> <small class="label pull-right bg-green">89</small>
+                                <i class="fa fa-trash-o"></i> <span>Trash</span> <small class="label pull-right text-bg-success">89</small>
                             </a>
                         </li>
                         <li class="treeview">
@@ -144,9 +144,9 @@
                                 <i class="fa fa-folder-open"></i> <span>General</span> <i class="fa fa-angle-left pull-right"></i>
                             </a>
                             <ul class="treeview-menu">
-                                <li><a href=""><i class="fa fa-circle-o"></i>Open<small class="label pull-right bg-green">4</small></a></li>
-                                <li><a href=""><i class="fa fa-circle-o"></i>Inprogress<small class="label pull-right bg-green">3</small></a></li>
-                                <li><a href=""><i class="fa fa-circle-o"></i>Closed<small class="label pull-right bg-green">55</small></a></li>
+                                <li><a href=""><i class="fa fa-circle-o"></i>Open<small class="label pull-right text-bg-success">4</small></a></li>
+                                <li><a href=""><i class="fa fa-circle-o"></i>Inprogress<small class="label pull-right text-bg-success">3</small></a></li>
+                                <li><a href=""><i class="fa fa-circle-o"></i>Closed<small class="label pull-right text-bg-success">55</small></a></li>
                             </ul>
                         </li>
                         <li class="treeview">
@@ -154,9 +154,9 @@
                                 <i class="fa fa-folder-open"></i> <span>Support</span> <i class="fa fa-angle-left pull-right"></i>
                             </a>
                             <ul class="treeview-menu">
-                                <li><a href=""><i class="fa fa-circle-o"></i>Open<small class="label pull-right bg-green">1</small></a></li>
-                                <li><a href=""><i class="fa fa-circle-o"></i>Inprogress<small class="label pull-right bg-green">6</small></a></li>
-                                <li><a href=""><i class="fa fa-circle-o"></i>Closed<small class="label pull-right bg-green">88</small></a></li>
+                                <li><a href=""><i class="fa fa-circle-o"></i>Open<small class="label pull-right text-bg-success">1</small></a></li>
+                                <li><a href=""><i class="fa fa-circle-o"></i>Inprogress<small class="label pull-right text-bg-success">6</small></a></li>
+                                <li><a href=""><i class="fa fa-circle-o"></i>Closed<small class="label pull-right text-bg-success">88</small></a></li>
                             </ul>
                         </li>
 

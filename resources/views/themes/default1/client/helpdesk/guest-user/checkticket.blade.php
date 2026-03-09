@@ -323,7 +323,7 @@ class="active"
                                                     $time = substr($time, 0, -3);
                                                     if(isset($data) && $date==$data){ 
                                                     } else {
-                                                        ?> <span class="bg-green">
+                                                        ?> <span class="text-bg-success">
                                                         {{date_format($conversation->created_at, 'd/m/Y')}}
                                                         </span> <?php
                                                         $data = $ConvDate[0];
@@ -332,7 +332,7 @@ class="active"
                                             </li>
                                             <li>
                                             <?php if($conversation->staff_id > 0) { ?>
-                                                <i class="fa fa-group bg-yellow" title="<?= Lang::get('lang.posted_by_support_team') ?>"></i>
+                                                <i class="fa fa-group text-bg-warning" title="<?= Lang::get('lang.posted_by_support_team') ?>"></i>
                                             <?php } elseif($conversation->user_id > 0) { ?>   
                                                 <i class="fa fa-user bg-aqua" title="<?= Lang::get('lang.posted_by_customer') ?>"></i>
                                             <?php } else { ?>   

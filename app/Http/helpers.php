@@ -305,3 +305,15 @@ function carbon($date)
 {
     return \Carbon\Carbon::parse($date);
 }
+
+/**
+ * This function return asset link based on link.php settings
+ *
+ * @return type
+ */
+function assetLink(string $type, string $key)
+{
+   // dd(asset(\Config::get('link.'.$type.'.'.$key)));
+    // if request if language, it should append & language to it
+    return asset(\Config::get('link.'.$type.'.'.$key));
+}

@@ -124,7 +124,7 @@ class="nav-link active"
             @endif
             @endforeach
         </table>
-        <div class="float-right">
+        <div class="float-end">
             {!! $user->links() !!}
         </div>
     </div>
