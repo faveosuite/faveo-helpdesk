@@ -6,7 +6,7 @@
 
 @section('breadcrumb')
     <ol class="breadcrumb float-sm-right ">
-        <li class="breadcrumb-item"> <i class="fas fa-home"> </i> {!! Lang::get('lang.you_are_here') !!} :&nbsp; </li>
+        <li class="breadcrumb-item"> <i class="fa-solid fa-home"> </i> {!! Lang::get('lang.you_are_here') !!} :&nbsp; </li>
             <li><a href="{!! URL::route('/') !!}">{!! Lang::get('lang.forgot_password') !!}</a></li>
         </ol>
 @stop
@@ -15,9 +15,9 @@
 
     @if(Session::has('status'))
     <div class="col-sm-12">
-        <div class="alert alert-success alert-dismissable">
-            <i class="fa  fa-check-circle"> </i> <b> {!! Lang::get('lang.success') !!} </b>
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <div class="alert alert-success alert-dismissible">
+            <i class="fa-solid fa-check-circle"> </i> <b> {!! Lang::get('lang.success') !!} </b>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
             {{Session::get('status')}}
         </div>
     </div>
@@ -91,11 +91,9 @@
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                     <!-- Email -->
                     <!-- <div class="input-group margin"> -->
-                    <div class="form-group has-feedback {{ $errors->has('email') ? 'has-error' : '' }}" style="display: -webkit-box;">
-            
+                    <div class="input-group mb-3 {{ $errors->has('email') ? 'has-error' : '' }}">
                         <input type="email" class="form-control" name="email" placeholder="{!! Lang::get('lang.email') !!}" value="{{ old('email') }}">
-
-                         <span class="far fa-envelope text-muted  form-control-feedback" style="top: 9px;left: -25px;color: #6c757d;"></span>
+                        <span class="input-group-text"><i class="fa-regular fa-envelope" style="color: #6c757d;"></i></span>
                     </div>
                 
                     <div class="row">
@@ -107,9 +105,7 @@
 
                         <div class="col-sm-6">
                             
-                             <span class="input-group-btn" style="width: 65% ;margin-left: 35%">
-                                <button type="submit" class="btn btn-primary btn-block btn-flat" style="width: 100%; color: white">{!! Lang::get('lang.send') !!}</button>
-                            </span>
+                             <button type="submit" class="btn btn-primary w-100">{!! Lang::get('lang.send') !!}</button>
                             <br/>
                         </div>
                     </div> 

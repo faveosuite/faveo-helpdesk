@@ -33,27 +33,27 @@ class="active"
 
 <!-- Main content -->
 {!! html()->form('POST', route('post.newticket'))->attributes(['id' => 'form'])->open() !!}
-@if(Session::has('success'))       
-<div class="alert alert-success alert-dismissable">
-    <i class="fas fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+@if(Session::has('success'))
+<div class="alert alert-success alert-dismissible">
+    <i class="fa-solid fa-check-circle"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('success')}}
 </div>
 @endif
 <!-- failure message -->
 @if(Session::has('fails'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fas fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('fails')}}
 </div>
 @endif
 @if(Session::has('errors'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fas fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     <br/>
     @if($errors->first('email'))
     <li class="error-message-padding">{!! $errors->first('email', ':message') !!}</li>
@@ -330,7 +330,7 @@ class="active"
                 } else {
                     $('#duedate').addClass("has-error");
                     $('#clear-up').remove();
-                    $('#box-header1').append("<div id='clear-up'><br><br><div class='alert alert-danger alert-dismissable'><i class='fa fa-ban'></i><button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;</button> Invalid Due date</div></div>");
+                    $('#box-header1').append("<div id='clear-up'><br><br><div class='alert alert-danger alert-dismissible'><i class='fa-solid fa-ban'></i><button type='button' class='btn-close' data-bs-dismiss='alert' aria-hidden='true'></button> Invalid Due date</div></div>");
                     return false;
                 }
             }

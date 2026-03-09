@@ -154,7 +154,7 @@ $category_id = $all->pluck('category_id')->toArray();
                                 {!! html()->textarea('comment', null)->class('form-control')->id('comment')->attributes(['size' => '30x8']) !!}
                                 {!! $errors->first('comment', '<spam class="help-block">:message</spam>') !!}
                             </div>
-                            <button type="submit" class="btn btn-custom btn-lg float-right" style="background-color: #009aba; hov: #00c0ef; color: #fff">
+                            <button type="submit" class="btn btn-custom btn-lg float-end" style="background-color: #009aba; hov: #00c0ef; color: #fff">
                                 {{ Lang::get('lang.post_message') }}
                             </button>
                         </div>
@@ -237,7 +237,7 @@ $category_id = $all->pluck('category_id')->toArray();
                                 {!! html()->textarea('comment', null)->class('form-control')->id('comment')->attributes(['size' => '30x8']) !!}
                                 {!! $errors->first('comment', '<spam class="help-block">:message</spam>') !!}
                             </div>
-                            <button type="submit" class="btn btn-custom btn-lg float-right" style="background-color: #009aba; hov: #00c0ef; color: #fff">
+                            <button type="submit" class="btn btn-custom btn-lg float-end" style="background-color: #009aba; hov: #00c0ef; color: #fff">
                                 {{ Lang::get('lang.post_message') }}
                             </button>
                         </div>
@@ -337,7 +337,7 @@ $category_id = $all->pluck('category_id')->toArray();
 
                         <b>   <i class="line" style="border-color: rgb(0, 154, 186);"></i>{!! Lang::get('lang.categories') !!}</b>
 
-                        <small class="float-right"><i class="far fa-hdd fa-fw"></i></small>
+                        <small class="float-end"><i class="far fa-hdd fa-fw"></i></small>
                     </h2>
 
                     <ul class="nav nav-pills nav-stacked nav-categories">
@@ -353,7 +353,7 @@ $category_id = $all->pluck('category_id')->toArray();
                         <li class="d-flex justify-content-between align-items-center">
 
                             <a href="{{url('category-list/'.$category->slug)}}" class="list-group-item list-group-item-action" style="padding: 5px;">
-                                <span class="badge badge-pill float-right" style="margin-top: 2px;">{{$numcount}}</span>{{$category->name}}
+                                <span class="badge badge-pill float-end" style="margin-top: 2px;">{{$numcount}}</span>{{$category->name}}
                             </a>
                         </li>
                         @endforeach

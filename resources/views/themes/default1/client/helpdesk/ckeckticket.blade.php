@@ -120,7 +120,7 @@ $thread = App\Model\helpdesk\Ticket\Ticket_Thread::where('ticket_id', '=', \Cryp
 
                 <div class="col-md-12 mb-1">
 
-                    <div class="ticketratings float-right">
+                    <div class="ticketratings float-end">
 
                         <table>
 
@@ -318,7 +318,7 @@ $thread = App\Model\helpdesk\Ticket\Ticket_Thread::where('ticket_id', '=', \Cryp
                                     @else
                                     <b class="fn"><a href="#" rel="external" class="url">{{$role->first_name." ".$role->last_name}}</a></b>
 
-                                    <div class="ticketratings float-right" style="margin-top: -12px;">
+                                    <div class="ticketratings float-end" style="margin-top: -12px;">
 
                                         <table>
 
@@ -465,7 +465,7 @@ $thread = App\Model\helpdesk\Ticket\Ticket_Thread::where('ticket_id', '=', \Cryp
             <?php }
             ?>
 
-            <div class="float-right" style="margin-top:-25px;margin-bottom:-30px">
+            <div class="float-end" style="margin-top:-25px;margin-bottom:-30px">
                 <?php echo $conversations->setPath(route('check_ticket', ['id' => $id]))->render(); ?>
             </div>
             <br/><br/>

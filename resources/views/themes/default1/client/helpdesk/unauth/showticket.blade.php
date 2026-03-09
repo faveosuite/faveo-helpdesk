@@ -91,7 +91,7 @@ $thread = App\Model\helpdesk\Ticket\Ticket_Thread::where('ticket_id', '=', $tick
 
             <div class="col-md-12 mb-1">
 
-                <div class="ticketratings float-right">
+                <div class="ticketratings float-end">
 
                     <table>
 

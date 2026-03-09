@@ -1280,7 +1280,7 @@ ol.with-line-border > li {
 /*	8.0 - Media Queries
 /*-----------------------------------------------------------------------------------*/
 
-@media (min-width: 99FR2px) {
+@media (min-width: 992px) {
     #logo {
         float: left;
         margin-bottom: 0;

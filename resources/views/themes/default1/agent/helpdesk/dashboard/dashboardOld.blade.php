@@ -134,7 +134,7 @@ class="active"
         <div class="col-md-2" style="width:20%;">
           <a href="{!! route('myticket.ticket') !!}">
             <div class="info-box">
-                <span class="info-box-icon bg-yellow"><i class="fa fa-user"></i></span>
+                <span class="info-box-icon text-bg-warning"><i class="fa fa-user"></i></span>
                 <div class="info-box-content">
                     <span class="info-box-text">{!! Lang::get('lang.my_tickets') !!}</span>
                     <span class="info-box-number">{{count($myticket) }} <small> Tickets</small></span>

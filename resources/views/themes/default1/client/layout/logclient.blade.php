@@ -12,31 +12,44 @@
     ?>
     <title> @yield('title') {!! strip_tags($title_name) !!} </title>
     <!-- faveo favicon -->
-    <link href="{{asset("lb-faveo/media/images/favicon.ico")}}"  rel="shortcut icon" >
+    <link href="{{ assetLink('css', 'favicon') }}" rel="shortcut icon">
 
     <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
 
-    <link href="{{asset("lb-faveo/css/widgetbox.min.css")}}" rel="stylesheet" type="text/css" />
-    <!-- Bootstrap 4.3.1 -->
-    <link href="{{asset("lb-faveo/css/bootstrap5.min.css")}}" rel="stylesheet" type="text/css" />
+    <!-- Widget CSS -->
+    <link href="{{ assetLink('css', 'widget') }}" rel="stylesheet" type="text/css" />
+
+    <!-- Bootstrap 5 -->
+    <link href="{{ assetLink('css', 'bootstrap') }}" rel="stylesheet" type="text/css" />
+
     <!-- Font Awesome Icons -->
-    <link href="{{asset("lb-faveo/css/font-awesome-5.min.css")}}" rel="stylesheet" type="text/css" />
+    <link href="{{ assetLink('css', 'font-awesome') }}" rel="stylesheet" type="text/css" />
 
-    <link href="{{asset("lb-faveo/css/intlTelInput.min.css")}}" rel="stylesheet" type="text/css" />
+    <!-- International Telephone Input -->
+    <link href="{{ assetLink('css', 'intl-tel-input') }}" rel="stylesheet" type="text/css" />
+
     <!-- Theme style -->
-    {{--           <link href="{{asset("lb-faveo/css/client.min.css")}}" rel="stylesheet" type="text/css" />--}}
+    {{-- <link href="{{ assetLink('css', 'client') }}" rel="stylesheet" type="text/css" /> --}}
 
-    <link href="{{asset("lb-faveo/css/app.3.0.css")}}" rel="stylesheet" type="text/css">
+    <!-- App CSS -->
+    <link href="{{ assetLink('css', 'app') }}" rel="stylesheet" type="text/css">
+    <link href="{{ assetLink('css', 'common') }}" rel="stylesheet" type="text/css">
 
-    <link href="{{asset("lb-faveo/css/custom.css")}}" rel="stylesheet" type="text/css">
+    <!-- Custom CSS -->
+    <link href="{{ assetLink('css', 'custom') }}" rel="stylesheet" type="text/css">
+    <link href="{{ assetLink('css', 'client-css') }}" rel="stylesheet" type="text/css">
 
-    <link href="{{asset("lb-faveo/css/edit.css")}}" rel="stylesheet" type="text/css">
+    <!-- Edit CSS -->
+    <link href="{{ assetLink('css', 'edit') }}" rel="stylesheet" type="text/css">
 
-    <link href="{{asset("lb-faveo/css/jquery.rating.css")}}" rel="stylesheet" type="text/css" />
+    <!-- jQuery Rating -->
+    <link href="{{ assetLink('css', 'jquery-rating') }}" rel="stylesheet" type="text/css" />
 
-    <link href="{{asset("lb-faveo/plugins/summernote/summernote-lite.min.css")}}" rel="stylesheet" type="text/css" />
+    <!-- Summernote Lite -->
+    <link href="{{ assetLink('css', 'summernote-lite') }}" rel="stylesheet" type="text/css" />
 
-    <script src="{{asset("lb-faveo/js/jquery-3.6.3.min.js")}}" type="text/javascript"></script>
+    <!-- jQuery -->
+    <script src="{{ assetLink('js', 'jquery') }}" type="text/javascript"></script>
 
     @yield('HeadInclude')
 </head>
@@ -434,35 +447,48 @@
             </div>
     </footer><!-- #colophon -->
 
-    <script src="{{asset("lb-faveo/js/popper.min.js")}}" type="text/javascript"></script>
-    <!-- Bootstrap 3.3.2 JS -->
-    <script src="{{asset("lb-faveo/js/bootstrap5.min.js")}}" type="text/javascript"></script>
+    <!-- Popper -->
+    <script src="{{ assetLink('js', 'popper') }}" type="text/javascript"></script>
 
-    {{--          <script src="{{asset("lb-faveo/js/client.min.js")}}" type="text/javascript"></script>--}}
+    <!-- Bootstrap 5 -->
+    <script src="{{ assetLink('js', 'bootstrap-client-js') }}" type="text/javascript"></script>
 
-    <script src="{{asset("lb-faveo/js/autocomplete.js")}}" type="text/javascript"></script>
+    {{-- <script src="{{ assetLink('js', 'client-min-js') }}" type="text/javascript"></script> --}}
 
-    <script src="{{asset("lb-faveo/js/superfish.min.js")}}" type="text/javascript"></script>
+    <!-- Autocomplete -->
+    <script src="{{ assetLink('js', 'autocomplete') }}" type="text/javascript"></script>
 
-    <script src="{{asset("lb-faveo/js/app.js")}}" type="text/javascript"></script>-
+    <!-- Superfish -->
+    <script src="{{ assetLink('js', 'superfish') }}" type="text/javascript"></script>
 
-    <script src="{{asset("lb-faveo/js/jquery.mobilemenu.js")}}" type="text/javascript"></script>
+    <!-- App JS -->
+    <script src="{{ assetLink('js', 'app') }}" type="text/javascript"></script>
 
-    <script src="{{asset("lb-faveo/js/jquery.rating.pack.js")}}" type="text/javascript"></script>
+    <!-- Mobile Menu -->
+    <script src="{{ assetLink('js', 'jquery-mobilemenu') }}" type="text/javascript"></script>
 
-    <script src="{{asset("lb-faveo/plugins/iCheck/icheck.min.js")}}" type="text/javascript"></script>
+    <!-- jQuery Rating -->
+    <script src="{{ assetLink('js', 'jquery-rating') }}" type="text/javascript"></script>
 
-    <script src="{{asset("lb-faveo/js/languagechanger.js")}}" type="text/javascript"></script>
+    <!-- iCheck -->
+    <script src="{{ assetLink('js', 'icheck') }}" type="text/javascript"></script>
 
-    <script src="{{asset("lb-faveo/js/languagechanger.js")}}" type="text/javascript"></script>
+    <!-- Language Changer -->
+    <script src="{{ assetLink('js', 'language-changer') }}" type="text/javascript"></script>
 
-    <script src="{{asset("lb-faveo/js/custom.js")}}" type="text/javascript"></script>
+    {{-- Duplicate languagechanger.js removed --}}
 
-    <script src="{{asset("lb-faveo/js/html5shiv.min.js")}}" type="text/javascript"></script>
+    <!-- Custom JS -->
+    <script src="{{ assetLink('js', 'custom') }}" type="text/javascript"></script>
 
-    <script src="{{asset("lb-faveo/js/respond.min.js")}}" type="text/javascript"></script>
+    <!-- HTML5 Shiv -->
+    <script src="{{ assetLink('js', 'html5shiv') }}" type="text/javascript"></script>
 
-    <script src="{{asset("lb-faveo/plugins/summernote/summernote-lite.min.js")}}" type="text/javascript"></script>
+    <!-- Respond -->
+    <script src="{{ assetLink('js', 'respond') }}" type="text/javascript"></script>
+
+    <!-- Summernote Lite -->
+    <script src="{{ assetLink('js', 'summernote-lite-js') }}" type="text/javascript"></script>
 
     <script>
         $(function () {

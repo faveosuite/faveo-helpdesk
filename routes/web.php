@@ -331,6 +331,7 @@ Route::middleware('web')->group(function () {
         Route::patch('agent-profile', [Agent\helpdesk\UserController::class, 'postProfileedit'])->name('agent-profile'); /* User Profile Post */
         Route::patch('agent-profile-password/{id}', [Agent\helpdesk\UserController::class, 'postProfilePassword']); /*  Profile Password Post */
         Route::get('canned/list', [Agent\helpdesk\CannedController::class, 'index'])->name('canned.list'); /* Canned list */
+        Route::get('canned/datatable', [Agent\helpdesk\CannedController::class, 'canned_list'])->name('canned.datatable'); /* Canned datatable AJAX */
 
         Route::get('canned/create', [Agent\helpdesk\CannedController::class, 'create'])->name('canned.create'); /* Canned create */
 

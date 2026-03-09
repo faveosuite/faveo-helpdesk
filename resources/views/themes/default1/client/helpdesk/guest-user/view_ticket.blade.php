@@ -408,7 +408,7 @@ $ConvDate1 = $conversation->created_at;
 	if (isset($data) && $date == $data) {
 
 	} else {
-		?> <span class="bg-green">
+		?> <span class="text-bg-success">
                                         {{date_format($conversation->created_at, 'd/m/Y')}}
                                     </span> <?php
 $data = $ConvDate[0];
@@ -420,7 +420,7 @@ $data = $ConvDate[0];
                                 <?php if($conversation->is_internal) { ?>
                                 <i class="fa fa-tag bg-purple" title="<?= Lang::get('lang.posted_by_system') ?>"></i>
                                     <?php }else{ if ($role->role == 'agent' || $role->role == 'admin') { ?>
-                                    <i class="fa fa-mail-reply-all bg-yellow" title="<?= Lang::get('lang.posted_by_support_team') ?>"></i>
+                                    <i class="fa fa-mail-reply-all text-bg-warning" title="<?= Lang::get('lang.posted_by_support_team') ?>"></i>
                                 <?php } elseif ($role->role == 'user') {  ?>
                                     <i class="fa fa-user bg-aqua" title="<?= Lang::get('lang.posted_by_customer') ?>"></i>
                                 <?php } else { ?>

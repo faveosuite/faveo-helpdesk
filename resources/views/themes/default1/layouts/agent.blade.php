@@ -164,7 +164,7 @@ if ($company != null) {
      ?>
                                         <li>
                                             <a href="{{ url('/ticket/open') }}">
-                                                <i class="fa fa-envelope"></i> <span>Inbox</span> <small class="label pull-right bg-green"><?php echo $i;?></small>
+                                                <i class="fa fa-envelope"></i> <span>Inbox</span> <small class="label pull-right text-bg-success"><?php echo $i;?></small>
                                             </a>
                                         </li>
 <?php
@@ -175,21 +175,21 @@ if ($company != null) {
                                              <a href="{{url('ticket/myticket')}}">
                                                 <i class="fa fa-user"></i> <span>My Tickets</span>
 
-                                                <small class="label pull-right bg-green">{{count($myticket) }}</small>
+                                                <small class="label pull-right text-bg-success">{{count($myticket) }}</small>
                                             </a>
                                         </li>
                                         <li>
                                             <a href="{{url('unassigned')}}">
                                                 <i class="fa fa-th"></i> <span>Unassigned</span>
 
-                                                <small class="label pull-right bg-green">{{count($unassigned)}}</small>
+                                                <small class="label pull-right text-bg-success">{{count($unassigned)}}</small>
                                             </a>
                                         </li>
                                         <li>
                                             <a href="{{url('trash')}}">
                                                 <i class="fa fa-trash-o"></i> <span>Trash</span>
                                                 <?php $deleted = App\Model\helpdesk\Ticket\Tickets::where('status', '5')->get();?>
-                                                <small class="label pull-right bg-green">{{count($deleted)}}</small>
+                                                <small class="label pull-right text-bg-success">{{count($deleted)}}</small>
                                             </a>
                                         </li>
 <li class="header">DEPARTMENTS</li>
@@ -226,9 +226,9 @@ $underprocess = count($underprocess);
                                                 <i class="fa fa-folder-open"></i> <span>{!! $dept->name !!}</span> <i class="fa fa-angle-left pull-right"></i>
                                             </a>
                                             <ul class="treeview-menu">
-                                                <li><a href=""><i class="fa fa-circle-o"></i>Open<small class="label pull-right bg-green">{!! $open !!}</small></a></li>
-                                                <li><a href=""><i class="fa fa-circle-o"></i>Inprogress<small class="label pull-right bg-green">{!! $underprocess !!}</small></a></li>
-                                                <li><a href=""><i class="fa fa-circle-o"></i>Closed<small class="label pull-right bg-green">{!! $closed !!}</small></a></li>
+                                                <li><a href=""><i class="fa fa-circle-o"></i>Open<small class="label pull-right text-bg-success">{!! $open !!}</small></a></li>
+                                                <li><a href=""><i class="fa fa-circle-o"></i>Inprogress<small class="label pull-right text-bg-success">{!! $underprocess !!}</small></a></li>
+                                                <li><a href=""><i class="fa fa-circle-o"></i>Closed<small class="label pull-right text-bg-success">{!! $closed !!}</small></a></li>
                                             </ul>
                                         </li>
 
@@ -241,9 +241,9 @@ $underprocess = count($underprocess);
                                                 <i class="fa fa-folder-open"></i> <span>{!! $dept->name !!}</span> <i class="fa fa-angle-left pull-right"></i>
                                             </a>
                                             <ul class="treeview-menu">
-                                                <li><a href=""><i class="fa fa-circle-o"></i>Open<small class="label pull-right bg-green">{!! $open !!}</small></a></li>
-                                                <li><a href=""><i class="fa fa-circle-o"></i>Inprogress<small class="label pull-right bg-green">{!! $underprocess !!}</small></a></li>
-                                                <li><a href=""><i class="fa fa-circle-o"></i>Closed<small class="label pull-right bg-green">{!! $closed !!}</small></a></li>
+                                                <li><a href=""><i class="fa fa-circle-o"></i>Open<small class="label pull-right text-bg-success">{!! $open !!}</small></a></li>
+                                                <li><a href=""><i class="fa fa-circle-o"></i>Inprogress<small class="label pull-right text-bg-success">{!! $underprocess !!}</small></a></li>
+                                                <li><a href=""><i class="fa fa-circle-o"></i>Closed<small class="label pull-right text-bg-success">{!! $closed !!}</small></a></li>
                                             </ul>
                                         </li>
                                         <?php }

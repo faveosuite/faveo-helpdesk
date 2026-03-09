@@ -140,28 +140,28 @@ if ($company != null) {
                                         <li>
                                              <a href="{{url('kb/category')}}">
                                                 <i class="fa fa-user"></i> <span>Category</span>
-                                                <small class="label pull-right bg-green"></small>
+                                                <small class="label pull-right text-bg-success"></small>
                                             </a>
                                         </li>
 
                                         <li>
                                             <a href="{{url('kb/article')}}">
                                                 <i class="fa fa-th"></i> <span>Article</span>
-                                                <small class="label pull-right bg-green"></small>
+                                                <small class="label pull-right text-bg-success"></small>
                                             </a>
                                         </li>
 
                                         <li>
                                             <a href="{{url('kb/page')}}">
                                                 <i class="fa fa-th"></i> <span>Page</span>
-                                                <small class="label pull-right bg-green"></small>
+                                                <small class="label pull-right text-bg-success"></small>
                                             </a>
                                         </li>
 
                                         <li>
                                             <a href="{{url('kb/page')}}">
                                                 <i class="fa fa-th"></i> <span>Page</span>
-                                                <small class="label pull-right bg-green"></small>
+                                                <small class="label pull-right text-bg-success"></small>
                                             </a>
                                         </li>
 
