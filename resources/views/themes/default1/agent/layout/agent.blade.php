@@ -1,7 +1,6 @@
 <!DOCTYPE html>
-<html>
-
-    <head>
+<html dir="{{ app()->getLocale() == 'ar' ? 'rtl' : 'ltr' }}">
+<head>
 
         <meta charset="UTF-8" ng-app="myApp">
 
@@ -14,8 +13,17 @@
         <!-- Favicon -->
         <link href="{{ assetLink('css', 'favicon') }}" rel="shortcut icon">
 
-        <!-- Bootstrap -->
+        @if(Lang::getLocale() == 'ar')
+        <!-- Bootstrap + AdminLTE + Common (RTL) -->
+        <link href="{{ assetLink('css', 'bootstrap-rtl') }}" rel="stylesheet" type="text/css" />
+        <link href="{{ assetLink('css', 'adminte-rtl') }}" rel="stylesheet" type="text/css" />
+        <link href="{{ assetLink('css', 'common-rtl') }}" rel="stylesheet" type="text/css" />
+        @else
+        <!-- Bootstrap + AdminLTE + Common (LTR) -->
         <link href="{{ assetLink('css', 'bootstrap') }}" rel="stylesheet" type="text/css" />
+        <link href="{{ assetLink('css', 'adminlte') }}" rel="stylesheet" type="text/css" />
+        <link href="{{ assetLink('css', 'common') }}" rel="stylesheet" type="text/css" />
+        @endif
 
         <!-- Font Awesome Icons -->
         <link href="{{ assetLink('css', 'font-awesome') }}" rel="stylesheet" type="text/css" />
@@ -23,10 +31,7 @@
         <!-- Ionicons -->
         <link href="{{ assetLink('css', 'ionicons') }}" rel="stylesheet" type="text/css" />
 
-        <!-- Theme style -->
-        <link href="{{ assetLink('css', 'adminlte') }}" rel="stylesheet" type="text/css" />
         <link href="{{ assetLink('css', 'overlay-scrollbars') }}" rel="stylesheet" type="text/css" />
-
         <link href="{{ assetLink('css', 'editor') }}" rel="stylesheet" type="text/css" />
         <link href="{{ assetLink('css', 'datatables') }}" rel="stylesheet" type="text/css" />
         <link href="{{ assetLink('css', 'jquery-rating') }}" rel="stylesheet" type="text/css" />
@@ -44,7 +49,6 @@
 
         <!-- jQuery UI (Agent Panel) -->
         <link href="{{ assetLink('css', 'jquery-ui-agent') }}" rel="stylesheet" type="text/css" />
-        <link href="{{ assetLink('css', 'common') }}" rel="stylesheet" type="text/css" />
 
         <!-- JS -->
         <script src="{{ assetLink('js', 'jquery') }}" type="text/javascript"></script>
@@ -303,21 +307,35 @@
 
                         <?php $src = Lang::getLocale().'.png'; ?>
 
-                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="true">
-                            <img src="{{asset("lb-faveo/flags/$src")}}">
+                        <a href="#" class="nav-link" data-bs-toggle="dropdown" aria-expanded="true">
+                            <img class="mb-1" src="{{asset("lb-faveo/flags/$src")}}" style="height: 12px; width: 20px">
                         </a>
 
-                       <div class="dropdown-menu dropdown-menu-sm dropdown-menu-end p-0" style="width: 290px;">
+                        <div class="dropdown-menu dropdown-menu-sm dropdown-menu-end p-0" style="width:290px;">
 
-                           @foreach($langs as $key => $value)
-                            <?php $src = $key.".png"; ?>
-                            <a href="#" class="dropdown-item" id="{{$key}}" onclick="changeLang(this.id)"><img src="{{asset("lb-faveo/flags/$src")}}">&nbsp;{{$value[0]}}&nbsp;
-                            @if(Lang::getLocale() == "ar")
-                            &rlm;
-                            @endif
-                            ({{$value[1]}})</a>
+                            @foreach($langs as $key => $value)
+                                    <?php $src = $key . ".png"; ?>
+
+                                <a href="#"
+                                   class="dropdown-item d-flex align-items-center gap-2"
+                                   id="{{$key}}"
+                                   onclick="changeLang(this.id)">
+
+                                    <img src="{{asset("lb-faveo/flags/$src")}}" width="20" height="13" class="me-2">
+
+                                    <span>
+                                     {{$value[0]}}
+                                    @if(Lang::getLocale() == "ar")
+                                       &rlm;
+                                    @endif
+                                  ({{$value[1]}})
+                                   </span>
+
+                                </a>
+
                             @endforeach
-                       </div>
+
+                        </div>
                     </li>
 
                     <li class="nav-item dropdown user-menu">

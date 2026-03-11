@@ -19,8 +19,6 @@ return [
         'jquery-ui'           => 'lb-faveo/css/jquery.ui.1.14.2.css',
         'jquery-ui-agent'     => 'lb-faveo/css/jquery.ui.css',
         'colorpicker'         => 'lb-faveo/plugins/colorpicker/bootstrap-colorpicker.min.css',
-
-        /////////////
         'client'              => 'lb-faveo/css/client.min.css',
         'widget'              => 'lb-faveo/css/widgetbox.min.css',
         'intl-tel-input'      => 'lb-faveo/css/intlTelInput.min.css',
@@ -30,22 +28,31 @@ return [
         'summernote-lite'     => 'lb-faveo/plugins/summernote/summernote-lite.min.css',
         'common'              => 'css/common.css',
         'client-css'          => 'css/client-css.css',
+
+        //RTL
+        'adminte-rtl'         => 'lb-faveo/rtl/adminlte4.0.0-rc3.rtl.min.css',
+        'bootstrap-rtl'       => 'lb-faveo/rtl/bootstrap5.3.8.rtl.min.css',
+        'client-rtl'          => 'lb-faveo/rtl/client@-rtl.css',
+        'common-rtl'          => 'lb-faveo/rtl/common-rtl.css',
+        'edit-rtl'            => 'lb-faveo/rtl/edit-rtl.css',
+        'custom-rtl'          => 'lb-faveo/rtl/custom-rtl.css',
+        'app-3-rtl'          => 'lb-faveo/rtl/app.3.0.rtl.css',
+
     ],
 
     'js' => [
         // Core
-        'jquery'                => 'lb-faveo/js/jquery-3.6.3.min.js',
+        'jquery'                => 'lb-faveo/js/jquery-3.7.1.min.js',
         'jquery-migrate'        => 'lb-faveo/js/jquery-migrate.js',
         'jquery-ui'             => 'lb-faveo/js/jquery.ui.3.2.0.js',
         'jquery-ui-agent'       => 'lb-faveo/js/jquery.ui.js',
         'popper'                => 'lb-faveo/js/popper.min.js',
         'bootstrap'             => 'lb-faveo/js/bootstrap5.min.js',
-        /////////////////c
         'client-js'             => 'lb-faveo/js/jquery-3.4.1.min.js',
         'client-min-js'         => 'lb-faveo/js/client.min.js',
 
         // AdminLTE
-        'adminlte'              => 'lb-faveo/adminlte3/js/adminlte3.2.0.min.js',
+        'adminlte'              => 'lb-faveo/adminlte3/js/adminlte4.0.0-rc6.min.js',
         'overlay-scrollbars'    => 'lb-faveo/adminlte3/plugins/overlayScrollbars/overlayScrollbars3.2.0.min.js',
 
         // DataTables

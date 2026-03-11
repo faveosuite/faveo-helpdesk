@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html dir="{{ app()->getLocale() == 'ar' ? 'rtl' : 'ltr' }}">
 <head>
     <meta charset="UTF-8">
     <?php
@@ -19,28 +19,29 @@
     <!-- Widget CSS -->
     <link href="{{ assetLink('css', 'widget') }}" rel="stylesheet" type="text/css" />
 
-    <!-- Bootstrap 5 -->
+    @if(Lang::getLocale() == 'ar')
+    <!-- Bootstrap + Client + Common (RTL) -->
+    <link href="{{ assetLink('css', 'bootstrap-rtl') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ assetLink('css', 'client-rtl') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ assetLink('css', 'common-rtl') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ assetLink('css', 'edit-rtl') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ assetLink('css', 'custom-rtl') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ assetLink('css', 'app-3-rtl') }}" rel="stylesheet" type="text/css" />
+    @else
+    <!-- Bootstrap + Client + Common (LTR) -->
     <link href="{{ assetLink('css', 'bootstrap') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ assetLink('css', 'app') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ assetLink('css', 'common') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ assetLink('css', 'custom') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ assetLink('css', 'client-css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ assetLink('css', 'edit') }}" rel="stylesheet" type="text/css" />
+    @endif
 
     <!-- Font Awesome Icons -->
     <link href="{{ assetLink('css', 'font-awesome') }}" rel="stylesheet" type="text/css" />
 
     <!-- International Telephone Input -->
     <link href="{{ assetLink('css', 'intl-tel-input') }}" rel="stylesheet" type="text/css" />
-
-    <!-- Theme style -->
-    {{-- <link href="{{ assetLink('css', 'client') }}" rel="stylesheet" type="text/css" /> --}}
-
-    <!-- App CSS -->
-    <link href="{{ assetLink('css', 'app') }}" rel="stylesheet" type="text/css">
-    <link href="{{ assetLink('css', 'common') }}" rel="stylesheet" type="text/css">
-
-    <!-- Custom CSS -->
-    <link href="{{ assetLink('css', 'custom') }}" rel="stylesheet" type="text/css">
-    <link href="{{ assetLink('css', 'client-css') }}" rel="stylesheet" type="text/css">
-
-    <!-- Edit CSS -->
-    <link href="{{ assetLink('css', 'edit') }}" rel="stylesheet" type="text/css">
 
     <!-- jQuery Rating -->
     <link href="{{ assetLink('css', 'jquery-rating') }}" rel="stylesheet" type="text/css" />
