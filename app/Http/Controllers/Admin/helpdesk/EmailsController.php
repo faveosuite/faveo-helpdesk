@@ -6,20 +6,20 @@ namespace App\Http\Controllers\Admin\helpdesk;
 use App\Http\Controllers\Admin\MailFetch as Fetch;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\helpdesk\EmailsRequest;
-use Yajra\DataTables\Facades\DataTables;
-// model
 use App\Http\Requests\helpdesk\Mail\MailRequest;
+// model
 use App\Model\helpdesk\Agent\Department;
 use App\Model\helpdesk\Email\Emails;
 use App\Model\helpdesk\Manage\Help_topic;
 use App\Model\helpdesk\Settings\Email;
 use App\Model\helpdesk\Ticket\Ticket_Priority;
-// classes
 use App\Model\helpdesk\Utility\MailboxProtocol;
+// classes
 use Crypt;
 use Exception;
 use Lang;
 use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
+use Yajra\DataTables\Facades\DataTables;
 
 /**
  * ======================================
@@ -73,24 +73,27 @@ class EmailsController extends Controller
 
             return DataTables::of($emails)
                 ->addColumn('email_address', function ($model) use ($default_email) {
-                    $label = '<a href="' . route('emails.edit', $model->id) . '">' . e($model->email_address) . '</a>';
+                    $label = '<a href="'.route('emails.edit', $model->id).'">'.e($model->email_address).'</a>';
                     if ($default_email == $model->id) {
                         $label .= ' ( Default )';
                     }
+
                     return $label;
                 })
                 ->addColumn('priority', function ($model) {
                     if ($model->priority === null) {
-                        return '<a href="' . url('getticket') . '">System Default</a>';
+                        return '<a href="'.url('getticket').'">System Default</a>';
                     }
                     $priority = Ticket_Priority::where('priority_id', '=', $model->priority)->first();
+
                     return $priority ? ucfirst($priority->priority_desc) : '-';
                 })
                 ->addColumn('department', function ($model) {
                     if ($model->department === null) {
-                        return '<a href="' . url('getsystem') . '">System Default</a>';
+                        return '<a href="'.url('getsystem').'">System Default</a>';
                     }
                     $dept = Department::where('id', '=', $model->department)->first();
+
                     return $dept ? e($dept->name) : '-';
                 })
                 ->addColumn('created_at', function ($model) {
@@ -100,16 +103,17 @@ class EmailsController extends Controller
                     return \UTC::usertimezone($model->updated_at);
                 })
                 ->addColumn('action', function ($model) use ($default_email) {
-                    $edit = '<a href="' . route('emails.edit', $model->id) . '" class="btn btn-primary btn-xs"><i class="fa-solid fa-edit"></i> ' . \Lang::get('lang.edit') . '</a> ';
+                    $edit = '<a href="'.route('emails.edit', $model->id).'" class="btn btn-primary btn-xs"><i class="fa-solid fa-edit"></i> '.\Lang::get('lang.edit').'</a> ';
                     if ($default_email == $model->id) {
-                        $delete = '<button class="btn btn-danger btn-xs" disabled><i class="fa-solid fa-trash"></i> ' . \Lang::get('lang.delete') . '</button>';
+                        $delete = '<button class="btn btn-danger btn-xs" disabled><i class="fa-solid fa-trash"></i> '.\Lang::get('lang.delete').'</button>';
                     } else {
                         $form_open = \Form::open(['method' => 'DELETE', 'url' => route('emails.destroy', $model->id), 'style' => 'display:inline']);
                         $delete = $form_open
-                            . '<button type="submit" class="btn btn-danger btn-xs" onclick="return confirm(\'Are you sure?\')"><i class="fa-solid fa-trash"></i> ' . \Lang::get('lang.delete') . '</button>'
-                            . \Form::close();
+                            .'<button type="submit" class="btn btn-danger btn-xs" onclick="return confirm(\'Are you sure?\')"><i class="fa-solid fa-trash"></i> '.\Lang::get('lang.delete').'</button>'
+                            .\Form::close();
                     }
-                    return $edit . $delete;
+
+                    return $edit.$delete;
                 })
                 ->rawColumns(['email_address', 'priority', 'department', 'created_at', 'updated_at', 'action'])
                 ->make(true);
