@@ -71,7 +71,7 @@ class="nav-link active"
             </div>
         </div>
         <div class="priority-table" style="padding-top: 10px">
-            <table id="priorityTable" class="table table-bordered" style="width:100%;display:table;">
+            <table id="priorityTable" class="table table-bordered w-100 d-table">
                 <thead>
                     <tr>
                         <th>{{Lang::get('lang.priority')}}</th>

@@ -75,7 +75,7 @@ class="nav-link active"
         $user = App\User::where('role', '!=', 'user')->orderBy('id', 'ASC')->simplePaginate(10);
         ?>
         <!-- Agent table -->
-        <table class="table table-bordered dataTable" style="overflow:hidden;">
+        <table class="table table-bordered dataTable overflow-hidden">
             <tr>
                 <th width="100px">{{Lang::get('lang.name')}}</th>
                 <th width="100px">{{Lang::get('lang.user_name')}}</th>

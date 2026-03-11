@@ -30,6 +30,7 @@
 
         <!-- App CSS -->
         <link href="{{ assetLink('css', 'app') }}" rel="stylesheet" type="text/css">
+        <link href="{{ assetLink('css', 'common') }}" rel="stylesheet" type="text/css">
 
         <!-- Custom CSS -->
         <link href="{{ assetLink('css', 'custom') }}" rel="stylesheet" type="text/css">

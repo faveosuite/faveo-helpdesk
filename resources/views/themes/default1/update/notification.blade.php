@@ -1,4 +1,4 @@
-<li class="nav-item dropdown notifications-menu">
+<li class="nav-item dropdown notifications-menu mt-1">
 
     <a href="#" class="nav-link" data-bs-toggle="dropdown">
 

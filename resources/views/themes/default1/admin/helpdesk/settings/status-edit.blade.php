@@ -157,7 +157,7 @@ class="nav-link active"
         <div class="form-group">
             <!-- gender -->
             {!! html()->label(Lang::get('lang.resolved_status'), 'gender') !!}
-            <div class="callout callout-default" style="font-style: oblique;">{!! Lang::get('lang.status_msg3') !!}</div>
+            <div class="callout callout-default font-oblique">{!! Lang::get('lang.status_msg3') !!}</div>
             <div class="row">
                 <div class="col-sm-3">
                     {!! html()->radio('state', true, 'closed') !!} {{Lang::get('lang.yes')}}
@@ -170,7 +170,7 @@ class="nav-link active"
         <div class="form-group">
             <!-- Email user -->
             {!! html()->label(Lang::get('lang.deleted_status'), 'gender') !!}
-            <div class="callout callout-default" style="font-style: oblique;">{!! Lang::get('lang.status_msg2') !!}</div>
+            <div class="callout callout-default font-oblique">{!! Lang::get('lang.status_msg2') !!}</div>
             <div class="row">
                 <div class="col-sm-3">
                     {!! html()->radio('delete', null, 'yes') !!} {{Lang::get('lang.yes')}}
@@ -183,7 +183,7 @@ class="nav-link active"
         <div class="form-group">
             <!-- gender -->
             {!! html()->label(Lang::get('lang.notify_user'), 'gender') !!}
-            <div class="callout callout-default" style="font-style: oblique;">{!! Lang::get('lang.status_msg1') !!}</div>
+            <div class="callout callout-default font-oblique">{!! Lang::get('lang.status_msg1') !!}</div>
             <div class="row">
                 <div class="col-sm-3">
                     {!! html()->radio('email_user', null, 'yes') !!} {{Lang::get('lang.yes')}}

@@ -87,7 +87,7 @@ if (Auth::user()->role == 'agent') {
         <div class="mailbox-messages"  id="refresh">
             <p style="display:none;text-align:center; position:fixed; margin-left:40%;margin-top:-70px;" id="show" class="text-red"><b>{!! Lang::get('lang.loading') !!}...</b></p>
             <!-- table -->
-            <table id="chumper" class="table table-bordered" style="width:100%;display:table;">
+            <table id="chumper" class="table table-bordered w-100 d-table">
                 <thead>
                     <tr>
                         <th></th>

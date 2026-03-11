@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Admin\helpdesk;
 use App\Http\Controllers\Admin\MailFetch as Fetch;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\helpdesk\EmailsRequest;
+use Yajra\DataTables\Facades\DataTables;
 // model
 use App\Http\Requests\helpdesk\Mail\MailRequest;
 use App\Model\helpdesk\Agent\Department;
@@ -48,15 +49,72 @@ class EmailsController extends Controller
      *
      * @return type view
      */
-    public function index(Emails $email)
+    public function index()
     {
         try {
-            // fetch all the emails from emails table
-            $emails = $email->get();
-
-            return view('themes.default1.admin.helpdesk.emails.emails.index', compact('emails'));
+            return view('themes.default1.admin.helpdesk.emails.emails.index');
         } catch (Exception $e) {
             return redirect()->back()->with('fails', $e->getMessage());
+        }
+    }
+
+    /**
+     * Return emails list as DataTables JSON for the index AJAX endpoint.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getEmailList()
+    {
+        try {
+            $default_system_email = Email::where('id', '=', '1')->first();
+            $default_email = $default_system_email->sys_email ?? null;
+
+            $emails = Emails::select('id', 'email_address', 'priority', 'department', 'created_at', 'updated_at')->get();
+
+            return DataTables::of($emails)
+                ->addColumn('email_address', function ($model) use ($default_email) {
+                    $label = '<a href="' . route('emails.edit', $model->id) . '">' . e($model->email_address) . '</a>';
+                    if ($default_email == $model->id) {
+                        $label .= ' ( Default )';
+                    }
+                    return $label;
+                })
+                ->addColumn('priority', function ($model) {
+                    if ($model->priority === null) {
+                        return '<a href="' . url('getticket') . '">System Default</a>';
+                    }
+                    $priority = Ticket_Priority::where('priority_id', '=', $model->priority)->first();
+                    return $priority ? ucfirst($priority->priority_desc) : '-';
+                })
+                ->addColumn('department', function ($model) {
+                    if ($model->department === null) {
+                        return '<a href="' . url('getsystem') . '">System Default</a>';
+                    }
+                    $dept = Department::where('id', '=', $model->department)->first();
+                    return $dept ? e($dept->name) : '-';
+                })
+                ->addColumn('created_at', function ($model) {
+                    return \UTC::usertimezone($model->created_at);
+                })
+                ->addColumn('updated_at', function ($model) {
+                    return \UTC::usertimezone($model->updated_at);
+                })
+                ->addColumn('action', function ($model) use ($default_email) {
+                    $edit = '<a href="' . route('emails.edit', $model->id) . '" class="btn btn-primary btn-xs"><i class="fa-solid fa-edit"></i> ' . \Lang::get('lang.edit') . '</a> ';
+                    if ($default_email == $model->id) {
+                        $delete = '<button class="btn btn-danger btn-xs" disabled><i class="fa-solid fa-trash"></i> ' . \Lang::get('lang.delete') . '</button>';
+                    } else {
+                        $form_open = \Form::open(['method' => 'DELETE', 'url' => route('emails.destroy', $model->id), 'style' => 'display:inline']);
+                        $delete = $form_open
+                            . '<button type="submit" class="btn btn-danger btn-xs" onclick="return confirm(\'Are you sure?\')"><i class="fa-solid fa-trash"></i> ' . \Lang::get('lang.delete') . '</button>'
+                            . \Form::close();
+                    }
+                    return $edit . $delete;
+                })
+                ->rawColumns(['email_address', 'priority', 'department', 'created_at', 'updated_at', 'action'])
+                ->make(true);
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 

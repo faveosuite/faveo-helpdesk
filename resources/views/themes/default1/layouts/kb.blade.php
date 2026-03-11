@@ -27,6 +27,7 @@
         {{-- jquery ui css --}}
         <link type="text/css" href="{{asset("downloads/jquery.ui.css")}}" rel="stylesheet">
         <link href="{{asset("lb-faveo/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css")}}" rel="stylesheet" type="text/css" />
+        <link href="{{asset("css/common.css")}}" rel="stylesheet" type="text/css" />
         <!-- <link type="text/css" href="http://code.jquery.com/ui/1.9.1/themes/redmond/jquery-ui.css" rel="stylesheet"> -->
         <!--[if lt IE 9]>
             <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
@@ -58,7 +59,7 @@ if ($company != null) {
                             <li><a href="{{url('agents')}}">Admin Panel</a></li>
                             <!-- User Account: style can be found in dropdown.less -->
                             <li class="dropdown user user-menu">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
                                 @if(Auth::user())
                                     @if(Auth::user()->profile_pic)
                                         <img src="{{asset('dist/img')}}{{'/'}}{{Auth::user()->profile_pic}}"class="user-image" alt="User Image"/>
@@ -140,28 +141,28 @@ if ($company != null) {
                                         <li>
                                              <a href="{{url('kb/category')}}">
                                                 <i class="fa fa-user"></i> <span>Category</span>
-                                                <small class="label pull-right text-bg-success"></small>
+                                                <small class="badge float-end text-bg-success"></small>
                                             </a>
                                         </li>
 
                                         <li>
                                             <a href="{{url('kb/article')}}">
                                                 <i class="fa fa-th"></i> <span>Article</span>
-                                                <small class="label pull-right text-bg-success"></small>
+                                                <small class="badge float-end text-bg-success"></small>
                                             </a>
                                         </li>
 
                                         <li>
                                             <a href="{{url('kb/page')}}">
                                                 <i class="fa fa-th"></i> <span>Page</span>
-                                                <small class="label pull-right text-bg-success"></small>
+                                                <small class="badge float-end text-bg-success"></small>
                                             </a>
                                         </li>
 
                                         <li>
                                             <a href="{{url('kb/page')}}">
                                                 <i class="fa fa-th"></i> <span>Page</span>
-                                                <small class="label pull-right text-bg-success"></small>
+                                                <small class="badge float-end text-bg-success"></small>
                                             </a>
                                         </li>
 

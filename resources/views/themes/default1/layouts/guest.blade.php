@@ -16,6 +16,7 @@
     <!-- AdminLTE Skins. Choose a skin from the css/skins
          folder instead of downloading all of them to reduce the load. -->
     <link href="../../dist/css/skins/_all-skins.min.css" rel="stylesheet" type="text/css" />
+    <link href="{{asset("css/common.css")}}" rel="stylesheet" type="text/css" />
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -41,9 +42,9 @@
             <ul class="nav navbar-nav">
               <!-- Messages: style can be found in dropdown.less-->
               <li class="dropdown messages-menu">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
                   <i class="fa fa-envelope-o"></i>
-                  <span class="label label-success">4</span>
+                  <span class="badge text-bg-success">4</span>
                 </a>
                 <ul class="dropdown-menu">
                   <li class="header">You have 4 messages</li>
@@ -69,9 +70,9 @@
               </li>
               <!-- Notifications: style can be found in dropdown.less -->
               <li class="dropdown notifications-menu">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
                   <i class="fa fa-bell-o"></i>
-                  <span class="label label-warning">10</span>
+                  <span class="badge text-bg-warning">10</span>
                 </a>
                 <ul class="dropdown-menu">
                   <li class="header">You have 10 notifications</li>
@@ -90,9 +91,9 @@
               </li>
               <!-- Tasks: style can be found in dropdown.less -->
               <li class="dropdown tasks-menu">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
                   <i class="fa fa-flag-o"></i>
-                  <span class="label label-danger">9</span>
+                  <span class="badge text-bg-danger">9</span>
                 </a>
                 <ul class="dropdown-menu">
                   <li class="header">You have 9 tasks</li>
@@ -121,7 +122,7 @@
               </li>
               <!-- User Account: style can be found in dropdown.less -->
               <li class="dropdown user user-menu">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
                   <img src="../../dist/img/user2-160x160.jpg" class="user-image" alt="User Image"/>
                   <span class="hidden-xs">Alexander Pierce</span>
                 </a>
@@ -205,7 +206,7 @@
               <a href="#">
                 <i class="fa fa-files-o"></i>
                 <span>Layout Options</span>
-                <span class="label label-primary pull-right">4</span>
+                <span class="badge text-bg-primary float-end">4</span>
               </a>
               <ul class="treeview-menu">
                 <li><a href="top-nav.html"><i class="fa fa-circle-o"></i> Top Navigation</a></li>
@@ -216,7 +217,7 @@
             </li>
             <li>
               <a href="../widgets.html">
-                <i class="fa fa-th"></i> <span>Widgets</span> <small class="label pull-right text-bg-success">new</small>
+                <i class="fa fa-th"></i> <span>Widgets</span> <small class="badge float-end text-bg-success">new</small>
               </a>
             </li>
             <li class="treeview">
@@ -270,13 +271,13 @@
             <li>
               <a href="../calendar.html">
                 <i class="fa fa-calendar"></i> <span>Calendar</span>
-                <small class="label pull-right bg-red">3</small>
+                <small class="badge float-end text-bg-danger">3</small>
               </a>
             </li>
             <li>
               <a href="../mailbox/mailbox.html">
                 <i class="fa fa-envelope"></i> <span>Mailbox</span>
-                <small class="label pull-right text-bg-warning">12</small>
+                <small class="badge float-end text-bg-warning">12</small>
               </a>
             </li>
             <li class="treeview">

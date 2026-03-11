@@ -83,7 +83,7 @@ class="nav-link active"
         </div>
     </div>
     <div class="card-body">
-        <table id="pluginsTable" class="table table-bordered" style="width:100%;display:table;">
+        <table id="pluginsTable" class="table table-bordered w-100 d-table">
             <thead>
                 <tr>
                     <th>{{trans('lang.name')}}</th>

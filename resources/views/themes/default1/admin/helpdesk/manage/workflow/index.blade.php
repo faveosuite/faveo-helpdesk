@@ -57,7 +57,7 @@ class="nav-link active"
     </div>
     <!-- /.box-header -->
     <div class="card-body">
-        <table id="workflowTable" class="table table-bordered" style="width:100%;display:table;">
+        <table id="workflowTable" class="table table-bordered w-100 d-table">
             <thead>
                 <tr>
                     <th>{{Lang::get('lang.name')}}</th>

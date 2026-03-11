@@ -18,7 +18,7 @@
       <button type="button" onclick="useFile('{{ $file_name }}')" class="btn btn-default btn-xs">
         {{ Str::limit($file_name, $limit = 10, $end = '...') }}
       </button>
-      <button type="button" class="btn btn-default dropdown-toggle btn-xs" data-toggle="dropdown" aria-expanded="false">
+      <button type="button" class="btn btn-default dropdown-toggle btn-xs" data-bs-toggle="dropdown" aria-expanded="false">
         <span class="caret"></span>
         <span class="sr-only">Toggle Dropdown</span>
       </button>

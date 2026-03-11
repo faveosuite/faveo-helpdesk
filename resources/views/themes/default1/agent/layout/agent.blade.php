@@ -362,16 +362,17 @@
                 </div>
 
                 <div class="sidebar-wrapper">
+                    <div class="profile-container">
 
-                    <div class="sidebar-brand">
+                    <div class="d-flex align-items-center px-3 py-2">
                         @if (trim($__env->yieldContent('profileimg')))
                             @yield('profileimg')
                         @else
                             <img id="sidebar-profile-img" src="{{$auth_user_profile_pic}}" alt="User Image"
-                                class="rounded-circle shadow-sm me-2" style="width: 30px;height: 30px;">
+                                class="rounded-circle shadow-sm me-3" style="width: 30px;height: 30px;">
                         @endif
                         @if($auth_user_id)
-                            <a class="brand-text text-truncate" href="{!! url('profile') !!}">{{$auth_name}}</a>
+                            <a class="text-truncate text-sm" href="{!! url('profile') !!}">{{$auth_name}}</a>
                         @endif
                     </div>
 

@@ -24,7 +24,7 @@ $thread = App\Model\helpdesk\Ticket\Ticket_Thread::where('ticket_id', '=', \Cryp
 <!-- Main content -->
 
 
-<div id="alert11" class="alert alert-dismissable alert-success" style="display: none;" role="aler">
+<div id="alert11" class="alert alert-dismissable alert-success initially-hidden" role="aler">
     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
     <span id="message-success1" ></span>
 </div>
@@ -87,7 +87,7 @@ $thread = App\Model\helpdesk\Ticket\Ticket_Thread::where('ticket_id', '=', \Cryp
 
                         <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: whitesmoke">
 
-                            <i class="fas fa-exchange-alt" style="color:teal;"> </i>
+                            <i class="fas fa-exchange-alt text-teal"> </i>
 
                             {!! Lang::get('lang.change_status') !!}
 

@@ -27,7 +27,7 @@
         @if(Auth::user())
         @else
         <span onclick="javascript: window.location.href='{{url('auth/register')}}';">
-            <a href="{{url('auth/register')}}"  class="widgetrowitem defaultwidget"  style="background-image:url({{ URL::asset('lb-faveo/media/images/register.png') }})">
+            <a href="{{url('auth/register')}}" class="widgetrowitem defaultwidget widget-bg-register">
                 <span class="widgetitemtitle">{!! Lang::get('lang.register') !!}</span>
             </a>
         </span>
@@ -38,7 +38,7 @@
             @if($system->status) 
                 @if($system->status == 1)
                     <span onclick="javascript: window.location.href='{!! URL::route('form') !!}';">
-                        <a href="{!! URL::route('form') !!}" class="widgetrowitem defaultwidget" style="background-image:url({{ URL::asset('lb-faveo/media/images/submitticket.png') }})">
+                        <a href="{!! URL::route('form') !!}" class="widgetrowitem defaultwidget widget-bg-submit-ticket">
                             <span class="widgetitemtitle">{!! Lang::get('lang.submit_a_ticket') !!}</span>
                         </a>
                     </span>
@@ -46,12 +46,12 @@
             @endif
         @endif
         <span onclick="javascript: window.location.href='{{url('mytickets')}}';">
-            <a href="{{url('mytickets')}}" class="widgetrowitem defaultwidget" style="background-image:url({{ URL::asset('lb-faveo/media/images/news.png') }})">
+            <a href="{{url('mytickets')}}" class="widgetrowitem defaultwidget widget-bg-my-tickets">
                 <span class="widgetitemtitle">{!! Lang::get('lang.my_tickets') !!}</span>
             </a>
         </span>
         <span onclick="javascript: window.location.href='{{url('/knowledgebase')}}';">
-            <a href="{{url('/knowledgebase')}}" class="widgetrowitem defaultwidget" style="background-image:url({{ URL::asset('lb-faveo/media/images/knowledgebase.png') }})">
+            <a href="{{url('/knowledgebase')}}" class="widgetrowitem defaultwidget widget-bg-knowledge-base">
                 <span class="widgetitemtitle">{!! Lang::get('lang.knowledge_base') !!}</span>
             </a>
         </span>
@@ -63,11 +63,11 @@
         
 <div class="col-md-6 offset-md-3 form-helper">
 
-    <div valign="center" class="login-box" style="width: auto;">
+    <div valign="center" class="login-box login-box-auto">
 
         <div class="form-border">
 
-            <h3 style="text-align: center;">{!! Lang::get('lang.reset_password') !!}</h3> 
+            <h3 class="text-center-inline">{!! Lang::get('lang.reset_password') !!}</h3>
 
             <form class="form-horizontal" role="form" method="POST" action="{{ url('/password/reset') }}">
                 
@@ -77,7 +77,7 @@
                 <!-- Email -->
                 <div class="input-group mb-3 {{ $errors->has('email') ? 'has-error' : '' }}">
                     <input type="email" class="form-control" name="email" placeholder="{!! Lang::get('lang.e-mail') !!}" value="{{ $email }}" readonly>
-                    <span class="input-group-text"><i class="fa-regular fa-envelope" style="color: #6c757d;"></i></span>
+                    <span class="input-group-text"><i class="fa-regular fa-envelope input-icon-muted"></i></span>
                 </div>
 
                 <!-- password -->

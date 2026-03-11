@@ -85,7 +85,7 @@ class="nav-link active"
         </div>
         <div class="form-group {{ $errors->has('rating_scale') ? 'has-error' : '' }}">
             {!! html()->label(Lang::get('lang.rating_scale'), 'rating_scale') !!}<span style="color:red;">*</span>
-            <div class="callout callout-default" style="font-style: oblique;">{!! Lang::get('lang.rating-msg1') !!}</div>
+            <div class="callout callout-default font-oblique">{!! Lang::get('lang.rating-msg1') !!}</div>
             {!! html()->select('rating_scale', ['1' => '1','2'=>'2','3'=>'3','4'=>'4','5'=>'5','6'=>'6','7'=>'7','8'=>'8'], null)->class('form-control') !!}
         </div>
         <div class="form-group {{ $errors->has('rating_area') ? 'has-error' : '' }}">
@@ -95,13 +95,13 @@ class="nav-link active"
         <div class="form-group {{ $errors->has('restrict') ? 'has-error' : '' }}">
             <!-- gender -->
             {!! html()->label(Lang::get('lang.rating_restrict'), 'gender') !!}<span style="color:red;">*</span>
-            <div class="callout callout-default" style="font-style: oblique;">{!! Lang::get('lang.rating-msg2') !!}</div>
+            <div class="callout callout-default font-oblique">{!! Lang::get('lang.rating-msg2') !!}</div>
             {!! html()->select('restrict', ['General' => 'general','Support'=>'support'], null)->class('form-control') !!}
         </div>
         <div class="form-group {{ $errors->has('allow_modification') ? 'has-error' : '' }}">
             <!-- Email user -->
             {!! html()->label(Lang::get('lang.rating_change'), 'allow_modification') !!}<span style="color:red;">*</span>
-            <div class="callout callout-default" style="font-style: oblique;">{!! Lang::get('lang.rating-msg3') !!}</div>
+            <div class="callout callout-default font-oblique">{!! Lang::get('lang.rating-msg3') !!}</div>
             <div class="row">
                 <div class="col-sm-2">
                     {!! html()->radio('allow_modification', null, '1') !!} {{Lang::get('lang.yes')}}

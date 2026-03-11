@@ -45,7 +45,7 @@
         <div class="col-md-6">
             <div class="info-box">
                 <!-- Apply any bg-* class to to the icon to color it -->
-                <span class="info-box-icon bg-aqua"><i class="fa fa-cloud-download"></i></span>
+                <span class="info-box-icon text-bg-info"><i class="fa fa-cloud-download"></i></span>
                 <div class="info-box-content">
                     <i class="fa fa-clipboard pull-right" title="{!!Lang::get('lang.click-url-copy')!!}" onclick="copyToClipboard('#p1')"></i>
                     <div class="col-md-6">
@@ -64,7 +64,7 @@
         <div class="col-md-6">
             <div class="info-box">
                 <!-- Apply any bg-* class to to the icon to color it -->
-                <span class="info-box-icon bg-aqua"><i class="fa fa-cloud-upload"></i></span>
+                <span class="info-box-icon text-bg-info"><i class="fa fa-cloud-upload"></i></span>
                 <div class="info-box-content">
                     <i class="fa fa-clipboard pull-right" title="{!!Lang::get('lang.click-url-copy')!!}" onclick="copyToClipboard('#p2')"></i>
                     <div class="col-md-8">
@@ -83,7 +83,7 @@
         <div class="col-md-6">
             <div class="info-box">
                 <!-- Apply any bg-* class to to the icon to color it -->
-                <span class="info-box-icon bg-aqua"><i class="fa fa-check-circle"></i></span>
+                <span class="info-box-icon text-bg-info"><i class="fa fa-check-circle"></i></span>
                 <div class="info-box-content">
                     <i class="fa fa-clipboard pull-right" title="{!!Lang::get('lang.click-url-copy')!!}" onclick="copyToClipboard('#p3')"></i>
                     <div class="col-md-8">

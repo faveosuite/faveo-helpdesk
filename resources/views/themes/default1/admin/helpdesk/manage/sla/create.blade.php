@@ -56,7 +56,7 @@ class="nav-link active"
         <h3 class="card-title">{{Lang::get('lang.create')}}</h3>
     </div>
     <div class="card-body">
-        <!-- <table class="table table-hover" style="overflow:hidden;"> -->
+        <!-- <table class="table table-hover overflow-hidden"> -->
         <div class="row">
             <div class="col-md-4">
                 <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">

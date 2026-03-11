@@ -1,6 +1,7 @@
 @extends('themes.default1.admin.layout.admin')
 @section('content')
 
+
     <div class="row">
     <div class="col-md-6">
 
@@ -153,25 +154,31 @@
                     </div>
                     @endif
 	<!-- old password -->
-	<div class="form-group has-feedback {{ $errors->has('old_password') ? 'has-error' : '' }}">
+	<div class="mb-3 {{ $errors->has('old_password') ? 'has-error' : '' }}">
 			{!! html()->label(Lang::get('lang.old_password'), 'old_password') !!}
-            {!! html()->password('old_password')->placeholder('Password')->class('form-control') !!}
-			{!! $errors->first('old_password', '<spam class="help-block">:message</spam>') !!}
-            <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+			{!! $errors->first('old_password', '<span class="help-block">:message</span>') !!}
+            <div class="input-group">
+                {!! html()->password('old_password')->placeholder('Password')->class('form-control') !!}
+                <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+            </div>
     </div>
     <!-- new password -->
-    <div class="form-group has-feedback {{ $errors->has('new_password') ? 'has-error' : '' }}">
+    <div class="mb-3 {{ $errors->has('new_password') ? 'has-error' : '' }}">
     		{!! html()->label(Lang::get('lang.new_password'), 'new_password') !!}
-            {!! html()->password('new_password')->placeholder('New Password')->class('form-control') !!}
-			{!! $errors->first('new_password', '<spam class="help-block">:message</spam>') !!}
-            <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+			{!! $errors->first('new_password', '<span class="help-block">:message</span>') !!}
+            <div class="input-group">
+                {!! html()->password('new_password')->placeholder('New Password')->class('form-control') !!}
+                <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+            </div>
     </div>
     <!-- confirm password -->
-    <div class="form-group has-feedback {{ $errors->has('confirm_password') ? 'has-error' : '' }}">
+    <div class="mb-3 {{ $errors->has('confirm_password') ? 'has-error' : '' }}">
     		{!! html()->label(Lang::get('lang.confirm_password'), 'confirm_password') !!}
-            {!! html()->password('confirm_password')->placeholder('Confirm Password')->class('form-control') !!}
-			{!! $errors->first('confirm_password', '<spam class="help-block">:message</spam>') !!}
-            <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+			{!! $errors->first('confirm_password', '<span class="help-block">:message</span>') !!}
+            <div class="input-group">
+                {!! html()->password('confirm_password')->placeholder('Confirm Password')->class('form-control') !!}
+                <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+            </div>
     </div>
 
 

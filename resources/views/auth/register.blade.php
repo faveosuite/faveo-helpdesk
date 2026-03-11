@@ -82,7 +82,7 @@
     </div>
 
     <div class="d-flex justify-content-center">
-        <div class="login-box" style=" width: 490px;">
+        <div class="login-box login-box-fixed">
             
             <div class="form-border">
      
@@ -109,19 +109,19 @@
                 <!-- fullname -->
                 <div class="input-group mb-3 {{ $errors->has('full_name') ? 'has-error' : '' }}">
                     {!! html()->text('full_name', null)->placeholder(Lang::get('lang.full_name'))->class('form-control') !!}
-                    <span class="input-group-text"><i class="fa-solid fa-user" style="color: #6c757d;"></i></span>
+                    <span class="input-group-text"><i class="fa-solid fa-user input-icon-muted"></i></span>
                 </div>
 
                 <!-- Email -->
                 @if (($email_mandatory->status == 1 || $email_mandatory->status == '1'))
                 <div class="input-group mb-3 {{ $errors->has('email') ? 'has-error' : '' }}">
                     {!! html()->text('email', null)->placeholder(Lang::get('lang.email'))->class('form-control') !!}
-                    <span class="input-group-text"><i class="fa-regular fa-envelope" style="color: #6c757d;"></i></span>
+                    <span class="input-group-text"><i class="fa-regular fa-envelope input-icon-muted"></i></span>
                 </div>
                 @elseif (($settings->status == 0 || $settings->status == '0') && ($email_mandatory->status == 0 || $email_mandatory->status == '0'))
                 <div class="input-group mb-3 {{ $errors->has('email') ? 'has-error' : '' }}">
                     {!! html()->text('email', null)->placeholder(Lang::get('lang.email'))->class('form-control') !!}
-                    <span class="input-group-text"><i class="fa-regular fa-envelope" style="color: #6c757d;"></i></span>
+                    <span class="input-group-text"><i class="fa-regular fa-envelope input-icon-muted"></i></span>
                 </div>
                 @else
                     {!! html()->hidden('email', null) !!}
@@ -137,7 +137,7 @@
                     <div class="col-md-9">
                         <div class="input-group mb-3 {{ $errors->has('mobile') ? 'has-error' : '' }}">
                         {!! html()->text('mobile', null)->placeholder(Lang::get('lang.mobile'))->class('form-control') !!}
-                        <span class="input-group-text"><i class="fa-solid fa-phone" style="color: #6c757d;"></i></span>
+                        <span class="input-group-text"><i class="fa-solid fa-phone input-icon-muted"></i></span>
                         </div>
                     </div>
                 </div>
