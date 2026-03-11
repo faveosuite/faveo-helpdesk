@@ -65,15 +65,16 @@ class BanlistController extends Controller
 
             return DataTables::of($bans)
                 ->addColumn('email', function ($model) {
-                    return '<a href="' . route('banlist.edit', $model->id) . '">' . e($model->email) . '</a>';
+                    return '<a href="'.route('banlist.edit', $model->id).'">'.e($model->email).'</a>';
                 })
                 ->addColumn('updated_at', function ($model) {
                     return \UTC::usertimezone($model->updated_at);
                 })
                 ->addColumn('action', function ($model) {
-                    $edit = '<a href="' . route('banlist.edit', $model->id) . '" class="btn btn-primary btn-xs"><i class="fa-solid fa-edit"></i> ' . Lang::get('lang.edit') . '</a> ';
-                    $delete = '<a href="' . route('banlist.delete', $model->id) . '" class="btn btn-danger btn-xs"><i class="fa-solid fa-trash"></i> ' . Lang::get('lang.delete') . '</a>';
-                    return $edit . $delete;
+                    $edit = '<a href="'.route('banlist.edit', $model->id).'" class="btn btn-primary btn-xs"><i class="fa-solid fa-edit"></i> '.Lang::get('lang.edit').'</a> ';
+                    $delete = '<a href="'.route('banlist.delete', $model->id).'" class="btn btn-danger btn-xs"><i class="fa-solid fa-trash"></i> '.Lang::get('lang.delete').'</a>';
+
+                    return $edit.$delete;
                 })
                 ->rawColumns(['email', 'updated_at', 'action'])
                 ->make(true);
