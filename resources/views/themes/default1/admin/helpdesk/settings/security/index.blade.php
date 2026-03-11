@@ -68,7 +68,7 @@ class="nav-link active"
                     <label for="title">{{trans('lang.Lockout_Message:')}}<span class="text-red"> *</span></label>
                 </div>
                 <div  class="col-md-9">
-                    <div class="callout callout-default" style="font-style: oblique;">{!! Lang::get('lang.security_msg1') !!}</div>
+                    <div class="callout callout-default font-oblique">{!! Lang::get('lang.security_msg1') !!}</div>
                     {!! html()->textarea('lockout_message', null)->class('form-control') !!}
                 </div>
             </div>
@@ -79,7 +79,7 @@ class="nav-link active"
                     <label for="title">{!! Lang::get('lang.max_attempt') !!}: <span class="text-red"> *</span></label>
                 </div>
                 <div class="col-md-9">
-                    <div class="callout callout-default" style="font-style: oblique;">{!! Lang::get('lang.security_msg2') !!}</div>
+                    <div class="callout callout-default font-oblique">{!! Lang::get('lang.security_msg2') !!}</div>
                     <span>{!! html()->text('backlist_threshold', null)->class('form-control') !!} {!! Lang::get('lang.lockouts') !!}</span>
                 </div>     
             </div>
@@ -90,7 +90,7 @@ class="nav-link active"
                     <label for="title">{{trans('lang.lockout_period:')}}<span class="text-red"> *</span></label>
                 </div>
                 <div class="col-md-8">
-                    <div class="callout callout-default" style="font-style: oblique;">{!! Lang::get('lang.security_msg3') !!}</div>
+                    <div class="callout callout-default font-oblique">{!! Lang::get('lang.security_msg3') !!}</div>
                     <span> {!! html()->text('lockout_period', null)->class('form-control') !!} {!! Lang::get('lang.minutes') !!}</span>
                 </div>
             </div>

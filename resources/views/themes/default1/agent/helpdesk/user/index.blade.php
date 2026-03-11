@@ -71,7 +71,7 @@ class="nav-link active"
 
             <div class="btn-group">
         
-                <button type="button" class="btn btn-tool btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                <button type="button" class="btn btn-tool btn-default dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                   <i class="fas fa-eye"> </i> {{Lang::get('lang.view-option')}}
                 </button>
         
@@ -94,7 +94,7 @@ class="nav-link active"
     
     <div class="card-body">
 
-        <table id="chumper" class="table table-bordered" style="width:100%;display:table;">
+        <table id="chumper" class="table table-bordered w-100 d-table">
             <thead>
                 <tr>
                     <th>{{Lang::get('lang.name')}}</th>

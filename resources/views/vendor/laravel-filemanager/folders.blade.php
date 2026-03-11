@@ -9,7 +9,7 @@
       <button type="button" data-id="{{ $dir_name['long'] }}" class="btn btn-default btn-xs folder-item">
         {{ Str::limit($dir_name['short'], $limit = 10, $end = '...') }}
       </button>
-      <button type="button" class="btn btn-default dropdown-toggle btn-xs" data-toggle="dropdown" aria-expanded="false">
+      <button type="button" class="btn btn-default dropdown-toggle btn-xs" data-bs-toggle="dropdown" aria-expanded="false">
         <span class="caret"></span>
         <span class="sr-only">Toggle Dropdown</span>
       </button>

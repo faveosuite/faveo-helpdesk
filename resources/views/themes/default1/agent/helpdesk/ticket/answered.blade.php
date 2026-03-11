@@ -92,7 +92,7 @@ if (Auth::user()->role == 'agent') {
         <div class="mailbox-messages" id="refresh">
             <p style="display:none;text-align:center; position:fixed; margin-left:40%;margin-top:-70px;" id="show" class="text-red"><b>{!! Lang::get('lang.loading') !!}...</b></p>
             <!-- table -->
-            <table id="chumper" class="table table-bordered" style="width:100%;display:table;">
+            <table id="chumper" class="table table-bordered w-100 d-table">
                 <thead>
                     <tr>
                         <th></th>
@@ -130,12 +130,12 @@ if (Auth::user()->role == 'agent') {
                     <div id="merge-body-alert">
                         <div class="row">
                             <div class="col-md-12">
-                                <div id="merge-succ-alert" class="alert alert-success alert-dismissable" style="display:none;" >
+                                <div id="merge-succ-alert" class="alert alert-success alert-dismissable initially-hidden" >
                                     <!--<button id="dismiss-merge" type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>-->
                                     <h4><i class="icon fa fa-check"></i>{!! Lang::get('lang.alert') !!}!</h4>
                                     <div id="message-merge-succ"></div>
                                 </div>
-                                <div id="merge-err-alert" class="alert alert-danger alert-dismissable" style="display:none;">
+                                <div id="merge-err-alert" class="alert alert-danger alert-dismissable initially-hidden">
                                     <!--<button id="dismiss-merge2" type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>-->
                                     <h4><i class="icon fa fa-ban"></i>{!! Lang::get('lang.alert') !!}!</h4>
                                     <div id="message-merge-err"></div>

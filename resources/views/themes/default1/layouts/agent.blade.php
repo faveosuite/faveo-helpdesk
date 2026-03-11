@@ -28,6 +28,7 @@
         {{-- jquery ui css --}}
         <link type="text/css" href="{{asset("lb-faveo/downloads/jquery.ui.css")}}" rel="stylesheet">
         <link href="{{asset("lb-faveo/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css")}}" rel="stylesheet" type="text/css" />
+        <link href="{{asset("css/common.css")}}" rel="stylesheet" type="text/css" />
         <!-- <link type="text/css" href="http://code.jquery.com/ui/1.9.1/themes/redmond/jquery-ui.css" rel="stylesheet"> -->
         <!--[if lt IE 9]>
             <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
@@ -68,7 +69,7 @@ if ($company != null) {
                             <li><a href="{{url('agents')}}">Admin Panel</a></li>
                             <!-- User Account: style can be found in dropdown.less -->
                             <li class="dropdown user user-menu">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
                                 @if(Auth::user())
                                     @if(Auth::user()->profile_pic)
                                         <img src="{{asset('lb-faveo/lb-faveo/dist/img')}}{{'/'}}{{Auth::user()->profile_pic}}"class="user-image" alt="User Image"/>
@@ -164,7 +165,7 @@ if ($company != null) {
      ?>
                                         <li>
                                             <a href="{{ url('/ticket/open') }}">
-                                                <i class="fa fa-envelope"></i> <span>Inbox</span> <small class="label pull-right text-bg-success"><?php echo $i;?></small>
+                                                <i class="fa fa-envelope"></i> <span>Inbox</span> <small class="badge float-end text-bg-success"><?php echo $i;?></small>
                                             </a>
                                         </li>
 <?php
@@ -175,21 +176,21 @@ if ($company != null) {
                                              <a href="{{url('ticket/myticket')}}">
                                                 <i class="fa fa-user"></i> <span>My Tickets</span>
 
-                                                <small class="label pull-right text-bg-success">{{count($myticket) }}</small>
+                                                <small class="badge float-end text-bg-success">{{count($myticket) }}</small>
                                             </a>
                                         </li>
                                         <li>
                                             <a href="{{url('unassigned')}}">
                                                 <i class="fa fa-th"></i> <span>Unassigned</span>
 
-                                                <small class="label pull-right text-bg-success">{{count($unassigned)}}</small>
+                                                <small class="badge float-end text-bg-success">{{count($unassigned)}}</small>
                                             </a>
                                         </li>
                                         <li>
                                             <a href="{{url('trash')}}">
                                                 <i class="fa fa-trash-o"></i> <span>Trash</span>
                                                 <?php $deleted = App\Model\helpdesk\Ticket\Tickets::where('status', '5')->get();?>
-                                                <small class="label pull-right text-bg-success">{{count($deleted)}}</small>
+                                                <small class="badge float-end text-bg-success">{{count($deleted)}}</small>
                                             </a>
                                         </li>
 <li class="header">DEPARTMENTS</li>
@@ -226,9 +227,9 @@ $underprocess = count($underprocess);
                                                 <i class="fa fa-folder-open"></i> <span>{!! $dept->name !!}</span> <i class="fa fa-angle-left pull-right"></i>
                                             </a>
                                             <ul class="treeview-menu">
-                                                <li><a href=""><i class="fa fa-circle-o"></i>Open<small class="label pull-right text-bg-success">{!! $open !!}</small></a></li>
-                                                <li><a href=""><i class="fa fa-circle-o"></i>Inprogress<small class="label pull-right text-bg-success">{!! $underprocess !!}</small></a></li>
-                                                <li><a href=""><i class="fa fa-circle-o"></i>Closed<small class="label pull-right text-bg-success">{!! $closed !!}</small></a></li>
+                                                <li><a href=""><i class="fa fa-circle-o"></i>Open<small class="badge float-end text-bg-success">{!! $open !!}</small></a></li>
+                                                <li><a href=""><i class="fa fa-circle-o"></i>Inprogress<small class="badge float-end text-bg-success">{!! $underprocess !!}</small></a></li>
+                                                <li><a href=""><i class="fa fa-circle-o"></i>Closed<small class="badge float-end text-bg-success">{!! $closed !!}</small></a></li>
                                             </ul>
                                         </li>
 
@@ -241,9 +242,9 @@ $underprocess = count($underprocess);
                                                 <i class="fa fa-folder-open"></i> <span>{!! $dept->name !!}</span> <i class="fa fa-angle-left pull-right"></i>
                                             </a>
                                             <ul class="treeview-menu">
-                                                <li><a href=""><i class="fa fa-circle-o"></i>Open<small class="label pull-right text-bg-success">{!! $open !!}</small></a></li>
-                                                <li><a href=""><i class="fa fa-circle-o"></i>Inprogress<small class="label pull-right text-bg-success">{!! $underprocess !!}</small></a></li>
-                                                <li><a href=""><i class="fa fa-circle-o"></i>Closed<small class="label pull-right text-bg-success">{!! $closed !!}</small></a></li>
+                                                <li><a href=""><i class="fa fa-circle-o"></i>Open<small class="badge float-end text-bg-success">{!! $open !!}</small></a></li>
+                                                <li><a href=""><i class="fa fa-circle-o"></i>Inprogress<small class="badge float-end text-bg-success">{!! $underprocess !!}</small></a></li>
+                                                <li><a href=""><i class="fa fa-circle-o"></i>Closed<small class="badge float-end text-bg-success">{!! $closed !!}</small></a></li>
                                             </ul>
                                         </li>
                                         <?php }

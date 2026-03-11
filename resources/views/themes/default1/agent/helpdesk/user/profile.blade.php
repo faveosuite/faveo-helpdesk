@@ -13,19 +13,31 @@ class="active"
 @stop
 
 @section('PageHeader')
-<h1>{{Lang::get('lang.view-profile')}}</h1>
+<h3>{{Lang::get('lang.view-profile')}}</h3>
 @stop
 
 @section('profileimg')
-<img src="{{Auth::user()->profile_pic}}" id="sidebar-profile-img" class="img-circle elevation-2" alt="User Image" width="auto" height="auto" />
+<img src="{{Auth::user()->profile_pic}}" id="sidebar-profile-img" class="rounded-circle shadow-sm me-2 profile-img" alt="User Image">
 @stop
 
 @section('content')
+    <style>
+        .profile-img {
+            width: 30px;
+            height: 30px;
+        }
 
-@if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
+        .card-contact {
+            box-shadow: 0 0 1px rgba(0, 0, 0, .125), 0 1px 3px rgba(0, 0, 0, .2);
+            margin-bottom: 1rem;
+        }
+    </style>
+
+
+    @if(Session::has('success'))
+<div class="alert alert-success alert-dismissible">
     <i class="fa fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('success')}}
 </div>
 @endif
@@ -103,8 +115,7 @@ class="active"
 
             <div class="col-md-6">
                 
-                <div class="'card card-light" style="    box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
-    margin-bottom: 1rem;">
+                <div class="card card-light card-contact">
                     
                     <div class="card-header">
                         <h3 class="card-title">{!! Lang::get('lang.contact_information') !!}</h3>

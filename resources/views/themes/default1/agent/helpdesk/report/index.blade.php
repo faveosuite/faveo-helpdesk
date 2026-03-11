@@ -4,7 +4,7 @@
 <li class="nav-header">{!! Lang::get('lang.Report') !!}</li>
 <li class="nav-item">
     <a href="" class="nav-link active">
-        <i class="fas fa-chart-area"></i> <p>{!! Lang::get('lang.help_topic') !!}</p>
+        <i class="nav-icon fa-solid fa-chart-area"></i> <p>{!! Lang::get('lang.help_topic') !!}</p>
     </a>
 </li>
 @stop 
@@ -117,7 +117,7 @@ class="active"
                     <div class='col-sm-1'>
                         <label>{!! Lang::get('lang.status') !!}</label>
                         <div class="btn-group">
-                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                                 {!! Lang::get('lang.select') !!}
                             </button>
                             <div class="dropdown-menu" role="menu">

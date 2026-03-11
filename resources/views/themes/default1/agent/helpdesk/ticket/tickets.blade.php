@@ -154,12 +154,12 @@
             </div>
             @endif
 
-            <div class="alert alert-success alert-dismissible" style="display: none;">
+            <div class="alert alert-success alert-dismissible initially-hidden">
                 <i class="fa-solid fa-check-circle"> </i> <span class="success-message"></span>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
                 {{Session::get('success')}}
             </div>
-            <div class="alert alert-danger alert-dismissible" style="display: none;">
+            <div class="alert alert-danger alert-dismissible initially-hidden">
                 <i class="fa-solid fa-ban"> </i> <b> {!! Lang::get('lang.alert') !!}!</b> <span class="error-message"></span>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
                 {{Session::get('fails')}}
@@ -177,15 +177,24 @@
             <?php $statuses = Finder::getCustomedStatus(); ?>
                 <button type="button" class="btn btn-sm btn-secondary dropdown-toggle" data-bs-toggle="dropdown" id="d1">
                     <i class="fa-solid fa-right-left"  id="hidespin"> </i>
-                    <i class="fa-solid fa-spinner fa-spin" style="color:teal; display:none;" id="spin"></i>
+                    <i class="fa-solid fa-spinner fa-spin text-teal initially-hidden" id="spin"></i>
                     {!! Lang::get('lang.change_status') !!} <span class="caret"></span>
                 </button>
 
                 <div class="dropdown-menu">
+                    <?php $statusIcons = [
+                        'open'     => ['icon' => 'fa-folder-open',  'color' => 'text-success'],
+                        'resolved' => ['icon' => 'fa-circle-check', 'color' => 'text-danger'],
+                        'closed'   => ['icon' => 'fa-lock',         'color' => 'text-success'],
+                        'deleted'  => ['icon' => 'fa-trash',        'color' => 'text-danger'],
+                    ]; ?>
                     @foreach($statuses as $ticket_status)
+                    <?php $statusKey = strtolower($ticket_status->name);
+                          $icon  = $statusIcons[$statusKey]['icon']  ?? 'fa-circle';
+                          $color = $statusIcons[$statusKey]['color'] ?? 'text-secondary'; ?>
                     <a href="javascript:;"  class="dropdown-item" onclick="changeStatus({!! $ticket_status -> id !!}, '{!! $ticket_status->name !!}')"
                         data-bs-toggle="modal" data-bs-target="#myModal">
-                        {{trans('lang.'.strtolower($ticket_status->name)) }}
+                        <i class="fa-solid {{ $icon }} {{ $color }} me-1"></i>{{trans('lang.'.strtolower($ticket_status->name)) }}
                     </a>
                     @endforeach
                 </div>
@@ -213,7 +222,7 @@
 
                 <!--datatable-->
                 {!! html()->form('POST', route('select_all'))->attributes(['id' => 'modalpopup'])->open() !!}
-                <table id="chumper" class="table table-bordered" style="width:100%;display:table;">
+                <table id="chumper" class="table table-bordered w-100 d-table">
                     <thead>
                         <tr>
                             <th><a class="checkbox-toggle"><i class="fa-regular fa-square fa-2x"></i></a></th>

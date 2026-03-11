@@ -14,6 +14,7 @@
     <link href="{{ assetLink('css' , 'client')}}" rel="stylesheet" type="text/css" />
 
     <link href="{{ assetLink('css' , 'widget')}}" rel="stylesheet" type="text/css" />
+    <link href="{{ assetLink('css' , 'common')}}" rel="stylesheet" type="text/css" />
     
   </head>
   <body>

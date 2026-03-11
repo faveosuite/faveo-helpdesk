@@ -36,32 +36,32 @@
     <div class="box-header">
         <h3 class="box-title" id="refresh2"><i class="fa fa-user"> </i> {!! $thread->title !!} </h3>
         <div class="pull-right">
-            <!-- <button type="button" class="btn btn-default"><i class="fa fa-edit" style="color:green;"> </i> Edit</button> -->
+            <!-- <button type="button" class="btn btn-default"><i class="fa fa-edit text-success"> </i> Edit</button> -->
 
-            <button type="button" class="btn btn-default" id="Edit_Ticket" data-toggle="modal" data-target="#Edit"><i class="fa fa-edit" style="color:green;"> </i> Edit</button>
+            <button type="button" class="btn btn-default" id="Edit_Ticket" data-toggle="modal" data-target="#Edit"><i class="fa fa-edit text-success"> </i> Edit</button>
 
-            <a href="{{url('ticket/print/'.$tickets->id)}}" target="_blank" class="btn btn-default"><i class="fa fa-print" style="color:blue;"> </i> Print</a>
+            <a href="{{url('ticket/print/'.$tickets->id)}}" target="_blank" class="btn btn-default"><i class="fa fa-print text-primary"> </i> Print</a>
             <div class="btn-group">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="d1"><i class="fa fa-exchange" style="color:teal;" id="hidespin"> </i><i class="fa fa-spinner fa-spin" style="color:teal; display:none;" id="spin"></i>
+                <button type="button" class="btn btn-default dropdown-toggle" data-bs-toggle="dropdown" id="d1"><i class="fa fa-exchange text-teal" id="hidespin"> </i><i class="fa fa-spinner fa-spin text-teal initially-hidden" id="spin"></i>
                     Change Status <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu">
-                    <li id="open"><a href="#"><i class="fa fa-folder-open-o" style="color:red;"> </i>Open</a></li>
+                    <li id="open"><a href="#"><i class="fa fa-folder-open-o text-danger"> </i>Open</a></li>
 
-                    <li id="close"><a href="#"><i class="fa fa-check" style="color:green;"> </i>Close</a></li>
+                    <li id="close"><a href="#"><i class="fa fa-check text-success"> </i>Close</a></li>
 
-                    <li id="resolved"><a href="#"><i class="fa fa-check-circle-o " style="color:green;"> </i> Resolved</a></li>
+                    <li id="resolved"><a href="#"><i class="fa fa-check-circle-o  text-success"> </i> Resolved</a></li>
                 </ul>
             </div>
 
             <div class="btn-group">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="d2"><i class="fa fa-cogs" style="color:teal;"> </i>
+                <button type="button" class="btn btn-default dropdown-toggle" data-bs-toggle="dropdown" id="d2"><i class="fa fa-cogs text-teal"> </i>
                     More <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu pull-right">
                  
-                    <li id="delete"><a href="#"><i class="fa fa-trash-o" style="color:red;"> </i>Delete Ticket</a></li>
-                    <li  data-toggle="modal" data-target="#banemail"><a href="#" ><i class="fa fa-ban" style="color:red;" > </i> Ban Email</a></li>
+                    <li id="delete"><a href="#"><i class="fa fa-trash-o text-danger"> </i>Delete Ticket</a></li>
+                    <li  data-toggle="modal" data-target="#banemail"><a href="#" ><i class="fa fa-ban text-danger" > </i> Ban Email</a></li>
                   </ul>
             </div>
            
@@ -69,17 +69,17 @@
     </div>
     <!-- ticket details Table -->
     <div class="box-body">
-    <div id="alert11" class="alert alert-success alert-dismissable" style="display:none;">
+    <div id="alert11" class="alert alert-success alert-dismissable initially-hidden">
         <button id="dismiss11" type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
         <h4><i class="icon fa fa-check"></i>Alert!</h4>
         <div id="message-success1"></div>
     </div>
-    <div id="alert12" class="alert alert-warning alert-dismissable" style="display:none;">
+    <div id="alert12" class="alert alert-warning alert-dismissable initially-hidden">
         <button id="dismiss12" type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
         <h4><i class="icon fa fa-warning"></i>Alert!</h4>
         <div id="message-warning1"></div>
     </div>
-    <div id="alert13" class="alert alert-danger alert-dismissable" style="display:none;">
+    <div id="alert13" class="alert alert-danger alert-dismissable initially-hidden">
         <button id="dismiss13" type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
         <h4><i class="icon fa fa-ban"></i>Alert!</h4>
         <div id="message-danger1"></div>
@@ -181,17 +181,17 @@ echo UTC::usertimezone(date_format($time, 'd/m/Y H:i:s'));
                 <!-- <li><a href="#Reply" data-toggle="tab" style="color:orange;"><i class="fa fa-mail-forward" > </i> Forward</a></li> -->
             </ul>
             <div class="tab-content">
-                <div id="alert21" class="alert alert-success alert-dismissable" style="display:none;">
+                <div id="alert21" class="alert alert-success alert-dismissable initially-hidden">
                     <button id="dismiss21" type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
                     <h4><i class="icon fa fa-check"></i>Alert!</h4>
                     <div id="message-success2"></div>
                 </div>
-                <div id="alert22" class="alert alert-warning alert-dismissable" style="display:none;">
+                <div id="alert22" class="alert alert-warning alert-dismissable initially-hidden">
                     <button id="dismiss22" type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
                     <h4><i class="icon fa fa-warning"></i>Alert!</h4>
                     <div id="message-warning2"></div>
                 </div>
-                <div id="alert23" class="alert alert-danger alert-dismissable" style="display:none;">
+                <div id="alert23" class="alert alert-danger alert-dismissable initially-hidden">
                     <button id="dismiss23" type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
                     <h4><i class="icon fa fa-ban"></i>Alert!</h4>
                     <div id="message-danger2"></div>
@@ -199,9 +199,9 @@ echo UTC::usertimezone(date_format($time, 'd/m/Y H:i:s'));
                 <div class="tab-pane active" id="General">
                     <div class="form-group">
         
-                        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#{{$tickets->id}}assign"><i class="fa fa-hand-o-right" style="color:orange;"> </i> Assign</button>
+                        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#{{$tickets->id}}assign"><i class="fa fa-hand-o-right text-orange"> </i> Assign</button>
         
-                        <button type="button" id="internal" class="btn btn-default"><i class="fa fa-file-text" style="color:blue;"> </i>  Internal Notes</button>
+                        <button type="button" id="internal" class="btn btn-default"><i class="fa fa-file-text text-primary"> </i>  Internal Notes</button>
                         
                     </div>
                     <!-- ticket reply -->
@@ -279,7 +279,7 @@ echo UTC::usertimezone(date_format($time, 'd/m/Y H:i:s'));
                                 <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
                                     <div class="col-md-2"></div>
                                     <div class="col-md-10">
-                                        <button type="submit" class="btn btn-primary"><i class="fa fa-check-square-o" style="color:white;"> </i> Update</button>
+                                        <button type="submit" class="btn btn-primary"><i class="fa fa-check-square-o text-white"> </i> Update</button>
                                     </div>
                                 </div>
                             </div>
@@ -310,7 +310,7 @@ echo UTC::usertimezone(date_format($time, 'd/m/Y H:i:s'));
                                     <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
                                         <div class="col-md-2"></div>
                                         <div class="col-md-10">
-                                            <button type="submit"  class="btn btn-primary"><i class="fa fa-check-square-o" style="color:white;"> </i> Update</button>
+                                            <button type="submit"  class="btn btn-primary"><i class="fa fa-check-square-o text-white"> </i> Update</button>
                                         </div>
                                     </div>
                                 </div>
@@ -322,9 +322,9 @@ echo UTC::usertimezone(date_format($time, 'd/m/Y H:i:s'));
                 <!-- ticket foreward -->
                 <!-- <div class="tab-pane" id="Reply" >
                     <div class="form-group">
-                        <button type="button" class="btn btn-default"><i class="fa fa-mail-forward" style="color:green;"> </i> Send</button>
-                        <button type="button" class="btn btn-default"><i class="fa fa-th-large" style="color:teal;"> </i> Option</button>
-                        <button type="button" class="btn btn-default"><i class="fa fa-file-text" style="color:blue;"> </i> Internal Notes</button>
+                        <button type="button" class="btn btn-default"><i class="fa fa-mail-forward text-success"> </i> Send</button>
+                        <button type="button" class="btn btn-default"><i class="fa fa-th-large text-teal"> </i> Option</button>
+                        <button type="button" class="btn btn-default"><i class="fa fa-file-text text-primary"> </i> Internal Notes</button>
                     </div>
                     <form>
                         <div class="form-group">
@@ -418,13 +418,13 @@ $data = $ConvDate[0];
                             </li>
                             <li>
                                 <?php if($conversation->is_internal) { ?>
-                                <i class="fa fa-tag bg-purple" title="<?= Lang::get('lang.posted_by_system') ?>"></i>
+                                <i class="fa fa-tag text-bg-purple" title="<?= Lang::get('lang.posted_by_system') ?>"></i>
                                     <?php }else{ if ($role->role == 'agent' || $role->role == 'admin') { ?>
                                     <i class="fa fa-mail-reply-all text-bg-warning" title="<?= Lang::get('lang.posted_by_support_team') ?>"></i>
                                 <?php } elseif ($role->role == 'user') {  ?>
-                                    <i class="fa fa-user bg-aqua" title="<?= Lang::get('lang.posted_by_customer') ?>"></i>
+                                    <i class="fa fa-user text-bg-info" title="<?= Lang::get('lang.posted_by_customer') ?>"></i>
                                 <?php } else { ?>
-                                    <i class="fa fa-mail-reply-all bg-purple" title="<?= Lang::get('lang.posted_by_system') ?>"></i>
+                                    <i class="fa fa-mail-reply-all text-bg-purple" title="<?= Lang::get('lang.posted_by_system') ?>"></i>
     <?php } }
     $attachment = App\Model\Ticket\Ticket_attachments::where('thread_id','=',$conversation->id)->first();
     if($attachment == null ) {
@@ -508,7 +508,7 @@ $data = $ConvDate[0];
 
     ?>
                                 <div class="timeline-item">
-                                    <span id="date" class="time"  style="color:#fff;"><i class="fa fa-clock-o"> </i> {{date_format($conversation->created_at, 'd/m/Y H:i:s')}}</span>
+                                    <span id="date" class="time text-white"><i class="fa fa-clock-o"> </i> {{date_format($conversation->created_at, 'd/m/Y H:i:s')}}</span>
                                     <h3 class="timeline-header"  style="background-color:<?php 
                                     if($conversation->is_internal)
                                     {
@@ -584,7 +584,7 @@ $data = $ConvDate[0];
 <?php }
 ?>
                         <li>
-                            <i class="fa fa-clock-o bg-gray"></i>
+                            <i class="fa fa-clock-o text-bg-secondary"></i>
                         </li>
                         <ul class="pull-right">
 <?php echo $conversations->setPath(url('/thread/' . $tickets->id))->render();?>

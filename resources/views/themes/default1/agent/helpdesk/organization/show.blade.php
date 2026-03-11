@@ -39,7 +39,7 @@ class="nav-link active"
     <?php $org_hd = App\Model\helpdesk\Agent_panel\Organization::where('id', '=', $orgs->id)->first(); ?>
     
     <div class="col-sm-12">
-        <div id="alert-success" class="alert alert-success alert-dismissable" style="display:none;">
+        <div id="alert-success" class="alert alert-success alert-dismissable initially-hidden">
             <i class="fas  fa-check-circle"> </i> <b> Success <span id="get-success"></span></b>
             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
         </div>

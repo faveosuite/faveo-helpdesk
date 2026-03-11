@@ -79,7 +79,7 @@ class="nav-link active"
             </div>
         </div>
         
-        <div class="callout callout-default" style="font-style: oblique;">{!! Lang::get('lang.instructions_on_creating_form') !!}.</div>
+        <div class="callout callout-default font-oblique">{!! Lang::get('lang.instructions_on_creating_form') !!}.</div>
         <div class="callout callout-default"> {!! Lang::get('lang.click_add_fields_button_to_add_fields') !!} </div>
 
         <div class="card card-light">

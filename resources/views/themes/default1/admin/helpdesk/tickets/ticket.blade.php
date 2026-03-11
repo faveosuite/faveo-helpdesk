@@ -18,6 +18,7 @@
         <!-- AdminLTE Skins. Choose a skin from the css/skins
              folder instead of downloading all of them to reduce the load. -->
         <link href="dist/css/skins/_all-skins.min.css" rel="stylesheet" type="text/css" />
+        <link href="{{asset("css/common.css")}}" rel="stylesheet" type="text/css" />
         <!-- iCheck -->
         <link href="plugins/iCheck/flat/blue.css" rel="stylesheet" type="text/css" />
         <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -53,7 +54,7 @@
                         </ul>
                         <ul class="nav navbar-nav navbar-right">
                             <li class="dropdown user user-menu">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
                                     <img src="dist/img/user2-160x160.jpg" class="user-image" alt="User Image"/>
                                     <span class="hidden-xs">Alexander Pierce</span>
                                 </a>
@@ -121,22 +122,22 @@
                         <li class="header">TICKETS</li>
                         <li>
                             <a href="../widgets.html">
-                                <i class="fa fa-envelope"></i> <span>Inbox</span> <small class="label pull-right text-bg-success">5</small>
+                                <i class="fa fa-envelope"></i> <span>Inbox</span> <small class="badge float-end text-bg-success">5</small>
                             </a>
                         </li>
                         <li>
                             <a href="../widgets.html">
-                                <i class="fa fa-user"></i> <span>My Tickets</span> <small class="label pull-right text-bg-success">2</small>
+                                <i class="fa fa-user"></i> <span>My Tickets</span> <small class="badge float-end text-bg-success">2</small>
                             </a>
                         </li>
                         <li>
                             <a href="../widgets.html">
-                                <i class="fa fa-th"></i> <span>Unassigned</span> <small class="label pull-right text-bg-success">4</small>
+                                <i class="fa fa-th"></i> <span>Unassigned</span> <small class="badge float-end text-bg-success">4</small>
                             </a>
                         </li>
                         <li>
                             <a href="../widgets.html">
-                                <i class="fa fa-trash-o"></i> <span>Trash</span> <small class="label pull-right text-bg-success">89</small>
+                                <i class="fa fa-trash-o"></i> <span>Trash</span> <small class="badge float-end text-bg-success">89</small>
                             </a>
                         </li>
                         <li class="treeview">
@@ -144,9 +145,9 @@
                                 <i class="fa fa-folder-open"></i> <span>General</span> <i class="fa fa-angle-left pull-right"></i>
                             </a>
                             <ul class="treeview-menu">
-                                <li><a href=""><i class="fa fa-circle-o"></i>Open<small class="label pull-right text-bg-success">4</small></a></li>
-                                <li><a href=""><i class="fa fa-circle-o"></i>Inprogress<small class="label pull-right text-bg-success">3</small></a></li>
-                                <li><a href=""><i class="fa fa-circle-o"></i>Closed<small class="label pull-right text-bg-success">55</small></a></li>
+                                <li><a href=""><i class="fa fa-circle-o"></i>Open<small class="badge float-end text-bg-success">4</small></a></li>
+                                <li><a href=""><i class="fa fa-circle-o"></i>Inprogress<small class="badge float-end text-bg-success">3</small></a></li>
+                                <li><a href=""><i class="fa fa-circle-o"></i>Closed<small class="badge float-end text-bg-success">55</small></a></li>
                             </ul>
                         </li>
                         <li class="treeview">
@@ -154,9 +155,9 @@
                                 <i class="fa fa-folder-open"></i> <span>Support</span> <i class="fa fa-angle-left pull-right"></i>
                             </a>
                             <ul class="treeview-menu">
-                                <li><a href=""><i class="fa fa-circle-o"></i>Open<small class="label pull-right text-bg-success">1</small></a></li>
-                                <li><a href=""><i class="fa fa-circle-o"></i>Inprogress<small class="label pull-right text-bg-success">6</small></a></li>
-                                <li><a href=""><i class="fa fa-circle-o"></i>Closed<small class="label pull-right text-bg-success">88</small></a></li>
+                                <li><a href=""><i class="fa fa-circle-o"></i>Open<small class="badge float-end text-bg-success">1</small></a></li>
+                                <li><a href=""><i class="fa fa-circle-o"></i>Inprogress<small class="badge float-end text-bg-success">6</small></a></li>
+                                <li><a href=""><i class="fa fa-circle-o"></i>Closed<small class="badge float-end text-bg-success">88</small></a></li>
                             </ul>
                         </li>
 

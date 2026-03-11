@@ -39,7 +39,7 @@
 <div class="row">
 <div class="col-xs-12">
 
-<div id="example1_wrapper" class="dataTables_wrapper form-inline dt-bootstrap table table-hover" style="overflow:hidden;">
+<div id="example1_wrapper" class="dataTables_wrapper form-inline dt-bootstrap table table-hover overflow-hidden">
 <div class="row">
 <div class="col-sm-12">
     <table id="allBlogs"  class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">

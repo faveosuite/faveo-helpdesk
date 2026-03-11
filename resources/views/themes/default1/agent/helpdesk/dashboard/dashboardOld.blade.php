@@ -93,7 +93,7 @@ class="active"
     <div class="col-md-2" style="width:20%;">
  <a href="{!! route('inbox.ticket') !!}">
           <div class="info-box">
-             <span class="info-box-icon bg-aqua"><i class="fa fa-envelope-o"></i></span>
+             <span class="info-box-icon text-bg-info"><i class="fa fa-envelope-o"></i></span>
 
             <div class="info-box-content">
               <span class="info-box-text">{!! Lang::get('lang.inbox') !!}</span>
@@ -122,7 +122,7 @@ class="active"
                <div class="col-md-2" style="width:20%;" >
           <a href="{!! route('overdue.ticket') !!}">
             <div class="info-box">
-                <span class="info-box-icon bg-red"><i class="fa fa-calendar-times-o"></i></span>
+                <span class="info-box-icon text-bg-danger"><i class="fa fa-calendar-times-o"></i></span>
                 <div class="info-box-content">
                     <span class="info-box-text">{!! Lang::get('lang.overdue') !!}</span>
                     <span class="info-box-number">{{ $overdue_ticket }} <small> Tickets</small></span>
@@ -146,7 +146,7 @@ class="active"
                <div class="col-md-2" style="width:20%;">
                  <a href="{!! route('ticket.duetoday') !!}">
             <div class="info-box">
-                <span class="info-box-icon bg-red"><i class="glyphicon glyphicon-eye-open"></i></span>
+                <span class="info-box-icon text-bg-danger"><i class="glyphicon glyphicon-eye-open"></i></span>
                 <div class="info-box-content">
                     <span class="info-box-text">{!! Lang::get('lang.duetoday') !!}</span>
                     <span class="info-box-number">{{ $todaytickets }} <small> Tickets</small></span>

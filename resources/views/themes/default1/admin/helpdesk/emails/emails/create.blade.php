@@ -216,7 +216,7 @@ class="nav-link active"
         </div> 
         
         <div class="card-footer">
-            {!! html()->button('<i id="spin" class="fas fa-spinner" style="display:none;"></i>' . Lang::get("lang.create").'')->class('btn btn-primary')->attributes(['type' => 'submit']) !!}
+            {!! html()->button('<i id="spin" class="fas fa-spinner initially-hidden"></i>' . Lang::get("lang.create").'')->class('btn btn-primary')->attributes(['type' => 'submit']) !!}
         </div>
     </div>
 </form>

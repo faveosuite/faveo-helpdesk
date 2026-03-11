@@ -10,7 +10,7 @@ active
 @stop
 
 @section('PageHeader')
-<h1>{{Lang::get('lang.ticket-details')}}</h1>
+<h3>{{Lang::get('lang.ticket-details')}}</h3>
 @include('themes.default1.agent.helpdesk.ticket.response-messages')
 @stop
 <?php
@@ -23,13 +23,13 @@ $group = App\Model\helpdesk\Agent\Groups::where('id', '=', $agent_group)->where(
 @section('sidebar')
 <li class="nav-header">{!! Lang::get('lang.Ticket_Information') !!} </li>
 <li class="nav-item">
-    <a href="" class="nav-link">
+    <a href="" class="nav-link d-block">
         <span>{!! Lang::get('lang.Ticket_Id') !!} </span>
         </br><b>#{{$tickets->ticket_number}}</b>
     </a>
 </li>
 <li class="nav-item">
-    <a href="{!! URL('user/'.$user->id) !!}" class="nav-link">
+    <a href="{!! URL('user/'.$user->id) !!}" class="nav-link d-block">
         <span>{!! Lang::get('lang.User') !!} </span>
         </br><i class="fa fa-user"></i> <b>{{$user->name() }}</b>
     </a>
@@ -63,9 +63,9 @@ $group = App\Model\helpdesk\Agent\Groups::where('id', '=', $agent_group)->where(
         $ratingval = $rating_value->rating_value;
     }
     ?>
-    <a href="#" class="nav-link">
+    <a href="#" class="nav-link d-flex align-items-center justify-content-between">
         {!! $rating->name !!}:
-        <small class="float-right">
+        <small class="float-end">
             <?php for ($i = 1; $i <= $rating->rating_scale; $i++) { ?>
                 <input type="radio" class="star not-apply" id="star5" name="{!! $rating->name !!}" value="{!! $i !!}"<?php echo ($ratingval == $i) ? 'checked' : '' ?> />
             <?php } ?>
@@ -82,9 +82,9 @@ $group = App\Model\helpdesk\Agent\Groups::where('id', '=', $agent_group)->where(
         $avg_rating = $avg_rate[0];
     }
     ?>
-    <a href="#" class="nav-link">
+    <a href="#" class="nav-link d-flex align-items-center justify-content-between">
         {!! $rating->name !!}:
-        <small class="float-right">
+        <small class="float-end">
             <?php for ($i = 1; $i <= $rating->rating_scale; $i++) { ?>
                 <input type="radio" class="star not-apply" id="star5" name="{!! $rating->name !!}" value="{!! $i !!}"<?php echo ($avg_rating == $i) ? 'checked' : '' ?> />
             <?php } ?>
@@ -103,26 +103,29 @@ if ($thread->title != "") {
 ?>
 
 @section('content')
-<div id="alert10" class="alert alert-success alert-dismissable" style="display:none;">
-    <button id="dismiss10" type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-    <b><i class="icon fas fa-check"></i>{!! Lang::get('lang.alert') !!}!</b>
-    <div id="message-success0"></div>
-</div>
-<div id="alert11" class="alert alert-success alert-dismissable" style="display:none;">
-    <button id="dismiss11" type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-    <h4><i class="icon fas fa-check"></i>{!! Lang::get('lang.alert') !!}!</h4>
-    <div id="message-success1"></div>
-</div>
-<div id="alert12" class="alert alert-warning alert-dismissable" style="display:none;">
-    <button id="dismiss12" type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-    <h4><i class="icon fas fa-exclamation-triangle"></i>{!! Lang::get('lang.alert') !!}!</h4>
-    <div id="message-warning1"></div>
-</div>
-<div id="alert13" class="alert alert-danger alert-dismissable" style="display:none;">
-    <button id="dismiss13" type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-    <h4><i class="icon fas fa-ban"></i>{!! Lang::get('lang.alert') !!}!</h4>
-    <div id="message-danger1"></div>
-</div>
+    <div id="alert10" class="alert alert-success alert-dismissible fade d-none" role="alert">
+        <button id="dismiss10" type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <b><i class="bi bi-check-circle-fill me-2"></i>{!! Lang::get('lang.alert') !!}!</b>
+        <div id="message-success0"></div>
+    </div>
+
+    <div id="alert11" class="alert alert-success alert-dismissible fade d-none" role="alert">
+        <button id="dismiss11" type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <h4 class="alert-heading"><i class="bi bi-check-circle-fill me-2"></i>{!! Lang::get('lang.alert') !!}!</h4>
+        <div id="message-success1"></div>
+    </div>
+
+    <div id="alert12" class="alert alert-warning alert-dismissible fade d-none" role="alert">
+        <button id="dismiss12" type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <h4 class="alert-heading"><i class="bi bi-exclamation-triangle-fill me-2"></i>{!! Lang::get('lang.alert') !!}!</h4>
+        <div id="message-warning1"></div>
+    </div>
+
+    <div id="alert13" class="alert alert-danger alert-dismissible fade d-none" role="alert">
+        <button id="dismiss13" type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <h4 class="alert-heading"><i class="bi bi-ban-fill me-2"></i>{!! Lang::get('lang.alert') !!}!</h4>
+        <div id="message-danger1"></div>
+    </div>
 <!-- Main content -->
 <div class="card card-light">
     <div class="card-header">
@@ -132,29 +135,29 @@ if ($thread->title != "") {
     <div class="card-body">
 
         <div class="mb-3">
-            <!-- <button type="button" class="btn btn-default"><i class="fa fa-edit" style="color:green;"> </i> Edit</button> -->
+            <!-- <button type="button" class="btn btn-default"><i class="fa fa-edit text-success"> </i> Edit</button> -->
             <?php
             \Illuminate\Support\Facades\Event::dispatch(new \App\Events\TicketBoxHeader($user->id));
 
             if ($group->can_edit_ticket == 1) {
                 ?>
-            <button type="button" class="btn btn-sm btn-default btn-tool">
+            <button type="button" class="btn btn-sm btn-light btn-tool">
 
-                <i class="fas fa-edit" style="color:green;"></i> {{trans('lang.edit')}}
+                <i class="fas fa-edit text-success"></i> {{trans('lang.edit')}}
 
             </button>            <?php } ?>
 
             <?php if ($group->can_assign_ticket == 1) { ?>
-            <button type="button" class="btn btn-sm btn-default btn-tool">
+            <button type="button" class="btn btn-sm btn-light btn-tool">
 
-                <i class="fas fa-hand-point-right" style="color:orange;"></i> {{trans('lang.assign')}}
+                <i class="fas fa-hand-point-right text-orange"></i> {{trans('lang.assign')}}
 
             </button>            <?php } ?>
 
             @if($tickets->assigned_to == Auth::user()->id)
-                <button type="button" id="surrender_button" class="btn btn-sm btn-default btn-tool" data-toggle="modal" data-target="#surrender">
+                <button type="button" id="surrender_button" class="btn btn-sm btn-light btn-tool" data-bs-toggle="modal" data-bs-target="#surrender">
 
-                    <i class="fas fa-arrows-alt" style="color:red;"></i> {{trans('lang.surrender')}}
+                    <i class="fas fa-arrows-alt text-danger"></i> {{trans('lang.surrender')}}
 
                 </button>
             @endif
@@ -162,54 +165,54 @@ if ($thread->title != "") {
 
             <?php \Illuminate\Support\Facades\Event::dispatch('show-add-event-btn', []); ?>
 
-            <a href="{{url('ticket/print/'.$tickets->id)}}" target="_blank" class="btn btn-default btn-tool btn-sm">
+            <a href="{{url('ticket/print/'.$tickets->id)}}" target="_blank" class="btn btn-light btn-tool btn-sm">
 
                 <i class="fas fa-print"></i> {{trans('lang.generate_pdf')}}
 
             </a>            <div class="btn-group">
-                <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" id="d1"><i class="fas fa-exchange-alt" style="color:teal;" id="hidespin"> </i><i class="fa fa-spinner fa-spin" style="color:teal; display:none;" id="spin"></i>
+                <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-bs-toggle="dropdown" id="d1"><i class="fas fa-exchange-alt text-teal" id="hidespin"> </i><i class="fa fa-spinner fa-spin text-teal initially-hidden" id="spin"></i>
                     {!! Lang::get('lang.change_status') !!} <span class="caret"></span>
                 </button>
                 <div class="dropdown-menu">
-                    <a href="#" id="open" class="dropdown-item"><i class="fas fa-folder-open" style="color:red;"> </i> {!! Lang::get('lang.open') !!}</a>
+                    <a href="#" id="open" class="dropdown-item"><i class="fas fa-folder-open text-danger"> </i> {!! Lang::get('lang.open') !!}</a>
 
                     <?php if ( $tickets_approval->status==7) {?>
                   @if(Auth::user()->role == 'admin')
-                     <a href="#" id="approval_close" class="dropdown-item"><i class="fas fa-thumbs-up" style="color:red;"> </i> {!! Lang::get('lang.approval') !!}</a>
+                     <a href="#" id="approval_close" class="dropdown-item"><i class="fas fa-thumbs-up text-danger"> </i> {!! Lang::get('lang.approval') !!}</a>
                      @endif
                     
                     <?php } ?>
 
                      <?php if ( $tickets_approval->status==3) {?>
                     <?php if ($group->can_edit_ticket == 1) {?>
-                    <a href="#"  id="close" class="dropdown-item"><i class="fas fa-check" style="color:green;"> </i> {!! Lang::get('lang.close') !!}</a>
+                    <a href="#"  id="close" class="dropdown-item"><i class="fas fa-check text-success"> </i> {!! Lang::get('lang.close') !!}</a>
                     <?php } ?>
                      <?php } ?>
 
                      <?php if ( $tickets_approval->status==1) {?>
                     <?php if ($group->can_edit_ticket == 1) {?>
-                    <a href="#" id="close" class="dropdown-item"><i class="fas fa-check" style="color:green;"> </i> {!! Lang::get('lang.close') !!}</a>
+                    <a href="#" id="close" class="dropdown-item"><i class="fas fa-check text-success"> </i> {!! Lang::get('lang.close') !!}</a>
                     <?php } ?>
                      <?php } ?>
-                    <a href="#" id="resolved" class="dropdown-item"><i class="fas fa-check-circle " style="color:green;"> </i> {!! Lang::get('lang.resolved') !!} </a>
+                    <a href="#" id="resolved" class="dropdown-item"><i class="fas fa-check-circle  text-success"> </i> {!! Lang::get('lang.resolved') !!} </a>
                 </div>
             </div>
             <?php if ($group->can_delete_ticket == 1 || $group->can_ban_email == 1) { ?>
                 <div id="more-option" class="btn-group ml-0">
-                    <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" id="d2"><i class="fas fa-cogs" style="color:teal;"> </i>
+                    <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-bs-toggle="dropdown" id="d2"><i class="fas fa-cogs text-teal"> </i>
                         {!! Lang::get('lang.more') !!} <span class="caret"></span>
                     </button>
                     <div  class="dropdown-menu dropdown-menu-right">
-                        <a href="#" data-toggle="modal" data-target="#ChangeOwner" class="dropdown-item"><i class="fas fa-users" style="color:green;"> </i>{!! Lang::get('lang.change_owner_for_ticket') !!}</a>
+                        <a href="#" data-toggle="modal" data-bs-target="#ChangeOwner" class="dropdown-item"><i class="fas fa-users text-success"> </i>{!! Lang::get('lang.change_owner_for_ticket') !!}</a>
                         @if($tickets->status != 3 && $tickets->status != 2)
-                        <a href="#" class="dropdown-item" data-toggle="modal" data-target="#MergeTickets"><i class="fas fa-cogs" style="color:teal;"> </i> {!! Lang::get('lang.merge-ticket') !!}</a>
+                        <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#MergeTickets"><i class="fas fa-cogs text-teal"> </i> {!! Lang::get('lang.merge-ticket') !!}</a>
                         @endif
                         <?php if ($group->can_delete_ticket == 1) { ?>
-                        <a href="#" id="delete" class="dropdown-item" data-toggle="modal" data-target="#MergeTickets"><i class="fas fa-trash" style="color:red;"> </i> {!! Lang::get('lang.delete_ticket') !!}</a>
+                        <a href="#" id="delete" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#MergeTickets"><i class="fas fa-trash text-danger"> </i> {!! Lang::get('lang.delete_ticket') !!}</a>
                         <?php }
                         ?>
                         <?php if ($group->can_ban_email == 1) { ?>
-                        <a href="#" class="dropdown-item" data-toggle="modal" data-target="#banemail"><i class="fas fa-ban" style="color:red;"></i> {{trans('lang.ban_email')}}</a>
+                        <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#banemail"><i class="fas fa-ban text-danger"></i> {{trans('lang.ban_email')}}</a>
                         <?php 
                         \Illuminate\Support\Facades\Event::dispatch('ticket.details.more.list',[$tickets]);
                         }
@@ -255,13 +258,13 @@ if ($thread->title != "") {
         </div>
         
         <div class="text-center">
-            <div id="show2" style="display:none;">
+            <div id="show2" class="initially-hidden">
              
                 <img src="{{asset("lb-faveo/media/images/gifloader.gif")}}"><br/><br/><br/>
             </div>
         </div>
 
-        <div id="hide2" class="row" style="width: 100%;">
+        <div id="hide2" class="row w-100">
             <div class="col-md-6">
                 <table class="table table-hover">
                     <div id="refresh">
@@ -283,7 +286,7 @@ if ($thread->title != "") {
                             <td title="{{$dept123->name}}">{{$dept123->name}}</td></tr>
                             @endif
                         <tr><td><b>{!! Lang::get('lang.email') !!}:</b></td>        <td>{{Str::limit($user->email,30)}}</td></tr>
-                        @if($user->ban > 0)  <tr><td style="color:orange;"><i class="fa fa-warning"></i><b>
+                        @if($user->ban > 0)  <tr><td class="text-orange"><i class="fa fa-warning"></i><b>
                                     {!!  Lang::get('lang.this_ticket_is_under_banned_user')!!}</td><td></td></tr>@endif
                     </div>
                 </table>
@@ -328,38 +331,38 @@ if ($thread->title != "") {
         </div>
 
         <?php \Illuminate\Support\Facades\Event::dispatch('ticket.timeline.marble',[$TicketData]);?>
-        <div id="gifshow" style="display:none" class="text-center">
+        <div id="gifshow" class="text-center initially-hidden">
             <img src="{{asset("lb-faveo/media/images/gifloader.gif")}}">
         </div>  <!-- added 05/05/2016-->
         <div id="resultdiv"></div>
 
-        <div class="card card-light" id="inboxactions">
+        <div class="card card-light mb-3" id="inboxactions">
             
             <div class="card-header">
                 
                 <h3 class="card-title">{{trans('lang.action')}}</h3>
             </div>
 
-                    <div class="card-body">
+                    <div class="card-body mb-3">
             
             <ul class="nav nav-tabs">
-                <li class="nav-item"><a class="nav-link active" href="#General" data-toggle="tab" style="color:#27C116;" id="aa"><i class="fa fa-reply-all"> </i> {!! Lang::get('lang.reply') !!}</a></li>
-                <li class="nav-item"><a class="nav-link" href="#Internal" data-toggle="tab" style="color:#0495FF;" id="bb"><i class="fa fa-file-text"> </i> {!! Lang::get('lang.internal_notes') !!}</a></li>
+                <li class="nav-item"><a class="nav-link active text-success" href="#General" data-bs-toggle="tab" id="aa"><i class="fa fa-reply-all"> </i> {!! Lang::get('lang.reply') !!}</a></li>
+                <li class="nav-item"><a class="nav-link text-primary" href="#Internal" data-bs-toggle="tab" id="bb"><i class="fa fa-file-text"> </i> {!! Lang::get('lang.internal_notes') !!}</a></li>
                 <?php \Illuminate\Support\Facades\Event::dispatch('timeline.tab.list',[$TicketData]); ?>
                 <!-- <li><a href="#Reply" data-toggle="tab" style="color:orange;"><i class="fa fa-mail-forward" > </i> Forward</a></li> -->
             </ul>
 
             <div class="tab-content mt-3">
                 
-                <div id="alert21" class="alert alert-success alert-dismissable" style="display:none;">
-                    <button id="dismiss21" type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                <div id="alert21" class="alert alert-success alert-dismissible initially-hidden">
+                    <button id="dismiss21" type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
                     <div id="message-success2"></div>
                 </div>
-                <div id="alert22" class="alert alert-warning alert-dismissable" style="display:none;">
+                <div id="alert22" class="alert alert-warning alert-dismissable initially-hidden">
                     <h4><i class="icon fa fa-warning"></i>{!! Lang::get('lang.alert') !!}!</h4>
                     <div id="message-warning2"></div>
                 </div>
-                <div id="alert23" class="alert alert-danger alert-dismissable" style="display:none;">
+                <div id="alert23" class="alert alert-danger alert-dismissible fade d-none">
                     <button id="dismiss23" type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
                     <i class="icon fa fa-ban"></i><b>{!! Lang::get('lang.alert') !!} !</b>
                     <div id="message-danger2"></div>
@@ -367,7 +370,7 @@ if ($thread->title != "") {
 
                 <div class="tab-pane active" id="General">
                     <!-- ticket reply -->
-                    <div id="show3" style="display:none;text-align: center;">
+                    <div id="show3" class="initially-hidden text-center">
                         <img src="{{asset("lb-faveo/media/images/gifloader.gif")}}"><br/><br/><br/>
                     </div>
 
@@ -393,14 +396,14 @@ if ($thread->title != "") {
                                             <div id="refreshTo">
                                             {!! html()->text('To', $user->email)->disabled()->id('email')->class('form-control')->attributes(['style' => 'width:55%']) !!}
                                             {!! $errors->first('To', '<spam class="help-block text-red">:message</spam>') !!}
-                                                <a href="#" data-toggle="modal" data-target="#addccc"> {!! Lang::get('lang.add_cc') !!} </a>
+                                                <a href="#" data-bs-toggle="modal" data-bs-target="#addccc"> {!! Lang::get('lang.add_cc') !!} </a>
                                                 <div id="recepients">
                                                     <?php
                                                     $Collaborator = App\Model\helpdesk\Ticket\Ticket_Collaborator::where('ticket_id', '=', $tickets->id)->get();
                                                     $count_collaborator = count($Collaborator);
                                                     ?>
                                                     @if($count_collaborator > 0)
-                                                    <a href="#" data-toggle="modal" data-target="#surrender2">({!! $count_collaborator !!}) {!! Lang::get('lang.recepients') !!} </a>
+                                                    <a href="#" data-bs-toggle="modal" data-bs-target="#surrender2">({!! $count_collaborator !!}) {!! Lang::get('lang.recepients') !!} </a>
                                                     @endif
                                                 </div>
                                             </div>
@@ -415,7 +418,7 @@ if ($thread->title != "") {
                                     <label>{!! Lang::get('lang.response') !!}</label>
                                 </div>
                                 <div class="col-md-10">
-                                    <select class="form-control" style="width:55%" id="select" onchange="addCannedResponse()">
+                                    <select class="form-control w-55" id="select" onchange="addCannedResponse()">
 
                                         <?php
                                         $canneds = App\Model\helpdesk\Agent_panel\Canned::where('user_id', '=', Auth::user()->id)->get();
@@ -437,7 +440,7 @@ if ($thread->title != "") {
                                     </div>
                                     <div class="col-md-10">
                                         <div id="newtextarea">
-                                            <textarea style="width:98%;height:20%;" name="reply_content" class="form-control" id="reply_content"></textarea>
+                                            <textarea name="reply_content" class="form-control w-98-h20" id="reply_content"></textarea>
                                         </div>
                                         {!! $errors->first('reply_content', '<spam class="help-block text-red">:message</spam>') !!}
                                     </div>
@@ -448,16 +451,23 @@ if ($thread->title != "") {
                                 <div class="col-md-2">
                                         <label> {!! Lang::get('lang.attachment') !!}</label>
                                     </div>
-                                    <div class="col-md-10">
-                                        <div id="reset-attachment">
-                                            <span class='btn btn-default btn-file'> <i class='fa fa-paperclip'></i> <span>{!! Lang::get('lang.upload') !!}</span><input type='file' name='attachment[]' id='attachment' multiple/></span>
-                                            <div id='file_details'></div><div id='total-size'></div>{!! Lang::get('lang.max') !!}. {!! $max_size_in_actual !!}
-                                            <div>
-                                                <a href="javascript:;" id='clear-file' onClick='clearAll()' style='display:none; cursor:pointer;'><i class='fas fa-times'></i> Clear all</a>
-                                            </div>
+                                <div class="col-md-10">
+                                    <div id="reset-attachment">
+                                        <label class="btn btn-outline-secondary mb-1" style="cursor:pointer;">
+                                            <i class="fas fa-paperclip me-1"></i>
+                                            <span>{!! Lang::get('lang.upload') !!}</span>
+                                            <input type="file" name="attachment[]" id="attachment" multiple class="d-none">
+                                        </label>
+                                        <div id="file_details"></div>
+                                        <div id="total-size"></div>
+                                        <div class="text-muted small mt-1">{!! Lang::get('lang.max') !!}. {!! $max_size_in_actual !!}</div>
+                                        <div>
+                                            <a href="javascript:;" id="clear-file" onclick="clearAll()" class="d-none text-danger">
+                                                <i class="fas fa-times me-1"></i> Clear all
+                                            </a>
                                         </div>
-                                        
                                     </div>
+                                </div>
                             </div>
                         </div>
                         <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
@@ -465,7 +475,7 @@ if ($thread->title != "") {
                                 <div class="col-md-2"></div>
                                 <div class="col-md-10">
                                     <div id="t5">
-                                        <button id="replybtn" type="submit" class="btn btn-primary"><i class="fas fa-check-square" style="color:white;"> </i> {!! Lang::get('lang.update') !!}</button>
+                                        <button id="replybtn" type="submit" class="btn btn-primary"><i class="fas fa-check-square text-white"> </i> {!! Lang::get('lang.update') !!}</button>
                                     </div>
                                 </div>
                             </div>
@@ -476,7 +486,7 @@ if ($thread->title != "") {
 
                 <div class="tab-pane" id="Internal">
                     <!-- ticket reply -->
-                    <div id="show5" class="text-center" style="display:none;">
+                    <div id="show5" class="text-center initially-hidden">
                          <img src="{{asset("lb-faveo/media/images/gifloader.gif")}}">
                         
                     </div>
@@ -491,7 +501,7 @@ if ($thread->title != "") {
                                         </div>
                                         <div class="col-md-10">
                                             <div id="newtextarea1">
-                                                <textarea class="form-control" name="InternalContent" id="InternalContent" style="width:98%; height:150px;"></textarea>
+                                                <textarea class="form-control w-98-h150" name="InternalContent" id="InternalContent"></textarea>
                                             </div>
                                             {!! $errors->first('InternalContent', '<spam class="help-block text-red">:message</spam>') !!}
                                         </div>
@@ -502,7 +512,7 @@ if ($thread->title != "") {
                                     <div class="row">
                                         <div class="col-md-2"></div>
                                         <div class="col-md-10">
-                                            <button type="submit"  class="btn btn-primary"><i class="fas fa-check-square" style="color:white;"> </i> {!! Lang::get('lang.update') !!}</button>
+                                            <button type="submit"  class="btn btn-primary"><i class="fas fa-check-square text-white"> </i> {!! Lang::get('lang.update') !!}</button>
                                         </div>
                                     </div>
                                 </div>
@@ -538,7 +548,7 @@ if ($thread->title != "") {
                             }
                         </style>
                        
-                        <ul class="float-right" style="padding-right:40px" >
+                        <ul class="float-end timeline-pagination" >
                             <?php echo $conversations->setPath(url('/thread/' . $tickets->id))->render(); ?>
                         </ul>
 
@@ -567,7 +577,7 @@ if ($thread->title != "") {
                                     if (isset($data) && $date == $data) {
                                         
                                     } else {
-                                        ?> <span class="bg-green">
+                                        ?> <span class="text-bg-success">
                                             {{date_format($conversation->created_at, 'd/m/Y')}}
                                         </span> <?php
                                         $data = $ConvDate[0];
@@ -582,22 +592,22 @@ if ($thread->title != "") {
 
                                 <div>
                                     <?php if ($conversation->is_internal) { ?>
-                                        <i class="fas fa-tag bg-purple" title="<?= Lang::get('lang.posted_by_system') ?>"></i>
+                                        <i class="timeline-icon fas fa-tag text-bg-purple" title="<?= Lang::get('lang.posted_by_system') ?>"></i>
                                     <?php
                                     } else {
                                         if($conversation->user_id != null) {
                                             if ($role->role == 'agent' || $role->role == 'admin') {
                                                 ?>
-                                                <i class="fas fa-reply-all bg-yellow" title="<?= Lang::get('lang.posted_by_support_team') ?>"></i>
+                                                <i class="timeline-icon fas fa-reply-all text-bg-warning" title="<?= Lang::get('lang.posted_by_support_team') ?>"></i>
                                             <?php } elseif ($role->role == 'user') { ?>
-                                                <i class="fas fa-user bg-aqua" title="<?= Lang::get('lang.posted_by_customer') ?>"></i>
+                                                <i class="timeline-icon fas fa-user text-bg-info" title="<?= Lang::get('lang.posted_by_customer') ?>"></i>
                                             <?php } else { ?>
-                                                <i class="fas fa-reply-all bg-purple" title="<?= Lang::get('lang.posted_by_system') ?>"></i>
+                                                <i class="timeline-icon fas fa-reply-all text-bg-purple" title="<?= Lang::get('lang.posted_by_system') ?>"></i>
                                                 <?php
                                             }
                                         } else {
                                             ?>
-                                            <i class="fas fa-tag bg-purple" title="<?= Lang::get('lang.posted_by_system')?>"></i>
+                                            <i class="timeline-icon fas fa-tag text-bg-purple" title="<?= Lang::get('lang.posted_by_system')?>"></i>
                                             <?php
                                         }
                                     }
@@ -619,8 +629,8 @@ if ($thread->title != "") {
                                     
                                     ?>
                                     <div class="timeline-item">
-                                        <span style="color:#fff;">
-                                            <div class="float-right" style="position: relative;top: -13px;">   
+                                        <span class="text-white">
+                                            <div class="float-end timeline-rating-panel">
                                                 <table>
                                                     <tbody>
                                             @if($role)
@@ -637,8 +647,8 @@ if ($thread->title != "") {
                                                         }
                                                         ?>
                                                         <tr>
-                                                            <th><div class="ticketratingtitle" style="color:#3c8dbc;" >{!! $rating->name !!} &nbsp;</div></th>&nbsp
-                                                        <td style="button:disabled;">
+                                                            <th><div class="ticketratingtitle text-primary">{!! $rating->name !!} &nbsp;</div></th>&nbsp
+                                                        <td>
                                                         <?php for ($i = 1; $i <= $rating->rating_scale; $i++) { ?>
                                                             <input type="radio" class="star star-rating-readonly not-apply" id="star5" name="{!! $rating->name !!},{!! $conversation->id !!}" value="{!! $i !!}"<?php echo ($ratingval == $i) ? 'checked' : '' ?> />
                                                         <?php } ?>&nbsp;&nbsp;&nbsp;&nbsp;   
@@ -683,18 +693,18 @@ if ($thread->title != "") {
                                             @endif
 
                                             @if($conversation->id == $ij->id)
-                                            <a href="{{url('genereate-pdf/'.$conversation->id)}}" class= "float-right" title="{!! Lang::get('lang.generate_pdf_thread') !!}">
+                                            <a href="{{url('genereate-pdf/'.$conversation->id)}}" class= "float-end" title="{!! Lang::get('lang.generate_pdf_thread') !!}">
                                                 &nbsp;&nbsp;<i class="fas fa-newspaper"></i>
                                             </a>
                                             @endif
 
-                                            <span style="float: right;font-size: 12px;color: #999;margin: 4px;"><i class="far fa-clock"></i> {{UTC::usertimezone($conversation->created_at)}}</span>
+                                            <span class="timeline-meta-time"><i class="far fa-clock"></i> {{UTC::usertimezone($conversation->created_at)}}</span>
                                             
                                         </h3>
                                         @if(\Lang::getLocale()=='ar')
-                                        <div class="timeline-body{{$conversation -> id}} arindam"   style="padding-right:30px !important;margin-bottom:-20px;margin-top: 15px;">
+                                        <div class="timeline-body{{$conversation -> id}} arindam timeline-body-rtl">
                                         @else
-                                        <div class="timeline-body{{$conversation -> id}} arindam"   style="padding-left:30px;margin-bottom:-20px;margin-top: 15px;">
+                                        <div class="timeline-body{{$conversation -> id}} arindam timeline-body-ltr">
                                         @endif
 
 
@@ -707,7 +717,7 @@ if ($thread->title != "") {
                                                         $('body').css('display', 'block');
                                                                 setTimeout(function(){
                                                                 var $iframe = "Id{{$conversation->id}}";
-                                                                        $('<iframe src="about:blank" id=' + $iframe + ' class="iframe" frameborder="0"  scrolling="no" width="100%" style="height:1px"></iframe>').appendTo(".timeline-body{{$conversation->id}}");
+                                                                        $('<iframe src="about:blank" id=' + $iframe + ' class="iframe iframe-inline-height" frameborder="0"  scrolling="no" width="100%"></iframe>').appendTo(".timeline-body{{$conversation->id}}");
                                                                         setTimeout(function(){
                                                                         $('#' + $iframe).contents().find('body').append('<body><style>body{display:inline-block;}</style>{!!$conversation->purify(true)!!}<body>');
                                                                         }, 100);
@@ -728,7 +738,7 @@ if ($thread->title != "") {
                                                         setTimeout(function(){
                                                         $('body').css('display', 'block');
                                                                 var $iframe = "Id{{$conversation->id}}";
-                                                                $('<iframe src="about:blank" id=' + $iframe + ' class="iframe" frameborder="0"  scrolling="no" width="100%" style="height:1px"></iframe>').appendTo(".timeline-body{{$conversation->id}}");
+                                                                $('<iframe src="about:blank" id=' + $iframe + ' class="iframe iframe-inline-height" frameborder="0"  scrolling="no" width="100%"></iframe>').appendTo(".timeline-body{{$conversation->id}}");
                                                                 setTimeout(function(){
                                                                 $('#' + $iframe).contents().find('body').append('<body><style>body{display:inline-block;}</style>{!!$conversation->purify(true)!!}<body>');
                                                                 }, 100);
@@ -761,7 +771,7 @@ if ($thread->title != "") {
                                                 <tbody>
                                                     @foreach($ticket_form_datas as $ticket_form_data)
                                                     <tr>
-                                                        <td style="width: 30%">{!! $ticket_form_data->getFieldKeyLabel() !!}</td>
+                                                        <td class="timeline-field-label">{!! $ticket_form_data->getFieldKeyLabel() !!}</td>
                                                         <td>{!! removeUnderscore($ticket_form_data->content) !!}</td>
                                                     </tr>
                                                     @endforeach
@@ -772,7 +782,7 @@ if ($thread->title != "") {
                                         
                                         </div>
                                         
-                                        <div class="timeline-footer" style="margin-bottom:-5px">
+                                        <div class="timeline-footer timeline-footer-compact">
                                             @if(!$conversation->is_internal)
                                                 @if($conversation->user_id != null)
                                                     <?php \Illuminate\Support\Facades\Event::dispatch(new App\Events\Timeline($conversation, $role)); ?>
@@ -796,9 +806,9 @@ if ($thread->title != "") {
                         }
                         ?>
                         <div>
-                            <i class="fas fa-history bg-gray"></i>
+                            <i class="timeline-icon fas fa-history text-bg-secondary"></i>
                         </div>
-                        <ul class="float-right" style="padding-right:40px" >
+                        <ul class="float-end timeline-pagination" >
                             <?php echo $conversations->setPath(url('/thread/' . $tickets->id))->render(); ?>
                         </ul>
                     </div>               
@@ -816,7 +826,7 @@ if ($thread->title != "") {
     <!-- Edit Ticket modal -->
     <?php if ($group->can_edit_ticket == 1) { ?>
         <div class="modal fade" id="Edit">
-            <div class="modal-dialog modal-lg" style="width:60%;height:70%;">
+            <div class="modal-dialog modal-lg modal-dialog-60x70">
                 <div class="modal-content">
                     {!! html()->modelForm($tickets->id, 'PATCH', url()->current())->attributes(['id' => 'form'])->open() !!}
                     <div class="modal-header">
@@ -827,7 +837,7 @@ if ($thread->title != "") {
                         <div class="form-group">
                             <label>{!! Lang::get('lang.title') !!} <span class="text-red"> *</span></label>
                             <input type="text" name="subject" class="form-control" value="{{$thread->title}}" >
-                            <spam id="error-subject" style="display:none" class="help-block text-red">This is a required field</spam>
+                            <spam id="error-subject" class="help-block text-red initially-hidden">This is a required field</spam>
                         </div>
                         <div class="row">
                             <div class="col-md-6">
@@ -843,7 +853,7 @@ if ($thread->title != "") {
                                         ?> >{!! $sla_plan->grace_period !!}</option>
                                         @endforeach
                                     </select>
-                                    <spam id="error-sla" style="display:none" class="help-block text-red">This is a required field</spam>
+                                    <spam id="error-sla" class="help-block text-red initially-hidden">This is a required field</spam>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -860,7 +870,7 @@ if ($thread->title != "") {
                                         ?> >{!! $helptopic->topic !!}</option>
                                         @endforeach
                                     </select>
-                                    <spam id="error-help" style="display:none" class="help-block text-red">This is a required field</spam>
+                                    <spam id="error-help" class="help-block text-red initially-hidden">This is a required field</spam>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -876,7 +886,7 @@ if ($thread->title != "") {
                                         ?> >{!! $ticketsource->value !!}</option>
                                         @endforeach 
                                     </select>
-                                    <spam id="error-source" style="display:none" class="help-block text-red">This is a required field</spam>
+                                    <spam id="error-source" class="help-block text-red initially-hidden">This is a required field</spam>
                                 </div>
                             </div>
     <?php ?>
@@ -893,12 +903,12 @@ if ($thread->title != "") {
                                         ?> >{!! $ticket_priority->priority_desc !!}</option>
                                         @endforeach
                                     </select>
-                                    <spam id="error-priority" style="display:none" class="help-block text-red">This is a required field</spam>
+                                    <spam id="error-priority" class="help-block text-red initially-hidden">This is a required field</spam>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div id="show" style="display:none;text-align: center;">
+                    <div id="show" class="initially-hidden text-center">
                         <img src="{{asset("lb-faveo/media/images/gifloader.gif")}}">
                     </div>
                     <script>
@@ -953,21 +963,21 @@ if ($thread->title != "") {
                 <div class="p-2">
                     <ul class="nav nav-tabs">
                         <li class="nav-item">
-                            <a class="nav-link active" href="#ahah1" data-toggle="tab" style="color:green;" id="aa"><i class="fas fa-users"> </i> {!! Lang::get('lang.search_existing_users') !!}</a>
+                            <a class="nav-link active text-success" href="#ahah1" data-bs-toggle="tab" id="aa"><i class="fas fa-users"> </i> {!! Lang::get('lang.search_existing_users') !!}</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#haha2" data-toggle="tab" style="color:orange;"><i class="fas fa-user-plus" > </i> {!! Lang::get('lang.add_new_user') !!}</a>
+                            <a class="nav-link text-orange" href="#haha2" data-bs-toggle="tab"><i class="fas fa-user-plus" > </i> {!! Lang::get('lang.add_new_user') !!}</a>
                         </li>
                     </ul>
                     <div class="tab-content mt-2">
                         <div class="tab-pane active" id="ahah1">
-                            <div id="change_alert" class="alert alert-danger alert-dismissable" style="display:none;">
+                            <div id="change_alert" class="alert alert-danger alert-dismissible fade d-none">
                                 <button id="change_dismiss" type="button" class="close" data-dismiss="alert"  aria-hidden="true">×</button>
                                 <b><i class="icon fa fa-exclamation-circle"></i>Alert!</b>
                                 <div id="message-success42"></div>
                             </div>
                             <div>
-                                <div class="text-center" id="change_loader" style="display:none;">
+                                <div class="text-center initially-hidden" id="change_loader">
                                     <img src="{{asset("lb-faveo/media/images/gifloader.gif")}}">
                                 </div>
                                 <div id="change_body" class="p-2">
@@ -1000,7 +1010,7 @@ if ($thread->title != "") {
                             {!! html()->closeModelForm() !!}
                         </div><!--tab-pane active-->
                         <div class="tab-pane" id="haha2">
-                            <div id="change_alert2" class="alert alert-danger alert-dismissable" style="display:none;">
+                            <div id="change_alert2" class="alert alert-danger alert-dismissible fade d-none">
                                 <button id="change_dismiss" type="button" class="close" data-dismiss="alert"  aria-hidden="true">×</button>
                                 <b><i class="icon fa fa-check"></i>Alert!</b>
                                 <div id="message-success422"></div>
@@ -1010,7 +1020,7 @@ if ($thread->title != "") {
              
                                 <div id="here2"></div>
                                 {!! html()->modelForm($tickets->id, 'PATCH', url()->current())->attributes(['id' => 'change-add-owner'])->open() !!} 
-                                <div id="add-change-loader" class="text-center" style="display:none;">
+                                <div id="add-change-loader" class="text-center initially-hidden">
                                     <img src="{{asset("lb-faveo/media/images/gifloader.gif")}}"> 
                                 </div>
                                 <div id="add-change-body">
@@ -1039,13 +1049,13 @@ if ($thread->title != "") {
                         <h4 class="modal-title">{!! Lang::get('lang.assign') !!}</h4>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     </div>
-                    <div id="assign_alert" class="alert alert-success alert-dismissable" style="display:none;">
-                        <button id="assign_dismiss" type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    <div id="assign_alert" class="alert alert-success alert-dismissible fade d-none">
+                        <button id="assign_dismiss" type="button" class="btn-close" data-dismiss="alert" aria-hidden="true"></button>
                         <h4><i class="icon fa fa-check"></i>Alert!</h4>
                         <div id="message-success1"></div>
                     </div>
                     <div class="modal-body">
-                        <div class="text-center" id="assign_loader" style="display:none;">
+                        <div class="text-center initially-hidden" id="assign_loader">
                             <img src="{{asset("lb-faveo/media/images/gifloader.gif")}}">
                         </div>
                         <div id="assign_body">
@@ -1082,13 +1092,13 @@ if ($thread->title != "") {
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">{!! Lang::get('lang.surrender') !!}</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <span>{!! Lang::get('lang.are_you_sure_you_want_to_surrender_this_ticket') !!}?</span>
                 </div>
                 <div class="modal-footer justify-content-between">
-                    <button type="button" class="btn btn-default" data-dismiss="modal" id="dismis6">{!! Lang::get('lang.close') !!}</button>
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal" id="dismis6">{!! Lang::get('lang.close') !!}</button>
                     <button type="button" class="btn btn-warning" id="Surrender">{!! Lang::get('lang.surrender') !!}</button>
                 </div>
             </div><!-- /.modal-content -->
@@ -1105,14 +1115,14 @@ if ($thread->title != "") {
                 </div>
                 <div class="nav-tabs-custom mt-1 p-1">
                     <ul class="nav nav-tabs">
-                        <li class="nav-item"><a  class="nav-link active" href="#ahah" data-toggle="tab" style="color:green;" id="aa"><i class="fa fa-users"> </i> {!! Lang::get('lang.search_existing_users') !!}</a></li>
-                        <li  class="nav-item"><a  class="nav-link" href="#haha" data-toggle="tab" style="color:orange;"><i class="fa fa-user-plus" > </i> {!! Lang::get('lang.add_new_user') !!}</a></li>
+                        <li class="nav-item"><a  class="nav-link active text-success" href="#ahah" data-bs-toggle="tab" id="aa"><i class="fa fa-users"> </i> {!! Lang::get('lang.search_existing_users') !!}</a></li>
+                        <li  class="nav-item"><a  class="nav-link text-orange" href="#haha" data-bs-toggle="tab"><i class="fa fa-user-plus" > </i> {!! Lang::get('lang.add_new_user') !!}</a></li>
                     </ul>
                     <div class="tab-content">
                         <div class="tab-pane active" id="ahah">
                             <div class="modal-body" id="def">
                                 <div id="here"></div>
-                                <div id="show7" style="display:none;text-align:center;">
+                                <div id="show7" class="initially-hidden text-center">
                                    <img src="{{asset("lb-faveo/media/images/gifloader.gif")}}"> 
                                 </div>
                                 
@@ -1129,7 +1139,7 @@ if ($thread->title != "") {
                             <div class="modal-body" id="abc">           
                                 <div id="here_new"></div>
                                 {!! html()->modelForm($tickets->id, 'PATCH', url()->current())->attributes(['id' => 'add-user'])->open() !!} 
-                                <div id="show8" style="display:none;text-align:center;">
+                                <div id="show8" class="initially-hidden text-center">
                                     <img src="{{asset("lb-faveo/media/images/gifloader.gif")}}"> 
                                 </div>
                                 <div id="hide12345">
@@ -1156,7 +1166,7 @@ if ($thread->title != "") {
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">{!! Lang::get('lang.list_of_collaborators_of_this_ticket') !!}</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="surrender22">
                     @foreach($Collaborator as $ccc)
@@ -1164,9 +1174,9 @@ if ($thread->title != "") {
                     $collab_user_id = $ccc->user_id;
                     $collab_user = App\User::where('id', '=', $collab_user_id)->first();
                     ?>
-                    <div id="alert11" class="alert alert-dismissable" style="background-color:#F2F2F2">
+                    <div id="alert11" class="alert alert-dismissable modal-collaborator-row">
                         <meta name="_token" content="{{ csrf_token() }}"/>
-                        <button id="dismiss11" type="button" class="close" data-dismiss="alert" onclick="remove_collaborator({!! $ccc->id !!})" aria-hidden="true">×</button>
+                        <button id="dismiss11" type="button" class="btn-close" data-bs-dismiss="alert" onclick="remove_collaborator({!! $ccc->id !!})" aria-hidden="true">×</button>
                         @if($collab_user->role == 'agent' || $collab_user->role == 'admin')
                         <i class="icon fa fa-user"></i>{!! $collab_user->first_name . " " . $collab_user->last_name !!}
                         @elseif($collab_user->role == 'user')
@@ -1183,7 +1193,7 @@ if ($thread->title != "") {
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
-    <div style="display:none">
+    <div class="initially-hidden">
         <form id="auto-submit">
             <input type="hidden" name="now" value="1">
         </form>
@@ -1198,23 +1208,23 @@ if ($thread->title != "") {
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">{!! Lang::get('lang.merge-ticket') !!} <b>[#{!! $tickets->ticket_number !!}]</b> </h4>
-                <button type="button" class="close" data-dismiss="modal" id="merge-close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" id="merge-close" aria-label="Close"></button>
                 
             </div><!-- /.modal-header-->
             <div class ="modal-body">
-                <div class="text-center" id="merge_loader"  style="display:none;">
+                <div class="text-center initially-hidden" id="merge_loader">
                     <img src="{{asset("lb-faveo/media/images/gifloader.gif")}}">
                 </div>
                 <div id="merge_body">
                     <div id="merge-body-alert">
                         <div class="row">
                             <div class="col-md-12">
-                                <div id="merge-succ-alert" class="alert alert-success alert-dismissable" style="display:none;" >
+                                <div id="merge-succ-alert" class="alert alert-success alert-dismissible fade d-none" >
                                     <!-- <button id="dismiss-merge" type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button> -->
                                     <b><i class="icon fa fa-check"></i>Alert!</b>
                                     <div id="message-merge-succ"></div>
                                 </div>
-                                <div id="merge-err-alert" class="alert alert-danger alert-dismissable" style="display:none;">
+                                <div id="merge-err-alert" class="alert alert-danger alert-dismissible fade d-none">
                                     <!-- <button id="dismiss-merge2" type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button> -->
                                     <h4><i class="icon fas fa-ban"></i>Alert!</h4>
                                     <div id="message-merge-err"></div>
@@ -1234,12 +1244,12 @@ if ($thread->title != "") {
                             </div>
                             <div class="col-md-6">
                                 <label>{!! Lang::get('lang.select-pparent-ticket') !!}</label>
-                                <div id="parent-loader" style="display:none;">
+                                <div id="parent-loader" class="initially-hidden">
                                     <img src="{{asset("lb-faveo/media/images/gifloader.gif")}}" height="30px" width="30px">
                                 </div>
                                 <div id="parent-body" >
 
-                                    <select class="form-control" id="select-merge-parent"  name='p_id' data-placeholder="{!! Lang::get('lang.select_tickets') !!}" style="width: 100%;"><option value="{{$tickets->id}}"><?php
+                                    <select class="form-control w-100" id="select-merge-parent"  name='p_id' data-placeholder="{!! Lang::get('lang.select_tickets') !!}"><option value="{{$tickets->id}}"><?php
                                        $ticket_data = App\Model\helpdesk\Ticket\Ticket_Thread::select('title')->where('ticket_id', "=", $tickets->id)->first();
                                        echo strip_tags($ticket_data->title);
                                        ?></option></select>
@@ -1251,7 +1261,7 @@ if ($thread->title != "") {
                             <div class="col-md-6">
 
                                 <label>{!! Lang::get('lang.select_tickets') !!}</label>
-                                <select class="form-control select2" id="select-merge-tickts" name="t_id[]" multiple="multiple" data-placeholder="{!! Lang::get('lang.select_tickets') !!}" style="width: 100%;">
+                                <select class="form-control select2 w-100" id="select-merge-tickts" name="t_id[]" multiple="multiple" data-placeholder="{!! Lang::get('lang.select_tickets') !!}">
 
                                 </select>
 
@@ -1266,7 +1276,7 @@ if ($thread->title != "") {
                 </div><!-- merge-body -->
             </div><!-- /.modal-body -->
             <div class="modal-footer justify-content-between">
-                <button type="button" class="btn btn-default" data-dismiss="modal" id="dismis2">{!! Lang::get('lang.close') !!}</button>
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal" id="dismis2">{!! Lang::get('lang.close') !!}</button>
                 <input  type="submit" id="merge-btn" class="btn btn-primary" value="{!! Lang::get('lang.merge') !!}"></input>
                 {!! html()->closeModelForm() !!}
             </div><!-- /.modal-footer -->
@@ -1275,19 +1285,19 @@ if ($thread->title != "") {
 </div><!-- /.modal -->
 
 <!-- Modal -->   
-<div class="modal fade in" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false" style="display: none; padding-right: 15px;background-color: rgba(0, 0, 0, 0.7);">
+<div class="modal fade in modal-overlay-hidden" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false">
     <div class="modal-dialog" role="document">
         <div class="col-md-2"></div>
         <div class="col-md-8">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close closemodal" data-dismiss="modal" aria-label="Close"><span aria-hidden="true"></span></button>
+                    <button type="button" class="btn-close closemodal" data-bs-dismiss="modal" aria-label="Close"></button>
                     <h4 class="modal-title" id="myModalLabel"></h4>
                 </div>
                 <div class="modal-body" id="custom-alert-body" >
                 </div>
                 <div class="modal-footer">
-                    <a href="{!! URL::route('ticket.thread',$tickets->id) !!}"><button type="button" class="btn btn-primary yes" data-dismiss="modal">{{Lang::get('lang.reload-now')}}</button></a>
+                    <a href="{!! URL::route('ticket.thread',$tickets->id) !!}"><button type="button" class="btn btn-primary yes" data-bs-dismiss="modal">{{Lang::get('lang.reload-now')}}</button></a>
                 </div>
             </div>
         </div>
@@ -1782,12 +1792,12 @@ if ($thread->title != "") {
                         if(file.size < supported_size) {
                             $("#file_details").append("<tr> <td> " + file.name + " </td><td> " + formatBytes(file.size) + "</td> </tr>");
                         } else {
-                            $("#file_details").append("<tr style='color:red;'> <td> " + file.name + " </td><td> " + formatBytes(file.size) + "</td> </tr>");
+                            $("#file_details").append("<tr class='text-danger'> <td> " + file.name + " </td><td> " + formatBytes(file.size) + "</td> </tr>");
                         }
                         total_size += parseInt(file.size);
                     }
                     if(total_size > supported_size) {
-                        $("#total-size").append("<span style='color:red'>Your total file upload size is greater than "+ supported_actual_size +"</span>");
+                        $("#total-size").append("<span class='text-danger'>Your total file upload size is greater than "+ supported_actual_size +"</span>");
                         $("#replybtn").addClass('disabled');
                         $("#clear-file").show();
                     } else {

@@ -42,7 +42,7 @@ class="nav-link active"
         <h3 class="card-title">{!! Lang::get('lang.social-widget-settings') !!} </h3>
     </div>
     <div class="card-body">
-        <table id="socialTable" class="table table-bordered" style="width:100%;display:table;">
+        <table id="socialTable" class="table table-bordered w-100 d-table">
             <thead>
                 <tr>
                     <th>{{Lang::get('lang.name')}}</th>
