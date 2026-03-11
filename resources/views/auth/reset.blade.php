@@ -84,7 +84,7 @@
                 <div class="input-group mb-3 {{ $errors->has('password') ? 'has-error' : '' }}">
                     <input type="password" class="form-control" name="password" id="reset-password" placeholder="{!! Lang::get('lang.password') !!}">
                     <button class="input-group-text" type="button" onclick="togglePwd('reset-password', this)" tabindex="-1">
-                        <i class="fa-solid fa-eye"></i>
+                        <i class="fa-solid fa-eye-slash"></i>
                     </button>
                 </div>
 
@@ -92,7 +92,7 @@
                 <div class="input-group mb-3 {{ $errors->has('password_confirmation') ? 'has-error' : '' }}">
                     <input type="password" class="form-control" name="password_confirmation" id="reset-password-confirm" placeholder="{!! Lang::get('lang.confirm_password') !!}">
                     <button class="input-group-text" type="button" onclick="togglePwd('reset-password-confirm', this)" tabindex="-1">
-                        <i class="fa-solid fa-eye"></i>
+                        <i class="fa-solid fa-eye-slash"></i>
                     </button>
                 </div>
 
@@ -112,10 +112,10 @@ function togglePwd(id, btn) {
     var icon = btn.querySelector('i');
     if (input.type === 'password') {
         input.type = 'text';
-        icon.className = 'fa-solid fa-eye-slash';
+        icon.className = 'fa-solid fa-eye';
     } else {
         input.type = 'password';
-        icon.className = 'fa-solid fa-eye';
+        icon.className = 'fa-solid fa-eye-slash';
     }
 }
 </script>

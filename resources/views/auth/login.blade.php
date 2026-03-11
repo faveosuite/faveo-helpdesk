@@ -115,7 +115,7 @@
                         <div class="input-group mb-3 {{ $errors->has('password') ? 'has-error' : '' }}">
                             {!! html()->password('password')->placeholder(Lang::get("lang.password"))->class('form-control')->id('login-password') !!}
                             <button class="input-group-text" type="button" onclick="togglePwd('login-password', this)" tabindex="-1">
-                                <i class="fa-solid fa-eye"></i>
+                                <i class="fa-solid fa-eye-slash"></i>
                             </button>
                         </div>
 
@@ -158,10 +158,10 @@
                         var icon = btn.querySelector('i');
                         if (input.type === 'password') {
                             input.type = 'text';
-                            icon.className = 'fa-solid fa-eye-slash';
+                            icon.className = 'fa-solid fa-eye';
                         } else {
                             input.type = 'password';
-                            icon.className = 'fa-solid fa-eye';
+                            icon.className = 'fa-solid fa-eye-slash';
                         }
                     }
                     </script>

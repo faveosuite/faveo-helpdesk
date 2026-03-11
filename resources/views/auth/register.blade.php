@@ -42,11 +42,11 @@
     @endif
 
 <div id="content" class="site-content col-md-12">
-   
+
     <div id="corewidgetbox" class="wid">
-   
+
         <div id="wbox" class="widgetrow text-center">
-   
+
         @if(Auth::user())
         @else
             <span onclick="javascript: window.location.href='{{url('auth/login')}}';">
@@ -55,10 +55,10 @@
                 </a>
             </span>
         @endif
-        <?php $system = App\Model\helpdesk\Settings\System::where('id', '=', '1')->first();            
+        <?php $system = App\Model\helpdesk\Settings\System::where('id', '=', '1')->first();
         ?>
-        @if($system != null) 
-            @if($system->status) 
+        @if($system != null)
+            @if($system->status)
                 @if($system->status == 1)
                     <span onclick="javascript: window.location.href='{!! URL::route('form') !!}';">
                         <a href="{!! URL::route('form') !!}" class="widgetrowitem defaultwidget" style="background-image:url({{ URL::asset('lb-faveo/media/images/submitticket.png') }})">
@@ -83,16 +83,16 @@
 
     <div class="d-flex justify-content-center">
         <div class="login-box login-box-fixed">
-            
+
             <div class="form-border">
-     
+
                 <div align="center">
-                    
+
                     <h4 style="background-color: #0084b4;">
                         <a href="http://www.faveohelpdesk.com" class="logo"><img src="{{ asset('lb-faveo/media/images/logo.png')}}" width="100px;" ></a>
-                    </h4>    
+                    </h4>
                 </div>
-               
+
                 <div>
                     <div class="text-center">
                         <h3 class="box-title" >{{Lang::get('lang.registration')}}</h3>
@@ -101,7 +101,7 @@
                 <div>
 
                     <placeholder ="Let’s set up your account in just a couple of steps.">
-                </div>      
+                </div>
 
                 <!-- form open -->
                 {!! html()->form('POST', url('auth/register'))->open() !!}
@@ -132,7 +132,7 @@
                     <div class="col-md-3">
                         <div class="form-group {{ $errors->has('code') ? 'has-error' : '' }}">
                         {!! html()->text('code', null)->placeholder(91)->class('form-control') !!}
-                        </div>    
+                        </div>
                     </div>
                     <div class="col-md-9">
                         <div class="input-group mb-3 {{ $errors->has('mobile') ? 'has-error' : '' }}">
@@ -150,24 +150,24 @@
                 <div class="input-group mb-3 {{ $errors->has('password') ? 'has-error' : '' }}">
                     {!! html()->password('password')->placeholder(Lang::get('lang.password'))->class('form-control')->id('reg-password') !!}
                     <button class="input-group-text" type="button" onclick="togglePwd('reg-password', this)" tabindex="-1">
-                        <i class="fa-solid fa-eye"></i>
+                        <i class="fa-solid fa-eye-slash"></i>
                     </button>
                 </div>
                 <!-- Confirm password -->
                 <div class="input-group mb-3 {{ $errors->has('password_confirmation') ? 'has-error' : '' }}">
                     {!! html()->password('password_confirmation')->placeholder(Lang::get('lang.retype_password'))->class('form-control')->id('reg-password-confirm') !!}
                     <button class="input-group-text" type="button" onclick="togglePwd('reg-password-confirm', this)" tabindex="-1">
-                        <i class="fa-solid fa-eye"></i>
+                        <i class="fa-solid fa-eye-slash"></i>
                     </button>
                 </div>
-                
+
                 <div >
-                    
+
                     <button type="submit" class="btn btn-primary w-100">{!! Lang::get('lang.register') !!}</button>
                 </div>
 
                 <div>
-                  
+
                     <div class="checkbox icheck" align="center">
                         <label class="mb-0">
                            {{trans('lang.already_got_an_account?')}} <a href="{{url('auth/login')}}" class="text-center">{!! Lang::get('lang.login') !!}</a>
@@ -178,7 +178,7 @@
                             @include('themes.default1.client.layout.social-login')
                         </div>
                     </div>
-                </div><!-- /.col --> 
+                </div><!-- /.col -->
             </div>
         </div>
     </div>
@@ -190,10 +190,10 @@ function togglePwd(id, btn) {
     var icon = btn.querySelector('i');
     if (input.type === 'password') {
         input.type = 'text';
-        icon.className = 'fa-solid fa-eye-slash';
+        icon.className = 'fa-solid fa-eye';
     } else {
         input.type = 'password';
-        icon.className = 'fa-solid fa-eye';
+        icon.className = 'fa-solid fa-eye-slash';
     }
 }
 </script>
