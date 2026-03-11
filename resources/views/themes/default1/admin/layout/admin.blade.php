@@ -1,14 +1,24 @@
 <!DOCTYPE html>
-<html>
-    <head>
+<html dir="{{ app()->getLocale() == 'ar' ? 'rtl' : 'ltr' }}">
+<head>
         <meta charset="UTF-8">
         <title>Faveo | HELP DESK</title>
         <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
+
         <!-- Favicon -->
         <link href="{{ assetLink('css', 'favicon') }}" rel="shortcut icon">
 
-        <!-- Bootstrap -->
+        @if(Lang::getLocale() == 'ar')
+        <!-- Bootstrap + AdminLTE + Common (RTL) -->
+        <link href="{{ assetLink('css', 'bootstrap-rtl') }}" rel="stylesheet" type="text/css" />
+        <link href="{{ assetLink('css', 'adminte-rtl') }}" rel="stylesheet" type="text/css" />
+        <link href="{{ assetLink('css', 'common-rtl') }}" rel="stylesheet" type="text/css" />
+        @else
+        <!-- Bootstrap + AdminLTE + Common (LTR) -->
         <link href="{{ assetLink('css', 'bootstrap') }}" rel="stylesheet" type="text/css" />
+        <link href="{{ assetLink('css', 'adminlte') }}" rel="stylesheet" type="text/css" />
+        <link href="{{ assetLink('css', 'common') }}" rel="stylesheet" type="text/css" />
+        @endif
 
         <!-- Font Awesome Icons -->
         <link href="{{ assetLink('css', 'font-awesome') }}" rel="stylesheet" type="text/css" />
@@ -16,10 +26,7 @@
         <!-- Ionicons -->
         <link href="{{ assetLink('css', 'ionicons') }}" rel="stylesheet" type="text/css" />
 
-        <!-- Theme style -->
-        <link href="{{ assetLink('css', 'adminlte') }}" rel="stylesheet" type="text/css" />
         <link href="{{ assetLink('css', 'overlay-scrollbars') }}" rel="stylesheet" type="text/css" />
-
         <link href="{{ assetLink('css', 'editor') }}" rel="stylesheet" type="text/css" />
         <link href="{{ assetLink('css', 'datatables') }}" rel="stylesheet" type="text/css" />
         <link href="{{ assetLink('css', 'jquery-rating') }}" rel="stylesheet" type="text/css" />
@@ -35,8 +42,6 @@
 
         <!-- Colorpicker -->
         <link href="{{ assetLink('css', 'colorpicker') }}" rel="stylesheet" type="text/css" />
-
-        <link href="{{ assetLink('css', 'common') }}" rel="stylesheet" type="text/css" />
 
         <!-- Google Fonts -->
         <link href="{{ assetLink('external', 'google-fonts') }}" rel="stylesheet" type="text/css" />
@@ -140,7 +145,7 @@
                 <?php \Illuminate\Support\Facades\Event::dispatch('service.desk.admin.topbar', []); ?>
                 @endif
 
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav d-flex align-content-sm-center ms-auto">
 
                     <li class="nav-item d-none d-sm-inline-block">
                         <a href="{{url('admin')}}" class="nav-link">{!! Lang::get('lang.admin_panel') !!}</a>
@@ -159,7 +164,7 @@
 
                         <div class="dropdown-menu dropdown-menu-xl dropdown-menu-end">
 
-                            <div id="alert11" class="alert alert-success alert-dismissable initially-hidden">
+                            <div id="alert11" class="alert alert-success alert-dismissible initially-hidden">
 
                                 <button id="dismiss11" type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
 
@@ -281,19 +286,22 @@
 
                         <?php $src = Lang::getLocale().'.png'; ?>
 
-                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="true">
-                            <img src="{{asset("lb-faveo/flags/$src")}}">
+                        <a href="#" class="nav-link mt-1" data-bs-toggle="dropdown" aria-expanded="true">
+                            <img class="mb-1" src="{{asset("lb-faveo/flags/$src")}}" style="height: 12px; width: 20px">
                         </a>
 
                        <div class="dropdown-menu dropdown-menu-sm dropdown-menu-end p-0" style="width: 290px;">
 
                            @foreach($langs as $key => $value)
                             <?php $src = $key.".png"; ?>
-                            <a href="#" class="dropdown-item" id="{{$key}}" onclick="changeLang(this.id)"><img src="{{asset("lb-faveo/flags/$src")}}">&nbsp;{{$value[0]}}&nbsp;
-                            @if(Lang::getLocale() == "ar")
-                            &rlm;
-                            @endif
-                            ({{$value[1]}})</a>
+                            <a href="#" class="dropdown-item d-flex align-items-center gap-2" id="{{$key}}" onclick="changeLang(this.id)">
+                                <img src="{{asset("lb-faveo/flags/$src")}}" width="20" height="13" class="me-2">
+                                <span>{{$value[0]}}
+                                @if(Lang::getLocale() == "ar")
+                                &rlm;
+                                @endif
+                                ({{$value[1]}})</span>
+                            </a>
                             @endforeach
                        </div>
                     </li>

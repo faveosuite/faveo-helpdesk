@@ -51,7 +51,7 @@ label{
     --bs-pagination-disabled-bg: var(--bs-secondary-bg);
     --bs-pagination-disabled-border-color: var(--bs-border-color);
     display: flex;
-    padding-left: 0;
+    padding-right: 0;
     list-style: none;
     margin-top: 15px !important;
 }
@@ -151,7 +151,7 @@ a.bg-light:hover, button.bg-light:focus, button.bg-light:hover {
 .todo-list>li {
     border-radius: 2px;
     background-color: #f8f9fa;
-    border-left: 2px solid #e9ecef;
+    border-right: 2px solid #e9ecef;
     color: #495057;
     margin-bottom: 2px;
     padding: 10px;
@@ -182,8 +182,8 @@ a.bg-light:hover, button.bg-light:focus, button.bg-light:hover {
 }
 
 .widget-user-2 .widget-user-header {
-    border-top-left-radius: .25rem;
     border-top-right-radius: .25rem;
+    border-top-left-radius: .25rem;
     padding: 1rem;
 }
 
@@ -272,10 +272,10 @@ nav-tabs-custom .nav-link:hover{
 }
 
 .container-fluid {
-    padding-right: 7.5px;
     padding-left: 7.5px;
-    margin-right: auto;
+    padding-right: 7.5px;
     margin-left: auto;
+    margin-right: auto;
 }
 
 .alert {
@@ -334,25 +334,25 @@ nav-tabs-custom .nav-link:hover{
 }
 
 .widget-user-image>img {
-    float: left;
+    float: right;
     height: auto;
     width: 65px;
 }
 
 .widget-user-username {
-    margin-left: 75px;
+    margin-right: 75px;
 }
 
 .widget-user-desc {
-    margin-left: 75px;
+    margin-right: 75px;
 }
 
 .sidebar-collapse .nav-sidebar.nav-child-indent .nav-treeview {
-    padding-left: 0;
+    padding-right: 0;
 }
 
 .nav-sidebar.nav-child-indent .nav-treeview {
-    padding-left: .5rem;
+    padding-right: .5rem;
 }
 
 .navbar-light{
@@ -553,32 +553,32 @@ div.dt-container div.dt-info {
     background-image: url("/lb-faveo/media/images/register.png");
     background-size: 32px 32px;
     background-repeat: no-repeat;
-    background-position: left center;
-    padding-left: 48px; /* space for icon */
+    background-position: right center;
+    padding-right: 48px; /* space for icon */
 }
 
 .widget-bg-submit-ticket {
     background-image: url("/lb-faveo/media/images/submitticket.png");
     background-size: 32px 32px;
     background-repeat: no-repeat;
-    background-position: left center;
-    padding-left: 48px;
+    background-position: right center;
+    padding-right: 48px;
 }
 
 .widget-bg-my-tickets {
     background-image: url("/lb-faveo/media/images/news.png");
     background-size: 32px 32px;
     background-repeat: no-repeat;
-    background-position: left center;
-    padding-left: 48px;
+    background-position: right center;
+    padding-right: 48px;
 }
 
 .widget-bg-knowledge-base {
     background-image: url("/lb-faveo/media/images/knowledgebase.png");
     background-size: 32px 32px;
     background-repeat: no-repeat;
-    background-position: left center;
-    padding-left: 48px;
+    background-position: right center;
+    padding-right: 48px;
 }
 
 .widget-title-accent {
@@ -595,7 +595,7 @@ div.dt-container div.dt-info {
 }
 
 .timeline-pagination {
-    padding-right: 40px;
+    padding-left: 40px;
 }
 
 .timeline-rating-panel {
@@ -605,7 +605,7 @@ div.dt-container div.dt-info {
 
 .timeline-meta-time {
     color: #999;
-    float: right;
+    float: left;
     font-size: 12px;
     margin: 4px;
 }
@@ -613,13 +613,13 @@ div.dt-container div.dt-info {
 .timeline-body-ltr {
     margin-bottom: -20px;
     margin-top: 15px;
-    padding-left: 30px;
+    padding-right: 30px;
 }
 
 .timeline-body-rtl {
     margin-bottom: -20px;
     margin-top: 15px;
-    padding-right: 30px !important;
+    padding-left: 30px !important;
 }
 
 .timeline-footer-compact {
@@ -656,7 +656,7 @@ div.dt-container div.dt-info {
 .modal-overlay-hidden {
     background-color: rgba(0, 0, 0, 0.7);
     display: none;
-    padding-right: 15px;
+    padding-left: 15px;
 }
 
 .modal-collaborator-row {
@@ -676,11 +676,11 @@ div.dt-container div.dt-info {
 }
 
 .float-end {
-    float: right !important;
+    float: left !important;
 }
 
 .float-start {
-    float: left !important;
+    float: right !important;
 }
 
 .text-bg-purple {
