@@ -74,7 +74,7 @@ class="nav-link active"
             <div class="col-md-6">
                 <form action="{{ url('delete-notification-log') }}" method="post">
                 {{ csrf_field() }}
-                    <div class="callout callout-default" style="font-style: oblique;">{!! Lang::get('lang.noti_msg2') !!}</div>
+                    <div class="callout callout-default font-oblique">{!! Lang::get('lang.noti_msg2') !!}</div>
                     <input type="number" class="form-control" name='no_of_days' placeholder="{!! lang::get('lang.enter_no_of_days') !!}" min='1'>
                     <button type="submit" class="btn btn-primary">{!! Lang::get('lang.submit') !!}</button>
                 </form>

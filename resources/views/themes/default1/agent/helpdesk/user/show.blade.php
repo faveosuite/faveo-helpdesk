@@ -64,12 +64,12 @@ class="nav-link active"
 <!-- content -->
 @section('content')
 <!-- success message -->
-<div id="alert-success" class="alert alert-success alert-dismissable" style="display:none;">
+<div id="alert-success" class="alert alert-success alert-dismissable initially-hidden">
     <i class="fas fa-check-circle"> </i> <b>  <span id="get-success"></span></b>
     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
 </div>
 <!-- INfo message -->
-<div id="alert-danger" class="alert alert-danger alert-dismissable" style="display:none;">
+<div id="alert-danger" class="alert alert-danger alert-dismissable initially-hidden">
     <i class="fas fa-ban"> </i> <b>  <span id="get-danger"></span></b>
     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
 </div>
@@ -147,7 +147,7 @@ class="nav-link active"
                         <a href=""  data-toggle="modal" data-target="#editassign" title="{{$organization->name}}"> <span style="color:green;">{{Str::limit($organization->name,10)}}</span> </a>
 
 
-                        <a class="float-end" href="#" data-toggle="modal" data-target="#delete-{{$org_id}}" title="{!! Lang::get('lang.remove') !!}"><i class="fas fa-times" style="color:red;"> </i></a>
+                        <a class="float-end" href="#" data-toggle="modal" data-target="#delete-{{$org_id}}" title="{!! Lang::get('lang.remove') !!}"><i class="fas fa-times text-danger"> </i></a>
 
                         <div class="modal fade" id="delete-{{$org_id}}">
                             <div class="modal-dialog">
@@ -175,7 +175,7 @@ class="nav-link active"
                     @endif
 
                     <li class="list-group-item mb-0">
-                        <b>{{Lang::get('lang.role')}}</b> <a class="float-end" style="color:green;"> {!! $users->role !!}</a>
+                        <b>{{Lang::get('lang.role')}}</b> <a class="float-end text-success"> {!! $users->role !!}</a>
                     </li>
 
                     <li class="list-group-item mb-0">
@@ -413,14 +413,14 @@ class="nav-link active"
                        
                             <div id="more-option" class="btn-group">
                        
-                                <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" id="d2">
-                                    <i class="fas fa-sort" style="color:teal;"> </i>
+                                <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-bs-toggle="dropdown" id="d2">
+                                    <i class="fas fa-sort text-teal"> </i>
                                         {!! Lang::get('lang.sort-by') !!} <span class="caret"></span>
                                 </button>
 
                                 <div  class="dropdown-menu">
                                     <a data-toggle="modal" data-target="#ChangeOwner" class="dropdown-item toggle-vis" href="#">
-                                        <i class="fas fa-plus" style="color:green;"> </i> {!!Lang::get('lang.created-at')!!}
+                                        <i class="fas fa-plus text-success"> </i> {!!Lang::get('lang.created-at')!!}
                                     </a>
                                 </div>
                             </div>
@@ -438,7 +438,7 @@ class="nav-link active"
                                 <b>{!! Lang::get('lang.loading') !!}...</b>
                             </p>
                             
-                            <table id="chumper" class="table table-bordered" style="width:100%;display:table;">
+                            <table id="chumper" class="table table-bordered w-100 d-table">
                                 <thead>
                                     <tr>
                                         <th></th>
@@ -755,7 +755,7 @@ class="nav-link active"
 
                     <button type="button" class="close" data-dismiss="modal" id="dismiss" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 </div>
-                <!--   <div id="assign_alert" class="alert alert-success alert-dismissable" style="display:none;">
+                <!--   <div id="assign_alert" class="alert alert-success alert-dismissable initially-hidden">
                       <button id="assign_dismiss" type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
                       <h4><i class="icon fa fa-check"></i>Alert!</h4>
                       <div id="message-success1"></div>

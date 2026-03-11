@@ -24,7 +24,7 @@
     {{ $show_number }}
     </span>
 </h4>
-<h4 id="loading-screen" class="login-box-msg" style="display:none">
+<h4 id="loading-screen" class="login-box-msg initially-hidden">
 
 <center>Wait we are sending a new OTP code to your number.<br/><img src="{{asset('lb-faveo/media/images/gifloader.gif')}}"></center>
 </h4>

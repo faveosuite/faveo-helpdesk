@@ -109,10 +109,12 @@ Route::middleware('web')->group(function () {
         Route::resource('agents', Admin\helpdesk\AgentController::class); // in agents module, for CRUD
 
         Route::resource('emails', Admin\helpdesk\EmailsController::class); // in emails module, for CRUD
+        Route::get('emails-list', [Admin\helpdesk\EmailsController::class, 'getEmailList'])->name('emails.list'); // datatable AJAX endpoint
 
         Route::resource('banlist', Admin\helpdesk\BanlistController::class); // in banlist module, for CRUD
 
         Route::get('banlist/delete/{id}', [Admin\helpdesk\BanlistController::class, 'delete'])->name('banlist.delete'); // in banlist module, for CRUD
+        Route::get('banlist-list', [Admin\helpdesk\BanlistController::class, 'getBanList'])->name('banlist.list'); // datatable AJAX endpoint
         /*
          * Templates
          */

@@ -88,7 +88,7 @@
 
         <div class="d-flex justify-content-center">
 
-            <div class="login-box" style=" width: 490px;">
+            <div class="login-box login-box-fixed">
 
                 <div class="form-border">
 
@@ -109,7 +109,7 @@
 
                         <div class="input-group mb-3 {{ $errors->has('email') ? 'has-error' : '' }}">
                             {!! html()->text('email', null)->placeholder(Lang::get("lang.email"))->class('form-control') !!}
-                            <span class="input-group-text"><i class="fa-regular fa-envelope" style="color: #6c757d;"></i></span>
+                            <span class="input-group-text"><i class="fa-regular fa-envelope input-icon-muted"></i></span>
                         </div>
 
                         <div class="input-group mb-3 {{ $errors->has('password') ? 'has-error' : '' }}">

@@ -26,6 +26,7 @@
         <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
         <link rel="stylesheet" href="{{asset("lb-faveo/dist/css/editor.css")}}" type="text/css">
         <link href="{{asset("lb-faveo/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css")}}" rel="stylesheet" type="text/css" />
+        <link href="{{asset("css/common.css")}}" rel="stylesheet" type="text/css" />
         <!--[if lt IE 9]>
             <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
             <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
@@ -61,7 +62,7 @@
                             <li><a href="{{url('user')}}">Agent Panel</a></li>
                             <!-- User Account: style can be found in dropdown.less -->
                             <li class="dropdown user user-menu">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
                                 @if(Auth::user())
                                     @if(Auth::user()->profile_pic)
                                         <img src="{{asset('lb-faveo/dist/img')}}{{'/'}}{{Auth::user()->profile_pic}}"class="user-image" alt="User Image"/>
@@ -153,7 +154,7 @@
      ?>
                                         <li>
                                             <a href="{{ url('/ticket/open') }}">
-                                                <i class="fa fa-envelope"></i> <span>Inbox</span> <small class="label pull-right text-bg-success"><?php echo $i;?></small>
+                                                <i class="fa fa-envelope"></i> <span>Inbox</span> <small class="badge float-end text-bg-success"><?php echo $i;?></small>
                                             </a>
                                         </li>
 <?php
@@ -164,21 +165,21 @@
                                              <a href="{{url('ticket/myticket')}}">
                                                 <i class="fa fa-user"></i> <span>My Tickets</span>
 
-                                                <small class="label pull-right text-bg-success">{{count($myticket) }}</small>
+                                                <small class="badge float-end text-bg-success">{{count($myticket) }}</small>
                                             </a>
                                         </li>
                                         <li>
                                             <a href="{{url('unassigned')}}">
                                                 <i class="fa fa-th"></i> <span>Unassigned</span>
 
-                                                <small class="label pull-right text-bg-success">{{count($unassigned)}}</small>
+                                                <small class="badge float-end text-bg-success">{{count($unassigned)}}</small>
                                             </a>
                                         </li>
                                         <li>
                                             <a href="{{url('trash')}}">
                                                 <i class="fa fa-trash-o"></i> <span>Trash</span>
                                                 <?php $deleted = App\Model\helpdesk\Ticket\Tickets::where('status', '5')->get();?>
-                                                <small class="label pull-right text-bg-success">{{count($deleted)}}</small>
+                                                <small class="badge float-end text-bg-success">{{count($deleted)}}</small>
                                             </a>
                                         </li>
                                 </section>

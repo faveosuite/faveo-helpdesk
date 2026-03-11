@@ -15,6 +15,7 @@
         <!-- AdminLTE Skins. Choose a skin from the css/skins
              folder instead of downloading all of them to reduce the load. -->
         <link href="dist/css/skins/_all-skins.min.css" rel="stylesheet" type="text/css" />
+        <link href="{{asset("css/common.css")}}" rel="stylesheet" type="text/css" />
         <link href="http://www.jqueryscript.net/css/jquerysctipttop.css" rel="stylesheet" type="text/css">
         <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <link rel="stylesheet" href="dist/css/tabby.css" type="text/css">
@@ -56,7 +57,7 @@
                         </ul>
                         <ul class="nav navbar-nav navbar-right">
                             <li class="dropdown user user-menu">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
                                     <img src="dist/img/user2-160x160.jpg" class="user-image" alt="User Image"/>
                                     <span class="hidden-xs">Alexander Pierce</span>
                                 </a>
@@ -142,22 +143,22 @@
                         <li class="header">TICKETS</li>
                         <li>
                             <a href="ticket.html">
-                                <i class="fa fa-envelope"></i> <span>Inbox</span> <small class="label pull-right text-bg-success">5</small>
+                                <i class="fa fa-envelope"></i> <span>Inbox</span> <small class="badge float-end text-bg-success">5</small>
                             </a>
                         </li>
                         <li>
                             <a href="../widgets.html">
-                                <i class="fa fa-user"></i> <span>My Tickets</span> <small class="label pull-right text-bg-success">2</small>
+                                <i class="fa fa-user"></i> <span>My Tickets</span> <small class="badge float-end text-bg-success">2</small>
                             </a>
                         </li>
                         <li>
                             <a href="../widgets.html">
-                                <i class="fa fa-th"></i> <span>Unassigned</span> <small class="label pull-right text-bg-success">4</small>
+                                <i class="fa fa-th"></i> <span>Unassigned</span> <small class="badge float-end text-bg-success">4</small>
                             </a>
                         </li>
                         <li>
                             <a href="../widgets.html">
-                                <i class="fa fa-trash-o"></i> <span>Trash</span> <small class="label pull-right text-bg-success">89</small>
+                                <i class="fa fa-trash-o"></i> <span>Trash</span> <small class="badge float-end text-bg-success">89</small>
                             </a>
                         </li>
                         <li class="treeview">
@@ -165,9 +166,9 @@
                                 <i class="fa fa-folder-open"></i> <span>General</span> <i class="fa fa-angle-left pull-right"></i>
                             </a>
                             <ul class="treeview-menu">
-                                <li><a href=""><i class="fa fa-circle-o"></i>Open<small class="label pull-right text-bg-success">4</small></a></li>
-                                <li><a href=""><i class="fa fa-circle-o"></i>Inprogress<small class="label pull-right text-bg-success">3</small></a></li>
-                                <li><a href=""><i class="fa fa-circle-o"></i>Closed<small class="label pull-right text-bg-success">55</small></a></li>
+                                <li><a href=""><i class="fa fa-circle-o"></i>Open<small class="badge float-end text-bg-success">4</small></a></li>
+                                <li><a href=""><i class="fa fa-circle-o"></i>Inprogress<small class="badge float-end text-bg-success">3</small></a></li>
+                                <li><a href=""><i class="fa fa-circle-o"></i>Closed<small class="badge float-end text-bg-success">55</small></a></li>
                             </ul>
                         </li>
                         <li class="treeview">
@@ -175,9 +176,9 @@
                                 <i class="fa fa-folder-open"></i> <span>Support</span> <i class="fa fa-angle-left pull-right"></i>
                             </a>
                             <ul class="treeview-menu">
-                                <li><a href=""><i class="fa fa-circle-o"></i>Open<small class="label pull-right text-bg-success">1</small></a></li>
-                                <li><a href=""><i class="fa fa-circle-o"></i>Inprogress<small class="label pull-right text-bg-success">6</small></a></li>
-                                <li><a href=""><i class="fa fa-circle-o"></i>Closed<small class="label pull-right text-bg-success">88</small></a></li>
+                                <li><a href=""><i class="fa fa-circle-o"></i>Open<small class="badge float-end text-bg-success">1</small></a></li>
+                                <li><a href=""><i class="fa fa-circle-o"></i>Inprogress<small class="badge float-end text-bg-success">6</small></a></li>
+                                <li><a href=""><i class="fa fa-circle-o"></i>Closed<small class="badge float-end text-bg-success">88</small></a></li>
                             </ul>
                         </li>
 
@@ -248,27 +249,27 @@
 
                             <h3 class="box-title"><i class="fa fa-user"> </i> Username </h3> ( organisation )
                             <div class="pull-right">
-                                <button type="button" class="btn btn-default"><i class="fa fa-edit" style="color:green;"> </i> Edit</button>
-                                <button type="button" class="btn btn-default"><i class="fa fa-print" style="color:blue;"> </i> Print</button>
+                                <button type="button" class="btn btn-default"><i class="fa fa-edit text-success"> </i> Edit</button>
+                                <button type="button" class="btn btn-default"><i class="fa fa-print text-primary"> </i> Print</button>
                                 <!-- </div> -->
                                 <div class="btn-group">
-                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><i class="fa fa-exchange" style="color:teal;"> </i>
+                                    <button type="button" class="btn btn-default dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-exchange text-teal"> </i>
                                         Change Status <span class="caret"></span>
                                     </button>
                                     <ul class="dropdown-menu">
-                                        <li><a href="#"><i class="fa fa-check" style="color:green;"> </i>Closed</a></li>
-                                        <li><a href="#"><i class="fa fa-check-circle-o " style="color:green;"> </i> Resolved</a></li>
+                                        <li><a href="#"><i class="fa fa-check text-success"> </i>Closed</a></li>
+                                        <li><a href="#"><i class="fa fa-check-circle-o  text-success"> </i> Resolved</a></li>
                                     </ul>
                                 </div>
                                 <div class="btn-group">
-                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><i class="fa fa-cogs" style="color:teal;"> </i>
+                                    <button type="button" class="btn btn-default dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-cogs text-teal"> </i>
                                         More <span class="caret"></span>
                                     </button>
                                     <ul class="dropdown-menu pull-right">
-                                        <li><a href="#"><i class="fa fa-users" style="color:green;"> </i>Change Owner</a></li>
-                                        <li><a href="#"><i class="fa fa-edit" style="color:blue;"> </i>Manage Forms</a></li>
-                                        <li><a href="#"><i class="fa fa-trash" style="color:red;"> </i>Delete Ticket</a></li>
-                                        <li><a href="#"><i class="fa fa-ban" style="color:red;"> </i> Ban Email</a></li>
+                                        <li><a href="#"><i class="fa fa-users text-success"> </i>Change Owner</a></li>
+                                        <li><a href="#"><i class="fa fa-edit text-primary"> </i>Manage Forms</a></li>
+                                        <li><a href="#"><i class="fa fa-trash text-danger"> </i>Delete Ticket</a></li>
+                                        <li><a href="#"><i class="fa fa-ban text-danger"> </i> Ban Email</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -334,10 +335,10 @@
 
                                     <div class="tab-pane active" id="General">
                                         <div class="form-group">
-                                            <button type="button" class="btn btn-default"><i class="fa fa-check-square-o" style="color:green;"> </i> Update</button>
-                                            <button type="button" class="btn btn-default"><i class="fa fa-hand-o-right" style="color:orange;"> </i>  Assign</button>
-                                            <button type="button" class="btn btn-default"><i class="fa fa-file-text" style="color:blue;"> </i>  Internal Notes</button>
-                                            <button type="button" class="btn btn-default"><i class="fa fa-arrows-alt" style="color:red;"> </i>  Surrender</button>
+                                            <button type="button" class="btn btn-default"><i class="fa fa-check-square-o text-success"> </i> Update</button>
+                                            <button type="button" class="btn btn-default"><i class="fa fa-hand-o-right text-orange"> </i>  Assign</button>
+                                            <button type="button" class="btn btn-default"><i class="fa fa-file-text text-primary"> </i>  Internal Notes</button>
+                                            <button type="button" class="btn btn-default"><i class="fa fa-arrows-alt text-danger"> </i>  Surrender</button>
                                         </div>
                                         <form>
                                             <div class="form-group">
@@ -393,9 +394,9 @@
                                     </div>
                                     <div class="tab-pane" id="Reply" >
                                         <div class="form-group">
-                                            <button type="button" class="btn btn-default"><i class="fa fa-mail-forward" style="color:green;"> </i> Send</button>
-                                            <button type="button" class="btn btn-default"><i class="fa fa-th-large" style="color:teal;"> </i> Option</button>
-                                            <button type="button" class="btn btn-default"><i class="fa fa-file-text" style="color:blue;"> </i> Internal Notes</button>
+                                            <button type="button" class="btn btn-default"><i class="fa fa-mail-forward text-success"> </i> Send</button>
+                                            <button type="button" class="btn btn-default"><i class="fa fa-th-large text-teal"> </i> Option</button>
+                                            <button type="button" class="btn btn-default"><i class="fa fa-file-text text-primary"> </i> Internal Notes</button>
                                         </div>
                                         <form>
                                             <div class="form-group">
@@ -470,7 +471,7 @@
                                     <ul class="timeline">
                                         <!-- timeline time label -->
                                         <li class="time-label">
-                                            <span class="bg-red">
+                                            <span class="text-bg-danger">
                                                 10 Feb. 2014
                                             </span>
                                             <ul class="pagination pagination-sm no-margin pull-right">
@@ -484,7 +485,7 @@
                                         <!-- /.timeline-label -->
                                         <!-- timeline item -->
                                         <li>
-                                            <i class="fa fa-user bg-aqua" title="Posted by Customer"></i>
+                                            <i class="fa fa-user text-bg-info" title="Posted by Customer"></i>
                                             <div class="timeline-item">
                                                 <span class="time"><i class="fa fa-clock-o"></i> 5 mins ago </span>
                                                 <h3 class="timeline-header"><a href="#">Customer Reply</a></h3>
@@ -495,15 +496,15 @@
                                                     quora plaxo ideeli hulu weebly balihoo...
                                                 </div>
                                                 <div class='timeline-footer'>
-                                                    <a class="btn btn-primary btn-xs"> <i class="fa fa-file-o" style="color:#fff;"> </i> Read more</a>
-                                                    <button type="button" class="btn btn-success btn-xs"><i class="fa fa-edit" style="color:#fff;"> </i> Edit</button>
-                                                    <a class="btn btn-danger btn-xs"><i class="fa fa-trash" style="color:#fff;"> </i> Delete</a>
+                                                    <a class="btn btn-primary btn-xs"> <i class="fa fa-file-o text-white"> </i> Read more</a>
+                                                    <button type="button" class="btn btn-success btn-xs"><i class="fa fa-edit text-white"> </i> Edit</button>
+                                                    <a class="btn btn-danger btn-xs"><i class="fa fa-trash text-white"> </i> Delete</a>
 
                                                 </div>
                                             </div>
                                         </li>
                                         <li>
-                                            <i class="fa fa-envelope bg-blue" title="Posted by Customer"></i>
+                                            <i class="fa fa-envelope text-bg-primary" title="Posted by Customer"></i>
                                             <div class="timeline-item">
                                                 <span class="time"><i class="fa fa-clock-o"></i> 12:05</span>
                                                 <h3 class="timeline-header"><a href="#">Reseller Club</a></h3>
@@ -514,9 +515,9 @@
                                                     quora plaxo ideeli hulu weebly balihoo...
                                                 </div>
                                                 <div class='timeline-footer'>
-                                                    <a class="btn btn-primary btn-xs"> <i class="fa fa-file-o" style="color:#fff;"> </i> Read more</a>
-                                                    <button type="button" class="btn btn-success btn-xs"><i class="fa fa-edit" style="color:#fff;"> </i> Edit</button>
-                                                    <a class="btn btn-danger btn-xs"><i class="fa fa-trash" style="color:#fff;"> </i> Delete</a>
+                                                    <a class="btn btn-primary btn-xs"> <i class="fa fa-file-o text-white"> </i> Read more</a>
+                                                    <button type="button" class="btn btn-success btn-xs"><i class="fa fa-edit text-white"> </i> Edit</button>
+                                                    <a class="btn btn-danger btn-xs"><i class="fa fa-trash text-white"> </i> Delete</a>
 
                                                 </div>
                                             </div>
@@ -538,9 +539,9 @@
                                                 </div>
                                                 <div class='timeline-footer'>
 
-                                                    <a class="btn btn-primary btn-xs"> <i class="fa fa-file-o" style="color:#fff;"> </i> Read more</a>
-                                                    <button type="button" class="btn btn-success btn-xs"><i class="fa fa-edit" style="color:#fff;"> </i> Edit</button>
-                                                    <a class="btn btn-danger btn-xs"><i class="fa fa-trash" style="color:#fff;"> </i> Delete</a>
+                                                    <a class="btn btn-primary btn-xs"> <i class="fa fa-file-o text-white"> </i> Read more</a>
+                                                    <button type="button" class="btn btn-success btn-xs"><i class="fa fa-edit text-white"> </i> Edit</button>
+                                                    <a class="btn btn-danger btn-xs"><i class="fa fa-trash text-white"> </i> Delete</a>
 
                                                 </div>
                                             </div>
@@ -555,7 +556,7 @@
                                         <!-- /.timeline-label -->
                                         <!-- timeline item -->
                                         <li>
-                                            <i class="fa fa-mail-reply-all bg-purple" title="Posted by System"></i>
+                                            <i class="fa fa-mail-reply-all text-bg-purple" title="Posted by System"></i>
                                             <div class="timeline-item">
                                                 <span class="time"><i class="fa fa-clock-o"></i> 2 days ago</span>
                                                 <h3 class="timeline-header"><a href="#">System Reply</a></h3>
@@ -565,7 +566,7 @@
                                             </div>
                                         </li>
                                         <li>
-                                            <i class="fa fa-clock-o bg-gray"></i>
+                                            <i class="fa fa-clock-o text-bg-secondary"></i>
                                             <ul class="pagination pagination-sm no-margin pull-right">
                                                 <li><a href="#"><i class="fa fa-chevron-left"></i></a></li>
                                                 <li><a href="#">1</a></li>

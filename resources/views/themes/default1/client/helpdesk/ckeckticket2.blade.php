@@ -30,11 +30,11 @@ $thread = App\Model\helpdesk\Ticket\Ticket_Thread::where('ticket_id','=',\Crypt:
     </div>
                                 <div class="col-md-3">
                             <div class="pull-right">
-                                <!-- <button type="button" class="btn btn-default"><i class="fa fa-edit" style="color:green;"> </i> Edit</button> -->
-                                {{-- <button type="button" class="btn btn-default"><i class="fa fa-print" style="color:blue;"> </i> {!! link_to_route('ticket.print','Print',[$tickets->id]) !!}</button> --}}
+                                <!-- <button type="button" class="btn btn-default"><i class="fa fa-edit text-success"> </i> Edit</button> -->
+                                {{-- <button type="button" class="btn btn-default"><i class="fa fa-print text-primary"> </i> {!! link_to_route('ticket.print','Print',[$tickets->id]) !!}</button> --}}
                                 <!-- </div> -->
                                 <div class="btn-group">
-                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><i class="fa fa-exchange" style="color:teal; background-color: white"> </i>
+                                    <button type="button" class="btn btn-default dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-exchange" style="color:teal; background-color: white"> </i>
                                         {!! Lang::get('lang.change_status') !!} <span class="caret"></span>
                                     </button>
                                     <ul class="dropdown-menu">

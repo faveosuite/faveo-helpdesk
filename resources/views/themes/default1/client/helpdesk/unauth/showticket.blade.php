@@ -60,7 +60,7 @@ $thread = App\Model\helpdesk\Ticket\Ticket_Thread::where('ticket_id', '=', $tick
                         <div>
                             <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: whitesmoke">
 
-                                <i class="fas fa-exchange-alt" style="color:teal;"> </i>
+                                <i class="fas fa-exchange-alt text-teal"> </i>
 
                                 {!! Lang::get('lang.change_status') !!}
 

@@ -78,7 +78,7 @@ if (Auth::user()->role == 'agent') {
         <!--<input type="submit" class="btn btn-default text-blue btn-sm" id="delete"  name="submit" value="{!! Lang::get('lang.open') !!}">
         <input type="submit" class="btn btn-default text-yellow btn-sm" name="submit"  id="close" value="{!! Lang::get('lang.close') !!}">-->
         <div class="btn-group">
-            <button type="button" class="btn btn-default dropdown-toggle btn-sm" data-toggle="dropdown" id="d1"><i class="fa fa-exchange" style="color:teal;" id="hidespin"> </i><i class="fa fa-spinner fa-spin" style="color:teal; display:none;" id="spin"></i>
+            <button type="button" class="btn btn-default dropdown-toggle btn-sm" data-bs-toggle="dropdown" id="d1"><i class="fa fa-exchange text-teal" id="hidespin"> </i><i class="fa fa-spinner fa-spin text-teal initially-hidden" id="spin"></i>
                 {!! Lang::get('lang.change_status') !!} <span class="caret"></span>
             </button>
             <ul class="dropdown-menu">
@@ -96,7 +96,7 @@ if (Auth::user()->role == 'agent') {
             <p style="display:none;text-align:center; position:fixed; margin-left:40%;margin-top:-70px;" id="show" class="text-red"><b>{!! Lang::get('lang.loading') !!}...</b></p>
             <!-- table -->
 
-            <table id="chumper" class="table table-bordered" style="width:100%;display:table;">
+            <table id="chumper" class="table table-bordered w-100 d-table">
                 <thead>
                     <tr>
                         <th></th>

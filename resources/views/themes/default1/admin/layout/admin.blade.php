@@ -92,7 +92,7 @@
             }
         </style>
     </head>
-    <body class="layout-fixed sidebar-expand-lg sidebar-mini bg-body-tertiary app-loaded sidebar-collapse fs-8">
+    <body class="layout-fixed sidebar-expand-lg sidebar-mini bg-body-tertiary app-loaded fs-8 sidebar-open">
 
         <?php
         $replacetop = 0;
@@ -121,26 +121,24 @@
                 <ul class="navbar-nav">
 
                     <li class="nav-item">
-
-                        <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button"><i class="fa-solid fa-bars"></i></a>
+                        <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button"><i class="nav-icon fa-solid fa-bars"></i></a>
                     </li>
                 </ul>
 
                 <?php $notifications = App\Http\Controllers\Common\NotificationController::getNotifications(); ?>
 
+                @if($replacetop==0)
                 <ul class="navbar-nav">
 
-                    @if($replacetop==0)
-                    <li class="nav-item d-none d-sm-inline-block">
-
-                        <a id="dash" @yield('settings') href="{!! url('dashboard') !!}"  class="nav-link">
+                    <li class="nav-item">
+                        <a id="dash" @yield('settings') href="{!! url('dashboard') !!}" class="nav-link mb-1">
                             {!! Lang::get('lang.agent_panel') !!}
                         </a>
                     </li>
-                    @else
-                    <?php \Illuminate\Support\Facades\Event::dispatch('service.desk.admin.topbar', []); ?>
-                    @endif
                 </ul>
+                @else
+                <?php \Illuminate\Support\Facades\Event::dispatch('service.desk.admin.topbar', []); ?>
+                @endif
 
                 <ul class="navbar-nav ms-auto">
 
@@ -150,18 +148,18 @@
 
                     @include('themes.default1.update.notification')
 
-                    <li class="nav-item dropdown notifications-menu" id="myDropdown">
+                    <li class="nav-item dropdown notifications-menu mt-1" id="myDropdown">
 
                         <a href="#" class="nav-link" data-bs-toggle="dropdown" onclick="myFunction()">
 
-                            <i class="fa-solid fa-bell"></i>
+                            <i class="nav-icon fa-solid fa-bell"></i>
 
                             <span class="badge bg-warning text-dark navbar-badge" id="count">{!! $notifications->count() !!}</span>
                         </a>
 
                         <div class="dropdown-menu dropdown-menu-xl dropdown-menu-end">
 
-                            <div id="alert11" class="alert alert-success alert-dismissable" style="display:none;">
+                            <div id="alert11" class="alert alert-success alert-dismissable initially-hidden">
 
                                 <button id="dismiss11" type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
 
@@ -342,21 +340,14 @@
                 </div>
 
                 <div class="sidebar-wrapper">
-                    <div class="sidebar-brand">
+                    <div class="profile-container">
 
-                    <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-
-                       <div class="image">
-
-                            <img id="sidebar-profile-img" src="{{Auth::user()->profile_pic}}" alt="User Image" width="auto" height="auto"
-                                class="rounded-circle shadow-sm" style="width: 30px;height: 30px;">
-                        </div>
-
-                       <div class="info">
-                            @if(Auth::user())
-                           <a class="d-block" href="{!! url('profile') !!}">{!! Auth::user()->first_name !!}{!! " ". Auth::user()->last_name !!}</a>
-                            @endif
-                       </div>
+                    <div class="d-flex align-items-center px-3 py-2">
+                        <img id="sidebar-profile-img" src="{{Auth::user()->profile_pic}}" alt="User Image"
+                            class="rounded-circle shadow-sm me-2" style="width: 30px;height: 30px;">
+                        @if(Auth::user())
+                            <a class="text-truncate text-sm" href="{!! url('admin-profile') !!}">{{Auth::user()->first_name}} {{Auth::user()->last_name}}</a>
+                        @endif
                     </div>
                     </div>
 
@@ -702,56 +693,58 @@
                 </div>
             </aside>
 
-            <!-- Right side column. Contains the navbar and content of the page -->
-            <div class="app-content" style="padding-bottom: 1px;">
+            <main class="app-main">
+                <!-- Right side column. Contains the navbar and content of the page -->
+                <div class="app-content" style="padding-bottom: 1px;">
 
-                <div class="app-content-header">
-                  <div class="container-fluid">
-                    <div class="row mb-2">
-                      <div class="col-sm-6">
-                        <h1 class="m-0 text-dark">@yield('PageHeader')</h1>
-                      </div><!-- /.col -->
-                      <div class="col-sm-6">
+                    <div class="app-content-header">
+                        <div class="container-fluid">
+                            <div class="row mb-2">
+                                <div class="col-sm-6">
+                                    <h1 class="m-0 text-dark">@yield('PageHeader')</h1>
+                                </div><!-- /.col -->
+                                <div class="col-sm-6">
 
-                        {!! Breadcrumbs::render() !!}
-                      </div><!-- /.col -->
-                    </div><!-- /.row -->
-                  </div><!-- /.container-fluid -->
-                </div>
+                                    {!! Breadcrumbs::render() !!}
+                                </div><!-- /.col -->
+                            </div><!-- /.row -->
+                        </div><!-- /.container-fluid -->
+                    </div>
 
-                <div class="app-content-body">
+                    <div class="app-content-body">
 
-                    <div class="container-fluid">
+                        <div class="container-fluid">
 
-                        @if($dummy_installation == 1 || $dummy_installation == '1')
+                            @if($dummy_installation == 1 || $dummy_installation == '1')
 
-                        <div class="alert alert-info alert-dismissible">
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
-                            <i class="icon fa-solid fa-exclamation-triangle"></i> {{Lang::get('lang.dummy_data_installation_message')}}
-                            <a href="{{route('clean-database')}}">{{Lang::get('lang.click')}}</a> {{Lang::get('lang.clear-dummy-data')}}
-                        </div>
-
-                        @elseif (!$is_mail_conigured)
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="alert alert-warning bg-warning">
-                                    <p>
-                                        <i class="fa-solid fa-exclamation-triangle"></i>
-                                        @if (\Auth::user()->role == 'admin')
-                                            {{Lang::get('lang.system-outgoing-incoming-mail-not-configured')}}&nbsp;<a href="{{URL::route('emails.create')}}">{{Lang::get('lang.confihure-the-mail-now')}}</a>
-                                        @else
-                                            {{Lang::get('lang.system-mail-not-configured-agent-message')}}
-                                        @endif
-                                    </p>
+                                <div class="alert alert-info alert-dismissible">
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
+                                    <i class="icon fa-solid fa-exclamation-triangle"></i> {{Lang::get('lang.dummy_data_installation_message')}}
+                                    <a href="{{route('clean-database')}}">{{Lang::get('lang.click')}}</a> {{Lang::get('lang.clear-dummy-data')}}
                                 </div>
-                            </div>
-                        </div>
-                        @endif
 
-                        @yield('content')
+                            @elseif (!$is_mail_conigured)
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="alert alert-warning bg-warning">
+                                            <p>
+                                                <i class="fa-solid fa-exclamation-triangle"></i>
+                                                @if (\Auth::user()->role == 'admin')
+                                                    {{Lang::get('lang.system-outgoing-incoming-mail-not-configured')}}&nbsp;<a href="{{URL::route('emails.create')}}">{{Lang::get('lang.confihure-the-mail-now')}}</a>
+                                                @else
+                                                    {{Lang::get('lang.system-mail-not-configured-agent-message')}}
+                                                @endif
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
+                            @yield('content')
+                        </div>
                     </div>
                 </div>
-            </div>
+            </main>
 
             <footer class="app-footer">
 

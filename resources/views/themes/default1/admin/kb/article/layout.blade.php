@@ -17,6 +17,7 @@
     <!-- AdminLTE Skins. Choose a skin from the css/skins
          folder instead of downloading all of them to reduce the load. -->
     <link href="dist/css/skins/_all-skins.min.css" rel="stylesheet" type="text/css" />
+    <link href="{{asset("css/common.css")}}" rel="stylesheet" type="text/css" />
     <link href="{{asset('dist/css/bootstrap.css')}}" rel="stylesheet">
     <link href="{{asset('dist/css/dataTables.bootstrap.css')}}" rel="stylesheet">
     <!-- Data tables CDN -->
@@ -55,7 +56,7 @@
                         <ul class="nav navbar-nav navbar-right">
 
                             <li class="dropdown user user-menu">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
                                  @if(Auth::user()->profile_pic==NULL)
                                     <img src="{{asset('dist/img/avatar.png')}}" class="user-image" alt="User Image"/>
                                     @else

@@ -72,7 +72,7 @@ class="nav-link active"
                     <label for="title">{!! Lang::get('lang.no_of_days') !!}: <span class="text-red"> *</span></label>
                 </div>
                 <div  class="col-md-9">
-                    <div class="callout callout-default" style="font-style: oblique;">{!! Lang::get('lang.close-msg1') !!}</div>
+                    <div class="callout callout-default font-oblique">{!! Lang::get('lang.close-msg1') !!}</div>
                     {!! html()->text('days', null)->class('form-control') !!}
                 </div>
             </div>
@@ -83,7 +83,7 @@ class="nav-link active"
                     <label for="title">{!! Lang::get('lang.send_email_to_user') !!}:</label>
                 </div>
                 <div class="col-md-6">
-                    <div class="callout callout-default" style="font-style: oblique;">{!! Lang::get('lang.close-msg4') !!}</div>
+                    <div class="callout callout-default font-oblique">{!! Lang::get('lang.close-msg4') !!}</div>
                     <div class="row">
                         <div class="col-sm-3">
                             {!! html()->radio('send_email', null, '1') !!} {{Lang::get('lang.yes')}}
@@ -101,7 +101,7 @@ class="nav-link active"
                     <label for="title">{!! Lang::get('lang.ticket_status') !!}:</label>
                 </div>
                 <div class="col-md-6">
-                    <div class="callout callout-default" style="font-style: oblique;">{!! Lang::get('lang.close-msg3') !!}</div>
+                    <div class="callout callout-default font-oblique">{!! Lang::get('lang.close-msg3') !!}</div>
                     <?php $user = \App\Model\helpdesk\Ticket\Ticket_Status::where('state', '=', 'closed')->get(); ?>
                     {!! html()->select('status', [ Lang::get('lang.status')=>$user->pluck('name','id')->toArray()], null)->class('form-control') !!}	
                 </div>
