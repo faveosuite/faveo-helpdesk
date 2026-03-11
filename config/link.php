@@ -36,7 +36,7 @@ return [
         'common-rtl'          => 'lb-faveo/rtl/common-rtl.css',
         'edit-rtl'            => 'lb-faveo/rtl/edit-rtl.css',
         'custom-rtl'          => 'lb-faveo/rtl/custom-rtl.css',
-        'app-3-rtl'          => 'lb-faveo/rtl/app.3.0.rtl.css',
+        'app-3-rtl'           => 'lb-faveo/rtl/app.3.0.rtl.css',
 
     ],
 
