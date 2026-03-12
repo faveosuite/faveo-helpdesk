@@ -153,7 +153,7 @@
 
                     @include('themes.default1.update.notification')
 
-                    <li class="nav-item dropdown notifications-menu mt-1" id="myDropdown">
+                    <li class="nav-item dropdown notifications-menu" id="myDropdown">
 
                         <a href="#" class="nav-link" data-bs-toggle="dropdown" onclick="myFunction()">
 
@@ -286,7 +286,7 @@
 
                         <?php $src = Lang::getLocale().'.png'; ?>
 
-                        <a href="#" class="nav-link mt-1" data-bs-toggle="dropdown" aria-expanded="true">
+                        <a href="#" class="nav-link" data-bs-toggle="dropdown" aria-expanded="true">
                             <img class="mb-1" src="{{asset("lb-faveo/flags/$src")}}" style="height: 12px; width: 20px">
                         </a>
 
@@ -795,7 +795,7 @@
         <script src="{{ assetLink('js', 'colorpicker') }}" type="text/javascript"></script>
 
         @if (trim($__env->yieldContent('no-toolbar')))
-            <h1>@yield('no-toolbar')</h1>
+            <h3>@yield('no-toolbar')</h3>
         @else
             <script>
             $(function () {

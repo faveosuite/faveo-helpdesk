@@ -17,7 +17,7 @@ class="nav-link active"
 @stop
 
 @section('PageHeader')
-<h1>{!! Lang::get('lang.status_settings') !!}</h1>
+<h3>{!! Lang::get('lang.status_settings') !!}</h3>
 @stop
 
 @section('breadcrumbs')

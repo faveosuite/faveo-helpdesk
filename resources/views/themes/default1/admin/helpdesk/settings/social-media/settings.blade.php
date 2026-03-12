@@ -20,7 +20,7 @@ class="nav-link active"
 @stop
 <!-- header -->
 @section('PageHeader')
-<h1>Social media settings</h1>
+<h3>Social media settings</h3>
 @stop
 <!-- /header -->
 <!-- breadcrumbs -->

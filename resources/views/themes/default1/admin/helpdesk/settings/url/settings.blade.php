@@ -20,7 +20,7 @@ class="nav-link active"
 @stop
 <!-- header -->
 @section('PageHeader')
-<h1>{!! Lang::get('lang.url') !!}</h1>
+<h3>{!! Lang::get('lang.url') !!}</h3>
 @stop
 <!-- /header -->
 <!-- breadcrumbs -->

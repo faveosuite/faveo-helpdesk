@@ -382,7 +382,7 @@
                 <div class="sidebar-wrapper">
                     <div class="profile-container">
 
-                    <div class="d-flex align-items-center px-3 py-2">
+                        <div class="d-flex align-items-center px-3 py-2">
                         @if (trim($__env->yieldContent('profileimg')))
                             @yield('profileimg')
                         @else
@@ -392,6 +392,8 @@
                         @if($auth_user_id)
                             <a class="text-truncate text-sm" href="{!! url('profile') !!}">{{$auth_name}}</a>
                         @endif
+                    </div>
+
                     </div>
 
                     <nav class="mt-2">
