@@ -16,7 +16,7 @@ class="active"
 @stop
 <!-- header -->
 @section('PageHeader')
-<h1>Labels</h1>
+<h3>Labels</h3>
 @stop
 <!-- /header -->
 <!-- breadcrumbs -->

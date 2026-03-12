@@ -20,7 +20,7 @@ class="nav-link active"
 @stop
 <!-- header -->
 @section('PageHeader')
-<h1>{{$teams->name}}</h1>
+<h3>{{$teams->name}}</h3>
 @stop
 <!-- /header -->
 <!-- breadcrumbs -->

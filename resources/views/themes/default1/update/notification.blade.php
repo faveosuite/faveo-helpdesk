@@ -1,5 +1,4 @@
 <li class="nav-item dropdown notifications-menu">
-
     <a href="#" class="nav-link" data-bs-toggle="dropdown">
 
         <i class="fa-solid fa-sync"></i>

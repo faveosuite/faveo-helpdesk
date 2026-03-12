@@ -20,7 +20,7 @@ class="nav-link active"
 @stop
 <!-- header -->
 @section('PageHeader')
-<h1>{{Lang::get('lang.add_an_email')}}</h1> 
+<h3>{{Lang::get('lang.add_an_email')}}</h3> 
 @stop
 <!-- /header -->
 <!-- breadcrumbs -->

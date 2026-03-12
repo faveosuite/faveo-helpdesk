@@ -21,7 +21,7 @@ class="nav-link active"
 
 <!-- header -->
 @section('PageHeader')
-<h1>Create Ratings</h1>
+<h3>Create Ratings</h3>
 @stop
 <!-- /header -->
 <!-- breadcrumbs -->

@@ -16,7 +16,7 @@ class="active"
 @stop
 <!-- header -->
 @section('PageHeader')
-<h1>{!! Lang::get('lang.settings') !!}</h1>
+<h3>{!! Lang::get('lang.settings') !!}</h3>
 @stop
 <!-- /header -->
 <!-- breadcrumbs -->
