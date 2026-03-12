@@ -17,7 +17,7 @@ class="nav-link active"
 @stop
 
 @section('PageHeader')
-<h1>{!! Lang::get('lang.widgets') !!}</h1>
+<h3>{!! Lang::get('lang.widgets') !!}</h3>
 @stop
 @section('content')
 <!-- check whether success or not -->

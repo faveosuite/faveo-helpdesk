@@ -17,7 +17,7 @@ class="nav-link active"
 @stop
 
 @section('PageHeader')
-<h1>{!! Lang::get('lang.template_set') !!}</h1>
+<h3>{!! Lang::get('lang.template_set') !!}</h3>
 @stop
 
 @section('content')

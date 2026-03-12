@@ -252,7 +252,7 @@ ul.dropdown-menu a.dropdown-item.active{
         vertical-align: middle;
     }
     .site-navigation .dropdown-menu {
-        margin-right: -6px !important;
+        margin-right: -300px !important;
     }
 }
 

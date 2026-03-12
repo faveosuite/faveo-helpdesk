@@ -17,7 +17,7 @@ class="nav-link active"
 @stop
 
 @section('PageHeader')
-<h1>{!! Lang::get('lang.settings') !!}</h1>
+<h3>{!! Lang::get('lang.settings') !!}</h3>
 @stop
 
 @section('header')

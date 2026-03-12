@@ -47,6 +47,7 @@ class ComposerServiceProvider extends ServiceProvider
                 'themes.default1.admin.layout.admin',
                 'themes.default1.agent.layout.agent',
                 'themes.default1.client.layout.client',
+                'themes.default1.client.layout.logclient',
             ],
             \App\Http\ViewComposers\UserLanguage::class
         );

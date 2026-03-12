@@ -21,7 +21,7 @@ class="nav-link active"
 
 <!-- header -->
 @section('PageHeader')
-<h1>{!! Lang::get('lang.ratings') !!}</h1>
+<h3>{!! Lang::get('lang.ratings') !!}</h3>
 @stop
 
 <!-- content -->

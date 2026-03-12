@@ -1686,4 +1686,5 @@ return [
     'activated'                                            => 'Activated',
     'add-child'                                            => 'Add Child',
     'save-successful'                                      => ' Saved Successfully',
+    'enter_search_term'                                    => ' Enter search term',
 ];
