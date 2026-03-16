@@ -39,27 +39,27 @@ class="nav-item menu-open"
 {!! html()->modelForm($article, 'PATCH', url('article/'.$article->id))->open() !!}
 
 @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <i class="fa  fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+    <i class="fa  fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('success')}}
 </div>
 @endif
 <!-- failure message -->
 @if(Session::has('fails'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fa fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('fails')}}
 </div>
 @endif
 @if(Session::has('errors'))
 <?php //dd($errors); ?>
-<div class="alert alert-danger alert-dismissable">
-    <i class="fa fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     <br/>
     @if($errors->first('name'))
     <li class="error-message-padding">{!! $errors->first('name', ':message') !!}</li>
@@ -97,22 +97,22 @@ class="nav-item menu-open"
                 
                 <div class="row">
                 
-                    <div class="col-md-6 form-group {{ $errors->has('name') ? 'has-error' : '' }}" >
+                    <div class="col-md-6 mb-3 {{ $errors->has('name') ? 'has-error' : '' }}" >
                         {!! html()->label(Lang::get('lang.name'), 'name') !!} <span class="text-red"> *</span>
 
                         {!! html()->text('name', null)->class('form-control') !!}
                     </div>
-                    <div class="col-md-6 form-group {{ $errors->has('slug') ? 'has-error' : '' }}" >
+                    <div class="col-md-6 mb-3 {{ $errors->has('slug') ? 'has-error' : '' }}" >
                         {!! html()->label(Lang::get('lang.slug'), 'slug') !!} <span class="text-red"> *</span>
 
                         {!! html()->text('slug', null)->class('form-control') !!}
                     </div>
                 </div>
 
-                <div class="form-group {{ $errors->has('description') ? 'has-error' : '' }}">
+                <div class="mb-3 {{ $errors->has('description') ? 'has-error' : '' }}">
                     {!! html()->label(Lang::get('lang.description'), 'description') !!} <span class="text-red"> *</span>
 
-                    <div class="form-group" style="background-color:white">
+                    <div class="mb-3" style="background-color:white">
                         {!! html()->textarea('description', $article->description)->class('form-control article_desc')->id('editor')->placeholder(Lang::get('lang.enter_the_description'))->attributes(['size' => '128x20']) !!}
                     </div>
                 </div>
@@ -130,7 +130,7 @@ class="nav-item menu-open"
               
             <div class="card-body">
                 
-                <div class="form-group {{ $errors->has('type') ? 'has-error' : '' }}">
+                <div class="mb-3 {{ $errors->has('type') ? 'has-error' : '' }}">
                     {!! html()->label(Lang::get('lang.status'), 'type') !!}
                     <div class="row">
                         <div class="col-sm-1">
@@ -148,7 +148,7 @@ class="nav-item menu-open"
                     </div>
                 </div>
 
-                <div class="form-group {{ $errors->has('status') ? 'has-error' : '' }}">
+                <div class="mb-3 {{ $errors->has('status') ? 'has-error' : '' }}">
                     {!! html()->label(Lang::get('lang.visibility'), 'status') !!}
                     <div class="row">
                         <div class="col-sm-1">
@@ -186,9 +186,9 @@ class="nav-item menu-open"
                     </div>
                     <div class="col-md-12">
                         <span class="d-flex">
-                            {!! html()->select('month', array_combine(range(1, 12), array_map(function($m) { return date('F', mktime(0, 0, 0, $m, 1)); }, range(1, 12))), $month)->class('form-control mr-1')->attributes(['style' => 'width: 120px;']) !!}
-                            {!! html()->select('day', array_combine(range(1, 31), range(1, 31)), $day)->class('form-control mr-1')->attributes(['style' => 'width: 65px;']) !!}
-                            {!! html()->text('year', $year)->class('form-control mr-1')->attributes(['style' => 'width: 58px;']) !!}@
+                            {!! html()->select('month', array_combine(range(1, 12), array_map(function($m) { return date('F', mktime(0, 0, 0, $m, 1)); }, range(1, 12))), $month)->class('form-control me-1')->attributes(['style' => 'width: 120px;']) !!}
+                            {!! html()->select('day', array_combine(range(1, 31), range(1, 31)), $day)->class('form-control me-1')->attributes(['style' => 'width: 65px;']) !!}
+                            {!! html()->text('year', $year)->class('form-control me-1')->attributes(['style' => 'width: 58px;']) !!}@
                             &nbsp;<input type="text" name="hour" value="{{$hour}}" class="form-control" style="width: 50px;">&nbsp;:&nbsp;<input type="text" name="minute" value="{{$minute}}" class="form-control" style="width: 50px;" >
                         </span>
                     </div>
@@ -201,7 +201,7 @@ class="nav-item menu-open"
 
                 <a href="{{url('show/'.$article->slug)}}" target="_blank" class="btn btn-primary">{{Lang::get('lang.show')}}</a>
 
-                <a href="#" data-toggle="modal" data-target="#deletearticle{{$article->id}}"  class="btn btn-danger">{{Lang::get('lang.delete')}}</a>
+                <a href="#" data-bs-toggle="modal" data-bs-target="#deletearticle{{$article->id}}"  class="btn btn-danger">{{Lang::get('lang.delete')}}</a>
                 
             </div>
         </div>
@@ -214,11 +214,11 @@ class="nav-item menu-open"
 
             <div class="card-body" style="height:166px; overflow-y:auto;">
 
-                <div class="form-group {{ $errors->has('category_id') ? 'has-error' : '' }}">
+                <div class="mb-3 {{ $errors->has('category_id') ? 'has-error' : '' }}">
                     {{-- {!! html()->label('Category', 'category_id') !!} --}}
                     @foreach($category->toArray() as $key=>$val)
                     <div class="row">
-                        <div class="form-group">
+                        <div class="mb-3">
                             <input type="radio" name="category_id[]" value="<?php echo $val; ?>" <?php
                                 if (in_array($val, $assign->all())) {
                                     echo ('checked');
@@ -232,7 +232,7 @@ class="nav-item menu-open"
 
             <div class="card-footer">
                 
-                <span class="btn btn-info btn-sm" data-toggle="modal" data-target="#j">{!! Lang::get('lang.addcategory') !!}</span>
+                <span class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#j">{!! Lang::get('lang.addcategory') !!}</span>
                 
                 <div class="modal" id="j">
 
@@ -243,8 +243,8 @@ class="nav-item menu-open"
                             {!! html()->form('POST', route('category.store'))->open() !!}
                     
                             <div class="modal-header">
-                                <h4 class="modal-title">{{Lang::get('lang.addcategory')}}</h4>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h5 class="modal-title">{{Lang::get('lang.addcategory')}}</h4>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                             </div>
 
                             <div class="modal-body">
@@ -252,8 +252,8 @@ class="nav-item menu-open"
                             </div>
                             
                             <div class="modal-footer justify-content-between" style="margin: -15px;">
-                                <button type="button" class="btn btn-default" data-dismiss="modal">{!! Lang::get('lang.close') !!}</button>
-                                <div class="form-group">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{!! Lang::get('lang.close') !!}</button>
+                                <div class="mb-3">
                                     {!! html()->submit(Lang::get('lang.add'))->class('btn btn-primary') !!}
                                 </div>      
                             </div>
@@ -280,14 +280,14 @@ class="nav-item menu-open"
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-                <h4 class="modal-title">Delete</h4>
-    			<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">Delete</h4>
+    			<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 			</div>
 			<div class="modal-body">
 				Are you sure you want to delete <b>{{$article->name}}</b> ?
 			</div>
 			<div class="modal-footer justify-content-between">
-    			<button type="button" class="btn btn-default" data-dismiss="modal" id="dismis2">Close</button>
+    			<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="dismis2">Close</button>
     			<a href='{{url("article/delete/$article->slug")}}'><button class="btn btn-danger">Delete</button></a>
 			</div>
 		</div><!-- /.modal-content -->

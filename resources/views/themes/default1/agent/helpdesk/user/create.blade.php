@@ -24,19 +24,19 @@ class="nav-link active"
 <!-- content -->
 @section('content')
 @if(Session::has('fails'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fas fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('fails')}}
 </div>
 @endif
 
 @if(Session::has('errors'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fa fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     <br/>
     @if($errors->first('first_name'))
     <li class="error-message-padding">{!! $errors->first('first_name', ':message') !!}</li>
@@ -79,12 +79,12 @@ class="nav-link active"
             
         <div class="row">
             <!-- First name : first name : Required -->
-            <div class="col-sm-6 form-group {{ $errors->has('first_name') ? 'has-error' : '' }}">
+            <div class="col-sm-6 mb-3 {{ $errors->has('first_name') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.first_name'), 'first_name') !!}<span class="text-red"> *</span>
                 {!! html()->text('first_name', null)->class('form-control') !!}
             </div>
             <!-- Last name : last name : Required -->
-            <div class="col-sm-6 form-group {{ $errors->has('last_name') ? 'has-error' : '' }}">
+            <div class="col-sm-6 mb-3 {{ $errors->has('last_name') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.last_name'), 'last_name') !!}
                 {!! html()->text('last_name', null)->class('form-control') !!}
             </div>
@@ -92,7 +92,7 @@ class="nav-link active"
         </div>
         <div class="row">
             <!-- Email Address : Email : Required -->
-            <div class="col-sm-6 form-group {{ $errors->has('email') ? 'has-error' : '' }}">
+            <div class="col-sm-6 mb-3 {{ $errors->has('email') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.email'), 'email') !!}
                 @if ($email_mandatory->status == 1 || $email_mandatory->status == '1')
                 <span class="text-red"> *</span>
@@ -100,20 +100,20 @@ class="nav-link active"
                 {!! html()->email('email', null)->class('form-control') !!}
             </div>
             
-            <div class="col-sm-6 form-group {{ $errors->has('user_name') ? 'has-error' : '' }}">
+            <div class="col-sm-6 mb-3 {{ $errors->has('user_name') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.user_name'), 'user_name') !!}<span class="text-red"> *</span>
                 {!! html()->text('user_name', null)->class('form-control') !!}
             </div>
         </div>
         <div class="row">
-            <div class="col-sm-6 form-group {{ $errors->has('organization') ? 'has-error' : '' }}">
+            <div class="col-sm-6 mb-3 {{ $errors->has('organization') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.organization'), 'organization') !!}
                 {!! html()->select('org_id', [''=>'Select','Organization'=>$org], null)->class('form-control')->id('org') !!}
                 
             </div>
         </div>
         <div class="row">
-            <div class="col-sm-1 form-group {{ $errors->has('country_code') ? 'has-error' : '' }}">
+            <div class="col-sm-1 mb-3 {{ $errors->has('country_code') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.country-code'), 'country_code') !!}
                 @if ($email_mandatory->status == 0 || $settings->status == 1)
                      <span class="text-red"> *</span>
@@ -122,22 +122,22 @@ class="nav-link active"
                 {!! html()->text('country_code', null)->class('form-control')->placeholder($phonecode)->attributes(['title' => Lang::get('lang.enter-country-phone-code')]) !!}
             </div>
             <!-- mobile Number : Text :  -->
-            <div class="col-md-3 form-group {{ $errors->has('mobile') ? 'has-error' : '' }}">
+            <div class="col-md-3 mb-3 {{ $errors->has('mobile') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.mobile'), 'mobile') !!}
                 @if ($email_mandatory->status == 0 || $settings->status == 1)
                      <span class="text-red"> *</span>
                 @endif
                 {!! html()->number('mobile', null)->class('form-control') !!}
             </div>
-            <div class="col-sm-1 form-group {{ $errors->has('ext') ? 'has-error' : '' }}">
+            <div class="col-sm-1 mb-3 {{ $errors->has('ext') ? 'has-error' : '' }}">
                 <label for="ext">{!! Lang::get('lang.ext') !!}</label>  
                 {!! html()->text('ext', null)->class('form-control') !!}
             </div>
-            <div class="col-sm-3 form-group {{ $errors->has('phone_number') ? 'has-error' : '' }}">
+            <div class="col-sm-3 mb-3 {{ $errors->has('phone_number') ? 'has-error' : '' }}">
                 <label for="phone_number">{!! Lang::get('lang.phone') !!}</label>
                 {!! html()->text('phone_number', null)->class('form-control') !!}
             </div>
-            <div class="col-md-3 form-group {{ $errors->has('active') ? 'has-error' : '' }}">
+            <div class="col-md-3 mb-3 {{ $errors->has('active') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.status'), 'active') !!}
                 <div class="row">
                     <div class="col-sm-4">
@@ -150,7 +150,7 @@ class="nav-link active"
             </div>
         </div>
         <!-- Internal Notes : Textarea -->
-        <div class="form-group">
+        <div class="mb-3">
             {!! html()->label(Lang::get('lang.internal_notes'), 'internal_note') !!}
             {!! html()->textarea('internal_note', null)->class('form-control')->attributes(['size' => '30x5']) !!}
         </div>

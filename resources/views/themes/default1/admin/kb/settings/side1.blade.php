@@ -15,27 +15,27 @@
 
 	{!! html()->modelForm($side, 'PATCH', url('side1/'.$side->id))->acceptsFiles()->open() !!}
 
-<!-- <div class="form-group {{ $errors->has('company_name') ? 'has-error' : '' }}"> -->
+<!-- <div class="mb-3 {{ $errors->has('company_name') ? 'has-error' : '' }}"> -->
 	<!-- table  -->
 
 <div class="box box-primary">
 @if(Session::has('success'))
-    <div class="alert alert-success alert-dismissable">
-        <i class="fa  fa-check-circle"></i>
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <div class="alert alert-success alert-dismissible">
+        <i class="fa  fa-circle-check"></i>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         {{Session::get('success')}}
     </div>
     @endif
     <!-- failure message -->
     @if(Session::has('fails'))
-    <div class="alert alert-danger alert-dismissable">
-        <i class="fa fa-ban"></i>
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <div class="alert alert-danger alert-dismissible">
+        <i class="fa-solid fa-ban"></i>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         {{Session::get('fails')}}
     </div>
     @endif
     <div class="box-header">
-        <h3 class="box-title">{{Lang::get('lang.sidewidget1')}}</h3>  {!! html()->submit(Lang::get('lang.save'))->class('form-group btn btn-primary pull-right') !!}
+        <h3 class="box-title">{{Lang::get('lang.sidewidget1')}}</h3>  {!! html()->submit(Lang::get('lang.save'))->class('mb-3 btn btn-primary pull-right') !!}
     </div>
 
     <div class="box-body">
@@ -45,7 +45,7 @@
 
     <div class="col-md-10">
 
-        <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
+        <div class="mb-3 {{ $errors->has('title') ? 'has-error' : '' }}">
 
             {!! html()->label(Lang::get('lang.title'), 'title') !!}
             {!! $errors->first('title', '<spam class="help-block">:message</spam>') !!}
@@ -53,7 +53,7 @@
 
         </div>
 
-        <div class="form-group {{ $errors->has('content') ? 'has-error' : '' }}">
+        <div class="mb-3 {{ $errors->has('content') ? 'has-error' : '' }}">
             {!! html()->label(Lang::get('lang.content'), 'content') !!}
             {!! $errors->first('content', '<spam class="help-block">:message</spam>') !!}
             {!! html()->textarea('content', null)->class('form-control')->id('footer')->placeholder('Enter the description')->attributes(['size' => '128x10']) !!}

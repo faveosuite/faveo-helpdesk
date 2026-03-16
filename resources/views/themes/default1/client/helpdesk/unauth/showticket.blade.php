@@ -49,18 +49,18 @@ $thread = App\Model\helpdesk\Ticket\Ticket_Thread::where('ticket_id', '=', $tick
 
                 <div class="col-sm-9">
 
-                    <h3 class="entry-title"><i class="fas fa-ticket-alt"> </i> {{$thread->title}}
+                    <h3 class="entry-title"><i class="fa-solid fa-ticket-alt"> </i> {{$thread->title}}
 
                         <small> ( {{$tickets->ticket_number}} ) </small>
                     </h3>
                 </div>
 
-                <div class="col-sm-3 text-right">
+                <div class="col-sm-3 text-end">
 
                         <div>
                             <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: whitesmoke">
 
-                                <i class="fas fa-exchange-alt text-teal"> </i>
+                                <i class="fa-solid fa-right-left text-teal"> </i>
 
                                 {!! Lang::get('lang.change_status') !!}
 
@@ -71,15 +71,15 @@ $thread = App\Model\helpdesk\Ticket\Ticket_Thread::where('ticket_id', '=', $tick
                             <div class="dropdown-menu">
 
                                 <a class="dropdown-item" href="#" id="open">
-                                    <i class="fas fa-folder-open" style="color:#FFD600;"> </i> {!! Lang::get('lang.open') !!}
+                                    <i class="fa-solid fa-folder-open" style="color:#FFD600;"> </i> {!! Lang::get('lang.open') !!}
                                 </a>
 
                                 <a class="dropdown-item" href="#" id="close">
-                                    <i class="fas fa-check" style="color:#15F109;"> </i> {!! Lang::get('lang.close') !!}
+                                    <i class="fa-solid fa-check" style="color:#15F109;"> </i> {!! Lang::get('lang.close') !!}
                                 </a>
 
                                 <a class="dropdown-item" href="#" id="resolved">
-                                    <i class="fas fa-check-circle " style="color:#0EF1BE;"> </i> {!! Lang::get('lang.resolved') !!}
+                                    <i class="fa-solid fa-circle-check " style="color:#0EF1BE;"> </i> {!! Lang::get('lang.resolved') !!}
                                 </a>
                             </div>
                         </div>
@@ -372,7 +372,7 @@ foreach ($conversations as $conversation) {
                     </div><!-- .comment-author -->
                     <div class="comment-metadata">
                         <small class="date text-muted">
-                            <time datetime="2013-10-23T01:50:50+00:00"><i class="fa fa-clock-o"> </i> {{ UTC::usertimezone($conversation->created_at) }}</time>
+                            <time datetime="2013-10-23T01:50:50+00:00"><i class="fa-solid fa-clock-o"> </i> {{ UTC::usertimezone($conversation->created_at) }}</time>
                         </small>
                     </div><!-- .comment-metadata -->
                 </footer><!-- .comment-meta -->
@@ -432,18 +432,18 @@ foreach ($conversations as $conversation) {
 </div>
 <br/><br/>
 @if(Session::has('success1'))
-<div class="alert alert-success alert-dismissable" id='formabc'>
-    <i class="fa  fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible" id='formabc'>
+    <i class="fa  fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('success1')}}
 </div>
 @endif
 <!-- failure message -->
 @if(Session::has('fails1'))
-<div class="alert alert-danger alert-dismissable" id='formabc'>
-    <i class="fa fa-ban"></i>
+<div class="alert alert-danger alert-dismissible" id='formabc'>
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('fails1')}}
 </div>
 @endif
@@ -459,13 +459,13 @@ foreach ($conversations as $conversation) {
                     @endif
                     <div class="row">
                         <div class="col-md-12">
-                            <div class="form-group " style="background-color: white">
+                            <div class="mb-3 " style="background-color: white">
                                 <textarea class="form-control" id="reply-input" name="comment" cols="30" rows="8" ></textarea>
                             </div>
                         </div>
                     </div>
 
-                    <div class="text-right">
+                    <div class="text-end">
 
                         <button type="submit" onClick="return checkFunction();" class="btn btn-custom btn-lg" style="background-color: #009aba; hov: #00c0ef; color: #fff">{!! Lang::get('lang.post_comment') !!}</button>
                     </div>

@@ -37,10 +37,10 @@ class="nav-link active"
 {{ csrf_field() }}
     @if(Session::has('errors'))
     <?php //dd($errors); ?>
-    <div class="alert alert-danger alert-dismissable">
-        <i class="fa fa-ban"></i>
+    <div class="alert alert-danger alert-dismissible">
+        <i class="fa-solid fa-ban"></i>
         <b>Alert!</b>
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         <br/>
         @if($errors->first('priority'))
         <li class="error-message-padding">{!! $errors->first('priority', ':message') !!}</li>
@@ -62,30 +62,30 @@ class="nav-link active"
         </div>
         <div class="card-body">
             <div class="row">
-                <div class="form-group col-md-6 {{ $errors->has('priority') ? 'has-error' : '' }}">
+                <div class="mb-3 col-md-6 {{ $errors->has('priority') ? 'has-error' : '' }}">
                     {!! html()->label(Lang::get('lang.priority'), 'priority') !!} <span class="text-red"> *</span>
                     <input type="text" class="form-control" name="priority" value="" >
                 </div>
                 <!-- Grace Period text form Required -->
-                <div class="form-group col-md-6 {{ $errors->has('priority_desc') ? 'has-error' : '' }}">
+                <div class="mb-3 col-md-6 {{ $errors->has('priority_desc') ? 'has-error' : '' }}">
                     {!! html()->label(Lang::get('lang.priority_desc'), 'priority_desc') !!}<span class="text-red"> *</span>
                     <input type="text" name="priority_desc" class="form-control">
                 </div> 
             </div>
             <!-- Priority Color -->
             <div class="row">
-                <div class="form-group col-sm-6 {{ $errors->has('priority_color') ? 'has-error' : '' }}">
+                <div class="mb-3 col-sm-6 {{ $errors->has('priority_color') ? 'has-error' : '' }}">
                     {!! html()->label(Lang::get('lang.priority_color'), 'priority_color') !!}<span class="text-red"> *</span>
                     <input class="form-control my-colorpicker1 colorpicker-element" id="colorpicker" type="text" name="priority_color">
                 </div>
 
-                <div class="form-group col-sm-3 {{ $errors->has('status') ? 'has-error' : '' }}">
+                <div class="mb-3 col-sm-3 {{ $errors->has('status') ? 'has-error' : '' }}">
                     {!! html()->label(Lang::get('lang.status'), 'status') !!}&nbsp;<span class="text-red"> *</span><br/>
                     <input type="radio"  name="status" value="1" checked>&nbsp;&nbsp;{{Lang::get('lang.active')}}&nbsp;&nbsp;
                     <input type="radio"  name="status" value="0" >&nbsp;&nbsp;{{Lang::get('lang.inactive')}}
                 </div> 
 
-                <div class="form-group col-sm-3 {{ $errors->has('ispublic') ? 'has-error' : '' }}">
+                <div class="mb-3 col-sm-3 {{ $errors->has('ispublic') ? 'has-error' : '' }}">
                     {!! html()->label(Lang::get('lang.visibility'), 'ispublic') !!}&nbsp;<span class="text-red"> *</span><br/>
                     <input type="radio"  name="ispublic" value="1" checked>{{Lang::get('lang.public')}}
                     <input type="radio"  name="ispublic" value="0" >&nbsp;&nbsp;{{Lang::get('lang.private')}}

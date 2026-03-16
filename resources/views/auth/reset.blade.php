@@ -3,7 +3,7 @@
 @section('body')
 @if(Session::has('status'))
 <div class="alert alert-success alert-dismissible">
-    <i class="fa-solid fa-check-circle"> </i> <b> {!! Lang::get('lang.success') !!} </b>
+    <i class="fa-solid fa-circle-check"> </i> <b> {!! Lang::get('lang.success') !!} </b>
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('status')}}
 </div>

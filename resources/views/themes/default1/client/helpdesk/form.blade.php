@@ -73,7 +73,7 @@ class = "nav-item active"
 
         @if(Session::has('message'))
         <div class="alert alert-success alert-dismissible">
-            <i class="fa-solid fa-check-circle"></i>
+            <i class="fa-solid fa-circle-check"></i>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
             {!! Session::get('message') !!}
         </div>

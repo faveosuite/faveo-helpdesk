@@ -360,9 +360,9 @@
                             <!-- Menu Footer-->
                             <li class="user-footer">
 
-                                <a href="{{URL::route('profile')}}" class="btn btn-primary btn-flat">{!! Lang::get('lang.profile') !!}</a>
+                                <a href="{{URL::route('profile')}}" class="btn btn-primary ">{!! Lang::get('lang.profile') !!}</a>
 
-                                <a href="{{url('auth/logout')}}" class="btn btn-danger btn-flat float-end">{!! Lang::get('lang.sign_out') !!}</a>
+                                <a href="{{url('auth/logout')}}" class="btn btn-danger  float-end">{!! Lang::get('lang.sign_out') !!}</a>
                             </li>
                         </ul>
                     </li>
@@ -596,7 +596,7 @@
                         @if($dummy_installation == 1 || $dummy_installation == '1')
                         <div class="alert alert-info alert-dismissible">
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
-                            <i class="icon fa-solid fa-exclamation-triangle"></i> @if (\Auth::user()->role == 'admin')
+                            <i class="icon fa-solid fa-triangle-exclamation"></i> @if (\Auth::user()->role == 'admin')
                                 {{Lang::get('lang.dummy_data_installation_message')}} <a href="{{route('clean-database')}}">{{Lang::get('lang.click')}}</a> {{Lang::get('lang.clear-dummy-data')}}
                             @else
                                 {{Lang::get('lang.clear-dummy-data-agent-message')}}
@@ -607,7 +607,7 @@
                             <div class="col-md-12">
                                 <div class="callout callout-warning bg-warning">
                                     <p>
-                                        <i class="fa-solid fa-exclamation-triangle"></i>
+                                        <i class="fa-solid fa-triangle-exclamation"></i>
                                         @if (\Auth::user()->role == 'admin')
                                             {{Lang::get('lang.system-outgoing-incoming-mail-not-configured')}}&nbsp;<a href="{{URL::route('emails.create')}}">{{Lang::get('lang.confihure-the-mail-now')}}</a>
                                         @else

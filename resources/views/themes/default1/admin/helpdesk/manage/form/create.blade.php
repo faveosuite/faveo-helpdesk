@@ -41,7 +41,7 @@ class="active"
         <div class="box-body table-responsive no-padding"style="overflow:hidden">
             <div class="row">
                 <div class="col-md-6">
-                    <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
+                    <div class="mb-3 {{ $errors->has('title') ? 'has-error' : '' }}">
                         {!! html()->label(Lang::get('lang.title'), 'title') !!}
                         {!! $errors->first('title', '<spam class="help-block">:message</spam>') !!}
                         {!! html()->text('title', null)->class('form-control') !!}
@@ -49,7 +49,7 @@ class="active"
                 </div>
                 <!-- declare table head Label -->
                 <div class="col-md-6">
-                    <div class="form-group {{ $errors->has('label') ? 'has-error' : '' }}">
+                    <div class="mb-3 {{ $errors->has('label') ? 'has-error' : '' }}">
                         {!! html()->label(Lang::get('lang.label'), 'label') !!}
                         {!! $errors->first('label', '<spam class="help-block">:message</spam>') !!}
                         {!! html()->text('label', null)->class('form-control') !!}
@@ -57,7 +57,7 @@ class="active"
                 </div>
                 <!-- declare table head type -->
                 <div class="col-md-4">
-                    <div class="form-group {{ $errors->has('type') ? 'has-error' : '' }}">
+                    <div class="mb-3 {{ $errors->has('type') ? 'has-error' : '' }}">
                         {!! html()->label(Lang::get('lang.type'), 'type') !!}
                         {!! $errors->first('type', '<spam class="help-block">:message</spam>') !!}
                         {!! html()->select('type', [''=>'Select a Type','types'=>$type->pluck('type','id')], null)->class('form-control') !!}
@@ -65,7 +65,7 @@ class="active"
                 </div>
                 <!-- declare table head Vissibility -->
                 <div class="col-md-4">
-                    <div class="form-group {{ $errors->has('visibility') ? 'has-error' : '' }}">
+                    <div class="mb-3 {{ $errors->has('visibility') ? 'has-error' : '' }}">
                         {!! html()->label(Lang::get('lang.visibility'), 'visibility') !!}
                         {!! $errors->first('visibility', '<spam class="help-block">:message</spam>') !!}
                         {!! html()->select('visibility', [''=>'Select a Visibility','visibilities' =>$visibility->pluck('visibility','id')], null)->class('form-control') !!}
@@ -73,14 +73,14 @@ class="active"
                 </div>
                 <!-- declare table head variable -->
                 <div class="col-md-4">
-                    <div class="form-group">
+                    <div class="mb-3">
                         {!! html()->label(Lang::get('lang.variable'), 'variable') !!}
                         {!! html()->text('variable', null)->class('form-control') !!}
                     </div>
                 </div>
                 <!-- instruction: textarea -->
                 <div class="col-md-6">
-                    <div class="form-group">
+                    <div class="mb-3">
                         {!! html()->label(Lang::get('lang.instruction'), 'instruction') !!}
                         {!! html()->textarea('instruction', null)->class('form-control')->attributes(['size' => '10x5']) !!}
                     </div>
@@ -90,7 +90,7 @@ class="active"
 
                 <!-- txt area -->
                 <div class="col-md-6">
-                    <div class="form-group">
+                    <div class="mb-3">
                         {!! html()->label(Lang::get('lang.internal_notes'), 'internal_notes') !!}
                         {!! html()->textarea('internal_notes', null)->class('form-control')->attributes(['size' => '10x5']) !!}
                     </div>

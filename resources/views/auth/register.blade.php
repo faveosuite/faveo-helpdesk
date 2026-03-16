@@ -24,7 +24,7 @@
 
     @if(Session::has('status'))
     <div class="alert alert-success alert-dismissible">
-        <i class="fa-solid fa-check-circle"> </i> <b> {!! Lang::get('lang.success') !!} </b>
+        <i class="fa-solid fa-circle-check"> </i> <b> {!! Lang::get('lang.success') !!} </b>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         {{Session::get('status')}}
     </div>
@@ -130,7 +130,7 @@
                 @if($settings->status == '1' || $settings->status == 1)
                 <div class='row'>
                     <div class="col-md-3">
-                        <div class="form-group {{ $errors->has('code') ? 'has-error' : '' }}">
+                        <div class="mb-3 {{ $errors->has('code') ? 'has-error' : '' }}">
                         {!! html()->text('code', null)->placeholder(91)->class('form-control') !!}
                         </div>
                     </div>

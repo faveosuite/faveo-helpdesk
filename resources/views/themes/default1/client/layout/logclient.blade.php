@@ -269,7 +269,7 @@
             <div id="header-search" class="site-search clearfix"><!-- #header-search -->
                 {!! html()->form('POST', route('client.search'))->attributes(['class' => 'search-form clearfix'])->open() !!}
                 <div class="form-border">
-                    <div class="form-inline">
+                    <div class="d-flex gap-2">
                         <div class="d-flex w-100 gap-2">
                             <input type="text" name="s" class="form-control search-field flex-grow-1" title="{{trans('lang.enter_search_term')}}" placeholder="{{trans('lang.have_a_question?_type_your_search_term_here')}}" required>
                             <button type="submit" class="btn btn-primary">{{trans('lang.search')}}</button>

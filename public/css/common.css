@@ -549,6 +549,10 @@ div.dt-container div.dt-info {
     text-decoration: none;
 }
 
+.widgetitemtitle {
+    color: rgb(0, 154, 186);
+}
+
 .widget-bg-register {
     background-image: url("/lb-faveo/media/images/register.png");
     background-size: 32px 32px;

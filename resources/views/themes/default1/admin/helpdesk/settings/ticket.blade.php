@@ -35,27 +35,27 @@ class="nav-link active"
 {!! html()->modelForm($tickets, 'PATCH', url('postticket/'.$tickets->id))->open() !!}
 <!-- check whether success or not -->
 @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <i class="fas fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+    <i class="fa-solid fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {!! Session::get('success') !!}
 </div>
 @endif
 <!-- failure message -->
 @if(Session::has('fails'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fas fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {!! Session::get('fails') !!}
 </div>
 @endif
 @if(Session::has('errors'))
 <?php //dd($errors); ?>
-<div class="alert alert-danger alert-dismissable">
-    <i class="fas fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     <br/>
     @if($errors->first('status'))
     <li class="error-message-padding">{!! $errors->first('status', ':message') !!}</li>
@@ -81,30 +81,30 @@ class="nav-link active"
     <div class="card-body">
         <div class="row">
             <!-- Default Status: Required : manual: Dropdowm  -->
-            <div class="form-group col-md-6 {{ $errors->has('status') ? 'has-error' : '' }}">
+            <div class="mb-3 col-md-6 {{ $errors->has('status') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.default_status'), 'status') !!}
                 <select class="form-control" id="status" name="status">
                     <option value="1" >Open</option>
                 </select>
             </div>
             <!-- Default Priority:	Required : manual : Dropdowm  -->
-            <div class="form-group col-md-6 {{ $errors->has('priority') ? 'has-error' : '' }}">
+            <div class="mb-3 col-md-6 {{ $errors->has('priority') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.default_priority'), 'priority') !!}
                 {!! html()->select('priority', [''=>Lang::get('lang.select_a_priority'),Lang::get('lang.priorities')=>$priority->pluck('priority_desc','priority_id')->toArray()], null)->class('form-control') !!}
             </div>
         </div>
         <div class="row">
             <!-- Agent Collision Avoidance Duration: text-number   -minutes  -->
-            <div class="form-group col-md-6 {{ $errors->has('collision_avoid') ? 'has-error' : '' }}">
+            <div class="mb-3 col-md-6 {{ $errors->has('collision_avoid') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.agent_collision_avoidance_duration'), 'collision_avoid') !!} 
                 <div class="input-group">
                     <input type="number" class="form-control" name="collision_avoid" min="0"  step="1" value="{{$tickets->collision_avoid}}" placeholder="in minutes">
                     <div class="input-group-append">
-                        <span class="btn btn-default"><i class="fas fa-clock"></i> {!!Lang::get('lang.in_minutes')!!}</span>
+                        <span class="btn btn-secondary"><i class="fa-solid fa-clock"></i> {!!Lang::get('lang.in_minutes')!!}</span>
                     </div>
                 </div>
             </div> 
-            <div class="form-group col-md-6 {{ $errors->has('help_topic') ? 'has-error' : '' }}">
+            <div class="mb-3 col-md-6 {{ $errors->has('help_topic') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.lock_ticket_frequency'), 'help_topic') !!}
                 <select name='lock_ticket_frequency' class="form-control">
                     <option @if($tickets->lock_ticket_frequency == null) selected="true" @endif value="0">{!! Lang::get('lang.no')!!}</option>
@@ -114,17 +114,17 @@ class="nav-link active"
             </div>
         </div>
         <div class="row">
-            <div class="form-group col-md-6 {{ $errors->has('num_format') ? 'has-error' : '' }}">
+            <div class="mb-3 col-md-6 {{ $errors->has('num_format') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.format'), 'num_format') !!} 
-                 <a href="#" data-toggle="tooltip" data-placement="right" title="{{Lang::get('lang.ticket-number-format')}}"><i class="fa fa-question-circle" style="padding: 0px;"></i></a>
+                 <a href="#" data-bs-toggle="tooltip" data-bs-placement="right" title="{{Lang::get('lang.ticket-number-format')}}"><i class="fa-solid fa-circle-question" style="padding: 0px;"></i></a>
                 {!! html()->text('num_format', null)->class('form-control')->id('format') !!}
 
                 <div id="result"></div>
             </div>
 
-            <div class="form-group col-md-6 {{ $errors->has('num_sequence') ? 'has-error' : '' }}">
+            <div class="mb-3 col-md-6 {{ $errors->has('num_sequence') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.type'), 'num_sequence') !!} 
-                <a href="#" data-toggle="tooltip" data-placement="right" title="{{Lang::get('lang.ticket-number-type')}}"><i class="fa fa-question-circle" style="padding: 0px;"></i></a>
+                <a href="#" data-bs-toggle="tooltip" data-bs-placement="right" title="{{Lang::get('lang.ticket-number-type')}}"><i class="fa-solid fa-circle-question" style="padding: 0px;"></i></a>
     
                 {!! html()->select('num_sequence', [''=>'Select','sequence'=>'Sequence','random'=>'Random'], null)->class('form-control')->id('type') !!}
 
@@ -142,7 +142,7 @@ class="nav-link active"
 @section('FooterInclude')
 <script>
     $(document).ready(function () {
-        $('[data-toggle="tooltip"]').tooltip();
+        $('[data-bs-toggle="tooltip"]').tooltip();
     });
 </script>
 <script>

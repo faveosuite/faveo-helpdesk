@@ -4,16 +4,16 @@
 
 	{!! html()->modelForm($faq, 'PATCH', url('post-create-faq/'.$faq->id))->acceptsFiles()->open() !!}
 
-<!-- <div class="form-group {{ $errors->has('company_name') ? 'has-error' : '' }}"> -->
+<!-- <div class="mb-3 {{ $errors->has('company_name') ? 'has-error' : '' }}"> -->
 	<!-- table  -->
 
 <div class="row">
 <div class="col-md-12">
 <div class="box box-primary">
-	<div class="content-header">
+	<div class="app-content-header">
 
 		<div>
-        	<h4>Faqs {!! html()->submit('save')->class('form-group btn btn-primary pull-right') !!}</h4>
+        	<h4>Faqs {!! html()->submit('save')->class('mb-3 btn btn-primary pull-right') !!}</h4>
     	</div>
 
     </div>
@@ -21,19 +21,19 @@
     <!-- check whether success or not -->
 
 @if(Session::has('success'))
-    <div class="alert alert-success alert-dismissable">
-        <i class="fa  fa-check-circle"></i>
+    <div class="alert alert-success alert-dismissible">
+        <i class="fa  fa-circle-check"></i>
         <b>Success!</b>
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         {{Session::get('success')}}
     </div>
     @endif
     <!-- failure message -->
     @if(Session::has('fails'))
-    <div class="alert alert-danger alert-dismissable">
-        <i class="fa fa-ban"></i>
+    <div class="alert alert-danger alert-dismissible">
+        <i class="fa-solid fa-ban"></i>
         <b>Alert!</b> Failed.
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         {{Session::get('fails')}}
     </div>
     @endif
@@ -43,7 +43,7 @@
 
             <div class="row">
 
-        <div class="col-md-10 form-group {{ $errors->has('faq') ? 'has-error' : '' }}">
+        <div class="col-md-10 mb-3 {{ $errors->has('faq') ? 'has-error' : '' }}">
         {!! html()->label('Description', 'faq') !!}
         {!! $errors->first('faq', '<spam class="help-block">:message</spam>') !!}
 

@@ -35,27 +35,27 @@ class="nav-link active"
 {!! html()->modelForm($emails, 'PATCH', url('postemail/'.$emails->id))->open() !!}
 <!-- check whether success or not -->
 @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <i class="fas  fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+    <i class="fa-solid  fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {!!Session::get('success')!!}
 </div>
 @endif
 <!-- failure message -->
 @if(Session::has('fails'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fas fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! lang::get('lang.success') !!} !</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {!!Session::get('fails')!!}
 </div>
 @endif
 @if(Session::has('errors'))
 <?php //dd($errors); ?>
-<div class="alert alert-danger alert-dismissable">
-    <i class="fa fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     <br/>
     @if($errors->first('sys_email'))
     <li class="error-message-padding">{!! $errors->first('sys_email', ':message') !!}</li>
@@ -70,7 +70,7 @@ class="nav-link active"
         <!-- Accept All Emails:	CHECKBOX: Accept email from unknown Users  -->
         <div class="row">
             <div class="col-md-6">
-                <div class="form-group">
+                <div class="mb-3">
                     {!! html()->checkbox('all_emails', true, 1) !!}&nbsp;{{Lang::get('lang.accept_all_email')}}
                 </div>
             </div>
@@ -81,7 +81,7 @@ class="nav-link active"
         <!-- Accept Email Collaborators: CHECKBOX : Automatically add collaborators from email fields   -->
         <div class="row">
             <div class="col-md-4">
-                <div class="form-group">
+                <div class="mb-3">
                     {!! html()->checkbox('email_collaborator', null, 1) !!}&nbsp;{{Lang::get('lang.accept_email_collab')}}
                 </div>
             </div>
@@ -89,7 +89,7 @@ class="nav-link active"
         <!-- Attachments: CHECKBOX	: Email attachments to the user  -->
         <div class="row">
             <div class="col-md-4">
-                <div class="form-group">
+                <div class="mb-3">
                     {!! html()->checkbox('attachment', null, 1) !!}&nbsp;{{Lang::get('lang.attachments')}}
                 </div>
             </div>

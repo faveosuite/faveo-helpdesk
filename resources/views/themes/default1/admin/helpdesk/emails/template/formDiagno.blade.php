@@ -29,27 +29,27 @@ class="nav-link active"
 <form method="POST" action="{!! route('postdiagno') !!}">
     <input type="hidden" name="_token" value="{{ csrf_token() }}">
     @if(Session::has('success') && !Session::has('fails'))
-    <div class="alert alert-success alert-dismissable">
-        <i class="fas fa-check-circle"></i>
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <div class="alert alert-success alert-dismissible">
+        <i class="fa-solid fa-circle-check"></i>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         {{Session::get('success')}}
     </div>
     @endif
     <!-- failure message -->
     @if(Session::has('fails'))
-    <div class="alert alert-warning alert-dismissable">
-        <i class="fas fa-ban"></i>
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <div class="alert alert-warning alert-dismissible">
+        <i class="fa-solid fa-ban"></i>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         <b>{!! Lang::get('lang.alert') !!} !</b><br/>
         <li class="error-message-padding">{{Session::get('fails')}}</li>
     </div>
     @endif
     @if(Session::has('errors'))
     <?php //dd($errors); ?>
-    <div class="alert alert-danger alert-dismissable">
-        <i class="fas fa-ban"></i>
+    <div class="alert alert-danger alert-dismissible">
+        <i class="fa-solid fa-ban"></i>
         <b>{!! Lang::get('lang.alert') !!} !</b>
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         <br/>
         @if($errors->first('from'))
         <li class="error-message-padding">{!! $errors->first('from', ':message') !!}</li>
@@ -71,7 +71,7 @@ class="nav-link active"
         </div>
         <div class="card-body">
 
-            <div class="row form-group no-padding {!! $errors->has('from') ? 'has-error' : '' !!}">
+            <div class="row mb-3 no-padding {!! $errors->has('from') ? 'has-error' : '' !!}">
                 <div class="col-md-2">
                     <label>{!! Lang::get('lang.from') !!} <span class="text-red">*</span> :</label>
                 </div>
@@ -94,7 +94,7 @@ class="nav-link active"
                     </select>
                 </div>
             </div>
-            <div class="row form-group no-padding {!! $errors->has('to') ? 'has-error' : '' !!}">
+            <div class="row mb-3 no-padding {!! $errors->has('to') ? 'has-error' : '' !!}">
                 <div class="col-md-2">
                     <label>{!! Lang::get('lang.to') !!} <span class="text-red">*</span> :</label>
                 </div>
@@ -102,7 +102,7 @@ class="nav-link active"
                     {!! html()->text('to', null)->class('form-control') !!}
                 </div>
             </div>
-            <div class="row form-group no-padding {!! $errors->has('subject') ? 'has-error' : '' !!}">
+            <div class="row mb-3 no-padding {!! $errors->has('subject') ? 'has-error' : '' !!}">
                 <div class="col-md-2">
                     <label>{!! Lang::get('lang.subject') !!} <span class="text-red">*</span> :</label>
                 </div>
@@ -110,7 +110,7 @@ class="nav-link active"
                     {!! html()->text('subject', null)->class('form-control') !!}
                 </div>
             </div>
-            <div class="row form-group no-padding {!! $errors->has('message') ? 'has-error' : '' !!}">
+            <div class="row mb-3 no-padding {!! $errors->has('message') ? 'has-error' : '' !!}">
                 <div class="col-md-2">
                     <label>{!! Lang::get('lang.message') !!} <span class="text-red">*</span> :</label>
                 </div>

@@ -35,18 +35,18 @@ class="nav-link active"
 @section('content')
 {!! html()->form('POST', route('rating.store'))->open() !!}
  @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <i class="fas fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+    <i class="fa-solid fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('success')}}
 </div>
 @endif
 @if(Session::has('errors'))
 <?php //dd($errors); ?>
-<div class="alert alert-danger alert-dismissable">
-    <i class="fas fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     <br/>
     @if($errors->first('name'))
     <li class="error-message-padding">{!! $errors->first('name', ':message') !!}</li>
@@ -74,31 +74,31 @@ class="nav-link active"
     </div>
     <div class="card-body">
         <div class="row">
-            <div class="col-md-6 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+            <div class="col-md-6 mb-3 {{ $errors->has('name') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.rating_label'), 'name') !!}<span style="color:red;">*</span>
                 {!! html()->text('name', null)->class('form-control') !!}
             </div>
-            <div class="col-md-6 form-group {{ $errors->has('display_order') ? 'has-error' : '' }}">
+            <div class="col-md-6 mb-3 {{ $errors->has('display_order') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.display_order'), 'display_order') !!}<span style="color:red;">*</span>
                 {!! html()->text('display_order', null)->class('form-control') !!}
             </div>
         </div>
-        <div class="form-group {{ $errors->has('rating_scale') ? 'has-error' : '' }}">
+        <div class="mb-3 {{ $errors->has('rating_scale') ? 'has-error' : '' }}">
             {!! html()->label(Lang::get('lang.rating_scale'), 'rating_scale') !!}<span style="color:red;">*</span>
             <div class="callout callout-default font-oblique">{!! Lang::get('lang.rating-msg1') !!}</div>
             {!! html()->select('rating_scale', ['1' => '1','2'=>'2','3'=>'3','4'=>'4','5'=>'5','6'=>'6','7'=>'7','8'=>'8'], null)->class('form-control') !!}
         </div>
-        <div class="form-group {{ $errors->has('rating_area') ? 'has-error' : '' }}">
+        <div class="mb-3 {{ $errors->has('rating_area') ? 'has-error' : '' }}">
             {!! html()->label(Lang::get('lang.rating_area'), 'rating_area') !!}<span style="color:red;">*</span>
             {!! html()->select('rating_area', ['Helpdesk Area' => 'Helpdesk Area','Comment Area'=>'Comment Area'], null)->class('form-control') !!}
         </div>
-        <div class="form-group {{ $errors->has('restrict') ? 'has-error' : '' }}">
+        <div class="mb-3 {{ $errors->has('restrict') ? 'has-error' : '' }}">
             <!-- gender -->
             {!! html()->label(Lang::get('lang.rating_restrict'), 'gender') !!}<span style="color:red;">*</span>
             <div class="callout callout-default font-oblique">{!! Lang::get('lang.rating-msg2') !!}</div>
             {!! html()->select('restrict', ['General' => 'general','Support'=>'support'], null)->class('form-control') !!}
         </div>
-        <div class="form-group {{ $errors->has('allow_modification') ? 'has-error' : '' }}">
+        <div class="mb-3 {{ $errors->has('allow_modification') ? 'has-error' : '' }}">
             <!-- Email user -->
             {!! html()->label(Lang::get('lang.rating_change'), 'allow_modification') !!}<span style="color:red;">*</span>
             <div class="callout callout-default font-oblique">{!! Lang::get('lang.rating-msg3') !!}</div>

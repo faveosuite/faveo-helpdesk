@@ -33,17 +33,17 @@ class="nav-link active"
 @section('content')
 <!-- open a form -->
 @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <i class="fa fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+    <i class="fa-solid fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {!!Session::get('success')!!}
 </div>
 @endif
 <!-- failure message -->
 @if(Session::has('fails'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fa fa-ban"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     <b> {!! Lang::get('lang.alert') !!} ! </b>
     <li class="error-message-padding">{!!Session::get('fails')!!}</li>
 </div>
@@ -57,7 +57,7 @@ class="nav-link active"
 
         <div class="row">
             <div class="col-md-3 no-padding">
-                <div class="form-group">
+                <div class="mb-3">
                     {!! html()->label(Lang::get('lang.delete_noti'), 'del_noti') !!}
                 </div>
             </div>
@@ -67,7 +67,7 @@ class="nav-link active"
         </div>
         <div class="row">
             <div class="col-md-3 no-padding">
-                <div class="form-group">
+                <div class="mb-3">
                     {!! html()->label(Lang::get('lang.noti_msg1'), 'del_noti') !!}<span class="text-red"> *</span>
                 </div>
             </div>

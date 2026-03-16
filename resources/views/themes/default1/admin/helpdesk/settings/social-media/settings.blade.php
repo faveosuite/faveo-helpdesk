@@ -44,25 +44,25 @@ class="nav-link active"
 
 <!-- check whether success or not -->
 @if(Session::has('warn'))
-<div class="alert alert-warning alert-dismissable">
-    <i class="fas fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-warning alert-dismissible">
+    <i class="fa-solid fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {!!Session::get('warn')!!}
 </div>
 @endif
 @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <i class="fas fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+    <i class="fa-solid fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {!!Session::get('success')!!}
 </div>
 @endif
 <!-- failure message -->
 @if(Session::has('fails'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fas fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {!!Session::get('fails')!!}
 </div>
 @endif
@@ -74,14 +74,14 @@ class="nav-link active"
     <div class="card-body">
         <div class="row">
             <div class="col-md-6">
-                <div class="form-group {{ $errors->has('client_id') ? 'has-error' : '' }}">
+                <div class="mb-3 {{ $errors->has('client_id') ? 'has-error' : '' }}">
                     {!! html()->label(Lang::get('lang.client_id'), 'client_id') !!}<spam class="help-block"> *</spam>
                     {!! html()->text('client_id', $social->getvalueByKey($provider,'client_id'))->class('form-control') !!}
                     {!! $errors->first('client_id', '<spam class="help-block">:message</spam>') !!}
                 </div>
             </div>
             <div class="col-md-6">
-                <div class="form-group {{ $errors->has('client_secret') ? 'has-error' : '' }}">
+                <div class="mb-3 {{ $errors->has('client_secret') ? 'has-error' : '' }}">
                     {!! html()->label(Lang::get('lang.client_secret'), 'client_secret') !!}<spam class="help-block"> *</spam>
                     {!! html()->text('client_secret', $social->getvalueByKey($provider,'client_secret'))->class('form-control') !!}
                      {!! $errors->first('client_secret', '<spam class="help-block">:message</spam>') !!}
@@ -90,14 +90,14 @@ class="nav-link active"
         </div> 
         <div class="row">
             <div class="col-md-6">
-                <div class="form-group {{ $errors->has('redirect') ? 'has-error' : '' }}">
+                <div class="mb-3 {{ $errors->has('redirect') ? 'has-error' : '' }}">
                     {!! html()->label(Lang::get('lang.redirect'), 'redirect') !!}
                     {!! html()->text('redirect', $social->getvalueByKey($provider,'redirect'))->class('form-control') !!}
                     {!! $errors->first('redirect', '<spam class="help-block">:message</spam>') !!}
                 </div>
             </div>
             <div class="col-md-6">
-                <div class="form-group {{ $errors->has('status') ? 'has-error' : '' }}">
+                <div class="mb-3 {{ $errors->has('status') ? 'has-error' : '' }}">
                     <div class="row">
                         <div class="col-md-12">
                             {!! html()->label(Lang::get('lang.status'), 'status') !!} 
