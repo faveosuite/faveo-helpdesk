@@ -35,10 +35,10 @@ class="nav-link active"
 {!! html()->modelForm($teams, 'PATCH', url('teams/'.$teams->id))->open() !!}
 
 @if(Session::has('errors'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fa fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>Alert!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     <br/>
     @if($errors->first('name'))
     <li class="error-message-padding">{!! $errors->first('name', ':message') !!}</li>
@@ -62,19 +62,19 @@ class="nav-link active"
        
         <div class="row">
             <!-- name -->
-            <div class="col-sm-5 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+            <div class="col-sm-5 mb-3 {{ $errors->has('name') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.name'), 'name') !!} <span class="text-red"> *</span>
                 {!! html()->text('name', null)->class('form-control') !!}
             </div>
             <!-- team lead -->
-            <div class="col-sm-4 form-group {{ $errors->has('team_lead') ? 'has-error' : '' }}">
+            <div class="col-sm-4 mb-3 {{ $errors->has('team_lead') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.team_lead'), 'team_lead') !!}
                 {!! html()->select('team_lead', [''=>Lang::get('lang.select_a_team_lead'), Lang::get('lang.members')=>$user->pluck('full_name','id')->toArray()], null)->class('form-control') !!}	
             </div>
 
             <div class="col-sm-3">
                 <!-- status -->
-                <div class="form-group {{ $errors->has('status') ? 'has-error' : '' }}">
+                <div class="mb-3 {{ $errors->has('status') ? 'has-error' : '' }}">
                     {!! html()->label(Lang::get('lang.status'), 'status') !!}
                     <div class="row">
                         <div class="col-sm-6">

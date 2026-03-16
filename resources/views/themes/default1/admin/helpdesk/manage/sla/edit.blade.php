@@ -35,10 +35,10 @@ class="nav-link active"
 {!! html()->modelForm($slas, 'PATCH', url('sla/'.$slas->id))->open() !!}
 @if(Session::has('errors'))
 <?php //dd($errors); ?>
-<div class="alert alert-danger alert-dismissable">
-    <i class="fa fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>Alert!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     <br/>
     @if($errors->first('name'))
     <li class="error-message-padding">{!! $errors->first('name', ':message') !!}</li>
@@ -59,21 +59,21 @@ class="nav-link active"
         <!-- Name text form Required -->
         <div class="row">
             <div class="col-md-4">
-                <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                <div class="mb-3 {{ $errors->has('name') ? 'has-error' : '' }}">
                     {!! html()->label(Lang::get('lang.name'), 'name') !!} <span class="text-red"> *</span>
                     {!! html()->text('name', null)->class('form-control') !!}
                 </div>
             </div>
             <!-- Grace Period text form Required -->
             <div class="col-md-4">
-                <div class="form-group {{ $errors->has('grace_period') ? 'has-error' : '' }}">
+                <div class="mb-3 {{ $errors->has('grace_period') ? 'has-error' : '' }}">
                     {!! html()->label(Lang::get('lang.grace_period'), 'grace_period') !!}
                     {!! html()->select('grace_period', ['6 Hours'=>'6 Hours', '12 Hours'=>'12 Hours', '18 Hours'=>'18 Hours', '24 Hours'=>'24 Hours', '36 Hours'=>'36 Hours', '48 Hours'=>'48 Hours'], null)->class('form-control') !!}
                 </div>
             </div>
             <!-- status radio: required: Active|Dissable -->
             <div class="col-md-4">
-                <div class="form-group {{ $errors->has('status') ? 'has-error' : '' }}">
+                <div class="mb-3 {{ $errors->has('status') ? 'has-error' : '' }}">
                     {!! html()->label(Lang::get('lang.status'), 'status') !!}&nbsp;<br/>
                     {!! html()->radio('status', true, '1') !!} &nbsp; {{Lang::get('lang.active')}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     {!! html()->radio('status', null, '0') !!} &nbsp; {{Lang::get('lang.inactive')}}
@@ -83,7 +83,7 @@ class="nav-link active"
         <!-- Admin Note : Textarea : -->
         <div class="row">
             <div class="col-md-12">
-                <div class="form-group">
+                <div class="mb-3">
                     {!! html()->label(Lang::get('lang.admin_notes'), 'admin_note') !!}
                     {!! html()->textarea('admin_note', null)->class('form-control')->attributes(['size' => '30x5']) !!}
                 </div>

@@ -1,7 +1,7 @@
 <li class="nav-item dropdown notifications-menu">
     <a href="#" class="nav-link" data-bs-toggle="dropdown">
 
-        <i class="fa-solid fa-sync"></i>
+        <i class="fa-solid fa-arrows-rotate"></i>
 
         <span class="badge bg-warning navbar-badge" id="count">{!! $notification->count() !!}</span>
     </a>

@@ -39,10 +39,10 @@ class="nav-link active"
 
 @if(Session::has('errors'))
 <?php //dd($errors); ?>
-<div class="alert alert-danger alert-dismissable">
-    <i class="fa fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>Alert!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     <br/>
     @if($errors->first('user_name'))
     <li class="error-message-padding">{!! $errors->first('user_name', ':message') !!}</li>
@@ -86,15 +86,15 @@ class="nav-link active"
 </div>
 @endif
 @if(Session::has('fails2'))
-    <div class="alert alert-danger alert-dismissable">
-    <i class="fa fa-ban"></i>
+    <div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>Alert!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     <br/>
         <li class="error-message-padding">{!! Session::get('fails2') !!}</li>
     </div>
 @endif
-<!-- <section class="content"> -->
+<!-- <section class="app-content"> -->
 <div class="card card-light">
     <div class="card-header">
         <h3 class="card-title">{!! Lang::get('lang.edit_an_agent') !!}</h3>	
@@ -103,7 +103,7 @@ class="nav-link active"
 
         <div class="row">
             <!-- username -->
-            <div class="col-sm-4 form-group {{ $errors->has('user_name') ? 'has-error' : '' }}">
+            <div class="col-sm-4 mb-3 {{ $errors->has('user_name') ? 'has-error' : '' }}">
 
                 {!! html()->label(Lang::get('lang.user_name'), 'user_name') !!} <span class="text-red"> *</span>
 
@@ -112,7 +112,7 @@ class="nav-link active"
             </div>
 
             <!-- firstname -->
-            <div class="col-sm-4 form-group {{ $errors->has('first_name') ? 'has-error' : '' }}">
+            <div class="col-sm-4 mb-3 {{ $errors->has('first_name') ? 'has-error' : '' }}">
 
                 {!! html()->label(Lang::get('lang.first_name'), 'first_name') !!} <span class="text-red"> *</span>
 
@@ -121,7 +121,7 @@ class="nav-link active"
             </div>
 
             <!-- Lastname -->
-            <div class="col-sm-4 form-group {{ $errors->has('last_name') ? 'has-error' : '' }}">
+            <div class="col-sm-4 mb-3 {{ $errors->has('last_name') ? 'has-error' : '' }}">
 
                 {!! html()->label(Lang::get('lang.last_name'), 'last_name') !!} <span class="text-red"> *</span>
 
@@ -133,7 +133,7 @@ class="nav-link active"
 
         <div class="row">
             <!-- Email -->
-            <div class="col-sm-4 form-group {{ $errors->has('email') ? 'has-error' : '' }}">
+            <div class="col-sm-4 mb-3 {{ $errors->has('email') ? 'has-error' : '' }}">
 
                 {!! html()->label(Lang::get('lang.email_address'), 'email') !!} <span class="text-red"> *</span>
 
@@ -141,7 +141,7 @@ class="nav-link active"
 
             </div>
 
-            <div class="col-sm-1 form-group {{ $errors->has('ext') ? 'has-error' : '' }}">
+            <div class="col-sm-1 mb-3 {{ $errors->has('ext') ? 'has-error' : '' }}">
 
                 <label for="ext">EXT</label>	
 
@@ -149,14 +149,14 @@ class="nav-link active"
 
             </div>
             <!--country code-->
-            <div class="col-sm-1 form-group {{ Session::has('country_code') ? 'has-error' : '' }}">
+            <div class="col-sm-1 mb-3 {{ Session::has('country_code') ? 'has-error' : '' }}">
 
                 {!! html()->label(Lang::get('lang.country-code'), 'country_code') !!}
                 {!! html()->text('country_code', null)->class('form-control')->placeholder($phonecode)->attributes(['title' => Lang::get('lang.enter-country-phone-code')]) !!}
 
             </div>
             <!-- phone -->
-            <div class="col-sm-3 form-group {{ $errors->has('phone_number') ? 'has-error' : '' }}">
+            <div class="col-sm-3 mb-3 {{ $errors->has('phone_number') ? 'has-error' : '' }}">
 
                 {!! html()->label(Lang::get('lang.phone'), 'phone_number') !!}
 
@@ -165,7 +165,7 @@ class="nav-link active"
             </div>
 
             <!-- Mobile -->
-            <div class="col-sm-3 form-group {{ $errors->has('mobile') ? 'has-error' : '' }}">
+            <div class="col-sm-3 mb-3 {{ $errors->has('mobile') ? 'has-error' : '' }}">
 
                 {!! html()->label(Lang::get('lang.mobile_number'), 'mobile') !!}
 
@@ -177,21 +177,21 @@ class="nav-link active"
 
         <div class="row">
             <!-- assigned group -->
-            <div class="col-sm-4 form-group {{ $errors->has('group') ? 'has-error' : '' }}">
+            <div class="col-sm-4 mb-3 {{ $errors->has('group') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.assigned_group'), 'assign_group') !!} <span class="text-red"> *</span>
 
                 {!! html()->select('group', [''=>Lang::get('lang.select_a_group'), Lang::get('lang.groups')=>$groups->pluck('name','id')->toArray()], $user->assign_group)->class('form-control select') !!}
             </div>
 
             <!-- primary department -->
-            <div class="col-sm-4 form-group {{ $errors->has('primary_department') ? 'has-error' : '' }}">
+            <div class="col-sm-4 mb-3 {{ $errors->has('primary_department') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.primary_department'), 'primary_dpt') !!} <span class="text-red"> *</span>
 
                 {!! html()->select('primary_department', [''=>Lang::get('lang.select_a_department'), Lang::get('lang.departments')=>$departments->pluck('name','id')->toArray()], $user->primary_dpt)->class('form-control select') !!}
             </div>
 
             <!-- agent timezone -->
-            <div class="col-sm-4 form-group {{ $errors->has('agent_time_zone') ? 'has-error' : '' }}">
+            <div class="col-sm-4 mb-3 {{ $errors->has('agent_time_zone') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.agent_time_zone'), 'agent_tzone') !!} <span class="text-red"> *</span>
 
                 {!! html()->select('agent_time_zone', [''=>Lang::get('lang.select_a_time_zone'), Lang::get('lang.time_zones')=>$timezones->pluck('name','id')->toArray()], $user->agent_tzone)->class('form-control select') !!}
@@ -201,7 +201,7 @@ class="nav-link active"
         <div class="row">
             <div class="col-sm-4">
                 <!-- acccount type -->
-                <div class="form-group {{ $errors->has('active') ? 'has-error' : '' }}">
+                <div class="mb-3 {{ $errors->has('active') ? 'has-error' : '' }}">
 
                     {!! html()->label(Lang::get('lang.status'), 'active') !!}
 
@@ -219,7 +219,7 @@ class="nav-link active"
 
             <div class="col-sm-4">
                   <!-- role -->
-                <div class="form-group {{ $errors->has('role') ? 'has-error' : '' }}">
+                <div class="mb-3 {{ $errors->has('role') ? 'has-error' : '' }}">
 
                     {!! html()->label(Lang::get('lang.role'), 'role') !!}
 
@@ -236,11 +236,11 @@ class="nav-link active"
 
             <div class="col-sm-4">
                 <!-- team -->
-                <div class="form-group {{ $errors->has('team') ? 'has-error' : '' }}">
+                <div class="mb-3 {{ $errors->has('team') ? 'has-error' : '' }}">
                     {!! html()->label(Lang::get('lang.assigned_team'), 'agent_tzone') !!} <span class="text-red"> *</span>
                 </div>
                 @foreach($teams as $key => $val)
-                <div class="form-group ">
+                <div class="mb-3 ">
                     <input type="checkbox" name="team[]" value="<?php echo $val; ?> " <?php
                     if (in_array($val, $assign)) {
                         echo ('checked');

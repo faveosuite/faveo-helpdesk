@@ -37,10 +37,10 @@ class="nav-link active"
 {!! html()->modelForm($departments, 'PATCH', url('departments/'.$departments->id))->open() !!}
 @if(Session::has('errors'))
 <?php //dd($errors); ?>
-<div class="alert alert-danger alert-dismissable">
-    <i class="fa fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>Alert!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     <br/>
     @if($errors->first('name'))
     <li class="error-message-padding">{!! $errors->first('name', ':message') !!}</li>
@@ -67,12 +67,12 @@ class="nav-link active"
         
         <div class="row">
             <!-- name -->
-            <div class="col-sm-6 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+            <div class="col-sm-6 mb-3 {{ $errors->has('name') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.name'), 'name') !!} <span class="text-red"> *</span>
                 {!! html()->text('name', null)->class('form-control') !!}
             </div>
             <!-- account status -->
-            <div class="col-sm-6 form-group {{ $errors->has('account_status') ? 'has-error' : '' }}">
+            <div class="col-sm-6 mb-3 {{ $errors->has('account_status') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.type'), 'type') !!}
                 <div class="row">
                     <div class="col-sm-2">
@@ -86,12 +86,12 @@ class="nav-link active"
         </div>
         <div class="row">
             <!-- sla -->
-            <div class="col-sm-6 form-group {{ $errors->has('sla') ? 'has-error' : '' }}">
+            <div class="col-sm-6 mb-3 {{ $errors->has('sla') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.SLA_plan'), 'sla') !!}
                 {!! html()->select('sla', [''=>Lang::get('lang.select_a_sla'), Lang::get('lang.sla_plans')=>$slas->pluck('grace_period','id')->toArray()], null)->class('form-control select') !!}
             </div>
             <!-- manager -->
-            <div class="col-sm-6 form-group {{ $errors->has('manager') ? 'has-error' : '' }}">
+            <div class="col-sm-6 mb-3 {{ $errors->has('manager') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.manager'), 'manager') !!}
                 {!! html()->select('manager', [null=>Lang::get('lang.select_a_manager'),Lang::get('lang.manager')=>$user->pluck('full_name','id')->toArray()], null)->class('form-control select') !!}
             </div>
@@ -99,7 +99,7 @@ class="nav-link active"
 
         <div class="row">
             <!-- sla -->
-            <div class="col-sm-6 form-group {{ $errors->has('outgoing_email') ? 'has-error' : '' }}">
+            <div class="col-sm-6 mb-3 {{ $errors->has('outgoing_email') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.outgoing_email'), 'outgoing_email') !!}
                 {!! html()->select('outgoing_email', ['' => Lang::get('lang.system_default'), Lang::get('lang.emails')=>$emails->pluck('email_name','id')->toArray()], null)->class('form-control select') !!}
             </div>

@@ -10,30 +10,30 @@
 </div>
 @endif
 @if($warn!=="")
-<div class="alert alert-warning alert-dismissable">
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-warning alert-dismissible">
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {!!$warn!!}
 </div>
 @endif
 <!-- check whether success or not -->
 @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <i class="fas  fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+    <i class="fa-solid  fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {!!Session::get('success')!!}
 </div>
 @endif
 <!-- failure message -->
 @if(Session::has('fails'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fas fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {!!Session::get('fails')!!}
 </div>
 @endif
-<!--        <div class="alert  alert-dismissable" style="background: #F3F3F3">
-    <i class="fa  fa-info-circle"></i>&nbsp;Please set this command in your cron
+<!--        <div class="alert  alert-dismissible" style="background: #F3F3F3">
+    <i class="fa  fa-circle-info"></i>&nbsp;Please set this command in your cron
     {!! $command !!}
 </div>-->
 
@@ -44,13 +44,13 @@
 
     <div class="card-body">
        
-        <div class="alert  alert-dismissable" style="background: #F3F3F3">
-            <i class="fas  fa-info-circle"></i>&nbsp;Please set this command in your cron
+        <div class="alert  alert-dismissible" style="background: #F3F3F3">
+            <i class="fa-solid  fa-circle-info"></i>&nbsp;Please set this command in your cron
             {!! $shared !!}
         </div>
 
-        <div class="alert  alert-dismissable" style="background: #F3F3F3">
-            <i class="fas fa-info-circle"></i>&nbsp;{!!Lang::get('lang.crone-url-message')!!}
+        <div class="alert  alert-dismissible" style="background: #F3F3F3">
+            <i class="fa-solid fa-circle-info"></i>&nbsp;{!!Lang::get('lang.crone-url-message')!!}
             <a href="https://support.faveohelpdesk.com/show/how-to-configure-cron-jobs-in-faveo" style="color:black" target="blank">{!!Lang::get('lang.click')!!}</a> {!!Lang::get('lang.check-cron-set')!!}
         </div>
         
@@ -58,16 +58,16 @@
             
             <div class="col-md-6">
                 
-                <div class="info-box">
+                <div class="info-box shadow-sm">
                     <!-- Apply any bg-* class to to the icon to color it -->
-                    <span class="info-box-icon bg-info"><i class="fas fa-cloud-download-alt"></i></span>
+                    <span class="info-box-icon bg-info"><i class="fa-solid fa-cloud-download-alt"></i></span>
                     
                     <div class="info-box-content">
 
                         <div class="row">
                             
                             <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     {!! html()->label(Lang::get('lang.email_fetch'), 'email_fetching') !!}<br>
                                     {!! html()->checkbox('email_fetching', $condition->checkActiveJob()['fetching'], 1)->id('email_fetching') !!}&nbsp;{{Lang::get('lang.fetch_auto-corn')}}
                                 </div>
@@ -87,13 +87,13 @@
 
         <div class="col-md-6">
 
-            <div class="info-box">
+            <div class="info-box shadow-sm">
                 <!-- Apply any bg-* class to to the icon to color it -->
-                <span class="info-box-icon bg-info"><i class="fas fa-cloud-upload-alt"></i></span>
+                <span class="info-box-icon bg-info"><i class="fa-solid fa-cloud-upload-alt"></i></span>
                 <div class="info-box-content">
                     <div class="row">
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="mb-3">
                                 {!! html()->label(Lang::get('lang.notification-email'), 'notification_cron') !!}<br>
                                 {!! html()->checkbox('notification_cron', $condition->checkActiveJob()['notification'], 1)->id('notification_cron') !!}&nbsp;{{Lang::get('lang.cron_notification')}}
                             </div>
@@ -112,13 +112,13 @@
 
         <div class="row">
             <div class="col-md-6">
-            <div class="info-box">
+            <div class="info-box shadow-sm">
                 <!-- Apply any bg-* class to to the icon to color it -->
-                <span class="info-box-icon bg-info"><i class="fas fa-check-circle"></i></span>
+                <span class="info-box-icon bg-info"><i class="fa-solid fa-circle-check"></i></span>
                 <div class="info-box-content">
                     <div class="row">
                         <div class="col-md-6">
-                            <div class="form-group">
+                            <div class="mb-3">
                                 {!! html()->label(Lang::get('lang.auto_close_workflow'), 'condition') !!}<br>
                                 {!! html()->checkbox('condition', $condition->checkActiveJob()['work'], 1)->id('auto_close') !!}
                                        {{Lang::get('lang.enable_workflow')}}

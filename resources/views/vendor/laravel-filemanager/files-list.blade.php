@@ -13,7 +13,7 @@
             @foreach($directories as $key => $dir_name)
                 <tr>
                     <td>
-                        <i class="fa fa-folder-o"></i>
+                        <i class="fa-solid fa-folder-o"></i>
                         <a id="large_folder_{{ $key }}" data-id="{{ $dir_name }}" href="javascript:clickFolder('large_folder_{{ $key }}',1)">
                             {{ $dir_name }}
                         </a>
@@ -35,7 +35,7 @@
                         </a>
                         &nbsp;&nbsp;
                         <a href="javascript:rename('{{ $file_name }}')">
-                            <i class="fa fa-edit"></i>
+                            <i class="fa-solid fa-pen-to-square"></i>
                         </a>
                     </td>
                     <td>
@@ -49,7 +49,7 @@
                     </td>
                     <td>
                         <a href="javascript:trash('{{ $file_name }}')">
-                            <i class="fa fa-trash fa-fw"></i>
+                            <i class="fa-solid fa-trash fa-fw"></i>
                         </a>
                     </td>
                 </tr>

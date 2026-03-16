@@ -35,7 +35,7 @@ class="nav-link active"
 <!-- check whether success or not -->
 @if(Session::has('success'))
 <div class="alert alert-success alert-dismissible">
-  <i class="fa-solid fa-check-circle"></i>
+  <i class="fa-solid fa-circle-check"></i>
   <b>Success!</b>
   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
   {{Session::get('success')}}
@@ -57,9 +57,9 @@ class="nav-link active"
 
 		<h3 class="card-title">{!! Lang::get('lang.emails') !!}</h3>
 
-		<div class="card-tools">
+		<div class="card-tools d-flex">
 
-			<a href="{{route('emails.create')}}" class="btn btn-default btn-tool">
+			<a href="{{route('emails.create')}}" class="btn btn-secondary btn-tool">
 				<span class="fa-solid fa-plus"></span>&nbsp;{{Lang::get('lang.create_email')}}
 			</a>
 		</div>

@@ -27,7 +27,7 @@ $category_id = $all->pluck('category_id')->toArray();
                 margin-right: 10px; /* Adjust the value to increase or decrease the gap between list items */
             }
         </style>
-        <li class="breadcrumb-item"> <i class="fas fa-home"> </i> {!! Lang::get('lang.you_are_here') !!} : &nbsp;</li>
+        <li class="breadcrumb-item"> <i class="fa-solid fa-home"> </i> {!! Lang::get('lang.you_are_here') !!} : &nbsp;</li>
         <?php $category = App\Model\kb\Category::where('id', $category_id)->first(); ?>
         <li><a class="words" href="{!! URL::route('home') !!}">{!! Lang::get('lang.knowledge_base') !!}</a></li>
         <li class="words">></li>
@@ -54,12 +54,12 @@ $category_id = $all->pluck('category_id')->toArray();
             <div class="entry-meta text-muted">
 
                 <span class="date">
-                    <i class="far fa-clock fa-fw"></i> 
+                    <i class="fa-regular fa-clock fa-fw"></i> 
                     <time datetime="2013-09-19T20:01:58+00:00">{{$arti->created_at->format('l, d-m-Y')}}</time>
                 </span>
 
                 <span class="category">
-                    <i class="fas fa-folder-open fa-fw"></i> 
+                    <i class="fa-solid fa-folder-open fa-fw"></i> 
                     <a href="{{url('category-list/'.$category->slug)}}">{{$category->name}}</a>
                 </span>
             </div><!-- .entry-meta -->
@@ -110,7 +110,7 @@ $category_id = $all->pluck('category_id')->toArray();
                         <p>{!! $comment->comment !!}</p>
                     </div><!-- .comment-content -->
 
-                    <div class="comment-reply text-right">
+                    <div class="comment-reply text-end">
                         {{-- <a class="btn btn-custom btn-sm" href="#">Reply</a> --}}
                     </div><!-- .comment-reply -->
                 </article><!-- .comment-body -->
@@ -149,7 +149,7 @@ $category_id = $all->pluck('category_id')->toArray();
                         </div>
 
                         <div class="col-md-10" style="width: 65%">
-                            <div class="form-group {{ $errors->has('comment') ? 'has-error' : '' }}">
+                            <div class="mb-3 {{ $errors->has('comment') ? 'has-error' : '' }}">
                                 {!! html()->label(Lang::get('lang.message'), 'comment')->class('label') !!}
                                 {!! html()->textarea('comment', null)->class('form-control')->id('comment')->attributes(['size' => '30x8']) !!}
                                 {!! $errors->first('comment', '<spam class="help-block">:message</spam>') !!}
@@ -211,19 +211,19 @@ $category_id = $all->pluck('category_id')->toArray();
                     {!! html()->form('POST', url('postcomment/'.$arti->slug))->attributes(['id' => 'comment-form'])->open() !!}
                     <div class="row">
                         <div class="col-md-4">
-                            <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                            <div class="mb-3 {{ $errors->has('name') ? 'has-error' : '' }}">
                                 {!! html()->label(Lang::get('lang.name'), 'name')->class('label') !!}
                                 {!! html()->text('name', null)->class('form-control')->id('comment-name') !!}
                                 {!! $errors->first('name', '<span class="help-block">:message</span>') !!}
                             </div>
 
-                            <div class="form-group {{ $errors->has('email') ? 'has-error' : '' }}">
+                            <div class="mb-3 {{ $errors->has('email') ? 'has-error' : '' }}">
                                 {!! html()->label(Lang::get('lang.email'), 'email')->class('label') !!}
                                 {!! html()->text('email', null)->class('form-control')->id('comment-email') !!}
                                 {!! $errors->first('email', '<span class="help-block">:message</span>') !!}
                             </div>
 
-                            <div class="form-group {{ $errors->has('website') ? 'has-error' : '' }}">
+                            <div class="mb-3 {{ $errors->has('website') ? 'has-error' : '' }}">
                                 {!! html()->label(Lang::get('lang.website'), 'website')->class('label') !!}
                                 {!! html()->text('website', null)->class('form-control') !!}
                                 {!! $errors->first('website', '<span class="help-block">:message</span>') !!}
@@ -232,7 +232,7 @@ $category_id = $all->pluck('category_id')->toArray();
                         </div>
 
                         <div class="col-md-10" style="width: 65%">
-                            <div class="form-group {{ $errors->has('comment') ? 'has-error' : '' }}">
+                            <div class="mb-3 {{ $errors->has('comment') ? 'has-error' : '' }}">
                                 {!! html()->label(Lang::get('lang.message'), 'comment')->class('label') !!}
                                 {!! html()->textarea('comment', null)->class('form-control')->id('comment')->attributes(['size' => '30x8']) !!}
                                 {!! $errors->first('comment', '<spam class="help-block">:message</spam>') !!}
@@ -251,7 +251,7 @@ $category_id = $all->pluck('category_id')->toArray();
 
                                 // Remove any existing error messages and reset label colors
                                 $(".help-block").remove();
-                                $(".form-group").removeClass("has-error");
+                                $(".mb-3").removeClass("has-error");
 
                                 // Perform your custom validation here
                                 var nameElement = $("#comment-name");
@@ -337,7 +337,7 @@ $category_id = $all->pluck('category_id')->toArray();
 
                         <b>   <i class="line" style="border-color: rgb(0, 154, 186);"></i>{!! Lang::get('lang.categories') !!}</b>
 
-                        <small class="float-end"><i class="far fa-hdd fa-fw"></i></small>
+                        <small class="float-end"><i class="fa-regular fa-hdd fa-fw"></i></small>
                     </h2>
 
                     <ul class="nav nav-pills nav-stacked nav-categories">
@@ -353,7 +353,7 @@ $category_id = $all->pluck('category_id')->toArray();
                         <li class="d-flex justify-content-between align-items-center">
 
                             <a href="{{url('category-list/'.$category->slug)}}" class="list-group-item list-group-item-action" style="padding: 5px;">
-                                <span class="badge badge-pill float-end" style="margin-top: 2px;">{{$numcount}}</span>{{$category->name}}
+                                <span class="badge bg-pill float-end" style="margin-top: 2px;">{{$numcount}}</span>{{$category->name}}
                             </a>
                         </li>
                         @endforeach

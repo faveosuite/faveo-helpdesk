@@ -38,7 +38,7 @@ class="nav-item menu-open"
 <!-- check whether success or not -->
 @if(Session::has('success'))
 <div class="alert alert-success alert-dismissible">
-    <i class="fa-solid fa-check-circle"></i>
+    <i class="fa-solid fa-circle-check"></i>
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('success')}}
 </div>

@@ -25,7 +25,7 @@ class="nav-link active"
     {{-- Success message --}}
     @if(Session::has('success'))
     <div class="alert alert-success alert-dismissible">
-        <i class="fa-solid fa-check-circle"></i>
+        <i class="fa-solid fa-circle-check"></i>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         {{Session::get('success')}}
     </div>
@@ -42,7 +42,7 @@ class="nav-link active"
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">{!! Lang::get('lang.canned_response') !!}</h3>
-            <div class="card-tools">
+            <div class="card-tools d-flex">
                 <a href="{{route('canned.create')}}" class="btn btn-primary btn-sm">
                     <i class="fa-solid fa-plus me-1"></i>{!! Lang::get('lang.create_canned_response') !!}
                 </a>

@@ -24,7 +24,7 @@ class="nav-link active"
 
 @if(Session::has('success'))
 <div class="alert alert-success alert-dismissible">
-    <i class="fa-solid fa-check-circle"></i>
+    <i class="fa-solid fa-circle-check"></i>
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('success')}}
 </div>
@@ -45,9 +45,9 @@ class="nav-link active"
 
         <h3 class="card-title">{{Lang::get('lang.organization_list')}}</h3>
 
-        <div class="card-tools">
+        <div class="card-tools d-flex">
 
-            <a href="{{route('organizations.create')}}" class="btn btn-default btn-tool"><i class="fa-solid fa-plus"> </i> {{Lang::get('lang.create_organization')}}</a>
+            <a href="{{route('organizations.create')}}" class="btn btn-secondary btn-tool"><i class="fa-solid fa-plus"> </i> {{Lang::get('lang.create_organization')}}</a>
         </div>
 
     </div>

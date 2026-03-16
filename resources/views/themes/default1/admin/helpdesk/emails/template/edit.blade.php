@@ -46,15 +46,15 @@ class="active"
 
 		<!--  Status : Radio form : Required -->
       <div class="col-md-6">
-		<div class="form-group {{ $errors->has('status') ? 'has-error' : '' }}">
-			<div class="row col-xs-3">
+		<div class="mb-3 {{ $errors->has('status') ? 'has-error' : '' }}">
+			<div class="row col-3">
 			{!! html()->label(Lang::get('lang.status'), 'status') !!}
 			</div>
 			<div class="row">
-				<div class="col-xs-3">
+				<div class="col-3">
 					{!! html()->radio('ban_status', true, 'active') !!}{{Lang::get('lang.active')}}
 				</div>
-				<div class="col-xs-3">
+				<div class="col-3">
 					{!! html()->radio('ban_status', null, 'disabled') !!}{{Lang::get('lang.disabled')}}
 				</div>
 			</div>
@@ -64,7 +64,7 @@ class="active"
 		<!-- Name : Text form : Required -->
 		<div class="row">
            <div class="col-md-4">
-		        <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+		        <div class="mb-3 {{ $errors->has('name') ? 'has-error' : '' }}">
 			      {!! html()->label(Lang::get('lang.name'), 'name') !!}
 			      {!! $errors->first('name', '<spam class="help-block">:message</spam>') !!}
 			       {!! html()->text('name', null)->disabled()->class('form-control') !!}
@@ -73,7 +73,7 @@ class="active"
 
 		<!-- Form for template set to clone From template table : Drop down : required -->
              <div class="col-md-4">
-		<div class="form-group {{ $errors->has('template_set_to_clone') ? 'has-error' : '' }}">
+		<div class="mb-3 {{ $errors->has('template_set_to_clone') ? 'has-error' : '' }}">
 			{!! html()->label(Lang::get('lang.template_set_to_clone'), 'template_set_to_clone') !!}
 			{!! $errors->first('template_set_to_clone', '<spam class="help-block">:message</spam>') !!}
 			{!! html()->select('template_set_to_clone', [''=>'Select a Template','Templates'=>$templates->pluck('name','name')], 1)->class('form-control') !!}
@@ -82,7 +82,7 @@ class="active"
 
 		<!-- Language field to Set the language in the template -->
            <div class="col-md-4">
-		<div class="form-group {{ $errors->has('language') ? 'has-error' : '' }}">
+		<div class="mb-3 {{ $errors->has('language') ? 'has-error' : '' }}">
 			{!! html()->label(Lang::get('lang.language'), 'language') !!}
 			{!! $errors->first('language', '<spam class="help-block">:message</spam>') !!}
 			{!! html()->select('language', [''=>'Select a Language','Languages'=>$languages->pluck('name','name')], null)->class('form-control') !!}
@@ -92,7 +92,7 @@ class="active"
 		<!-- intrnal Notes : Textarea :  -->
 
              <div class="col-md-12">
-		      <div class="form-group">
+		      <div class="mb-3">
 			     {!! html()->label(Lang::get('lang.internal_notes'), 'internal_note') !!}
 			     {!! html()->textarea('internal_note', null)->class('form-control') !!}
 		     </div>

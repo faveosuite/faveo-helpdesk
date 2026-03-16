@@ -251,12 +251,12 @@
                                                 <?php if (is_object($errors) && ($errors->first('email') || $errors->first('password'))) : ?>
                                             <a href="#" class="nav-link sfHover" data-bs-toggle="collapse" data-bs-target="#login-form">
                                                 {!! Lang::get('lang.login') !!}
-{{--                                                <i class="sub-indicator fa fa-chevron-circle-down fa-fw text-muted"></i>--}}
+{{--                                                <i class="sub-indicator fa-solid fa-chevron-circle-down fa-fw text-muted"></i>--}}
                                             </a>
                                             <?php else : ?>
                                             <a href="#" class="nav-link collapsed" data-bs-toggle="collapse" data-bs-target="#login-form">
                                                 {!! Lang::get('lang.login') !!}
-{{--                                                <i class="sub-indicator fa fa-chevron-circle-down fa-fw text-muted"></i>--}}
+{{--                                                <i class="sub-indicator fa-solid fa-chevron-circle-down fa-fw text-muted"></i>--}}
                                             </a>
                                             <?php endif; ?>
                                         </li>
@@ -302,7 +302,7 @@
                                         <?php goto b; ?>
                                         @endif
                                         @if(Session::has('error'))
-                                        <div class="alert alert-danger alert-dismissable">
+                                        <div class="alert alert-danger alert-dismissible">
 
                                             {!! Session::get('error') !!}
 
@@ -310,15 +310,15 @@
                                          @endif
                                         <?php b: ?>
                                         @endif
-                                        <div class="form-group has-feedback @if(isset($errors)) {!! $errors->has('email') ? 'has-error' : '' !!} @endif">
+                                        <div class="mb-3 has-feedback @if(isset($errors)) {!! $errors->has('email') ? 'has-error' : '' !!} @endif">
                                             {!! html()->text('email', null)->placeholder(Lang::get('lang.e-mail'))->class('form-control') !!}
                                         </div>
-                                        <div class="form-group has-feedback @if(isset($errors)) {!! $errors->has('password') ? 'has-error' : '' !!} @endif">
+                                        <div class="mb-3 has-feedback @if(isset($errors)) {!! $errors->has('password') ? 'has-error' : '' !!} @endif">
                                             {!! html()->password('password')->placeholder(Lang::get('lang.password'))->class('form-control') !!}
                                             <?php \Illuminate\Support\Facades\Event::dispatch('auth.login.form'); ?>
                                             <a href="{{url('password/email')}}" class="float-start small">{!! Lang::get('lang.forgot_password') !!}</a>
                                         </div>
-                                        <div class="form-group float-start">
+                                        <div class="mb-3 float-start">
                                          <input type="checkbox" name="remember"> {!! Lang::get("lang.remember") !!}
                                         </div>
                                     </div>
@@ -344,7 +344,7 @@
                     <div id="header-search" class="site-search clearfix"><!-- #header-search -->
                         {!! html()->form('POST', route('client.search'))->attributes(['class' => 'search-form clearfix'])->open() !!}
                         <div class="form-border">
-                            <div class="form-inline">
+                            <div class="d-flex gap-2">
                                 <div class="d-flex w-100 gap-2">
 
                                     <input type="text"

@@ -35,28 +35,28 @@ class="nav-link active"
 {!! html()->modelForm($companys, 'PATCH', url('postcompany/'.$companys->id))->acceptsFiles()->open() !!}
 <!-- check whether success or not -->
 @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <i class="fas fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+    <i class="fa-solid fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {!!Session::get('success')!!}
 </div>
 @endif
 <!-- failure message -->
 @if(Session::has('fails'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fas fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {!!Session::get('fails')!!}
 </div>
 @endif
 
 @if(Session::has('errors'))
 <?php //dd($errors); ?>
-<div class="alert alert-danger alert-dismissable">
-    <i class="fas fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     <br/>
     @if($errors->first('company_name'))
     <li class="error-message-padding">{!! $errors->first('company_name', ':message') !!}</li>
@@ -78,21 +78,21 @@ class="nav-link active"
         <div class="row">
             <div class="col-md-4">
                 <!-- comapny name -->
-                <div class="form-group {{ $errors->has('company_name') ? 'has-error' : '' }}">
+                <div class="mb-3 {{ $errors->has('company_name') ? 'has-error' : '' }}">
                     {!! html()->label(Lang::get('lang.name'), 'company_name') !!} <span class="text-red"> *</span>
                     {!! html()->text('company_name', $companys->company_name)->class('form-control') !!}
                 </div>
             </div>
             <div class="col-md-4">
                 <!-- website -->
-                <div class="form-group {{ $errors->has('website') ? 'has-error' : '' }}">
+                <div class="mb-3 {{ $errors->has('website') ? 'has-error' : '' }}">
                     {!! html()->label(Lang::get('lang.website'), 'website') !!}
                     {!! html()->input('url', 'website', $companys->website)->class('form-control') !!}
                 </div>
             </div>
             <div class="col-md-4">
                 <!-- phone -->
-                <div class="form-group {{ $errors->has('phone') ? 'has-error' : '' }}">
+                <div class="mb-3 {{ $errors->has('phone') ? 'has-error' : '' }}">
                     {!! html()->label(Lang::get('lang.phone'), 'phone') !!}
                     {!! html()->text('phone', $companys->phone)->class('form-control') !!}
                 </div>
@@ -122,7 +122,7 @@ class="nav-link active"
                         @endif
                         <?php $company = App\Model\helpdesk\Settings\Company::where('id', '=', '1')->first(); ?>
                         @if($companys->logo != null)
-                        <div class="col-md-3 image" data-content="{{Lang::get('lang.click-delete')}}">
+                        <div class="col-md-3 image" data-bs-content="{{Lang::get('lang.click-delete')}}">
                             <img src="{{asset('uploads/company')}}{{'/'}}{{$company->logo}}" alt="User Image" id="company-logo" width="100px" style="border:1px solid #DCD1D1" />
                         </div>
                         @endif
@@ -140,13 +140,13 @@ class="nav-link active"
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title" id="myModalLabel"></h4>
-                    <button type="button" class="close closemodal" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    <button type="button" class="btn-close closemodal" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
                 </div>
                 <div class="modal-body" id="custom-alert-body" >
                 </div>
                 <div class="modal-footer justify-content-between">
-                    <button type="button" class="btn btn-primary yes" data-dismiss="modal"></button>
-                    <button type="button" class="btn btn-default no"></button>
+                    <button type="button" class="btn btn-primary yes" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn btn-secondary no"></button>
                 </div>
             </div>
         </div>

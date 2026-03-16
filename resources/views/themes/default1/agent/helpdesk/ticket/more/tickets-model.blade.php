@@ -42,14 +42,14 @@
                     <div id="merge-body-alert">
                         <div class="row">
                             <div class="col-md-12">
-                                <div id="merge-succ-alert" class="alert alert-success alert-dismissible fade show initially-hidden">
+                                <div id="merge-succ-alert" class="alert alert-success alert-dismissible fade show d-none">
                                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                    <h4><i class="fas fa-check me-1"></i>{!! Lang::get('lang.alert') !!}!</h4>
+                                    <h4><i class="fa-solid fa-check me-1"></i>{!! Lang::get('lang.alert') !!}!</h4>
                                     <div id="message-merge-succ"></div>
                                 </div>
-                                <div id="merge-err-alert" class="alert alert-danger alert-dismissible fade show initially-hidden">
+                                <div id="merge-err-alert" class="alert alert-danger alert-dismissible fade show d-none">
                                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                    <h4><i class="fas fa-ban me-1"></i>{!! Lang::get('lang.alert') !!}!</h4>
+                                    <h4><i class="fa-solid fa-ban me-1"></i>{!! Lang::get('lang.alert') !!}!</h4>
                                     <div id="message-merge-err"></div>
                                 </div>
                             </div>

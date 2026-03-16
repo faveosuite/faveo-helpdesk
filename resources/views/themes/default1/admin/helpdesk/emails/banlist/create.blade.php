@@ -35,17 +35,17 @@ class="nav-link active"
 {!! html()->form('POST', route('banlist.store'))->open() !!}
 
 @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <i class="fa  fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+    <i class="fa  fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('success')}}
 </div>
 @endif
 @if(Session::has('errors'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fa fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     <br/>
     @if($errors->first('ban'))
     <li class="error-message-padding">{!! $errors->first('ban', ':message') !!}</li>
@@ -64,13 +64,13 @@ class="nav-link active"
         
         <div class="row">
             <!-- email Address : Text form : Required -->
-            <div class="form-group col-sm-6 {{ $errors->has('email') ? 'has-error' : '' }}">
+            <div class="mb-3 col-sm-6 {{ $errors->has('email') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.email_address'), 'email') !!} <span class="text-red"> *</span>
                 {!! html()->text('email', null)->class('form-control') !!}
 
             </div>
 
-            <div class="form-group col-sm-6 {{ $errors->has('ban') ? 'has-error' : '' }}">
+            <div class="mb-3 col-sm-6 {{ $errors->has('ban') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.ban_status'), 'ban') !!} <span class="text-red"> *</span>
                 <div class="row">
                     <div class="col-sm-3">
@@ -83,7 +83,7 @@ class="nav-link active"
             </div>
         </div>
         <!-- intrnal Notes : Textarea :  -->
-        <div class="form-group">
+        <div class="mb-3">
             {!! html()->label(Lang::get('lang.internal_notes'), 'internal_note') !!}
             {!! html()->textarea('internal_note', null)->class('form-control') !!}
         </div>

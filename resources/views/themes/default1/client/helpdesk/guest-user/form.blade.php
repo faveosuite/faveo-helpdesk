@@ -35,7 +35,7 @@
 <div id="content" class="site-content col-md-9">
     @if(Session::has('message'))
     <div class="alert alert-success alert-dismissible">
-        <i class="fa-solid fa-check-circle"></i>
+        <i class="fa-solid fa-circle-check"></i>
         <b>Success!</b>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         {!! Session::get('message') !!}
@@ -58,7 +58,7 @@
 <input id="token" type="hidden" value="{{$encrypted_token}}">
 {!! html()->form('POST', route('client.form.post'))->open() !!}
 <div>
-    <div class="content-header">
+    <div class="app-content-header">
         <h4>Ticket {!! html()->submit(Lang::get('lang.send'))->class('btn btn-info float-end') !!}</h4>
     </div>
     <br/>
@@ -130,12 +130,12 @@ jQuery(document).ready(function() {
                     var sli = splited[j].split('-');
                     if(sli[0]=='textarea')
                     {
-                        $("#ss").append(sli[1]+"<div class="+'"form-group"'+">"
+                        $("#ss").append(sli[1]+"<div class="+'"mb-3"'+">"
                         +"<textarea id="+sli[1]+" class="+
                         'form-control'+" name="+sli[1]+"/></textarea>"+"</div>");
                         var wysihtml5Editor = $('textarea').wysihtml5().data("wysihtml5").editor;
                     } else {
-                        $("#ss").append(sli[1]+"<div class="+'"form-group"'+">"
+                        $("#ss").append(sli[1]+"<div class="+'"mb-3"'+">"
                         +"<input type="+sli[0]+" id="+sli[1]+" class="+
                         'form-control'+" name="+sli[1]+">"+"</div>");
         	        }

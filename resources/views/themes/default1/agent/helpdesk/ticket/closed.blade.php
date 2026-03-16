@@ -58,17 +58,17 @@ if (Auth::user()->role == 'agent') {
     </div><!-- /.box-header -->
     <div class="box-body">
         @if(Session::has('success'))
-        <div class="alert alert-success alert-dismissable">
-            <i class="fa  fa-check-circle"> </i>
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <div class="alert alert-success alert-dismissible">
+            <i class="fa  fa-circle-check"> </i>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
             {{Session::get('success')}}
         </div>
         @endif
         <!-- failure message -->
         @if(Session::has('fails'))
-        <div class="alert alert-danger alert-dismissable">
-            <i class="fa fa-ban"> </i> <b> {!! Lang::get('lang.alert') !!}! </b>
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <div class="alert alert-danger alert-dismissible">
+            <i class="fa-solid fa-ban"> </i> <b> {!! Lang::get('lang.alert') !!}! </b>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
             {{Session::get('fails')}}
         </div>
         @endif
@@ -76,10 +76,10 @@ if (Auth::user()->role == 'agent') {
         {!! html()->form('POST', route('select_all'))->attributes(['id' => 'modalpopup'])->open() !!}
         <!--<div class="mailbox-controls">-->
         <!-- Check all button -->
-        <a class="btn btn-default btn-sm checkbox-toggle"><i class="fa fa-square-o"></i></a>
-        {{-- <a class="btn btn-default btn-sm" id="click"><i class="fa fa-refresh"></i></a> --}}
-        <input type="submit" class="btn btn-default text-orange btn-sm" name="submit" id="delete" value="{!! Lang::get('lang.delete') !!}">
-        <input type="submit" class="btn btn-default text-blue btn-sm" name="submit" id="close" value="{!! Lang::get('lang.open') !!}">
+        <a class="btn btn-secondary btn-sm checkbox-toggle"><i class="fa-solid fa-square-o"></i></a>
+        {{-- <a class="btn btn-secondary btn-sm" id="click"><i class="fa-solid fa-refresh"></i></a> --}}
+        <input type="submit" class="btn btn-secondary text-orange btn-sm" name="submit" id="delete" value="{!! Lang::get('lang.delete') !!}">
+        <input type="submit" class="btn btn-secondary text-blue btn-sm" name="submit" id="close" value="{!! Lang::get('lang.open') !!}">
         
         
         <!--</div>-->
@@ -114,14 +114,14 @@ if (Auth::user()->role == 'agent') {
         <div class="col-md-8">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close closemodal" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    <button type="button" class="btn-close closemodal" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
                     <h4 class="modal-title" id="myModalLabel"></h4>
                 </div>
                 <div class="modal-body" id="custom-alert-body" >
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary pull-left yes" data-dismiss="modal">{{Lang::get('lang.ok')}}</button>
-                    <button type="button" class="btn btn-default no">{{Lang::get('lang.cancel')}}</button>
+                    <button type="button" class="btn btn-primary pull-left yes" data-bs-dismiss="modal">{{Lang::get('lang.ok')}}</button>
+                    <button type="button" class="btn btn-secondary no">{{Lang::get('lang.cancel')}}</button>
                 </div>
             </div>
         </div>
@@ -172,7 +172,7 @@ if (Auth::user()->role == 'agent') {
             $('#refresh').load('closed #refresh');
             $('#title_refresh').load('closed #title_refresh');
             $('#count_refresh').load('closed #count_refresh');
-            $("#show").show();
+            $("#show").removeClass('d-none');
         });
 
         $('#delete').on('click', function() {

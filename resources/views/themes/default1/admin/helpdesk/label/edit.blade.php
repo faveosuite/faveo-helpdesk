@@ -29,24 +29,24 @@ class="active"
 @section('content')
 
 @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <i class="fa fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+    <i class="fa-solid fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('success')}}
 </div>
 @endif
 @if(Session::has('fails'))
-<div class="alert alert-danger alert-dismissable">
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-danger alert-dismissible">
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('fails')}}
 </div>
 @endif
 @if(Session::has('errors'))
         <br><br>
-        <div class="alert alert-danger alert-dismissable">
-            <i class="fa fa-ban"></i>
+        <div class="alert alert-danger alert-dismissible">
+            <i class="fa-solid fa-ban"></i>
             <b>{!! Lang::get('lang.alert') !!}!</b>
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
             <br/>
             @if($errors->first('title'))
             <li class="error-message-padding">{!! $errors->first('title', ':message') !!}</li>
@@ -60,8 +60,8 @@ class="active"
         </div>
         @endif
 @if(Session::has('warn'))
-<div class="alert alert-warning alert-dismissable">
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-warning alert-dismissible">
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('warn')}}
 </div>
 @endif
@@ -77,10 +77,10 @@ class="active"
         <table class="table table-borderless">
             
            <tr>
-                <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
+                <div class="mb-3 {{ $errors->has('title') ? 'has-error' : '' }}">
                 <td>{!! html()->label('Title', 'title') !!}<span class="text-red"> *</span></td>
                 <td>
-                    <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
+                    <div class="mb-3 {{ $errors->has('title') ? 'has-error' : '' }}">
                         {!! html()->text('title', null)->class('form-control') !!}
                     </div>
                 </td>
@@ -89,7 +89,7 @@ class="active"
              <tr>
                 <td>{!! html()->label('Color', 'color') !!}<span class="text-red"> *</span></td>
                 <td>
-                    <div class="form-group {{ $errors->has('color') ? 'has-error' : '' }}">
+                    <div class="mb-3 {{ $errors->has('color') ? 'has-error' : '' }}">
                     {!! html()->text('color', null)->class('form-control my-colorpicker1 colorpicker-element') !!}
                     </div>
                 </td>
@@ -98,7 +98,7 @@ class="active"
              <tr>
                 <td>{!! html()->label('Order', 'order') !!}<span class="text-red"> *</span></td>
                 <td>
-                    <div class="form-group {{ $errors->has('order') ? 'has-error' : '' }}">
+                    <div class="mb-3 {{ $errors->has('order') ? 'has-error' : '' }}">
                     {!! html()->number('order', null)->class('form-control') !!}
                     </div>
                 </td>

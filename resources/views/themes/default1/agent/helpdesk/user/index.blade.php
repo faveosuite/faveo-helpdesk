@@ -35,24 +35,24 @@ class="nav-link active"
 
 <!-- check whether success or not -->
 @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <i class="fa  fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+    <i class="fa  fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('success')}}
 </div>
 @endif
 <!-- failure message -->
 @if(Session::has('warning'))
-<div class="alert alert-warning alert-dismissable">
-    <i class="fa fa-ban"></i><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-warning alert-dismissible">
+    <i class="fa-solid fa-ban"></i><button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     <b>{!! Lang::get('lang.alert') !!} !</b>            
     {{Session::get('warning')}}
 </div>
 @endif
 <!-- failure message -->
 @if(Session::has('fails'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fa fa-ban"></i><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i><button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     <b>{!! Lang::get('lang.alert') !!} !</b>            
     {{Session::get('fails')}}
 </div>
@@ -63,7 +63,7 @@ class="nav-link active"
         
         <h3 class="card-title">{{Lang::get('lang.user')}}</h3>
 
-        <div class="card-tools">
+        <div class="card-tools d-flex">
             
             <div class="has-feedback" style="display: inline-block;">
                 <input type="text" class="form-control input-sm m-0" id="search-text" name="search" placeholder="{{Lang::get('lang.search')}}">
@@ -71,8 +71,8 @@ class="nav-link active"
 
             <div class="btn-group">
         
-                <button type="button" class="btn btn-tool btn-default dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                  <i class="fas fa-eye"> </i> {{Lang::get('lang.view-option')}}
+                <button type="button" class="btn btn-tool btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="fa-solid fa-eye"> </i> {{Lang::get('lang.view-option')}}
                 </button>
         
                 <div class="dropdown-menu dropdown-menu-right" role="menu" style="">
@@ -86,9 +86,9 @@ class="nav-link active"
                 </div>
             </div>
               
-            <a href="{{url('user-export')}}" class="btn btn-tool btn-default">Export</a>
+            <a href="{{url('user-export')}}" class="btn btn-tool btn-secondary">Export</a>
             
-            <a href="{{route('user.create')}}" class="btn btn-tool btn-default">{{Lang::get('lang.create_user')}}</a>
+            <a href="{{route('user.create')}}" class="btn btn-tool btn-secondary">{{Lang::get('lang.create_user')}}</a>
         </div>
     </div>
     

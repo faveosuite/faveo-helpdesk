@@ -29,18 +29,18 @@ class="active"
 <!-- check whether success or not -->
 {{-- Success message --}}
 @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <i class="fas  fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+    <i class="fa-solid  fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('success')}}
 </div>
 @endif
 {{-- failure message --}}
 @if(Session::has('fails'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fas fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('fails')}}
 </div>
 @endif
@@ -57,7 +57,7 @@ class="active"
             <input type="hidden" name="duration" value="" id="duration">
             <input type="hidden" name="default" value="false" id="default">
          
-            <div  class="form-group">
+            <div  class="mb-3">
          
                 <div class="row">
          
@@ -71,7 +71,7 @@ class="active"
                         </select>
                     </div>
 
-                    <div class='col-sm-2 form-group' id="start_date">
+                    <div class='col-sm-2 mb-3' id="start_date">
                         {!! html()->label(Lang::get('lang.start_date').':', 'date') !!}
                         {!! html()->text('start_date', null)->class('form-control')->id('datepicker4') !!}
                     </div>
@@ -98,7 +98,7 @@ class="active"
                         });
                     </script>
 
-                    <div class='col-sm-2 form-group' id="end_date">
+                    <div class='col-sm-2 mb-3' id="end_date">
                         {!! html()->label(Lang::get('lang.end_date').':', 'start_time') !!}
                         {!! html()->text('end_date', null)->class('form-control')->id('datetimepicker3') !!}
                     </div>
@@ -117,7 +117,7 @@ class="active"
                     <div class='col-sm-1'>
                         <label>{!! Lang::get('lang.status') !!}</label>
                         <div class="btn-group">
-                            <button type="button" class="btn btn-default dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                                 {!! Lang::get('lang.select') !!}
                             </button>
                             <div class="dropdown-menu" role="menu">
@@ -149,9 +149,9 @@ class="active"
 
                         <div class="float-end">
                             <div class="btn-group">
-                                <button type="button" class="btn btn-default" id="click_day">{{trans('lang.day')}}</button>
-                                <button type="button" class="btn btn-default" id="click_week">{{trans('lang.week')}}</button>
-                                <button type="button" class="btn btn-default" id="click_month">{{trans('lang.month')}}</button>
+                                <button type="button" class="btn btn-secondary" id="click_day">{{trans('lang.day')}}</button>
+                                <button type="button" class="btn btn-secondary" id="click_week">{{trans('lang.week')}}</button>
+                                <button type="button" class="btn btn-secondary" id="click_month">{{trans('lang.month')}}</button>
                             </div>
                         </div>
                     </div>
@@ -178,8 +178,8 @@ class="active"
                 <div class="description-block border-right">
                     <h3>
                         <span class="description-percentage text-yellow" >
-                            <i class="fas fa-file-alt"> </i> 
-                            <small class="text-yellow"><i class="fa fa-random"> </i></small> 
+                            <i class="fa-solid fa-file-lines"> </i> 
+                            <small class="text-yellow"><i class="fa-solid fa-random"> </i></small> 
                             <span id="total-inprogress-tickets"> </span> 
                         </span>
                     </h3>
@@ -191,7 +191,7 @@ class="active"
             <div class="col-sm-3">
                 <div class="description-block border-right">
                     <h3>
-                        <span class="description-percentage text-blue" ><i class="fas fa-file-alt"> </i> <small class="text-blue"><i class="fas fa-plus"> </i>
+                        <span class="description-percentage text-blue" ><i class="fa-solid fa-file-lines"> </i> <small class="text-blue"><i class="fa-solid fa-plus"> </i>
                         </small><span id="total-created-tickets"> </span> </span>
                     </h3>
                     <span class="">{!! Lang::get('lang.Total_Created') !!}</span>
@@ -202,7 +202,7 @@ class="active"
             <div class="col-sm-3">
                 <div class="description-block border-right">
                     <h3>
-                        <span class="description-percentage text-yellow" ><i class="fas fa-file-alt"></i> <small class="text-yellow"><i class="fas fa-sync"> </i>
+                        <span class="description-percentage text-yellow" ><i class="fa-solid fa-file-lines"></i> <small class="text-yellow"><i class="fa-solid fa-arrows-rotate"> </i>
                         </small> <span id="total-reopen-tickets"> </span> </span>
                     </h3>
                     <span class="">{!! Lang::get('lang.Total_Reopened') !!}</span>
@@ -213,7 +213,7 @@ class="active"
             <div class="col-sm-3">
                 <div class="description-block">
                     <h3>
-                        <span class="description-percentage text-green" ><i class="fas fa-file-alt"> </i> <small class="text-green"><i class="fas fa-times"> </i></small> <span id="total-closed-tickets"> </span> </span>
+                        <span class="description-percentage text-green" ><i class="fa-solid fa-file-lines"> </i> <small class="text-green"><i class="fa-solid fa-xmark"> </i></small> <span id="total-closed-tickets"> </span> </span>
                     </h3>
                     <span class="">{!! Lang::get('lang.Total_Closed') !!}</span>
                 </div>
@@ -377,10 +377,10 @@ class="active"
                             });
                             $('#click_day').click(function() {
                                 $('#click_week').removeClass('btn-primary');
-                                $('#click_week').addClass('btn-default');
+                                $('#click_week').addClass('btn-secondary');
                                 $('#click_month').removeClass('btn-primary');
-                                $('#click_month').addClass('btn-default');
-                                $('#click_day').removeClass('btn-default');
+                                $('#click_month').addClass('btn-secondary');
+                                $('#click_day').removeClass('btn-secondary');
                                 $('#click_day').addClass('btn-primary');
                                 $("#duration").val("day");
                                 document.getElementById("open").checked = false;
@@ -390,10 +390,10 @@ class="active"
                             });
                             $('#click_week').click(function() {
                                 $('#click_day').removeClass('btn-primary');
-                                $('#click_day').addClass('btn-default');
+                                $('#click_day').addClass('btn-secondary');
                                 $('#click_month').removeClass('btn-primary');
-                                $('#click_month').addClass('btn-default');
-                                $('#click_week').removeClass('btn-default');
+                                $('#click_month').addClass('btn-secondary');
+                                $('#click_week').removeClass('btn-secondary');
                                 $('#click_week').addClass('btn-primary');
                                 $("#duration").val("week");
                                 document.getElementById("open").checked = false;
@@ -403,10 +403,10 @@ class="active"
                             });
                             $('#click_month').click(function() {
                                 $('#click_week').removeClass('btn-primary');
-                                $('#click_week').addClass('btn-default');
+                                $('#click_week').addClass('btn-secondary');
                                 $('#click_day').removeClass('btn-primary');
-                                $('#click_day').addClass('btn-default');
-                                $('#click_month').removeClass('btn-default');
+                                $('#click_day').addClass('btn-secondary');
+                                $('#click_month').removeClass('btn-secondary');
                                 $('#click_month').addClass('btn-primary');
                                 $("#duration").val("month");
                                 document.getElementById("open").checked = false;
@@ -416,11 +416,11 @@ class="active"
                             });
                             $('#submit').click(function() {
                                 $('#click_week').removeClass('btn-primary');
-                                $('#click_week').addClass('btn-default');
+                                $('#click_week').addClass('btn-secondary');
                                 $('#click_day').removeClass('btn-primary');
-                                $('#click_day').addClass('btn-default');
+                                $('#click_day').addClass('btn-secondary');
                                 $('#click_month').removeClass('btn-primary');
-                                $('#click_month').addClass('btn-default');
+                                $('#click_month').addClass('btn-secondary');
                                 $("#duration").val('');
                             });
 

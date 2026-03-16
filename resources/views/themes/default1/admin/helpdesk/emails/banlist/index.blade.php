@@ -35,7 +35,7 @@ class="nav-link active"
 <!-- check whether success or not -->
 @if(Session::has('success'))
 <div class="alert alert-success alert-dismissible">
-    <i class="fa-solid fa-check-circle"></i>
+    <i class="fa-solid fa-circle-check"></i>
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('success')}}
 </div>
@@ -53,8 +53,8 @@ class="nav-link active"
 <div class="card card-light">
     <div class="card-header">
         <h3 class="card-title">{{Lang::get('lang.list_of_banned_emails')}}</h3>
-        <div class="card-tools">
-            <a href="{{route('banlist.create')}}" class="btn btn-default btn-tool"><i class="fa-solid fa-ban"></i> {{Lang::get('lang.ban_email')}}</a>
+        <div class="card-tools d-flex">
+            <a href="{{route('banlist.create')}}" class="btn btn-secondary btn-tool"><i class="fa-solid fa-ban"></i> {{Lang::get('lang.ban_email')}}</a>
         </div>
     </div>
     <div class="card-body">

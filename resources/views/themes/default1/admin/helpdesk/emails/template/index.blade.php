@@ -39,19 +39,19 @@ class="active"
 <!-- check whether success or not -->
 
 @if(Session::has('success'))
-    <div class="alert alert-success alert-dismissable">
-        <i class="fa  fa-check-circle"></i>
+    <div class="alert alert-success alert-dismissible">
+        <i class="fa  fa-circle-check"></i>
         <b>Success!</b>
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         {{Session::get('success')}}
     </div>
     @endif
     <!-- failure message -->
     @if(Session::has('fails'))
-    <div class="alert alert-danger alert-dismissable">
-        <i class="fa fa-ban"></i>
+    <div class="alert alert-danger alert-dismissible">
+        <i class="fa-solid fa-ban"></i>
         <b>Fail!</b>
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         {{Session::get('fails')}}
     </div>
     @endif
@@ -88,9 +88,9 @@ class="active"
 		<!-- Deleting Fields -->
 		<td>
 			{!! html()->form('DELETE', route('template.destroy', [$template->id]))->open() !!}
-			<a href="{{route('template.edit',$template->id)}}" class="btn btn-info btn-xs btn-flat"><i class="fa fa-edit" style="color:black;"> </i> Edit</a>
+			<a href="{{route('template.edit',$template->id)}}" class="btn btn-info btn-xs "><i class="fa-solid fa-pen-to-square" style="color:black;"> </i> Edit</a>
 			<!-- To pop up a confirm Message -->
-				{!! html()->button('<i class="fa fa-trash" style="color:black;"> </i> Delete')->class('btn btn-warning btn-xs btn-flat')->attributes(['type' => 'submit', 'onclick' => 'return confirm("Are you sure?")']) !!}
+				{!! html()->button('<i class="fa-solid fa-trash" style="color:black;"> </i> Delete')->class('btn btn-warning btn-xs ')->attributes(['type' => 'submit', 'onclick' => 'return confirm("Are you sure?")']) !!}
 			{!! html()->closeModelForm() !!}
 		</td>
 		@endforeach

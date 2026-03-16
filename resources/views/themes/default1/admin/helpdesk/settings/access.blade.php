@@ -47,19 +47,19 @@ class="active"
 <!-- check whether success or not -->
 
 @if(Session::has('success'))
-    <div class="alert alert-success alert-dismissable">
-        <i class="fa  fa-check-circle"></i>
+    <div class="alert alert-success alert-dismissible">
+        <i class="fa  fa-circle-check"></i>
         <b>Success!</b>
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         {!!Session::get('success')!!}
     </div>
     @endif
     <!-- failure message -->
     @if(Session::has('fails'))
-    <div class="alert alert-danger alert-dismissable">
-        <i class="fa fa-ban"></i>
+    <div class="alert alert-danger alert-dismissible">
+        <i class="fa-solid fa-ban"></i>
         <b>Fail!</b>
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         {!!Session::get('fails')!!}
     </div>
     @endif
@@ -69,7 +69,7 @@ class="active"
           <div class="box-body table-responsive"style="overflow:hidden;">
              <div class="row">
                <div class="col-md-4">
-               <div class="form-group">
+               <div class="mb-3">
                 {!! html()->label(Lang::get('lang.expiration_policy'), 'password_expire') !!}
 				{!! html()->select('password_expire', ['1 month','2 month','3 month'], null)->class('form-control select') !!}
 
@@ -80,7 +80,7 @@ class="active"
 
 		<!-- Reset Token Expiration: TEXT- minutes    -->
 			<div class="col-md-4">
-             <div class="form-group">
+             <div class="mb-3">
 				{!! html()->label(Lang::get('lang.reset_token_expiration'), 'reset_ticket_expire') !!}
 				{!! html()->text('reset_ticket_expire', $accesses->reset_ticket_expire)->class('form-control') !!}
 
@@ -99,7 +99,7 @@ class="active"
 
 
 			<div class="col-md-4">
-			    <div class="form-group">
+			    <div class="mb-3">
 				{!! html()->label(Lang::get('lang.agent_session_timeout'), 'agent_session') !!}
 				{!! html()->text('agent_session', $accesses->agent_session)->class('form-control') !!}
 
@@ -109,7 +109,7 @@ class="active"
 			<!-- Allow Password Resets:	 CHECKBOX  -->
 			<div class="row">
 			<div class="col-md-4">
-				<div class="form-group">
+				<div class="mb-3">
 				{!! html()->label(Lang::get('lang.allow_password_resets'), 'password_reset') !!}
 				{!! html()->checkbox('password_reset', null, 1) !!}
 
@@ -121,7 +121,7 @@ class="active"
 
 			<div class="row">
 			<div class="col-md-6">
-                <div class="form-group">
+                <div class="mb-3">
 				{!! html()->label(Lang::get('lang.registration_method'), 'reg_method') !!}
 				{!! html()->select('reg_method', ['public','private','dissabled'], null)->class('form-control select') !!}
 
@@ -141,7 +141,7 @@ class="active"
 
 
 			<div class="col-md-6">
-                 <div class="form-group">
+                 <div class="mb-3">
 				{!! html()->label(Lang::get('lang.user_session_timeout'), 'user_session') !!}
 				{!! html()->text('user_session', $accesses->user_session)->class('form-control') !!}
 
@@ -152,7 +152,7 @@ class="active"
 
 			<div class="row">
 			<div class="col-md-4">
-				<div class="form-group">
+				<div class="mb-3">
 				{!! html()->checkbox('bind_agent_ip', true, 1) !!} &nbsp;
 				{!! html()->label(Lang::get('lang.bind_agent_session_IP'), 'bind_agent_ip') !!}
 
@@ -164,7 +164,7 @@ class="active"
 
 			<div class="row">
 			<div class="col-md-4">
-                  <div class="form-group">
+                  <div class="mb-3">
                   {!! html()->checkbox('reg_require', true, 1)->class('form-control') !!}&nbsp;
 				{!! html()->label(Lang::get('lang.registration_required'), 'reg_require') !!}
 
@@ -178,7 +178,7 @@ class="active"
 
 			<div class="row">
 			<div class="col-md-4">
-			<div class="form-group">
+			<div class="mb-3">
 			{!! html()->checkbox('quick_access', true, 1) !!}&nbsp;
 				{!! html()->label(Lang::get('lang.client_quick_access'), 'quick_access') !!}
 

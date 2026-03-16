@@ -140,7 +140,7 @@
         <div class="card-body ">
             @if(Session::has('success'))
             <div class="alert alert-success alert-dismissible">
-                <i class="fa-solid fa-check-circle"> </i>
+                <i class="fa-solid fa-circle-check"> </i>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
                 {{Session::get('success')}}
             </div>
@@ -154,12 +154,12 @@
             </div>
             @endif
 
-            <div class="alert alert-success alert-dismissible initially-hidden">
-                <i class="fa-solid fa-check-circle"> </i> <span class="success-message"></span>
+            <div class="alert alert-success alert-dismissible d-none">
+                <i class="fa-solid fa-circle-check"> </i> <span class="success-message"></span>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
                 {{Session::get('success')}}
             </div>
-            <div class="alert alert-danger alert-dismissible initially-hidden">
+            <div class="alert alert-danger alert-dismissible d-none">
                 <i class="fa-solid fa-ban"> </i> <b> {!! Lang::get('lang.alert') !!}!</b> <span class="error-message"></span>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
                 {{Session::get('fails')}}
@@ -177,8 +177,7 @@
             <?php $statuses = Finder::getCustomedStatus(); ?>
                 <button type="button" class="btn btn-sm btn-secondary dropdown-toggle" data-bs-toggle="dropdown" id="d1">
                     <i class="fa-solid fa-right-left"  id="hidespin"> </i>
-                    <i class="fa-solid fa-spinner fa-spin text-teal initially-hidden" id="spin"></i>
-                    {!! Lang::get('lang.change_status') !!} <span class="caret"></span>
+{!! Lang::get('lang.change_status') !!} <span class="caret"></span>
                 </button>
 
                 <div class="dropdown-menu">
