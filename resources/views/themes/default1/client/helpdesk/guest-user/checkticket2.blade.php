@@ -20,7 +20,7 @@ class="active"
 <li>
     <a href="">
     <span>USER</span> 
-    </br><i class="fa fa-user"> </i> <b>{{$user->email}}</b>
+    </br><i class="fa-solid fa-user"> </i> <b>{{$user->email}}</b>
     </a>
 </li>
 <li>
@@ -45,28 +45,28 @@ class="active"
                     <div class="box box-primary">
                         <div class="box-header">
 
-                            <section class="content-header"><h3 class="box-title"><i class="fa fa-user"> </i> {{$thread->title}} </h3> ( {{$tickets->ticket_number}} )
+                            <section class="app-content-header"><h3 class="box-title"><i class="fa-solid fa-user"> </i> {{$thread->title}} </h3> ( {{$tickets->ticket_number}} )
                             </section>
                             <div class="pull-right">
-                                <!-- <button type="button" class="btn btn-default"><i class="fa fa-edit text-success"> </i> Edit</button> -->
+                                <!-- <button type="button" class="btn btn-secondary"><i class="fa-solid fa-pen-to-square text-success"> </i> Edit</button> -->
 
-                                <button type="button" class="btn btn-default">
-                                    <i class="fa fa-print text-primary"></i>
+                                <button type="button" class="btn btn-secondary">
+                                    <i class="fa-solid fa-print text-primary"></i>
                                     <a href="{{ route('ticket.print', [$tickets->id]) }}">Print</a>
                                 </button>
                       
                                 <!-- </div> -->
                                 <div class="btn-group"> 
-                                    <button type="button" class="btn btn-default dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-exchange text-teal"> </i>
+                                    <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown"><i class="fa-solid fa-exchange text-teal"> </i>
                                         Change Status <span class="caret"></span>
                                     </button>
                                     <ul class="dropdown-menu">
                                     
-                                        <li><a href="#" id="open"><i class="fa fa-folder-open-o" style="color:yellow;"> </i>Open</a></li>
+                                        <li><a href="#" id="open"><i class="fa-solid fa-folder-open-o" style="color:yellow;"> </i>Open</a></li>
                                     
-                                        <li><a href="#" id="close"><i class="fa fa-check text-success"> </i>Close</a></li>
+                                        <li><a href="#" id="close"><i class="fa-solid fa-check text-success"> </i>Close</a></li>
                                     
-                                        <li><a href="#" id="resolved"><i class="fa fa-check-circle-o  text-success"> </i> Resolved</a></li>
+                                        <li><a href="#" id="resolved"><i class="fa-solid fa-circle-check-o  text-success"> </i> Resolved</a></li>
                                     </ul>
                                 </div>
                                 
@@ -76,7 +76,7 @@ class="active"
 
                         <div class="box-body">
                             <div class="row">
-                                <section class="content"  id="refresh">
+                                <section class="app-content"  id="refresh">
                                     <div class="col-md-12"> 
                                         <?php 
                                         $priority = App\Model\Ticket\Ticket_Priority::where('priority_id','=',$tickets->priority_id)->first();
@@ -139,10 +139,10 @@ class="active"
 
 
                     <div class='row'>
-                        <div class='col-xs-12'>
+                        <div class='col-12'>
                             <div class="nav-tabs-custom">
                                 <ul class="nav nav-tabs">
-                                    <li class="active"><a href="#General" data-toggle="tab" style="color:green;"><i class="fa fa-reply-all"> </i> Reply</a></li>
+                                    <li class="active"><a href="#General" data-bs-toggle="tab" style="color:green;"><i class="fa-solid fa-reply-all"> </i> Reply</a></li>
                                     
                                 </ul>
                                 <div class="tab-content">
@@ -150,13 +150,13 @@ class="active"
                                     <div class="tab-pane active" id="General">
                                         <div id="t1">
                                             {!! html()->form('POST', route('ticket.reply'))->open() !!}
-                                        <div class="form-group">
+                                        <div class="mb-3">
 
                                         </div>
-                                            <div class="form-group">
+                                            <div class="mb-3">
                                                 <div class="row">
                                                 <input type="hidden" name="ticket_ID" value="{{$tickets->id}}">
-                                                    <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
+                                                    <div class="mb-3 {{ $errors->has('title') ? 'has-error' : '' }}">
                                                         <div class="col-md-2">
                                                             {!! html()->label('To:', 'To') !!}
                                                         </div>
@@ -168,9 +168,9 @@ class="active"
                                                 </div>          
                                             </div>
                                             
-                                            <div class="form-group">
+                                            <div class="mb-3">
                                                 <div class="row">
-                                                    <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
+                                                    <div class="mb-3 {{ $errors->has('title') ? 'has-error' : '' }}">
                                                         <div class="col-md-2">
                                                             {!! html()->label('reply_content:', 'Reply Content') !!}
                                                         </div>
@@ -181,14 +181,14 @@ class="active"
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="form-group">
+                                            <div class="mb-3">
                                                 <div class="row">
-                                                    <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
+                                                    <div class="mb-3 {{ $errors->has('title') ? 'has-error' : '' }}">
                                                         <div class="col-md-2">
                                                         
                                                         </div>
                                                         <div class="col-md-10">
-                                                            <button  type="submit" class="btn btn-primary"><i class="fa fa-check-square-o text-primary"> </i> Update</button>            </div>
+                                                            <button  type="submit" class="btn btn-primary"><i class="fa-solid fa-check-square-o text-primary"> </i> Update</button>            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -197,20 +197,20 @@ class="active"
 
                                         <div id="t2" style="display:none">
                                             {!! html()->form('POST', route('ticket.reply'))->open() !!}
-                                            <div class="form-group">
-                                                <button type="submit" id="tt1" class="btn btn-default"><i class="fa fa-check-square-o text-success"> </i> Update</button>
-                                                <button style="display:none;" type="submit" id="tt2" class="btn btn-default"><i class="fa fa-check-square-o text-primary"> </i> Update</button>
-                                                <button type="button" class="btn btn-default">
-                                                    <i class="fa fa-hand-o-right text-orange"></i>
+                                            <div class="mb-3">
+                                                <button type="submit" id="tt1" class="btn btn-secondary"><i class="fa-solid fa-check-square-o text-success"> </i> Update</button>
+                                                <button style="display:none;" type="submit" id="tt2" class="btn btn-secondary"><i class="fa-solid fa-check-square-o text-primary"> </i> Update</button>
+                                                <button type="button" class="btn btn-secondary">
+                                                    <i class="fa-solid fa-hand-o-right text-orange"></i>
                                                     <a href="{{ route('assign.ticket') }}">Assign</a>
                                                 </button>
-                                                <button type="button" id="internal" class="btn btn-default"><i class="fa fa-file-text text-primary"> </i>  Internal Notes</button>
-                                                <button type="button" class="btn btn-default"><i class="fa fa-arrows-alt text-danger"> </i>  Surrender</button>
+                                                <button type="button" id="internal" class="btn btn-secondary"><i class="fa-solid fa-file-text text-primary"> </i>  Internal Notes</button>
+                                                <button type="button" class="btn btn-secondary"><i class="fa-solid fa-arrows-alt text-danger"> </i>  Surrender</button>
                                             </div>
-                                            <div class="form-group">
+                                            <div class="mb-3">
                                                 <div class="row">
                                                 <input type="hidden" name="ticket_ID" value="{{$tickets->id}}">
-                                                    <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
+                                                    <div class="mb-3 {{ $errors->has('title') ? 'has-error' : '' }}">
                                                         <div class="col-md-2">
                                                             <label>Subject</label>
                                                         </div>
@@ -221,9 +221,9 @@ class="active"
                                                     </div>
                                                 </div>          
                                             </div>
-                                            <div class="form-group">
+                                            <div class="mb-3">
                                                 <div class="row">
-                                                    <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
+                                                    <div class="mb-3 {{ $errors->has('title') ? 'has-error' : '' }}">
                                                         <div class="col-md-2">
                                                             <label>Message</label>
                                                         </div>
@@ -239,13 +239,13 @@ class="active"
 
                                     </div>
                                     <div class="tab-pane" id="Reply" >
-                                        <div class="form-group">
-                                            <button type="button" class="btn btn-default"><i class="fa fa-mail-forward text-success"> </i> Send</button>
-                                            <button type="button" class="btn btn-default"><i class="fa fa-th-large text-teal"> </i> Option</button>
-                                            <button type="button" class="btn btn-default"><i class="fa fa-file-text text-primary"> </i> Internal Notes</button>
+                                        <div class="mb-3">
+                                            <button type="button" class="btn btn-secondary"><i class="fa-solid fa-mail-forward text-success"> </i> Send</button>
+                                            <button type="button" class="btn btn-secondary"><i class="fa-solid fa-th-large text-teal"> </i> Option</button>
+                                            <button type="button" class="btn btn-secondary"><i class="fa-solid fa-file-text text-primary"> </i> Internal Notes</button>
                                         </div>
                                         <form>
-                                            <div class="form-group">
+                                            <div class="mb-3">
                                                 <div class="row">
                                                     <div class="col-md-2">
                                                         <label>From</label>
@@ -255,7 +255,7 @@ class="active"
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="form-group">
+                                            <div class="mb-3">
                                                 <div class="row">
                                                     <div class="col-md-2">
                                                         <label>To</label>
@@ -265,7 +265,7 @@ class="active"
                                                     </div>
                                                 </div>      
                                             </div>
-                                            <div class="form-group">
+                                            <div class="mb-3">
                                                 <div class="row">
                                                     <div class="col-md-2">
                                                         <label>Subject</label>
@@ -275,7 +275,7 @@ class="active"
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="form-group">
+                                            <div class="mb-3">
                                                 <div class="row">
                                                     <div class="col-md-2">
                                                         <label>Response</label>
@@ -290,7 +290,7 @@ class="active"
                                                 </div>
 
                                             </div>
-                                            <div class="form-group">
+                                            <div class="mb-3">
                                                 <div class="row">
                                                     <div class="col-md-2">
                                                         <label>Reply Content</label>
@@ -333,14 +333,14 @@ class="active"
                                             </li>
                                             <li>
                                             <?php if($conversation->staff_id > 0) { ?>
-                                                <i class="fa fa-group text-bg-warning" title="<?= Lang::get('lang.posted_by_support_team') ?>"></i>
+                                                <i class="fa-solid fa-group text-bg-warning" title="<?= Lang::get('lang.posted_by_support_team') ?>"></i>
                                             <?php } elseif($conversation->user_id > 0) { ?>   
-                                                <i class="fa fa-user text-bg-info" title="<?= Lang::get('lang.posted_by_customer') ?>"></i>
+                                                <i class="fa-solid fa-user text-bg-info" title="<?= Lang::get('lang.posted_by_customer') ?>"></i>
                                             <?php } else { ?>   
-                                                <i class="fa fa-mail-reply-all text-bg-purple" title="<?= Lang::get('lang.posted_by_system') ?>"></i>
+                                                <i class="fa-solid fa-mail-reply-all text-bg-purple" title="<?= Lang::get('lang.posted_by_system') ?>"></i>
                                             <?php } ?>
                                                 <div class="timeline-item">
-                                                    <span id="date" class="time"><i class="fa fa-clock-o"> </i> {{date_format($conversation->created_at, 'd/m/Y H:i:s')}}</span>
+                                                    <span id="date" class="time"><i class="fa-solid fa-clock-o"> </i> {{date_format($conversation->created_at, 'd/m/Y H:i:s')}}</span>
                                                     <h3 class="timeline-header"><a href="#">{{$conversation->poster}}</a></h3>
                                                     <div class="timeline-body">
                                                     {!! $conversation->body !!}
@@ -350,7 +350,7 @@ class="active"
                                                     <?php  $lastid = $conversation->id ?>
                                         <?php  } ?>
                                         <li>
-                                            <i class="fa fa-clock-o text-bg-secondary"></i>
+                                            <i class="fa-solid fa-clock-o text-bg-secondary"></i>
                                         </li>
                                         <ul class="pull-right">
                                             <?php echo $conversations->setPath( url('/thread/'.'1'))->render(); ?>

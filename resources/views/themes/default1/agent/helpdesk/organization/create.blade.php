@@ -36,10 +36,10 @@ class="nav-link active"
 
 @if(Session::has('errors'))
 <?php //dd($errors); ?>
-<div class="alert alert-danger alert-dismissable">
-    <i class="fa fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     <br/>
     @if($errors->first('name'))
     <li class="error-message-padding">{!! $errors->first('name', ':message') !!}</li>
@@ -59,28 +59,28 @@ class="nav-link active"
     <div class="card-body">  
         <!-- name : text : Required -->
         <div class="row">
-            <div class="col-sm-4 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+            <div class="col-sm-4 mb-3 {{ $errors->has('name') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.name'), 'name') !!} <span class="text-red"> *</span>
                 {!! html()->text('name', null)->class('form-control') !!}
             </div>
             <!-- phone : Text : -->
-            <div class="col-sm-4 form-group {{ $errors->has('phone') ? 'has-error' : '' }}">
+            <div class="col-sm-4 mb-3 {{ $errors->has('phone') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.phone'), 'phone') !!}
                 {!! html()->text('phone', null)->class('form-control') !!}
             </div>
             <!-- website : Text :  -->
-            <div class="col-sm-4 form-group {{ $errors->has('website') ? 'has-error' : '' }}">
+            <div class="col-sm-4 mb-3 {{ $errors->has('website') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.website'), 'website') !!}
                 {!! html()->text('website', null)->class('form-control') !!}
             </div>
         </div>
         <!-- Internal Notes : Textarea -->
         <div class="row">
-            <div class="col-sm-6 form-group">
+            <div class="col-sm-6 mb-3">
                 {!! html()->label(Lang::get('lang.address'), 'address') !!}
                 {!! html()->textarea('address', null)->class('form-control') !!}
             </div>
-            <div class="col-sm-6 form-group">
+            <div class="col-sm-6 mb-3">
                 {!! html()->label(Lang::get('lang.internal_notes'), 'internal_notes') !!}
                 {!! html()->textarea('internal_notes', null)->class('form-control') !!}
             </div>

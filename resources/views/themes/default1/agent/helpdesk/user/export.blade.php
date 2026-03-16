@@ -34,15 +34,15 @@ class="active"
     @endif
 
     @if(Session::has('success'))
-    <div class="alert alert-success alert-dismissable">
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <div class="alert alert-success alert-dismissible">
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         {{Session::get('success')}}
     </div>
     @endif
     <!-- fail message -->
     @if(Session::has('fails'))
-    <div class="alert alert-danger alert-dismissable">
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <div class="alert alert-danger alert-dismissible">
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         {{Session::get('fails')}}
     </div>
     @endif
@@ -55,7 +55,7 @@ class="active"
         <div class="row">
             <div class="col-md-6">
                 <div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
-                    <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
+                    <i class="glyphicon glyphicon-calendar fa-solid fa-calendar"></i>&nbsp;
                     <span id="date"></span> <b class="caret"></b>
                 </div>
             </div>

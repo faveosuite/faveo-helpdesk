@@ -35,26 +35,26 @@ class="nav-link active"
 {!! html()->modelForm($systems, 'PATCH', url('postsystem/'.$systems->id))->attributes(['id' => 'formID'])->open() !!}
 <!-- check whether success or not -->
 @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <i class="fas fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+    <i class="fa-solid fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {!!Session::get('success')!!}
 </div>
 @endif
 <!-- failure message -->
 @if(Session::has('fails'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fas fa-ban"></i><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i><button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     <b>{!! Lang::get('lang.alert') !!}!</b><br/>
     <li class="error-message-padding">{!!Session::get('fails')!!}</li>
 </div>
 @endif
 @if(Session::has('errors'))
 <?php //dd($errors); ?>
-<div class="alert alert-danger alert-dismissable">
-    <i class="fas fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     <br/>
     @if($errors->first('user_name'))
     <li class="error-message-padding">{!! $errors->first('user_name', ':message') !!}</li>
@@ -80,7 +80,7 @@ class="nav-link active"
            
             <!-- Helpdesk Name/Title: text Required   -->
             <div class="col-md-4">
-                <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                <div class="mb-3 {{ $errors->has('name') ? 'has-error' : '' }}">
                     {!! html()->label(Lang::get('lang.name/title'), 'name') !!}
                     {!! $errors->first('name', '<spam class="help-block">:message</spam>') !!}
                     {!! html()->text('name', $systems->name)->class('form-control') !!}
@@ -88,7 +88,7 @@ class="nav-link active"
             </div>
              <!-- Helpdesk URL:      text   Required -->
              <div class="col-md-4">
-                <div class="form-group {{ $errors->has('url') ? 'has-error' : '' }}">
+                <div class="mb-3 {{ $errors->has('url') ? 'has-error' : '' }}">
                     {!! html()->label(Lang::get('lang.url'), 'url') !!}
                     {!! $errors->first('url', '<spam class="help-block">:message</spam>') !!}
                     {!! html()->text('url', $systems->url)->class('form-control') !!}
@@ -96,7 +96,7 @@ class="nav-link active"
             </div>
             <!-- Default Time Zone: Drop down: timezones table : Required -->
             <div class="col-md-4">
-                <div class="form-group {{ $errors->has('time_zone') ? 'has-error' : '' }}">
+                <div class="mb-3 {{ $errors->has('time_zone') ? 'has-error' : '' }}">
                     {!! html()->label(Lang::get('lang.timezone'), 'time_zone') !!}
                     {!! $errors->first('time_zone', '<spam class="help-block">:message</spam>') !!}
                     {!! html()->select('time_zone', ['Time Zones'=>$timezones->pluck('name','id')->toArray()], null)->class('form-control') !!}
@@ -106,7 +106,7 @@ class="nav-link active"
         <div class="row">
             <!-- Date and Time Format: text: required: eg - 03/25/2015 7:14 am -->
             <div class="col-md-4">
-                <div class="form-group {{ $errors->has('date_time_format') ? 'has-error' : '' }}">
+                <div class="mb-3 {{ $errors->has('date_time_format') ? 'has-error' : '' }}">
                     {!! html()->label(Lang::get('lang.date_time'), 'date_time_format') !!}
                     {!! $errors->first('date_time_format', '<spam class="help-block">:message</spam>') !!}
                     {!! html()->select('date_time_format', ['Date Time Formats'=>$date_time->pluck('format','id')->toArray()], null)->class('form-control') !!}
@@ -114,7 +114,7 @@ class="nav-link active"
             </div>
            
             <div class="col-md-4">
-                <div class="form-group">
+                <div class="mb-3">
                     {!! html()->label(Lang::get('lang.status'), 'status') !!}
                     <div class="row">
                         <div class="col-sm-5">
@@ -127,7 +127,7 @@ class="nav-link active"
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="form-group">
+                <div class="mb-3">
                     {!! html()->label(Lang::get('lang.user_set_ticket_status'), 'user_set_ticket_status') !!}
                     <div class="row">
                         <div class="col-sm-5">
@@ -141,8 +141,8 @@ class="nav-link active"
             </div>
         </div>
         <div class="row">    
-            <div class="col-md-4" data-toggle="tooltip" title="{!! Lang::get('lang.the_rtl_support_is_only_applicable_to_the_outgoing_mails') !!}">
-                <div class="form-group">
+            <div class="col-md-4" data-bs-toggle="tooltip" title="{!! Lang::get('lang.the_rtl_support_is_only_applicable_to_the_outgoing_mails') !!}">
+                <div class="mb-3">
                     {!! html()->label(Lang::get('lang.rtl'), 'status') !!}
                     <div class="row">
                         <div class="col-sm-12">
@@ -154,8 +154,8 @@ class="nav-link active"
                     </div>
                 </div>
             </div>
-            <div class="col-md-4" data-toggle="tooltip" title="{!! Lang::get('lang.otp_usage_info') !!}">
-                <div class="form-group">
+            <div class="col-md-4" data-bs-toggle="tooltip" title="{!! Lang::get('lang.otp_usage_info') !!}">
+                <div class="mb-3">
                     {!! html()->label(Lang::get('lang.allow_unverified_users_to_create_ticket'), 'send_otp') !!}
                     <div class="row">
                         <div class="col-sm-5">
@@ -167,8 +167,8 @@ class="nav-link active"
                     </div>
                 </div>
             </div>
-            <div class="col-md-4" data-toggle="tooltip" title="{!! Lang::get('lang.email_man_info') !!}">
-                <div class="form-group">
+            <div class="col-md-4" data-bs-toggle="tooltip" title="{!! Lang::get('lang.email_man_info') !!}">
+                <div class="mb-3">
                     {!! html()->label(Lang::get('lang.make-email-mandatroy'), 'email_mandatory') !!}
                     <div class="row">
                         <div class="col-sm-5">

@@ -30,15 +30,15 @@ class="nav-link active"
 </div>
 @endif
 @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('success')}}
 </div>
 @endif
 <!-- fail message -->
 @if(Session::has('fails'))
-<div class="alert alert-danger alert-dismissable">
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-danger alert-dismissible">
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('fails')}}
 </div>
 @endif
@@ -60,7 +60,7 @@ class="nav-link active"
                 <!-- Guest user page Content -->
                 <div class="row">
                     <div class="col-md-3">
-                        <div class="form-group {{ $errors->has('api_enable') ? 'has-error' : '' }}">
+                        <div class="mb-3 {{ $errors->has('api_enable') ? 'has-error' : '' }}">
                             {!! html()->label(Lang::get('lang.api'), 'api') !!}
                             {!! $errors->first('api_enable', '<spam class="help-block">:message</spam>') !!}
                             <div class="row">
@@ -76,7 +76,7 @@ class="nav-link active"
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="form-group {{ $errors->has('api_key_mandatory') ? 'has-error' : '' }}">
+                        <div class="mb-3 {{ $errors->has('api_key_mandatory') ? 'has-error' : '' }}">
                             {!! html()->label(Lang::get('lang.api_key_mandatory'), 'api_key_mandatory') !!}
                             {!! $errors->first('api_key_mandatory', '<spam class="help-block">:message</spam>') !!}
                             <div class="row">
@@ -93,7 +93,7 @@ class="nav-link active"
                     </div>
                     <!-- Date and Time Format: text: required: eg - 03/25/2015 7:14 am -->
                     <div class="col-md-3">
-                        <div class="form-group {{ $errors->has('api_key') ? 'has-error' : '' }}">
+                        <div class="mb-3 {{ $errors->has('api_key') ? 'has-error' : '' }}">
                             {!! html()->label(Lang::get('lang.api_key'), 'api_key') !!}
                             {!! $errors->first('api_key', '<spam class="help-block">:message</spam>') !!}
                             {!! html()->text('api_key', $systems->api_key)->class('form-control') !!}
@@ -101,7 +101,7 @@ class="nav-link active"
                     </div>
                     <div class="col-md-3">
                         <br/>
-                        <a class="btn btn-primary" id="generate" href="javascript:;" style="margin-top: 8px;"> <i class="fas fa-sync"> </i> {!! Lang::get('lang.generate_key') !!}</a>
+                        <a class="btn btn-primary" id="generate" href="javascript:;" style="margin-top: 8px;"> <i class="fa-solid fa-arrows-rotate"> </i> {!! Lang::get('lang.generate_key') !!}</a>
                     </div>
                 </div>
             </div>
@@ -118,7 +118,7 @@ class="nav-link active"
                 
                 <div class="row">
                     
-                    <div class="form-group col-md-6 {{ $errors->has('ticket_detail') ? 'has-error' : '' }}">
+                    <div class="mb-3 col-md-6 {{ $errors->has('ticket_detail') ? 'has-error' : '' }}">
                         {!! html()->label(Lang::get('lang.enter_url_to_send_ticket_details'), 'ticket_detail')->class('required') !!}
                         {!! html()->text('ticket_detail', $ticket_detail)->class('form-control')->placeholder('http://www.example.com') !!}
                     </div>
@@ -133,18 +133,18 @@ class="nav-link active"
     {!! html()->closeModelForm() !!}   
 </div>
 
-<a href="#" id="clickGenerate" data-toggle="modal" data-target="#generateModal"></a>    
+<a href="#" id="clickGenerate" data-bs-toggle="modal" data-bs-target="#generateModal"></a>    
 <div class="modal fade" id="generateModal">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">{!! Lang::get('lang.api_key') !!}</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">{!! Lang::get('lang.api_key') !!}</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body" id="messageBody">
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal" aria-label="Close">{!! Lang::get('lang.close') !!}</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close">{!! Lang::get('lang.close') !!}</button>
             </div>
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
@@ -158,7 +158,7 @@ jQuery(document).ready(function() {
             url: "{!! url('generate-api-key') !!}",
             beforeSend: function() {
                 $("#generate").empty();
-                var message = "<i class='fas fa-sync fa-spin'> </i>  <?php echo Lang::get('lang.generate_key'); ?>";
+                var message = "<i class='fas fa-arrows-rotate fa-spin'> </i>  <?php echo Lang::get('lang.generate_key'); ?>";
                 $('#generate').html(message);
             },
             success: function(response) {
@@ -170,7 +170,7 @@ jQuery(document).ready(function() {
 
                 $('#clickGenerate').trigger("click");
                 $("#generate").empty();
-                var message = "<i class='fas fa-sync'> </i>  <?php echo Lang::get('lang.generate_key'); ?>";
+                var message = "<i class='fas fa-arrows-rotate'> </i>  <?php echo Lang::get('lang.generate_key'); ?>";
                 $('#generate').html(message);
             }
         })

@@ -71,17 +71,17 @@
                 </div>
                 <div class="card-body">
 
-                    <div class="form-group mb-3 {{ $errors->has('first_name') ? 'has-error' : '' }}">
+                    <div class="mb-3 mb-3 {{ $errors->has('first_name') ? 'has-error' : '' }}">
                         {!! html()->label(Lang::get('lang.first_name'), 'first_name') !!} <span class="text-danger">*</span>
                         {!! html()->text('first_name', null)->class('form-control') !!}
                     </div>
 
-                    <div class="form-group mb-3 {{ $errors->has('last_name') ? 'has-error' : '' }}">
+                    <div class="mb-3 mb-3 {{ $errors->has('last_name') ? 'has-error' : '' }}">
                         {!! html()->label(Lang::get('lang.last_name'), 'last_name') !!}
                         {!! html()->text('last_name', null)->class('form-control') !!}
                     </div>
 
-                    <div class="form-group mb-3">
+                    <div class="mb-3 mb-3">
                         {!! html()->label(Lang::get('lang.gender'), 'gender') !!}
                         <div class="row">
                             <div class="col-sm-3">
@@ -93,44 +93,44 @@
                         </div>
                     </div>
 
-                    <div class="form-group mb-3">
+                    <div class="mb-3 mb-3">
                         {!! html()->label(Lang::get('lang.email_address'), 'email') !!}
                         <p class="form-control-plaintext border rounded px-3 py-2 bg-body-secondary text-body-secondary small mb-0">
                             <i class="fa-solid fa-envelope me-2"></i>{{ $user->email }}
                         </p>
                     </div>
 
-                    <div class="form-group mb-3 {{ $errors->has('company') ? 'has-error' : '' }}">
+                    <div class="mb-3 mb-3 {{ $errors->has('company') ? 'has-error' : '' }}">
                         {!! html()->label(Lang::get('lang.company'), 'company') !!}
                         {!! html()->text('company', null)->class('form-control') !!}
                     </div>
 
                     <div class="row mb-3">
-                        <div class="col-sm-2 form-group {{ Session::has('country_code_error') ? 'has-error' : '' }}">
+                        <div class="col-sm-2 mb-3 {{ Session::has('country_code_error') ? 'has-error' : '' }}">
                             {!! html()->label(Lang::get('lang.country-code'), 'country_code') !!}
                             {!! html()->text('country_code', null)->class('form-control')->placeholder($phonecode)->id('code')->attributes(['title' => Lang::get('lang.enter-country-phone-code')]) !!}
                         </div>
-                        <div class="col-sm-8 form-group {{ $errors->has('phone_number') ? 'has-error' : '' }}">
+                        <div class="col-sm-8 mb-3 {{ $errors->has('phone_number') ? 'has-error' : '' }}">
                             {!! html()->label(Lang::get('lang.phone'), 'phone_number') !!}
                             {!! html()->text('phone_number', null)->class('form-control') !!}
                         </div>
-                        <div class="col-sm-2 form-group {{ $errors->has('ext') ? 'has-error' : '' }}">
+                        <div class="col-sm-2 mb-3 {{ $errors->has('ext') ? 'has-error' : '' }}">
                             {!! html()->label(Lang::get('lang.ext'), 'ext') !!}
                             {!! html()->text('ext', null)->class('form-control') !!}
                         </div>
                     </div>
 
-                    <div class="form-group mb-3 {{ $errors->has('mobile') ? 'has-error' : '' }}">
+                    <div class="mb-3 mb-3 {{ $errors->has('mobile') ? 'has-error' : '' }}">
                         {!! html()->label(Lang::get('lang.mobile_number'), 'mobile') !!}
                         {!! html()->number('mobile', null)->class('form-control')->id('mobile') !!}
                     </div>
 
-                    <div class="form-group mb-3 {{ $errors->has('agent_sign') ? 'has-error' : '' }}">
+                    <div class="mb-3 mb-3 {{ $errors->has('agent_sign') ? 'has-error' : '' }}">
                         {!! html()->label(Lang::get('lang.agent_sign'), 'agent_sign') !!}
                         {!! html()->textarea('agent_sign', null)->class('form-control') !!}
                     </div>
 
-                    <div class="form-group mb-3 {{ $errors->has('profile_pic') ? 'has-error' : '' }}">
+                    <div class="mb-3 mb-3 {{ $errors->has('profile_pic') ? 'has-error' : '' }}">
                         {!! html()->label(Lang::get('lang.profile_pic'), 'profile_pic') !!}
                         {!! html()->file('profile_pic')->class('form-control')->id('profile_pic_input') !!}
                         <small class="text-muted">JPG, PNG or GIF. Max 2MB.</small>
@@ -154,7 +154,7 @@
                 </div>
                 <div class="card-body pb-0">
 
-                    <div class="form-group mb-3 {{ $errors->has('old_password') ? 'has-error' : '' }}">
+                    <div class="mb-3 mb-3 {{ $errors->has('old_password') ? 'has-error' : '' }}">
                         {!! html()->label(Lang::get('lang.old_password'), 'old_password') !!} <span class="text-danger">*</span>
                         <div class="input-group">
                             {!! html()->password('old_password')->class('form-control')->id('old_password') !!}
@@ -165,7 +165,7 @@
                         {!! $errors->first('old_password', '<span class="text-danger small">:message</span>') !!}
                     </div>
 
-                    <div class="form-group mb-3 {{ $errors->has('new_password') ? 'has-error' : '' }}">
+                    <div class="mb-3 mb-3 {{ $errors->has('new_password') ? 'has-error' : '' }}">
                         {!! html()->label(Lang::get('lang.new_password'), 'new_password') !!} <span class="text-danger">*</span>
                         <div class="input-group">
                             {!! html()->password('new_password')->class('form-control')->id('new_password') !!}
@@ -176,7 +176,7 @@
                         {!! $errors->first('new_password', '<span class="text-danger small">:message</span>') !!}
                     </div>
 
-                    <div class="form-group mb-3 {{ $errors->has('confirm_password') ? 'has-error' : '' }}">
+                    <div class="mb-3 mb-3 {{ $errors->has('confirm_password') ? 'has-error' : '' }}">
                         {!! html()->label(Lang::get('lang.confirm_password'), 'confirm_password') !!} <span class="text-danger">*</span>
                         <div class="input-group">
                             {!! html()->password('confirm_password')->class('form-control')->id('confirm_password') !!}

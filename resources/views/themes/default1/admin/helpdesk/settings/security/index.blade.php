@@ -25,25 +25,25 @@ class="nav-link active"
 
 @section('content')
 @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <i class="fas fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+    <i class="fa-solid fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {!! Session::get('success') !!}
 </div>
 @endif
 @if(Session::has('failed'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fas fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang/alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     <p>{{Session::get('failed')}}</p>                
 </div>
 @endif
 @if(Session::has('errors'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fas fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     <br/>
     @if($errors->first('lockout_message'))
     <li class="error-message-padding">{!! $errors->first('lockout_message', ':message') !!}</li>
@@ -62,7 +62,7 @@ class="nav-link active"
     </div><!-- /.card-header -->
     <div class="card-body">
         {!! html()->modelForm($security, 'PATCH', route('securitys.update', [$security->id]))->acceptsFiles()->open() !!}
-        <div class="form-group {{ $errors->has('lockout_message') ? 'has-error' : '' }}">
+        <div class="mb-3 {{ $errors->has('lockout_message') ? 'has-error' : '' }}">
             <div class="row">
                 <div class="col-md-3">
                     <label for="title">{{trans('lang.Lockout_Message:')}}<span class="text-red"> *</span></label>
@@ -73,7 +73,7 @@ class="nav-link active"
                 </div>
             </div>
         </div>
-        <div class="form-group {{ $errors->has('backlist_threshold') ? 'has-error' : '' }}">
+        <div class="mb-3 {{ $errors->has('backlist_threshold') ? 'has-error' : '' }}">
             <div class="row">
                 <div class="col-md-3">
                     <label for="title">{!! Lang::get('lang.max_attempt') !!}: <span class="text-red"> *</span></label>
@@ -84,7 +84,7 @@ class="nav-link active"
                 </div>     
             </div>
         </div>
-        <div class="form-group {{ $errors->has('lockout_period') ? 'has-error' : '' }}"> 
+        <div class="mb-3 {{ $errors->has('lockout_period') ? 'has-error' : '' }}"> 
             <div class="row">
                 <div class="col-md-3">
                     <label for="title">{{trans('lang.lockout_period:')}}<span class="text-red"> *</span></label>

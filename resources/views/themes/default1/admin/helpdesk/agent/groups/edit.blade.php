@@ -34,10 +34,10 @@ class="nav-link active"
 <!-- open a form -->
 {!! html()->modelForm($groups, 'PATCH', url('groups/'.$groups->id))->open() !!}
 @if(Session::has('errors'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fa fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     <br/>
     @if($errors->first('name'))
     <li class="error-message-padding">{!! $errors->first('name', ':message') !!}</li>
@@ -54,12 +54,12 @@ class="nav-link active"
     <div class="card-body">
         <div class="row">
             <!-- name -->
-            <div class="col-sm-4 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+            <div class="col-sm-4 mb-3 {{ $errors->has('name') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.name'), 'name') !!} <span class="text-red"> *</span>
                 {!! html()->text('name', null)->class('form-control') !!}
             </div>
             <!-- group status -->
-            <div class="col-sm-6 form-group {{ $errors->has('group_status') ? 'has-error' : '' }}">
+            <div class="col-sm-6 mb-3 {{ $errors->has('group_status') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.status'), 'group_status') !!}
                 <div class="row">
                     <div class="col-sm-2">

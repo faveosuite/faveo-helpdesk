@@ -21,7 +21,7 @@ class="nav-item d-none d-sm-inline-block active"
 {{-- Success message --}}
 @if(Session::has('success'))
 <div class="alert alert-success alert-dismissible">
-	<i class="fa-solid fa-check-circle"></i>
+	<i class="fa-solid fa-circle-check"></i>
 	<button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
 	{{Session::get('success')}}
 </div>
@@ -42,7 +42,7 @@ class="nav-item d-none d-sm-inline-block active"
 		
 		<a href="{!! route('inbox.ticket') !!}" class="text-dark" style="cursor: pointer;">
 
-			<div class="info-box">
+			<div class="info-box shadow-sm">
 			
 				<span class="info-box-icon bg-info"><i class="fa-regular fa-envelope"></i></span>
 
@@ -60,7 +60,7 @@ class="nav-item d-none d-sm-inline-block active"
 		
 		<a href="{!! route('unassigned') !!}" class="text-dark" style="cursor: pointer;">
 
-			<div class="info-box">
+			<div class="info-box shadow-sm">
 			
 				<span class="info-box-icon bg-warning"><i class="fa-solid fa-user-xmark text-white"></i></span>
 
@@ -78,7 +78,7 @@ class="nav-item d-none d-sm-inline-block active"
 		
 		<a href="{!! route('overdue.ticket') !!}" class="text-dark" style="cursor: pointer;">
 
-			<div class="info-box">
+			<div class="info-box shadow-sm">
 			
 				<span class="info-box-icon bg-danger"><i class="fa-solid fa-calendar-xmark"></i></span>
 
@@ -96,7 +96,7 @@ class="nav-item d-none d-sm-inline-block active"
 		
 		<a href="{!! route('myticket.ticket') !!}" class="text-dark" style="cursor: pointer;">
 
-			<div class="info-box">
+			<div class="info-box shadow-sm">
 			
 				<span class="info-box-icon bg-warning"><i class="fa-solid fa-user text-white"></i></span>
 
@@ -122,7 +122,7 @@ class="nav-item d-none d-sm-inline-block active"
 	  	?>
 		<a href="{!! route('ticket.duetoday') !!}" class="text-dark" style="cursor: pointer;">
 
-			<div class="info-box">
+			<div class="info-box shadow-sm">
 			
 				<span class="info-box-icon bg-danger"><i class="fa-solid fa-eye"></i></span>
 

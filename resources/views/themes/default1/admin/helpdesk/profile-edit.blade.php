@@ -9,34 +9,34 @@
 
 <div class="box box-primary">
 
-	<div class="content-header">
+	<div class="app-content-header">
 
-	 	<h4>Profile	{!! html()->submit(Lang::get('lang.save'))->class('form-group btn btn-primary pull-right') !!}</h4>
+	 	<h4>Profile	{!! html()->submit(Lang::get('lang.save'))->class('mb-3 btn btn-primary pull-right') !!}</h4>
 
 	</div>
 
 <div class="box-body">
 
 @if(Session::has('success'))
-                    <div class="alert alert-success alert-dismissable">
-                        <i class="fa fa-ban"></i>
+                    <div class="alert alert-success alert-dismissible">
+                        <i class="fa-solid fa-ban"></i>
                         <b>Alert!</b> Success.
-                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
                         {{Session::get('success')}}
                     </div>
                     @endif
                     <!-- fail message -->
                     @if(Session::has('fails'))
-                    <div class="alert alert-danger alert-dismissable">
-                        <i class="fa fa-ban"></i>
+                    <div class="alert alert-danger alert-dismissible">
+                        <i class="fa-solid fa-ban"></i>
                         <b>Alert!</b> Failed.
-                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
                         {{Session::get('fails')}}
                     </div>
                     @endif
 
         <!-- first name -->
-		<div class="form-group {{ $errors->has('first_name') ? 'has-error' : '' }}">
+		<div class="mb-3 {{ $errors->has('first_name') ? 'has-error' : '' }}">
 
 			{!! html()->label(Lang::get('lang.first_name'), 'first_name') !!}
 			{!! $errors->first('first_name', '<spam class="help-block">:message</spam>') !!}
@@ -44,7 +44,7 @@
 
 		</div>
 		<!-- last name -->
-		<div class="form-group {{ $errors->has('last_name') ? 'has-error' : '' }}">
+		<div class="mb-3 {{ $errors->has('last_name') ? 'has-error' : '' }}">
 
 			{!! html()->label(Lang::get('lang.last_name'), 'last_name') !!}
 			{!! $errors->first('last_name', '<spam class="help-block">:message</spam>') !!}
@@ -52,13 +52,13 @@
 
 		</div>
 		<!-- gender -->
-		<div class="form-group">
+		<div class="mb-3">
 			{!! html()->label(Lang::get('lang.gender'), 'gender') !!}
 			<div class="row">
-				<div class="col-xs-3">
+				<div class="col-3">
 					{!! html()->radio('gender', true, '1') !!}{{Lang::get('lang.male')}}
 				</div>
-				<div class="col-xs-3">
+				<div class="col-3">
 					{!! html()->radio('gender', null, '0') !!}{{Lang::get('lang.female')}}
 				</div>
 			</div>
@@ -66,7 +66,7 @@
 
 
 
-		<div class="form-group">
+		<div class="mb-3">
 
 			{!! html()->label(Lang::get('lang.email_address'), 'email') !!}
 			<div>
@@ -74,7 +74,7 @@
 			</div>
 		</div>
 		<!-- company -->
-		<div class="form-group {{ $errors->has('company') ? 'has-error' : '' }}">
+		<div class="mb-3 {{ $errors->has('company') ? 'has-error' : '' }}">
 
 			{!! html()->label(Lang::get('lang.company'), 'company') !!}
 			{!! $errors->first('company', '<spam class="help-block">:message</spam>') !!}
@@ -84,7 +84,7 @@
 
 		<div class="row">
 			<!-- phone extension -->
-			<div class="col-xs-3 form-group {{ $errors->has('ext') ? 'has-error' : '' }}">
+			<div class="col-3 mb-3 {{ $errors->has('ext') ? 'has-error' : '' }}">
 
 				{!! html()->label(Lang::get('lang.ext'), 'ext') !!}
 				{!! $errors->first('ext', '<spam class="help-block">:message</spam>') !!}
@@ -92,7 +92,7 @@
 
 			</div>
 			<!-- phone number -->
-			<div class="col-xs-9 form-group {{ $errors->has('phone_number') ? 'has-error' : '' }}">
+			<div class="col-9 mb-3 {{ $errors->has('phone_number') ? 'has-error' : '' }}">
 
 				{!! html()->label(Lang::get('lang.phone'), 'phone_number') !!}
 				{!! $errors->first('phone_number', '<spam class="help-block">:message</spam>') !!}
@@ -101,7 +101,7 @@
 			</div>
 		</div>
 			<!-- mobile -->
-			<div class="form-group {{ $errors->has('mobile') ? 'has-error' : '' }}">
+			<div class="mb-3 {{ $errors->has('mobile') ? 'has-error' : '' }}">
 
 				{!! html()->label(Lang::get('lang.mobile_number'), 'mobile') !!}
 				{!! $errors->first('mobile', '<spam class="help-block">:message</spam>') !!}
@@ -110,7 +110,7 @@
 			</div>
 
 	<!-- profile pic -->
-	<div class="form-group {{ $errors->has('profile_pic') ? 'has-error' : '' }}">
+	<div class="mb-3 {{ $errors->has('profile_pic') ? 'has-error' : '' }}">
 
 		{!! html()->label(Lang::get('lang.profile_pic'), 'profile_pic') !!}
 		{!! $errors->first('profile_pic', '<spam class="help-block">:message</spam>') !!}
@@ -129,27 +129,27 @@
 
 <div class="box box-primary">
 
-	<div class="content-header">
+	<div class="app-content-header">
 
-	 	<h4>Change Password	{!! html()->submit(Lang::get('lang.save'))->class('form-group btn btn-primary pull-right') !!}</h4>
+	 	<h4>Change Password	{!! html()->submit(Lang::get('lang.save'))->class('mb-3 btn btn-primary pull-right') !!}</h4>
 
 	</div>
 
 <div class="box-body">
 					@if(Session::has('success'))
-                    <div class="alert alert-success alert-dismissable">
-                        <i class="fa fa-ban"></i>
+                    <div class="alert alert-success alert-dismissible">
+                        <i class="fa-solid fa-ban"></i>
                         <b>Alert!</b> Success.
-                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
                         {{Session::get('success')}}
                     </div>
                     @endif
                     <!-- fail message -->
                     @if(Session::has('fails'))
-                    <div class="alert alert-danger alert-dismissable">
-                        <i class="fa fa-ban"></i>
+                    <div class="alert alert-danger alert-dismissible">
+                        <i class="fa-solid fa-ban"></i>
                         <b>Alert!</b> Failed.
-                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
                         {{Session::get('fails')}}
                     </div>
                     @endif

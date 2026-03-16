@@ -24,13 +24,13 @@
     {{ $show_number }}
     </span>
 </h4>
-<h4 id="loading-screen" class="login-box-msg initially-hidden">
+<h4 id="loading-screen" class="login-box-msg d-none">
 
 <center>Wait we are sending a new OTP code to your number.<br/><img src="{{asset('lb-faveo/media/images/gifloader.gif')}}"></center>
 </h4>
 
 <div id="success" style="display:none" class="alert alert-success alert-dismissible">
-    <i class="fa-solid fa-check-circle"> </i>
+    <i class="fa-solid fa-circle-check"> </i>
     <span id = "success_message"></span>
 </div>
 <div id="ere_msg" style="display:none" class="alert alert-danger alert-dismissible">
@@ -62,13 +62,13 @@
 <!-- form open -->
 {!! html()->form('POST', route('otp-verification'))->open() !!}
 <!-- Email -->
-<div class="form-group has-feedback {{ $errors->has('email') ? 'has-error' : '' }}">
+<div class="mb-3 has-feedback {{ $errors->has('email') ? 'has-error' : '' }}">
     {!! html()->hidden('email', null)->placeholder(Lang::get("lang.email"))->class('form-control') !!}
     <!-- {!! $errors->first('email', '<spam class="help-block">:message</spam>') !!} -->
 </div>
 
 <!-- Password -->
-<div class="form-group has-feedback {{ $errors->has('password') ? 'has-error' : '' }}">
+<div class="mb-3 has-feedback {{ $errors->has('password') ? 'has-error' : '' }}">
     {!! html()->hidden('password', ['placeholder'=>Lang::get("lang.password"),'class' => 'form-control']) !!}
     <!-- {!! $errors->first('password', '<spam class="help-block">:message</spam>') !!} -->
 </div>
@@ -82,11 +82,11 @@
     <input type='hidden' name="referer" value="form">
 @endif
 <div class="row">
-    <div class="col-xs-8">
+    <div class="col-8">
         {!! Lang::get('lang.did-not-recive-code') !!}<br/>
         <a id="resend" onclick="resendOTP();" href="#" title="{!!Lang::get('lang.resend-otp-title') !!}">{!! Lang::get("lang.resend_otp") !!}</a><br>
     </div><!-- /.col -->
-    <div class="col-xs-4">
+    <div class="col-4">
         <button type="submit" class="btn btn-primary w-100">{!! Lang::get("lang.verify") !!}</button>
     </div><!-- /.col -->
 </div>

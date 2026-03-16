@@ -164,7 +164,7 @@
 
                         <div class="dropdown-menu dropdown-menu-xl dropdown-menu-end">
 
-                            <div id="alert11" class="alert alert-success alert-dismissible initially-hidden">
+                            <div id="alert11" class="alert alert-success alert-dismissible d-none">
 
                                 <button id="dismiss11" type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
 
@@ -329,9 +329,9 @@
                             <!-- Menu Footer-->
                             <li class="user-footer">
 
-                                <a href="{{url('admin-profile')}}" class="btn btn-primary btn-flat">{!! Lang::get('lang.profile') !!}</a>
+                                <a href="{{url('admin-profile')}}" class="btn btn-primary ">{!! Lang::get('lang.profile') !!}</a>
 
-                                <a href="{{url('auth/logout')}}" class="btn btn-danger btn-flat float-end">{!! Lang::get('lang.sign_out') !!}</a>
+                                <a href="{{url('auth/logout')}}" class="btn btn-danger  float-end">{!! Lang::get('lang.sign_out') !!}</a>
                             </li>
                         </ul>
                     </li>
@@ -469,7 +469,7 @@
 
                                     <li class="nav-item">
                                         <a href="{{url('helptopic')}}" @yield('help') class="nav-link">
-                                            <i class="nav-icon fa-solid fa-file-alt"></i>
+                                            <i class="nav-icon fa-solid fa-file-lines"></i>
                                             <p>{!! Lang::get('lang.help_topics') !!}</p>
                                         </a>
                                     </li>
@@ -483,7 +483,7 @@
 
                                     <li class="nav-item">
                                         <a href="{{url('forms')}}" @yield('forms') class="nav-link">
-                                            <i class="nav-icon fa-solid fa-file-alt"></i>
+                                            <i class="nav-icon fa-solid fa-file-lines"></i>
                                             <p>{!! Lang::get('lang.forms') !!}</p>
                                         </a>
                                     </li>
@@ -522,7 +522,7 @@
 
                                     <li class="nav-item">
                                         <a href="{{url('getticket')}}" @yield('tickets') class="nav-link">
-                                            <i class="nav-icon fa-solid fa-file-alt"></i>
+                                            <i class="nav-icon fa-solid fa-file-lines"></i>
                                             <p>{!! Lang::get('lang.ticket') !!}</p>
                                         </a>
                                     </li>
@@ -567,7 +567,7 @@
                             <li @yield('settings-menu-parent') class="nav-item">
 
                                 <a href="#" @yield('Settings') class="nav-link">
-                                    <i class="nav-icon fa-solid fa-cog"></i>
+                                    <i class="nav-icon fa-solid fa-gear"></i>
                                     <p>{!! Lang::get('lang.settings') !!} <i class="nav-arrow fa-solid fa-angle-left"></i></p>
                                 </a>
 
@@ -624,7 +624,7 @@
 
                                     <li class="nav-item">
                                         <a href="{{url('storage')}}" @yield('storage') class="nav-link">
-                                            <i class="nav-icon fa-solid fa-save"></i>
+                                            <i class="nav-icon fa-solid fa-floppy-disk"></i>
                                             <p>{!! Lang::get('storage::lang.storage') !!}</p>
                                         </a>
                                     </li>
@@ -683,7 +683,7 @@
 
                             <li class="nav-item">
                                 <a href="{{ url('api') }}" @yield('API') class="nav-link">
-                                    <i class="nav-icon fa-solid fa-cogs"></i>
+                                    <i class="nav-icon fa-solid fa-gears"></i>
                                     <p>{!! Lang::get('lang.api') !!}</p>
                                 </a>
                             </li>
@@ -727,7 +727,7 @@
 
                                 <div class="alert alert-info alert-dismissible">
                                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
-                                    <i class="icon fa-solid fa-exclamation-triangle"></i> {{Lang::get('lang.dummy_data_installation_message')}}
+                                    <i class="icon fa-solid fa-triangle-exclamation"></i> {{Lang::get('lang.dummy_data_installation_message')}}
                                     <a href="{{route('clean-database')}}">{{Lang::get('lang.click')}}</a> {{Lang::get('lang.clear-dummy-data')}}
                                 </div>
 
@@ -736,7 +736,7 @@
                                     <div class="col-md-12">
                                         <div class="alert alert-warning bg-warning">
                                             <p>
-                                                <i class="fa-solid fa-exclamation-triangle"></i>
+                                                <i class="fa-solid fa-triangle-exclamation"></i>
                                                 @if (\Auth::user()->role == 'admin')
                                                     {{Lang::get('lang.system-outgoing-incoming-mail-not-configured')}}&nbsp;<a href="{{URL::route('emails.create')}}">{{Lang::get('lang.confihure-the-mail-now')}}</a>
                                                 @else

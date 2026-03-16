@@ -18,19 +18,19 @@
             @endif
 
             @if(Session::has('success'))
-            <div class="alert alert-success alert-dismissable">
-                <i class="fa fa-ban"></i>
+            <div class="alert alert-success alert-dismissible">
+                <i class="fa-solid fa-ban"></i>
                 <b>{{Lang::get('message.alert')}}!</b> {{Lang::get('message.success')}}.
-                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
                 {{Session::get('success')}}
             </div>
             @endif
             <!-- fail message -->
             @if(Session::has('fails'))
-            <div class="alert alert-danger alert-dismissable">
-                <i class="fa fa-ban"></i>
+            <div class="alert alert-danger alert-dismissible">
+                <i class="fa-solid fa-ban"></i>
                 <b>{{Lang::get('message.alert')}}!</b> {{Lang::get('message.failed')}}.
-                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
                 {{Session::get('fails')}}
             </div>
             @endif
@@ -50,7 +50,7 @@
 
                         <td><b>{!! html()->label(Lang::get('message.company'), 'company')->class('required') !!}</b></td>
                         <td>
-                            <div class="form-group {{ $errors->has('company') ? 'has-error' : '' }}">
+                            <div class="mb-3 {{ $errors->has('company') ? 'has-error' : '' }}">
 
 
                                 {!! html()->text('company', null)->class('form-control') !!}
@@ -65,7 +65,7 @@
 
                         <td><b>{!! html()->label(Lang::get('message.website'), 'website') !!}</b></td>
                         <td>
-                            <div class="form-group {{ $errors->has('website') ? 'has-error' : '' }}">
+                            <div class="mb-3 {{ $errors->has('website') ? 'has-error' : '' }}">
 
 
                                 {!! html()->text('website', null)->class('form-control') !!}
@@ -79,7 +79,7 @@
 
                         <td><b>{!! html()->label(Lang::get('message.phone'), 'phone') !!}</b></td>
                         <td>
-                            <div class="form-group {{ $errors->has('phone') ? 'has-error' : '' }}">
+                            <div class="mb-3 {{ $errors->has('phone') ? 'has-error' : '' }}">
 
 
                                 {!! html()->text('phone', null)->class('form-control') !!}
@@ -93,7 +93,7 @@
 
                         <td><b>{!! html()->label(Lang::get('message.address'), 'address')->class('required') !!}</b></td>
                         <td>
-                            <div class="form-group {{ $errors->has('address') ? 'has-error' : '' }}">
+                            <div class="mb-3 {{ $errors->has('address') ? 'has-error' : '' }}">
 
                                 {!! html()->textarea('address', null)->class('form-control')->id('address')->attributes(['size' => '128x10']) !!}
                                 <p><i> {{Lang::get('message.enter-company-address')}}</i> </p>
@@ -105,7 +105,7 @@
 
                         <td><b>{!! html()->label(Lang::get('message.logo'), 'logo') !!}</b></td>
                         <td>
-                            <div class="form-group {{ $errors->has('logo') ? 'has-error' : '' }}">
+                            <div class="mb-3 {{ $errors->has('logo') ? 'has-error' : '' }}">
 
                                 {!! html()->file('logo') !!}
                                 <p><i> {{Lang::get('message.enter-the-company-logo')}}</i> </p>
@@ -125,7 +125,7 @@
 
                         <td><b>{!! html()->label(Lang::get('message.driver'), 'driver')->class('required') !!}</b></td>
                         <td>
-                            <div class="form-group {{ $errors->has('driver') ? 'has-error' : '' }}">
+                            <div class="mb-3 {{ $errors->has('driver') ? 'has-error' : '' }}">
 
 
                                 {!! html()->select('driver', ['mail'=>'Mail','smtp'=>'SMTP'], null)->class('form-control') !!}
@@ -140,7 +140,7 @@
 
                         <td><b>{!! html()->label(Lang::get('message.port'), 'port') !!}</b></td>
                         <td>
-                            <div class="form-group {{ $errors->has('port') ? 'has-error' : '' }}">
+                            <div class="mb-3 {{ $errors->has('port') ? 'has-error' : '' }}">
 
 
                                 {!! html()->text('port', null)->class('form-control') !!}
@@ -154,7 +154,7 @@
 
                         <td><b>{!! html()->label(Lang::get('message.host'), 'host') !!}</b></td>
                         <td>
-                            <div class="form-group {{ $errors->has('host') ? 'has-error' : '' }}">
+                            <div class="mb-3 {{ $errors->has('host') ? 'has-error' : '' }}">
 
 
                                 {!! html()->text('host', null)->class('form-control') !!}
@@ -168,7 +168,7 @@
 
                         <td><b>{!! html()->label(Lang::get('message.encryption'), 'encryption') !!}</b></td>
                         <td>
-                            <div class="form-group {{ $errors->has('encryption') ? 'has-error' : '' }}">
+                            <div class="mb-3 {{ $errors->has('encryption') ? 'has-error' : '' }}">
 
                                 {!! html()->text('encryption', null)->class('form-control') !!}
                                 <p><i> {{Lang::get('message.select-email-encryption-method')}}</i> </p>
@@ -181,7 +181,7 @@
 
                         <td><b>{!! html()->label(Lang::get('message.email'), 'email')->class('required') !!}</b></td>
                         <td>
-                            <div class="form-group {{ $errors->has('email') ? 'has-error' : '' }}">
+                            <div class="mb-3 {{ $errors->has('email') ? 'has-error' : '' }}">
 
                                 {!! html()->text('email', null)->class('form-control') !!}
                                 <p><i> {{Lang::get('message.enter-email')}}</i> </p>
@@ -194,7 +194,7 @@
 
                         <td><b>{!! html()->label(Lang::get('message.password'), 'password')->class('required') !!}</b></td>
                         <td>
-                            <div class="form-group {{ $errors->has('password') ? 'has-error' : '' }}">
+                            <div class="mb-3 {{ $errors->has('password') ? 'has-error' : '' }}">
 
                                 {!! html()->password('password')->class('form-control') !!}
                                 <p><i> {{Lang::get('message.enter-email-password')}}</i> </p>
@@ -213,7 +213,7 @@
 
                         <td><b>{!! html()->label(Lang::get('message.error-log'), 'error_log') !!}</b></td>
                         <td>
-                            <div class="form-group {{ $errors->has('error_log') ? 'has-error' : '' }}">
+                            <div class="mb-3 {{ $errors->has('error_log') ? 'has-error' : '' }}">
 
 
                                 {!! html()->radio('error_log', true, '1') !!}<span>   {{Lang::get('message.yes')}}</span>
@@ -230,7 +230,7 @@
 
                         <td><b>{!! html()->label(Lang::get('message.error-email'), 'error_email') !!}</b></td>
                         <td>
-                            <div class="form-group {{ $errors->has('error_email') ? 'has-error' : '' }}">
+                            <div class="mb-3 {{ $errors->has('error_email') ? 'has-error' : '' }}">
 
 
                                 {!! html()->text('error_email', null)->class('form-control') !!}
@@ -251,7 +251,7 @@
 
                         <td><b>{!! html()->label(Lang::get('message.welcome-mail'), 'welcome_mail') !!}</b></td>
                         <td>
-                            <div class="form-group {{ $errors->has('welcome_mail') ? 'has-error' : '' }}">
+                            <div class="mb-3 {{ $errors->has('welcome_mail') ? 'has-error' : '' }}">
 
 
                                 {!! html()->select('welcome_mail', ['Templates'=>$template->where('type',1)->pluck('name','id')->toArray()], null)->class('form-control') !!}
@@ -267,7 +267,7 @@
 
                         <td><b>{!! html()->label(Lang::get('message.order-mail'), 'order_mail') !!}</b></td>
                         <td>
-                            <div class="form-group {{ $errors->has('order_mail') ? 'has-error' : '' }}">
+                            <div class="mb-3 {{ $errors->has('order_mail') ? 'has-error' : '' }}">
 
 
                                 {!! html()->select('order_mail', ['Templates'=>$template->where('type',7)->pluck('name','id')->toArray()], null)->class('form-control') !!}
@@ -282,7 +282,7 @@
 
                         <td><b>{!! html()->label(Lang::get('message.forgot-password'), 'forgot_password') !!}</b></td>
                         <td>
-                            <div class="form-group {{ $errors->has('forgot_password') ? 'has-error' : '' }}">
+                            <div class="mb-3 {{ $errors->has('forgot_password') ? 'has-error' : '' }}">
 
 
                                 {!! html()->select('forgot_password', ['Templates'=>$template->where('type',2)->pluck('name','id')->toArray()], null)->class('form-control') !!}
@@ -297,7 +297,7 @@
 
                         <td><b>{!! html()->label(Lang::get('message.subscription-going-to-end'), 'subscription_going_to_end') !!}</b></td>
                         <td>
-                            <div class="form-group {{ $errors->has('subscription_going_to_end') ? 'has-error' : '' }}">
+                            <div class="mb-3 {{ $errors->has('subscription_going_to_end') ? 'has-error' : '' }}">
 
 
                                 {!! html()->select('subscription_going_to_end', ['Templates'=>$template->where('type',4)->pluck('name','id')->toArray()], null)->class('form-control') !!}
@@ -312,7 +312,7 @@
 
                         <td><b>{!! html()->label(Lang::get('message.subscription-over'), 'subscription_over') !!}</b></td>
                         <td>
-                            <div class="form-group {{ $errors->has('subscription_over') ? 'has-error' : '' }}">
+                            <div class="mb-3 {{ $errors->has('subscription_over') ? 'has-error' : '' }}">
 
 
                                 {!! html()->select('subscription_over', ['Templates'=>$template->where('type',5)->pluck('name','id')->toArray()], null)->class('form-control') !!}
@@ -327,7 +327,7 @@
 
                         <td><b>{!! html()->label(Lang::get('message.cart'), 'cart') !!}</b></td>
                         <td>
-                            <div class="form-group {{ $errors->has('cart') ? 'has-error' : '' }}">
+                            <div class="mb-3 {{ $errors->has('cart') ? 'has-error' : '' }}">
 
 
                                 {!! html()->select('cart', ['Templates'=>$template->where('type',3)->pluck('name','id')->toArray()], null)->class('form-control') !!}

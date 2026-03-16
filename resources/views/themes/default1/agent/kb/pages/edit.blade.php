@@ -39,10 +39,10 @@ class="nav-item menu-open"
 
 @if(Session::has('errors'))
 <?php //dd($errors); ?>
-<div class="alert alert-danger alert-dismissable">
-    <i class="fa fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     <br/>
     @if($errors->first('name'))
     <li class="error-message-padding">{!! $errors->first('name', ':message') !!}</li>
@@ -74,16 +74,16 @@ class="nav-item menu-open"
 
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-6 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
+                    <div class="col-md-6 mb-3 {{ $errors->has('name') ? 'has-error' : '' }}">
                         {!! html()->label(Lang::get('lang.name'), 'name') !!}<span class="text-red"> *</span>
 
                         {!! html()->text('name', null)->class('form-control') !!}
                     </div>
                     
-                    <div class="col-sm-12 form-group {{ $errors->has('description') ? 'has-error' : '' }}">
+                    <div class="col-sm-12 mb-3 {{ $errors->has('description') ? 'has-error' : '' }}">
                         {!! html()->label(Lang::get('lang.description'), 'description') !!}
 
-                        <div class="form-group" style="background-color:white">
+                        <div class="mb-3" style="background-color:white">
                             {!! html()->textarea('description', null)->class('form-control color')->id('myNicEditor')->placeholder('Enter the description')->attributes(['size' => '110x15']) !!}
                         </div>
                     </div>
@@ -102,7 +102,7 @@ class="nav-item menu-open"
 
             <div class="card-body">
                 
-                <div class="form-group {{ $errors->has('status') ? 'has-error' : '' }}">
+                <div class="mb-3 {{ $errors->has('status') ? 'has-error' : '' }}">
                     {!! html()->label(Lang::get('lang.status'), 'status') !!}
 
                     <div class="row">
@@ -115,7 +115,7 @@ class="nav-item menu-open"
                     </div>
                 </div>
 
-                <div class="form-group {{ $errors->has('visibility') ? 'has-error' : '' }}">
+                <div class="mb-3 {{ $errors->has('visibility') ? 'has-error' : '' }}">
                     {!! html()->label(Lang::get('lang.visibility'), 'visibility') !!}
 
                     <div class="row">

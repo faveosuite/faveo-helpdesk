@@ -34,28 +34,28 @@ class="nav-link active"
 @section('content')
 <!-- check whether success or not -->
 @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <i class="fa  fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+    <i class="fa  fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('success')}} @if(Session::has('link'))<a href="{{url(Session::get('link'))}}">{{Lang::get('lang.enable_lang')}}</a> @endif
 </div>
 @endif
 <!-- failure message -->
 @if(Session::has('fails'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fa fa-ban"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('fails')}}
 </div>
 @endif
 <div class="card card-light">
     <div class="card-header">
         <h3 class="card-title">{{ Lang::get('lang.language-settings') }}</h3>
-        <div class="card-tools">
-            <a href="{{route('download')}}" title="click here to download template file" class="btn btn-default btn-tool">
-                <i class="fas fa-download"></i> {{Lang::get('lang.download')}} 
+        <div class="card-tools d-flex">
+            <a href="{{route('download')}}" title="click here to download template file" class="btn btn-secondary btn-tool">
+                <i class="fa-solid fa-download"></i> {{Lang::get('lang.download')}} 
             </a> 
-            <a href="{{route('add-language')}}" class="btn btn-default btn-tool"><i class="fas fa-plus"></i> {{Lang::get('lang.add')}}</a>
+            <a href="{{route('add-language')}}" class="btn btn-secondary btn-tool"><i class="fa-solid fa-plus"></i> {{Lang::get('lang.add')}}</a>
         </div>
     </div>
     <div class="card-body">

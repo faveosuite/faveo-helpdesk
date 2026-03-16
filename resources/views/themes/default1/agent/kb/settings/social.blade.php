@@ -12,32 +12,32 @@
 
 	{!! html()->modelForm($social, 'PATCH', url('postsocial'))->acceptsFiles()->open() !!}
 
-<!-- <div class="form-group {{ $errors->has('company_name') ? 'has-error' : '' }}"> -->
+<!-- <div class="mb-3 {{ $errors->has('company_name') ? 'has-error' : '' }}"> -->
 	<!-- table  -->
 
 <div class="row">
 <div class="col-md-12">
 <div class="box box-primary">
 	<div class="box-header">
-        <h3 class="box-title">{{Lang::get('lang.social')}}</h3>  {!! html()->submit(Lang::get('lang.save'))->class('form-group btn btn-primary pull-right') !!}
+        <h3 class="box-title">{{Lang::get('lang.social')}}</h3>  {!! html()->submit(Lang::get('lang.save'))->class('mb-3 btn btn-primary pull-right') !!}
     </div>
 
     <!-- check whether success or not -->
 
     @if(Session::has('success'))
-    <div class="alert alert-success alert-dismissable">
-        <i class="fa  fa-check-circle"></i>
+    <div class="alert alert-success alert-dismissible">
+        <i class="fa  fa-circle-check"></i>
         <b>Success</b>
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         {{Session::get('success')}}
     </div>
     @endif
     <!-- failure message -->
     @if(Session::has('fails'))
-    <div class="alert alert-danger alert-dismissable">
-        <i class="fa fa-ban"></i>
+    <div class="alert alert-danger alert-dismissible">
+        <i class="fa-solid fa-ban"></i>
         <b>Fail!</b>
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         {{Session::get('fails')}}
     </div>
     @endif
@@ -47,7 +47,7 @@
 
             <div class="row">
 
-                <div class=" col-xs-4 form-group {{ $errors->has('google') ? 'has-error' : '' }}">
+                <div class=" col-4 mb-3 {{ $errors->has('google') ? 'has-error' : '' }}">
 
                     {!! html()->label('google', 'google') !!}
                     {!! $errors->first('google', '<spam class="help-block">:message</spam>') !!}
@@ -55,7 +55,7 @@
 
                 </div>
 
-                <div class=" col-xs-4 form-group {{ $errors->has('twitter') ? 'has-error' : '' }}">
+                <div class=" col-4 mb-3 {{ $errors->has('twitter') ? 'has-error' : '' }}">
 
                     {!! html()->label('twitter', 'twitter') !!}
                     {!! $errors->first('twitter', '<spam class="help-block">:message</spam>') !!}
@@ -63,7 +63,7 @@
 
                 </div>
 
-                <div class=" col-xs-4 form-group {{ $errors->has('facebook') ? 'has-error' : '' }}">
+                <div class=" col-4 mb-3 {{ $errors->has('facebook') ? 'has-error' : '' }}">
 
                     {!! html()->label('facebook', 'facebook') !!}
                     {!! $errors->first('facebook', '<spam class="help-block">:message</spam>') !!}
@@ -75,7 +75,7 @@
 
         <div class="row">
 
-                <div class=" col-xs-4 form-group {{ $errors->has('linkedin') ? 'has-error' : '' }}">
+                <div class=" col-4 mb-3 {{ $errors->has('linkedin') ? 'has-error' : '' }}">
 
                     {!! html()->label('linkedin', 'linkedin') !!}
                     {!! $errors->first('linkedin', '<spam class="help-block">:message</spam>') !!}
@@ -83,7 +83,7 @@
 
                 </div>
 
-                <div class=" col-xs-4 form-group {{ $errors->has('stumble') ? 'has-error' : '' }}">
+                <div class=" col-4 mb-3 {{ $errors->has('stumble') ? 'has-error' : '' }}">
 
                     {!! html()->label('stumble', 'stumble') !!}
                     {!! $errors->first('stumble', '<spam class="help-block">:message</spam>') !!}
@@ -91,7 +91,7 @@
 
                 </div>
 
-                <div class=" col-xs-4 form-group {{ $errors->has('deviantart') ? 'has-error' : '' }}">
+                <div class=" col-4 mb-3 {{ $errors->has('deviantart') ? 'has-error' : '' }}">
 
                     {!! html()->label('deviantart', 'deviantart') !!}
                     {!! $errors->first('deviantart', '<spam class="help-block">:message</spam>') !!}
@@ -103,7 +103,7 @@
 
         <div class="row">
 
-                <div class=" col-xs-4 form-group {{ $errors->has('flickr') ? 'has-error' : '' }}">
+                <div class=" col-4 mb-3 {{ $errors->has('flickr') ? 'has-error' : '' }}">
 
                     {!! html()->label('flickr', 'flickr') !!}
                     {!! $errors->first('flickr', '<spam class="help-block">:message</spam>') !!}
@@ -111,7 +111,7 @@
 
                 </div>
 
-                <div class=" col-xs-4 form-group {{ $errors->has('skype') ? 'has-error' : '' }}">
+                <div class=" col-4 mb-3 {{ $errors->has('skype') ? 'has-error' : '' }}">
 
                     {!! html()->label('skype', 'skype') !!}
                     {!! $errors->first('skype', '<spam class="help-block">:message</spam>') !!}
@@ -119,7 +119,7 @@
 
                 </div>
 
-                <div class=" col-xs-4 form-group {{ $errors->has('rss') ? 'has-error' : '' }}">
+                <div class=" col-4 mb-3 {{ $errors->has('rss') ? 'has-error' : '' }}">
 
                     {!! html()->label('rss', 'rss') !!}
                     {!! $errors->first('rss', '<spam class="help-block">:message</spam>') !!}
@@ -131,7 +131,7 @@
 
          <div class="row">
 
-                <div class=" col-xs-4 form-group {{ $errors->has('youtube') ? 'has-error' : '' }}">
+                <div class=" col-4 mb-3 {{ $errors->has('youtube') ? 'has-error' : '' }}">
 
                     {!! html()->label('youtube', 'youtube') !!}
                     {!! $errors->first('youtube', '<spam class="help-block">:message</spam>') !!}
@@ -139,7 +139,7 @@
 
                 </div>
 
-                <div class=" col-xs-4 form-group {{ $errors->has('vimeo') ? 'has-error' : '' }}">
+                <div class=" col-4 mb-3 {{ $errors->has('vimeo') ? 'has-error' : '' }}">
 
                     {!! html()->label('vimeo', 'vimeo') !!}
                     {!! $errors->first('vimeo', '<spam class="help-block">:message</spam>') !!}
@@ -147,7 +147,7 @@
 
                 </div>
 
-                <div class=" col-xs-4 form-group {{ $errors->has('pinterest') ? 'has-error' : '' }}">
+                <div class=" col-4 mb-3 {{ $errors->has('pinterest') ? 'has-error' : '' }}">
 
                     {!! html()->label('pinterest', 'pinterest') !!}
                     {!! $errors->first('pinterest', '<spam class="help-block">:message</spam>') !!}
@@ -159,7 +159,7 @@
 
         <div class="row">
 
-                <div class=" col-xs-6 form-group {{ $errors->has('dribbble') ? 'has-error' : '' }}">
+                <div class=" col-6 mb-3 {{ $errors->has('dribbble') ? 'has-error' : '' }}">
 
                     {!! html()->label('dribbble', 'dribbble') !!}
                     {!! $errors->first('dribbble', '<spam class="help-block">:message</spam>') !!}
@@ -167,7 +167,7 @@
 
                 </div>
 
-                <div class=" col-xs-6 form-group {{ $errors->has('instagram') ? 'has-error' : '' }}">
+                <div class=" col-6 mb-3 {{ $errors->has('instagram') ? 'has-error' : '' }}">
 
                     {!! html()->label('instagram', 'instagram') !!}
                     {!! $errors->first('instagram', '<spam class="help-block">:message</spam>') !!}
