@@ -2720,6 +2720,18 @@ class TicketController extends Controller
     public static function genreateTableJson($tickets)
     {
         return DataTables::of($tickets)
+                        ->filterColumn('title', function ($query, $keyword) {
+                            $query->where('th.title', 'like', "%{$keyword}%");
+                        })
+                        ->filterColumn('ticket_number', function ($query, $keyword) {
+                            $query->where('tickets.ticket_number', 'like', "%{$keyword}%");
+                        })
+                        ->filterColumn('c_uname', function ($query, $keyword) {
+                            $query->where('u1.user_name', 'like', "%{$keyword}%");
+                        })
+                        ->filterColumn('a_uname', function ($query, $keyword) {
+                            $query->where('u2.user_name', 'like', "%{$keyword}%");
+                        })
                         ->editColumn('id', function ($tickets) {
                             $rep = ($tickets->last_replier == 'client') ? '#F39C12'
                                         : '#000';

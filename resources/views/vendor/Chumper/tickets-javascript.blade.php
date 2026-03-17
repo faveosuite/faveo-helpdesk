@@ -29,6 +29,7 @@ $path = public_path();
                        "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7 d-flex justify-content-end'p>>",
                 "pagingType": "full_numbers",
                 "processing": true,
+                "serverSide": true,
                 "stateSave": true,
                 "stateDuration": -1,
                 "oLanguage": {
@@ -95,7 +96,8 @@ $path = public_path();
                 "columnDefs": [
                     {"defaultContent": "-",
                         "targets": "_all"},
-                    { "orderable": false, "targets": 0},
+                    { "orderable": false, "searchable": false, "targets": 0},
+                    { "searchable": false, "targets": 5 },
                     { "visible": true, "targets": 5 },
                     {
                         "aTargets": [0],
