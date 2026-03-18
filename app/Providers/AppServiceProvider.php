@@ -43,7 +43,6 @@ class AppServiceProvider extends ServiceProvider
         URL::forceScheme('https');
 
         require base_path('app/Http/breadcrumbs.php');
-
     }
 
     public function composer()
