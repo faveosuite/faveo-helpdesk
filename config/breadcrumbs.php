@@ -6,8 +6,8 @@ return [
 
     'files' => [],
 
-    'unnamed-route-exception' => false,
+    'unnamed-route-exception'                  => false,
     'missing-route-bound-breadcrumb-exception' => false,
-    'invalid-named-breadcrumb-exception' => false,
+    'invalid-named-breadcrumb-exception'       => false,
 
 ];
