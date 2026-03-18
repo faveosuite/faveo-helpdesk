@@ -4,6 +4,10 @@ return [
 
     'view' => '_partials.breadcrumbs',
 
-    'files' => base_path('app/Http/breadcrumbs.php'),
+    'files' => [],
+
+    'unnamed-route-exception' => false,
+    'missing-route-bound-breadcrumb-exception' => false,
+    'invalid-named-breadcrumb-exception' => false,
 
 ];
