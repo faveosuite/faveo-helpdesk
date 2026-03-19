@@ -486,7 +486,7 @@ class TicketController extends Controller
      *
      * @return int 0 on success, 1 on error
      */
-    public function updateDueDate($ticket_id,Request $request)
+    public function updateDueDate($ticket_id, Request $request)
     {
         $ticket = Tickets::where('id', $ticket_id)->first();
         if (!$ticket) {
