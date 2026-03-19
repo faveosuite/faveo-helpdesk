@@ -1691,5 +1691,4 @@ return [
     'successfully_saved'                                   => 'Successfully saved',
     'due_date_updated_successfully'                        => 'Due date has been changed successfully.',
 
-
 ];
