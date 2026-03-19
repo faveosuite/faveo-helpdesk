@@ -107,10 +107,12 @@ class EmailsController extends Controller
                     if ($default_email == $model->id) {
                         $delete = '<button class="btn btn-danger btn-xs" disabled><i class="fa-solid fa-trash"></i> '.\Lang::get('lang.delete').'</button>';
                     } else {
-                        $form_open = \Form::open(['method' => 'DELETE', 'url' => route('emails.destroy', $model->id), 'style' => 'display:inline']);
+                        $form_open = '<form method="POST" action="'.route('emails.destroy', $model->id).'" style="display:inline">'
+                            .'<input type="hidden" name="_method" value="DELETE">'
+                            .'<input type="hidden" name="_token" value="'.csrf_token().'">';
                         $delete = $form_open
                             .'<button type="submit" class="btn btn-danger btn-xs" onclick="return confirm(\'Are you sure?\')"><i class="fa-solid fa-trash"></i> '.\Lang::get('lang.delete').'</button>'
-                            .\Form::close();
+                            .'</form>';
                     }
 
                     return $edit.$delete;
@@ -182,7 +184,7 @@ class EmailsController extends Controller
             if ($send == 1 && $fetch == 1) {
                 $this->store($request, $service_request, $id);
 
-                return $this->jsonResponse('success', Lang::get('lang.success'));
+                return $this->jsonResponse('success', Lang::get('lang.successfully_saved_your_settings'));
             }
 
             return $this->validateEmailError($send, $fetch);

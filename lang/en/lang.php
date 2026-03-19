@@ -1688,4 +1688,8 @@ return [
     'save-successful'                                      => ' Saved Successfully',
     'enter_search_term'                                    => ' Enter search term',
     'operation'                                            => ' Operation',
+    'successfully_saved'                                   => 'Successfully saved',
+    'due_date_updated_successfully'                        => 'Due date has been changed successfully.',
+
+
 ];
