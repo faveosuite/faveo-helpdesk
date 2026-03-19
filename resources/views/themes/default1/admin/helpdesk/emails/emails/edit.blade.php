@@ -263,7 +263,7 @@ class="nav-link active"
         <div class="modal-content">
             <div class="modal-header">
                 <div id="head" class="text-center">
-                    <button type="button" class="btn-close" id="close" data-bs-dismiss="modal" aria-label="Close" style="display:none;"><span aria-hidden="true">×</span></button>
+                    <button type="button" class="btn-close" id="close" data-bs-dismiss="modal" aria-label="Close" style="display:none;"></button>
                     <img src="{{asset("lb-faveo/media/images/gifloader.gif")}}" >
                     <br/>
                     <br/>
@@ -293,32 +293,40 @@ class="nav-link active"
             },
             beforeSend: function () {
                 $('#alert').empty();
-                $("#click").trigger("click");
+                $('#loadingpopup').addClass('show').css('display', 'block');
+                $('body').addClass('modal-open').append('<div class="modal-backdrop fade show"></div>');
             },
             success: function (json) {
                 console.log(json.result);
-                $("#close").trigger("click");
-                var res = "";
-                $.each(json.result, function (idx, topic) {
-                    if (idx === "success") {
-                        res = "<div class='alert alert-success'>" + topic + "</div>";
-                    }
-                    if (idx === "fails") {
-                        res = "<div class='alert alert-danger'>" + topic + "</div>";
-                    }
-                });
-
-                $("#head").html(res);
-                $('html, body').animate({scrollTop: $("#head").offset().top}, 500);
+                setTimeout(function () {
+                    $('#loadingpopup').removeClass('show').css('display', 'none');
+                    $('body').removeClass('modal-open');
+                    $('.modal-backdrop').remove();
+                    var res = "";
+                    $.each(json.result, function (idx, topic) {
+                        if (idx === "success") {
+                            res = "<div class='alert alert-success alert-dismissible'><button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>" + topic + "</div>";
+                        }
+                        if (idx === "fails") {
+                            res = "<div class='alert alert-danger alert-dismissible'><button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>" + topic + "</div>";
+                        }
+                    });
+                    $("#head").html(res);
+                    $('html, body').animate({scrollTop: $("#head").offset().top}, 500);
+                }, 1000);
             },
             error: function (json) {
-                $("#close").trigger("click");
-                var res = "";
-                $.each(json.responseJSON.errors, function (idx, topic) {
-                    res += "<li>" + topic + "</li>";
-                });
-                $("#head").html("<div class='alert alert-danger'><strong>Whoops!</strong> There were some problems with your input.<br><br><ul>" + res + "</ul></div>");
-                $('html, body').animate({scrollTop: $("#head").offset().top}, 500);
+                setTimeout(function () {
+                    $('#loadingpopup').removeClass('show').css('display', 'none');
+                    $('body').removeClass('modal-open');
+                    $('.modal-backdrop').remove();
+                    var res = "";
+                    $.each(json.responseJSON.errors, function (idx, topic) {
+                        res += "<li>" + topic + "</li>";
+                    });
+                    $("#head").html("<div class='alert alert-danger alert-dismissible'><button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button><strong>Whoops!</strong> There were some problems with your input.<br><br><ul>" + res + "</ul></div>");
+                    $('html, body').animate({scrollTop: $("#head").offset().top}, 500);
+                }, 1000);
             }
         });
         return false;
