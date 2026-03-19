@@ -480,6 +480,30 @@ class TicketController extends Controller
     }
 
     /**
+     * Update only the due date of a ticket.
+     *
+     * @param int $ticket_id
+     *
+     * @return int 0 on success, 1 on error
+     */
+    public function updateDueDate($ticket_id,Request $request)
+    {
+        $ticket = Tickets::where('id', $ticket_id)->first();
+        if (!$ticket) {
+            return 1;
+        }
+
+        if ($request->duedate) {
+            $ticket->duedate = Carbon::createFromFormat('d/m/Y', $request->duedate)->format('Y-m-d H:i:s');
+        } else {
+            $ticket->duedate = null;
+        }
+        $ticket->save();
+
+        return 0;
+    }
+
+    /**
      * Print Ticket Details.
      *
      * @param type $id
@@ -2770,7 +2794,7 @@ class TicketController extends Controller
                             }
 
                             $due = '';
-                            if ($tickets->duedate != null) {
+                            if ($tickets->duedate != null && !$tickets->closed) {
                                 $now = strtotime(\Carbon\Carbon::now()->tz(timezone()));
                                 $duedate = strtotime($tickets->duedate);
 

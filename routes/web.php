@@ -356,7 +356,8 @@ Route::middleware('web')->group(function () {
         Route::post('/thread/reply/{id}', [Agent\helpdesk\TicketController::class, 'reply'])->name('ticket.reply'); /*  Patch Thread Reply */
         Route::patch('/internal/note/{id}', [Agent\helpdesk\TicketController::class, 'InternalNote'])->name('Internal.note'); /*  Patch Internal Note */
         Route::patch('/ticket/assign/{id}', [Agent\helpdesk\TicketController::class, 'assign'])->name('assign.ticket'); /*  Patch Ticket assigned to whom */
-        Route::patch('/ticket/post/edit/{id}', [Agent\helpdesk\TicketController::class, 'ticketEditPost'])->name('ticket.post.edit'); /*  Patchi Ticket Edit */
+        Route::patch('/ticket/post/edit/{id}', [Agent\helpdesk\TicketController::class, 'ticketEditPost'])->name('ticket.post.edit'); /*  Patch Ticket Edit */
+        Route::post('/ticket/duedate/{id}', [Agent\helpdesk\TicketController::class, 'updateDueDate'])->name('ticket.duedate'); /*  Post Ticket Due Date */
         Route::get('/ticket/print/{id}', [Agent\helpdesk\TicketController::class, 'ticket_print'])->name('ticket.print'); /*  Get Print Ticket */
         Route::post('/ticket/delete/{id}', [Agent\helpdesk\TicketController::class, 'delete'])->name('ticket.delete'); /*  Get Ticket Delete */
         Route::get('/email/ban/{id}', [Agent\helpdesk\TicketController::class, 'ban'])->name('ban.email'); /*  Get Ban Email */

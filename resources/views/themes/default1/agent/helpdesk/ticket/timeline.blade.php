@@ -141,18 +141,24 @@ if ($thread->title != "") {
 
             if ($group->can_edit_ticket == 1) {
                 ?>
-            <button type="button" class="btn btn-sm btn-light btn-tool">
+            <button type="button" class="btn btn-sm btn-light btn-tool" data-bs-toggle="modal" data-bs-target="#Edit">
 
                 <i class="fa-solid fa-pen-to-square text-success"></i> {{trans('lang.edit')}}
 
             </button>            <?php } ?>
 
             <?php if ($group->can_assign_ticket == 1) { ?>
-            <button type="button" class="btn btn-sm btn-light btn-tool">
+            <button type="button" class="btn btn-sm btn-light btn-tool" data-bs-toggle="modal" data-bs-target="#assign{{$tickets->id}}">
 
                 <i class="fa-solid fa-hand-point-right text-orange"></i> {{trans('lang.assign')}}
 
             </button>            <?php } ?>
+
+            <?php if ($group->can_edit_ticket == 1) { ?>
+            <button type="button" class="btn btn-sm btn-light btn-tool" data-bs-toggle="modal" data-bs-target="#changeDueDate">
+                <i class="fa-solid fa-calendar-days text-primary"></i> {{trans('lang.due_date')}}
+            </button>
+            <?php } ?>
 
             @if($tickets->assigned_to == Auth::user()->id)
                 <button type="button" id="surrender_button" class="btn btn-sm btn-light btn-tool" data-bs-toggle="modal" data-bs-target="#surrender">
@@ -830,8 +836,8 @@ if ($thread->title != "") {
                 <div class="modal-content">
                     {!! html()->modelForm($tickets->id, 'PATCH', url()->current())->attributes(['id' => 'form'])->open() !!}
                     <div class="modal-header">
-                        <h5 class="modal-title">{!! Lang::get('lang.edit') !!} <b>[#{!! $tickets->ticket_number !!}]</b></h4>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidd en="true">&times;</span></button>
+                        <h4 class="modal-title">{!! Lang::get('lang.edit') !!} <b>[#{!! $tickets->ticket_number !!}]</b></h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body" id="hide">
                         <div class="mb-3">
@@ -927,14 +933,49 @@ if ($thread->title != "") {
         </div><!-- /.modal -->
     <?php }
     ?>
+
+    <!-- Change Due Date modal -->
+    <?php if ($group->can_edit_ticket == 1) { ?>
+    <div class="modal fade" id="changeDueDate">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title"><i class="fa-solid fa-calendar-days"></i> {!! Lang::get('lang.due_date') !!} <b>[#{!! $tickets->ticket_number !!}]</b></h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="changeDueDateForm">
+                    @csrf
+                    <div class="modal-body">
+                        <div id="dueDateAlert"></div>
+                        <div class="mb-3">
+                            <label class="form-label">{!! Lang::get('lang.due_date') !!}</label>
+                            <input type="text" name="duedate" id="due-datemask" class="form-control"
+                                value="{{ $tickets->duedate ? \Carbon\Carbon::parse($tickets->duedate)->format('d/m/Y') : '' }}"
+                                placeholder="DD/MM/YYYY" autocomplete="off">
+                            <small class="text-muted">Leave empty to clear the due date.</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{!! Lang::get('lang.close') !!}</button>
+                        <button type="submit" class="btn btn-primary" id="dueDateSubmitBtn">
+                            <span id="dueDateSpinner" class="spinner-border spinner-border-sm d-none me-1" role="status"></span>
+                            {!! Lang::get('lang.update') !!}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <?php } ?>
+
 <?php if ($group->can_ban_email == 1) { ?>
         <!-- ban email modal -->
         <div class="modal fade" id="banemail">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">{!! Lang::get('lang.ban_email') !!} </h4>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">{!! Lang::get('lang.ban_email') !!} </h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         {!! Lang::get('lang.are_you_sure_to_ban') !!} {!! $user->email !!}
@@ -956,8 +997,8 @@ if ($thread->title != "") {
             <div class="modal-content">
                 {!! html()->form('PATCH', url()->current())->attributes(['id' => 'form4'])->open() !!}
                 <div class="modal-header">
-                    <h5 class="modal-title">{!! Lang::get('lang.change_owner_for_ticket') !!} <b>#{!! $tickets->ticket_number !!}</b></h4>
-                    <button type="button" class="btn-close" id="close101" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                    <h4 class="modal-title">{!! Lang::get('lang.change_owner_for_ticket') !!} <b>#{!! $tickets->ticket_number !!}</b></h4>
+                    <button type="button" class="btn-close" id="close101" data-bs-dismiss="modal" aria-label="Close">
                     </button>
                 </div>
                 <div class="p-2">
@@ -1046,8 +1087,8 @@ if ($thread->title != "") {
                 <div class="modal-content">
                     {!! html()->form('PATCH', url()->current())->attributes(['id' => 'form1'])->open() !!}
                     <div class="modal-header">
-                        <h5 class="modal-title">{!! Lang::get('lang.assign') !!}</h4>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">{!! Lang::get('lang.assign') !!}</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div id="assign_alert" class="alert alert-success alert-dismissible fade d-none">
                         <button id="assign_dismiss" type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
@@ -1091,7 +1132,7 @@ if ($thread->title != "") {
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">{!! Lang::get('lang.surrender') !!}</h4>
+                    <h4 class="modal-title">{!! Lang::get('lang.surrender') !!}</h4>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -1110,8 +1151,8 @@ if ($thread->title != "") {
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">{!! Lang::get('lang.add_collaborator') !!}</h4>
-                    <button type="button" id="cc-close" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">{!! Lang::get('lang.add_collaborator') !!}</h4>
+                    <button type="button" id="cc-close" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="nav-tabs-custom mt-1 p-1">
                     <ul class="nav nav-tabs">
@@ -1165,7 +1206,7 @@ if ($thread->title != "") {
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">{!! Lang::get('lang.list_of_collaborators_of_this_ticket') !!}</h4>
+                    <h4 class="modal-title">{!! Lang::get('lang.list_of_collaborators_of_this_ticket') !!}</h4>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="surrender22">
@@ -1207,7 +1248,7 @@ if ($thread->title != "") {
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">{!! Lang::get('lang.merge-ticket') !!} <b>[#{!! $tickets->ticket_number !!}]</b> </h4>
+                <h4 class="modal-title">{!! Lang::get('lang.merge-ticket') !!} <b>[#{!! $tickets->ticket_number !!}]</b> </h4>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" id="merge-close" aria-label="Close"></button>
                 
             </div><!-- /.modal-header-->
@@ -1276,7 +1317,7 @@ if ($thread->title != "") {
                 </div><!-- merge-body -->
             </div><!-- /.modal-body -->
             <div class="modal-footer justify-content-between">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal" id="dismis2">{!! Lang::get('lang.close') !!}</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="dismis2">{!! Lang::get('lang.close') !!}</button>
                 <input  type="submit" id="merge-btn" class="btn btn-primary" value="{!! Lang::get('lang.merge') !!}"></input>
                 {!! html()->closeModelForm() !!}
             </div><!-- /.modal-footer -->
@@ -1599,23 +1640,7 @@ if ($thread->title != "") {
                     $("#assign_loader").removeClass('d-none');
             },
             success: function(response) {
-            if (response == 1)
-            {
-            // $("#assign_body").removeClass('d-none');
-            // var message = "Success";
-            // $('#message-success1').html(message);
-            // setInterval(function(){$("#alert11").addClass('d-none'); },4000);   
             location.reload();
-            var message = "Success!";
-                    $("#alert10").css('display','block');
-                    $('#message-success0').html(message);
-                    setInterval(function(){$("#dismiss10").trigger("click"); }, 2000);
-            }
-            $("#assign_body").removeClass('d-none');
-                    $("#assign_loader").addClass('d-none');
-                    $("#dismis4").trigger("click");
-                    // $("#RefreshAssign").load( "../thread/{{$tickets->id}} #RefreshAssign");
-                    // $("#General").load( "../thread/{{$tickets->id}} #General");
             }
     })
             return false;
@@ -2221,5 +2246,57 @@ echo $ticket_data->title;
            $('#reply_content').summernote('pasteHTML', response);
         }
     }
+
+    // Change Due Date datepicker
+    $('#changeDueDate').on('shown.bs.modal', function () {
+        $('#due-datemask').datepicker({
+            format: 'dd/mm/yyyy',
+            autoclose: true,
+            todayHighlight: true,
+        });
+    });
+
+    // Change Due Date AJAX submit
+    $('#changeDueDateForm').on('submit', function (e) {
+        e.preventDefault();
+        $('#dueDateAlert').empty();
+        $('#dueDateSubmitBtn').attr('disabled', true);
+        $('#dueDateSpinner').removeClass('d-none');
+        $.ajax({
+            type: 'POST',
+            url: '../ticket/duedate/{{ $tickets->id }}',
+            data: $(this).serialize(),
+            success: function (response) {
+                $('#dueDateSubmitBtn').attr('disabled', false);
+                $('#dueDateSpinner').addClass('d-none');
+                $('#dueDateAlert').html("<div class='alert alert-success alert-dismissible'><button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>{!! Lang::get('lang.due_date_updated_successfully') !!}</div>");
+                setTimeout(function () {
+                    $('#changeDueDate').modal('hide');
+                    location.reload();
+                }, 1500);
+            },
+            error: function (xhr) {
+                $('#dueDateSubmitBtn').attr('disabled', false);
+                $('#dueDateSpinner').addClass('d-none');
+                var msg = 'Something went wrong. Please try again.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    msg = xhr.responseJSON.message;
+                } else if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    var errors = xhr.responseJSON.errors;
+                    msg = Object.values(errors).map(function(e){ return e[0]; }).join('<br>');
+                }
+                $('#dueDateAlert').html("<div class='alert alert-danger alert-dismissible'><button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>" + msg + "</div>");
+            }
+        });
+    });
+
+    $('#changeDueDate').on('hidden.bs.modal', function () {
+        $('#dueDateAlert').empty();
+    });
 </script>
+@stop
+
+@section('FooterInclude')
+<link rel="stylesheet" href="{{ asset('lb-faveo/plugins/datepicker/datepicker3.css') }}">
+<script src="{{ asset('lb-faveo/plugins/datepicker/bootstrap-datepicker.js') }}"></script>
 @stop

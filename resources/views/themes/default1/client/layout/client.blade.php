@@ -220,7 +220,7 @@
 
                                             <div class="banner-wrapper user-data text-center clearfix" id="profile_dropdown">
 
-                                                <img id="user_avatar" src="{{Auth::user()->profile_pic}}"class="avatar" alt="User Image" height="70" width="70"/>
+                                                <img id="user_avatar" src="{{Auth::user()->profile_pic}}" class="avatar" alt="User Image" height="70" width="70"/>
 
                                                 <div><strong>{{trans('lang.hello')}}</strong></div>
 
@@ -246,22 +246,11 @@
                          </ul>
                                 </li>
                                 @else
-                                @if(isset($errors))
                                         <li class="nav-item">
-                                                <?php if (is_object($errors) && ($errors->first('email') || $errors->first('password'))) : ?>
-                                            <a href="#" class="nav-link sfHover" data-bs-toggle="collapse" data-bs-target="#login-form">
+                                            <a href="{{ url('auth/login') }}" class="nav-link">
                                                 {!! Lang::get('lang.login') !!}
-{{--                                                <i class="sub-indicator fa-solid fa-chevron-circle-down fa-fw text-muted"></i>--}}
                                             </a>
-                                            <?php else : ?>
-                                            <a href="#" class="nav-link collapsed" data-bs-toggle="collapse" data-bs-target="#login-form">
-                                                {!! Lang::get('lang.login') !!}
-{{--                                                <i class="sub-indicator fa-solid fa-chevron-circle-down fa-fw text-muted"></i>--}}
-                                            </a>
-                                            <?php endif; ?>
                                         </li>
-
-                                    @endif
                                     @endif
                                     <li class="nav-item dropdown">
                                     <?php $src = Lang::getLocale().'.png'; ?>
@@ -286,58 +275,6 @@
 {{--                          <span class="icon"></span>--}}
 {{--                        </span>--}}
 
-                            <?php
-                                    $loginFormClass = "login-form collapse fade clearfix";
-                                    if(isset($errors) && ($errors->first('email') || $errors->first('password')))
-                                    {
-                                        $loginFormClass .= " show";
-                                    }
-                                ?>
-                            <div id="login-form" class="{{$loginFormClass}}">
-                                 <div class="row">
-                                    <div class="col-md-12">
-                                        {!! html()->form('POST', route('post.login'))->open() !!}
-                                        @if(Session::has('errors'))
-                                        @if(Session::has('check'))
-                                        <?php goto b; ?>
-                                        @endif
-                                        @if(Session::has('error'))
-                                        <div class="alert alert-danger alert-dismissible">
-
-                                            {!! Session::get('error') !!}
-
-                                        </div>
-                                         @endif
-                                        <?php b: ?>
-                                        @endif
-                                        <div class="mb-3 has-feedback @if(isset($errors)) {!! $errors->has('email') ? 'has-error' : '' !!} @endif">
-                                            {!! html()->text('email', null)->placeholder(Lang::get('lang.e-mail'))->class('form-control') !!}
-                                        </div>
-                                        <div class="mb-3 has-feedback @if(isset($errors)) {!! $errors->has('password') ? 'has-error' : '' !!} @endif">
-                                            {!! html()->password('password')->placeholder(Lang::get('lang.password'))->class('form-control') !!}
-                                            <?php \Illuminate\Support\Facades\Event::dispatch('auth.login.form'); ?>
-                                            <a href="{{url('password/email')}}" class="float-start small">{!! Lang::get('lang.forgot_password') !!}</a>
-                                        </div>
-                                        <div class="mb-3 float-start">
-                                         <input type="checkbox" name="remember"> {!! Lang::get("lang.remember") !!}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-12 text-center">
-                                            <button type="submit" class="btn btn-primary">{!! Lang::get('lang.login') !!}</button>
-                                        {!! html()->closeModelForm() !!}
-                                    </div>
-
-                                <div class="col-md-12 text-center">
-                                     {{Lang::get('lang.or')}}
-                                    <ul class="list-unstyled">
-                                        <a href="{{url('auth/register')}}" style="font-size: 1.2em">{!! Lang::get('lang.create_account') !!}</a>
-                                    </ul>
-                                </div>
-                                </div>
-                                    <div>
-                                        @include('themes.default1.client.layout.social-login')
-                                    </div>
-                            </div><!-- #login-form -->
                         </div>
                     </nav>
 
