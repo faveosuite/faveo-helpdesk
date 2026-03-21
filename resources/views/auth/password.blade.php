@@ -85,9 +85,14 @@
                 <!-- form open -->
                 <form role="form" method="POST" action="{{ url('/password/email') }}">
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                    <div class="input-group mb-3 {{ $errors->has('email') ? 'has-error' : '' }}">
-                        <input type="email" class="form-control" name="email" placeholder="{!! Lang::get('lang.email') !!}" value="{{ old('email') }}">
-                        <span class="input-group-text"><i class="fa-regular fa-envelope input-icon-muted"></i></span>
+                    <div class="mb-3">
+                        <div class="input-group">
+                            <input type="email" class="form-control {{ $errors->has('email') ? 'is-invalid' : '' }}" name="email" placeholder="{!! Lang::get('lang.email') !!}" value="{{ old('email') }}">
+                            <span class="input-group-text"><i class="fa-regular fa-envelope input-icon-muted"></i></span>
+                        </div>
+                        @if($errors->has('email'))
+                            <div class="invalid-feedback d-block">{{ $errors->first('email') }}</div>
+                        @endif
                     </div>
 
                     <div class="row">

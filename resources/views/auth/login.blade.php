@@ -25,22 +25,10 @@
 
     @if(Session::has('error'))
     <div class="alert alert-danger alert-dismissible">
-        <i class="fa-solid fa-circle-check"> </i> <b> {!! Lang::get('lang.alert') !!} </b>
+        <i class="fa-solid fa-circle-xmark"> </i> <b> {!! Lang::get('lang.alert') !!} </b>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         {{Session::get('error')}}
     </div>
-    @else
-
-    @if (count($errors) > 0)
-    <div class="alert alert-danger alert-dismissible">
-        <i class="fa-solid fa-ban"></i>
-        <b>{!! Lang::get('lang.alert') !!} !</b>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
-        @foreach ($errors->all() as $error)
-        <li>{{ $error }}</li>
-        @endforeach
-    </div>
-    @endif
     @endif
 
     <div id="content" class="site-content col-md-12">
@@ -70,11 +58,11 @@
                         @endif
                     @endif
                 @endif
-                <span onclick="javascript: window.location.href='{{url('mytickets')}}';">
-                    <a href="{{url('mytickets')}}" class="widgetrowitem defaultwidget" style="background-image:url({{ URL::asset('lb-faveo/media/images/news.png') }})">
-                        <span class="widgetitemtitle"  style="color: rgb(0, 154, 186)">{!! Lang::get('lang.my_tickets') !!}</span>
-                    </a>
-                </span>
+{{--                <span onclick="javascript: window.location.href='{{url('mytickets')}}';">--}}
+{{--                    <a href="{{url('mytickets')}}" class="widgetrowitem defaultwidget" style="background-image:url({{ URL::asset('lb-faveo/media/images/news.png') }})">--}}
+{{--                        <span class="widgetitemtitle"  style="color: rgb(0, 154, 186)">{!! Lang::get('lang.my_tickets') !!}</span>--}}
+{{--                    </a>--}}
+{{--                </span>--}}
                 <span onclick="javascript: window.location.href='{{url('/knowledgebase')}}';">
                     <a href="{{url('/knowledgebase')}}" class="widgetrowitem defaultwidget" style="background-image:url({{ URL::asset('lb-faveo/media/images/knowledgebase.png') }})">
                         <span class="widgetitemtitle"  style="color: rgb(0, 154, 186)">{!! Lang::get('lang.knowledge_base') !!}</span>
@@ -107,16 +95,26 @@
                     <!-- form open -->
                     {!! html()->form('POST', route('auth.post.login'))->open() !!}
 
-                        <div class="input-group mb-3 {{ $errors->has('email') ? 'has-error' : '' }}">
-                            {!! html()->text('email', null)->placeholder(Lang::get("lang.email"))->class('form-control') !!}
-                            <span class="input-group-text"><i class="fa-regular fa-envelope input-icon-muted"></i></span>
+                        <div class="mb-3">
+                            <div class="input-group {{ $errors->has('email') ? 'is-invalid' : '' }}">
+                                {!! html()->text('email', null)->placeholder(Lang::get("lang.email"))->class('form-control' . ($errors->has('email') ? ' is-invalid' : '')) !!}
+                                <span class="input-group-text"><i class="fa-regular fa-envelope input-icon-muted"></i></span>
+                            </div>
+                            @if($errors->has('email'))
+                                <div class="invalid-feedback d-block">{{ $errors->first('email') }}</div>
+                            @endif
                         </div>
 
-                        <div class="input-group mb-3 {{ $errors->has('password') ? 'has-error' : '' }}">
-                            {!! html()->password('password')->placeholder(Lang::get("lang.password"))->class('form-control')->id('login-password') !!}
-                            <button class="input-group-text" type="button" onclick="togglePwd('login-password', this)" tabindex="-1">
-                                <i class="fa-solid fa-eye-slash"></i>
-                            </button>
+                        <div class="mb-3">
+                            <div class="input-group {{ $errors->has('password') ? 'is-invalid' : '' }}">
+                                {!! html()->password('password')->placeholder(Lang::get("lang.password"))->class('form-control' . ($errors->has('password') ? ' is-invalid' : ''))->id('login-password') !!}
+                                <button class="input-group-text" type="button" onclick="togglePwd('login-password', this)" tabindex="-1">
+                                    <i class="fa-solid fa-eye-slash"></i>
+                                </button>
+                            </div>
+                            @if($errors->has('password'))
+                                <div class="invalid-feedback d-block">{{ $errors->first('password') }}</div>
+                            @endif
                         </div>
 
                         <div>
