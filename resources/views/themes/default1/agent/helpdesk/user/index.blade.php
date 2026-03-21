@@ -60,35 +60,45 @@ class="nav-link active"
 <div class="card card-light">
 
     <div class="card-header">
-        
-        <h3 class="card-title">{{Lang::get('lang.user')}}</h3>
 
-        <div class="card-tools d-flex">
-            
-            <div class="has-feedback" style="display: inline-block;">
-                <input type="text" class="form-control input-sm m-0" id="search-text" name="search" placeholder="{{Lang::get('lang.search')}}">
+        <h3 class="card-title">{{ Lang::get('lang.user') }}</h3>
+
+        <div class="card-tools d-flex align-items-center gap-2">
+
+            <div class="has-feedback">
+                <input type="text"
+                       class="form-control form-control-sm m-0"
+                       id="search-text"
+                       name="search"
+                       placeholder="{{ Lang::get('lang.search') }}">
             </div>
 
             <div class="btn-group">
-        
-                <button type="button" class="btn btn-tool btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                  <i class="fa-solid fa-eye"> </i> {{Lang::get('lang.view-option')}}
+                <button type="button"
+                        class="btn btn-secondary btn-sm dropdown-toggle"
+                        data-bs-toggle="dropdown">
+                    <i class="fa-solid fa-eye"></i> {{ Lang::get('lang.view-option') }}
                 </button>
-        
-                <div class="dropdown-menu dropdown-menu-right" role="menu" style="">
-                    <a href="#" class="dropdown-item all active">{{Lang::get('lang.all-users')}}</a>
-                    <a href="#" class="dropdown-item agents">{{Lang::get('lang.only-agents')}}</a>
-                    <a href="#" class="dropdown-item users">{{Lang::get('lang.only-users')}}</a>
-                    <a href="#" class="dropdown-item active-users">{{Lang::get('lang.active-users')}}</a>
-                    <a href="#" class="dropdown-item inactive">{{Lang::get('lang.inactive-users')}}</a>
-                    <a href="#" class="dropdown-item deleted">{{Lang::get('lang.deleted-users')}}</a>
-                    <a href="#" class="dropdown-item banned">{{Lang::get('lang.banned-users')}}</a>
+
+                <div class="dropdown-menu dropdown-menu-end">
+                    <a href="#" class="dropdown-item all active">{{ Lang::get('lang.all-users') }}</a>
+                    <a href="#" class="dropdown-item agents">{{ Lang::get('lang.only-agents') }}</a>
+                    <a href="#" class="dropdown-item users">{{ Lang::get('lang.only-users') }}</a>
+                    <a href="#" class="dropdown-item active-users">{{ Lang::get('lang.active-users') }}</a>
+                    <a href="#" class="dropdown-item inactive">{{ Lang::get('lang.inactive-users') }}</a>
+                    <a href="#" class="dropdown-item deleted">{{ Lang::get('lang.deleted-users') }}</a>
+                    <a href="#" class="dropdown-item banned">{{ Lang::get('lang.banned-users') }}</a>
                 </div>
             </div>
-              
-            <a href="{{url('user-export')}}" class="btn btn-tool btn-secondary">Export</a>
-            
-            <a href="{{route('user.create')}}" class="btn btn-tool btn-secondary">{{Lang::get('lang.create_user')}}</a>
+
+            <a href="{{ url('user-export') }}" class="btn btn-secondary btn-sm text-white">
+                Export
+            </a>
+
+            <a href="{{ route('user.create') }}" class="btn btn-secondary btn-sm text-white">
+                {{ Lang::get('lang.create_user') }}
+            </a>
+
         </div>
     </div>
     

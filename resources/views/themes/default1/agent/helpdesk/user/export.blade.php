@@ -14,7 +14,7 @@ class="active"
 
 <!-- header -->
 @section('PageHeader')
-<h1>Export User</h1>
+<h3>Export User</h3>
 @stop
 <!-- /header -->
 <!-- content -->

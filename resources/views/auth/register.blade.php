@@ -30,16 +30,6 @@
     </div>
     @endif
 
-    @if (count($errors) > 0)
-    <div class="alert alert-danger alert-dismissible">
-        <i class="fa-solid fa-ban"></i>
-        <b>{!! Lang::get('lang.alert') !!} !</b>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
-        @foreach ($errors->all() as $error)
-        <li>{{ $error }}</li>
-        @endforeach
-    </div>
-    @endif
 
 <div id="content" class="site-content col-md-12">
 
@@ -68,11 +58,11 @@
                 @endif
             @endif
         @endif
-            <span onclick="javascript: window.location.href='{{url('mytickets')}}';">
-                <a href="{{url('mytickets')}}" class="widgetrowitem defaultwidget" style="background-image:url({{ URL::asset('lb-faveo/media/images/news.png') }})">
-                    <span class="widgetitemtitle" style="color: rgb(0, 154, 186)">{!! Lang::get('lang.my_tickets') !!}</span>
-                </a>
-            </span>
+{{--            <span onclick="javascript: window.location.href='{{url('mytickets')}}';">--}}
+{{--                <a href="{{url('mytickets')}}" class="widgetrowitem defaultwidget" style="background-image:url({{ URL::asset('lb-faveo/media/images/news.png') }})">--}}
+{{--                    <span class="widgetitemtitle" style="color: rgb(0, 154, 186)">{!! Lang::get('lang.my_tickets') !!}</span>--}}
+{{--                </a>--}}
+{{--            </span>--}}
             <span onclick="javascript: window.location.href='{{url('/knowledgebase')}}';">
                 <a href="{{url('/knowledgebase')}}" class="widgetrowitem defaultwidget" style="background-image:url({{ URL::asset('lb-faveo/media/images/knowledgebase.png') }})">
                     <span class="widgetitemtitle" style="color: rgb(0, 154, 186)">{!! Lang::get('lang.knowledge_base') !!}</span>
@@ -107,21 +97,36 @@
                 {!! html()->form('POST', url('auth/register'))->open() !!}
 
                 <!-- fullname -->
-                <div class="input-group mb-3 {{ $errors->has('full_name') ? 'has-error' : '' }}">
-                    {!! html()->text('full_name', null)->placeholder(Lang::get('lang.full_name'))->class('form-control') !!}
-                    <span class="input-group-text"><i class="fa-solid fa-user input-icon-muted"></i></span>
+                <div class="mb-3">
+                    <div class="input-group">
+                        {!! html()->text('full_name', null)->placeholder(Lang::get('lang.full_name'))->class('form-control' . ($errors->has('full_name') ? ' is-invalid' : '')) !!}
+                        <span class="input-group-text"><i class="fa-solid fa-user input-icon-muted"></i></span>
+                    </div>
+                    @if($errors->has('full_name'))
+                        <div class="invalid-feedback d-block">{{ $errors->first('full_name') }}</div>
+                    @endif
                 </div>
 
                 <!-- Email -->
                 @if (($email_mandatory->status == 1 || $email_mandatory->status == '1'))
-                <div class="input-group mb-3 {{ $errors->has('email') ? 'has-error' : '' }}">
-                    {!! html()->text('email', null)->placeholder(Lang::get('lang.email'))->class('form-control') !!}
-                    <span class="input-group-text"><i class="fa-regular fa-envelope input-icon-muted"></i></span>
+                <div class="mb-3">
+                    <div class="input-group">
+                        {!! html()->text('email', null)->placeholder(Lang::get('lang.email'))->class('form-control' . ($errors->has('email') ? ' is-invalid' : '')) !!}
+                        <span class="input-group-text"><i class="fa-regular fa-envelope input-icon-muted"></i></span>
+                    </div>
+                    @if($errors->has('email'))
+                        <div class="invalid-feedback d-block">{{ $errors->first('email') }}</div>
+                    @endif
                 </div>
                 @elseif (($settings->status == 0 || $settings->status == '0') && ($email_mandatory->status == 0 || $email_mandatory->status == '0'))
-                <div class="input-group mb-3 {{ $errors->has('email') ? 'has-error' : '' }}">
-                    {!! html()->text('email', null)->placeholder(Lang::get('lang.email'))->class('form-control') !!}
-                    <span class="input-group-text"><i class="fa-regular fa-envelope input-icon-muted"></i></span>
+                <div class="mb-3">
+                    <div class="input-group">
+                        {!! html()->text('email', null)->placeholder(Lang::get('lang.email'))->class('form-control' . ($errors->has('email') ? ' is-invalid' : '')) !!}
+                        <span class="input-group-text"><i class="fa-regular fa-envelope input-icon-muted"></i></span>
+                    </div>
+                    @if($errors->has('email'))
+                        <div class="invalid-feedback d-block">{{ $errors->first('email') }}</div>
+                    @endif
                 </div>
                 @else
                     {!! html()->hidden('email', null) !!}
@@ -130,14 +135,22 @@
                 @if($settings->status == '1' || $settings->status == 1)
                 <div class='row'>
                     <div class="col-md-3">
-                        <div class="mb-3 {{ $errors->has('code') ? 'has-error' : '' }}">
-                        {!! html()->text('code', null)->placeholder(91)->class('form-control') !!}
+                        <div class="mb-3">
+                            {!! html()->text('code', null)->placeholder(91)->class('form-control' . ($errors->has('code') ? ' is-invalid' : '')) !!}
+                            @if($errors->has('code'))
+                                <div class="invalid-feedback d-block">{{ $errors->first('code') }}</div>
+                            @endif
                         </div>
                     </div>
                     <div class="col-md-9">
-                        <div class="input-group mb-3 {{ $errors->has('mobile') ? 'has-error' : '' }}">
-                        {!! html()->text('mobile', null)->placeholder(Lang::get('lang.mobile'))->class('form-control') !!}
-                        <span class="input-group-text"><i class="fa-solid fa-phone input-icon-muted"></i></span>
+                        <div class="mb-3">
+                            <div class="input-group">
+                                {!! html()->text('mobile', null)->placeholder(Lang::get('lang.mobile'))->class('form-control' . ($errors->has('mobile') ? ' is-invalid' : '')) !!}
+                                <span class="input-group-text"><i class="fa-solid fa-phone input-icon-muted"></i></span>
+                            </div>
+                            @if($errors->has('mobile'))
+                                <div class="invalid-feedback d-block">{{ $errors->first('mobile') }}</div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -147,18 +160,28 @@
 
                 @endif
                 <!-- Password -->
-                <div class="input-group mb-3 {{ $errors->has('password') ? 'has-error' : '' }}">
-                    {!! html()->password('password')->placeholder(Lang::get('lang.password'))->class('form-control')->id('reg-password') !!}
-                    <button class="input-group-text" type="button" onclick="togglePwd('reg-password', this)" tabindex="-1">
-                        <i class="fa-solid fa-eye-slash"></i>
-                    </button>
+                <div class="mb-3">
+                    <div class="input-group">
+                        {!! html()->password('password')->placeholder(Lang::get('lang.password'))->class('form-control' . ($errors->has('password') ? ' is-invalid' : ''))->id('reg-password') !!}
+                        <button class="input-group-text" type="button" onclick="togglePwd('reg-password', this)" tabindex="-1">
+                            <i class="fa-solid fa-eye-slash"></i>
+                        </button>
+                    </div>
+                    @if($errors->has('password'))
+                        <div class="invalid-feedback d-block">{{ $errors->first('password') }}</div>
+                    @endif
                 </div>
                 <!-- Confirm password -->
-                <div class="input-group mb-3 {{ $errors->has('password_confirmation') ? 'has-error' : '' }}">
-                    {!! html()->password('password_confirmation')->placeholder(Lang::get('lang.retype_password'))->class('form-control')->id('reg-password-confirm') !!}
-                    <button class="input-group-text" type="button" onclick="togglePwd('reg-password-confirm', this)" tabindex="-1">
-                        <i class="fa-solid fa-eye-slash"></i>
-                    </button>
+                <div class="mb-3">
+                    <div class="input-group">
+                        {!! html()->password('password_confirmation')->placeholder(Lang::get('lang.retype_password'))->class('form-control' . ($errors->has('password_confirmation') ? ' is-invalid' : ''))->id('reg-password-confirm') !!}
+                        <button class="input-group-text" type="button" onclick="togglePwd('reg-password-confirm', this)" tabindex="-1">
+                            <i class="fa-solid fa-eye-slash"></i>
+                        </button>
+                    </div>
+                    @if($errors->has('password_confirmation'))
+                        <div class="invalid-feedback d-block">{{ $errors->first('password_confirmation') }}</div>
+                    @endif
                 </div>
 
                 <div >

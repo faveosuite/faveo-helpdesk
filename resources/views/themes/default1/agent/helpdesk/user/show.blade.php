@@ -49,10 +49,10 @@ class="nav-link active"
 @section('PageHeader')
 
 @if($users->role == 'user')
-<h1>{!! Lang::get('lang.user_profile') !!} </h1>
+<h3>{!! Lang::get('lang.user_profile') !!} </h3>
 
 @elseif($users->role == 'agent')
-<h1>{!! Lang::get('lang.agent_profile') !!} </h1>
+<h3>{!! Lang::get('lang.agent_profile') !!} </h3>
 @endif
 @stop
 <!-- /header -->
@@ -88,11 +88,6 @@ class="nav-link active"
     {{Session::get('fails1')}}
 </div>
 @endif
-<?php $table = \Datatable::table()
-                ->addColumn(
-                        "", Lang::get('lang.subject'), Lang::get('lang.ticket_id'), Lang::get('lang.priority'), Lang::get('lang.from'), Lang::get('lang.assigned_to'), Lang::get('lang.last_activity'), Lang::get('lang.created-at'))
-                ->noScript();?>
-
 <div class="row">
     <div class="col-md-3">
         <div class="card" >
@@ -154,7 +149,7 @@ class="nav-link active"
                                 <div class="modal-content">
                                     <div class="modal-header">
                                        
-                                        <h5 class="modal-title">Remove user from Organization</h4>
+                                        <h4 class="modal-title">Remove user from Organization</h4>
 
                                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                                     </div>
@@ -407,14 +402,13 @@ class="nav-link active"
 
                             <a class="btn btn-secondary btn-sm checkbox-toggle"><i class="fa-regular fa-square"></i></a>
                        
-                            <input type="submit" class="btn btn-secondary text-orange btn-sm" name="submit" value="{!! Lang::get('lang.delete') !!}">
+                            <input type="submit" class="btn btn-secondary btn-sm" name="submit" value="{!! Lang::get('lang.delete') !!}">
                        
-                            <input type="submit" class="btn btn-secondary text-yellow btn-sm" name="submit" value="{!! Lang::get('lang.close') !!}">
+                            <input type="submit" class="btn btn-secondary btn-sm" name="submit" value="{!! Lang::get('lang.close') !!}">
                        
                             <div id="more-option" class="btn-group">
                        
                                 <button type="button" class="btn btn-sm btn-secondary dropdown-toggle" data-bs-toggle="dropdown" id="d2">
-                                    <i class="fa-solid fa-sort text-teal"> </i>
                                         {!! Lang::get('lang.sort-by') !!} <span class="caret"></span>
                                 </button>
 
