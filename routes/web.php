@@ -537,7 +537,7 @@ Route::middleware('web')->group(function () {
     //===================================================================================
     Route::middleware('auth')->group(function () {
         Route::get('client-profile', [Client\helpdesk\GuestController::class, 'getProfile'])->name('client.profile'); /*  User profile get  */
-        Route::post('select/all', [Agent\helpdesk\TicketController::class, 'select_all'])->name('select_all');
+        //Route::post('select/all', [Agent\helpdesk\TicketController::class, 'select_all'])->name('select_all');
 
         Route::get('mytickets', [Client\helpdesk\GuestController::class, 'getMyticket'])->name('ticket2');
         Route::get('myticket/{id}', [Client\helpdesk\GuestController::class, 'thread'])->name('ticket'); /* Get my tickets */
@@ -602,25 +602,25 @@ Route::middleware('web')->group(function () {
       |  View all the Routes
       |=============================================================
      */
-    Route::get('/aaa', function () {
-        $routeCollection = Route::getRoutes();
-        echo "<table style='width:100%'>";
-        echo '<tr>';
-        echo "<td width='10%'><h4>HTTP Method</h4></td>";
-        echo "<td width='10%'><h4>Route</h4></td>";
-        echo "<td width='10%'><h4>Url</h4></td>";
-        echo "<td width='80%'><h4>Corresponding Action</h4></td>";
-        echo '</tr>';
-        foreach ($routeCollection as $value) {
-            echo '<tr>';
-            echo '<td>'.$value->getMethods()[0].'</td>';
-            echo '<td>'.$value->getName().'</td>';
-            echo '<td>'.$value->getPath().'</td>';
-            echo '<td>'.$value->getActionName().'</td>';
-            echo '</tr>';
-        }
-        echo '</table>';
-    });
+//    Route::get('/aaa', function () {
+//        $routeCollection = Route::getRoutes();
+//        echo "<table style='width:100%'>";
+//        echo '<tr>';
+//        echo "<td width='10%'><h4>HTTP Method</h4></td>";
+//        echo "<td width='10%'><h4>Route</h4></td>";
+//        echo "<td width='10%'><h4>Url</h4></td>";
+//        echo "<td width='80%'><h4>Corresponding Action</h4></td>";
+//        echo '</tr>';
+//        foreach ($routeCollection as $value) {
+//            echo '<tr>';
+//            echo '<td>'.$value->getMethods()[0].'</td>';
+//            echo '<td>'.$value->getName().'</td>';
+//            echo '<td>'.$value->getPath().'</td>';
+//            echo '<td>'.$value->getActionName().'</td>';
+//            echo '</tr>';
+//        }
+//        echo '</table>';
+//    });
     /*
       |=============================================================
       |  Error Routes
@@ -714,7 +714,7 @@ Route::middleware('web')->group(function () {
 
     Route::post('show/rating/{id}', [Client\helpdesk\UnAuthController::class, 'rating'])->name('show.rating'); /* Get overall Ratings */
     Route::post('show/rating2/{id}', [Client\helpdesk\UnAuthController::class, 'ratingReply'])->name('show.rating2'); /* Get reply Ratings */
-    Route::get('show/change-status/{status}/{id}', [Client\helpdesk\UnAuthController::class, 'changeStatus'])->name('show.change.status'); /* Get reply Ratings */
+    Route::post('show/change-status/{status}/{id}', [Client\helpdesk\UnAuthController::class, 'changeStatus'])->name('show.change.status'); /* Get reply Ratings */
     Route::post('show/close/{id}', [Client\helpdesk\UnAuthController::class, 'close'])->name('show.close'); /* Get reply Ratings */
     Route::post('show/open/{id}', [Client\helpdesk\UnAuthController::class, 'open'])->name('show.open'); /* Get reply Ratings */
     Route::post('show/resolve/{id}', [Client\helpdesk\UnAuthController::class, 'resolve'])->name('show.resolve'); /* Get reply Ratings */

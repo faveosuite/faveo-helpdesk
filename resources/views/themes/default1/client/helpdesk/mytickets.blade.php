@@ -69,7 +69,9 @@ class="nav-item active"
                     <!-- Check all button -->
                     <a class="btn btn-light btn-sm checkbox-toggle" style="background-color: whitesmoke"><i class="fa-regular fa-square"></i></a>
                     <a class="btn btn-light btn-sm" id="click1" style="background-color: whitesmoke"><i class="fa-solid fa-arrows-rotate"></i></a>
+                    @if($user_ticket_status && $user_ticket_status->status == 1)
                     <input type="submit" class="btn btn-light text-warning btn-sm" name="submit" value="{!! Lang::get('lang.close') !!}"style="color: #F39C12;background-color: whitesmoke">
+                    @endif
                     <div class="float-end" id="refresh21">
                         {!! $open->count().'-'.$open->total(); !!}
                     </div>

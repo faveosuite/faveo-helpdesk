@@ -1779,6 +1779,17 @@ class TicketController extends Controller
             $value = Input::get('submit');
             foreach ($selectall as $delete) {
                 $ticket = Tickets::whereId($delete)->first();
+                if (! $ticket) {
+                    continue;
+                }
+                $role = Auth::user()->role;
+                if ($role === 'user') {
+                    // Users can only act on their own tickets
+                    if ($ticket->user_id != Auth::user()->id) {
+                        continue;
+                    }
+                }
+                // admin role: no restriction
                 if ($value == 'Delete') {
                     $this->delete($delete, new Tickets());
                 } elseif ($value == 'Close') {
