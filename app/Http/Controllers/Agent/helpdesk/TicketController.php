@@ -1779,7 +1779,7 @@ class TicketController extends Controller
             $value = Input::get('submit');
             foreach ($selectall as $delete) {
                 $ticket = Tickets::whereId($delete)->first();
-                if (! $ticket) {
+                if (!$ticket) {
                     continue;
                 }
                 $role = Auth::user()->role;

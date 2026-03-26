@@ -105,7 +105,7 @@ class UnAuthController extends Controller
                         $template_variables = ['user' => $username, 'ticket_link_with_number' => url('show-ticket/'.$ticket->id.'/'.$token)]
                     );
                 } catch (\Exception $e) {
-                    \Log::error('check-ticket email failed: ' . $e->getMessage());
+                    \Log::error('check-ticket email failed: '.$e->getMessage());
                 }
 
                 return redirect()->back()
