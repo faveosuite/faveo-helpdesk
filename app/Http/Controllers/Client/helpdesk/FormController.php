@@ -18,8 +18,8 @@ use App\Model\helpdesk\Ticket\Ticket_attachments;
 use App\Model\helpdesk\Ticket\Ticket_Priority;
 use App\Model\helpdesk\Ticket\Ticket_source;
 use App\Model\helpdesk\Ticket\Ticket_Thread;
-use App\Model\helpdesk\Ticket\TicketToken;
 use App\Model\helpdesk\Ticket\Tickets;
+use App\Model\helpdesk\Ticket\TicketToken;
 use App\Model\helpdesk\Utility\CountryCode;
 use App\User;
 use Exception;
@@ -282,6 +282,7 @@ class FormController extends Controller
                 return \Redirect::back()->with('fails1', Lang::get('lang.sorry_you_are_not_allowed_token_expired'));
             }
         }
+
         try {
             $comment = $request->input('comment');
             if (!empty($comment)) {

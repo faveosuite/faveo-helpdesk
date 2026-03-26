@@ -354,10 +354,10 @@ class MailController extends Controller
      */
     public function get_data(Request $request)
     {
-        $id         = $request->input('image_id');
+        $id = $request->input('image_id');
         $attachment = Ticket_attachments::where('id', '=', $id)->first();
 
-        if (! $attachment) {
+        if (!$attachment) {
             abort(404);
         }
 
@@ -365,7 +365,7 @@ class MailController extends Controller
         $thread = Ticket_Thread::where('id', '=', $attachment->thread_id)->first();
         $ticket = $thread ? Tickets::where('id', '=', $thread->ticket_id)->first() : null;
 
-        if (! $ticket) {
+        if (!$ticket) {
             abort(404);
         }
 

@@ -379,6 +379,7 @@ class UserController extends Controller
         if ($authUser->role !== 'admin' && in_array($targetUser->role, ['admin', 'agent'])) {
             return redirect('user')->with('fails', Lang::get('lang.you_are_not_authorized'));
         }
+
         try {
             $changepassword = $request->change_password;
             $user = $targetUser;
@@ -408,6 +409,7 @@ class UserController extends Controller
         if (\Auth::user()->role !== 'admin') {
             return redirect('user')->with('fails', Lang::get('lang.you_are_not_authorized'));
         }
+
         try {
             $user = User::whereId($id)->first();
             $user->role = 'admin';
