@@ -12,7 +12,7 @@ active
 class="active"
 @stop
 @section('PageHeader')
-<h1>{{Lang::get('lang.tickets')}}</h1>
+<h3>{{Lang::get('lang.tickets')}}</h3>
 <style>
  .tooltip1 {
      position: relative;

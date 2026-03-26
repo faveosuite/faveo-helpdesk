@@ -214,7 +214,7 @@ if ($thread->title != "") {
                         <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#MergeTickets"><i class="fa-solid fa-gears text-teal"> </i> {!! Lang::get('lang.merge-ticket') !!}</a>
                         @endif
                         <?php if ($group->can_delete_ticket == 1) { ?>
-                        <a href="#" id="delete" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#MergeTickets"><i class="fa-solid fa-trash text-danger"> </i> {!! Lang::get('lang.delete_ticket') !!}</a>
+                        <a href="#" id="delete" class="dropdown-item" data-bs-toggle="modal" data-bs-target=""><i class="fa-solid fa-trash text-danger"> </i> {!! Lang::get('lang.delete_ticket') !!}</a>
                         <?php }
                         ?>
                         <?php if ($group->can_ban_email == 1) { ?>
