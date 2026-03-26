@@ -105,6 +105,7 @@ class UnAuthController extends Controller
                         $template_variables = ['user' => $username, 'ticket_link_with_number' => url('show-ticket/'.$ticket->id.'/'.$token)]
                     );
                 } catch (\Exception $e) {
+                    \Log::error('check-ticket email failed: ' . $e->getMessage());
                 }
 
                 return redirect()->back()
@@ -157,6 +158,8 @@ class UnAuthController extends Controller
                 }
                 $tickets = Tickets::where('id', '=', $ticket_id)->first();
 
+                Session::put('verified_ticket_'.$ticket_id, true);
+
                 return view('themes.default1.client.helpdesk.unauth.showticket', compact('tickets', 'token'));
             } else {
                 return redirect()->route('form')->with('fails', Lang::get('lang.sorry_you_are_not_allowed_token_expired'));
@@ -173,7 +176,12 @@ class UnAuthController extends Controller
      */
     public function rating($id, Request $request, \App\Model\helpdesk\Ratings\RatingRef $rating_ref)
     {
-        foreach ($request->except(['_token']) as $key => $value) {
+        $check_token = TicketToken::where('ticket_id', '=', $id)->first();
+        if (!$check_token || !Hash::check($request->input('tid_token', ''), $check_token->token)) {
+            return redirect()->route('form')->with('fails', Lang::get('lang.sorry_you_are_not_allowed_token_expired'));
+        }
+
+        foreach ($request->except(['_token', 'tid_token']) as $key => $value) {
             if (strpos($key, '_') !== false) {
                 $ratName = str_replace('_', ' ', $key);
             } else {
@@ -208,7 +216,11 @@ class UnAuthController extends Controller
      */
     public function ratingReply($id, Request $request, \App\Model\helpdesk\Ratings\RatingRef $rating_ref)
     {
-        foreach ($request->all() as $key => $value) {
+        $check_token = TicketToken::where('ticket_id', '=', $id)->first();
+        if (!$check_token || !Hash::check($request->input('tid_token', ''), $check_token->token)) {
+            return redirect()->route('form')->with('fails', Lang::get('lang.sorry_you_are_not_allowed_token_expired'));
+        }
+        foreach ($request->except(['_token', 'tid_token']) as $key => $value) {
             $key1 = explode(',', $key);
             if (strpos($key1[0], '_') !== false) {
                 $ratName = str_replace('_', ' ', $key1[0]);
@@ -243,8 +255,12 @@ class UnAuthController extends Controller
      *
      * @return string
      */
-    public function changeStatus($status, $id)
+    public function changeStatus($status, $id, Request $request)
     {
+        $check_token = TicketToken::where('ticket_id', '=', $id)->first();
+        if (!$check_token || !Hash::check($request->input('tid_token', ''), $check_token->token)) {
+            return redirect()->route('form')->with('fails', Lang::get('lang.sorry_you_are_not_allowed_token_expired'));
+        }
         $tickets = Tickets::where('id', '=', $id)->first();
         $tickets->status = $status;
         $ticket_status = Ticket_Status::where('id', '=', $status)->first();
@@ -461,8 +477,13 @@ class UnAuthController extends Controller
         return redirect()->back();
     }
 
-    public function close($id, Tickets $ticket)
+    public function close($id, Tickets $ticket, Request $request)
     {
+        $check_token = TicketToken::where('ticket_id', '=', $id)->first();
+        if (!$check_token || !Hash::check($request->input('tid_token', ''), $check_token->token)) {
+            return redirect()->route('form')->with('fails', Lang::get('lang.sorry_you_are_not_allowed_token_expired'));
+        }
+
         $tickets = Tickets::where('id', '=', $id)->first();
         $tickets->status = 3;
         $ticket_status = Ticket_Status::where('id', '=', 3)->first();
@@ -503,8 +524,13 @@ class UnAuthController extends Controller
         return Lang::get('lang.your_ticket_has_been').' '.$ticket_status->state;
     }
 
-    public function open($id, Tickets $ticket)
+    public function open($id, Tickets $ticket, Request $request)
     {
+        $check_token = TicketToken::where('ticket_id', '=', $id)->first();
+        if (!$check_token || !Hash::check($request->input('tid_token', ''), $check_token->token)) {
+            return redirect()->route('form')->with('fails', Lang::get('lang.sorry_you_are_not_allowed_token_expired'));
+        }
+
         $ticket_status = $ticket->where('id', '=', $id)->first();
         $ticket_status->status = 1;
         $ticket_status->reopened_at = date('Y-m-d H:i:s');
@@ -521,8 +547,13 @@ class UnAuthController extends Controller
         return 'your ticket'.$ticket_status->ticket_number.' has been opened';
     }
 
-    public function resolve($id, Tickets $ticket)
+    public function resolve($id, Tickets $ticket, Request $request)
     {
+        $check_token = TicketToken::where('ticket_id', '=', $id)->first();
+        if (!$check_token || !Hash::check($request->input('tid_token', ''), $check_token->token)) {
+            return redirect()->route('form')->with('fails', Lang::get('lang.sorry_you_are_not_allowed_token_expired'));
+        }
+
         $ticket_status = $ticket->where('id', '=', $id)->first();
 
         $ticket_status->status = 2;

@@ -131,10 +131,10 @@ class="nav-link active"
                     {!! html()->label(Lang::get('lang.user_set_ticket_status'), 'user_set_ticket_status') !!}
                     <div class="row">
                         <div class="col-sm-5">
-                            <input type="radio" name="user_set_ticket_status" value="0" @if($common_setting->status == '0')checked="true" @endif>&nbsp;{{Lang::get('lang.no')}}
-                        </div>
-                        <div class="col-sm-6">
                             <input type="radio" name="user_set_ticket_status" value="1" @if($common_setting->status == '1')checked="true" @endif>&nbsp;{{Lang::get('lang.yes')}}
+                        </div>
+                        <div class="col-sm-5">
+                            <input type="radio" name="user_set_ticket_status" value="0" @if($common_setting->status == '0')checked="true" @endif>&nbsp;{{Lang::get('lang.no')}}
                         </div>
                     </div>
                 </div>

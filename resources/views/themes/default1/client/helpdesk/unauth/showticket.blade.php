@@ -99,6 +99,7 @@ $thread = App\Model\helpdesk\Ticket\Ticket_Thread::where('ticket_id', '=', $tick
                         <?php $ratings = App\Model\helpdesk\Ratings\Rating::orderby('display_order')->get(); ?>
                         <form id="foo">
                             {!! csrf_field() !!}
+                            <input type="hidden" name="tid_token" value="{!! $token !!}">
                             @foreach($ratings as $rating)
 
                                 @if($rating->rating_area == 'Helpdesk Area')
@@ -351,6 +352,7 @@ foreach ($conversations as $conversation) {
                                     }
                                     ?>
                                 <form class="foo2">
+                                    <input type="hidden" name="tid_token" value="{!! $token !!}">
                                     <tr>
                                         <th><div class="ticketratingtitle">{!! $rating->name !!} &nbsp;</div></th>&nbsp
 
@@ -456,6 +458,7 @@ foreach ($conversations as $conversation) {
                         {!! html()->form('POST', url('post/reply/'.$id2.'#formabc'))->open() !!}
                     @else
                         {!! html()->form('POST', url('post-ticket-reply/'.$tickets->id.'#formabc'))->open() !!}
+                        <input type="hidden" name="tid_token" value="{!! $token !!}">
                     @endif
                     <div class="row">
                         <div class="col-md-12">
@@ -578,8 +581,9 @@ $(function() {
 
     function changeStatus(id, ticket_id){
         $.ajax({
-                type: "GET",
+                type: "POST",
                 url: "../../show/change-status/"+ id +"/"+ {!! $tickets->id !!},
+                data:{"_token": "{{ csrf_token() }}", "tid_token": "{!! $token !!}"},
                 beforeSend: function() {
                     $("#refresh").hide();
                     $("#loader").show();
@@ -603,7 +607,7 @@ jQuery(document).ready(function () {
             type: "POST",
 
             url: "../../show/close/{!! $tickets->id !!}",
-            data:{"_token": "{{ csrf_token() }}"},
+            data:{"_token": "{{ csrf_token() }}", "tid_token": "{!! $token !!}"},
             beforeSend: function () {
                 $("#refresh").hide();
                 $("#loader").show();
@@ -635,7 +639,7 @@ jQuery(document).ready(function () {
         $.ajax({
             type: "POST",
             url: "../../show/resolve/{!! $tickets->id !!}",
-            data:{"_token": "{{ csrf_token() }}"},
+            data:{"_token": "{{ csrf_token() }}", "tid_token": "{!! $token !!}"},
             beforeSend: function () {
                 $("#refresh").hide();
                 $("#loader").show();
@@ -666,7 +670,7 @@ jQuery(document).ready(function () {
         $.ajax({
             type: "POST",
             url: "../../show/open/{!! $tickets->id !!}",
-            data:{"_token": "{{ csrf_token() }}"},
+            data:{"_token": "{{ csrf_token() }}", "tid_token": "{!! $token !!}"},
             beforeSend: function () {
                 $("#refresh").hide();
                 $("#loader").show();

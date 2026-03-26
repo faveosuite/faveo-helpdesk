@@ -8,6 +8,10 @@
     # Redirect Trailing Slashes...
     RewriteRule ^(.*)/$ /$1 [L,R=301]
 
+    # Uncomment to redirect www to non-www (preserves http/https protocol)
+    #RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
+    #RewriteRule ^(.*)$ %{REQUEST_SCHEME}://%1/$1 [R=301,L]
+
     # Handle Front Controller...
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
@@ -16,23 +20,15 @@
 
 # Restrict access to DotFiles (like .htaccess, .env, .gitignore....)
 <FilesMatch "^\.">
-    Order allow,deny
-    Deny from all
+    Require all denied
 </FilesMatch>
 
 # Restrict access to system files
 <FilesMatch "^(composer.json|composer.lock|artisan|code_of_conduct.md|gulpfile.js|package.json|error_log|phpspec.yml|example.env)">
-    Order allow,deny
-    Deny from all
+    Require all denied
 </FilesMatch>
 
 # Uncomment to restrict access to release text files
 #<FilesMatch "^(LICENSE|README.md|readme.txt|release-notes.txt)">
-#    Order allow,deny
-#    Deny from all
+#    Require all denied
 #</FilesMatch>
-
-
-#custom
-RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
-RewriteRule ^(.*)$ http://%1/$1 [R=301,L]
