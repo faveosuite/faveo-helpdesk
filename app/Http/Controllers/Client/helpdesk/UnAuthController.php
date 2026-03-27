@@ -67,13 +67,11 @@ class UnAuthController extends Controller
             $ticket_number = $request->input('ticket_number');
             // get user details
             $user_details = User::where('email', '=', $email)->first();
-            if ($user_details == null) {
-                return \Redirect::route('form')->with('fails', Lang::get('lang.sorry_that_email_is not_available_in_this_system'));
-            }
             // get ticket details
             $ticket = Tickets::where('ticket_number', '=', $ticket_number)->first();
-            if ($ticket == null) {
-                return \Redirect::route('form')->with('fails', Lang::get('lang.there_is_no_such_ticket_number'));
+            // Use a single generic error for all mismatch cases to prevent enumeration
+            if (!$user_details || !$ticket || $ticket->user_id !== $user_details->id) {
+                return \Redirect::route('form')->with('fails', Lang::get("lang.email_didn't_match_with_ticket_number"));
             }
             if ($ticket->user_id == $user_details->id) {
                 if ($user_details->role == 'user') {
@@ -149,7 +147,7 @@ class UnAuthController extends Controller
     {
         try {
             $check_token = TicketToken::where('ticket_id', '=', $ticket_id)->first();
-            if (Hash::check($token, $check_token->token) == true) {
+            if ($check_token && Hash::check($token, $check_token->token) == true) {
                 $token_time = CommonSettings::where('option_name', '=', 'ticket_token_time_duration')->first();
                 $time = $token_time->option_value;
                 $new_time = date_add($check_token->updated_at, date_interval_create_from_date_string($time.' Hours'));

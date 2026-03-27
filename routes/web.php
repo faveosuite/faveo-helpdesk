@@ -594,9 +594,11 @@ Route::middleware('web')->group(function () {
       | These links are for cron job execution
       |
      */
-    Route::get('readmails', [Agent\helpdesk\MailController::class, 'readmails'])->name('readmails');
-    Route::get('notification', [Agent\helpdesk\NotificationController::class, 'send_notification'])->name('notification');
-    Route::get('auto-close-tickets', [Client\helpdesk\UnAuthController::class, 'autoCloseTickets'])->name('auto.close');
+    Route::middleware(['auth', 'roles'])->group(function () {
+        Route::get('readmails', [Agent\helpdesk\MailController::class, 'readmails'])->name('readmails');
+        Route::get('notification', [Agent\helpdesk\NotificationController::class, 'send_notification'])->name('notification');
+        Route::get('auto-close-tickets', [Client\helpdesk\UnAuthController::class, 'autoCloseTickets'])->name('auto.close');
+    });
     /*
       |=============================================================
       |  View all the Routes
