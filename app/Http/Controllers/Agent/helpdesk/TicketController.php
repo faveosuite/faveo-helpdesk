@@ -241,6 +241,30 @@ class TicketController extends Controller
         return view('themes.default1.agent.helpdesk.ticket.timeline', compact('tickets', 'max_size_in_bytes', 'max_size_in_actual', 'tickets_approval'), compact('thread', 'avg_rating'));
     }
 
+    /**
+     * Authorize ticket access for agents — same logic as thread().
+     * Admins can access any ticket.
+     * Agents can only access tickets in their department or assigned to them.
+     */
+    protected function authorizeTicketAccess($id)
+    {
+        $ticket = Tickets::where('id', '=', $id)->first();
+        if (!$ticket) {
+            return null;
+        }
+        if (Auth::user()->role == 'admin') {
+            return $ticket;
+        }
+        if (Auth::user()->role == 'agent') {
+            $dept = Department::where('id', '=', Auth::user()->primary_dpt)->first();
+            if ($ticket->dept_id == $dept->id || $ticket->assigned_to == Auth::user()->id) {
+                return $ticket;
+            }
+        }
+
+        return null;
+    }
+
     public function size()
     {
         $size = 0;
@@ -280,6 +304,10 @@ class TicketController extends Controller
      */
     public function reply(Ticket_Thread $thread, Request $request, Ticket_attachments $ta, $mail = true, $system_reply = true, $user_id = '')
     {
+        $ticket_id = $request->input('ticket_id');
+        if ($ticket_id && !$this->authorizeTicketAccess($ticket_id)) {
+            return response('Unauthorized', 403);
+        }
         event('reply.request', [$request]);
 
         try {
@@ -512,6 +540,9 @@ class TicketController extends Controller
      */
     public function ticket_print($id)
     {
+        if (!$this->authorizeTicketAccess($id)) {
+            abort(403, 'Unauthorized');
+        }
         $tickets = Tickets::leftJoin('ticket_thread', function ($join) {
             $join->on('tickets.id', '=', 'ticket_thread.ticket_id')
                         ->whereNotNull('ticket_thread.title');
@@ -1314,7 +1345,10 @@ class TicketController extends Controller
      */
     public function delete($id, Tickets $ticket)
     {
-        $ticket_delete = $ticket->where('id', '=', $id)->first();
+        $ticket_delete = $this->authorizeTicketAccess($id);
+        if (!$ticket_delete) {
+            return response('Unauthorized', 403);
+        }
         if ($ticket_delete->status == 5) {
             $ticket_delete->delete();
             $ticket_threads = Ticket_Thread::where('ticket_id', '=', $id)->get();
@@ -1367,7 +1401,10 @@ class TicketController extends Controller
      */
     public function ban($id, Tickets $ticket)
     {
-        $ticket_ban = $ticket->where('id', '=', $id)->first();
+        $ticket_ban = $this->authorizeTicketAccess($id);
+        if (!$ticket_ban) {
+            return response('Unauthorized', 403);
+        }
         $ban_email = $ticket_ban->user_id;
         $user = User::where('id', '=', $ban_email)->first();
         $user->ban = 1;
@@ -1396,6 +1433,9 @@ class TicketController extends Controller
         $assign_to = explode('_', $UserEmail);
         $user_detail = null;
         foreach ($ticket_array as $id) {
+            if (!$this->authorizeTicketAccess($id)) {
+                continue;
+            }
             $ticket = Tickets::where('id', '=', $id)->first();
             if ($assign_to[0] == 'team') {
                 $ticket->team_id = $assign_to[1];
@@ -1459,6 +1499,9 @@ class TicketController extends Controller
      */
     public function InternalNote($id)
     {
+        if (!$this->authorizeTicketAccess($id)) {
+            return response('Unauthorized', 403);
+        }
         $InternalContent = Input::get('InternalContent');
         $thread = Ticket_Thread::where('ticket_id', '=', $id)->first();
         $NewThread = new Ticket_Thread();
@@ -2107,6 +2150,9 @@ class TicketController extends Controller
      */
     public function changeOwner($id)
     {
+        if (!$this->authorizeTicketAccess($id)) {
+            return response('Unauthorized', 403);
+        }
         $action = Input::get('action');
         $email = Input::get('email');
         $ticket_id = Input::get('ticket_id');
@@ -2264,6 +2310,9 @@ class TicketController extends Controller
 
     public function mergeTickets($id)
     {
+        if (!$this->authorizeTicketAccess($id)) {
+            return response('Unauthorized', 403);
+        }
         // split the phrase by any number of commas or space characters,
         // which include " ", \r, \t, \n and \f
         $t_id = preg_split("/[\s,]+/", $id);
@@ -2486,6 +2535,9 @@ class TicketController extends Controller
             //dd($thread);
             if (!$thread) {
                 throw new Exception('Sorry we can not find your request');
+            }
+            if (!$this->authorizeTicketAccess($thread->ticket_id)) {
+                abort(403, 'Unauthorized');
             }
             $company = \App\Model\helpdesk\Settings\Company::where('id', '=', '1')->first();
             $system = \App\Model\helpdesk\Settings\System::where('id', '=', '1')->first();
