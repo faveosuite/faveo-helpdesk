@@ -493,16 +493,13 @@ class InstallController extends Controller
     public function migrate()
     {
         try {
-            $tableNames = Schema::getConnection()->getDoctrineSchemaManager()->listTableNames();
-            if (count($tableNames) === 0) {
-                (new SyncFaveoToLatestVersion())->sync();
-                if (Cache::get('dummy_data_installation')) {
-                    $path = base_path().DIRECTORY_SEPARATOR.'DB'.DIRECTORY_SEPARATOR.'dummy-data.sql';
-                    DB::unprepared(file_get_contents($path));
-                }
+            Artisan::call('config:clear');
+            (new SyncFaveoToLatestVersion())->sync();
+            if (Cache::get('dummy_data_installation')) {
+                $path = base_path().DIRECTORY_SEPARATOR.'DB'.DIRECTORY_SEPARATOR.'dummy-data.sql';
+                DB::unprepared(file_get_contents($path));
             }
         } catch (Exception $ex) {
-            dd($ex);
             $this->rollBackMigration();
             $result = ['error' => $ex->getMessage()];
 
@@ -532,7 +529,7 @@ class InstallController extends Controller
                 DB::unprepared(DB::raw(file_get_contents($path)));
             } else {
                 \Schema::disableForeignKeyConstraints();
-                $tableNames = \Schema::getConnection()->getDoctrineSchemaManager()->listTableNames();
+                $tableNames = \Schema::getTableListing(\DB::connection()->getDatabaseName(), false);
                 foreach ($tableNames as $name) {
                     //if you don't want to truncate migrations
                     if ($name == 'migrations') {
