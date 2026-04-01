@@ -1128,7 +1128,7 @@ class SettingsController extends Controller
             )->where('id', '=', 1)->first();
             $system = System::where('id', '=', 1)->first();
             \Schema::disableForeignKeyConstraints();
-            $tableNames = \Schema::getConnection()->getDoctrineSchemaManager()->listTableNames();
+            $tableNames = \Schema::getTableListing(\DB::connection()->getDatabaseName(), false);
             foreach ($tableNames as $name) {
                 //if you don't want to truncate migrations
                 if ($name == 'migrations' ||
