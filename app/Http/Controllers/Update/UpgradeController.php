@@ -161,6 +161,7 @@ class UpgradeController extends Controller
                 if ($this->github->hasDownload()) {
                     return successResponse('Test mode: zip already exists.');
                 }
+
                 return errorResponse('Test mode: place a zip file at UPDATES/latest-release.zip', 500);
             }
 
@@ -314,7 +315,6 @@ class UpgradeController extends Controller
         if (!extension_loaded('zip')) {
             throw new Exception('The PHP ZIP extension is required but not loaded.');
         }
-
 
         $zip = new ZipArchive();
         if ($zip->open($zipPath) !== true) {
