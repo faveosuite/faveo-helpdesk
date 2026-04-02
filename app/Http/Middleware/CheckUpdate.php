@@ -2,8 +2,8 @@
 
 namespace App\Http\Middleware;
 
-use App\Http\Controllers\Utility\LibraryController as Utility;
 use App\Http\Controllers\Update\GitHubUpdateService;
+use App\Http\Controllers\Utility\LibraryController as Utility;
 use App\Model\Update\BarNotification;
 use Carbon\Carbon;
 use Closure;
@@ -28,7 +28,7 @@ class CheckUpdate
 
     protected function shouldCheckForUpdate(): bool
     {
-        if (! Schema::hasTable('bar_notifications')) {
+        if (!Schema::hasTable('bar_notifications')) {
             return false;
         }
 

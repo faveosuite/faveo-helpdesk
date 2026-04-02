@@ -19,7 +19,8 @@ class UpgradeController extends Controller
 {
     public function __construct(
         protected GitHubUpdateService $github
-    ) {}
+    ) {
+    }
 
     /**
      * API: check whether a new release is available on GitHub.
@@ -75,7 +76,7 @@ class UpgradeController extends Controller
     public function fileUpgrading(Request $request): View|RedirectResponse
     {
         try {
-            if (! $this->isUpdateAvailable()) {
+            if (!$this->isUpdateAvailable()) {
                 return redirect('dashboard')->with('fails', 'No new updates available.');
             }
 
@@ -149,7 +150,7 @@ class UpgradeController extends Controller
     public function databaseUpdate(): View|RedirectResponse
     {
         try {
-            if (! $this->isDatabaseOutdated()) {
+            if (!$this->isDatabaseOutdated()) {
                 return redirect()->back();
             }
 
@@ -167,7 +168,7 @@ class UpgradeController extends Controller
     public function databaseUpgrade(): RedirectResponse
     {
         try {
-            if (! $this->isDatabaseOutdated()) {
+            if (!$this->isDatabaseOutdated()) {
                 return redirect()->back();
             }
 
@@ -218,11 +219,11 @@ class UpgradeController extends Controller
     {
         $zipPath = $this->github->zipPath();
 
-        if (! File::exists($zipPath)) {
+        if (!File::exists($zipPath)) {
             throw new Exception('No downloaded update found. Please download first.');
         }
 
-        if (! extension_loaded('zip')) {
+        if (!extension_loaded('zip')) {
             throw new Exception('The PHP ZIP extension is required but not loaded.');
         }
 
@@ -232,7 +233,7 @@ class UpgradeController extends Controller
             throw new Exception("Insufficient memory ({$limit}M). At least {$required}M is required.");
         }
 
-        $zip = new ZipArchive;
+        $zip = new ZipArchive();
         if ($zip->open($zipPath) !== true) {
             throw new Exception('Failed to open the update archive.');
         }
@@ -257,7 +258,7 @@ class UpgradeController extends Controller
             $targetPath = $basePath.'/'.$relativePath;
             $targetDir = dirname($targetPath);
 
-            if (! File::isDirectory($targetDir)) {
+            if (!File::isDirectory($targetDir)) {
                 File::makeDirectory($targetDir, 0755, true, true);
                 $log[] = ['file' => dirname($relativePath).'/', 'status' => 'directory_created'];
             }

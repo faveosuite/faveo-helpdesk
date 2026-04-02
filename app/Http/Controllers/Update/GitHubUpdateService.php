@@ -19,9 +19,9 @@ class GitHubUpdateService
 
     public function __construct()
     {
-        $this->owner    = config('update.github.owner');
-        $this->repo     = config('update.github.repo');
-        $this->token    = config('update.github.token');
+        $this->owner = config('update.github.owner');
+        $this->repo = config('update.github.repo');
+        $this->token = config('update.github.token');
         $this->tempPath = base_path(config('update.temp_directory'));
     }
 
@@ -87,15 +87,15 @@ class GitHubUpdateService
     /**
      * Download the release ZIP archive to the temp directory.
      *
-     * @return string Path to the downloaded zip file.
-     *
      * @throws Exception
+     *
+     * @return string Path to the downloaded zip file.
      */
     public function downloadRelease(): string
     {
         $release = $this->getLatestRelease();
 
-        if (! $release || ! $release['zipball_url']) {
+        if (!$release || !$release['zipball_url']) {
             throw new Exception('Unable to retrieve the download URL from GitHub.');
         }
 
@@ -110,6 +110,7 @@ class GitHubUpdateService
 
         if ($response->failed()) {
             File::delete($zipPath);
+
             throw new Exception('Failed to download release archive from GitHub (HTTP '.$response->status().').');
         }
 
@@ -176,7 +177,7 @@ class GitHubUpdateService
 
     protected function ensureTempDirectory(): void
     {
-        if (! File::isDirectory($this->tempPath)) {
+        if (!File::isDirectory($this->tempPath)) {
             File::makeDirectory($this->tempPath, 0755, true);
         }
     }
