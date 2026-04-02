@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Update;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Utility\LibraryController as Utility;
+use App\Model\helpdesk\Settings\Backup;
+use App\Model\helpdesk\Settings\BackupPath;
 use App\Model\Update\BarNotification;
+use Carbon\Carbon;
 use Exception;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
@@ -25,12 +27,12 @@ class UpgradeController extends Controller
     /**
      * API: check whether a new release is available on GitHub.
      */
-    public function checkUpdate(): JsonResponse
+    public function checkUpdate()
     {
         try {
             $release = $this->github->getLatestRelease();
 
-            return response()->json([
+            return successResponse('', [
                 'current_version'  => $this->getCurrentVersion(),
                 'database_version' => $this->getDatabaseVersion(),
                 'latest_version'   => $release['version'] ?? null,
@@ -40,7 +42,7 @@ class UpgradeController extends Controller
                 'release_url'      => $release['html_url'] ?? null,
             ]);
         } catch (Exception $e) {
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+            return errorResponse($e->getMessage(), 500);
         }
     }
 
@@ -93,54 +95,111 @@ class UpgradeController extends Controller
     }
 
     /**
-     * AJAX: download the latest release ZIP from GitHub.
+     * AJAX: take system backup (database + filesystem) before update.
      */
-    public function download(): JsonResponse
+    public function backup(Request $request)
     {
         try {
+            $backupPath = $request->input('path', storage_path('backups'));
+
+            if (!is_dir($backupPath)) {
+                File::makeDirectory($backupPath, 0777, true, true);
+            }
+
+            if (!is_readable($backupPath) || !is_writable($backupPath)) {
+                return errorResponse('Backup directory is not readable/writable. Please check permissions.');
+            }
+
+            BackupPath::updateOrCreate(['id' => 1], ['backup_path' => $backupPath]);
+
+            $currentVersion = $this->getCurrentVersion();
+            $dbType = \Config::get('database.default');
+            $dbUser = \Config::get('database.connections.'.$dbType.'.username');
+            $dbPass = \Config::get('database.connections.'.$dbType.'.password');
+            $database = \Config::get('database.connections.'.$dbType.'.database');
+            $host = \Config::get('database.connections.'.$dbType.'.host');
+
+            $timestamp = Carbon::now()->timestamp;
+            $datePath = $backupPath.DIRECTORY_SEPARATOR.date('Y/m/d');
+            $filesystemZip = $datePath.DIRECTORY_SEPARATOR."filesystem-{$timestamp}";
+            $dbZip = $datePath.DIRECTORY_SEPARATOR."db-{$timestamp}";
+
+            if (!is_dir($datePath)) {
+                File::makeDirectory($datePath, 0775, true, true);
+            }
+
+            $folderPath = base_path();
+            $sanitizedPass = str_replace("'", "'\\''", $dbPass);
+
+            if ($dbPass == '') {
+                exec("(mysqldump -h{$host} -u{$dbUser} {$database} | zip {$dbZip} - ; zip -r {$filesystemZip} {$folderPath}) > /dev/null 2>&1 &");
+            } else {
+                exec("(mysqldump -h{$host} -u{$dbUser} -p'{$sanitizedPass}' {$database} | zip {$dbZip} - ; zip -r {$filesystemZip} {$folderPath}) > /dev/null 2>&1 &");
+            }
+
+            Backup::create([
+                'filename'  => "Filesystem_{$currentVersion}",
+                'db_name'   => "Database_{$currentVersion}",
+                'file_path' => $filesystemZip.'.zip',
+                'db_path'   => $dbZip.'.zip',
+                'version'   => $currentVersion,
+            ]);
+
+            return successResponse('Backup started. Update will proceed.');
+        } catch (Exception $e) {
+            return errorResponse($e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * AJAX: download the latest release ZIP from GitHub.
+     */
+    public function download()
+    {
+        try {
+            if (config('update.test_mode')) {
+                if ($this->github->hasDownload()) {
+                    return successResponse('Test mode: zip already exists.');
+                }
+                return errorResponse('Test mode: place a zip file at UPDATES/latest-release.zip', 500);
+            }
+
             if ($this->github->hasDownload()) {
-                return response()->json([
-                    'status'  => 'success',
-                    'message' => 'Update archive already downloaded.',
-                ]);
+                return successResponse('Update archive already downloaded.');
             }
 
             $this->github->downloadRelease();
 
-            return response()->json([
-                'status'  => 'success',
-                'message' => 'Release downloaded successfully.',
-            ]);
+            return successResponse('Release downloaded successfully.');
         } catch (Exception $e) {
-            return response()->json([
-                'status'  => 'error',
-                'message' => $e->getMessage(),
-            ], 500);
+            return errorResponse($e->getMessage(), 500);
         }
     }
 
     /**
      * AJAX: extract and apply downloaded update files.
      */
-    public function install(): JsonResponse
+    public function install()
     {
         try {
+            Artisan::call('down');
+
             $log = $this->extractAndApply();
 
             $this->dismissNotification('new-version');
             $this->cleanup();
+            $this->clearBootstrapCache();
 
-            return response()->json([
-                'status'  => 'success',
-                'message' => 'Files updated successfully.',
+            Artisan::call('up');
+
+            return successResponse('Files updated successfully.', [
                 'version' => $this->getCurrentVersion(),
                 'log'     => $log,
             ]);
         } catch (Exception $e) {
-            return response()->json([
-                'status'  => 'error',
-                'message' => $e->getMessage(),
-            ], 500);
+            Artisan::call('up');
+
+            return errorResponse($e->getMessage(), 500);
         }
     }
 
@@ -181,9 +240,34 @@ class UpgradeController extends Controller
         }
     }
 
+    /**
+     * AJAX: run database sync after file update.
+     */
+    public function ajaxDatabaseSync()
+    {
+        try {
+            Artisan::call('database:sync');
+            $output = trim(Artisan::output());
+
+            return successResponse('Database updated successfully. '.$output);
+        } catch (Exception $e) {
+            return errorResponse($e->getMessage(), 500);
+        }
+    }
+
     // ------------------------------------------------------------------
     //  Application-level helpers
     // ------------------------------------------------------------------
+
+    protected function clearBootstrapCache(): void
+    {
+        $files = glob(base_path('bootstrap/cache/*'));
+        foreach ($files as $file) {
+            if (is_file($file)) {
+                @unlink($file);
+            }
+        }
+    }
 
     protected function getCurrentVersion(): string
     {
@@ -197,6 +281,10 @@ class UpgradeController extends Controller
 
     protected function isUpdateAvailable(): bool
     {
+        if (config('update.test_mode')) {
+            return true;
+        }
+
         $latest = $this->github->getLatestVersion();
 
         return $latest && version_compare($latest, $this->getCurrentVersion(), '>');
@@ -227,11 +315,6 @@ class UpgradeController extends Controller
             throw new Exception('The PHP ZIP extension is required but not loaded.');
         }
 
-        $limit = (int) ini_get('memory_limit');
-        $required = config('update.min_memory_mb');
-        if ($limit !== -1 && $limit < $required) {
-            throw new Exception("Insufficient memory ({$limit}M). At least {$required}M is required.");
-        }
 
         $zip = new ZipArchive();
         if ($zip->open($zipPath) !== true) {

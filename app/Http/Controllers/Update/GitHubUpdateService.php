@@ -103,12 +103,14 @@ class GitHubUpdateService
 
         $zipPath = $this->zipPath();
 
+        $downloadUrl = "https://api.github.com/repos/{$this->owner}/{$this->repo}/zipball/refs/tags/{$release['tag']}";
+
         $response = Http::withHeaders($this->headers())
             ->withOptions(['sink' => $zipPath])
             ->timeout(300)
-            ->get($release['zipball_url']);
+            ->get($downloadUrl);
 
-        if ($response->failed()) {
+        if ($response->failed() || File::size($zipPath) < 1000) {
             File::delete($zipPath);
 
             throw new Exception('Failed to download release archive from GitHub (HTTP '.$response->status().').');
