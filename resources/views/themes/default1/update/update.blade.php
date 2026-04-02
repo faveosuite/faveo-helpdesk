@@ -386,9 +386,9 @@ function showResult(type, msg) {
     document.getElementById('continueBtn').classList.remove('d-none');
 
     if (type === 'success') {
-        document.getElementById('updateModal').addEventListener('hidden.bs.modal', function () {
+        setTimeout(function() {
             window.location.reload();
-        });
+        }, 3000);
     }
 }
 </script>
