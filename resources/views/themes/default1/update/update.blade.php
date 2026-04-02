@@ -205,7 +205,7 @@ Application Updates
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="backupCheck" checked>
-                        <label class="form-check-label" for="backupCheck">
+                        <label class="form-check-label" for="backupCheck" title="{{ $backupPath }}">
                             Take System Backup before Update (recommended)
                         </label>
                     </div>
@@ -280,6 +280,9 @@ Application Updates
 @endforeach
 
 <script>
+var csrfToken = '{{ csrf_token() }}';
+var headers = { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' };
+
 function startUpdate() {
     document.getElementById('modal-confirm-content').classList.add('d-none');
     document.getElementById('modal-updating-content').classList.remove('d-none');
@@ -287,43 +290,47 @@ function startUpdate() {
     document.getElementById('modalCloseBtn').classList.add('d-none');
     document.getElementById('modalCloseX').classList.add('d-none');
 
-    var csrfToken = '{{ csrf_token() }}';
     var takeBackup = document.getElementById('backupCheck').checked;
 
     if (takeBackup) {
-        document.getElementById('updating-text').textContent = 'Taking system backup... Please wait.';
-        fetch('{{ route("upgrade.backup") }}', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
-            body: JSON.stringify({ path: '{{ storage_path("backups") }}' }),
-        })
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-            if (data.success) {
-                return doDownload(csrfToken);
-            } else {
-                throw new Error(data.message);
-            }
-        })
-        .catch(function(err) {
-            showResult('error', 'Backup failed: ' + err.message);
-        });
+        doBackup();
     } else {
-        doDownload(csrfToken);
+        doDownload();
     }
 }
 
-function doDownload(csrfToken) {
+function doBackup() {
+    document.getElementById('updating-text').textContent = 'Taking system backup... Please wait.';
+
+    fetch('{{ route("upgrade.backup") }}', {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({ path: '{{ $backupPath }}', autoUpdate: true }),
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.success) {
+            showResult('success', data.message || 'Backup and update started.');
+        } else {
+            throw new Error(data.message);
+        }
+    })
+    .catch(function(err) {
+        showResult('error', 'Backup failed: ' + err.message);
+    });
+}
+
+function doDownload() {
     document.getElementById('updating-text').textContent = 'Maintenance Mode Enabled... File system Updating.. Do not close the window.';
 
     fetch('{{ route("upgrade.download") }}', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+        headers: headers,
     })
     .then(function(r) { return r.json(); })
     .then(function(data) {
         if (data.success) {
-            return installUpdate(csrfToken);
+            return installUpdate();
         } else {
             throw new Error(data.message);
         }
@@ -333,15 +340,15 @@ function doDownload(csrfToken) {
     });
 }
 
-function installUpdate(csrfToken) {
+function installUpdate() {
     fetch('{{ route("upgrade.apply") }}', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+        headers: headers,
     })
     .then(function(r) { return r.json(); })
     .then(function(data) {
         if (data.success) {
-            return syncDatabase(csrfToken, data.data.version);
+            return syncDatabase(data.data.version);
         } else {
             throw new Error(data.message);
         }
@@ -351,12 +358,12 @@ function installUpdate(csrfToken) {
     });
 }
 
-function syncDatabase(csrfToken, version) {
+function syncDatabase(version) {
     document.getElementById('updating-text').textContent = 'Maintenance Mode Enabled... Database Updating.. Do not close the window.';
 
     fetch('{{ route("upgrade.database") }}', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+        headers: headers,
     })
     .then(function(r) { return r.json(); })
     .then(function(data) {
@@ -373,23 +380,20 @@ function syncDatabase(csrfToken, version) {
 
 function showResult(type, msg) {
     document.getElementById('modal-updating-content').classList.add('d-none');
+    document.getElementById('modal-confirm-content').classList.add('d-none');
 
     var alertArea = document.getElementById('update-alert-area');
-    var alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    var alertClass = type === 'success' ? 'alert-success' : (type === 'warning' ? 'alert-warning' : 'alert-danger');
     var icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
     alertArea.innerHTML = '<div class="alert ' + alertClass + ' mb-3"><i class="fas ' + icon + ' me-1"></i> ' + msg + '</div>';
     alertArea.classList.remove('d-none');
 
-    document.getElementById('modal-confirm-content').classList.remove('d-none');
     document.getElementById('modalCloseBtn').classList.remove('d-none');
     document.getElementById('modalCloseX').classList.remove('d-none');
-    document.getElementById('continueBtn').classList.remove('d-none');
 
-    if (type === 'success') {
-        setTimeout(function() {
-            window.location.reload();
-        }, 3000);
-    }
+    setTimeout(function() {
+        window.location.href = '{{ url("file-update") }}';
+    }, 3000);
 }
 </script>
 
