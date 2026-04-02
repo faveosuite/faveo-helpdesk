@@ -157,14 +157,6 @@ class UpgradeController extends Controller
     public function download()
     {
         try {
-            if (config('update.test_mode')) {
-                if ($this->github->hasDownload()) {
-                    return successResponse('Test mode: zip already exists.');
-                }
-
-                return errorResponse('Test mode: place a zip file at UPDATES/latest-release.zip', 500);
-            }
-
             if ($this->github->hasDownload()) {
                 return successResponse('Update archive already downloaded.');
             }
@@ -282,10 +274,6 @@ class UpgradeController extends Controller
 
     protected function isUpdateAvailable(): bool
     {
-        if (config('update.test_mode')) {
-            return true;
-        }
-
         $latest = $this->github->getLatestVersion();
 
         return $latest && version_compare($latest, $this->getCurrentVersion(), '>');
