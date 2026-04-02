@@ -744,6 +744,9 @@ Route::middleware('web')->group(function () {
     Route::get('database-upgrade', [Update\UpgradeController::class, 'databaseUpgrade'])->name('database.upgrade');
     Route::get('file-update', [Update\UpgradeController::class, 'fileUpdate'])->name('file.update');
     Route::get('file-upgrade', [Update\UpgradeController::class, 'fileUpgrading'])->name('file.upgrade');
+    Route::post('upgrade/download', [Update\UpgradeController::class, 'download'])->name('upgrade.download');
+    Route::post('upgrade/apply', [Update\UpgradeController::class, 'install'])->name('upgrade.apply');
+    Route::get('upgrade/check', [Update\UpgradeController::class, 'checkUpdate'])->name('upgrade.check');
     /*
      * Webhook
      */
