@@ -32,6 +32,8 @@ class UpgradeController extends Controller
         try {
             $release = $this->github->getLatestRelease();
 
+            $backupPath = BackupPath::value('backup_path') ?: storage_path('backups');
+
             return successResponse('', [
                 'current_version'  => $this->getCurrentVersion(),
                 'database_version' => $this->getDatabaseVersion(),
@@ -40,6 +42,7 @@ class UpgradeController extends Controller
                 'database_outdated'=> $this->isDatabaseOutdated(),
                 'release_notes'    => $release['body'] ?? null,
                 'release_url'      => $release['html_url'] ?? null,
+                'backup_path'      => $backupPath,
             ]);
         } catch (Exception $e) {
             return errorResponse($e->getMessage(), 500);
@@ -61,11 +64,14 @@ class UpgradeController extends Controller
                 ->values()
                 ->all();
 
+            $backupPath = BackupPath::value('backup_path') ?: storage_path('backups');
+
             return view('themes.default1.update.update', compact(
                 'currentVersion',
                 'latestVersion',
                 'updateAvailable',
                 'recentReleases',
+                'backupPath',
             ));
         } catch (Exception $e) {
             return redirect()->back()->with('fails', $e->getMessage());
@@ -130,6 +136,7 @@ class UpgradeController extends Controller
 
             $folderPath = base_path();
             $sanitizedPass = str_replace("'", "'\\''", $dbPass);
+            $autoUpdate = $request->input('autoUpdate');
 
             if ($dbPass == '') {
                 exec("(mysqldump -h{$host} -u{$dbUser} {$database} | zip {$dbZip} - ; zip -r {$filesystemZip} {$folderPath}) > /dev/null 2>&1 &");
@@ -145,7 +152,20 @@ class UpgradeController extends Controller
                 'version'   => $currentVersion,
             ]);
 
-            return successResponse('Backup started. Update will proceed.');
+            if ($autoUpdate) {
+                Artisan::call('down');
+                $this->github->downloadRelease();
+                $this->extractAndApply();
+                $this->dismissNotification('new-version');
+                $this->cleanup();
+                $this->clearBootstrapCache();
+                Artisan::call('database:sync');
+                Artisan::call('up');
+
+                return successResponse('Backup and update started.');
+            }
+
+            return successResponse('Backup started.');
         } catch (Exception $e) {
             return errorResponse($e->getMessage(), 500);
         }

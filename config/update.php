@@ -10,15 +10,7 @@ return [
 
     'temp_directory' => 'UPDATES',
 
-    'min_memory_mb' => 256,
-
     'excluded_paths' => [
-        '.env',
-        '.github/',
-        '.idea/',
-        'storage/',
-        'config/database.php',
-        'bootstrap/cache/',
     ],
 
 ];
