@@ -63,8 +63,8 @@ class PasswordController extends Controller
                 $password_reset_table = \DB::table('password_resets')->where('email', '=', $user->email)->first();
                 if (isset($password_reset_table)) {
                     $password_reset_table = \DB::table('password_resets')->where('email', '=', $user->email)->update(['token' => $code, 'created_at' => $date]);
-                // $password_reset_table->token = $code;
-                // $password_reset_table->update(['token' => $code]);
+                    // $password_reset_table->token = $code;
+                    // $password_reset_table->update(['token' => $code]);
                 } else {
                     $create_password_reset = \DB::table('password_resets')->insert(['email' => $user->email, 'token' => $code, 'created_at' => $date]);
                 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * upgrade from 1.9.6 to 1.9.7.
  */
