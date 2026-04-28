@@ -233,6 +233,7 @@ class TicketController extends Controller
             } elseif (Auth::user()->role == 'user') {
                 $thread = Ticket_Thread::where('ticket_id', '=', $id)->first();
                 $ticket_id = \Crypt::encrypt($id);
+
                 return redirect()->route('check_ticket', compact('ticket_id'));
             }
             if ($tickets == null) {
@@ -247,6 +248,7 @@ class TicketController extends Controller
             $max_size_in_bytes = $fileupload[0];
             $max_size_in_actual = $fileupload[1];
             $tickets_approval = Tickets::where('id', '=', $id)->first();
+
             return view('themes.default1.agent.helpdesk.ticket.timeline', compact('tickets', 'max_size_in_bytes', 'max_size_in_actual', 'tickets_approval'), compact('thread', 'avg_rating'));
         } catch (\Exception $ex) {
             return redirect()->route('inbox.ticket')->with('fails', $ex->getMessage());
@@ -1202,6 +1204,7 @@ class TicketController extends Controller
             'last_name'  => Auth::user()->last_name,
         ];
         event('change-status', [$data]);
+
         return 'your ticket'.$ticket_status->ticket_number.' has been closed';
     }
 
@@ -1247,6 +1250,7 @@ class TicketController extends Controller
             'last_name'  => Auth::user()->last_name,
         ];
         event('change-status', [$data]);
+
         return 'your ticket'.$ticket_status->ticket_number.' has been resolved';
     }
 
@@ -1286,6 +1290,7 @@ class TicketController extends Controller
             'last_name'  => Auth::user()->last_name,
         ];
         event('change-status', [$data]);
+
         return 'your ticket'.$ticket_status->ticket_number.' has been opened';
     }
 
@@ -1317,6 +1322,7 @@ class TicketController extends Controller
                 'last_name'  => Auth::user()->last_name,
             ];
             event('change-status', [$data]);
+
             return 'your ticket has been delete';
         } else {
             $ticket_delete->is_deleted = 1;
@@ -1336,6 +1342,7 @@ class TicketController extends Controller
                 'last_name'  => Auth::user()->last_name,
             ];
             event('change-status', [$data]);
+
             return 'your ticket'.$ticket_delete->ticket_number.' has been delete';
         }
     }
@@ -1356,6 +1363,7 @@ class TicketController extends Controller
         $user->ban = 1;
         $user->save();
         $Email = $user->email;
+
         return 'the user has been banned';
     }
 
