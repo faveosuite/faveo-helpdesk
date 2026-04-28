@@ -1202,7 +1202,6 @@ class TicketController extends Controller
             'last_name'  => Auth::user()->last_name,
         ];
         event('change-status', [$data]);
-
         return 'your ticket'.$ticket_status->ticket_number.' has been closed';
     }
 
@@ -1248,7 +1247,6 @@ class TicketController extends Controller
             'last_name'  => Auth::user()->last_name,
         ];
         event('change-status', [$data]);
-
         return 'your ticket'.$ticket_status->ticket_number.' has been resolved';
     }
 
@@ -1288,7 +1286,6 @@ class TicketController extends Controller
             'last_name'  => Auth::user()->last_name,
         ];
         event('change-status', [$data]);
-
         return 'your ticket'.$ticket_status->ticket_number.' has been opened';
     }
 
@@ -1320,7 +1317,6 @@ class TicketController extends Controller
                 'last_name'  => Auth::user()->last_name,
             ];
             event('change-status', [$data]);
-
             return 'your ticket has been delete';
         } else {
             $ticket_delete->is_deleted = 1;
@@ -1340,7 +1336,6 @@ class TicketController extends Controller
                 'last_name'  => Auth::user()->last_name,
             ];
             event('change-status', [$data]);
-
             return 'your ticket'.$ticket_delete->ticket_number.' has been delete';
         }
     }
@@ -1361,7 +1356,6 @@ class TicketController extends Controller
         $user->ban = 1;
         $user->save();
         $Email = $user->email;
-
         return 'the user has been banned';
     }
 
@@ -1398,6 +1392,7 @@ class TicketController extends Controller
                 $thread->user_id = Auth::user()->id;
                 $thread->is_internal = 1;
                 $thread->body = 'This Ticket has been assigned to '.$assignee;
+
                 $thread->save();
             } elseif ($assign_to[0] == 'user') {
                 $ticket->assigned_to = $assign_to[1];
