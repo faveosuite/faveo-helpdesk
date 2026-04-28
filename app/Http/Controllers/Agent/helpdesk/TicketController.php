@@ -206,40 +206,51 @@ class TicketController extends Controller
      */
     public function thread($id)
     {
-        if (Auth::user()->role == 'agent') {
-            $dept = Department::where('id', '=', Auth::user()->primary_dpt)->first();
-            $tickets = Tickets::where('id', '=', $id)->first();
-            if ($tickets->dept_id == $dept->id) {
-                $tickets = $tickets;
-            } elseif ($tickets->assigned_to == Auth::user()->id) {
-                $tickets = $tickets;
-            } else {
-                $tickets = null;
-            }
+        try {
+            if (Auth::user()->role == 'agent' || Auth::user()->role == 'admin') {
+                //$dept = Department::where('id', '=', Auth::user()->primary_dpt)->first();
+                $tickets = Tickets::where('id', '=', $id)->first();
+                if (!$tickets) {
+                    throw new \Exception('Ticket not found');
+                }
+                $user = Auth::user();
+                //if ticket is not assigned to loged in agent then we are not giving access to that ticket
+                if ($user->role == 'agent' && $tickets->assigned_to !== $user->id) {
+                    $collaborator = Ticket_Collaborator::where('ticket_id', $tickets->id)->where('user_id', $user->id)->first();
+                    if (!$collaborator) {
+                        return redirect()->route('inbox.ticket')->with('fails', \Lang::get('lang.unauthorised_access_ticket'));
+                    }
+                }
+//                if ($tickets->dept_id == $dept->id) {
+//                    $tickets = $tickets;
+//                } elseif ($tickets->assigned_to == Auth::user()->id) {
+//                    $tickets = $tickets;
+//                } else {
+//                    $tickets = null;
+//                }
 //            $tickets = $tickets->where('dept_id', '=', $dept->id)->orWhere('assigned_to', Auth::user()->id)->first();
 //            dd($tickets);
-        } elseif (Auth::user()->role == 'admin') {
-            $tickets = Tickets::where('id', '=', $id)->first();
-        } elseif (Auth::user()->role == 'user') {
+            } elseif (Auth::user()->role == 'user') {
+                $thread = Ticket_Thread::where('ticket_id', '=', $id)->first();
+                $ticket_id = \Crypt::encrypt($id);
+                return redirect()->route('check_ticket', compact('ticket_id'));
+            }
+            if ($tickets == null) {
+                return redirect()->route('inbox.ticket')->with('fails', \Lang::get('lang.invalid_attempt'));
+            }
+            $avg = DB::table('ticket_thread')->where('ticket_id', '=', $id)->where('reply_rating', '!=', 0)->avg('reply_rating');
+            $avg_rate = explode('.', $avg);
+            $avg_rating = $avg_rate[0];
             $thread = Ticket_Thread::where('ticket_id', '=', $id)->first();
-            $ticket_id = \Crypt::encrypt($id);
-
-            return redirect()->route('check_ticket', compact('ticket_id'));
+            $fileupload = new FileuploadController();
+            $fileupload = $fileupload->file_upload_max_size();
+            $max_size_in_bytes = $fileupload[0];
+            $max_size_in_actual = $fileupload[1];
+            $tickets_approval = Tickets::where('id', '=', $id)->first();
+            return view('themes.default1.agent.helpdesk.ticket.timeline', compact('tickets', 'max_size_in_bytes', 'max_size_in_actual', 'tickets_approval'), compact('thread', 'avg_rating'));
+        } catch (\Exception $ex) {
+            return redirect()->route('inbox.ticket')->with('fails', $ex->getMessage());
         }
-        if ($tickets == null) {
-            return redirect()->route('inbox.ticket')->with('fails', \Lang::get('lang.invalid_attempt'));
-        }
-        $avg = DB::table('ticket_thread')->where('ticket_id', '=', $id)->where('reply_rating', '!=', 0)->avg('reply_rating');
-        $avg_rate = explode('.', $avg);
-        $avg_rating = $avg_rate[0];
-        $thread = Ticket_Thread::where('ticket_id', '=', $id)->first();
-        $fileupload = new FileuploadController();
-        $fileupload = $fileupload->file_upload_max_size();
-        $max_size_in_bytes = $fileupload[0];
-        $max_size_in_actual = $fileupload[1];
-        $tickets_approval = Tickets::where('id', '=', $id)->first();
-
-        return view('themes.default1.agent.helpdesk.ticket.timeline', compact('tickets', 'max_size_in_bytes', 'max_size_in_actual', 'tickets_approval'), compact('thread', 'avg_rating'));
     }
 
     public function size()
