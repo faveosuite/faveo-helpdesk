@@ -39,6 +39,10 @@ use Socialite;
  */
 class AuthController extends Controller
 {
+    protected $maxLoginAttempts = 5;
+    protected $lockoutTime = 60;
+
+    use \Illuminate\Foundation\Auth\ThrottlesLogins;
     /* to redirect after login */
 
     // if auth is agent
@@ -68,6 +72,11 @@ class AuthController extends Controller
         $social = new SocialMediaController();
         $social->configService();
         $this->middleware('guest', ['except' => ['getLogout', 'verifyOTP', 'redirectToProvider']]);
+    }
+
+    public function loginUsername()
+    {
+        return 'email';
     }
 
     public function redirectToProvider($provider, $redirect = '')
@@ -304,22 +313,20 @@ class AuthController extends Controller
         try {
             // dd($request->input());
             event('auth.login.event', []); //added 5/5/2016
-            // Set login attempts and login time
-            $value = $_SERVER['REMOTE_ADDR'];
-            $usernameinput = $request->input('email');
-            $password = $request->input('password');
-            if ($request->input('referer')) {
-                $referer = 'form';
-            } else {
-                $referer = '/';
-            }
-            $field = filter_var($usernameinput, FILTER_VALIDATE_EMAIL) ? 'email' : 'user_name';
-            $result = $this->confirmIPAddress($value, $usernameinput);
 
-            // If attempts > 3 and time < 30 minutes
-            $security = Security::whereId('1')->first();
-            if ($result == 1) {
-                return redirect()->back()->withErrors('email', 'Incorrect details')->with(['error' => $security->lockout_message, 'referer' => $referer]);
+            $throttles = $this->isUsingThrottlesLoginsTrait();
+
+            if ($throttles && $this->hasTooManyLoginAttempts($request)) {
+                return $this->sendLockoutResponse($request);
+            }
+            $credentials = $this->getCredentials($request);
+
+            if (Auth::attempt($credentials, $request->has('remember'))) {
+                return $this->handleUserWasAuthenticated($request, $throttles);
+            }
+
+            if ($throttles) {
+                $this->incrementLoginAttempts($request);
             }
 
             $check_active = User::where('email', '=', $request->input('email'))->orwhere('user_name', '=', $request->input('email'))->first();
