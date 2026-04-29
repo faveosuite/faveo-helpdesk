@@ -26,6 +26,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Lang;
 use Socialite;
+use Illuminate\Foundation\Auth\ThrottlesLogins;
 
 /**
  * ---------------------------------------------------
@@ -39,7 +40,17 @@ use Socialite;
  */
 class AuthController extends Controller
 {
-    /* to redirect after login */
+    use ThrottlesLogins;
+ 
+     /**
+      * Max login attempts allowed.
+      */
+     protected $maxAttempts = 5;
+ 
+     /**
+      * Number of minutes to lock out.
+      */
+     protected $decayMinutes = 1;
 
     // if auth is agent
     protected $redirectTo = '/dashboard';
@@ -303,7 +314,11 @@ class AuthController extends Controller
     {
         try {
             // dd($request->input());
-            event('auth.login.event', []); //added 5/5/2016
+        $throttles = $this->isUsingThrottlesLoginsTrait();
+ 
+         if ($throttles && $this->hasTooManyLoginAttempts($request)) {
+             return $this->sendLockoutResponse($request);
+         }
             // Set login attempts and login time
             $value = $_SERVER['REMOTE_ADDR'];
             $usernameinput = $request->input('email');
@@ -380,55 +395,25 @@ class AuthController extends Controller
                                         'referer'     => $referer, ]);
                 } else {
                     // try login
-                    $loginAttempts = 1;
-                    // If session has login attempts, retrieve attempts counter and attempts time
-                    if (\Session::has('loginAttempts')) {
-                        $loginAttempts = \Session::get('loginAttempts');
-                        $loginAttemptTime = \Session::get('loginAttemptTime');
-                        $this->addLoginAttempt($value, $usernameinput);
-                        // $credentials = $request->only('email', 'password');
-                        $usernameinput = $request->input('email');
-                        $password = $request->input('password');
-                        $field = filter_var($usernameinput, FILTER_VALIDATE_EMAIL) ? 'email' : 'user_name';
-                        // If attempts > 3 and time < 10 minutes
-                        if ($loginAttempts > $security->backlist_threshold && (time() - $loginAttemptTime <= ($security->lockout_period * 60))) {
-                            return redirect()->back()->withErrors('email', 'incorrect email')->with('error', $security->lockout_message);
-                        }
-                        // If time > 10 minutes, reset attempts counter and time in session
-                        if (time() - $loginAttemptTime > ($security->lockout_period * 60)) {
-                            \Session::put('loginAttempts', 1);
-                            \Session::put('loginAttemptTime', time());
-                        }
-                    } else { // If no login attempts stored, init login attempts and time
-                        \Session::put('loginAttempts', $loginAttempts);
-                        \Session::put('loginAttemptTime', time());
-                        $this->clearLoginAttempts($value, $usernameinput);
-                    }
-                    // If auth ok, redirect to restricted area
-                    \Session::put('loginAttempts', $loginAttempts + 1);
-                    if (Auth::Attempt([$field => $usernameinput, 'password' => $password], $request->has('remember'))) {
-                        if (Auth::user()->role == 'user') {
-                            if ($request->input('referer')) {
-                                return \Redirect::route($request->input('referer'));
-                            }
-
-                            // return \Redirect::route('/');
-                            return redirect()->intended($this->redirectPath());
-                        }
-
-                        return redirect()->intended($this->redirectPath());
-                    }
+        if (Auth::attempt([$field => $usernameinput, 'password' => $password], $request->has('remember'))) {
+            if (Auth::user()->role == 'user') {
+                if ($request->input('referer')) {
+                    return \Redirect::route($request->input('referer'));
                 }
+                return redirect()->intended($this->redirectPath());
             }
+            return redirect()->intended($this->redirectPath());
+        }
 
-            return redirect()->back()
-                            ->withInput($request->only('email', 'remember'))
-                            ->withErrors([
-                                'email'       => $this->getFailedLoginMessage(),
-                                'password'    => $this->getFailedLoginMessage(),
-                            ])->with(['error' => Lang::get('lang.invalid'),
-                                'referer'     => $referer, ]);
-            // Increment login attempts
+        if ($throttles) {
+            $this->incrementLoginAttempts($request);
+        }
+
+        return redirect()->back()
+            ->withInput($request->only($this->loginUsername(), 'remember'))
+            ->withErrors([
+                $this->loginUsername() => $this->getFailedLoginMessage(),
+            ]);
         } catch (\Exception $e) {
             return redirect()->back()->with('fails', $e->getMessage());
         }
@@ -574,6 +559,10 @@ class AuthController extends Controller
                                     ->update(['otp' => '']);
                             User::where('id', '=', $user->id)
                                     ->update(['active' => 1]);
+    public function loginUsername()
+    {
+        return property_exists($this, 'username') ? $this->username : 'email';
+    }
                             $this->openTicketAfterVerification($user->id);
 
                             return $this->postLogin($request);
