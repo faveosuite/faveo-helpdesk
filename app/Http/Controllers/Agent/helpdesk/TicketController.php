@@ -117,7 +117,7 @@ class TicketController extends Controller
                 $assignto = null;
             }
             $subject = $request->input('subject');
-            $body = $request->input('body');
+            $body = e($request->input('body'));
             $priority = $request->input('priority');
             $phone = $request->input('phone');
             $phonecode = $request->input('code');
@@ -313,7 +313,7 @@ class TicketController extends Controller
 
             $thread->ticket_id = $request->input('ticket_ID');
             $thread->poster = 'support';
-            $thread->body = $request->input('reply_content');
+            $thread->body = e($request->input('reply_content'));
             if ($system_reply == true) {
                 $thread->user_id = Auth::user()->id;
             } else {
@@ -437,7 +437,7 @@ class TicketController extends Controller
 
             return response()->json(compact('result'));
         }
-        $result = ['success' => Lang::get('lang.you_have_successfully_replied_to_your_ticket')];
+        $result = ['success' => 'Replyed successfully'];
 
         return response()->json(compact('result'));
     }
@@ -610,8 +610,8 @@ class TicketController extends Controller
      */
     public function checkMobile($mobile)
     {
-        $check = User::where('mobile', '=', $mobile);
-        if ($check && $check->count() > 0) {
+        $check = User::where('mobile', '=', $mobile)->first();
+        if (count($check) > 0) {
             return true;
         }
 
