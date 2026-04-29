@@ -17,6 +17,7 @@ use App\Model\helpdesk\Ticket\TicketStatusType;
 use App\User;
 //classes
 use Auth;
+use Cache;
 use DB;
 use Illuminate\Http\Request;
 
@@ -58,27 +59,32 @@ class FilterController extends Controller
      */
     public function getFilter(Request $request)
     {
-        $table = $this->table();
-        if ($request->has('segment')) {
-            $segment = $this->request->input('segment');
-            $table = $this->formatUserTickets($segment);
-        } else {
-            if ($request->has('api') && $request->get('api') == '1') {
-                $inputs = [];
-                foreach ($request->all() as $key => $value) {
-                    if ($key != 'api' && $key != 'token' && $key != 'page' && $key
-                            != 'sort-by' && $key != 'order' && $key != 'records_per_page') {
-                        $inputs[$key] = explode(',', $value); //
-                    }
-                }
+        $cacheKey = 'agent_tickets_page_'.Auth::id().'_'.md5($request->getRequestUri());
 
-                return $table = $this->checkRequestIsCorrect($table, $inputs);
+        $table = Cache::remember($cacheKey, 300, function () use ($request) {
+            $table = $this->table();
+            if ($request->has('segment')) {
+                $segment = $this->request->input('segment');
+                $table = $this->formatUserTickets($segment);
             } else {
-                $inputs = json_decode(htmlspecialchars_decode($request->get('options')));
-                // dd($inputs);
-                $table = $this->checkRequestIsCorrect($table, (array) $inputs);
+                if ($request->has('api') && $request->get('api') == '1') {
+                    $inputs = [];
+                    foreach ($request->all() as $key => $value) {
+                        if ($key != 'api' && $key != 'token' && $key != 'page' && $key
+                                != 'sort-by' && $key != 'order' && $key != 'records_per_page') {
+                            $inputs[$key] = explode(',', $value); //
+                        }
+                    }
+
+                    $table = $this->checkRequestIsCorrect($table, $inputs);
+                } else {
+                    $inputs = json_decode(htmlspecialchars_decode($request->get('options')));
+                    $table = $this->checkRequestIsCorrect($table, (array) $inputs);
+                }
             }
-        }
+
+            return $table;
+        });
 
         return \Ttable::genreateTableJson($table);
     }
