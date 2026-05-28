@@ -491,6 +491,9 @@ class InstallController extends Controller
 
     public function migrate()
     {
+        if (isInstall()) {
+            abort(403, 'Forbidden: Application is already installed.');
+        }
         try {
             Artisan::call('config:clear');
             (new SyncFaveoToLatestVersion())->sync();
@@ -522,6 +525,9 @@ class InstallController extends Controller
 
     public function seed(Request $request)
     {
+        if (isInstall()) {
+            abort(403, 'Forbidden: Application is already installed.');
+        }
         try {
             if ($request->input('dummy-data') == 'on') {
                 $path = base_path().'/DB/dummy-data.sql';

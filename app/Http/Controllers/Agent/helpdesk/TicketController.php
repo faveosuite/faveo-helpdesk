@@ -2862,7 +2862,7 @@ class TicketController extends Controller
                                 $duedate = strtotime($tickets->duedate);
 
                                 if ($duedate - $now < 0) {
-                                    $due = '&nbsp;<span style="background-color: rgba(221, 75, 57, 0.67) !important" title="'.Lang::get('lang.is_overdue').'" class="label label-danger">'.Lang::get('lang.overdue').'</span>';
+                                    $due = '&nbsp;<span style="" title="'.Lang::get('lang.is_overdue').'" class="badge text-bg-danger text-xs">'.Lang::get('lang.overdue').'</span>';
                                 } else {
                                     if (date('Ymd', $duedate) == date('Ymd', $now)) {
                                         $due = '&nbsp;<span style="background-color: rgba(240, 173, 78, 0.67) !important" title="'.Lang::get('lang.going-overdue-today').'" class="label label-warning">'.Lang::get('lang.duetoday').'</span>';
