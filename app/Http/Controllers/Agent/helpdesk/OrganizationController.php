@@ -17,6 +17,7 @@ use App\User;
 use Exception;
 // classes
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request as Input;
 use Lang;
 use Yajra\DataTables\Facades\DataTables;
@@ -44,6 +45,8 @@ class OrganizationController extends Controller
         $this->middleware('auth');
         // checking if the role is agent
         $this->middleware('role.agent');
+        // only admin can delete organizations
+        $this->middleware('roles')->only('destroy');
     }
 
     /**
@@ -96,19 +99,19 @@ class OrganizationController extends Controller
                         })
                         /* column action buttons */
                         ->addColumn('Actions', function ($model) {
-                            return '<span  data-toggle="modal" data-target="#deletearticle'.$model->id.'"><a href="#" ><button class="btn btn-danger btn-xs"></a> '.\Lang::get('lang.delete').' </button></span>&nbsp;<a href="'.route('organizations.edit', $model->id).'" class="btn btn-warning btn-xs">'.\Lang::get('lang.edit').'</a>&nbsp;<a href="'.route('organizations.show', $model->id).'" class="btn btn-primary btn-xs">'.\Lang::get('lang.view').'</a>
+                            return '<span data-bs-toggle="modal" data-bs-target="#deletearticle'.$model->id.'"><a href="#"><button class="btn btn-danger btn-xs"> '.\Lang::get('lang.delete').' </button></a></span>&nbsp;<a href="'.route('organizations.edit', $model->id).'" class="btn btn-warning btn-xs">'.\Lang::get('lang.edit').'</a>&nbsp;<a href="'.route('organizations.show', $model->id).'" class="btn btn-primary btn-xs">'.\Lang::get('lang.view').'</a>
 				<div class="modal fade" id="deletearticle'.$model->id.'">
 			        <div class="modal-dialog">
 			            <div class="modal-content">
                 			<div class="modal-header">
                                  <h4 class="modal-title">'.\Lang::get('lang.are_you_sure').'</h4>
-                    			<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    			<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 			</div>
                 			<div class="modal-body">
-                				'.$model->user_name.'
+                				'.$model->name.'
                 			</div>
                 			<div class="modal-footer justify-content-between">
-                    			<button type="button" class="btn btn-default" data-dismiss="modal" id="dismis2">'.\Lang::get('lang.close').'</button>
+                    			<button type="button" class="btn btn-default" data-bs-dismiss="modal" id="dismis2">'.\Lang::get('lang.close').'</button>
                     			<a href="'.route('org.delete', $model->id).'"><button class="btn btn-danger">'.\Lang::get('lang.delete').'</button></a>
                 			</div>
             			</div><!-- /.modal-content -->
