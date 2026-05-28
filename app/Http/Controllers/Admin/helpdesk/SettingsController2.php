@@ -263,7 +263,7 @@ class SettingsController2 extends Controller
             return 'false';
         }
 
-        $path = $allowed_dir . DIRECTORY_SEPARATOR . $filename;
+        $path = $allowed_dir.DIRECTORY_SEPARATOR.$filename;
 
         if (!file_exists($path) || strpos(realpath($path), $allowed_dir) !== 0) {
             return 'false';
@@ -273,8 +273,8 @@ class SettingsController2 extends Controller
             return 'false';
         }
 
-        $companys           = Company::where('id', '=', 1)->first();
-        $companys->logo     = null;
+        $companys = Company::where('id', '=', 1)->first();
+        $companys->logo = null;
         $companys->use_logo = '0';
         $companys->save();
 

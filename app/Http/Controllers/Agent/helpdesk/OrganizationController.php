@@ -17,7 +17,6 @@ use App\User;
 use Exception;
 // classes
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request as Input;
 use Lang;
 use Yajra\DataTables\Facades\DataTables;
