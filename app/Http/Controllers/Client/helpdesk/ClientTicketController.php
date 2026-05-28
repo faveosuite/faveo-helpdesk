@@ -96,7 +96,8 @@ class ClientTicketController extends Controller
     /**
      * Check if the authenticated user is the owner of the ticket.
      *
-     * @param  Tickets  $ticket
+     * @param Tickets $ticket
+     *
      * @return bool
      */
     private function canAuthenticatedUserProceedToReply($ticket)

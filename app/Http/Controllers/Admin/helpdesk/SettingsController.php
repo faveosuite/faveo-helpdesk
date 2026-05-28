@@ -36,7 +36,6 @@ use DateTime;
 // classes
 use DB;
 use Exception;
-use File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Request as Input;
 use Illuminate\Support\Str;
@@ -133,7 +132,7 @@ class SettingsController extends Controller
             return 'false';
         }
 
-        $path = $allowed_dir . DIRECTORY_SEPARATOR . $filename;
+        $path = $allowed_dir.DIRECTORY_SEPARATOR.$filename;
 
         if (!file_exists($path) || strpos(realpath($path), $allowed_dir) !== 0) {
             return 'false';
@@ -143,8 +142,8 @@ class SettingsController extends Controller
             return 'false';
         }
 
-        $companys           = Company::where('id', '=', 1)->first();
-        $companys->logo     = null;
+        $companys = Company::where('id', '=', 1)->first();
+        $companys->logo = null;
         $companys->use_logo = '0';
         $companys->save();
 
