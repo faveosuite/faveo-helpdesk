@@ -1,0 +1,522 @@
+#0 building with "default" instance using docker driver
+
+#1 [app internal] load build definition from Dockerfile
+#1 transferring dockerfile: 723B done
+#1 DONE 0.0s
+
+#2 [app internal] load metadata for docker.io/library/php:8.2-fpm-bullseye
+#2 DONE 1.2s
+
+#3 [app internal] load metadata for docker.io/library/composer:2
+#3 DONE 1.2s
+
+#4 [app internal] load .dockerignore
+#4 transferring context: 2B done
+#4 DONE 0.0s
+
+#5 [app stage-0 1/4] FROM docker.io/library/php:8.2-fpm-bullseye@sha256:e0d898e694202df3327dd9945792202de12798f8d0969ab6b44d3163c2b033b2
+#5 CACHED
+
+#6 [app] FROM docker.io/library/composer:2@sha256:5946476338742b200bb9ff88f8be56275ddae4b3949c72305cb0dbf10cfcb760
+#6 CACHED
+
+#7 [app stage-0 2/4] RUN apt-get update && apt-get install -y     git     unzip     zip     curl     libzip-dev     libicu-dev     libxml2-dev     libpng-dev     libjpeg62-turbo-dev     libfreetype6-dev     libonig-dev     libkrb5-dev     libc-client2007e-dev     && docker-php-ext-configure gd --with-freetype --with-jpeg     && docker-php-ext-configure imap --with-kerberos --with-imap     && docker-php-ext-install         pdo_mysql         mysqli         mbstring         intl         zip         exif         bcmath         gd         imap
+#7 1.053 Get:1 http://deb.debian.org/debian bullseye InRelease [75.1 kB]
+#7 1.492 Get:2 http://deb.debian.org/debian-security bullseye-security InRelease [27.2 kB]
+#7 1.775 Get:3 http://deb.debian.org/debian bullseye-updates InRelease [44.0 kB]
+#7 2.096 Get:4 http://deb.debian.org/debian bullseye/main amd64 Packages [8066 kB]
+#7 7.113 Get:5 http://deb.debian.org/debian-security bullseye-security/main amd64 Packages [461 kB]
+#7 7.223 Get:6 http://deb.debian.org/debian bullseye-updates/main amd64 Packages [18.8 kB]
+#7 8.209 Fetched 8692 kB in 8s (1120 kB/s)
+#7 8.209 Reading package lists...
+#7 8.728 Reading package lists...
+#7 9.365 Building dependency tree...
+#7 9.492 Reading state information...
+#7 9.651 The following additional packages will be installed:
+#7 9.651   comerr-dev git-man icu-devtools krb5-multidev less libbrotli-dev libbsd0
+#7 9.651   libc-client2007e libcbor0 libcurl3-gnutls libcurl4 libedit2 liberror-perl
+#7 9.651   libexpat1 libfido2-1 libfreetype-dev libfreetype6 libgssapi-krb5-2
+#7 9.652   libgssrpc4 libjpeg62-turbo libk5crypto3 libkadm5clnt-mit12 libkadm5srv-mit12
+#7 9.652   libkdb5-10 libkrb5-3 libkrb5support0 libmd0 libpam0g libpam0g-dev
+#7 9.652   libpng-tools libpng16-16 libssl-dev libssl1.1 libx11-6 libx11-data libxau6
+#7 9.652   libxcb1 libxdmcp6 libxext6 libxml2 libxmuu1 libzip4 mlock openssh-client
+#7 9.652   xauth zlib1g-dev
+#7 9.654 Suggested packages:
+#7 9.654   doc-base gettext-base git-daemon-run | git-daemon-sysvinit git-doc git-el
+#7 9.654   git-email git-gui gitk gitweb git-cvs git-mediawiki git-svn krb5-doc
+#7 9.654   uw-mailutils freetype2-doc krb5-user icu-doc libpam-doc libssl-doc keychain
+#7 9.654   libpam-ssh monkeysphere ssh-askpass
+#7 9.654 Recommended packages:
+#7 9.654   krb5-locales
+#7 9.838 The following NEW packages will be installed:
+#7 9.838   comerr-dev git git-man icu-devtools krb5-multidev less libbrotli-dev libbsd0
+#7 9.838   libc-client2007e libc-client2007e-dev libcbor0 libcurl3-gnutls libedit2
+#7 9.838   liberror-perl libexpat1 libfido2-1 libfreetype-dev libfreetype6
+#7 9.838   libfreetype6-dev libgssrpc4 libicu-dev libjpeg62-turbo libjpeg62-turbo-dev
+#7 9.838   libkadm5clnt-mit12 libkadm5srv-mit12 libkdb5-10 libkrb5-dev libmd0
+#7 9.838   libonig-dev libpam0g-dev libpng-dev libpng-tools libpng16-16 libssl-dev
+#7 9.838   libx11-6 libx11-data libxau6 libxcb1 libxdmcp6 libxext6 libxml2-dev libxmuu1
+#7 9.839   libzip-dev libzip4 mlock openssh-client unzip xauth zip zlib1g-dev
+#7 9.840 The following packages will be upgraded:
+#7 9.841   curl libcurl4 libgssapi-krb5-2 libk5crypto3 libkrb5-3 libkrb5support0
+#7 9.842   libpam0g libssl1.1 libxml2
+#7 10.18 9 upgraded, 50 newly installed, 0 to remove and 25 not upgraded.
+#7 10.18 Need to get 32.2 MB of archives.
+#7 10.18 After this operation, 122 MB of additional disk space will be used.
+#7 10.18 Get:1 http://deb.debian.org/debian-security bullseye-security/main amd64 libk5crypto3 amd64 1.18.3-6+deb11u8 [115 kB]
+#7 10.54 Get:2 http://deb.debian.org/debian-security bullseye-security/main amd64 libkrb5support0 amd64 1.18.3-6+deb11u8 [66.5 kB]
+#7 10.71 Get:3 http://deb.debian.org/debian-security bullseye-security/main amd64 libkrb5-3 amd64 1.18.3-6+deb11u8 [364 kB]
+#7 11.04 Get:4 http://deb.debian.org/debian-security bullseye-security/main amd64 libgssapi-krb5-2 amd64 1.18.3-6+deb11u8 [166 kB]
+#7 11.20 Get:5 http://deb.debian.org/debian-security bullseye-security/main amd64 libssl1.1 amd64 1.1.1w-0+deb11u8 [1566 kB]
+#7 11.48 Get:6 http://deb.debian.org/debian-security bullseye-security/main amd64 libpam0g amd64 1.4.0-9+deb11u2 [130 kB]
+#7 11.49 Get:7 http://deb.debian.org/debian bullseye/main amd64 less amd64 551-2+deb11u2 [136 kB]
+#7 11.51 Get:8 http://deb.debian.org/debian bullseye/main amd64 libmd0 amd64 1.0.3-3 [28.0 kB]
+#7 11.65 Get:9 http://deb.debian.org/debian bullseye/main amd64 libbsd0 amd64 0.11.3-1+deb11u1 [108 kB]
+#7 11.66 Get:10 http://deb.debian.org/debian bullseye/main amd64 libedit2 amd64 3.1-20191231-2+b1 [96.7 kB]
+#7 11.68 Get:11 http://deb.debian.org/debian bullseye/main amd64 libcbor0 amd64 0.5.0+dfsg-2 [24.0 kB]
+#7 11.68 Get:12 http://deb.debian.org/debian bullseye/main amd64 libfido2-1 amd64 1.6.0-2 [53.3 kB]
+#7 11.81 Get:13 http://deb.debian.org/debian-security bullseye-security/main amd64 openssh-client amd64 1:8.4p1-5+deb11u7 [934 kB]
+#7 12.18 Get:14 http://deb.debian.org/debian-security bullseye-security/main amd64 comerr-dev amd64 2.1-1.46.2-2+deb11u1 [107 kB]
+#7 12.34 Get:15 http://deb.debian.org/debian-security bullseye-security/main amd64 curl amd64 7.74.0-1.3+deb11u16 [272 kB]
+#7 12.51 Get:16 http://deb.debian.org/debian-security bullseye-security/main amd64 libcurl4 amd64 7.74.0-1.3+deb11u16 [347 kB]
+#7 12.70 Get:17 http://deb.debian.org/debian-security bullseye-security/main amd64 libcurl3-gnutls amd64 7.74.0-1.3+deb11u16 [344 kB]
+#7 12.72 Get:18 http://deb.debian.org/debian-security bullseye-security/main amd64 libexpat1 amd64 2.2.10-2+deb11u7 [99.2 kB]
+#7 12.74 Get:19 http://deb.debian.org/debian bullseye/main amd64 liberror-perl all 0.17029-1 [31.0 kB]
+#7 12.74 Get:20 http://deb.debian.org/debian-security bullseye-security/main amd64 git-man all 1:2.30.2-1+deb11u5 [1831 kB]
+#7 12.95 Get:21 http://deb.debian.org/debian-security bullseye-security/main amd64 git amd64 1:2.30.2-1+deb11u5 [5568 kB]
+#7 13.63 Get:22 http://deb.debian.org/debian-security bullseye-security/main amd64 icu-devtools amd64 67.1-7+deb11u1 [201 kB]
+#7 13.64 Get:23 http://deb.debian.org/debian-security bullseye-security/main amd64 libgssrpc4 amd64 1.18.3-6+deb11u8 [92.6 kB]
+#7 13.64 Get:24 http://deb.debian.org/debian-security bullseye-security/main amd64 libkdb5-10 amd64 1.18.3-6+deb11u8 [74.4 kB]
+#7 13.64 Get:25 http://deb.debian.org/debian-security bullseye-security/main amd64 libkadm5srv-mit12 amd64 1.18.3-6+deb11u8 [86.8 kB]
+#7 13.65 Get:26 http://deb.debian.org/debian-security bullseye-security/main amd64 libkadm5clnt-mit12 amd64 1.18.3-6+deb11u8 [74.9 kB]
+#7 13.76 Get:27 http://deb.debian.org/debian-security bullseye-security/main amd64 krb5-multidev amd64 1.18.3-6+deb11u8 [159 kB]
+#7 13.78 Get:28 http://deb.debian.org/debian bullseye/main amd64 libbrotli-dev amd64 1.0.9-2+b2 [288 kB]
+#7 13.80 Get:29 http://deb.debian.org/debian bullseye/main amd64 mlock amd64 8:2007f~dfsg-7+b1 [36.1 kB]
+#7 13.80 Get:30 http://deb.debian.org/debian bullseye/main amd64 libc-client2007e amd64 8:2007f~dfsg-7+b1 [602 kB]
+#7 14.03 Get:31 http://deb.debian.org/debian-security bullseye-security/main amd64 libpam0g-dev amd64 1.4.0-9+deb11u2 [191 kB]
+#7 14.05 Get:32 http://deb.debian.org/debian-security bullseye-security/main amd64 libssl-dev amd64 1.1.1w-0+deb11u8 [1822 kB]
+#7 14.46 Get:33 http://deb.debian.org/debian bullseye/main amd64 libc-client2007e-dev amd64 8:2007f~dfsg-7+b1 [533 kB]
+#7 14.51 Get:34 http://deb.debian.org/debian-security bullseye-security/main amd64 libpng16-16 amd64 1.6.37-3+deb11u4 [295 kB]
+#7 14.54 Get:35 http://deb.debian.org/debian-security bullseye-security/main amd64 libfreetype6 amd64 2.10.4+dfsg-1+deb11u2 [418 kB]
+#7 14.64 Get:36 http://deb.debian.org/debian bullseye/main amd64 zlib1g-dev amd64 1:1.2.11.dfsg-2+deb11u2 [191 kB]
+#7 14.67 Get:37 http://deb.debian.org/debian-security bullseye-security/main amd64 libpng-dev amd64 1.6.37-3+deb11u4 [299 kB]
+#7 14.72 Get:38 http://deb.debian.org/debian-security bullseye-security/main amd64 libfreetype-dev amd64 2.10.4+dfsg-1+deb11u2 [571 kB]
+#7 14.80 Get:39 http://deb.debian.org/debian-security bullseye-security/main amd64 libfreetype6-dev amd64 2.10.4+dfsg-1+deb11u2 [82.7 kB]
+#7 14.98 Get:40 http://deb.debian.org/debian-security bullseye-security/main amd64 libicu-dev amd64 67.1-7+deb11u1 [9590 kB]
+#7 16.30 Get:41 http://deb.debian.org/debian bullseye/main amd64 libjpeg62-turbo amd64 1:2.0.6-4 [151 kB]
+#7 16.31 Get:42 http://deb.debian.org/debian bullseye/main amd64 libjpeg62-turbo-dev amd64 1:2.0.6-4 [278 kB]
+#7 16.34 Get:43 http://deb.debian.org/debian-security bullseye-security/main amd64 libkrb5-dev amd64 1.18.3-6+deb11u8 [48.5 kB]
+#7 16.34 Get:44 http://deb.debian.org/debian bullseye/main amd64 libonig-dev amd64 6.9.6-1.1 [94.2 kB]
+#7 16.50 Get:45 http://deb.debian.org/debian-security bullseye-security/main amd64 libpng-tools amd64 1.6.37-3+deb11u4 [142 kB]
+#7 16.50 Get:46 http://deb.debian.org/debian bullseye/main amd64 libxau6 amd64 1:1.0.9-1 [19.7 kB]
+#7 16.51 Get:47 http://deb.debian.org/debian bullseye/main amd64 libxdmcp6 amd64 1:1.1.2-3 [26.3 kB]
+#7 16.51 Get:48 http://deb.debian.org/debian bullseye/main amd64 libxcb1 amd64 1.14-3 [140 kB]
+#7 16.51 Get:49 http://deb.debian.org/debian bullseye/main amd64 libx11-data all 2:1.7.2-1+deb11u2 [311 kB]
+#7 16.52 Get:50 http://deb.debian.org/debian bullseye/main amd64 libx11-6 amd64 2:1.7.2-1+deb11u2 [772 kB]
+#7 16.57 Get:51 http://deb.debian.org/debian bullseye/main amd64 libxext6 amd64 2:1.3.3-1.1 [52.7 kB]
+#7 16.58 Get:52 http://deb.debian.org/debian-security bullseye-security/main amd64 libxml2 amd64 2.9.10+dfsg-6.7+deb11u10 [695 kB]
+#7 16.81 Get:53 http://deb.debian.org/debian-security bullseye-security/main amd64 libxml2-dev amd64 2.9.10+dfsg-6.7+deb11u10 [793 kB]
+#7 16.91 Get:54 http://deb.debian.org/debian bullseye/main amd64 libxmuu1 amd64 2:1.1.2-2+b3 [23.9 kB]
+#7 16.91 Get:55 http://deb.debian.org/debian bullseye/main amd64 libzip4 amd64 1.7.3-1 [55.4 kB]
+#7 16.92 Get:56 http://deb.debian.org/debian bullseye/main amd64 libzip-dev amd64 1.7.3-1 [163 kB]
+#7 17.14 Get:57 http://deb.debian.org/debian bullseye/main amd64 unzip amd64 6.0-26+deb11u1 [172 kB]
+#7 17.16 Get:58 http://deb.debian.org/debian bullseye/main amd64 xauth amd64 1:1.1-1 [40.5 kB]
+#7 17.17 Get:59 http://deb.debian.org/debian bullseye/main amd64 zip amd64 3.0-12 [232 kB]
+#7 17.44 debconf: delaying package configuration, since apt-utils is not installed
+#7 17.53 Fetched 32.2 MB in 7s (4386 kB/s)
+#7 17.70 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 13212 files and directories currently installed.)
+#7 17.74 Preparing to unpack .../libk5crypto3_1.18.3-6+deb11u8_amd64.deb ...
+#7 17.94 Unpacking libk5crypto3:amd64 (1.18.3-6+deb11u8) over (1.18.3-6+deb11u7) ...
+#7 18.29 Setting up libk5crypto3:amd64 (1.18.3-6+deb11u8) ...
+#7 18.38 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 13212 files and directories currently installed.)
+#7 18.43 Preparing to unpack .../libkrb5support0_1.18.3-6+deb11u8_amd64.deb ...
+#7 18.44 Unpacking libkrb5support0:amd64 (1.18.3-6+deb11u8) over (1.18.3-6+deb11u7) ...
+#7 18.56 Setting up libkrb5support0:amd64 (1.18.3-6+deb11u8) ...
+#7 18.65 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 13212 files and directories currently installed.)
+#7 18.69 Preparing to unpack .../libkrb5-3_1.18.3-6+deb11u8_amd64.deb ...
+#7 18.71 Unpacking libkrb5-3:amd64 (1.18.3-6+deb11u8) over (1.18.3-6+deb11u7) ...
+#7 18.94 Setting up libkrb5-3:amd64 (1.18.3-6+deb11u8) ...
+#7 19.04 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 13212 files and directories currently installed.)
+#7 19.09 Preparing to unpack .../libgssapi-krb5-2_1.18.3-6+deb11u8_amd64.deb ...
+#7 19.10 Unpacking libgssapi-krb5-2:amd64 (1.18.3-6+deb11u8) over (1.18.3-6+deb11u7) ...
+#7 19.25 Setting up libgssapi-krb5-2:amd64 (1.18.3-6+deb11u8) ...
+#7 19.40 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 13212 files and directories currently installed.)
+#7 19.44 Preparing to unpack .../libssl1.1_1.1.1w-0+deb11u8_amd64.deb ...
+#7 19.45 Unpacking libssl1.1:amd64 (1.1.1w-0+deb11u8) over (1.1.1w-0+deb11u3) ...
+#7 19.79 Setting up libssl1.1:amd64 (1.1.1w-0+deb11u8) ...
+#7 19.87 debconf: unable to initialize frontend: Dialog
+#7 19.87 debconf: (TERM is not set, so the dialog frontend is not usable.)
+#7 19.87 debconf: falling back to frontend: Readline
+#7 19.93 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 13212 files and directories currently installed.)
+#7 19.95 Preparing to unpack .../libpam0g_1.4.0-9+deb11u2_amd64.deb ...
+#7 19.96 Unpacking libpam0g:amd64 (1.4.0-9+deb11u2) over (1.4.0-9+deb11u1) ...
+#7 20.03 Setting up libpam0g:amd64 (1.4.0-9+deb11u2) ...
+#7 20.21 debconf: unable to initialize frontend: Dialog
+#7 20.21 debconf: (TERM is not set, so the dialog frontend is not usable.)
+#7 20.21 debconf: falling back to frontend: Readline
+#7 20.27 Selecting previously unselected package less.
+#7 20.27 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 13212 files and directories currently installed.)
+#7 20.28 Preparing to unpack .../00-less_551-2+deb11u2_amd64.deb ...
+#7 20.29 Unpacking less (551-2+deb11u2) ...
+#7 20.35 Selecting previously unselected package libmd0:amd64.
+#7 20.36 Preparing to unpack .../01-libmd0_1.0.3-3_amd64.deb ...
+#7 20.36 Unpacking libmd0:amd64 (1.0.3-3) ...
+#7 20.43 Selecting previously unselected package libbsd0:amd64.
+#7 20.43 Preparing to unpack .../02-libbsd0_0.11.3-1+deb11u1_amd64.deb ...
+#7 20.44 Unpacking libbsd0:amd64 (0.11.3-1+deb11u1) ...
+#7 20.53 Selecting previously unselected package libedit2:amd64.
+#7 20.53 Preparing to unpack .../03-libedit2_3.1-20191231-2+b1_amd64.deb ...
+#7 20.54 Unpacking libedit2:amd64 (3.1-20191231-2+b1) ...
+#7 20.62 Selecting previously unselected package libcbor0:amd64.
+#7 20.63 Preparing to unpack .../04-libcbor0_0.5.0+dfsg-2_amd64.deb ...
+#7 20.63 Unpacking libcbor0:amd64 (0.5.0+dfsg-2) ...
+#7 20.70 Selecting previously unselected package libfido2-1:amd64.
+#7 20.70 Preparing to unpack .../05-libfido2-1_1.6.0-2_amd64.deb ...
+#7 20.71 Unpacking libfido2-1:amd64 (1.6.0-2) ...
+#7 20.80 Selecting previously unselected package openssh-client.
+#7 20.80 Preparing to unpack .../06-openssh-client_1%3a8.4p1-5+deb11u7_amd64.deb ...
+#7 20.83 Unpacking openssh-client (1:8.4p1-5+deb11u7) ...
+#7 21.01 Selecting previously unselected package comerr-dev:amd64.
+#7 21.02 Preparing to unpack .../07-comerr-dev_2.1-1.46.2-2+deb11u1_amd64.deb ...
+#7 21.02 Unpacking comerr-dev:amd64 (2.1-1.46.2-2+deb11u1) ...
+#7 21.06 Preparing to unpack .../08-curl_7.74.0-1.3+deb11u16_amd64.deb ...
+#7 21.07 Unpacking curl (7.74.0-1.3+deb11u16) over (7.74.0-1.3+deb11u15) ...
+#7 21.19 Preparing to unpack .../09-libcurl4_7.74.0-1.3+deb11u16_amd64.deb ...
+#7 21.20 Unpacking libcurl4:amd64 (7.74.0-1.3+deb11u16) over (7.74.0-1.3+deb11u15) ...
+#7 21.36 Selecting previously unselected package libcurl3-gnutls:amd64.
+#7 21.37 Preparing to unpack .../10-libcurl3-gnutls_7.74.0-1.3+deb11u16_amd64.deb ...
+#7 21.38 Unpacking libcurl3-gnutls:amd64 (7.74.0-1.3+deb11u16) ...
+#7 21.55 Selecting previously unselected package libexpat1:amd64.
+#7 21.56 Preparing to unpack .../11-libexpat1_2.2.10-2+deb11u7_amd64.deb ...
+#7 21.56 Unpacking libexpat1:amd64 (2.2.10-2+deb11u7) ...
+#7 21.66 Selecting previously unselected package liberror-perl.
+#7 21.66 Preparing to unpack .../12-liberror-perl_0.17029-1_all.deb ...
+#7 21.67 Unpacking liberror-perl (0.17029-1) ...
+#7 21.73 Selecting previously unselected package git-man.
+#7 21.74 Preparing to unpack .../13-git-man_1%3a2.30.2-1+deb11u5_all.deb ...
+#7 21.74 Unpacking git-man (1:2.30.2-1+deb11u5) ...
+#7 21.99 Selecting previously unselected package git.
+#7 21.99 Preparing to unpack .../14-git_1%3a2.30.2-1+deb11u5_amd64.deb ...
+#7 22.01 Unpacking git (1:2.30.2-1+deb11u5) ...
+#7 22.48 Selecting previously unselected package icu-devtools.
+#7 22.49 Preparing to unpack .../15-icu-devtools_67.1-7+deb11u1_amd64.deb ...
+#7 22.49 Unpacking icu-devtools (67.1-7+deb11u1) ...
+#7 22.55 Selecting previously unselected package libgssrpc4:amd64.
+#7 22.55 Preparing to unpack .../16-libgssrpc4_1.18.3-6+deb11u8_amd64.deb ...
+#7 22.55 Unpacking libgssrpc4:amd64 (1.18.3-6+deb11u8) ...
+#7 22.62 Selecting previously unselected package libkdb5-10:amd64.
+#7 22.63 Preparing to unpack .../17-libkdb5-10_1.18.3-6+deb11u8_amd64.deb ...
+#7 22.63 Unpacking libkdb5-10:amd64 (1.18.3-6+deb11u8) ...
+#7 22.71 Selecting previously unselected package libkadm5srv-mit12:amd64.
+#7 22.71 Preparing to unpack .../18-libkadm5srv-mit12_1.18.3-6+deb11u8_amd64.deb ...
+#7 22.71 Unpacking libkadm5srv-mit12:amd64 (1.18.3-6+deb11u8) ...
+#7 22.80 Selecting previously unselected package libkadm5clnt-mit12:amd64.
+#7 22.80 Preparing to unpack .../19-libkadm5clnt-mit12_1.18.3-6+deb11u8_amd64.deb ...
+#7 22.81 Unpacking libkadm5clnt-mit12:amd64 (1.18.3-6+deb11u8) ...
+#7 22.89 Selecting previously unselected package krb5-multidev:amd64.
+#7 22.90 Preparing to unpack .../20-krb5-multidev_1.18.3-6+deb11u8_amd64.deb ...
+#7 22.90 Unpacking krb5-multidev:amd64 (1.18.3-6+deb11u8) ...
+#7 23.07 Selecting previously unselected package libbrotli-dev:amd64.
+#7 23.08 Preparing to unpack .../21-libbrotli-dev_1.0.9-2+b2_amd64.deb ...
+#7 23.08 Unpacking libbrotli-dev:amd64 (1.0.9-2+b2) ...
+#7 23.27 Selecting previously unselected package mlock.
+#7 23.28 Preparing to unpack .../22-mlock_8%3a2007f~dfsg-7+b1_amd64.deb ...
+#7 23.28 Unpacking mlock (8:2007f~dfsg-7+b1) ...
+#7 23.36 Selecting previously unselected package libc-client2007e.
+#7 23.36 Preparing to unpack .../23-libc-client2007e_8%3a2007f~dfsg-7+b1_amd64.deb ...
+#7 23.37 Unpacking libc-client2007e (8:2007f~dfsg-7+b1) ...
+#7 23.56 Selecting previously unselected package libpam0g-dev:amd64.
+#7 23.57 Preparing to unpack .../24-libpam0g-dev_1.4.0-9+deb11u2_amd64.deb ...
+#7 23.57 Unpacking libpam0g-dev:amd64 (1.4.0-9+deb11u2) ...
+#7 23.61 Selecting previously unselected package libssl-dev:amd64.
+#7 23.62 Preparing to unpack .../25-libssl-dev_1.1.1w-0+deb11u8_amd64.deb ...
+#7 23.62 Unpacking libssl-dev:amd64 (1.1.1w-0+deb11u8) ...
+#7 23.81 Selecting previously unselected package libc-client2007e-dev.
+#7 23.81 Preparing to unpack .../26-libc-client2007e-dev_8%3a2007f~dfsg-7+b1_amd64.deb ...
+#7 23.82 Unpacking libc-client2007e-dev (8:2007f~dfsg-7+b1) ...
+#7 23.90 Selecting previously unselected package libpng16-16:amd64.
+#7 23.90 Preparing to unpack .../27-libpng16-16_1.6.37-3+deb11u4_amd64.deb ...
+#7 23.90 Unpacking libpng16-16:amd64 (1.6.37-3+deb11u4) ...
+#7 23.98 Selecting previously unselected package libfreetype6:amd64.
+#7 23.99 Preparing to unpack .../28-libfreetype6_2.10.4+dfsg-1+deb11u2_amd64.deb ...
+#7 23.99 Unpacking libfreetype6:amd64 (2.10.4+dfsg-1+deb11u2) ...
+#7 24.13 Selecting previously unselected package zlib1g-dev:amd64.
+#7 24.14 Preparing to unpack .../29-zlib1g-dev_1%3a1.2.11.dfsg-2+deb11u2_amd64.deb ...
+#7 24.14 Unpacking zlib1g-dev:amd64 (1:1.2.11.dfsg-2+deb11u2) ...
+#7 24.21 Selecting previously unselected package libpng-dev:amd64.
+#7 24.21 Preparing to unpack .../30-libpng-dev_1.6.37-3+deb11u4_amd64.deb ...
+#7 24.22 Unpacking libpng-dev:amd64 (1.6.37-3+deb11u4) ...
+#7 24.34 Selecting previously unselected package libfreetype-dev:amd64.
+#7 24.34 Preparing to unpack .../31-libfreetype-dev_2.10.4+dfsg-1+deb11u2_amd64.deb ...
+#7 24.35 Unpacking libfreetype-dev:amd64 (2.10.4+dfsg-1+deb11u2) ...
+#7 24.51 Selecting previously unselected package libfreetype6-dev:amd64.
+#7 24.52 Preparing to unpack .../32-libfreetype6-dev_2.10.4+dfsg-1+deb11u2_amd64.deb ...
+#7 24.52 Unpacking libfreetype6-dev:amd64 (2.10.4+dfsg-1+deb11u2) ...
+#7 24.56 Selecting previously unselected package libicu-dev:amd64.
+#7 24.56 Preparing to unpack .../33-libicu-dev_67.1-7+deb11u1_amd64.deb ...
+#7 24.57 Unpacking libicu-dev:amd64 (67.1-7+deb11u1) ...
+#7 25.48 Selecting previously unselected package libjpeg62-turbo:amd64.
+#7 25.48 Preparing to unpack .../34-libjpeg62-turbo_1%3a2.0.6-4_amd64.deb ...
+#7 25.48 Unpacking libjpeg62-turbo:amd64 (1:2.0.6-4) ...
+#7 25.52 Selecting previously unselected package libjpeg62-turbo-dev:amd64.
+#7 25.52 Preparing to unpack .../35-libjpeg62-turbo-dev_1%3a2.0.6-4_amd64.deb ...
+#7 25.53 Unpacking libjpeg62-turbo-dev:amd64 (1:2.0.6-4) ...
+#7 25.64 Selecting previously unselected package libkrb5-dev:amd64.
+#7 25.64 Preparing to unpack .../36-libkrb5-dev_1.18.3-6+deb11u8_amd64.deb ...
+#7 25.65 Unpacking libkrb5-dev:amd64 (1.18.3-6+deb11u8) ...
+#7 25.72 Selecting previously unselected package libonig-dev.
+#7 25.73 Preparing to unpack .../37-libonig-dev_6.9.6-1.1_amd64.deb ...
+#7 25.73 Unpacking libonig-dev (6.9.6-1.1) ...
+#7 25.81 Selecting previously unselected package libpng-tools.
+#7 25.81 Preparing to unpack .../38-libpng-tools_1.6.37-3+deb11u4_amd64.deb ...
+#7 25.81 Unpacking libpng-tools (1.6.37-3+deb11u4) ...
+#7 25.89 Selecting previously unselected package libxau6:amd64.
+#7 25.90 Preparing to unpack .../39-libxau6_1%3a1.0.9-1_amd64.deb ...
+#7 25.90 Unpacking libxau6:amd64 (1:1.0.9-1) ...
+#7 25.97 Selecting previously unselected package libxdmcp6:amd64.
+#7 25.98 Preparing to unpack .../40-libxdmcp6_1%3a1.1.2-3_amd64.deb ...
+#7 25.98 Unpacking libxdmcp6:amd64 (1:1.1.2-3) ...
+#7 26.06 Selecting previously unselected package libxcb1:amd64.
+#7 26.06 Preparing to unpack .../41-libxcb1_1.14-3_amd64.deb ...
+#7 26.07 Unpacking libxcb1:amd64 (1.14-3) ...
+#7 26.15 Selecting previously unselected package libx11-data.
+#7 26.15 Preparing to unpack .../42-libx11-data_2%3a1.7.2-1+deb11u2_all.deb ...
+#7 26.16 Unpacking libx11-data (2:1.7.2-1+deb11u2) ...
+#7 26.36 Selecting previously unselected package libx11-6:amd64.
+#7 26.37 Preparing to unpack .../43-libx11-6_2%3a1.7.2-1+deb11u2_amd64.deb ...
+#7 26.38 Unpacking libx11-6:amd64 (2:1.7.2-1+deb11u2) ...
+#7 26.55 Selecting previously unselected package libxext6:amd64.
+#7 26.56 Preparing to unpack .../44-libxext6_2%3a1.3.3-1.1_amd64.deb ...
+#7 26.56 Unpacking libxext6:amd64 (2:1.3.3-1.1) ...
+#7 26.60 Preparing to unpack .../45-libxml2_2.9.10+dfsg-6.7+deb11u10_amd64.deb ...
+#7 26.61 Unpacking libxml2:amd64 (2.9.10+dfsg-6.7+deb11u10) over (2.9.10+dfsg-6.7+deb11u8) ...
+#7 26.81 Selecting previously unselected package libxml2-dev:amd64.
+#7 26.81 Preparing to unpack .../46-libxml2-dev_2.9.10+dfsg-6.7+deb11u10_amd64.deb ...
+#7 26.81 Unpacking libxml2-dev:amd64 (2.9.10+dfsg-6.7+deb11u10) ...
+#7 26.98 Selecting previously unselected package libxmuu1:amd64.
+#7 26.99 Preparing to unpack .../47-libxmuu1_2%3a1.1.2-2+b3_amd64.deb ...
+#7 26.99 Unpacking libxmuu1:amd64 (2:1.1.2-2+b3) ...
+#7 27.02 Selecting previously unselected package libzip4:amd64.
+#7 27.02 Preparing to unpack .../48-libzip4_1.7.3-1_amd64.deb ...
+#7 27.03 Unpacking libzip4:amd64 (1.7.3-1) ...
+#7 27.08 Selecting previously unselected package libzip-dev:amd64.
+#7 27.09 Preparing to unpack .../49-libzip-dev_1.7.3-1_amd64.deb ...
+#7 27.10 Unpacking libzip-dev:amd64 (1.7.3-1) ...
+#7 27.22 Selecting previously unselected package unzip.
+#7 27.23 Preparing to unpack .../50-unzip_6.0-26+deb11u1_amd64.deb ...
+#7 27.23 Unpacking unzip (6.0-26+deb11u1) ...
+#7 27.36 Selecting previously unselected package xauth.
+#7 27.37 Preparing to unpack .../51-xauth_1%3a1.1-1_amd64.deb ...
+#7 27.38 Unpacking xauth (1:1.1-1) ...
+#7 27.45 Selecting previously unselected package zip.
+#7 27.46 Preparing to unpack .../52-zip_3.0-12_amd64.deb ...
+#7 27.47 Unpacking zip (3.0-12) ...
+#7 27.65 Setting up libexpat1:amd64 (2.2.10-2+deb11u7) ...
+#7 27.67 Setting up libxau6:amd64 (1:1.0.9-1) ...
+#7 27.69 Setting up libpam0g-dev:amd64 (1.4.0-9+deb11u2) ...
+#7 27.70 Setting up libonig-dev (6.9.6-1.1) ...
+#7 27.72 Setting up libzip4:amd64 (1.7.3-1) ...
+#7 27.73 Setting up unzip (6.0-26+deb11u1) ...
+#7 27.76 Setting up mlock (8:2007f~dfsg-7+b1) ...
+#7 27.77 Setting up libcbor0:amd64 (0.5.0+dfsg-2) ...
+#7 27.79 Setting up less (551-2+deb11u2) ...
+#7 27.82 Setting up libcurl3-gnutls:amd64 (7.74.0-1.3+deb11u16) ...
+#7 27.84 Setting up liberror-perl (0.17029-1) ...
+#7 27.85 Setting up libgssrpc4:amd64 (1.18.3-6+deb11u8) ...
+#7 27.89 Setting up zip (3.0-12) ...
+#7 27.90 Setting up libjpeg62-turbo:amd64 (1:2.0.6-4) ...
+#7 27.92 Setting up libx11-data (2:1.7.2-1+deb11u2) ...
+#7 27.93 Setting up libjpeg62-turbo-dev:amd64 (1:2.0.6-4) ...
+#7 27.95 Setting up comerr-dev:amd64 (2.1-1.46.2-2+deb11u1) ...
+#7 27.96 Setting up libssl-dev:amd64 (1.1.1w-0+deb11u8) ...
+#7 27.98 Setting up libpng16-16:amd64 (1.6.37-3+deb11u4) ...
+#7 27.99 Setting up icu-devtools (67.1-7+deb11u1) ...
+#7 28.01 Setting up zlib1g-dev:amd64 (1:1.2.11.dfsg-2+deb11u2) ...
+#7 28.02 Setting up libmd0:amd64 (1.0.3-3) ...
+#7 28.04 Setting up libcurl4:amd64 (7.74.0-1.3+deb11u16) ...
+#7 28.05 Setting up git-man (1:2.30.2-1+deb11u5) ...
+#7 28.07 Setting up curl (7.74.0-1.3+deb11u16) ...
+#7 28.08 Setting up libc-client2007e (8:2007f~dfsg-7+b1) ...
+#7 28.10 Setting up libfido2-1:amd64 (1.6.0-2) ...
+#7 28.12 Setting up libbsd0:amd64 (0.11.3-1+deb11u1) ...
+#7 28.13 Setting up libicu-dev:amd64 (67.1-7+deb11u1) ...
+#7 28.15 Setting up libxml2:amd64 (2.9.10+dfsg-6.7+deb11u10) ...
+#7 28.17 Setting up libbrotli-dev:amd64 (1.0.9-2+b2) ...
+#7 28.18 Setting up libkadm5clnt-mit12:amd64 (1.18.3-6+deb11u8) ...
+#7 28.19 Setting up libxdmcp6:amd64 (1:1.1.2-3) ...
+#7 28.21 Setting up libzip-dev:amd64 (1.7.3-1) ...
+#7 28.22 Setting up libxcb1:amd64 (1.14-3) ...
+#7 28.24 Setting up libkdb5-10:amd64 (1.18.3-6+deb11u8) ...
+#7 28.25 Setting up libpng-tools (1.6.37-3+deb11u4) ...
+#7 28.27 Setting up libedit2:amd64 (3.1-20191231-2+b1) ...
+#7 28.28 Setting up libpng-dev:amd64 (1.6.37-3+deb11u4) ...
+#7 28.29 Setting up libxml2-dev:amd64 (2.9.10+dfsg-6.7+deb11u10) ...
+#7 28.31 Setting up libfreetype6:amd64 (2.10.4+dfsg-1+deb11u2) ...
+#7 28.32 Setting up git (1:2.30.2-1+deb11u5) ...
+#7 28.41 Setting up libkadm5srv-mit12:amd64 (1.18.3-6+deb11u8) ...
+#7 28.42 Setting up libx11-6:amd64 (2:1.7.2-1+deb11u2) ...
+#7 28.43 Setting up libxmuu1:amd64 (2:1.1.2-2+b3) ...
+#7 28.45 Setting up krb5-multidev:amd64 (1.18.3-6+deb11u8) ...
+#7 28.46 Setting up libc-client2007e-dev (8:2007f~dfsg-7+b1) ...
+#7 28.48 Setting up openssh-client (1:8.4p1-5+deb11u7) ...
+#7 28.78 Setting up libxext6:amd64 (2:1.3.3-1.1) ...
+#7 28.79 Setting up libfreetype-dev:amd64 (2.10.4+dfsg-1+deb11u2) ...
+#7 28.81 Setting up libkrb5-dev:amd64 (1.18.3-6+deb11u8) ...
+#7 28.83 Setting up xauth (1:1.1-1) ...
+#7 28.84 Setting up libfreetype6-dev:amd64 (2.10.4+dfsg-1+deb11u2) ...
+#7 28.88 Processing triggers for libc-bin (2.31-13+deb11u13) ...
+#7 31.24 Configuring for:
+#7 31.24 PHP Api Version:         20220829
+#7 31.24 Zend Module Api No:      20220829
+#7 31.24 Zend Extension Api No:   420220829
+#7 32.41 checking for grep that handles long lines and -e... /bin/grep
+#7 32.42 checking for egrep... /bin/grep -E
+#7 32.43 checking for a sed that does not truncate output... /bin/sed
+#7 32.57 checking for pkg-config... /usr/bin/pkg-config
+#7 32.58 checking pkg-config is at least version 0.9.0... yes
+#7 32.58 checking for cc... cc
+#7 32.68 checking whether the C compiler works... yes
+#7 32.82 checking for C compiler default output file name... a.out
+#7 32.83 checking for suffix of executables... 
+#7 32.89 checking whether we are cross compiling... no
+#7 33.00 checking for suffix of object files... o
+#7 33.08 checking whether we are using the GNU C compiler... yes
+#7 33.16 checking whether cc accepts -g... yes
+#7 33.24 checking for cc option to accept ISO C89... none needed
+#7 33.34 checking how to run the C preprocessor... cc -E
+#7 33.46 checking for icc... no
+#7 33.50 checking for suncc... no
+#7 33.54 checking for system library directory... lib
+#7 33.54 checking if compiler supports -Wl,-rpath,... yes
+#7 33.74 checking build system type... x86_64-pc-linux-gnu
+#7 33.76 checking host system type... x86_64-pc-linux-gnu
+#7 33.76 checking target system type... x86_64-pc-linux-gnu
+#7 33.94 checking for PHP prefix... /usr/local
+#7 33.94 checking for PHP includes... -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib
+#7 33.94 checking for PHP extension directory... /usr/local/lib/php/extensions/no-debug-non-zts-20220829
+#7 33.94 checking for PHP installed headers prefix... /usr/local/include/php
+#7 33.94 checking if debug is enabled... no
+#7 34.03 checking if zts is enabled... no
+#7 34.11 checking for gawk... no
+#7 34.11 checking for nawk... nawk
+#7 34.11 checking if nawk is broken... no
+#7 34.12 checking for GD support... yes, shared
+#7 34.12 checking for external libgd... no
+#7 34.13 checking for libavif... no
+#7 34.13 checking for libwebp... no
+#7 34.13 checking for libjpeg... yes
+#7 34.13 checking for libXpm... no
+#7 34.13 checking for FreeType 2... yes
+#7 34.13 checking whether to enable JIS-mapped Japanese font support in GD... no
+#7 34.17 checking for fabsf... no
+#7 34.41 checking for floorf... no
+#7 34.62 checking for zlib... yes
+#7 34.67 checking for libpng... yes
+#7 34.75 checking for libjpeg... yes
+#7 34.78 checking for freetype2... yes
+#7 35.22 checking for a sed that does not truncate output... /bin/sed
+#7 35.24 checking for ld used by cc... /usr/bin/ld
+#7 35.26 checking if the linker (/usr/bin/ld) is GNU ld... yes
+#7 35.27 checking for /usr/bin/ld option to reload object files... -r
+#7 35.27 checking for BSD-compatible nm... /usr/bin/nm -B
+#7 35.29 checking whether ln -s works... yes
+#7 35.29 checking how to recognize dependent libraries... pass_all
+#7 35.36 checking for ANSI C header files... yes
+#7 35.61 checking for sys/types.h... yes
+#7 35.65 checking for sys/stat.h... yes
+#7 35.69 checking for stdlib.h... yes
+#7 35.80 checking for string.h... yes
+#7 35.93 checking for memory.h... yes
+#7 36.06 checking for strings.h... yes
+#7 36.19 checking for inttypes.h... yes
+#7 36.30 checking for stdint.h... yes
+#7 36.34 checking for unistd.h... yes
+#7 36.38 checking dlfcn.h usability... yes
+#7 36.42 checking dlfcn.h presence... yes
+#7 36.43 checking for dlfcn.h... yes
+#7 36.43 checking the maximum length of command line arguments... 1572864
+#7 36.44 checking command to parse /usr/bin/nm -B output from cc object... ok
+#7 36.51 checking for objdir... .libs
+#7 36.51 checking for ar... ar
+#7 36.51 checking for ranlib... ranlib
+#7 36.52 checking for strip... strip
+#7 36.58 checking if cc supports -fno-rtti -fno-exceptions... no
+#7 36.61 checking for cc option to produce PIC... -fPIC
+#7 36.61 checking if cc PIC flag -fPIC works... yes
+#7 36.63 checking if cc static flag -static works... yes
+#7 36.72 checking if cc supports -c -o file.o... yes
+#7 36.75 checking whether the cc linker (/usr/bin/ld -m elf_x86_64) supports shared libraries... yes
+#7 36.77 checking whether -lc should be explicitly linked in... no
+#7 36.80 checking dynamic linker characteristics... GNU/Linux ld.so
+#7 36.83 checking how to hardcode library paths into programs... immediate
+#7 36.83 checking whether stripping libraries is possible... yes
+#7 36.84 checking if libtool supports shared libraries... yes
+#7 36.84 checking whether to build shared libraries... yes
+#7 36.84 checking whether to build static libraries... no
+#7 37.50 
+#7 37.50 creating libtool
+#7 37.59 appending configuration tag "CXX" to libtool
+#7 37.83 configure: patching config.h.in
+#7 37.83 configure: creating ./config.status
+#7 37.89 config.status: creating config.h
+#7 37.95 Configuring for:
+#7 37.95 PHP Api Version:         20220829
+#7 37.95 Zend Module Api No:      20220829
+#7 37.95 Zend Extension Api No:   420220829
+#7 39.14 checking for grep that handles long lines and -e... /bin/grep
+#7 39.15 checking for egrep... /bin/grep -E
+#7 39.16 checking for a sed that does not truncate output... /bin/sed
+#7 39.29 checking for pkg-config... /usr/bin/pkg-config
+#7 39.29 checking pkg-config is at least version 0.9.0... yes
+#7 39.30 checking for cc... cc
+#7 39.38 checking whether the C compiler works... yes
+#7 39.51 checking for C compiler default output file name... a.out
+#7 39.52 checking for suffix of executables... 
+#7 39.64 checking whether we are cross compiling... no
+#7 39.75 checking for suffix of object files... o
+#7 39.80 checking whether we are using the GNU C compiler... yes
+#7 39.85 checking whether cc accepts -g... yes
+#7 39.91 checking for cc option to accept ISO C89... none needed
+#7 40.01 checking how to run the C preprocessor... cc -E
+#7 40.17 checking for icc... no
+#7 40.20 checking for suncc... no
+#7 40.23 checking for system library directory... lib
+#7 40.23 checking if compiler supports -Wl,-rpath,... yes
+#7 40.38 checking build system type... x86_64-pc-linux-gnu
+#7 40.40 checking host system type... x86_64-pc-linux-gnu
+#7 40.40 checking target system type... x86_64-pc-linux-gnu
+#7 40.52 checking for PHP prefix... /usr/local
+#7 40.52 checking for PHP includes... -I/usr/local/include/php -I/usr/local/include/php/main -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend -I/usr/local/include/php/ext -I/usr/local/include/php/ext/date/lib
+#7 40.52 checking for PHP extension directory... /usr/local/lib/php/extensions/no-debug-non-zts-20220829
+#7 40.52 checking for PHP installed headers prefix... /usr/local/include/php
+#7 40.52 checking if debug is enabled... no
+#7 40.58 checking if zts is enabled... no
+#7 40.64 checking for gawk... no
+#7 40.64 checking for nawk... nawk
+#7 40.64 checking if nawk is broken... no
+#7 40.65 checking for IMAP support... yes, shared
+#7 40.65 checking for IMAP Kerberos support... yes
+#7 40.65 checking for IMAP SSL support... no
+#7 40.71 checking for utf8_mime2text signature... new
+#7 40.83 checking for U8T_DECOMPOSE... yes
+#7 40.99 checking for pam_start in -lpam... yes
+#7 41.12 checking for crypt in -lcrypt... yes
+#7 41.27 checking for krb5-gssapi krb5... yes
+#7 41.35 configure: error: This c-client library is built with SSL support.
+#7 41.35 
+#7 41.35       Add --with-imap-ssl to your configure line. Check config.log for details.
+#7 41.35       
+#7 ERROR: process "/bin/sh -c apt-get update && apt-get install -y     git     unzip     zip     curl     libzip-dev     libicu-dev     libxml2-dev     libpng-dev     libjpeg62-turbo-dev     libfreetype6-dev     libonig-dev     libkrb5-dev     libc-client2007e-dev     && docker-php-ext-configure gd --with-freetype --with-jpeg     && docker-php-ext-configure imap --with-kerberos --with-imap     && docker-php-ext-install         pdo_mysql         mysqli         mbstring         intl         zip         exif         bcmath         gd         imap" did not complete successfully: exit code: 1
+------
+ > [app stage-0 2/4] RUN apt-get update && apt-get install -y     git     unzip     zip     curl     libzip-dev     libicu-dev     libxml2-dev     libpng-dev     libjpeg62-turbo-dev     libfreetype6-dev     libonig-dev     libkrb5-dev     libc-client2007e-dev     && docker-php-ext-configure gd --with-freetype --with-jpeg     && docker-php-ext-configure imap --with-kerberos --with-imap     && docker-php-ext-install         pdo_mysql         mysqli         mbstring         intl         zip         exif         bcmath         gd         imap:
+40.65 checking for IMAP SSL support... no
+40.71 checking for utf8_mime2text signature... new
+40.83 checking for U8T_DECOMPOSE... yes
+40.99 checking for pam_start in -lpam... yes
+41.12 checking for crypt in -lcrypt... yes
+41.27 checking for krb5-gssapi krb5... yes
+41.35 configure: error: This c-client library is built with SSL support.
+41.35 
+41.35       Add --with-imap-ssl to your configure line. Check config.log for details.
+41.35       
+------
