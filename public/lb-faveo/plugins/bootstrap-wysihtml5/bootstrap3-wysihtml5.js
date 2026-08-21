@@ -153,7 +153,7 @@
         var activeButton = $(this).hasClass('wysihtml5-command-active');
 
         if (!activeButton) {
-          self.editor.currentView.element.focus(false);
+          self.editor.currentView.element.focus();
           caretBookmark = self.editor.composer.selection.getBookmark();
           insertImageModal.appendTo('body').modal('show');
           insertImageModal.on('click.dismiss.modal', '[data-dismiss="modal"]', function(e) {
@@ -215,7 +215,7 @@
         var activeButton = $(this).hasClass('wysihtml5-command-active');
 
         if (!activeButton) {
-          self.editor.currentView.element.focus(false);
+          self.editor.currentView.element.focus();
           caretBookmark = self.editor.composer.selection.getBookmark();
           insertLinkModal.appendTo('body').modal('show');
           insertLinkModal.on('click.dismiss.modal', '[data-dismiss="modal"]', function(e) {
