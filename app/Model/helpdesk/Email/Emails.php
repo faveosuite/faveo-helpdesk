@@ -59,6 +59,13 @@ class Emails extends BaseModel
         }
     }
 
+    public function authUsername()
+    {
+        $username = trim((string) $this->user_name);
+
+        return $username !== '' ? $username : $this->email_address;
+    }
+
     public function getPasswordAttribute($value)
     {
         try {
