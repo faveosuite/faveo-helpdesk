@@ -317,3 +317,67 @@ function assetLink(string $type, string $key)
     // if request if language, it should append & language to it
     return asset(\Config::get('link.'.$type.'.'.$key));
 }
+
+/**
+ * Sanitize rich-text HTML (ticket/reply bodies, descriptions, etc.) before it
+ * is persisted, so stored content can never carry executable script or
+ * event-handler payloads (stored XSS), while keeping the formatting produced
+ * by the editors (bold, links, images, lists, tables, etc).
+ *
+ * Disallowed tags are HTML-escaped rather than stripped, so the text of a
+ * rejected tag stays visible instead of silently disappearing.
+ *
+ * @param string|null $value
+ *
+ * @return string|null
+ */
+function sanitizeHtmlDescription(?string $value): ?string
+{
+    if (!app()->runningInConsole()) {
+        $allowedTags = ['p', 'b', 'strong', 'em', 'i', 'u', 's', 'strike', 'sub', 'sup', 'ul', 'ol', 'li', 'br',
+            'span', 'a', 'img', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'table', 'tr', 'td', 'th', 'thead', 'tbody',
+            'tfoot', 'colgroup', 'col', 'caption', 'blockquote', 'pre', 'code', 'hr', 'div', 'figure', 'figcaption',
+            'small', 'mark', 'abbr'];
+
+        return preg_replace_callback('/<\/?([a-z][a-z0-9]*)[^>]*>/i', function ($matches) use ($allowedTags) {
+            $tagName = strtolower($matches[1]);
+
+            if (in_array($tagName, $allowedTags) && !preg_match('/\bon\w+\s*=/i', $matches[0])) {
+                return sanitizeHtmlDescriptionUris($matches[0]);
+            }
+
+            return htmlspecialchars($matches[0], ENT_QUOTES, 'UTF-8');
+        }, $value ?? '') ?: null;
+    }
+
+    return $value;
+}
+
+/**
+ * Neutralize dangerous URI schemes (javascript:, vbscript:, data:) in the
+ * href/src attributes of an otherwise-whitelisted tag.
+ *
+ * A tag like `<a href="javascript:alert(1)">click</a>` carries no on*=
+ * handler, so it passes the allow-list check in sanitizeHtmlDescription()
+ * untouched — the scheme itself is the payload. Browsers tolerate embedded
+ * control characters inside a URI scheme (e.g. "java\tscript:"), so those
+ * are stripped before the scheme is checked.
+ *
+ * @param string $tag a single matched opening tag, e.g. '<a href="...">'
+ *
+ * @return string
+ */
+function sanitizeHtmlDescriptionUris(string $tag): string
+{
+    return preg_replace_callback('/\s(href|src)\s*=\s*("[^"]*"|\'[^\']*\'|[^\s>]+)/i', function ($m) {
+        $attr = strtolower($m[1]);
+        $raw = trim($m[2], '"\'');
+        $normalized = strtolower(preg_replace('/[\x00-\x20]+/', '', $raw));
+
+        if (preg_match('/^(javascript|vbscript|data):/i', $normalized)) {
+            return ' '.$attr.'="#"';
+        }
+
+        return $m[0];
+    }, $tag);
+}
