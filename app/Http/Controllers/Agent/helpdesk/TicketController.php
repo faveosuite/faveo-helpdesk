@@ -2006,6 +2006,11 @@ class TicketController extends Controller
      */
     public function rating($id, Request $request, \App\Model\helpdesk\Ratings\RatingRef $rating_ref)
     {
+        $ticket = Tickets::find($id);
+        if (!$ticket || $ticket->user_id != Auth::id()) {
+            abort(403);
+        }
+
         foreach ($request->all() as $key => $value) {
             if ($key == '_token') {
                 continue;
@@ -2044,6 +2049,11 @@ class TicketController extends Controller
      */
     public function ratingReply($id, Request $request, \App\Model\helpdesk\Ratings\RatingRef $rating_ref)
     {
+        $ticket = Tickets::find($id);
+        if (!$ticket || $ticket->user_id != Auth::id()) {
+            abort(403);
+        }
+
         foreach ($request->all() as $key => $value) {
             if ($key == '_token') {
                 continue;
