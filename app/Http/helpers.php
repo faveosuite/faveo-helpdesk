@@ -400,7 +400,7 @@ function sanitizeHtmlDescriptionUris(string $tag): string
  *    host/user stays banned once the limit is hit.
  *  - "Lockout Message" is what the locked out user is shown.
  *
- * @param string $context    what is being throttled, e.g. 'account_login'
+ * @param string     $context    what is being throttled, e.g. 'account_login'
  * @param string|int $identifier the value being throttled, e.g. the submitted username
  *
  * @return true|\Illuminate\Http\JsonResponse true when the attempt is allowed,
@@ -411,7 +411,7 @@ function checkAttemptsAndLockOut($context, $identifier)
     $security = \App\Model\helpdesk\Settings\Security::whereId('1')->first();
 
     // security settings are not seeded yet, nothing to enforce
-    if (! $security || $identifier === null || $identifier === '') {
+    if (!$security || $identifier === null || $identifier === '') {
         return true;
     }
 
@@ -420,7 +420,7 @@ function checkAttemptsAndLockOut($context, $identifier)
 
     $attempt = \App\Model\helpdesk\Utility\AttemptLock::firstOrNew(['context' => $context, 'identifier' => $identifier]);
 
-    if (! $attempt->exists || ($attempt->expires_at && $attempt->expires_at->isPast())) {
+    if (!$attempt->exists || ($attempt->expires_at && $attempt->expires_at->isPast())) {
         $attempt->count = 1;
         $attempt->expires_at = now()->addMinutes($lockoutPeriod);
     } else {
@@ -451,7 +451,7 @@ function checkAttemptsAndLockOut($context, $identifier)
  * :retry_after placeholder to surface the remaining minutes.
  *
  * @param \App\Model\helpdesk\Settings\Security $security
- * @param int $retryAfter remaining minutes of the lockout
+ * @param int                                   $retryAfter remaining minutes of the lockout
  *
  * @return string
  */
@@ -470,14 +470,14 @@ function lockOutMessage($security, $retryAfter)
  * Clears the attempt lock for a context/identifier pair, called once the
  * attempt succeeds so a legitimate user is never punished for past failures.
  *
- * @param string $context
+ * @param string     $context
  * @param string|int $identifier
  *
  * @return void
  */
 function clearAttemptLock($context, $identifier)
 {
-    if (! $identifier) {
+    if (!$identifier) {
         return;
     }
 
