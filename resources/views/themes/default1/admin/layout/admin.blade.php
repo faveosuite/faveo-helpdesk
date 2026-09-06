@@ -842,6 +842,9 @@
 
     <!-- CK Editor -->
     <script src="{{asset("lb-faveo/plugins/filebrowser/plugin.js")}}"></script>
+    <!-- Language Changer. The base url has to be handed over, without it the script
+         falls back to a relative path which 404s on nested routes. -->
+    <script>window.faveoBaseUrl = @json(url('/'));</script>
     <script src="{{asset("lb-faveo/js/languagechanger.js")}}" type="text/javascript"></script>
     @yield('FooterInclude')
 </body>

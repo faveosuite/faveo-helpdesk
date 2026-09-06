@@ -381,3 +381,107 @@ function sanitizeHtmlDescriptionUris(string $tag): string
         return $m[0];
     }, $tag);
 }
+
+/**
+ * Identifier based attempt throttling.
+ *
+ * Unlike the session/cookie based counter this lock is keyed on the submitted
+ * identifier (username, user id, ...) and stored in the database, so clearing
+ * cookies or rotating the session does not reset it.
+ *
+ * Everything is driven by th=e existing admin configurable values under
+ * Settings > Security (Max login attempts per host/user, Lockout Period and
+ * Lockout Message), so this does not introduce a second hard coded policy:
+ *
+ *  - "Max login attempts per host/user" set to 0 means record the bad attempts
+ *    but never lock the host/user out, exactly as the help text on that screen
+ *    describes.
+ *  - "Lockout Period" is the window the counter lives in and how long the
+ *    host/user stays banned once the limit is hit.
+ *  - "Lockout Message" is what the locked out user is shown.
+ *
+ * @param string $context    what is being throttled, e.g. 'account_login'
+ * @param string|int $identifier the value being throttled, e.g. the submitted username
+ *
+ * @return true|\Illuminate\Http\JsonResponse true when the attempt is allowed,
+ *                                            an error response when locked out
+ */
+function checkAttemptsAndLockOut($context, $identifier)
+{
+    $security = \App\Model\helpdesk\Settings\Security::whereId('1')->first();
+
+    // security settings are not seeded yet, nothing to enforce
+    if (! $security || $identifier === null || $identifier === '') {
+        return true;
+    }
+
+    $threshold = (int) $security->backlist_threshold;
+    $lockoutPeriod = max((int) $security->lockout_period, 0);
+
+    $attempt = \App\Model\helpdesk\Utility\AttemptLock::firstOrNew(['context' => $context, 'identifier' => $identifier]);
+
+    if (! $attempt->exists || ($attempt->expires_at && $attempt->expires_at->isPast())) {
+        $attempt->count = 1;
+        $attempt->expires_at = now()->addMinutes($lockoutPeriod);
+    } else {
+        $attempt->count++;
+    }
+    // the attempt is always recorded, even when locking out is disabled
+    $attempt->save();
+
+    // threshold 0 records without locking out, a 0 minute period leaves no window to ban for
+    if ($threshold < 1 || $lockoutPeriod < 1) {
+        return true;
+    }
+
+    if ($attempt->count > $threshold) {
+        $expiry = max((int) ceil(now()->diffInSeconds($attempt->expires_at, false) / 60), 1);
+
+        return errorResponse(lockOutMessage($security, $expiry));
+    }
+
+    return true;
+}
+
+/**
+ * Resolves the message shown to a locked out user.
+ *
+ * The admin configured "Lockout Message" wins so both this lock and the older
+ * IP based lock show the same wording. The message may optionally contain a
+ * :retry_after placeholder to surface the remaining minutes.
+ *
+ * @param \App\Model\helpdesk\Settings\Security $security
+ * @param int $retryAfter remaining minutes of the lockout
+ *
+ * @return string
+ */
+function lockOutMessage($security, $retryAfter)
+{
+    $message = trim((string) $security->lockout_message);
+
+    if ($message === '') {
+        return Lang::get('lang.max_attempt_executed', ['retry_after' => $retryAfter]);
+    }
+
+    return str_replace(':retry_after', $retryAfter, $message);
+}
+
+/**
+ * Clears the attempt lock for a context/identifier pair, called once the
+ * attempt succeeds so a legitimate user is never punished for past failures.
+ *
+ * @param string $context
+ * @param string|int $identifier
+ *
+ * @return void
+ */
+function clearAttemptLock($context, $identifier)
+{
+    if (! $identifier) {
+        return;
+    }
+
+    \App\Model\helpdesk\Utility\AttemptLock::where('context', $context)
+        ->where('identifier', $identifier)
+        ->delete();
+}

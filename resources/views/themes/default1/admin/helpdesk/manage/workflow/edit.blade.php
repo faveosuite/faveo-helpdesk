@@ -68,11 +68,13 @@ class="nav-link active"
         @if($errors->first('target_channel'))
         <li class="error-message-padding">{!! $errors->first('target_channel', ':message') !!}</li>
         @endif
-        @if($errors->first('rule'))
-        <li class="error-message-padding">{!! $errors->first('rule', ':message') !!}</li>
+        {{-- 'rule.*' also catches the per-row errors (rule.0.a, rule.0.c, ...), otherwise an
+             incomplete row is rejected with an empty alert box and no explanation. --}}
+        @if($errors->has('rule') || $errors->has('rule.*'))
+        <li class="error-message-padding">{!! $errors->first('rule') ?: $errors->first('rule.*') !!}</li>
         @endif
-        @if($errors->first('action'))
-        <li class="error-message-padding">{!! $errors->first('action', ':message') !!}</li>
+        @if($errors->has('action') || $errors->has('action.*'))
+        <li class="error-message-padding">{!! $errors->first('action') ?: $errors->first('action.*') !!}</li>
         @endif
     </div>
     @endif
@@ -490,16 +492,16 @@ class="nav-link active"
             $('.buttons').append('<tr id="firstdata1">' +
             '<td>' +
             '<select class="form-control" onChange="selectdata(' + n + ')" name="action[' + n + '][a]" id="selected' + n + '" required>' +
-            '<option value="">-- {!! Lang::get("lang.select_an_action") !!} --</option>' +
+            '<option value="">-- {{ Lang::get("lang.select_an_action") }} --</option>' +
             '<optgroup label="Ticket">' +
-            '<option value="reject">{!! Lang::get("lang.reject_ticket") !!}</option>' +
-            '<option value="department">{!! Lang::get("lang.set_department") !!}</option>' +
-            '<option value="priority">{!! Lang::get("lang.set_priority") !!}</option>' +
-            '<option value="sla">{!! Lang::get("lang.set_sla_plan") !!}</option>' +
-            '<option value="team">{!! Lang::get("lang.assign_team") !!}</option>' +
-            '<option value="agent">{!! Lang::get("lang.assign_agent") !!} </option>' +
-            '<option value="helptopic">{!! Lang::get("lang.set_help_topic") !!} </option>' +
-            '<option value="status">{!! Lang::get("lang.set_ticket_status") !!} </option>' +
+            '<option value="reject">{{ Lang::get("lang.reject_ticket") }}</option>' +
+            '<option value="department">{{ Lang::get("lang.set_department") }}</option>' +
+            '<option value="priority">{{ Lang::get("lang.set_priority") }}</option>' +
+            '<option value="sla">{{ Lang::get("lang.set_sla_plan") }}</option>' +
+            '<option value="team">{{ Lang::get("lang.assign_team") }}</option>' +
+            '<option value="agent">{{ Lang::get("lang.assign_agent") }} </option>' +
+            '<option value="helptopic">{{ Lang::get("lang.set_help_topic") }} </option>' +
+            '<option value="status">{{ Lang::get("lang.set_ticket_status") }} </option>' +
             '</select>' +
             '</td>' +
             '<td id="fill' + n + '">' +
@@ -529,22 +531,22 @@ class="nav-link active"
             $('.button1').append('<tr>' +
             '<td>' +
             '<select class="form-control" name="rule[' + n + '][a]" required>' +
-            '<option>-- {!! Lang::get("lang.select_one") !!} --</option>' +
-            '<option value="email">{!! Lang::get("lang.email") !!}</option>' +
-            '<option value="email_name">{!! Lang::get("lang.email_name") !!}</option>' +
-            '<option value="subject">{!! Lang::get("lang.subject") !!}</option>' +
-            '<option value="message">{!! Lang::get("lang.message") !!}/{!! Lang::get("lang.body") !!}</option>' +
+            '<option>-- {{ Lang::get("lang.select_one") }} --</option>' +
+            '<option value="email">{{ Lang::get("lang.email") }}</option>' +
+            '<option value="email_name">{{ Lang::get("lang.email_name") }}</option>' +
+            '<option value="subject">{{ Lang::get("lang.subject") }}</option>' +
+            '<option value="message">{{ Lang::get("lang.message") }}/{{ Lang::get("lang.body") }}</option>' +
             '</select>' +
             '</td>' +
             '<td>' +
             '<select class="form-control" name="rule[' + n + '][b]" required>' +
-            '<option value="">-- {!! Lang::get("lang.select_one") !!} --</option>' +
-            '<option value="equal">{!! Lang::get("lang.equal_to") !!}</option>' +
-            '<option value="not_equal">{!! Lang::get("lang.not_equal_to") !!}</option>' +
-            '<option value="contains">{!! Lang::get("lang.contains") !!}</option>' +
-            '<option value="dn_contain">{!! Lang::get("lang.does_not_contain") !!}</option>' +
-            '<option value="starts">{!! Lang::get("lang.starts_with") !!}</option>' +
-            '<option value="ends">{!! Lang::get("lang.ends_with") !!}</option>' +
+            '<option value="">-- {{ Lang::get("lang.select_one") }} --</option>' +
+            '<option value="equal">{{ Lang::get("lang.equal_to") }}</option>' +
+            '<option value="not_equal">{{ Lang::get("lang.not_equal_to") }}</option>' +
+            '<option value="contains">{{ Lang::get("lang.contains") }}</option>' +
+            '<option value="dn_contain">{{ Lang::get("lang.does_not_contain") }}</option>' +
+            '<option value="starts">{{ Lang::get("lang.starts_with") }}</option>' +
+            '<option value="ends">{{ Lang::get("lang.ends_with") }}</option>' +
             '</select>' +
             '</td>' +
             '<td> <input class="form-control" type="text" name="rule[' + n + '][c]" required> </td>' +
