@@ -240,6 +240,11 @@ class EmailsController extends Controller
         $email->email_address = $request->email_address;
 
         $email->email_name = $request->email_name;
+        // stored as entered - deliberately NOT defaulted to the email address.
+        // The edit form prefills this field from the column, so persisting a
+        // resolved value would freeze the credential to whatever the address
+        // was at creation time and keep using it after the address is changed.
+        // Resolution happens at read time instead, in Emails::authUsername().
         $email->user_name = $request->user_name;
         $email->fetching_host = $request->fetching_host;
         $email->fetching_port = $request->fetching_port;
@@ -309,7 +314,9 @@ class EmailsController extends Controller
         $mailservice_id = $request->input('sending_protocol');
         $driver = $this->getDriver($mailservice_id);
         $address = $request->input('email_address');
-        $username = $request->input('user_name');
+        // same resolution the real send uses, so this test cannot pass with a
+        // credential that sending would not use
+        $username = Emails::resolveAuthUsername($request->input('user_name'), $address);
         $password = $request->input('password');
         $name = $request->input('email_name');
         $host = $request->input('sending_host');
@@ -332,7 +339,7 @@ class EmailsController extends Controller
         $mailservice_id = $request->input('sending_protocol');
         $driver = $this->getDriver($mailservice_id);
         $address = $request->input('email_address');
-        $username = $request->input('user_name');
+        $username = Emails::resolveAuthUsername($request->input('user_name'), $address);
         $password = $request->input('password');
         $name = $request->input('email_name');
         $host = $request->input('sending_host');
@@ -525,13 +532,11 @@ class EmailsController extends Controller
         $service = $request->input('fetching_protocol');
         $encryption = $request->input('fetching_encryption');
         $validate = $request->input('imap_validate');
-        $username = $request->input('email_address');
+        // same resolution the real fetch uses
+        $username = Emails::resolveAuthUsername($request->input('user_name'), $request->input('email_address'));
         $password = $request->input('password');
         $server = new Fetch($host, $port, $service);
         //$server->setFlag('novalidate-cert');
-        if ($request->filled('user_name')) {
-            $username = $request->input('user_name');
-        }
         if ($encryption != '') {
             $server->setFlag($encryption);
         }
