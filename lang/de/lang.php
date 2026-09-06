@@ -333,6 +333,7 @@ return [
     'system_errors'                                         => 'System Errors',
     'SQL_errors'                                            => 'SQL errors',
     'excessive_failed_login_attempts'                       => 'Excessive failed login attempts',
+    'max_attempt_executed'                                  => 'Zu viele fehlgeschlagene Versuche. Bitte versuchen Sie es in :retry_after Minute(n) erneut.',
     'system_error_reports'                                  => 'System error Reports',
     'Send_app_crash_reports_to_help_Ladybird_improve_Faveo' => 'Send app crash reports to help Ladybird improve Faveo',
     /*
@@ -437,6 +438,8 @@ return [
     'target_channel'  => 'Target Channel',
     'workflow_rules'  => 'Workflow Rules',
     'workflow_action' => 'Workflow Action',
+    'workflow_rule_incomplete' => 'Bitte füllen Sie jede Workflow-Regelzeile vollständig aus.',
+    'workflow_action_incomplete' => 'Bitte wählen Sie für jede Workflow-Aktionszeile eine Aktion und deren Wert aus.',
     'rules'           => 'Rules',
     'order'           => 'Order',
     'condition'       => 'Condition',

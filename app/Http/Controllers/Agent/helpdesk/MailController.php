@@ -161,7 +161,7 @@ class MailController extends Controller
     {
         //  dd($email);
         if ($email) {
-            $username = $email->email_address;
+            $username = $email->authUsername();
             $password = $email->password;
             $service = $email->fetching_protocol;
             $host = $email->fetching_host;

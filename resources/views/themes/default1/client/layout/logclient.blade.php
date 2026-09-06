@@ -511,14 +511,10 @@
     <!-- iCheck -->
     <script src="{{ assetLink('js', 'icheck') }}" type="text/javascript"></script>
 
-    <!-- Language Changer -->
+    <!-- Language Changer. The base url has to be handed over, without it the script
+         falls back to a relative path which 404s on nested routes. -->
+    <script>window.faveoBaseUrl = @json(url('/'));</script>
     <script src="{{ assetLink('js', 'language-changer') }}" type="text/javascript"></script>
-
-    <script>
-        function changeLang(lang) {
-            location.href = "{{ url('/') }}/swtich-language/" + lang;
-        }
-    </script>
 
     {{-- Duplicate languagechanger.js removed --}}
 
