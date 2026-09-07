@@ -11,7 +11,8 @@
 
 namespace Symfony\Component\HttpKernel\DependencyInjection;
 
-use Symfony\Contracts\Service\ResetInterface;
+use ProxyManager\Proxy\LazyLoadingInterface;
+use Symfony\Component\VarExporter\LazyObjectInterface;
 
 /**
  * Resets provided services.
@@ -19,26 +20,35 @@ use Symfony\Contracts\Service\ResetInterface;
  * @author Alexander M. Turek <me@derrabus.de>
  * @author Nicolas Grekas <p@tchwork.com>
  *
- * @internal
+ * @final since Symfony 7.2
  */
-class ServicesResetter implements ResetInterface
+class ServicesResetter implements ServicesResetterInterface
 {
-    private \Traversable $resettableServices;
-    private array $resetMethods;
-
     /**
      * @param \Traversable<string, object>   $resettableServices
      * @param array<string, string|string[]> $resetMethods
      */
-    public function __construct(\Traversable $resettableServices, array $resetMethods)
-    {
-        $this->resettableServices = $resettableServices;
-        $this->resetMethods = $resetMethods;
+    public function __construct(
+        private \Traversable $resettableServices,
+        private array $resetMethods,
+    ) {
     }
 
-    public function reset()
+    public function reset(): void
     {
         foreach ($this->resettableServices as $id => $service) {
+            if ($service instanceof LazyObjectInterface && !$service->isLazyObjectInitialized(true)) {
+                continue;
+            }
+
+            if ($service instanceof LazyLoadingInterface && !$service->isProxyInitialized()) {
+                continue;
+            }
+
+            if (\PHP_VERSION_ID >= 80400 && (new \ReflectionClass($service))->isUninitializedLazyObject($service)) {
+                continue;
+            }
+
             foreach ((array) $this->resetMethods[$id] as $resetMethod) {
                 if ('?' === $resetMethod[0] && !method_exists($service, $resetMethod = substr($resetMethod, 1))) {
                     continue;

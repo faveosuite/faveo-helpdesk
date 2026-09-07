@@ -29,7 +29,7 @@ class BufferedOutput extends Output
         return $content;
     }
 
-    protected function doWrite(string $message, bool $newline)
+    protected function doWrite(string $message, bool $newline): void
     {
         $this->buffer .= $message;
 

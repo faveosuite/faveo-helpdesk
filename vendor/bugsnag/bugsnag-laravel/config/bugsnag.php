@@ -193,6 +193,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Octane breadcrumbs
+    |--------------------------------------------------------------------------
+    |
+    | Enable this if you'd like us to automatically record breadcrumbs from
+    | octane events.
+    |
+    */
+
+    'octane_breadcrumbs' => env('BUGSNAG_OCTANE_BREADCRUMBS', true),
+
+    /*
+    |--------------------------------------------------------------------------
     | Release Stage
     |--------------------------------------------------------------------------
     |
@@ -358,7 +370,19 @@ return [
     | The maximum number of breadcrumbs to send with a report.
     |
     | This should be an integer between 0-100 (inclusive).
+    |
     */
 
     'max_breadcrumbs' => null,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Attach hidden context
+    |--------------------------------------------------------------------------
+    |
+    | Whether to attach hidden Context data to events as metadata.
+    |
+    */
+
+    'attach_hidden_context' => env('BUGSNAG_ATTACH_HIDDEN_CONTEXT', false),
 ];

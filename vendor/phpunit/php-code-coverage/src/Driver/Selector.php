@@ -9,8 +9,6 @@
  */
 namespace SebastianBergmann\CodeCoverage\Driver;
 
-use function phpversion;
-use function version_compare;
 use SebastianBergmann\CodeCoverage\Filter;
 use SebastianBergmann\CodeCoverage\NoCodeCoverageDriverAvailableException;
 use SebastianBergmann\CodeCoverage\NoCodeCoverageDriverWithPathCoverageSupportAvailableException;
@@ -21,33 +19,20 @@ final class Selector
     /**
      * @throws NoCodeCoverageDriverAvailableException
      * @throws PcovNotAvailableException
-     * @throws PhpdbgNotAvailableException
-     * @throws Xdebug2NotEnabledException
-     * @throws Xdebug3NotEnabledException
      * @throws XdebugNotAvailableException
+     * @throws XdebugNotEnabledException
+     * @throws XdebugVersionNotSupportedException
      */
     public function forLineCoverage(Filter $filter): Driver
     {
         $runtime = new Runtime;
-
-        if ($runtime->hasPHPDBGCodeCoverage()) {
-            return new PhpdbgDriver;
-        }
 
         if ($runtime->hasPCOV()) {
             return new PcovDriver($filter);
         }
 
         if ($runtime->hasXdebug()) {
-            if (version_compare(phpversion('xdebug'), '3', '>=')) {
-                $driver = new Xdebug3Driver($filter);
-            } else {
-                $driver = new Xdebug2Driver($filter);
-            }
-
-            $driver->enableDeadCodeDetection();
-
-            return $driver;
+            return new XdebugDriver($filter);
         }
 
         throw new NoCodeCoverageDriverAvailableException;
@@ -55,20 +40,15 @@ final class Selector
 
     /**
      * @throws NoCodeCoverageDriverWithPathCoverageSupportAvailableException
-     * @throws Xdebug2NotEnabledException
-     * @throws Xdebug3NotEnabledException
      * @throws XdebugNotAvailableException
+     * @throws XdebugNotEnabledException
+     * @throws XdebugVersionNotSupportedException
      */
     public function forLineAndPathCoverage(Filter $filter): Driver
     {
         if ((new Runtime)->hasXdebug()) {
-            if (version_compare(phpversion('xdebug'), '3', '>=')) {
-                $driver = new Xdebug3Driver($filter);
-            } else {
-                $driver = new Xdebug2Driver($filter);
-            }
+            $driver = new XdebugDriver($filter);
 
-            $driver->enableDeadCodeDetection();
             $driver->enableBranchAndPathCoverage();
 
             return $driver;

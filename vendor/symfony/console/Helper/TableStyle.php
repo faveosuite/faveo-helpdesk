@@ -46,6 +46,7 @@ class TableStyle
     private string $cellRowFormat = '%s';
     private string $cellRowContentFormat = ' %s ';
     private string $borderFormat = '%s';
+    private bool $displayOutsideBorder = true;
     private int $padType = \STR_PAD_RIGHT;
 
     /**
@@ -77,30 +78,6 @@ class TableStyle
      *
      * <code>
      * ╔═══════════════╤══════════════════════════╤══════════════════╗
-     * 1 ISBN          2 Title                    │ Author           ║
-     * ╠═══════════════╪══════════════════════════╪══════════════════╣
-     * ║ 99921-58-10-7 │ Divine Comedy            │ Dante Alighieri  ║
-     * ║ 9971-5-0210-0 │ A Tale of Two Cities     │ Charles Dickens  ║
-     * ║ 960-425-059-0 │ The Lord of the Rings    │ J. R. R. Tolkien ║
-     * ║ 80-902734-1-6 │ And Then There Were None │ Agatha Christie  ║
-     * ╚═══════════════╧══════════════════════════╧══════════════════╝
-     * </code>
-     *
-     * @return $this
-     */
-    public function setHorizontalBorderChars(string $outside, string $inside = null): static
-    {
-        $this->horizontalOutsideBorderChar = $outside;
-        $this->horizontalInsideBorderChar = $inside ?? $outside;
-
-        return $this;
-    }
-
-    /**
-     * Sets vertical border characters.
-     *
-     * <code>
-     * ╔═══════════════╤══════════════════════════╤══════════════════╗
      * ║ ISBN          │ Title                    │ Author           ║
      * ╠═══════1═══════╪══════════════════════════╪══════════════════╣
      * ║ 99921-58-10-7 │ Divine Comedy            │ Dante Alighieri  ║
@@ -113,7 +90,31 @@ class TableStyle
      *
      * @return $this
      */
-    public function setVerticalBorderChars(string $outside, string $inside = null): static
+    public function setHorizontalBorderChars(string $outside, ?string $inside = null): static
+    {
+        $this->horizontalOutsideBorderChar = $outside;
+        $this->horizontalInsideBorderChar = $inside ?? $outside;
+
+        return $this;
+    }
+
+    /**
+     * Sets vertical border characters.
+     *
+     * <code>
+     * ╔═══════════════╤══════════════════════════╤══════════════════╗
+     * 1 ISBN          2 Title                    │ Author           ║
+     * ╠═══════════════╪══════════════════════════╪══════════════════╣
+     * ║ 99921-58-10-7 │ Divine Comedy            │ Dante Alighieri  ║
+     * ║ 9971-5-0210-0 │ A Tale of Two Cities     │ Charles Dickens  ║
+     * ║ 960-425-059-0 │ The Lord of the Rings    │ J. R. R. Tolkien ║
+     * ║ 80-902734-1-6 │ And Then There Were None │ Agatha Christie  ║
+     * ╚═══════════════╧══════════════════════════╧══════════════════╝
+     * </code>
+     *
+     * @return $this
+     */
+    public function setVerticalBorderChars(string $outside, ?string $inside = null): static
     {
         $this->verticalOutsideBorderChar = $outside;
         $this->verticalInsideBorderChar = $inside ?? $outside;
@@ -167,7 +168,7 @@ class TableStyle
      *
      * @return $this
      */
-    public function setCrossingChars(string $cross, string $topLeft, string $topMid, string $topRight, string $midRight, string $bottomRight, string $bottomMid, string $bottomLeft, string $midLeft, string $topLeftBottom = null, string $topMidBottom = null, string $topRightBottom = null): static
+    public function setCrossingChars(string $cross, string $topLeft, string $topMid, string $topRight, string $midRight, string $bottomRight, string $bottomMid, string $bottomLeft, string $midLeft, ?string $topLeftBottom = null, ?string $topMidBottom = null, ?string $topRightBottom = null): static
     {
         $this->crossingChar = $cross;
         $this->crossingTopLeftChar = $topLeft;
@@ -358,5 +359,17 @@ class TableStyle
         $this->footerTitleFormat = $format;
 
         return $this;
+    }
+
+    public function setDisplayOutsideBorder($displayOutSideBorder): static
+    {
+        $this->displayOutsideBorder = $displayOutSideBorder;
+
+        return $this;
+    }
+
+    public function displayOutsideBorder(): bool
+    {
+        return $this->displayOutsideBorder;
     }
 }

@@ -9,6 +9,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+use function Laravel\Prompts\suggest;
+
 #[AsCommand(name: 'make:observer')]
 class ObserverMakeCommand extends GeneratorCommand
 {
@@ -18,17 +20,6 @@ class ObserverMakeCommand extends GeneratorCommand
      * @var string
      */
     protected $name = 'make:observer';
-
-    /**
-     * The name of the console command.
-     *
-     * This name is used to identify the command during lazy loading.
-     *
-     * @var string|null
-     *
-     * @deprecated
-     */
-    protected static $defaultName = 'make:observer';
 
     /**
      * The console command description.
@@ -97,7 +88,7 @@ class ObserverMakeCommand extends GeneratorCommand
      */
     protected function parseModel($model)
     {
-        if (preg_match('([^A-Za-z0-9_/\\\\])', $model)) {
+        if (preg_match('/[^A-Za-z0-9_\/\\\\]/', $model)) {
             throw new InvalidArgumentException('Model name contains invalid characters.');
         }
 
@@ -166,13 +157,12 @@ class ObserverMakeCommand extends GeneratorCommand
             return;
         }
 
-        $model = $this->components->askWithCompletion(
-            'What model should this observer apply to?',
-            $this->possibleModels(),
-            'none'
+        $model = suggest(
+            'What model should be observed? (Optional)',
+            $this->findAvailableModels(),
         );
 
-        if ($model && $model !== 'none') {
+        if ($model) {
             $input->setOption('model', $model);
         }
     }

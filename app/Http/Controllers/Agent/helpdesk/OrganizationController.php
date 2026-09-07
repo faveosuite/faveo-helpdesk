@@ -19,6 +19,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Request as Input;
 use Lang;
+use Yajra\DataTables\Facades\DataTables;
 
 /**
  * OrganizationController
@@ -43,6 +44,8 @@ class OrganizationController extends Controller
         $this->middleware('auth');
         // checking if the role is agent
         $this->middleware('role.agent');
+        // only admin can delete organizations
+        $this->middleware('roles')->only('destroy');
     }
 
     /**
@@ -69,13 +72,7 @@ class OrganizationController extends Controller
      */
     public function org_list()
     {
-        // chumper datable package call to display Advance datatable
-        return \Datatable::collection(Organization::all())
-                        /* searchable name */
-                        ->searchColumns('name')
-                        /* order by name and website */
-                        ->orderColumns('name', 'website')
-                        /* column name */
+        return DataTables::of(Organization::all())
                         ->addColumn('name', function ($model) {
                             // return $model->name;
                             if (strlen($model->name) > 20) {
@@ -101,28 +98,27 @@ class OrganizationController extends Controller
                         })
                         /* column action buttons */
                         ->addColumn('Actions', function ($model) {
-                            // displaying action buttons
-                            // modal popup to delete data
-                            return '<span  data-toggle="modal" data-target="#deletearticle'.$model->id.'"><a href="#" ><button class="btn btn-danger btn-xs"></a> '.\Lang::get('lang.delete').' </button></span>&nbsp;<a href="'.route('organizations.edit', $model->id).'" class="btn btn-warning btn-xs">'.\Lang::get('lang.edit').'</a>&nbsp;<a href="'.route('organizations.show', $model->id).'" class="btn btn-primary btn-xs">'.\Lang::get('lang.view').'</a>
+                            return '<span data-bs-toggle="modal" data-bs-target="#deletearticle'.$model->id.'"><a href="#"><button class="btn btn-danger btn-xs"> '.\Lang::get('lang.delete').' </button></a></span>&nbsp;<a href="'.route('organizations.edit', $model->id).'" class="btn btn-warning btn-xs">'.\Lang::get('lang.edit').'</a>&nbsp;<a href="'.route('organizations.show', $model->id).'" class="btn btn-primary btn-xs">'.\Lang::get('lang.view').'</a>
 				<div class="modal fade" id="deletearticle'.$model->id.'">
 			        <div class="modal-dialog">
 			            <div class="modal-content">
                 			<div class="modal-header">
                                  <h4 class="modal-title">'.\Lang::get('lang.are_you_sure').'</h4>
-                    			<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    			<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 			</div>
                 			<div class="modal-body">
-                				'.$model->user_name.'
+                				'.$model->name.'
                 			</div>
                 			<div class="modal-footer justify-content-between">
-                    			<button type="button" class="btn btn-default" data-dismiss="modal" id="dismis2">'.\Lang::get('lang.close').'</button>
+                    			<button type="button" class="btn btn-default" data-bs-dismiss="modal" id="dismis2">'.\Lang::get('lang.close').'</button>
                     			<a href="'.route('org.delete', $model->id).'"><button class="btn btn-danger">'.\Lang::get('lang.delete').'</button></a>
                 			</div>
             			</div><!-- /.modal-content -->
         			</div><!-- /.modal-dialog -->
     			</div>';
                         })
-                        ->make();
+                        ->rawColumns(['Actions'])
+                        ->make(true);
     }
 
     /**

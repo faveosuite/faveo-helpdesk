@@ -27,51 +27,19 @@ class ConsoleIO implements IO
     const COL_DEFAULT_WIDTH = 60;
     const COL_MAX_WIDTH = 80;
 
-    /**
-     * @var InputInterface
-     */
-    private $input;
+    private string $lastMessage = '';
 
-    /**
-     * @var OutputInterface
-     */
-    private $output;
+    private bool $hasTempString = false;
 
-    /**
-     * @var string
-     */
-    private $lastMessage;
-
-    /**
-     * @var bool
-     */
-    private $hasTempString = false;
-
-    /**
-      * @var OptionsConfig
-      */
-    private $config;
-
-    /**
-     * @var int
-     */
-    private $consoleWidth;
-
-    /**
-     * @var Prompter
-     */
-    private $prompter;
+    private int $consoleWidth = 0;
 
     public function __construct(
-        InputInterface $input,
-        OutputInterface $output,
-        OptionsConfig $config,
-        Prompter $prompter
-    ) {
-        $this->input   = $input;
-        $this->output  = $output;
-        $this->config  = $config;
-        $this->prompter = $prompter;
+        private InputInterface $input,
+        private OutputInterface $output,
+        private OptionsConfig $config,
+        private Prompter $prompter
+    )
+    {
     }
 
     public function isInteractive(): bool
@@ -111,24 +79,21 @@ class ConsoleIO implements IO
         return $this->lastMessage;
     }
 
-    public function writeln(string $message = '', int $indent = null): void
+    public function writeln(string $message = '', ?int $indent = null): void
     {
         $this->write($message, $indent, true);
     }
 
-    public function writeTemp(string $message, int $indent = null): void
+    public function writeTemp(string $message, ?int $indent = null): void
     {
         $this->write($message, $indent);
         $this->hasTempString = true;
     }
 
-    /**
-     * @return ?string
-     */
-    public function cutTemp()
+    public function cutTemp() : ?string
     {
         if (false === $this->hasTempString) {
-            return;
+            return null;
         }
 
         $message = $this->lastMessage;
@@ -142,7 +107,7 @@ class ConsoleIO implements IO
         $this->write($this->lastMessage);
     }
 
-    public function write(string $message, int $indent = null, bool $newline = false): void
+    public function write(string $message, ?int $indent = null, bool $newline = false): void
     {
         if ($this->hasTempString) {
             $this->hasTempString = false;
@@ -159,12 +124,12 @@ class ConsoleIO implements IO
         $this->lastMessage = $message.($newline ? "\n" : '');
     }
 
-    public function overwriteln(string $message = '', int $indent = null): void
+    public function overwriteln(string $message = '', ?int $indent = null): void
     {
         $this->overwrite($message, $indent, true);
     }
 
-    public function overwrite(string $message, int $indent = null, bool $newline = false): void
+    public function overwrite(string $message, ?int $indent = null, bool $newline = false): void
     {
         if (null !== $indent) {
             $message = $this->indentText($message, $indent);
@@ -248,9 +213,6 @@ class ConsoleIO implements IO
         return $this->input->getOption('fake') || $this->config->isFakingEnabled();
     }
 
-    /**
-     * @return ?string
-     */
     public function getBootstrapPath(): ?string
     {
         if ($path = $this->input->getOption('bootstrap')) {
@@ -280,7 +242,7 @@ class ConsoleIO implements IO
         return $width;
     }
 
-    
+
     public function writeBrokenCodeBlock(string $message, int $indent = 0): void
     {
         $message = wordwrap($message, $this->getBlockWidth() - ($indent * 2), "\n", true);

@@ -63,7 +63,7 @@ class FilesystemStorage implements StorageInterface
     }
 
     /**
-     * Delete files older then a certain age (gc_lifetime)
+     * Delete files older than a certain age (gc_lifetime)
      */
     protected function garbageCollect()
     {
@@ -81,7 +81,12 @@ class FilesystemStorage implements StorageInterface
      */
     public function get($id)
     {
-        return json_decode($this->files->get($this->makeFilename($id)), true);
+        $fileName = $this->makeFilename($id);
+        if (!$this->files->exists($fileName)) {
+            return [];
+        }
+
+        return json_decode($this->files->get($fileName), true);
     }
 
     /**

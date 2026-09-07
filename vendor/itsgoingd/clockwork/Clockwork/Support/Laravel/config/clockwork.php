@@ -9,6 +9,7 @@ return [
 	|
 	| Clockwork is enabled by default only when your application is in debug mode. Here you can explicitly enable or
 	| disable Clockwork. When disabled, no data is collected and the api and web ui are inactive.
+	| Unless explicitly enabled, Clockwork only runs on localhost, *.local, *.test and *.wip domains.
 	|
 	*/
 
@@ -69,6 +70,17 @@ return [
 				// App\Events\UserRegistered::class,
 				// 'user.registered'
 			],
+		],
+
+		// Sent HTTP requests
+		'http_requests' => [
+			'enabled' => env('CLOCKWORK_HTTP_REQUESTS_ENABLED', true),
+
+			// Collect structured request and response content (json and form data)
+			'collect_data' => env('CLOCKWORK_HTTP_REQUESTS_COLLECT_DATA', true),
+
+			// Collect raw request and response content (high storage usage with large responses)
+			'collect_raw_data' => env('CLOCKWORK_HTTP_REQUESTS_COLLECT_RAW_DATA', false)
 		],
 
 		// Laravel log (you can still log directly to Clockwork with laravel log disabled)
@@ -175,6 +187,7 @@ return [
 		'except' => [
 			'/horizon/.*', // Laravel Horizon requests
 			'/telescope/.*', // Laravel Telescope requests
+			'/_tt/.*', // Laravel Telescope toolbar
 			'/_debugbar/.*', // Laravel DebugBar requests
 		],
 
@@ -279,10 +292,10 @@ return [
 	| Metadata storage
 	|------------------------------------------------------------------------------------------------------------------
 	|
-	| Configure how is the metadata collected by Clockwork stored. Two options are available:
+	| Configure how is the metadata collected by Clockwork stored. Three options are available:
 	|   - files - A simple fast storage implementation storing data in one-per-request files.
 	|   - sql - Stores requests in a sql database. Supports MySQL, PostgreSQL and SQLite. Requires PDO.
-	|
+	|   - redis - Stores requests in redis. Requires phpredis.
 	*/
 
 	'storage' => env('CLOCKWORK_STORAGE', 'files'),
@@ -298,6 +311,12 @@ return [
 
 	// SQL table name to use, the table is automatically created and updated when needed
 	'storage_sql_table' => env('CLOCKWORK_STORAGE_SQL_TABLE', 'clockwork'),
+
+	// Redis connection, name of redis connection or cluster configured in database.php
+	'storage_redis' => env('CLOCKWORK_STORAGE_REDIS', 'default'),
+
+	// Redis prefix for Clockwork keys ("clockwork" if not set)
+	'storage_redis_prefix' => env('CLOCKWORK_STORAGE_REDIS_PREFIX', 'clockwork'),
 
 	// Maximum lifetime of collected metadata in minutes, older requests will automatically be deleted, false to disable
 	'storage_expiration' => env('CLOCKWORK_STORAGE_EXPIRATION', 60 * 24 * 7),

@@ -20,8 +20,7 @@ use Prophecy\Util\StringUtil;
 use Prophecy\Exception\Prediction\UnexpectedCallsCountException;
 
 /**
- * Prediction interface.
- * Predictions are logical test blocks, tied to `should...` keyword.
+ * Tests that there was exact amount of calls made.
  *
  * @author Konstantin Kudryashov <ever.zet@gmail.com>
  */
@@ -31,26 +30,14 @@ class CallTimesPrediction implements PredictionInterface
     private $util;
 
     /**
-     * Initializes prediction.
-     *
      * @param int        $times
-     * @param StringUtil $util
      */
-    public function __construct($times, StringUtil $util = null)
+    public function __construct($times, ?StringUtil $util = null)
     {
         $this->times = intval($times);
-        $this->util  = $util ?: new StringUtil;
+        $this->util  = $util ?: new StringUtil();
     }
 
-    /**
-     * Tests that there was exact amount of calls made.
-     *
-     * @param Call[]         $calls
-     * @param ObjectProphecy $object
-     * @param MethodProphecy $method
-     *
-     * @throws \Prophecy\Exception\Prediction\UnexpectedCallsCountException
-     */
     public function check(array $calls, ObjectProphecy $object, MethodProphecy $method)
     {
         if ($this->times == count($calls)) {
@@ -59,14 +46,14 @@ class CallTimesPrediction implements PredictionInterface
 
         $methodCalls = $object->findProphecyMethodCalls(
             $method->getMethodName(),
-            new ArgumentsWildcard(array(new AnyValuesToken))
+            new ArgumentsWildcard(array(new AnyValuesToken()))
         );
 
         if (count($calls)) {
             $message = sprintf(
-                "Expected exactly %d calls that match:\n".
-                "  %s->%s(%s)\n".
-                "but %d were made:\n%s",
+                "Expected exactly %d calls that match:\n"
+                ."  %s->%s(%s)\n"
+                ."but %d were made:\n%s",
 
                 $this->times,
                 get_class($object->reveal()),
@@ -77,10 +64,10 @@ class CallTimesPrediction implements PredictionInterface
             );
         } elseif (count($methodCalls)) {
             $message = sprintf(
-                "Expected exactly %d calls that match:\n".
-                "  %s->%s(%s)\n".
-                "but none were made.\n".
-                "Recorded `%s(...)` calls:\n%s",
+                "Expected exactly %d calls that match:\n"
+                ."  %s->%s(%s)\n"
+                ."but none were made.\n"
+                ."Recorded `%s(...)` calls:\n%s",
 
                 $this->times,
                 get_class($object->reveal()),
@@ -91,9 +78,9 @@ class CallTimesPrediction implements PredictionInterface
             );
         } else {
             $message = sprintf(
-                "Expected exactly %d calls that match:\n".
-                "  %s->%s(%s)\n".
-                "but none were made.",
+                "Expected exactly %d calls that match:\n"
+                ."  %s->%s(%s)\n"
+                ."but none were made.",
 
                 $this->times,
                 get_class($object->reveal()),

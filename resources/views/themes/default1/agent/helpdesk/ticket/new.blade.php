@@ -26,34 +26,34 @@ class="active"
     }
 </style>
 @section('PageHeader')
-<h1>{{Lang::get('lang.tickets')}}</h1>
+<h3>{{Lang::get('lang.tickets')}}</h3>
 @stop
 
 @section('content')
 
 <!-- Main content -->
-{!! Form::open(['route'=>'post.newticket','method'=>'post','id'=>'form']) !!}
-@if(Session::has('success'))       
-<div class="alert alert-success alert-dismissable">
-    <i class="fas fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+{!! html()->form('POST', route('post.newticket'))->attributes(['id' => 'form'])->open() !!}
+@if(Session::has('success'))
+<div class="alert alert-success alert-dismissible">
+    <i class="fa-solid fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('success')}}
 </div>
 @endif
 <!-- failure message -->
 @if(Session::has('fails'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fas fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('fails')}}
 </div>
 @endif
 @if(Session::has('errors'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fas fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     <br/>
     @if($errors->first('email'))
     <li class="error-message-padding">{!! $errors->first('email', ':message') !!}</li>
@@ -95,67 +95,67 @@ class="active"
 
             <div class="card-body">
 
-                <div class="form-group">
+                <div class="mb-3">
                     <div class="row">
                         <div class="col-md-4">
                             <!-- email -->
-                            <div class="form-group {{ $errors->has('email') ? 'has-error' : '' }}">
-                                {!! Form::label('email',Lang::get('lang.email')) !!}
+                            <div class="mb-3 {{ $errors->has('email') ? 'has-error' : '' }}">
+                                {!! html()->label(Lang::get('lang.email'), 'email') !!}
                                 @if ($email_mandatory->status == 1)
                                 <span class="text-red"> *</span>
                                 @endif
 
-                                {!! Form::text('email',null,['class' => 'form-control', 'id' => 'email']) !!}
+                                {!! html()->text('email', null)->class('form-control')->id('email') !!}
                             </div>
                         </div>
                         
                         <div class="col-md-4">
                             <!-- email -->
-                            <div class="form-group {{ $errors->has('first_name') ? 'has-error' : '' }}">
-                                {!! Form::label('email',Lang::get('lang.first_name')) !!} <span class="text-red"> *</span>
-                               <!--  {!! Form::text('email',null,['class' => 'form-control'],['id' => 'email']) !!} -->
+                            <div class="mb-3 {{ $errors->has('first_name') ? 'has-error' : '' }}">
+                                {!! html()->label(Lang::get('lang.first_name'), 'email') !!} <span class="text-red"> *</span>
+                               <!--  {!! html()->text('email', null)->class('form-control') !!} -->
                                <input type="text" name="first_name" id="first_name" class="form-control">
                             </div>
                         </div>
 
                         <div class="col-md-4">
                             <!-- full name -->
-                            <div class="form-group {{ $errors->has('last_name') ? 'has-error' : '' }}">
-                                {!! Form::label('fullname',Lang::get('lang.last_name')) !!} <span class="text-red"></span>
+                            <div class="mb-3 {{ $errors->has('last_name') ? 'has-error' : '' }}">
+                                {!! html()->label(Lang::get('lang.last_name'), 'fullname') !!} <span class="text-red"></span>
                                 <input type="text" name="last_name" id="last_name" class="form-control">
                             </div>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-1 form-group {{ Session::has('country_code_error') ? 'has-error' : '' }}">
-                            <div class="form-group {{ $errors->has('code') ? 'has-error' : '' }}">
-                            {!! Form::label('code',Lang::get('lang.country-code')) !!}
+                        <div class="col-md-1 mb-3 {{ Session::has('country_code_error') ? 'has-error' : '' }}">
+                            <div class="mb-3 {{ $errors->has('code') ? 'has-error' : '' }}">
+                            {!! html()->label(Lang::get('lang.country-code'), 'code') !!}
                             @if ($email_mandatory->status == 0 || $settings->status == 1)
                                  <span class="text-red"> *</span>
                             @endif
 
-                            {!! Form::text('code',null,['class' => 'form-control', 'id' => 'country_code', 'placeholder' => $phonecode, 'title' => Lang::get('lang.enter-country-phone-code')]) !!}
+                            {!! html()->text('code', null)->class('form-control')->id('country_code')->placeholder($phonecode)->attributes(['title' => Lang::get('lang.enter-country-phone-code')]) !!}
                             </div>
                         </div>
                         <div class="col-md-5">
                             <!-- phone -->
-                            <div class="form-group {{ $errors->has('mobile') ? 'has-error' : '' }}">
+                            <div class="mb-3 {{ $errors->has('mobile') ? 'has-error' : '' }}">
                                 <label>{!! Lang::get('lang.mobile_number') !!}:</label>
                                 @if ($email_mandatory->status == 0 || $settings->status == 1)
                                  <span class="text-red"> *</span>
                                 @endif
-                                {!! Form::input('number','mobile',null,['class' => 'form-control', 'id' => 'mobile']) !!}
+                                {!! html()->number('mobile', null)->class('form-control')->id('mobile') !!}
                             </div>
                         </div>
                         <div class="col-md-6">
                             <!-- phone -->
-                            <div class="form-group {{ $errors->has('phone') ? 'has-error' : '' }}">
+                            <div class="mb-3 {{ $errors->has('phone') ? 'has-error' : '' }}">
                                 <label>{!! Lang::get('lang.phone') !!}:</label>
-                                {!! Form::input('number','phone',null,['class' => 'form-control', 'id' => 'phone_number']) !!}
+                                {!! html()->number('phone', null)->class('form-control')->id('phone_number') !!}
                                 {!! $errors->first('phone', '<spam class="help-block text-red">:message</spam>') !!}
                             </div>
                         </div>
-                        <!--  <div class="form-group">
+                        <!--  <div class="mb-3">
                              <div class="col-md-2">
                                  <label>Ticket Notice:</label>
                              </div>
@@ -178,41 +178,41 @@ class="active"
 
             <div class="card-body">
                 <!-- ticket options -->
-                <div class="form-group">
+                <div class="mb-3">
                     <div class="row">
                         <div class="col-md-3">
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label>{!! Lang::get('lang.help_topic') !!}:</label>
                                 <!-- helptopic -->
                                 <?php $helptopic = App\Model\helpdesk\Manage\Help_topic::where('status', '=', 1)->select('topic', 'id')->get(); ?>
-                                {!! Form::select('helptopic', ['Helptopic'=>$helptopic->pluck('topic','id')->toArray()],null,['class' => 'form-control select','id'=>'selectid']) !!}
+                                {!! html()->select('helptopic', ['Helptopic'=>$helptopic->pluck('topic','id')->toArray()], null)->class('form-control select')->id('selectid') !!}
                             </div>
                         </div>
                         <div class="col-md-3">
                             <!-- sla plan -->
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label>{!! Lang::get('lang.sla_plan') !!}:</label>
                                 <?php $sla_plan = App\Model\helpdesk\Manage\Sla_plan::where('status', '=', 1)->select('grace_period', 'id')->get(); ?>
-                                {!! Form::select('sla', ['SLA'=>$sla_plan->pluck('grace_period','id')->toArray()],null,['class' => 'form-control select']) !!}
+                                {!! html()->select('sla', ['SLA'=>$sla_plan->pluck('grace_period','id')->toArray()], null)->class('form-control select') !!}
                             </div>
                         </div>
                         <div class="col-md-3">
                             <!-- due date -->
-                            <div class="form-group" id="duedate">
+                            <div class="mb-3" id="duedate">
                                 <label>{!! Lang::get('lang.due_date') !!}:</label>
-                                {!! Form::text('duedate',null,['class' => 'form-control','id'=>'datemask']) !!}
-                                <button class="btn  clear-input" id="duedates" style="display: none" type="button"><i class="fas fa-times"></i></button>
+                                {!! html()->text('duedate', null)->class('form-control')->id('datemask') !!}
+                                <button class="btn  clear-input" id="duedates" style="display: none" type="button"><i class="fa-solid fa-xmark"></i></button>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <!-- assign to -->
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label>{!! Lang::get('lang.assign_to') !!}:</label>
                                 <?php $agents = App\User::where('role', '!=', 'user')->where('active', '=', 1)->get(); ?>
-                                {!! Form::select('assignto', [''=>'Select an Agent','Agents'=>$agents->pluck('first_name','id')->toArray()],null,['class' => 'form-control select']) !!}
+                                {!! html()->select('assignto', [''=>'Select an Agent','Agents'=>$agents->pluck('first_name','id')->toArray()], null)->class('form-control select') !!}
                             </div>
                         </div>
-                        <div id="response" class="col-md-6 form-group"></div>
+                        <div id="response" class="col-md-6 mb-3"></div>
                     </div>
                     <div class="row">
                     {{-- Event fire --}}
@@ -230,31 +230,31 @@ class="active"
 
             <div class="card-body">
                 <!-- ticket details -->
-                <div class="form-group">
+                <div class="mb-3">
                     <!-- subject -->
-                    <div class="form-group {{ $errors->has('subject') ? 'has-error' : '' }}">
+                    <div class="mb-3 {{ $errors->has('subject') ? 'has-error' : '' }}">
                         <div class="row">
                             <div class="col-md-1">
                                 <label>{!! Lang::get('lang.subject') !!}:<span class="text-red"> *</span></label>
                             </div>
                             <div class="col-md-11">
-                                {!! Form::text('subject',null,['class' => 'form-control']) !!}
+                                {!! html()->text('subject', null)->class('form-control') !!}
                             </div>
                         </div>
                     </div>
-                    <div class="form-group {{ $errors->has('body') ? 'has-error' : '' }}">
+                    <div class="mb-3 {{ $errors->has('body') ? 'has-error' : '' }}">
                         <!-- details -->
                         <div class="row">
                             <div class="col-md-1">
                                 <label>{!! Lang::get('lang.detail') !!}:<span class="text-red"> *</span></label>
                             </div>
                             <div class="col-md-11">
-                                {!! Form::textarea('body',null,['class' => 'form-control','id' => 'body', 'style'=>"width:100%; height:150px;"]) !!}
+                                {!! html()->textarea('body', null)->class('form-control')->id('body')->attributes(['style' => "width:100%; height:150px;"]) !!}
 
                             </div>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <!-- priority -->
                         <div class="row">
                             <div class="col-md-1">
@@ -262,7 +262,7 @@ class="active"
                             </div>
                             <div class="col-md-5">
                                 <?php $Priority = App\Model\helpdesk\Ticket\Ticket_Priority::where('status','=',1)->get(); ?>
-                                {!! Form::select('priority', [Lang::get('lang.priorities')=>$Priority->pluck('priority_desc','priority_id')->toArray()],null,['class' => 'form-control select']) !!}
+                                {!! html()->select('priority', [Lang::get('lang.priorities')=>$Priority->pluck('priority_desc','priority_id')->toArray()], null)->class('form-control select') !!}
                             </div>
                             
                         </div>
@@ -280,7 +280,7 @@ class="active"
         </div>
     </div>
 </div><!-- /. box -->
-{!! Form::close() !!}
+{!! html()->closeModelForm() !!}
 <script type="text/javascript">
     $(document).ready(function () {
         var helpTopic = $("#selectid").val();
@@ -330,7 +330,7 @@ class="active"
                 } else {
                     $('#duedate').addClass("has-error");
                     $('#clear-up').remove();
-                    $('#box-header1').append("<div id='clear-up'><br><br><div class='alert alert-danger alert-dismissable'><i class='fa fa-ban'></i><button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;</button> Invalid Due date</div></div>");
+                    $('#box-header1').append("<div id='clear-up'><br><br><div class='alert alert-danger alert-dismissible'><i class='fa-solid fa-ban'></i><button type='button' class='btn-close' data-bs-dismiss='alert' aria-hidden='true'></button> Invalid Due date</div></div>");
                     return false;
                 }
             }
@@ -368,15 +368,15 @@ class="active"
         });
         picker.on('dp.change', function(e) {
             if (e.date) {
-                $('.clear-input').show();
+                $('.clear-input').removeClass('d-none');
             } else {
-                $('.clear-input').hide();
+                $('.clear-input').addClass('d-none');
             }
         });
 
         $('.clear-input').click(function() {
             $('#datemask').val('');
-            $('.clear-input').hide();
+            $('.clear-input').addClass('d-none');
 
         });
     });

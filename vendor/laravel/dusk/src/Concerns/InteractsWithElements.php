@@ -5,13 +5,13 @@ namespace Laravel\Dusk\Concerns;
 use Facebook\WebDriver\Interactions\WebDriverActions;
 use Facebook\WebDriver\Remote\LocalFileDetector;
 use Facebook\WebDriver\WebDriverBy;
-use Facebook\WebDriver\WebDriverKeys;
 use Facebook\WebDriver\WebDriverSelect;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 
 trait InteractsWithElements
 {
+    use InteractsWithKeyboard;
+
     /**
      * Get all of the elements matching the given selector.
      *
@@ -114,27 +114,6 @@ trait InteractsWithElements
     }
 
     /**
-     * Parse the keys before sending to the keyboard.
-     *
-     * @param  array  $keys
-     * @return array
-     */
-    protected function parseKeys($keys)
-    {
-        return collect($keys)->map(function ($key) {
-            if (is_string($key) && Str::startsWith($key, '{') && Str::endsWith($key, '}')) {
-                $key = constant(WebDriverKeys::class.'::'.strtoupper(trim($key, '{}')));
-            }
-
-            if (is_array($key) && Str::startsWith($key[0], '{')) {
-                $key[0] = constant(WebDriverKeys::class.'::'.strtoupper(trim($key[0], '{}')));
-            }
-
-            return $key;
-        })->all();
-    }
-
-    /**
      * Type the given value in the given field.
      *
      * @param  string  $field
@@ -187,8 +166,12 @@ trait InteractsWithElements
      */
     public function appendSlowly($field, $value, $pause = 100)
     {
-        foreach (preg_split('//u', $value, -1, PREG_SPLIT_NO_EMPTY) as $char) {
-            $this->append($field, $char)->pause($pause);
+        $characters = preg_split('//u', $value, -1, PREG_SPLIT_NO_EMPTY);
+
+        if (is_array($characters)) {
+            foreach ($characters as $character) {
+                $this->append($field, $character)->pause($pause);
+            }
         }
 
         return $this;

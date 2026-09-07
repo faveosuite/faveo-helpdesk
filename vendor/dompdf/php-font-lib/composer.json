@@ -1,0 +1,33 @@
+{
+    "name": "dompdf/php-font-lib",
+    "type": "library",
+    "description": "A library to read, parse, export and make subsets of different types of font files.",
+    "homepage": "https://github.com/dompdf/php-font-lib",
+    "license": "LGPL-2.1-or-later",
+    "authors": [
+        {
+            "name": "The FontLib Community",
+            "homepage": "https://github.com/dompdf/php-font-lib/blob/master/AUTHORS.md"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "FontLib\\": "src/FontLib"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "FontLib\\Tests\\": "tests/FontLib"
+        }
+    },
+    "require": {
+        "php": "^7.1 || ^8.0",
+        "ext-mbstring": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^7.5 || ^8 || ^9 || ^10 || ^11 || ^12"
+    },
+    "scripts": {
+        "test": "phpunit"
+    }
+}

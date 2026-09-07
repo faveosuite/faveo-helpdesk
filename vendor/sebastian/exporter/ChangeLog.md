@@ -2,77 +2,24 @@
 
 All notable changes are documented in this file using the [Keep a CHANGELOG](https://keepachangelog.com/) principles.
 
-## [4.0.5] - 2022-09-14
-
-### Fixed
-
-* [#47](https://github.com/sebastianbergmann/exporter/pull/47): Fix `float` export precision
-
-## [4.0.4] - 2021-11-11
+## [7.0.2] - 2025-09-24
 
 ### Changed
 
-* [#37](https://github.com/sebastianbergmann/exporter/pull/37): Improve export of closed resources
+* Suppress `unexpected NAN value was coerced to string` warning triggered on PHP 8.5
 
-## [4.0.3] - 2020-09-28
-
-### Changed
-
-* Changed PHP version constraint in `composer.json` from `^7.3 || ^8.0` to `>=7.3`
-
-## [4.0.2] - 2020-06-26
-
-### Added
-
-* This component is now supported on PHP 8
-
-## [4.0.1] - 2020-06-15
+## [7.0.1] - 2025-09-22
 
 ### Changed
 
-* Tests etc. are now ignored for archive exports
+* Suppress `not representable as an int, cast occurred` warning triggered on PHP 8.5
 
-## [4.0.0] - 2020-02-07
+## [7.0.0] - 2025-02-07
 
 ### Removed
 
-* This component is no longer supported on PHP 7.0, PHP 7.1, and PHP 7.2
+* This component is no longer supported on PHP 8.2
 
-## [3.1.5] - 2022-09-14
-
-### Fixed
-
-* [#47](https://github.com/sebastianbergmann/exporter/pull/47): Fix `float` export precision
-
-## [3.1.4] - 2021-11-11
-
-### Changed
-
-* [#38](https://github.com/sebastianbergmann/exporter/pull/38): Improve export of closed resources
-
-## [3.1.3] - 2020-11-30
-
-### Changed
-
-* Changed PHP version constraint in `composer.json` from `^7.0` to `>=7.0`
-
-## [3.1.2] - 2019-09-14
-
-### Fixed
-
-* [#29](https://github.com/sebastianbergmann/exporter/pull/29): Second parameter for `str_repeat()` must be an integer
-
-### Removed
-
-* Remove HHVM-specific code that is no longer needed
-
-[4.0.5]: https://github.com/sebastianbergmann/exporter/compare/4.0.4...4.0.5
-[4.0.4]: https://github.com/sebastianbergmann/exporter/compare/4.0.3...4.0.4
-[4.0.3]: https://github.com/sebastianbergmann/exporter/compare/4.0.2...4.0.3
-[4.0.2]: https://github.com/sebastianbergmann/exporter/compare/4.0.1...4.0.2
-[4.0.1]: https://github.com/sebastianbergmann/exporter/compare/4.0.0...4.0.1
-[4.0.0]: https://github.com/sebastianbergmann/exporter/compare/3.1.2...4.0.0
-[3.1.5]: https://github.com/sebastianbergmann/exporter/compare/3.1.4...3.1.5
-[3.1.4]: https://github.com/sebastianbergmann/exporter/compare/3.1.3...3.1.4
-[3.1.3]: https://github.com/sebastianbergmann/exporter/compare/3.1.2...3.1.3
-[3.1.2]: https://github.com/sebastianbergmann/exporter/compare/3.1.1...3.1.2
+[7.0.2]: https://github.com/sebastianbergmann/exporter/compare/7.0.1...7.0.2
+[7.0.1]: https://github.com/sebastianbergmann/exporter/compare/7.0.0...7.0.1
+[7.0.0]: https://github.com/sebastianbergmann/exporter/compare/6.3...7.0.0

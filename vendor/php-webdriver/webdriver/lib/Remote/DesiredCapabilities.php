@@ -2,8 +2,8 @@
 
 namespace Facebook\WebDriver\Remote;
 
-use Exception;
 use Facebook\WebDriver\Chrome\ChromeOptions;
+use Facebook\WebDriver\Exception\UnsupportedOperationException;
 use Facebook\WebDriver\Firefox\FirefoxDriver;
 use Facebook\WebDriver\Firefox\FirefoxOptions;
 use Facebook\WebDriver\Firefox\FirefoxProfile;
@@ -20,7 +20,6 @@ class DesiredCapabilities implements WebDriverCapabilities
         WebDriverCapabilityType::PLATFORM => 'platformName',
         WebDriverCapabilityType::VERSION => 'browserVersion',
         WebDriverCapabilityType::ACCEPT_SSL_CERTS => 'acceptInsecureCerts',
-        ChromeOptions::CAPABILITY => ChromeOptions::CAPABILITY_W3C,
     ];
 
     public function __construct(array $capabilities = [])
@@ -152,7 +151,7 @@ class DesiredCapabilities implements WebDriverCapabilities
      * This is a htmlUnit-only option.
      *
      * @param bool $enabled
-     * @throws Exception
+     * @throws UnsupportedOperationException
      * @return DesiredCapabilities
      * @see https://github.com/SeleniumHQ/selenium/wiki/DesiredCapabilities#read-write-capabilities
      */
@@ -160,7 +159,7 @@ class DesiredCapabilities implements WebDriverCapabilities
     {
         $browser = $this->getBrowserName();
         if ($browser && $browser !== WebDriverBrowserType::HTMLUNIT) {
-            throw new Exception(
+            throw new UnsupportedOperationException(
                 'isJavascriptEnabled() is a htmlunit-only option. ' .
                 'See https://github.com/SeleniumHQ/selenium/wiki/DesiredCapabilities#read-write-capabilities.'
             );
@@ -250,16 +249,7 @@ class DesiredCapabilities implements WebDriverCapabilities
 
         // Convert ChromeOptions
         if (array_key_exists(ChromeOptions::CAPABILITY, $ossCapabilities)) {
-            if (array_key_exists(ChromeOptions::CAPABILITY_W3C, $ossCapabilities)) {
-                $w3cCapabilities[ChromeOptions::CAPABILITY_W3C] = new \ArrayObject(
-                    array_merge_recursive(
-                        (array) $ossCapabilities[ChromeOptions::CAPABILITY],
-                        (array) $ossCapabilities[ChromeOptions::CAPABILITY_W3C]
-                    )
-                );
-            } else {
-                $w3cCapabilities[ChromeOptions::CAPABILITY_W3C] = $ossCapabilities[ChromeOptions::CAPABILITY];
-            }
+            $w3cCapabilities[ChromeOptions::CAPABILITY] = $ossCapabilities[ChromeOptions::CAPABILITY];
         }
 
         // Convert Firefox profile
@@ -433,8 +423,6 @@ class DesiredCapabilities implements WebDriverCapabilities
      */
     private function get($key, $default = null)
     {
-        return isset($this->capabilities[$key])
-            ? $this->capabilities[$key]
-            : $default;
+        return $this->capabilities[$key] ?? $default;
     }
 }

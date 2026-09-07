@@ -24,14 +24,12 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class ErrorListener implements EventSubscriberInterface
 {
-    private ?LoggerInterface $logger;
-
-    public function __construct(LoggerInterface $logger = null)
-    {
-        $this->logger = $logger;
+    public function __construct(
+        private ?LoggerInterface $logger = null,
+    ) {
     }
 
-    public function onConsoleError(ConsoleErrorEvent $event)
+    public function onConsoleError(ConsoleErrorEvent $event): void
     {
         if (null === $this->logger) {
             return;
@@ -39,7 +37,7 @@ class ErrorListener implements EventSubscriberInterface
 
         $error = $event->getError();
 
-        if (!$inputString = $this->getInputString($event)) {
+        if (!$inputString = self::getInputString($event)) {
             $this->logger->critical('An error occurred while using the console. Message: "{message}"', ['exception' => $error, 'message' => $error->getMessage()]);
 
             return;
@@ -48,7 +46,7 @@ class ErrorListener implements EventSubscriberInterface
         $this->logger->critical('Error thrown while running command "{command}". Message: "{message}"', ['exception' => $error, 'command' => $inputString, 'message' => $error->getMessage()]);
     }
 
-    public function onConsoleTerminate(ConsoleTerminateEvent $event)
+    public function onConsoleTerminate(ConsoleTerminateEvent $event): void
     {
         if (null === $this->logger) {
             return;
@@ -60,7 +58,7 @@ class ErrorListener implements EventSubscriberInterface
             return;
         }
 
-        if (!$inputString = $this->getInputString($event)) {
+        if (!$inputString = self::getInputString($event)) {
             $this->logger->debug('The console exited with code "{code}"', ['code' => $exitCode]);
 
             return;
@@ -77,19 +75,15 @@ class ErrorListener implements EventSubscriberInterface
         ];
     }
 
-    private static function getInputString(ConsoleEvent $event): ?string
+    private static function getInputString(ConsoleEvent $event): string
     {
         $commandName = $event->getCommand()?->getName();
-        $input = $event->getInput();
+        $inputString = (string) $event->getInput();
 
-        if ($input instanceof \Stringable) {
-            if ($commandName) {
-                return str_replace(["'$commandName'", "\"$commandName\""], $commandName, (string) $input);
-            }
-
-            return (string) $input;
+        if ($commandName) {
+            return str_replace(["'$commandName'", "\"$commandName\""], $commandName, $inputString);
         }
 
-        return $commandName;
+        return $inputString;
     }
 }

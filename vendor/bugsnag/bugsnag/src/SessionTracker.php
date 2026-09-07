@@ -116,7 +116,7 @@ class SessionTracker
      *                                is deprecated and $http will be required
      *                                in the next major version.
      */
-    public function __construct(Configuration $config, HttpClient $http = null)
+    public function __construct(Configuration $config, $http = null)
     {
         $this->config = $config;
         $this->http = $http === null
@@ -403,7 +403,7 @@ class SessionTracker
         try {
             $this->http->sendSessions($payload);
         } catch (Exception $e) {
-            error_log('Bugsnag Warning: Couldn\'t notify. '.$e->getMessage());
+            error_log('Bugsnag Warning: Couldn\'t notify. ' . $e->getMessage());
 
             if (is_callable($this->retryFunction)) {
                 call_user_func($this->retryFunction, $sessions);

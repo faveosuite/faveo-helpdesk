@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,8 +12,7 @@
 namespace Psy\Util;
 
 use Psy\Exception\RuntimeException;
-use Psy\Reflection\ReflectionClassConstant;
-use Psy\Reflection\ReflectionConstant_;
+use Psy\Reflection\ReflectionConstant;
 use Psy\Reflection\ReflectionNamespace;
 
 /**
@@ -37,19 +36,19 @@ class Mirror
      * @throws \Psy\Exception\RuntimeException when a $member specified but not present on $value
      * @throws \InvalidArgumentException       if $value is something other than an object or class/function name
      *
-     * @param mixed  $value  Class or function name, or variable instance
-     * @param string $member Optional: property, constant or method name (default: null)
-     * @param int    $filter (default: CONSTANT | METHOD | PROPERTY | STATIC_PROPERTY)
+     * @param mixed       $value  Class or function name, or variable instance
+     * @param string|null $member Optional: property, constant or method name (default: null)
+     * @param int         $filter (default: CONSTANT | METHOD | PROPERTY | STATIC_PROPERTY)
      *
      * @return \Reflector
      */
-    public static function get($value, string $member = null, int $filter = 15): \Reflector
+    public static function get($value, ?string $member = null, int $filter = 15): \Reflector
     {
         if ($member === null && \is_string($value)) {
             if (\function_exists($value)) {
                 return new \ReflectionFunction($value);
-            } elseif (\defined($value) || ReflectionConstant_::isMagicConstant($value)) {
-                return new ReflectionConstant_($value);
+            } elseif (\defined($value) || ReflectionConstant::isMagicConstant($value)) {
+                return new ReflectionConstant($value);
             }
         }
 
@@ -58,7 +57,7 @@ class Mirror
         if ($member === null) {
             return $class;
         } elseif ($filter & self::CONSTANT && $class->hasConstant($member)) {
-            return ReflectionClassConstant::create($value, $member);
+            return new \ReflectionClassConstant($value, $member);
         } elseif ($filter & self::METHOD && $class->hasMethod($member)) {
             return $class->getMethod($member);
         } elseif ($filter & self::PROPERTY && $class->hasProperty($member)) {

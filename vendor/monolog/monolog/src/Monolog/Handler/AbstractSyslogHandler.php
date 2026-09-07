@@ -11,70 +11,59 @@
 
 namespace Monolog\Handler;
 
-use Monolog\Logger;
+use Monolog\Level;
 use Monolog\Formatter\FormatterInterface;
 use Monolog\Formatter\LineFormatter;
 
 /**
  * Common syslog functionality
- *
- * @phpstan-import-type Level from \Monolog\Logger
  */
 abstract class AbstractSyslogHandler extends AbstractProcessingHandler
 {
-    /** @var int */
-    protected $facility;
-
-    /**
-     * Translates Monolog log levels to syslog log priorities.
-     * @var array
-     * @phpstan-var array<Level, int>
-     */
-    protected $logLevels = [
-        Logger::DEBUG     => LOG_DEBUG,
-        Logger::INFO      => LOG_INFO,
-        Logger::NOTICE    => LOG_NOTICE,
-        Logger::WARNING   => LOG_WARNING,
-        Logger::ERROR     => LOG_ERR,
-        Logger::CRITICAL  => LOG_CRIT,
-        Logger::ALERT     => LOG_ALERT,
-        Logger::EMERGENCY => LOG_EMERG,
-    ];
+    protected int $facility;
 
     /**
      * List of valid log facility names.
      * @var array<string, int>
      */
-    protected $facilities = [
-        'auth'     => LOG_AUTH,
-        'authpriv' => LOG_AUTHPRIV,
-        'cron'     => LOG_CRON,
-        'daemon'   => LOG_DAEMON,
-        'kern'     => LOG_KERN,
-        'lpr'      => LOG_LPR,
-        'mail'     => LOG_MAIL,
-        'news'     => LOG_NEWS,
-        'syslog'   => LOG_SYSLOG,
-        'user'     => LOG_USER,
-        'uucp'     => LOG_UUCP,
+    protected array $facilities = [
+        'auth'     => \LOG_AUTH,
+        'authpriv' => \LOG_AUTHPRIV,
+        'cron'     => \LOG_CRON,
+        'daemon'   => \LOG_DAEMON,
+        'kern'     => \LOG_KERN,
+        'lpr'      => \LOG_LPR,
+        'mail'     => \LOG_MAIL,
+        'news'     => \LOG_NEWS,
+        'syslog'   => \LOG_SYSLOG,
+        'user'     => \LOG_USER,
+        'uucp'     => \LOG_UUCP,
     ];
+
+    /**
+     * Translates Monolog log levels to syslog log priorities.
+     */
+    protected function toSyslogPriority(Level $level): int
+    {
+        return $level->toRFC5424Level();
+    }
 
     /**
      * @param string|int $facility Either one of the names of the keys in $this->facilities, or a LOG_* facility constant
      */
-    public function __construct($facility = LOG_USER, $level = Logger::DEBUG, bool $bubble = true)
+    public function __construct(string|int $facility = \LOG_USER, int|string|Level $level = Level::Debug, bool $bubble = true)
     {
         parent::__construct($level, $bubble);
 
-        if (!defined('PHP_WINDOWS_VERSION_BUILD')) {
-            $this->facilities['local0'] = LOG_LOCAL0;
-            $this->facilities['local1'] = LOG_LOCAL1;
-            $this->facilities['local2'] = LOG_LOCAL2;
-            $this->facilities['local3'] = LOG_LOCAL3;
-            $this->facilities['local4'] = LOG_LOCAL4;
-            $this->facilities['local5'] = LOG_LOCAL5;
-            $this->facilities['local6'] = LOG_LOCAL6;
-            $this->facilities['local7'] = LOG_LOCAL7;
+        if (!\defined('PHP_WINDOWS_VERSION_BUILD')) {
+            $this->facilities['local0'] = \LOG_LOCAL0;
+            $this->facilities['local1'] = \LOG_LOCAL1;
+            $this->facilities['local2'] = \LOG_LOCAL2;
+            $this->facilities['local3'] = \LOG_LOCAL3;
+            $this->facilities['local4'] = \LOG_LOCAL4;
+            $this->facilities['local5'] = \LOG_LOCAL5;
+            $this->facilities['local6'] = \LOG_LOCAL6;
+            $this->facilities['local7'] = \LOG_LOCAL7;
         } else {
             $this->facilities['local0'] = 128; // LOG_LOCAL0
             $this->facilities['local1'] = 136; // LOG_LOCAL1
@@ -87,9 +76,9 @@ abstract class AbstractSyslogHandler extends AbstractProcessingHandler
         }
 
         // convert textual description of facility to syslog constant
-        if (is_string($facility) && array_key_exists(strtolower($facility), $this->facilities)) {
+        if (\is_string($facility) && \array_key_exists(strtolower($facility), $this->facilities)) {
             $facility = $this->facilities[strtolower($facility)];
-        } elseif (!in_array($facility, array_values($this->facilities), true)) {
+        } elseif (!\in_array($facility, array_values($this->facilities), true)) {
             throw new \UnexpectedValueException('Unknown facility value "'.$facility.'" given');
         }
 
@@ -97,7 +86,7 @@ abstract class AbstractSyslogHandler extends AbstractProcessingHandler
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     protected function getDefaultFormatter(): FormatterInterface
     {

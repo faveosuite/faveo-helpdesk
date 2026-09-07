@@ -255,18 +255,30 @@ class SettingsController2 extends Controller
      */
     public function deleteLogo()
     {
-        $path = $_GET['data1']; //get file path of logo image
+        $allowed_dir = realpath(public_path('uploads/company'));
+
+        $filename = basename(request()->get('data1', ''));
+
+        if (empty($filename) || !$allowed_dir) {
+            return 'false';
+        }
+
+        $path = $allowed_dir.DIRECTORY_SEPARATOR.$filename;
+
+        if (!file_exists($path) || strpos(realpath($path), $allowed_dir) !== 0) {
+            return 'false';
+        }
+
         if (!unlink($path)) {
             return 'false';
-        } else {
-            $companys = Company::where('id', '=', 1)->first();
-            $companys->logo = null;
-            $companys->use_logo = '0';
-            $companys->save();
-
-            return 'true';
         }
-        // return $res;
+
+        $companys = Company::where('id', '=', 1)->first();
+        $companys->logo = null;
+        $companys->use_logo = '0';
+        $companys->save();
+
+        return 'true';
     }
 
     /**

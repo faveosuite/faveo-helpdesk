@@ -51,7 +51,7 @@ final class ControllerEvent extends KernelEvent
     /**
      * @param array<class-string, list<object>>|null $attributes
      */
-    public function setController(callable $controller, array $attributes = null): void
+    public function setController(callable $controller, ?array $attributes = null): void
     {
         if (null !== $attributes) {
             $this->attributes = $attributes;
@@ -69,8 +69,8 @@ final class ControllerEvent extends KernelEvent
 
         if (\is_array($controller) && method_exists(...$controller)) {
             $this->controllerReflector = new \ReflectionMethod(...$controller);
-        } elseif (\is_string($controller) && false !== $i = strpos($controller, '::')) {
-            $this->controllerReflector = new \ReflectionMethod($controller);
+        } elseif (\is_string($controller) && str_contains($controller, '::')) {
+            $this->controllerReflector = new \ReflectionMethod(...explode('::', $controller, 2));
         } else {
             $this->controllerReflector = new \ReflectionFunction($controller(...));
         }
@@ -79,12 +79,16 @@ final class ControllerEvent extends KernelEvent
     }
 
     /**
-     * @return array<class-string, list<object>>
+     * @template T of object
+     *
+     * @param class-string<T>|null $className
+     *
+     * @return ($className is null ? array<class-string, list<object>> : list<T>)
      */
-    public function getAttributes(): array
+    public function getAttributes(?string $className = null): array
     {
         if (isset($this->attributes)) {
-            return $this->attributes;
+            return null === $className ? $this->attributes : $this->attributes[$className] ?? [];
         }
 
         if (\is_array($this->controller) && method_exists(...$this->controller)) {
@@ -92,7 +96,7 @@ final class ControllerEvent extends KernelEvent
         } elseif (\is_string($this->controller) && false !== $i = strpos($this->controller, '::')) {
             $class = new \ReflectionClass(substr($this->controller, 0, $i));
         } else {
-            $class = str_contains($this->controllerReflector->name, '{closure}') ? null : (\PHP_VERSION_ID >= 80111 ? $this->controllerReflector->getClosureCalledClass() : $this->controllerReflector->getClosureScopeClass());
+            $class = $this->controllerReflector instanceof \ReflectionFunction && $this->controllerReflector->isAnonymous() ? null : $this->controllerReflector->getClosureCalledClass();
         }
         $this->attributes = [];
 
@@ -102,6 +106,6 @@ final class ControllerEvent extends KernelEvent
             }
         }
 
-        return $this->attributes;
+        return null === $className ? $this->attributes : $this->attributes[$className] ?? [];
     }
 }

@@ -1,0 +1,44 @@
+{
+    "name": "intervention/gif",
+    "description": "Native PHP GIF Encoder/Decoder",
+    "homepage": "https://github.com/intervention/gif",
+    "keywords": [
+        "image",
+        "gd",
+        "gif",
+        "animation"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Oliver Vogel",
+            "email": "oliver@intervention.io",
+            "homepage": "https://intervention.io/"
+        }
+    ],
+    "require": {
+        "php": "^8.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.0 || ^11.0  || ^12.0",
+        "phpstan/phpstan": "^2.1",
+        "squizlabs/php_codesniffer": "^3.8",
+        "slevomat/coding-standard": "~8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Intervention\\Gif\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Intervention\\Gif\\Tests\\": "tests"
+        }
+    },
+    "minimum-stability": "stable",
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
+}

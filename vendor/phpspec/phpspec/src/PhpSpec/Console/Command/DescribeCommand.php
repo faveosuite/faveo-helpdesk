@@ -29,6 +29,9 @@ use Symfony\Component\Console\Question\Question;
  */
 final class DescribeCommand extends Command
 {
+    /**
+     * @psalm-suppress MethodSignatureMismatch
+     */
     public function getApplication() : Application
     {
         $application = parent::getApplication();
@@ -67,10 +70,7 @@ EOF
         ;
     }
 
-    /**
-     * @return int
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $container = $this->getApplication()->getContainer();
         $container->configure();
@@ -95,10 +95,8 @@ EOF
 
     /**
      * Get suites namespaces.
-     *
-     * @return array
      */
-    private function getNamespaces()
+    private function getNamespaces() : array
     {
         return $this->getApplication()->getContainer()->get('console.autocomplete_provider')->getNamespaces();
     }

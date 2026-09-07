@@ -10,20 +10,18 @@ declare(strict_types=1);
 namespace Nette\Iterators;
 
 
-
 /**
- * Applies the callback to the elements of the inner iterator.
+ * @deprecated use Nette\Utils\Iterables::map()
  */
 class Mapper extends \IteratorIterator
 {
-	/** @var callable */
-	private $callback;
+	private \Closure $callback;
 
 
 	public function __construct(\Traversable $iterator, callable $callback)
 	{
 		parent::__construct($iterator);
-		$this->callback = $callback;
+		$this->callback = $callback(...);
 	}
 
 

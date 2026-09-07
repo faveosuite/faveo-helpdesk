@@ -3,6 +3,7 @@
 namespace League\OAuth1\Client\Server;
 
 use League\OAuth1\Client\Credentials\TokenCredentials;
+use League\OAuth1\Client\Signature\SignatureInterface;
 
 class Twitter extends Server
 {
@@ -16,7 +17,7 @@ class Twitter extends Server
     /**
      * @inheritDoc
      */
-    public function __construct($clientCredentials, SignatureInterface $signature = null)
+    public function __construct($clientCredentials, ?SignatureInterface $signature = null)
     {
         parent::__construct($clientCredentials, $signature);
 

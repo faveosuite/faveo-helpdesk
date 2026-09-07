@@ -15,27 +15,27 @@ if ('cli' !== \PHP_SAPI) {
 
 $usageInstructions = <<<END
 
-  Usage instructions
-  -------------------------------------------------------------------------------
+      Usage instructions
+      -------------------------------------------------------------------------------
 
-  $ cd symfony-code-root-directory/
+      $ cd symfony-code-root-directory/
 
-  # show the translation status of all locales
-  $ php translation-status.php
+      # show the translation status of all locales
+      $ php translation-status.php
 
-  # only show the translation status of incomplete or erroneous locales
-  $ php translation-status.php --incomplete
+      # only show the translation status of incomplete or erroneous locales
+      $ php translation-status.php --incomplete
 
-  # show the translation status of all locales, all their missing translations and mismatches between trans-unit id and source
-  $ php translation-status.php -v
+      # show the translation status of all locales, all their missing translations and mismatches between trans-unit id and source
+      $ php translation-status.php -v
 
-  # show the status of a single locale
-  $ php translation-status.php fr
+      # show the status of a single locale
+      $ php translation-status.php fr
 
-  # show the status of a single locale, missing translations and mismatches between trans-unit id and source
-  $ php translation-status.php fr -v
+      # show the status of a single locale, missing translations and mismatches between trans-unit id and source
+      $ php translation-status.php fr -v
 
-END;
+    END;
 
 $config = [
     // if TRUE, the full list of missing translations is displayed
@@ -87,19 +87,15 @@ foreach ($config['original_files'] as $originalFilePath) {
     $translationFilePaths = findTranslationFiles($originalFilePath, $config['locale_to_analyze']);
     $translationStatus = calculateTranslationStatus($originalFilePath, $translationFilePaths);
 
-    $totalMissingTranslations += array_sum(array_map(function ($translation) {
-        return count($translation['missingKeys']);
-    }, array_values($translationStatus)));
-    $totalTranslationMismatches += array_sum(array_map(function ($translation) {
-        return count($translation['mismatches']);
-    }, array_values($translationStatus)));
+    $totalMissingTranslations += array_sum(array_map(fn ($translation) => count($translation['missingKeys']), array_values($translationStatus)));
+    $totalTranslationMismatches += array_sum(array_map(fn ($translation) => count($translation['mismatches']), array_values($translationStatus)));
 
     printTranslationStatus($originalFilePath, $translationStatus, $config['verbose_output'], $config['include_completed_languages']);
 }
 
 exit($totalTranslationMismatches > 0 ? 1 : 0);
 
-function findTranslationFiles($originalFilePath, $localeToAnalyze)
+function findTranslationFiles($originalFilePath, $localeToAnalyze): array
 {
     $translations = [];
 
@@ -122,7 +118,7 @@ function findTranslationFiles($originalFilePath, $localeToAnalyze)
     return $translations;
 }
 
-function calculateTranslationStatus($originalFilePath, $translationFilePaths)
+function calculateTranslationStatus($originalFilePath, $translationFilePaths): array
 {
     $translationStatus = [];
     $allTranslationKeys = extractTranslationKeys($originalFilePath);
@@ -163,14 +159,14 @@ function extractLocaleFromFilePath($filePath)
     return $parts[count($parts) - 2];
 }
 
-function extractTranslationKeys($filePath)
+function extractTranslationKeys($filePath): array
 {
     $translationKeys = [];
-    $contents = new \SimpleXMLElement(file_get_contents($filePath));
+    $contents = new SimpleXMLElement(file_get_contents($filePath));
 
     foreach ($contents->file->body->{'trans-unit'} as $translationKey) {
         $translationId = (string) $translationKey['id'];
-        $translationKey = (string) $translationKey->source;
+        $translationKey = (string) ($translationKey['resname'] ?? $translationKey->source);
 
         $translationKeys[$translationId] = $translationKey;
     }

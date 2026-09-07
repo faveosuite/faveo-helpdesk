@@ -66,6 +66,16 @@ trait DeterminesStatusCode
     }
 
     /**
+     * Determine if the response code was a 304 "Not Modified" response.
+     *
+     * @return bool
+     */
+    public function notModified()
+    {
+        return $this->status() === 304;
+    }
+
+    /**
      * Determine if the response was a 400 "Bad Request" response.
      *
      * @return bool
@@ -136,13 +146,23 @@ trait DeterminesStatusCode
     }
 
     /**
-     * Determine if the response was a 422 "Unprocessable Entity" response.
+     * Determine if the response was a 422 "Unprocessable Content" response.
+     *
+     * @return bool
+     */
+    public function unprocessableContent()
+    {
+        return $this->status() === 422;
+    }
+
+    /**
+     * Determine if the response was a 422 "Unprocessable Content" response.
      *
      * @return bool
      */
     public function unprocessableEntity()
     {
-        return $this->status() === 422;
+        return $this->unprocessableContent();
     }
 
     /**

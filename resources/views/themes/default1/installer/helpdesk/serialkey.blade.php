@@ -27,7 +27,7 @@ active
                         </div>
                     </div>
                 @endif
-        {!! Form::open(['url'=> '/post-serial']) !!}
+        {!! html()->form('POST', url('/post-serial'))->open() !!}
             <input type="hidden" name="domain" value="http://{{ $_SERVER['HTTP_HOST'] }}">
             <input type="hidden" name="url" value="http://{{$_SERVER['HTTP_HOST']}}{{$_SERVER['REQUEST_URI']}}">
             <table ng-controller="AutotabController">

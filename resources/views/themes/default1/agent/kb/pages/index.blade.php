@@ -38,40 +38,56 @@ class="nav-item menu-open"
 
 <!-- check whether success or not -->
 @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <i class="fa  fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+    <i class="fa-solid fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('success')}}
 </div>
 @endif
 <!-- failure message -->
 @if(Session::has('fails'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fa fa-ban"></i>
-    <b>{!! lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
+    <b>{!! Lang::get('lang.alert') !!}!</b>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('fails')}}
 </div>
 @endif
 
-<div class="card card-light">
+<div class="card">
 
     <div class="card-header">
         <h3 class="card-title">{{Lang::get('lang.pages')}}</h3>
     </div>
 
     <div class="card-body">
-        
         <div class="row">
             <div class="col-sm-12">
-                {!! Datatable::table()
-                ->addColumn(Lang::get('lang.name'),
-                Lang::get('lang.created'),
-                Lang::get('lang.action'))       // these are the column headings to be shown
-                ->setUrl(route('api.page'))   // this is the route where data will be retrieved
-                ->render() !!}
+                <table id="pages-table" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>{!! Lang::get('lang.name') !!}</th>
+                            <th>{!! Lang::get('lang.created') !!}</th>
+                            <th>{!! Lang::get('lang.action') !!}</th>
+                        </tr>
+                    </thead>
+                </table>
             </div>
         </div>
     </div>
 </div>
+<script>
+$(function() {
+    $('#pages-table').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: '{{ route("api.page") }}',
+        columns: [
+            {data: 'name',    name: 'name'},
+            {data: 'Created', name: 'Created'},
+            {data: 'Actions', name: 'Actions', orderable: false, searchable: false},
+        ]
+    });
+});
+</script>
 @stop

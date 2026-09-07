@@ -9,23 +9,35 @@
  */
 namespace SebastianBergmann\Complexity;
 
+use function assert;
+use function file_exists;
+use function file_get_contents;
+use function is_readable;
+use function is_string;
 use PhpParser\Error;
-use PhpParser\Lexer;
 use PhpParser\Node;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor\NameResolver;
 use PhpParser\NodeVisitor\ParentConnectingVisitor;
-use PhpParser\Parser;
 use PhpParser\ParserFactory;
 
 final class Calculator
 {
     /**
+     * @param non-empty-string $sourceFile
+     *
      * @throws RuntimeException
      */
     public function calculateForSourceFile(string $sourceFile): ComplexityCollection
     {
-        return $this->calculateForSourceString(file_get_contents($sourceFile));
+        assert(file_exists($sourceFile));
+        assert(is_readable($sourceFile));
+
+        $source = file_get_contents($sourceFile);
+
+        assert(is_string($source));
+
+        return $this->calculateForSourceString($source);
     }
 
     /**
@@ -34,18 +46,17 @@ final class Calculator
     public function calculateForSourceString(string $source): ComplexityCollection
     {
         try {
-            $nodes = $this->parser()->parse($source);
+            $nodes = (new ParserFactory)->createForHostVersion()->parse($source);
 
             assert($nodes !== null);
 
             return $this->calculateForAbstractSyntaxTree($nodes);
-
             // @codeCoverageIgnoreStart
         } catch (Error $error) {
             throw new RuntimeException(
                 $error->getMessage(),
-                (int) $error->getCode(),
-                $error
+                $error->getCode(),
+                $error,
             );
         }
         // @codeCoverageIgnoreEnd
@@ -72,17 +83,12 @@ final class Calculator
         } catch (Error $error) {
             throw new RuntimeException(
                 $error->getMessage(),
-                (int) $error->getCode(),
-                $error
+                $error->getCode(),
+                $error,
             );
         }
         // @codeCoverageIgnoreEnd
 
         return $complexityCalculatingVisitor->result();
-    }
-
-    private function parser(): Parser
-    {
-        return (new ParserFactory)->create(ParserFactory::PREFER_PHP7, new Lexer);
     }
 }

@@ -16,6 +16,7 @@ use Prophecy\Doubler\Generator\Node\ClassNode;
 use Prophecy\Doubler\Generator\Node\MethodNode;
 use Prophecy\Doubler\Generator\Node\ArgumentNode;
 use Prophecy\Doubler\Generator\Node\ReturnTypeNode;
+use Prophecy\Doubler\Generator\Node\Type\ObjectType;
 
 /**
  * Add Prophecy functionality to the double.
@@ -65,7 +66,7 @@ class ProphecySubjectPatch implements ClassPatchInterface
 
         $prophecySetter = new MethodNode('setProphecy');
         $prophecyArgument = new ArgumentNode('prophecy');
-        $prophecyArgument->setTypeNode(new ArgumentTypeNode('Prophecy\Prophecy\ProphecyInterface'));
+        $prophecyArgument->setTypeNode(new ArgumentTypeNode(new ObjectType('Prophecy\Prophecy\ProphecyInterface')));
         $prophecySetter->addArgument($prophecyArgument);
         $prophecySetter->setCode(<<<PHP
 if (null === \$this->objectProphecyClosure) {
@@ -74,13 +75,14 @@ if (null === \$this->objectProphecyClosure) {
     };
 }
 PHP
-    );
+        );
 
         $prophecyGetter = new MethodNode('getProphecy');
         $prophecyGetter->setCode('return \call_user_func($this->objectProphecyClosure);');
 
         if ($node->hasMethod('__call')) {
             $__call = $node->getMethod('__call');
+            \assert($__call !== null);
         } else {
             $__call = new MethodNode('__call');
             $__call->addArgument(new ArgumentNode('name'));

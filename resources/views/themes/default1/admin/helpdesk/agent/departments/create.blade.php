@@ -20,7 +20,7 @@ class="nav-link active"
 @stop
 <!-- header -->
 @section('PageHeader')
-<h1>{{Lang::get('lang.departments')}}</h1>
+<h3>{{Lang::get('lang.departments')}}</h3>
 @stop
 <!-- /header -->
 <!-- breadcrumbs -->
@@ -33,13 +33,13 @@ class="nav-link active"
 <!-- content -->
 @section('content')
 <!-- open a form -->
-{!! Form::open(array('route' => 'departments.store') )!!}
+{!! html()->form('POST', route('departments.store'))->open() !!}
 @if(Session::has('errors'))
 <?php //dd($errors); ?>
-<div class="alert alert-danger alert-dismissable">
-    <i class="fa fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>Alert!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     <br/>
     @if($errors->first('name'))
     <li class="error-message-padding">{!! $errors->first('name', ':message') !!}</li>
@@ -65,41 +65,41 @@ class="nav-link active"
     <div class="card-body">
         <div class="row">
             <!-- name -->
-            <div class="col-sm-6 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                {!! Form::label('name',Lang::get('lang.name')) !!}  <span class="text-red"> *</span>
-                {!! Form::text('name',null,['class' => 'form-control']) !!}
+            <div class="col-sm-6 mb-3 {{ $errors->has('name') ? 'has-error' : '' }}">
+                {!! html()->label(Lang::get('lang.name'), 'name') !!}  <span class="text-red"> *</span>
+                {!! html()->text('name', null)->class('form-control') !!}
             </div>
             <!-- account status -->
-            <div class="col-sm-6 form-group {{ $errors->has('account_status') ? 'has-error' : '' }}">
-                {!! Form::label('type',Lang::get('lang.type')) !!}
+            <div class="col-sm-6 mb-3 {{ $errors->has('account_status') ? 'has-error' : '' }}">
+                {!! html()->label(Lang::get('lang.type'), 'type') !!}
                 <div class="row">
                     <div class="col-sm-2">
-                        {!! Form::radio('type','1',true) !!} {{Lang::get('lang.public')}}
+                        {!! html()->radio('type', true, '1') !!} {{Lang::get('lang.public')}}
                     </div>
                     <div class="col-sm-3">
-                        {!! Form::radio('type','0',null) !!} {{Lang::get('lang.private')}}
+                        {!! html()->radio('type', null, '0') !!} {{Lang::get('lang.private')}}
                     </div>
                 </div>
             </div>
         </div>
         <div class="row">
             <!-- slaplan -->
-            <div class="col-sm-6 form-group {{ $errors->has('sla') ? 'has-error' : '' }}">
-                {!! Form::label('sla',Lang::get('lang.SLA_plan')) !!}
-                {!!Form::select('sla', [''=>Lang::get('lang.select_a_sla'), Lang::get('lang.sla_plans')=>$slas->pluck('grace_period','id')->toArray()],null,['class' => 'form-control select']) !!}
+            <div class="col-sm-6 mb-3 {{ $errors->has('sla') ? 'has-error' : '' }}">
+                {!! html()->label(Lang::get('lang.SLA_plan'), 'sla') !!}
+                {!! html()->select('sla', [''=>Lang::get('lang.select_a_sla'), Lang::get('lang.sla_plans')=>$slas->pluck('grace_period','id')->toArray()], null)->class('form-control select') !!}
             </div>
             <!-- manager -->
-            <div class="col-sm-6 form-group {{ $errors->has('manager') ? 'has-error' : '' }}">
-                {!! Form::label('manager',Lang::get('lang.manager')) !!}
-                {!!Form::select('manager',[''=>Lang::get('lang.select_a_manager'),Lang::get('lang.manager')=>$user->pluck('full_name','id')->toArray()],null,['class' => 'form-control select']) !!}
+            <div class="col-sm-6 mb-3 {{ $errors->has('manager') ? 'has-error' : '' }}">
+                {!! html()->label(Lang::get('lang.manager'), 'manager') !!}
+                {!! html()->select('manager', [''=>Lang::get('lang.select_a_manager'),Lang::get('lang.manager')=>$user->pluck('full_name','id')->toArray()], null)->class('form-control select') !!}
             </div>
         </div>
 
         <div class="row">
             <!-- sla -->
-            <div class="col-sm-6 form-group {{ $errors->has('outgoing_email') ? 'has-error' : '' }}">
-                {!! Form::label('outgoing_email',Lang::get('lang.outgoing_email')) !!}
-                {!!Form::select('outgoing_email', ['' => Lang::get('lang.system_default'), Lang::get('lang.emails')=>$emails->pluck('email_name','id')->toArray()],null,['class' => 'form-control select']) !!}
+            <div class="col-sm-6 mb-3 {{ $errors->has('outgoing_email') ? 'has-error' : '' }}">
+                {!! html()->label(Lang::get('lang.outgoing_email'), 'outgoing_email') !!}
+                {!! html()->select('outgoing_email', ['' => Lang::get('lang.system_default'), Lang::get('lang.emails')=>$emails->pluck('email_name','id')->toArray()], null)->class('form-control select') !!}
             </div>
         </div>
         <div>
@@ -107,8 +107,8 @@ class="nav-link active"
         </div>
     </div>
     <div class="card-footer">
-        {!! Form::submit(Lang::get('lang.submit'),['class'=>'btn btn-primary'])!!}    
+        {!! html()->submit(Lang::get('lang.submit'))->class('btn btn-primary') !!}    
     </div>
-    {!!Form::close()!!}
+    {!! html()->closeModelForm() !!}
 </div>
 @stop

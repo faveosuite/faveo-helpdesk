@@ -2,6 +2,8 @@
 
 namespace Illuminate\Console;
 
+use function Laravel\Prompts\confirm;
+
 trait ConfirmableTrait
 {
     /**
@@ -9,9 +11,11 @@ trait ConfirmableTrait
      *
      * This method only asks for confirmation in production.
      *
+     * @template TReturn of bool = bool
+     *
      * @param  string  $warning
-     * @param  \Closure|bool|null  $callback
-     * @return bool
+     * @param  (\Closure(): TReturn)|TReturn|null  $callback
+     * @return (TReturn is false ? true : bool)
      */
     public function confirmToProceed($warning = 'Application In Production', $callback = null)
     {
@@ -26,12 +30,10 @@ trait ConfirmableTrait
 
             $this->components->alert($warning);
 
-            $confirmed = $this->components->confirm('Do you really wish to run this command?');
+            $confirmed = confirm('Are you sure you want to run this command?', default: false);
 
             if (! $confirmed) {
-                $this->newLine();
-
-                $this->components->warn('Command canceled.');
+                $this->components->warn('Command cancelled.');
 
                 return false;
             }
@@ -43,7 +45,7 @@ trait ConfirmableTrait
     /**
      * Get the default confirmation callback.
      *
-     * @return \Closure
+     * @return \Closure(): bool
      */
     protected function getDefaultConfirmCallback()
     {

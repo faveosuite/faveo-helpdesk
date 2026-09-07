@@ -21,7 +21,7 @@ class LaravelLogger extends BugsnagLogger implements Log
      *
      * @return void
      */
-    public function __construct(Client $client, Dispatcher $dispatcher = null)
+    public function __construct(Client $client, $dispatcher = null)
     {
         parent::__construct($client);
 

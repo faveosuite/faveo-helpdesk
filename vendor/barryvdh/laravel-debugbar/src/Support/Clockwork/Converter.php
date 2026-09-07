@@ -39,7 +39,11 @@ class Converter
             $output = array_merge($output, $data['clockwork']);
         }
 
-        if (isset($data['time'])) {
+        if (isset($data['memory']['peak_usage'])) {
+            $output['memoryUsage'] = $data['memory']['peak_usage'];
+        }
+
+        if (isset($data['time']['measures'])) {
             $time = $data['time'];
             $output['time'] = $time['start'];
             $output['responseTime'] = $time['end'];
@@ -66,12 +70,12 @@ class Converter
                 $controller = $route['uses'];
             }
 
-            $output['controller'] = $controller;
+            $output['controller'] = preg_replace('/<a\b[^>]*>(.*?)<\/a>/i', '', (string) $controller) ?: null;
 
             list($method, $uri) = explode(' ', $route['uri'], 2);
 
             $output['routes'][] = [
-                'action' => $controller,
+                'action' => $output['controller'],
                 'after' => isset($route['after']) ? $route['after'] : null,
                 'before' => isset($route['before']) ? $route['before'] : null,
                 'method' => $method,
@@ -80,7 +84,7 @@ class Converter
             ];
         }
 
-        if (isset($data['messages'])) {
+        if (isset($data['messages']['messages'])) {
             foreach ($data['messages']['messages'] as $message) {
                 $output['log'][] = [
                     'message' => $message['message'],
@@ -90,16 +94,17 @@ class Converter
             }
         }
 
-        if (isset($data['queries'])) {
+        if (isset($data['queries']['statements'])) {
             $queries = $data['queries'];
             foreach ($queries['statements'] as $statement) {
-                if ($statement['type'] === 'explain') {
+                if ($statement['type'] === 'explain' || $statement['type'] === 'info') {
                     continue;
                 }
                 $output['databaseQueries'][] = [
                     'query' => $statement['sql'],
                     'bindings' => $statement['params'],
                     'duration' => $statement['duration'] * 1000,
+                    'time' => $statement['start'] ?? null,
                     'connection' => $statement['connection']
                 ];
             }
@@ -107,13 +112,30 @@ class Converter
             $output['databaseDuration'] = $queries['accumulated_duration'] * 1000;
         }
 
-        if (isset($data['views'])) {
+        if (isset($data['models']['data'])) {
+            $output['modelsActions'] = [];
+            $output['modelsCreated'] = [];
+            $output['modelsUpdated'] = [];
+            $output['modelsDeleted'] = [];
+            $output['modelsRetrieved'] = [];
+
+            foreach ($data['models']['data'] as $model => $value) {
+                foreach ($value as $event => $count) {
+                    $eventKey = 'models' . ucfirst($event);
+                    if (isset($output[$eventKey])) {
+                        $output[$eventKey][$model] = $count;
+                    }
+                }
+            }
+        }
+
+        if (isset($data['views']['templates'])) {
             foreach ($data['views']['templates'] as $view) {
                 $output['viewsData'][] = [
                     'description' => 'Rendering a view',
                     'duration' => 0,
                     'end' => 0,
-                    'start' => 0,
+                    'start' => $view['start'] ?? 0,
                     'data' => [
                         'name' => $view['name'],
                         'data' => $view['params'],
@@ -122,11 +144,28 @@ class Converter
             }
         }
 
-        if (isset($data['swiftmailer_mails'])) {
-            foreach ($data['swiftmailer_mails']['mails'] as $mail) {
+        if (isset($data['event']['measures'])) {
+            foreach ($data['event']['measures'] as $event) {
+                $event['data'] = [];
+                $event['listeners'] = [];
+                foreach ($event['params'] ?? [] as $key => $param) {
+                    $event[is_numeric($key) ? 'data' : 'listeners'] = $param;
+                }
+                $output['events'][] = [
+                    'event' => ['event' => $event['label']],
+                    'data' => $event['data'],
+                    'time' => $event['start'],
+                    'duration' => $event['duration'] * 1000,
+                    'listeners' => $event['listeners'],
+                ];
+            }
+        }
+
+        if (isset($data['symfonymailer_mails']['mails'])) {
+            foreach ($data['symfonymailer_mails']['mails'] as $mail) {
                 $output['emailsData'][] = [
                     'data' => [
-                        'to' => $mail['to'],
+                        'to' => implode(', ', $mail['to']),
                         'subject' => $mail['subject'],
                         'headers' => isset($mail['headers']) ? explode("\n", $mail['headers']) : null,
                     ],

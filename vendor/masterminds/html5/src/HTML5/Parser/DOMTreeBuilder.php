@@ -231,8 +231,6 @@ class DOMTreeBuilder implements EventHandler
      *
      * This is used for handling Processor Instructions as they are
      * inserted. If omitted, PI's are inserted directly into the DOM tree.
-     *
-     * @param InstructionProcessor $proc
      */
     public function setInstructionProcessor(InstructionProcessor $proc)
     {
@@ -357,6 +355,16 @@ class DOMTreeBuilder implements EventHandler
         if ($this->onlyInline && Elements::isA($lname, Elements::BLOCK_TAG)) {
             $this->autoclose($this->onlyInline);
             $this->onlyInline = null;
+        }
+
+        // some elements as table related tags might have optional end tags that force us to auto close multiple tags
+        // https://www.w3.org/TR/html401/struct/tables.html
+        if ($this->current instanceof \DOMElement && isset(Elements::$optionalEndElementsParentsToClose[$lname])) {
+            foreach (Elements::$optionalEndElementsParentsToClose[$lname] as $parentElName) {
+                if ($this->current instanceof \DOMElement && $this->current->tagName === $parentElName) {
+                    $this->autoclose($parentElName);
+                }
+            }
         }
 
         try {

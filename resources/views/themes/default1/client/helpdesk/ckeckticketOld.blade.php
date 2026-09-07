@@ -11,29 +11,29 @@ $thread = App\Model\helpdesk\Ticket\Ticket_Thread::where('ticket_id', '=', \Cryp
     <div class="box-header">
         <div class="row">
             <div class="col-md-9">
-                <section class="content-header"><h3 class="box-title"><i class="fa fa-user"> </i> {{$thread->title}} </h3> ( {{$tickets->ticket_number}} )
+                <section class="app-content-header"><h3 class="box-title"><i class="fa-solid fa-user"> </i> {{$thread->title}} </h3> ( {{$tickets->ticket_number}} )
                 </section>
             </div> 
             <div class="col-md-3">
                 <div class="pull-right">
 
-                    <!-- <button type="button" class="btn btn-default"><i class="fa fa-edit" style="color:green;"> </i> Edit</button> -->                            
-                    {{-- <button type="button" class="btn btn-default"><i class="fa fa-print" style="color:blue;"> </i> {!! link_to_route('ticket.print','Print',[$tickets->id]) !!}</button> --}}
+                    <!-- <button type="button" class="btn btn-secondary"><i class="fa-solid fa-pen-to-square text-success"> </i> Edit</button> -->                            
+                    {{-- <button type="button" class="btn btn-secondary"><i class="fa-solid fa-print text-primary"> </i> {!! link_to_route('ticket.print','Print',[$tickets->id]) !!}</button> --}}
                     <!-- </div> -->
                     @if( $common_setting->status == '1')
                     <div class="btn-group"> 
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><i class="fa fa-exchange" style="color:teal;"> </i> 
+                        <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown"><i class="fa-solid fa-exchange text-teal"> </i>
                             {!! Lang::get('lang.change_status') !!} <span class="caret"></span>
                         </button>
                         <?php $statuses = \App\Model\helpdesk\Ticket\Ticket_Status::all(); ?>
 
                         <ul class="dropdown-menu">
-                            <li><a href="#" id="open"><i class="fa fa-folder-open" style="color:#FFD600;"> </i>{!! Lang::get('lang.open') !!}</a></li>
-                            <li><a href="#" id="close"><i class="fa fa-check" style="color:#15F109;"> </i>{!! Lang::get('lang.close') !!}</a></li>
-                            <li><a href="#" id="resolved"><i class="fa fa-check-circle " style="color:#0EF1BE;"> </i> {!! Lang::get('lang.resolved') !!}</a></li>
+                            <li><a href="#" id="open"><i class="fa-solid fa-folder-open" style="color:#FFD600;"> </i>{!! Lang::get('lang.open') !!}</a></li>
+                            <li><a href="#" id="close"><i class="fa-solid fa-check" style="color:#15F109;"> </i>{!! Lang::get('lang.close') !!}</a></li>
+                            <li><a href="#" id="resolved"><i class="fa-solid fa-circle-check " style="color:#0EF1BE;"> </i> {!! Lang::get('lang.resolved') !!}</a></li>
                         </ul>
                     </div>@endif
-                    {!! Form::close() !!}
+                    {!! html()->closeModelForm() !!}
                 </div>
             </div>
         </div>
@@ -76,15 +76,15 @@ $thread = App\Model\helpdesk\Ticket\Ticket_Thread::where('ticket_id', '=', \Cryp
     <div class="box-body" style="margin-bottom:-10px">
         <div class="row">
             <div id="loader" style="display:none;">
-                <div class="col-xs-5">
+                <div class="col-5">
                 </div>
-                <div class="col-xs-1">
+                <div class="col-1">
                     <img src="{{asset("lb-faveo/media/images/gifloader.gif")}}"><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
                 </div>
-                <div class="col-xs-6">
+                <div class="col-6">
                 </div>
             </div>
-            <section class="content"  id="refresh" style="margin-bottom:-10px;margin-top:-10px">
+            <section class="app-content"  id="refresh" style="margin-bottom:-10px;margin-top:-10px">
                 <div class="col-md-12"> 
                     <?php
                     $priority = App\Model\helpdesk\Ticket\Ticket_Priority::where('priority_id', '=', $tickets->priority_id)->first();
@@ -270,7 +270,7 @@ foreach ($conversations as $conversation) {
                     </div><!-- .comment-author -->
                     <div class="comment-metadata">
                         <small class="date text-muted">
-                            <time datetime="2013-10-23T01:50:50+00:00"><i class="fa fa-clock-o"> </i> {{ UTC::usertimezone($conversation->created_at) }}</time>
+                            <time datetime="2013-10-23T01:50:50+00:00"><i class="fa-solid fa-clock-o"> </i> {{ UTC::usertimezone($conversation->created_at) }}</time>
                         </small>
                     </div><!-- .comment-metadata -->
                 </footer><!-- .comment-meta -->
@@ -330,18 +330,18 @@ foreach ($conversations as $conversation) {
 </div>
 <br/><br/>
 @if(Session::has('success1'))
-<div class="alert alert-success alert-dismissable" id='formabc'>
-    <i class="fa  fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible" id='formabc'>
+    <i class="fa  fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('success1')}}
 </div>
 @endif
 <!-- failure message -->
 @if(Session::has('fails1'))
-<div class="alert alert-danger alert-dismissable" id='formabc'>
-    <i class="fa fa-ban"></i>
+<div class="alert alert-danger alert-dismissible" id='formabc'>
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('fails1')}}
 </div>
 @endif
@@ -349,23 +349,23 @@ foreach ($conversations as $conversation) {
 <div id="respond" class="comment-respond form-border">
     <h3 id="reply-title" class="comment-reply-title section-title"><i class="line"></i>{!! Lang::get('lang.leave_a_reply') !!}</h3>
     @if(Auth::user()) 
-    {!! Form::open(['url'=>'post/reply/'.$id2.'#formabc']) !!}
+    {!! html()->form('POST', url('post/reply/'.$id2.'#formabc'))->open() !!}
     @else
-    {!! Form::open(['url'=>'post-ticket-reply/'.$id.'#formabc']) !!}
+    {!! html()->form('POST', url('post-ticket-reply/'.$id.'#formabc'))->open() !!}
     @endif
     <div class="row">
-        <div class="form-group">
+        <div class="mb-3">
             <div class="col-md-12">
-                <div class="form-group ">
+                <div class="mb-3 ">
                     <textarea class="form-control" name="comment" cols="30" rows="8"></textarea>
                 </div>
             </div>                                              
         </div>
     </div>
-    <div class="text-right">
+    <div class="text-end">
         <button type="submit" class="btn btn-custom btn-lg">{!! Lang::get('lang.post_comment') !!}</button>
     </div>
-    {!! Form::close() !!}
+    {!! html()->closeModelForm() !!}
 </div>
 
 <script type="text/javascript">

@@ -28,6 +28,13 @@ class HttpClient
     protected $queue = [];
 
     /**
+     * Flags to pass to 'json_encode'.
+     *
+     * @var int
+     */
+    private $jsonEncodeFlags = 0;
+
+    /**
      * The maximum payload size. A whole megabyte (1024 * 1024).
      *
      * @var int
@@ -59,6 +66,11 @@ class HttpClient
     {
         $this->config = $config;
         $this->guzzle = $guzzle;
+
+        // substitute invalid UTF-8 characters when possible (PHP 7.2+)
+        if (defined('JSON_INVALID_UTF8_SUBSTITUTE')) {
+            $this->jsonEncodeFlags |= JSON_INVALID_UTF8_SUBSTITUTE;
+        }
     }
 
     /**
@@ -347,7 +359,7 @@ class HttpClient
      */
     protected function normalize(array $data)
     {
-        $body = json_encode($data);
+        $body = json_encode($data, $this->jsonEncodeFlags);
 
         if ($this->length($body) <= static::MAX_SIZE) {
             return $body;
@@ -355,7 +367,7 @@ class HttpClient
 
         unset($data['events'][0]['metaData']);
 
-        $body = json_encode($data);
+        $body = json_encode($data, $this->jsonEncodeFlags);
 
         if ($this->length($body) > static::MAX_SIZE) {
             throw new RuntimeException('Payload too large');

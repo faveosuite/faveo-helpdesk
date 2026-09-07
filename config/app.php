@@ -135,6 +135,7 @@ return [
      */
     'providers' => [
         'Illuminate\Broadcasting\BroadcastServiceProvider',
+        'Diglactic\Breadcrumbs\ServiceProvider',
         /*
          * Laravel Framework Service Providers...
          */
@@ -160,7 +161,6 @@ return [
         'Illuminate\View\ViewServiceProvider',
         Illuminate\Notifications\NotificationServiceProvider::class,
         App\Providers\BroadcastServiceProvider::class,
-        Collective\Html\HtmlServiceProvider::class,
         /*
          * Application Service Providers...
          */
@@ -173,17 +173,14 @@ return [
         Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
         \Torann\GeoIP\GeoIPServiceProvider::class,
         Unisharp\Laravelfilemanager\LaravelFilemanagerServiceProvider::class,
-        Intervention\Image\ImageServiceProvider::class,
         //Collective\Bus\BusServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
         Laravel\Socialite\SocialiteServiceProvider::class,
         App\FaveoLog\LaravelLogViewerServiceProvider::class,
         App\FaveoStorage\StorageServiceProvider::class,
-        Yajra\Datatables\DatatablesServiceProvider::class,
+        \Yajra\DataTables\DataTablesServiceProvider::class,
         \App\Api\ApiServiceProvider::class,
         Barryvdh\Debugbar\ServiceProvider::class,
-        \Chumper\Datatable\DatatableServiceProvider::class,
-        \Yajra\DataTables\DataTablesServiceProvider::class,
         \Bugsnag\BugsnagLaravel\BugsnagServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
         App\Providers\QueryListenProvider::class,
@@ -200,20 +197,15 @@ return [
       |
      */
     'aliases' => Facade::defaultAliases()->merge([
-        'Breadcrumbs' => 'DaveJamesMiller\Breadcrumbs\Facade',
         'Bugsnag'     => 'Bugsnag\BugsnagLaravel\BugsnagFacade',
-        'Datatable'   => 'Chumper\Datatable\Facades\DatatableFacade',
-        'Datatables'  => Yajra\Datatables\Facades\Datatables::class,
+        'DataTables'  => Yajra\DataTables\Facades\DataTables::class,
         'Debugbar'    => Barryvdh\Debugbar\Facades\Debugbar::class,
         'Excel'       => Maatwebsite\Excel\Facades\Excel::class,
         'FCM'         => LaravelFCM\Facades\FCM::class,
         'FCMGroup'    => LaravelFCM\Facades\FCMGroup::class,
         'Finder'      => App\Helper\Finder::class,
-        'Form'        => Collective\Html\FormFacade::class,
         'GeoIP'       => \Torann\GeoIP\Facades\GeoIP::class,
         'Gravatar'    => 'Thomaswelton\LaravelGravatar\Facades\Gravatar',
-        'Html'        => Collective\Html\HtmlFacade::class,
-        'Image'       => Intervention\Image\Facades\Image::class,
         'Inspiring'   => 'Illuminate\Foundation\Inspiring',
         'JWTAuth'     => 'Tymon\JWTAuth\Facades\JWTAuth',
         'JWTFactory'  => 'Tymon\JWTAuth\Facades\JWTFactory',
@@ -226,5 +218,6 @@ return [
         'UnAuth'      => App\Http\Controllers\Client\helpdesk\UnAuthController::class,
         'Zipper'      => 'Chumper\Zipper\Zipper',
         'phone'       => 'The :attribute field contains an invalid number.',
+        'Breadcrumbs' => \Diglactic\Breadcrumbs\Breadcrumbs::class,
     ])->toArray(),
 ];

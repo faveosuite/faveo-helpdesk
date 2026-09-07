@@ -3,10 +3,10 @@
 namespace Spatie\LaravelIgnition\Exceptions;
 
 use Exception;
-use Monolog\Logger;
-use Spatie\Ignition\Contracts\BaseSolution;
-use Spatie\Ignition\Contracts\ProvidesSolution;
-use Spatie\Ignition\Contracts\Solution;
+use Monolog\Level;
+use Spatie\ErrorSolutions\Contracts\BaseSolution;
+use Spatie\ErrorSolutions\Contracts\ProvidesSolution;
+use Spatie\ErrorSolutions\Contracts\Solution;
 
 class InvalidConfig extends Exception implements ProvidesSolution
 {
@@ -19,7 +19,7 @@ class InvalidConfig extends Exception implements ProvidesSolution
     {
         $validLogLevels = array_map(
             fn (string $level) => strtolower($level),
-            array_keys(Logger::getLevels())
+            array_keys(Level::VALUES)
         );
 
         $validLogLevelsString = implode(',', $validLogLevels);

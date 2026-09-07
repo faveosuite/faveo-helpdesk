@@ -141,7 +141,7 @@ abstract class AbstractProvider implements ProviderContract
      * Get the raw user for the given access token.
      *
      * @param  string  $token
-     * @return array
+     * @return mixed
      */
     abstract protected function getUserByToken($token);
 
@@ -239,14 +239,26 @@ abstract class AbstractProvider implements ProviderContract
 
         $response = $this->getAccessTokenResponse($this->getCode());
 
-        $this->user = $this->mapUserToObject($this->getUserByToken(
-            $token = Arr::get($response, 'access_token')
-        ));
+        $user = $this->getUserByToken(Arr::get($response, 'access_token'));
 
-        return $this->user->setToken($token)
-                    ->setRefreshToken(Arr::get($response, 'refresh_token'))
-                    ->setExpiresIn(Arr::get($response, 'expires_in'))
-                    ->setApprovedScopes(explode($this->scopeSeparator, Arr::get($response, 'scope', '')));
+        return $this->userInstance($response, $user);
+    }
+
+    /**
+     * Create a user instance from the given data.
+     *
+     * @param  array  $response
+     * @param  array  $user
+     * @return \Laravel\Socialite\Two\User
+     */
+    protected function userInstance(array $response, array $user)
+    {
+        $this->user = $this->mapUserToObject($user);
+
+        return $this->user->setToken(Arr::get($response, 'access_token'))
+            ->setRefreshToken(Arr::get($response, 'refresh_token'))
+            ->setExpiresIn(Arr::get($response, 'expires_in'))
+            ->setApprovedScopes(explode($this->scopeSeparator, Arr::get($response, 'scope', '')));
     }
 
     /**
@@ -282,7 +294,7 @@ abstract class AbstractProvider implements ProviderContract
      * Get the access token response for the given code.
      *
      * @param  string  $code
-     * @return array
+     * @return mixed
      */
     public function getAccessTokenResponse($code)
     {
@@ -325,7 +337,44 @@ abstract class AbstractProvider implements ProviderContract
             $fields['code_verifier'] = $this->request->session()->pull('code_verifier');
         }
 
-        return $fields;
+        return array_merge($fields, $this->parameters);
+    }
+
+    /**
+     * Refresh a user's access token with a refresh token.
+     *
+     * @param  string  $refreshToken
+     * @return \Laravel\Socialite\Two\Token
+     */
+    public function refreshToken($refreshToken)
+    {
+        $response = $this->getRefreshTokenResponse($refreshToken);
+
+        return new Token(
+            Arr::get($response, 'access_token'),
+            Arr::get($response, 'refresh_token'),
+            Arr::get($response, 'expires_in'),
+            explode($this->scopeSeparator, Arr::get($response, 'scope', ''))
+        );
+    }
+
+    /**
+     * Get the refresh token response for the given refresh token.
+     *
+     * @param  string  $refreshToken
+     * @return mixed
+     */
+    protected function getRefreshTokenResponse($refreshToken)
+    {
+        return json_decode($this->getHttpClient()->post($this->getTokenUrl(), [
+            RequestOptions::HEADERS => ['Accept' => 'application/json'],
+            RequestOptions::FORM_PARAMS => [
+                'grant_type' => 'refresh_token',
+                'refresh_token' => $refreshToken,
+                'client_id' => $this->clientId,
+                'client_secret' => $this->clientSecret,
+            ],
+        ])->getBody(), true);
     }
 
     /**
@@ -346,7 +395,7 @@ abstract class AbstractProvider implements ProviderContract
      */
     public function scopes($scopes)
     {
-        $this->scopes = array_unique(array_merge($this->scopes, (array) $scopes));
+        $this->scopes = array_values(array_unique(array_merge($this->scopes, (array) $scopes)));
 
         return $this;
     }
@@ -359,7 +408,7 @@ abstract class AbstractProvider implements ProviderContract
      */
     public function setScopes($scopes)
     {
-        $this->scopes = array_unique((array) $scopes);
+        $this->scopes = array_values(array_unique((array) $scopes));
 
         return $this;
     }

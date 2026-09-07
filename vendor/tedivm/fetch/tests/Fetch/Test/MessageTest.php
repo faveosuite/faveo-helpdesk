@@ -77,6 +77,43 @@ class MessageTest extends \PHPUnit_Framework_TestCase
 
     }
 
+    public function testGetPlainTextBody()
+    {
+        // easiest way to deal with php encoding issues is simply not to.
+        $plaintextTest1 = 'f9377a89c9c935463a2b35c92dd61042';
+        $plaintextTest2 = '0b8fc9b534a1789f1071f996f238a07a';
+        $plaintextTest3 = 'd41d8cd98f00b204e9800998ecf8427e';
+
+        $message = static::getMessage(3);
+        $messagePlainText = $message->getPlainTextBody();
+        $this->assertEquals($plaintextTest1, md5($messagePlainText), 'Message returns as plaintext.');
+
+        $message = static::getMessage(4);
+        $messagePlainText = $message->getPlainTextBody();
+        $this->assertEquals($plaintextTest2, md5($messagePlainText), 'Message returns as plaintext.');
+
+        $message = static::getMessage(6);
+        $messagePlainText = $message->getPlainTextBody();
+        $this->assertEquals($plaintextTest3, md5($messagePlainText), 'Message does not return as plaintext.');
+
+    }
+
+    public function testGetHtmlBody()
+    {
+        // easiest way to deal with php encoding issues is simply not to.
+        $HtmlTest1 = 'd41d8cd98f00b204e9800998ecf8427e';
+        $HtmlTest2 = '6a366ddecf080199284146d991d52169';
+
+        $message = static::getMessage(3);
+        $messageHtml = $message->getHtmlBody();
+        $this->assertEquals($HtmlTest1, md5($messageHtml), 'Message does not return as HTML.');
+
+        $message = static::getMessage(4);
+        $messageHtml = $message->getHtmlBody();
+        $this->assertEquals($HtmlTest2, md5($messageHtml), 'Message returns as HTML.');
+
+    }
+
     public function testGetAddresses()
     {
         $message = static::getMessage(3);
@@ -175,32 +212,29 @@ class MessageTest extends \PHPUnit_Framework_TestCase
         // Testing by moving message from "Test Folder" to "Sent"
 
         // Count Test Folder
-        $server->setMailBox('Test Folder');
-        $testFolderNumStart = $server->numMessages();
+        $testFolderNumStart = $server->numMessages('Test Folder');
+        $server->setMailbox('Test Folder');
+        $this->assertEquals($testFolderNumStart, $server->numMessages(), 'Server presents consistent information between numMessages when mailbox set and directly queried for number of messages');
 
         // Get message from Test Folder
-        $message = $server->getMessageByUid(1);
+        $message = current($server->getMessages(1));
         $this->assertInstanceOf('\Fetch\Message', $message, 'Server returned Message.');
 
         // Switch to Sent folder, count messages
-        $server->setMailBox('Sent');
-        $sentFolderNumStart = $server->numMessages();
+        $sentFolderNumStart = $server->numMessages('Sent');
+        $server->setMailbox('Sent');
+        $this->assertEquals($sentFolderNumStart, $server->numMessages(), 'Server presents consistent information between numMessages when mailbox set and directly queried for number of messages');
 
         // Switch to "Flagged" folder in order to test that function properly returns to it
         $this->assertTrue($server->setMailBox('Flagged Email'));
-
         // Move the message!
         $this->assertTrue($message->moveToMailBox('Sent'));
-
         // Make sure we're still in the same folder
         $this->assertEquals('Flagged Email', $server->getMailBox(), 'Returned Server back to right mailbox.');
-
         $this->assertAttributeEquals('Sent', 'mailbox', $message, 'Message mailbox changed to new location.');
-
         // Make sure Test Folder lost a message
         $this->assertTrue($server->setMailBox('Test Folder'));
         $this->assertEquals($testFolderNumStart - 1, $server->numMessages(), 'Message moved out of Test Folder.');
-
         // Make sure Sent folder gains one
         $this->assertTrue($server->setMailBox('Sent'));
         $this->assertEquals($sentFolderNumStart + 1, $server->numMessages(), 'Message moved into Sent Folder.');

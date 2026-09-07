@@ -22,7 +22,6 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request as Input;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\View;
 use UnAuth;
@@ -492,17 +491,18 @@ class InstallController extends Controller
 
     public function migrate()
     {
+        if (isInstall()) {
+            abort(403, 'Forbidden: Application is already installed.');
+        }
+
         try {
-            $tableNames = Schema::getConnection()->getDoctrineSchemaManager()->listTableNames();
-            if (count($tableNames) === 0) {
-                (new SyncFaveoToLatestVersion())->sync();
-                if (Cache::get('dummy_data_installation')) {
-                    $path = base_path().DIRECTORY_SEPARATOR.'DB'.DIRECTORY_SEPARATOR.'dummy-data.sql';
-                    DB::unprepared(file_get_contents($path));
-                }
+            Artisan::call('config:clear');
+            (new SyncFaveoToLatestVersion())->sync();
+            if (Cache::get('dummy_data_installation')) {
+                $path = base_path().DIRECTORY_SEPARATOR.'DB'.DIRECTORY_SEPARATOR.'dummy-data.sql';
+                DB::unprepared(file_get_contents($path));
             }
         } catch (Exception $ex) {
-            dd($ex);
             $this->rollBackMigration();
             $result = ['error' => $ex->getMessage()];
 
@@ -526,13 +526,17 @@ class InstallController extends Controller
 
     public function seed(Request $request)
     {
+        if (isInstall()) {
+            abort(403, 'Forbidden: Application is already installed.');
+        }
+
         try {
             if ($request->input('dummy-data') == 'on') {
                 $path = base_path().'/DB/dummy-data.sql';
                 DB::unprepared(DB::raw(file_get_contents($path)));
             } else {
                 \Schema::disableForeignKeyConstraints();
-                $tableNames = \Schema::getConnection()->getDoctrineSchemaManager()->listTableNames();
+                $tableNames = \Schema::getTableListing(\DB::connection()->getDatabaseName(), false);
                 foreach ($tableNames as $name) {
                     //if you don't want to truncate migrations
                     if ($name == 'migrations') {

@@ -1,73 +1,68 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sabberworm\CSS\RuleSet;
 
 use Sabberworm\CSS\OutputFormat;
 use Sabberworm\CSS\Property\AtRule;
 
 /**
- * A RuleSet constructed by an unknown at-rule. `@font-face` rules are rendered into AtRuleSet objects.
+ * This class represents rule sets for generic at-rules which are not covered by specific classes, i.e., not
+ * `@import`, `@charset` or `@media`.
+ *
+ * A common example for this is `@font-face`.
  */
 class AtRuleSet extends RuleSet implements AtRule
 {
     /**
-     * @var string
+     * @var non-empty-string
      */
-    private $sType;
+    private $type;
 
     /**
      * @var string
      */
-    private $sArgs;
+    private $arguments;
 
     /**
-     * @param string $sType
-     * @param string $sArgs
-     * @param int $iLineNo
+     * @param non-empty-string $type
+     * @param int<1, max>|null $lineNumber
      */
-    public function __construct($sType, $sArgs = '', $iLineNo = 0)
+    public function __construct(string $type, string $arguments = '', ?int $lineNumber = null)
     {
-        parent::__construct($iLineNo);
-        $this->sType = $sType;
-        $this->sArgs = $sArgs;
+        parent::__construct($lineNumber);
+        $this->type = $type;
+        $this->arguments = $arguments;
     }
 
     /**
-     * @return string
+     * @return non-empty-string
      */
-    public function atRuleName()
+    public function atRuleName(): string
     {
-        return $this->sType;
+        return $this->type;
+    }
+
+    public function atRuleArgs(): string
+    {
+        return $this->arguments;
     }
 
     /**
-     * @return string
+     * @return non-empty-string
      */
-    public function atRuleArgs()
+    public function render(OutputFormat $outputFormat): string
     {
-        return $this->sArgs;
-    }
-
-    /**
-     * @return string
-     */
-    public function __toString()
-    {
-        return $this->render(new OutputFormat());
-    }
-
-    /**
-     * @return string
-     */
-    public function render(OutputFormat $oOutputFormat)
-    {
-        $sArgs = $this->sArgs;
-        if ($sArgs) {
-            $sArgs = ' ' . $sArgs;
+        $formatter = $outputFormat->getFormatter();
+        $result = $formatter->comments($this);
+        $arguments = $this->arguments;
+        if ($arguments !== '') {
+            $arguments = ' ' . $arguments;
         }
-        $sResult = "@{$this->sType}$sArgs{$oOutputFormat->spaceBeforeOpeningBrace()}{";
-        $sResult .= parent::render($oOutputFormat);
-        $sResult .= '}';
-        return $sResult;
+        $result .= "@{$this->type}$arguments{$formatter->spaceBeforeOpeningBrace()}{";
+        $result .= $this->renderRules($outputFormat);
+        $result .= '}';
+        return $result;
     }
 }

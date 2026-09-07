@@ -100,6 +100,7 @@ class ServerTest extends \PHPUnit_Framework_TestCase
         $server = static::getServer();
         $numMessages = $server->numMessages();
         $this->assertEquals(self::$num_messages_inbox, $numMessages);
+        $this->assertEquals(0, $server->numMessages( 'DOESNOTEXIST'.time() ) );
     }
 
     public function testGetMessages()
@@ -181,6 +182,14 @@ class ServerTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($server->hasMailBox('Cheese'), 'Does not have mailbox "Cheese"');
         $this->assertTrue($server->createMailBox('Cheese'), 'createMailbox returns true.');
         $this->assertTrue($server->hasMailBox('Cheese'), 'Mailbox "Cheese" was created');
+    }
+
+    public function testDeleteMailbox()
+    {
+        $server = static::getServer();
+        $this->assertTrue($server->hasMailBox('Cheese'), 'Does have mailbox "Cheese"');
+        $this->assertTrue($server->deleteMailBox('Cheese'), 'deleteMailBox returns true.');
+        $this->assertFalse($server->hasMailBox('Cheese'), 'Mailbox "Cheese" was deleted');
     }
 
     /**

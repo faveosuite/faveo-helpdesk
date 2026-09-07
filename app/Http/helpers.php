@@ -305,3 +305,183 @@ function carbon($date)
 {
     return \Carbon\Carbon::parse($date);
 }
+
+/**
+ * This function return asset link based on link.php settings.
+ *
+ * @return type
+ */
+function assetLink(string $type, string $key)
+{
+    // dd(asset(\Config::get('link.'.$type.'.'.$key)));
+    // if request if language, it should append & language to it
+    return asset(\Config::get('link.'.$type.'.'.$key));
+}
+
+/**
+ * Sanitize rich-text HTML (ticket/reply bodies, descriptions, etc.) before it
+ * is persisted, so stored content can never carry executable script or
+ * event-handler payloads (stored XSS), while keeping the formatting produced
+ * by the editors (bold, links, images, lists, tables, etc).
+ *
+ * Disallowed tags are HTML-escaped rather than stripped, so the text of a
+ * rejected tag stays visible instead of silently disappearing.
+ *
+ * @param string|null $value
+ *
+ * @return string|null
+ */
+function sanitizeHtmlDescription(?string $value): ?string
+{
+    if (!app()->runningInConsole()) {
+        $allowedTags = ['p', 'b', 'strong', 'em', 'i', 'u', 's', 'strike', 'sub', 'sup', 'ul', 'ol', 'li', 'br',
+            'span', 'a', 'img', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'table', 'tr', 'td', 'th', 'thead', 'tbody',
+            'tfoot', 'colgroup', 'col', 'caption', 'blockquote', 'pre', 'code', 'hr', 'div', 'figure', 'figcaption',
+            'small', 'mark', 'abbr'];
+
+        return preg_replace_callback('/<\/?([a-z][a-z0-9]*)[^>]*>/i', function ($matches) use ($allowedTags) {
+            $tagName = strtolower($matches[1]);
+
+            if (in_array($tagName, $allowedTags) && !preg_match('/\bon\w+\s*=/i', $matches[0])) {
+                return sanitizeHtmlDescriptionUris($matches[0]);
+            }
+
+            return htmlspecialchars($matches[0], ENT_QUOTES, 'UTF-8');
+        }, $value ?? '') ?: null;
+    }
+
+    return $value;
+}
+
+/**
+ * Neutralize dangerous URI schemes (javascript:, vbscript:, data:) in the
+ * href/src attributes of an otherwise-whitelisted tag.
+ *
+ * A tag like `<a href="javascript:alert(1)">click</a>` carries no on*=
+ * handler, so it passes the allow-list check in sanitizeHtmlDescription()
+ * untouched — the scheme itself is the payload. Browsers tolerate embedded
+ * control characters inside a URI scheme (e.g. "java\tscript:"), so those
+ * are stripped before the scheme is checked.
+ *
+ * @param string $tag a single matched opening tag, e.g. '<a href="...">'
+ *
+ * @return string
+ */
+function sanitizeHtmlDescriptionUris(string $tag): string
+{
+    return preg_replace_callback('/\s(href|src)\s*=\s*("[^"]*"|\'[^\']*\'|[^\s>]+)/i', function ($m) {
+        $attr = strtolower($m[1]);
+        $raw = trim($m[2], '"\'');
+        $normalized = strtolower(preg_replace('/[\x00-\x20]+/', '', $raw));
+
+        if (preg_match('/^(javascript|vbscript|data):/i', $normalized)) {
+            return ' '.$attr.'="#"';
+        }
+
+        return $m[0];
+    }, $tag);
+}
+
+/**
+ * Identifier based attempt throttling.
+ *
+ * Unlike the session/cookie based counter this lock is keyed on the submitted
+ * identifier (username, user id, ...) and stored in the database, so clearing
+ * cookies or rotating the session does not reset it.
+ *
+ * Everything is driven by th=e existing admin configurable values under
+ * Settings > Security (Max login attempts per host/user, Lockout Period and
+ * Lockout Message), so this does not introduce a second hard coded policy:
+ *
+ *  - "Max login attempts per host/user" set to 0 means record the bad attempts
+ *    but never lock the host/user out, exactly as the help text on that screen
+ *    describes.
+ *  - "Lockout Period" is the window the counter lives in and how long the
+ *    host/user stays banned once the limit is hit.
+ *  - "Lockout Message" is what the locked out user is shown.
+ *
+ * @param string     $context    what is being throttled, e.g. 'account_login'
+ * @param string|int $identifier the value being throttled, e.g. the submitted username
+ *
+ * @return true|\Illuminate\Http\JsonResponse true when the attempt is allowed,
+ *                                            an error response when locked out
+ */
+function checkAttemptsAndLockOut($context, $identifier)
+{
+    $security = \App\Model\helpdesk\Settings\Security::whereId('1')->first();
+
+    // security settings are not seeded yet, nothing to enforce
+    if (!$security || $identifier === null || $identifier === '') {
+        return true;
+    }
+
+    $threshold = (int) $security->backlist_threshold;
+    $lockoutPeriod = max((int) $security->lockout_period, 0);
+
+    $attempt = \App\Model\helpdesk\Utility\AttemptLock::firstOrNew(['context' => $context, 'identifier' => $identifier]);
+
+    if (!$attempt->exists || ($attempt->expires_at && $attempt->expires_at->isPast())) {
+        $attempt->count = 1;
+        $attempt->expires_at = now()->addMinutes($lockoutPeriod);
+    } else {
+        $attempt->count++;
+    }
+    // the attempt is always recorded, even when locking out is disabled
+    $attempt->save();
+
+    // threshold 0 records without locking out, a 0 minute period leaves no window to ban for
+    if ($threshold < 1 || $lockoutPeriod < 1) {
+        return true;
+    }
+
+    if ($attempt->count > $threshold) {
+        $expiry = max((int) ceil(now()->diffInSeconds($attempt->expires_at, false) / 60), 1);
+
+        return errorResponse(lockOutMessage($security, $expiry));
+    }
+
+    return true;
+}
+
+/**
+ * Resolves the message shown to a locked out user.
+ *
+ * The admin configured "Lockout Message" wins so both this lock and the older
+ * IP based lock show the same wording. The message may optionally contain a
+ * :retry_after placeholder to surface the remaining minutes.
+ *
+ * @param \App\Model\helpdesk\Settings\Security $security
+ * @param int                                   $retryAfter remaining minutes of the lockout
+ *
+ * @return string
+ */
+function lockOutMessage($security, $retryAfter)
+{
+    $message = trim((string) $security->lockout_message);
+
+    if ($message === '') {
+        return Lang::get('lang.max_attempt_executed', ['retry_after' => $retryAfter]);
+    }
+
+    return str_replace(':retry_after', $retryAfter, $message);
+}
+
+/**
+ * Clears the attempt lock for a context/identifier pair, called once the
+ * attempt succeeds so a legitimate user is never punished for past failures.
+ *
+ * @param string     $context
+ * @param string|int $identifier
+ *
+ * @return void
+ */
+function clearAttemptLock($context, $identifier)
+{
+    if (!$identifier) {
+        return;
+    }
+
+    \App\Model\helpdesk\Utility\AttemptLock::where('context', $context)
+        ->where('identifier', $identifier)
+        ->delete();
+}

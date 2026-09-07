@@ -1,27 +1,18 @@
 <?php namespace Clockwork\Support\Laravel;
 
 use Clockwork\Clockwork;
-use Clockwork\Authentication\NullAuthenticator;
-use Clockwork\Authentication\SimpleAuthenticator;
+use Clockwork\Authentication\{NullAuthenticator, SimpleAuthenticator};
 use Clockwork\DataSource\PhpDataSource;
-use Clockwork\Helpers\Serializer;
-use Clockwork\Helpers\ServerTiming;
-use Clockwork\Helpers\StackFilter;
-use Clockwork\Helpers\StackTrace;
-use Clockwork\Request\IncomingRequest;
-use Clockwork\Request\Request;
-use Clockwork\Storage\FileStorage;
-use Clockwork\Storage\Search;
-use Clockwork\Storage\SqlStorage;
+use Clockwork\Helpers\{Serializer, ServerTiming, StackFilter, StackTrace};
+use Clockwork\Request\{IncomingRequest, Request};
+use Clockwork\Storage\{FileStorage, RedisStorage, Search, SqlStorage};
 use Clockwork\Web\Web;
 
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Console\Kernel as ConsoleKernel;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Response;
+use Illuminate\Http\{JsonResponse, Response};
 use Illuminate\Redis\RedisManager;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Symfony\Component\HttpFoundation\Cookie;
+use Symfony\Component\HttpFoundation\{BinaryFileResponse, Cookie};
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 // Support class for the Laravel integration
@@ -113,7 +104,7 @@ class ClockworkSupport
 			return new JsonResponse([ 'message' => 'Request not found.' ], 404);
 		}
 
-		$token = isset($input['_token']) ? $input['_token'] : '';
+		$token = $input['_token'] ?? '';
 
 		if (! $request->updateToken || ! hash_equals($request->updateToken, $token)) {
 			return new JsonResponse([ 'message' => 'Invalid update token.' ], 403);
@@ -159,6 +150,7 @@ class ClockworkSupport
 					? $this->app['clockwork.notifications'] : $this->app['clockwork.swift']
 			);
 		}
+		if ($this->isFeatureEnabled('http_requests')) $clockwork->addDataSource($this->app['clockwork.http-requests']);
 		if ($this->isFeatureAvailable('xdebug')) $clockwork->addDataSource($this->app['clockwork.xdebug']);
 		if ($this->isFeatureEnabled('views')) {
 			$clockwork->addDataSource(
@@ -178,6 +170,7 @@ class ClockworkSupport
 		if ($this->isFeatureEnabled('cache')) $this->app['clockwork.cache']->listenToEvents();
 		if ($this->isFeatureEnabled('database')) $this->app['clockwork.eloquent']->listenToEvents();
 		if ($this->isFeatureEnabled('events')) $this->app['clockwork.events']->listenToEvents();
+		if ($this->isFeatureEnabled('http_requests')) $this->app['clockwork.http-requests']->listenToEvents();
 		if ($this->isFeatureEnabled('notifications')) {
 			$this->isFeatureAvailable('notifications-events')
 				? $this->app['clockwork.notifications']->listenToEvents() : $this->app['clockwork.swift']->listenToEvents();
@@ -223,9 +216,8 @@ class ClockworkSupport
 			$this->incomingRequest = null;
 
 			$this->app->forgetInstance('clockwork.request');
-			$request = $this->app->make('clockwork.request')->override('requestTime', microtime(true));
 
-			$this->app['clockwork']->reset()->request($request);
+			$this->app['clockwork']->reset()->request($this->app->make('clockwork.request'));
 			$this->app['clockwork.laravel']->setApplication($this->app);
 		});
 	}
@@ -233,9 +225,10 @@ class ClockworkSupport
 	// Make a storage instance based on the current configuration
 	public function makeStorage()
 	{
+		$storage = $this->getConfig('storage', 'files');
 		$expiration = $this->getConfig('storage_expiration');
 
-		if ($this->getConfig('storage', 'files') == 'sql') {
+		if ($storage == 'sql') {
 			$database = $this->getConfig('storage_sql_database', storage_path('clockwork.sqlite'));
 			$table = $this->getConfig('storage_sql_table', 'clockwork');
 
@@ -246,6 +239,10 @@ class ClockworkSupport
 			}
 
 			return new SqlStorage($database, $table, null, null, $expiration);
+		} elseif ($storage == 'redis') {
+			$connection = $this->app['redis']->connection($this->getConfig('storage_redis'))->client();
+
+			return new RedisStorage($connection, $expiration, $this->getConfig('storage_redis_prefix', 'clockwork'));
 		} else {
 			return new FileStorage(
 				$this->getConfig('storage_files_path', storage_path('clockwork')),
@@ -274,24 +271,23 @@ class ClockworkSupport
 	public function collectCommands()
 	{
 		$this->app['events']->listen(\Illuminate\Console\Events\CommandStarting::class, function ($event) {
-			// only collect commands ran through artisan cli, other commands are recorded as part of respective request
-			if (basename(StackTrace::get()->last()->file) != 'artisan') return;
+			if (! $this->shouldCollectCommand($event->command)) return;
 
 			if (! $this->getConfig('artisan.collect_output')) return;
-			if (! $event->command || $this->isCommandFiltered($event->command)) return;
 
-			$event->output->setFormatter(
-				version_compare(\Illuminate\Foundation\Application::VERSION, '9.0.0', '<')
-					? new Console\CapturingLegacyFormatter($event->output->getFormatter())
-					: new Console\CapturingFormatter($event->output->getFormatter())
-			);
+			if (version_compare(\Illuminate\Foundation\Application::VERSION, '9.0.0', '<')) {
+				$formatter = new Console\CapturingOldFormatter($event->output->getFormatter());
+			} elseif (version_compare(\Illuminate\Foundation\Application::VERSION, '11.0.0', '<')) {
+				$formatter = new Console\CapturingLegacyFormatter($event->output->getFormatter());
+			} else {
+				$formatter = new Console\CapturingFormatter($event->output->getFormatter());
+			}
+
+			$event->output->setFormatter($formatter);
 		});
 
 		$this->app['events']->listen(\Illuminate\Console\Events\CommandFinished::class, function ($event) {
-			// only collect commands ran through artisan cli, other commands are recorded as part of respective request
-			if (basename(StackTrace::get()->last()->file) != 'artisan') return;
-
-			if (! $event->command || $this->isCommandFiltered($event->command)) return;
+			if (! $this->shouldCollectCommand($event->command)) return;
 
 			$command = $this->artisan->find($event->command);
 
@@ -370,10 +366,10 @@ class ClockworkSupport
 				$job->getQueue(),
 				$job->getConnectionName(),
 				array_filter([
-					'maxTries'     => isset($payload['maxTries']) ? $payload['maxTries'] : null,
-					'delaySeconds' => isset($payload['delaySeconds']) ? $payload['delaySeconds'] : null,
-					'timeout'      => isset($payload['timeout']) ? $payload['timeout'] : null,
-					'timeoutAt'    => isset($payload['timeoutAt']) ? $payload['timeoutAt'] : null
+					'maxTries'     => $payload['maxTries'] ?? null,
+					'delaySeconds' => $payload['delaySeconds'] ?? null,
+					'timeout'      => $payload['timeout'] ?? null,
+					'timeoutAt'    => $payload['timeoutAt'] ?? null
 				])
 			)
 			->storeRequest();
@@ -435,7 +431,11 @@ class ClockworkSupport
 			];
 
 			$response->cookie(
-				new Cookie('x-clockwork', json_encode($clockworkBrowser), time() + 60, null, null, null, false)
+				new Cookie('x-clockwork', json_encode($clockworkBrowser), time() + 60, null, null, $request->secure(), false)
+			);
+		} elseif (in_array('x-clockwork', $this->incomingRequest()->cookies)) {
+			$response->cookie(
+				new Cookie('x-clockwork', '', -1, null, null, $request->secure(), false)
 			);
 		}
 
@@ -518,7 +518,8 @@ class ClockworkSupport
 	public function isEnabled()
 	{
 		return $this->getConfig('enable')
-			|| $this->getConfig('enable') === null && $this->app['config']->get('app.debug');
+			|| $this->getConfig('enable') === null && $this->app['config']->get('app.debug')
+				&& ($this->incomingRequest()->hasLocalHost() || $this->app->runningInConsole());
 	}
 
 	// Check whether we are collecting data
@@ -580,6 +581,8 @@ class ClockworkSupport
 	{
 		if ($feature == 'database') {
 			return $this->app['config']->get('database.default');
+		} elseif ($feature == 'http_requests') {
+			return class_exists(\Illuminate\Http\Client\Request::class);
 		} elseif ($feature == 'notifications-events') {
 			return class_exists(\Illuminate\Mail\Events\MessageSent::class)
 				&& class_exists(\Illuminate\Notifications\Events\NotificationSent::class);
@@ -610,6 +613,20 @@ class ClockworkSupport
 	public function isWebEnabled()
 	{
 		return $this->getConfig('web', true);
+	}
+
+	// Check whether we should collect currently executing command
+	protected function shouldCollectCommand($command)
+	{
+		$trace = StackTrace::get();
+
+		// only collect commands ran through the artisan cli, other commands are recorded as part of respective request
+		if (basename($trace->last()->file) != 'artisan') return false;
+
+		// also skip commands called from another command ran through the artisan cli
+		if ($trace->first(StackFilter::make()->isClass(\Illuminate\Foundation\Console\Kernel::class)->isFunction('call'))) return false;
+
+		return $command && ! $this->isCommandFiltered($command);
 	}
 
 	// Check whether a command should not be collected
@@ -667,7 +684,8 @@ class ClockworkSupport
 			'method'  => $this->app['request']->getMethod(),
 			'uri'     => $this->app['request']->getRequestUri(),
 			'input'   => $this->app['request']->input(),
-			'cookies' => $this->app['request']->cookie()
+			'cookies' => $this->app['request']->cookie(),
+			'host'    => method_exists($this->app['request'], 'host') ? $this->app['request']->host() : $this->app['request']->getHost()
 		]);
 	}
 

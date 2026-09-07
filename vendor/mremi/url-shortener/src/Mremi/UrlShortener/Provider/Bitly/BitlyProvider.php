@@ -11,14 +11,14 @@
 
 namespace Mremi\UrlShortener\Provider\Bitly;
 
-use GuzzleHttp\Client;
+use Guzzle\Http\Client;
+
 use Mremi\UrlShortener\Exception\InvalidApiResponseException;
 use Mremi\UrlShortener\Model\LinkInterface;
 use Mremi\UrlShortener\Provider\UrlShortenerProviderInterface;
-use Psr\Http\Message\ResponseInterface;
 
 /**
- * Bit.ly provider class.
+ * Bit.ly provider class
  *
  * @author Rémi Marseille <marseille.remi@gmail.com>
  */
@@ -35,12 +35,12 @@ class BitlyProvider implements UrlShortenerProviderInterface
     private $options;
 
     /**
-     * Constructor.
+     * Constructor
      *
      * @param AuthenticationInterface $auth    An authentication instance
      * @param array                   $options An array of options used to do the shorten/expand request
      */
-    public function __construct(AuthenticationInterface $auth, array $options = [])
+    public function __construct(AuthenticationInterface $auth, array $options = array())
     {
         $this->auth    = $auth;
         $this->options = $options;
@@ -66,18 +66,15 @@ class BitlyProvider implements UrlShortenerProviderInterface
     {
         $client = $this->createClient();
 
-        $this->options['headers']['Authorization'] = 'Bearer '.$this->auth->getAccessToken();
+        $request = $client->get(sprintf('/v3/shorten?access_token=%s&longUrl=%s&domain=%s',
+            $this->auth->getAccessToken(),
+            urlencode($link->getLongUrl()),
+            $domain
+        ), array(), $this->options);
 
-        $response = $client->post('/v4/shorten', array_merge([
-            'json' => [
-                'domain'   => $domain,
-                'long_url' => $link->getLongUrl(),
-            ],
-        ], $this->options));
+        $response = $this->validate($request->send()->getBody(true));
 
-        $response = $this->validate($response);
-
-        $link->setShortUrl($response->link);
+        $link->setShortUrl($response->data->url);
     }
 
     /**
@@ -92,17 +89,15 @@ class BitlyProvider implements UrlShortenerProviderInterface
     {
         $client = $this->createClient();
 
-        $this->options['headers']['Authorization'] = 'Bearer '.$this->auth->getAccessToken();
+        $request = $client->get(sprintf('/v3/expand?access_token=%s&shortUrl=%s&hash=%s',
+            $this->auth->getAccessToken(),
+            urlencode($link->getShortUrl()),
+            $hash
+        ), array(), $this->options);
 
-        $response = $client->post('/v4/expand', array_merge([
-            'json' => [
-                'bitlink_id' => $hash ?: $link->getShortUrl(),
-            ],
-        ], $this->options));
+        $response = $this->validate($request->send()->getBody(true));
 
-        $response = $this->validate($response);
-
-        $link->setLongUrl($response->long_url);
+        $link->setLongUrl($response->data->expand[0]->long_url);
     }
 
     /**
@@ -115,35 +110,37 @@ class BitlyProvider implements UrlShortenerProviderInterface
      */
     protected function createClient()
     {
-        return new Client([
-            'base_uri' => 'https://api-ssl.bitly.com',
-        ]);
+        return new Client('https://api-ssl.bitly.com');
     }
 
     /**
-     * Validates the Bit.ly's response and returns it whether the status code is 200.
+     * Validates the Bit.ly's response and returns it whether the status code is 200
+     *
+     * @param string $apiRawResponse
      *
      * @return object
      *
      * @throws InvalidApiResponseException
      */
-    private function validate(ResponseInterface $response)
+    private function validate($apiRawResponse)
     {
-        $data = json_decode($response->getBody()->getContents());
+        $response = json_decode($apiRawResponse);
 
-        if (null === $data) {
+        if (null === $response) {
             throw new InvalidApiResponseException('Bit.ly response is probably mal-formed because cannot be json-decoded.');
         }
 
-        $statusCode = $response->getStatusCode();
+        if (!property_exists($response, 'status_code')) {
+            throw new InvalidApiResponseException('Property "status_code" does not exist within Bit.ly response.');
+        }
 
-        if ($statusCode < 200 || $statusCode >= 300) {
+        if (200 !== $response->status_code) {
             throw new InvalidApiResponseException(sprintf('Bit.ly returned status code "%s" with message "%s"',
-                $statusCode,
-                property_exists($data, 'message') ? $data->message : ''
+                $response->status_code,
+                property_exists($response, 'status_txt') ? $response->status_txt : ''
             ));
         }
 
-        return $data;
+        return $response;
     }
 }

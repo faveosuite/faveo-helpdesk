@@ -11,16 +11,16 @@ namespace Flow;
  */
 class FustyRequest extends Request
 {
-    private $isFusty = false;
+    private bool $isFusty = false;
 
-    public function __construct($params = null, $file = null)
+    public function __construct(?array $params = null, ?array $file = null)
     {
         parent::__construct($params, $file);
 
-        $this->isFusty = $this->getTotalSize() === null && $this->getFileName() && $this->getFile();
+        $this->isFusty = null === $this->getTotalSize() && $this->getFileName() && $this->getFile();
 
         if ($this->isFusty) {
-            $this->params['flowTotalSize'] = isset($this->file['size']) ? $this->file['size'] : 0;
+            $this->params['flowTotalSize'] = $this->file['size'] ?? 0;
             $this->params['flowTotalChunks'] = 1;
             $this->params['flowChunkNumber'] = 1;
             $this->params['flowChunkSize'] = $this->params['flowTotalSize'];
@@ -30,9 +30,8 @@ class FustyRequest extends Request
 
     /**
      * Checks if request is formed by fusty flow
-     * @return bool
      */
-    public function isFustyFlowRequest()
+    public function isFustyFlowRequest(): bool
     {
         return $this->isFusty;
     }

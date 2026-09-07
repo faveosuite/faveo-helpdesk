@@ -9,12 +9,11 @@ use PhpParser\NodeVisitorAbstract;
  * This visitor can be used to find and collect all nodes satisfying some criterion determined by
  * a filter callback.
  */
-class FindingVisitor extends NodeVisitorAbstract
-{
+class FindingVisitor extends NodeVisitorAbstract {
     /** @var callable Filter callback */
     protected $filterCallback;
-    /** @var Node[] Found nodes */
-    protected $foundNodes;
+    /** @var list<Node> Found nodes */
+    protected array $foundNodes;
 
     public function __construct(callable $filterCallback) {
         $this->filterCallback = $filterCallback;
@@ -25,13 +24,13 @@ class FindingVisitor extends NodeVisitorAbstract
      *
      * Nodes are returned in pre-order.
      *
-     * @return Node[] Found nodes
+     * @return list<Node> Found nodes
      */
-    public function getFoundNodes() : array {
+    public function getFoundNodes(): array {
         return $this->foundNodes;
     }
 
-    public function beforeTraverse(array $nodes) {
+    public function beforeTraverse(array $nodes): ?array {
         $this->foundNodes = [];
 
         return null;

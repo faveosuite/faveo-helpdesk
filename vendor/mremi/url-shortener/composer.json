@@ -1,8 +1,8 @@
 {
     "name": "mremi/url-shortener",
     "type": "library",
-    "description": "A PHP5/PHP7/PHP8 library using API to shorten/expand URL",
-    "keywords": [ "url", "shortener", "api" ],
+    "description": "A PHP5 library using API to shorten/expand URL",
+    "keywords": ["url", "shortener", "api"],
     "homepage": "https://github.com/mremi/UrlShortener",
     "license": "MIT",
     "authors": [
@@ -12,27 +12,10 @@
         }
     ],
     "require": {
-        "php": "^5.6 || ^7.0 || ^8.0",
-        "guzzlehttp/guzzle": "^6.0 || ^7.0",
-        "symfony/console": "^3.1 || ^4.1 || ^5.0 || ^6.0"
-    },
-    "require-dev": {
-        "friendsofphp/php-cs-fixer": "^2.19",
-        "symfony/phpunit-bridge": "^5.0 || ^6.0"
+        "php": ">=5.3.3",
+        "guzzle/guzzle": "~3.7"
     },
     "autoload": {
-        "psr-4": {
-            "Mremi\\UrlShortener\\": "src/Mremi/UrlShortener"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "Mremi\\UrlShortener\\Tests\\": "tests/Mremi/UrlShortener/Tests"
-        }
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "2.4-dev"
-        }
+        "psr-0": { "Mremi\\UrlShortener": "src" }
     }
 }

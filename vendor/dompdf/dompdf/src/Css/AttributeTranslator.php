@@ -1,14 +1,13 @@
 <?php
 /**
  * @package dompdf
- * @link    http://dompdf.github.com/
- * @author  Benj Carson <benjcarson@digitaljunkies.ca>
- * @author  Fabien Ménager <fabien.menager@gmail.com>
+ * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
 namespace Dompdf\Css;
 
 use Dompdf\Frame;
+use Dompdf\Helpers;
 
 /**
  * Translates HTML 4.0 attributes into CSS rules
@@ -33,10 +32,10 @@ class AttributeTranslator
                 'right' => 'float: right;'
             ],
             'border' => 'border: %0.2Fpx solid;',
-            'height' => 'height: %spx;',
+            'height' => '_set_px_height',
             'hspace' => 'padding-left: %1$0.2Fpx; padding-right: %1$0.2Fpx;',
             'vspace' => 'padding-top: %1$0.2Fpx; padding-bottom: %1$0.2Fpx;',
-            'width' => 'width: %spx;',
+            'width' => '_set_px_width',
         ],
         'table' => [
             'align' => [
@@ -45,9 +44,9 @@ class AttributeTranslator
                 'right' => 'margin-left: auto; margin-right: 0;'
             ],
             'bgcolor' => 'background-color: %s;',
-            'border' => '!set_table_border',
-            'cellpadding' => '!set_table_cellpadding', //'border-spacing: %0.2F; border-collapse: separate;',
-            'cellspacing' => '!set_table_cellspacing',
+            'border' => '_set_table_border',
+            'cellpadding' => '_set_table_cellpadding', //'border-spacing: %0.2F; border-collapse: separate;',
+            'cellspacing' => '_set_table_cellspacing',
             'frame' => [
                 'void' => 'border-style: none;',
                 'above' => 'border-top-style: solid;',
@@ -59,13 +58,13 @@ class AttributeTranslator
                 'box' => 'border-style: solid;',
                 'border' => 'border-style: solid;'
             ],
-            'rules' => '!set_table_rules',
+            'rules' => '_set_table_rules',
             'width' => 'width: %s;',
         ],
         'hr' => [
-            'align' => '!set_hr_align', // Need to grab width to set 'left' & 'right' correctly
+            'align' => '_set_hr_align', // Need to grab width to set 'left' & 'right' correctly
             'noshade' => 'border-style: solid;',
-            'size' => '!set_hr_size', //'border-width: %0.2F px;',
+            'size' => '_set_hr_size', //'border-width: %0.2F px;',
             'width' => 'width: %s;',
         ],
         'div' => [
@@ -91,7 +90,7 @@ class AttributeTranslator
         ],
         //TODO: translate more form element attributes
         'input' => [
-            'size' => '!set_input_width'
+            'size' => '_set_input_width'
         ],
         'p' => [
             'align' => 'text-align: %s;',
@@ -105,56 +104,56 @@ class AttributeTranslator
 //      'valign' => '',
 //    ),
         'tbody' => [
-            'align' => '!set_table_row_align',
-            'valign' => '!set_table_row_valign',
+            'align' => '_set_table_row_align',
+            'valign' => '_set_table_row_valign',
         ],
         'td' => [
             'align' => 'text-align: %s;',
-            'bgcolor' => '!set_background_color',
+            'bgcolor' => '_set_background_color',
             'height' => 'height: %s;',
             'nowrap' => 'white-space: nowrap;',
             'valign' => 'vertical-align: %s;',
             'width' => 'width: %s;',
         ],
         'tfoot' => [
-            'align' => '!set_table_row_align',
-            'valign' => '!set_table_row_valign',
+            'align' => '_set_table_row_align',
+            'valign' => '_set_table_row_valign',
         ],
         'th' => [
             'align' => 'text-align: %s;',
-            'bgcolor' => '!set_background_color',
+            'bgcolor' => '_set_background_color',
             'height' => 'height: %s;',
             'nowrap' => 'white-space: nowrap;',
             'valign' => 'vertical-align: %s;',
             'width' => 'width: %s;',
         ],
         'thead' => [
-            'align' => '!set_table_row_align',
-            'valign' => '!set_table_row_valign',
+            'align' => '_set_table_row_align',
+            'valign' => '_set_table_row_valign',
         ],
         'tr' => [
-            'align' => '!set_table_row_align',
-            'bgcolor' => '!set_table_row_bgcolor',
-            'valign' => '!set_table_row_valign',
+            'align' => '_set_table_row_align',
+            'bgcolor' => '_set_table_row_bgcolor',
+            'valign' => '_set_table_row_valign',
         ],
         'body' => [
             'background' => 'background-image: url(%s);',
-            'bgcolor' => '!set_background_color',
-            'link' => '!set_body_link',
-            'text' => '!set_color',
+            'bgcolor' => '_set_background_color',
+            'link' => '_set_body_link',
+            'text' => '_set_color',
         ],
         'br' => [
             'clear' => 'clear: %s;',
         ],
         'basefont' => [
-            'color' => '!set_color',
+            'color' => '_set_color',
             'face' => 'font-family: %s;',
-            'size' => '!set_basefont_size',
+            'size' => '_set_basefont_size',
         ],
         'font' => [
-            'color' => '!set_color',
+            'color' => '_set_color',
             'face' => 'font-family: %s;',
-            'size' => '!set_font_size',
+            'size' => '_set_font_size',
         ],
         'dir' => [
             'compact' => 'margin: 0.5em 0;',
@@ -168,14 +167,14 @@ class AttributeTranslator
         'ol' => [
             'compact' => 'margin: 0.5em 0;',
             'start' => 'counter-reset: -dompdf-default-counter %d;',
-            'type' => 'list-style-type: %s;',
+            'type' => '_set_list_style_type',
         ],
         'ul' => [
             'compact' => 'margin: 0.5em 0;',
-            'type' => 'list-style-type: %s;',
+            'type' => '_set_list_style_type',
         ],
         'li' => [
-            'type' => 'list-style-type: %s;',
+            'type' => '_set_list_style_type',
             'value' => 'counter-reset: -dompdf-default-counter %d;',
         ],
         'pre' => [
@@ -260,11 +259,8 @@ class AttributeTranslator
      */
     protected static function _resolve_target(\DOMNode $node, $target, $value)
     {
-        if ($target[0] === "!") {
-            // Function call
-            $func = "_" . mb_substr($target, 1);
-
-            return self::$func($node, $value);
+        if ($target[0] === "_") {
+            return self::$target($node, $value);
         }
 
         return $value ? sprintf($target, $value) : "";
@@ -351,6 +347,36 @@ class AttributeTranslator
         return "background-color: $value;";
     }
 
+    protected static function _set_px_width(\DOMElement $node, string $value): string
+    {
+        $v = trim($value);
+
+        if (Helpers::is_percent($v)) {
+            return sprintf("width: %s;", $v);
+        }
+
+        if (is_numeric(mb_substr($v, 0, 1))) {
+            return sprintf("width: %spx;", (float) $v);
+        }
+
+        return "";
+    }
+
+    protected static function _set_px_height(\DOMElement $node, string $value): string
+    {
+        $v = trim($value);
+
+        if (Helpers::is_percent($v)) {
+            return sprintf("height: %s;", $v);
+        }
+
+        if (is_numeric(mb_substr($v, 0, 1))) {
+            return sprintf("height: %spx;", (float) $v);
+        }
+
+        return "";
+    }
+
     /**
      * @param \DOMElement $node
      * @param string $value
@@ -376,19 +402,7 @@ class AttributeTranslator
      */
     protected static function _set_table_border(\DOMElement $node, $value)
     {
-        $cell_list = self::get_cell_list($node);
-
-        foreach ($cell_list as $cell) {
-            $style = rtrim($cell->getAttribute(self::$_style_attr));
-            $style .= "; border-width: " . ($value > 0 ? 1 : 0) . "pt; border-style: inset;";
-            $style = ltrim($style, ";");
-            $cell->setAttribute(self::$_style_attr, $style);
-        }
-
-        $style = rtrim($node->getAttribute(self::$_style_attr), ";");
-        $style .= "; border-width: $value" . "px; ";
-
-        return ltrim($style, "; ");
+        return "border-width: $value" . "px;";
     }
 
     /**
@@ -489,7 +503,7 @@ class AttributeTranslator
             $width = "100%";
         }
 
-        $remainder = 100 - (double)rtrim($width, "% ");
+        $remainder = 100 - (float)rtrim($width, "% ");
 
         switch ($value) {
             case "left":
@@ -634,5 +648,33 @@ class AttributeTranslator
         }
 
         return ltrim($style, "; ");
+    }
+
+    protected static function _set_list_style_type(\DOMElement $node, string $value): string
+    {
+        $v = trim($value);
+
+        switch ($v) {
+            case "1":
+                $type = "decimal";
+                break;
+            case "a":
+                $type = "lower-alpha";
+                break;
+            case "A":
+                $type = "upper-alpha";
+                break;
+            case "i":
+                $type = "lower-roman";
+                break;
+            case "I":
+                $type = "upper-roman";
+                break;
+            default:
+                $type = $v;
+                break;
+        }
+
+        return "list-style-type: $type;";
     }
 }

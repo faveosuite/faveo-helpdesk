@@ -31,7 +31,7 @@ class="active"
 	<div class="row">
 <div class="col-md-12">
 <div class="box box-primary">
-    {!! Form::model($contents,['route'=>['template.write', $template,$path],'method'=>'PATCH','files' => true]) !!}
+    {!! html()->modelForm($contents, 'PATCH', route('template.write', [$template, $path]))->acceptsFiles()->open() !!}
 <div class="box-header">
 
 	<h2 class="box-title">{{Lang::get('lang.edit_template')}}: <b><?php $parts = explode('.',$template); $names  = $parts[0]; $name = str_replace('-', ' ', $names); $cname = ucfirst($name); echo $cname?></b></h2><button type="submit" class="btn btn-primary pull-right">Save changes</button>
@@ -41,29 +41,29 @@ class="active"
 <!-- check whether success or not -->
 
 @if(Session::has('success'))
-    <div class="alert alert-success alert-dismissable">
-        <i class="fa  fa-check-circle"></i>
+    <div class="alert alert-success alert-dismissible">
+        <i class="fa  fa-circle-check"></i>
         <b>Success!</b>
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         {{Session::get('success')}}
     </div>
     @endif
     <!-- failure message -->
     @if(Session::has('fails'))
-    <div class="alert alert-danger alert-dismissable">
-        <i class="fa fa-ban"></i>
+    <div class="alert alert-danger alert-dismissible">
+        <i class="fa-solid fa-ban"></i>
         <b>Fail!</b>
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         {{Session::get('fails')}}
     </div>
     @endif
 
 				<!-- <div class="box-body"> -->
 
-                  {!! Form::textarea('templatedata',$contents,['class'=>'form-control'])!!}
+                  {!! html()->textarea('templatedata', $contents)->class('form-control') !!}
 
 <!-- </div> -->
-  {!! Form::close() !!}
+  {!! html()->closeModelForm() !!}
 @stop
 </div><!-- /.box -->
 @section('FooterInclude')

@@ -33,7 +33,7 @@ class ChoiceFormField extends FormField
     public function hasValue(): bool
     {
         // don't send a value for unchecked checkboxes
-        if (\in_array($this->type, ['checkbox', 'radio']) && null === $this->value) {
+        if (\in_array($this->type, ['checkbox', 'radio'], true) && null === $this->value) {
             return false;
         }
 
@@ -45,6 +45,10 @@ class ChoiceFormField extends FormField
      */
     public function isDisabled(): bool
     {
+        if ('checkbox' === $this->type) {
+            return parent::isDisabled();
+        }
+
         if (parent::isDisabled() && 'select' === $this->type) {
             return true;
         }
@@ -61,7 +65,7 @@ class ChoiceFormField extends FormField
     /**
      * Sets the value of the field.
      */
-    public function select(string|array|bool $value)
+    public function select(string|array|bool $value): void
     {
         $this->setValue($value);
     }
@@ -71,10 +75,10 @@ class ChoiceFormField extends FormField
      *
      * @throws \LogicException When the type provided is not correct
      */
-    public function tick()
+    public function tick(): void
     {
         if ('checkbox' !== $this->type) {
-            throw new \LogicException(sprintf('You cannot tick "%s" as it is not a checkbox (%s).', $this->name, $this->type));
+            throw new \LogicException(\sprintf('You cannot tick "%s" as it is not a checkbox (%s).', $this->name, $this->type));
         }
 
         $this->setValue(true);
@@ -85,10 +89,10 @@ class ChoiceFormField extends FormField
      *
      * @throws \LogicException When the type provided is not correct
      */
-    public function untick()
+    public function untick(): void
     {
         if ('checkbox' !== $this->type) {
-            throw new \LogicException(sprintf('You cannot untick "%s" as it is not a checkbox (%s).', $this->name, $this->type));
+            throw new \LogicException(\sprintf('You cannot untick "%s" as it is not a checkbox (%s).', $this->name, $this->type));
         }
 
         $this->setValue(false);
@@ -99,7 +103,7 @@ class ChoiceFormField extends FormField
      *
      * @throws \InvalidArgumentException When value type provided is not correct
      */
-    public function setValue(string|array|bool|null $value)
+    public function setValue(string|array|bool|null $value): void
     {
         if ('checkbox' === $this->type && false === $value) {
             // uncheck
@@ -110,16 +114,16 @@ class ChoiceFormField extends FormField
         } else {
             if (\is_array($value)) {
                 if (!$this->multiple) {
-                    throw new \InvalidArgumentException(sprintf('The value for "%s" cannot be an array.', $this->name));
+                    throw new \InvalidArgumentException(\sprintf('The value for "%s" cannot be an array.', $this->name));
                 }
 
                 foreach ($value as $v) {
                     if (!$this->containsOption($v, $this->options)) {
-                        throw new \InvalidArgumentException(sprintf('Input "%s" cannot take "%s" as a value (possible values: "%s").', $this->name, $v, implode('", "', $this->availableOptionValues())));
+                        throw new \InvalidArgumentException(\sprintf('Input "%s" cannot take "%s" as a value (possible values: "%s").', $this->name, $v, implode('", "', $this->availableOptionValues())));
                     }
                 }
             } elseif (!$this->containsOption($value, $this->options)) {
-                throw new \InvalidArgumentException(sprintf('Input "%s" cannot take "%s" as a value (possible values: "%s").', $this->name, $value, implode('", "', $this->availableOptionValues())));
+                throw new \InvalidArgumentException(\sprintf('Input "%s" cannot take "%s" as a value (possible values: "%s").', $this->name, $value, implode('", "', $this->availableOptionValues())));
             }
 
             if ($this->multiple) {
@@ -141,10 +145,10 @@ class ChoiceFormField extends FormField
      *
      * @internal
      */
-    public function addChoice(\DOMElement $node)
+    public function addChoice(\DOMElement $node): void
     {
         if (!$this->multiple && 'radio' !== $this->type) {
-            throw new \LogicException(sprintf('Unable to add a choice for "%s" as it is not multiple or is not a radio button.', $this->name));
+            throw new \LogicException(\sprintf('Unable to add a choice for "%s" as it is not multiple or is not a radio button.', $this->name));
         }
 
         $option = $this->buildOptionValue($node);
@@ -176,14 +180,14 @@ class ChoiceFormField extends FormField
      *
      * @throws \LogicException When node type is incorrect
      */
-    protected function initialize()
+    protected function initialize(): void
     {
         if ('input' !== $this->node->nodeName && 'select' !== $this->node->nodeName) {
-            throw new \LogicException(sprintf('A ChoiceFormField can only be created from an input or select tag (%s given).', $this->node->nodeName));
+            throw new \LogicException(\sprintf('A ChoiceFormField can only be created from an input or select tag (%s given).', $this->node->nodeName));
         }
 
         if ('input' === $this->node->nodeName && 'checkbox' !== strtolower($this->node->getAttribute('type')) && 'radio' !== strtolower($this->node->getAttribute('type'))) {
-            throw new \LogicException(sprintf('A ChoiceFormField can only be created from an input tag with a type of checkbox or radio (given type is "%s").', $this->node->getAttribute('type')));
+            throw new \LogicException(\sprintf('A ChoiceFormField can only be created from an input tag with a type of checkbox or radio (given type is "%s").', $this->node->getAttribute('type')));
         }
 
         $this->value = null;
@@ -236,7 +240,7 @@ class ChoiceFormField extends FormField
         $option = [];
 
         $defaultDefaultValue = 'select' === $this->node->nodeName ? '' : 'on';
-        $defaultValue = (isset($node->nodeValue) && !empty($node->nodeValue)) ? $node->nodeValue : $defaultDefaultValue;
+        $defaultValue = (isset($node->nodeValue) && $node->nodeValue) ? $node->nodeValue : $defaultDefaultValue;
         $option['value'] = $node->hasAttribute('value') ? $node->getAttribute('value') : $defaultValue;
         $option['disabled'] = $node->hasAttribute('disabled');
 

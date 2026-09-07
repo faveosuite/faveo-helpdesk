@@ -20,7 +20,7 @@ class="nav-link active"
 @stop
 <!-- header -->
 @section('PageHeader')
-<h1>{{Lang::get('lang.error-debug')}}</h1>
+<h3>{{Lang::get('lang.error-debug')}}</h3>
 @stop
 <!-- /header -->
 <!-- breadcrumbs -->
@@ -33,16 +33,16 @@ class="nav-link active"
 @section('content')
 <!-- check whether success or not -->
 @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <i class="fa fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+    <i class="fa-solid fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {!!Session::get('success')!!}
 </div>
 @endif
 <!-- failure message -->
 @if(Session::has('fails'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fa fa-ban"></i><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i><button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     <b>{!! Lang::get('lang.alert') !!}!</b><br/>
     <li class="error-message-padding">{!!Session::get('fails')!!}</li>
 </div>
@@ -56,11 +56,11 @@ class="nav-link active"
 
     <!-- Helpdesk Status: radio Online Offline -->
     <div class="card-body">
-        {!! Form::open(['url' => route('post.error.debug.settings'), 'method' => 'POST']) !!}
+        {!! html()->form('POST', route('post.error.debug.settings'))->open() !!}
         <div class="row">
             <div class="col-md-4">
-                <div class="form-group">
-                    {!! Form::label('debug',Lang::get('lang.debugging')) !!}
+                <div class="mb-3">
+                    {!! html()->label(Lang::get('lang.debugging'), 'debug') !!}
                     <div class="row">
                         <div class="col-sm-3">
                             <input type="radio" name="debug" value="true" @if($debug == true) checked="true" @endif> {{Lang::get('lang.enable')}}
@@ -72,8 +72,8 @@ class="nav-link active"
                 </div> 
             </div>
             <div class="col-md-6">
-                <div class="form-group">
-                    {!! Form::label('bugsnag',Lang::get('lang.bugsnag-debugging')) !!}
+                <div class="mb-3">
+                    {!! html()->label(Lang::get('lang.bugsnag-debugging'), 'bugsnag') !!}
                     <div class="row">
                         <div class="col-sm-3">
                             <input type="radio" name="bugsnag" value="true" @if($bugsnag == true) checked="true" @endif> {{Lang::get('lang.yes')}}
@@ -87,8 +87,8 @@ class="nav-link active"
         </div>
     </div>
     <div class="card-footer">
-        {!! Form::submit(Lang::get('lang.save'),['onclick'=>'sendForm()','class'=>'btn btn-primary'])!!}
+        {!! html()->submit(Lang::get('lang.save'))->class('btn btn-primary')->attributes(['onclick' => 'sendForm()']) !!}
     </div>
-    {!! Form::close() !!}  
+    {!! html()->closeModelForm() !!}  
 </div>
 @stop

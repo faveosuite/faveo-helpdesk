@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +14,7 @@ namespace Psy\TabCompletion\Matcher;
 /**
  * A class name tab completion Matcher.
  *
- * This matcher provides completion for all declared classes.
+ * This matcher provides completion for all declared classes, interfaces, and traits.
  *
  * @author Marc Garcia <markcial@gmail.com>
  */
@@ -36,11 +36,12 @@ class ClassNamesMatcher extends AbstractMatcher
                 // get the number of namespace separators
                 $nsPos = \substr_count($class, '\\');
                 $pieces = \explode('\\', $className);
+
                 // $methods = Mirror::get($class);
                 return \implode('\\', \array_slice($pieces, $nsPos, \count($pieces)));
             },
             \array_filter(
-                \array_merge(\get_declared_classes(), \get_declared_interfaces()),
+                \array_merge(\get_declared_classes(), \get_declared_interfaces(), \get_declared_traits()),
                 function ($className) use ($quotedClass) {
                     return AbstractMatcher::startsWith($quotedClass, $className);
                 }

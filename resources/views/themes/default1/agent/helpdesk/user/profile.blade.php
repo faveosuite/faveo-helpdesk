@@ -13,28 +13,40 @@ class="active"
 @stop
 
 @section('PageHeader')
-<h1>{{Lang::get('lang.view-profile')}}</h1>
+<h3>{{Lang::get('lang.view-profile')}}</h3>
 @stop
 
 @section('profileimg')
-<img src="{{Auth::user()->profile_pic}}" id="sidebar-profile-img" class="img-circle elevation-2" alt="User Image" width="auto" height="auto" />
+<img src="{{Auth::user()->profile_pic}}" id="sidebar-profile-img" class="rounded-circle shadow-sm me-2 profile-img" alt="User Image">
 @stop
 
 @section('content')
+    <style>
+        .profile-img {
+            width: 30px;
+            height: 30px;
+        }
 
-@if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <i class="fa fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        .card-contact {
+            box-shadow: 0 0 1px rgba(0, 0, 0, .125), 0 1px 3px rgba(0, 0, 0, .2);
+            margin-bottom: 1rem;
+        }
+    </style>
+
+
+    @if(Session::has('success'))
+<div class="alert alert-success alert-dismissible">
+    <i class="fa-solid fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('success')}}
 </div>
 @endif
 <!-- fail message -->
 @if(Session::has('fails'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fa fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!} !</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('fails')}}
 </div>
 @endif
@@ -42,7 +54,7 @@ class="active"
 <div class="card card-light">
     <div class="card-header">
         <h3 class="card-title">{!! Lang::get('lang.profile') !!}&nbsp;&nbsp;
-            <a href="{{URL::route('agent-profile-edit')}}"><i class="fas fa-fw fa-edit"> </i></a>
+            <a href="{{URL::route('agent-profile-edit')}}"><i class="fa-solid fa-fw fa-pen-to-square"> </i></a>
         </h3>
     </div>
 
@@ -78,23 +90,23 @@ class="active"
                         <h3 class="card-title">{!! Lang::get('lang.user_information') !!}</h3>
                     </div>
                     <div class="card-body">
-                        <div class="form-group row">
+                        <div class="mb-3 row">
                             @if($user->gender == 1)
                             <div class='col-sm-4'><label>{!! Lang::get('lang.gender') !!}:</label></div> <div class='col-sm-7'>{{ 'Male' }}</div>
                             @else
                             <div class='col-sm-4'><label>{!! Lang::get('lang.gender') !!}:</label></div> <div class='col-sm-7'>{{ 'Female' }}</div>
                             @endif
                         </div>
-                        <div class="form-group  row">
+                        <div class="mb-3  row">
                             <div class='col-sm-4'><label>{!! Lang::get('lang.department') !!}:</label></div> <div class='col-sm-7'> {{ $dept }}</div>
                         </div>
-                        <div class="form-group  row">
+                        <div class="mb-3  row">
                             <div class='col-sm-4'><label>{!! Lang::get('lang.group') !!}:</label></div> <div class='col-sm-7'> {{ $grp }}</div>
                         </div>
-                        <div class="form-group  row">
+                        <div class="mb-3  row">
                             <div class='col-sm-4'><label>{!! Lang::get('lang.company') !!}:</label></div> <div class='col-sm-7'> {{ $user->company }}</div>
                         </div>
-                        <div class="form-group  row">
+                        <div class="mb-3  row">
                             <div class='col-sm-4'><label>{!! Lang::get('lang.role') !!}:</label></div> <div class='col-sm-7'>  {{ $user->role }}</div>
                         </div>
                     </div>
@@ -103,20 +115,19 @@ class="active"
 
             <div class="col-md-6">
                 
-                <div class="'card card-light" style="    box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
-    margin-bottom: 1rem;">
+                <div class="card card-light card-contact">
                     
                     <div class="card-header">
                         <h3 class="card-title">{!! Lang::get('lang.contact_information') !!}</h3>
                     </div>
                     <div class="card-body">
-                        <div class="form-group row">
+                        <div class="mb-3 row">
                             <div class='col-sm-4'><label>{!! Lang::get('lang.email') !!}:</label></div> <div class='col-sm-7'> {{ $user->email }}</div>
                         </div>
-                        <div class="form-group row">
+                        <div class="mb-3 row">
                             <div class='col-sm-4'><label>{!! Lang::get('lang.phone_number') !!}:</label></div> <div class='col-sm-7'> {{ $user->ext }}{{ $user->phone_number }}</div>
                         </div>
-                        <div class="form-group row">
+                        <div class="mb-3 row">
                             <div class='col-sm-4'><label>{!! Lang::get('lang.mobile') !!}:</label></div> <div class='col-sm-7'> {{ $user->mobile }}</div>
                         </div>
                     </div>

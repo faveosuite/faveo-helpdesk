@@ -11,12 +11,9 @@
 
 namespace Symfony\Component\HttpClient;
 
-use FriendsOfPHP\WellKnownImplementations\WellKnownPsr17Factory;
-use FriendsOfPHP\WellKnownImplementations\WellKnownPsr7Request;
-use FriendsOfPHP\WellKnownImplementations\WellKnownPsr7Uri;
-use Http\Discovery\Exception\NotFoundException;
+use Http\Discovery\Psr17Factory;
 use Http\Discovery\Psr17FactoryDiscovery;
-use Nyholm\Psr7\Factory\Psr17Factory;
+use Nyholm\Psr7\Factory\Psr17Factory as NyholmPsr17Factory;
 use Nyholm\Psr7\Request;
 use Nyholm\Psr7\Uri;
 use Psr\Http\Client\ClientInterface;
@@ -30,26 +27,24 @@ use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriFactoryInterface;
 use Psr\Http\Message\UriInterface;
-use Symfony\Component\HttpClient\Response\StreamableInterface;
-use Symfony\Component\HttpClient\Response\StreamWrapper;
+use Symfony\Component\HttpClient\Internal\HttplugWaitLoop;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
-if (!interface_exists(RequestFactoryInterface::class)) {
-    throw new \LogicException('You cannot use the "Symfony\Component\HttpClient\Psr18Client" as the "psr/http-factory" package is not installed. Try running "composer require nyholm/psr7".');
+if (!interface_exists(ClientInterface::class)) {
+    throw new \LogicException('You cannot use the "Symfony\Component\HttpClient\Psr18Client" as the "psr/http-client" package is not installed. Try running "composer require php-http/discovery psr/http-client-implementation:*".');
 }
 
-if (!interface_exists(ClientInterface::class)) {
-    throw new \LogicException('You cannot use the "Symfony\Component\HttpClient\Psr18Client" as the "psr/http-client" package is not installed. Try running "composer require psr/http-client".');
+if (!interface_exists(RequestFactoryInterface::class)) {
+    throw new \LogicException('You cannot use the "Symfony\Component\HttpClient\Psr18Client" as the "psr/http-factory" package is not installed. Try running "composer require php-http/discovery psr/http-factory-implementation:*".');
 }
 
 /**
  * An adapter to turn a Symfony HttpClientInterface into a PSR-18 ClientInterface.
  *
- * Run "composer require psr/http-client" to install the base ClientInterface. Run
- * "composer require nyholm/psr7" to install an efficient implementation of response
- * and stream factories with flex-provided autowiring aliases.
+ * Run "composer require php-http/discovery psr/http-client-implementation:*"
+ * to get the required dependencies.
  *
  * @author Nicolas Grekas <p@tchwork.com>
  */
@@ -58,24 +53,24 @@ final class Psr18Client implements ClientInterface, RequestFactoryInterface, Str
     private HttpClientInterface $client;
     private ResponseFactoryInterface $responseFactory;
     private StreamFactoryInterface $streamFactory;
+    private bool $autoUpgradeHttpVersion = true;
 
-    public function __construct(HttpClientInterface $client = null, ResponseFactoryInterface $responseFactory = null, StreamFactoryInterface $streamFactory = null)
+    public function __construct(?HttpClientInterface $client = null, ?ResponseFactoryInterface $responseFactory = null, ?StreamFactoryInterface $streamFactory = null)
     {
         $this->client = $client ?? HttpClient::create();
         $streamFactory ??= $responseFactory instanceof StreamFactoryInterface ? $responseFactory : null;
 
         if (null === $responseFactory || null === $streamFactory) {
-            if (!class_exists(Psr17Factory::class) && !class_exists(WellKnownPsr17Factory::class) && !class_exists(Psr17FactoryDiscovery::class)) {
-                throw new \LogicException('You cannot use the "Symfony\Component\HttpClient\Psr18Client" as no PSR-17 factories have been provided. Try running "composer require nyholm/psr7".');
+            if (class_exists(Psr17Factory::class)) {
+                $psr17Factory = new Psr17Factory();
+            } elseif (class_exists(NyholmPsr17Factory::class)) {
+                $psr17Factory = new NyholmPsr17Factory();
+            } else {
+                throw new \LogicException('You cannot use the "Symfony\Component\HttpClient\Psr18Client" as no PSR-17 factories have been provided. Try running "composer require php-http/discovery psr/http-factory-implementation:*".');
             }
 
-            try {
-                $psr17Factory = class_exists(Psr17Factory::class, false) ? new Psr17Factory() : (class_exists(WellKnownPsr17Factory::class, false) ? new WellKnownPsr17Factory() : null);
-                $responseFactory ??= $psr17Factory ?? Psr17FactoryDiscovery::findResponseFactory();
-                $streamFactory ??= $psr17Factory ?? Psr17FactoryDiscovery::findStreamFactory();
-            } catch (NotFoundException $e) {
-                throw new \LogicException('You cannot use the "Symfony\Component\HttpClient\HttplugClient" as no PSR-17 factories have been found. Try running "composer require nyholm/psr7".', 0, $e);
-            }
+            $responseFactory ??= $psr17Factory;
+            $streamFactory ??= $psr17Factory;
         }
 
         $this->responseFactory = $responseFactory;
@@ -85,6 +80,10 @@ final class Psr18Client implements ClientInterface, RequestFactoryInterface, Str
     public function withOptions(array $options): static
     {
         $clone = clone $this;
+        if (\array_key_exists('auto_upgrade_http_version', $options)) {
+            $clone->autoUpgradeHttpVersion = $options['auto_upgrade_http_version'];
+            unset($options['auto_upgrade_http_version']);
+        }
         $clone->client = $clone->client->withOptions($options);
 
         return $clone;
@@ -94,42 +93,53 @@ final class Psr18Client implements ClientInterface, RequestFactoryInterface, Str
     {
         try {
             $body = $request->getBody();
+            $headers = $request->getHeaders();
 
-            if ($body->isSeekable()) {
-                $body->seek(0);
+            $size = $request->getHeader('content-length')[0] ?? -1;
+            if (0 > $size && 0 < $size = $body->getSize() ?? -1) {
+                $headers['Content-Length'] = [$size];
+            }
+
+            if (0 === $size) {
+                $body = '';
+            } elseif (0 < $size && $size < 1 << 21) {
+                if ($body->isSeekable()) {
+                    try {
+                        $body->seek(0);
+                    } catch (\RuntimeException) {
+                        // ignore
+                    }
+                }
+
+                $body = $body->getContents();
+            } else {
+                $body = static function (int $size) use ($body) {
+                    if ($body->isSeekable()) {
+                        try {
+                            $body->seek(0);
+                        } catch (\RuntimeException) {
+                            // ignore
+                        }
+                    }
+
+                    while (!$body->eof()) {
+                        yield $body->read($size);
+                    }
+                };
             }
 
             $options = [
-                'headers' => $request->getHeaders(),
-                'body' => $body->getContents(),
+                'headers' => $headers,
+                'body' => $body,
             ];
 
-            if ('1.0' === $request->getProtocolVersion()) {
-                $options['http_version'] = '1.0';
+            if (!$this->autoUpgradeHttpVersion || '1.0' === $request->getProtocolVersion()) {
+                $options['http_version'] = $request->getProtocolVersion();
             }
 
             $response = $this->client->request($request->getMethod(), (string) $request->getUri(), $options);
 
-            $psrResponse = $this->responseFactory->createResponse($response->getStatusCode());
-
-            foreach ($response->getHeaders(false) as $name => $values) {
-                foreach ($values as $value) {
-                    try {
-                        $psrResponse = $psrResponse->withAddedHeader($name, $value);
-                    } catch (\InvalidArgumentException $e) {
-                        // ignore invalid header
-                    }
-                }
-            }
-
-            $body = $response instanceof StreamableInterface ? $response->toStream(false) : StreamWrapper::createResource($response, $this->client);
-            $body = $this->streamFactory->createStreamFromResource($body);
-
-            if ($body->isSeekable()) {
-                $body->seek(0);
-            }
-
-            return $psrResponse->withBody($body);
+            return HttplugWaitLoop::createPsr7Response($this->responseFactory, $this->streamFactory, $this->client, $response, false);
         } catch (TransportExceptionInterface $e) {
             if ($e instanceof \InvalidArgumentException) {
                 throw new Psr18RequestException($e, $request);
@@ -145,19 +155,15 @@ final class Psr18Client implements ClientInterface, RequestFactoryInterface, Str
             return $this->responseFactory->createRequest($method, $uri);
         }
 
-        if (class_exists(Request::class)) {
-            return new Request($method, $uri);
-        }
-
-        if (class_exists(WellKnownPsr7Request::class)) {
-            return new WellKnownPsr7Request($method, $uri);
-        }
-
         if (class_exists(Psr17FactoryDiscovery::class)) {
             return Psr17FactoryDiscovery::findRequestFactory()->createRequest($method, $uri);
         }
 
-        throw new \LogicException(sprintf('You cannot use "%s()" as the "nyholm/psr7" package is not installed. Try running "composer require nyholm/psr7".', __METHOD__));
+        if (class_exists(Request::class)) {
+            return new Request($method, $uri);
+        }
+
+        throw new \LogicException(\sprintf('You cannot use "%s()" as no PSR-17 factories have been found. Try running "composer require php-http/discovery psr/http-factory-implementation:*".', __METHOD__));
     }
 
     public function createStream(string $content = ''): StreamInterface
@@ -165,7 +171,11 @@ final class Psr18Client implements ClientInterface, RequestFactoryInterface, Str
         $stream = $this->streamFactory->createStream($content);
 
         if ($stream->isSeekable()) {
-            $stream->seek(0);
+            try {
+                $stream->seek(0);
+            } catch (\RuntimeException) {
+                // ignore
+            }
         }
 
         return $stream;
@@ -187,22 +197,18 @@ final class Psr18Client implements ClientInterface, RequestFactoryInterface, Str
             return $this->responseFactory->createUri($uri);
         }
 
-        if (class_exists(Uri::class)) {
-            return new Uri($uri);
-        }
-
-        if (class_exists(WellKnownPsr7Uri::class)) {
-            return new WellKnownPsr7Uri($uri);
-        }
-
         if (class_exists(Psr17FactoryDiscovery::class)) {
             return Psr17FactoryDiscovery::findUrlFactory()->createUri($uri);
         }
 
-        throw new \LogicException(sprintf('You cannot use "%s()" as the "nyholm/psr7" package is not installed. Try running "composer require nyholm/psr7".', __METHOD__));
+        if (class_exists(Uri::class)) {
+            return new Uri($uri);
+        }
+
+        throw new \LogicException(\sprintf('You cannot use "%s()" as no PSR-17 factories have been found. Try running "composer require php-http/discovery psr/http-factory-implementation:*".', __METHOD__));
     }
 
-    public function reset()
+    public function reset(): void
     {
         if ($this->client instanceof ResetInterface) {
             $this->client->reset();
@@ -215,12 +221,11 @@ final class Psr18Client implements ClientInterface, RequestFactoryInterface, Str
  */
 class Psr18NetworkException extends \RuntimeException implements NetworkExceptionInterface
 {
-    private RequestInterface $request;
-
-    public function __construct(TransportExceptionInterface $e, RequestInterface $request)
-    {
+    public function __construct(
+        TransportExceptionInterface $e,
+        private RequestInterface $request,
+    ) {
         parent::__construct($e->getMessage(), 0, $e);
-        $this->request = $request;
     }
 
     public function getRequest(): RequestInterface
@@ -234,12 +239,11 @@ class Psr18NetworkException extends \RuntimeException implements NetworkExceptio
  */
 class Psr18RequestException extends \InvalidArgumentException implements RequestExceptionInterface
 {
-    private RequestInterface $request;
-
-    public function __construct(TransportExceptionInterface $e, RequestInterface $request)
-    {
+    public function __construct(
+        TransportExceptionInterface $e,
+        private RequestInterface $request,
+    ) {
         parent::__construct($e->getMessage(), 0, $e);
-        $this->request = $request;
     }
 
     public function getRequest(): RequestInterface

@@ -25,21 +25,22 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @author Fabien Potencier <fabien@symfony.com>
  *
- * @method Request  getRequest()
- * @method Response getResponse()
+ * @template-extends AbstractBrowser<Request, Response>
  */
 class HttpKernelBrowser extends AbstractBrowser
 {
-    protected $kernel;
     private bool $catchExceptions = true;
 
     /**
      * @param array $server The server parameters (equivalent of $_SERVER)
      */
-    public function __construct(HttpKernelInterface $kernel, array $server = [], History $history = null, CookieJar $cookieJar = null)
-    {
+    public function __construct(
+        protected HttpKernelInterface $kernel,
+        array $server = [],
+        ?History $history = null,
+        ?CookieJar $cookieJar = null,
+    ) {
         // These class properties must be set before calling the parent constructor, as it may depend on it.
-        $this->kernel = $kernel;
         $this->followRedirects = false;
 
         parent::__construct($server, $history, $cookieJar);
@@ -48,17 +49,15 @@ class HttpKernelBrowser extends AbstractBrowser
     /**
      * Sets whether to catch exceptions when the kernel is handling a request.
      */
-    public function catchExceptions(bool $catchExceptions)
+    public function catchExceptions(bool $catchExceptions): void
     {
         $this->catchExceptions = $catchExceptions;
     }
 
     /**
      * @param Request $request
-     *
-     * @return Response
      */
-    protected function doRequest(object $request)
+    protected function doRequest(object $request): Response
     {
         $response = $this->kernel->handle($request, HttpKernelInterface::MAIN_REQUEST, $this->catchExceptions);
 
@@ -71,10 +70,8 @@ class HttpKernelBrowser extends AbstractBrowser
 
     /**
      * @param Request $request
-     *
-     * @return string
      */
-    protected function getScript(object $request)
+    protected function getScript(object $request): string
     {
         $kernel = var_export(serialize($this->kernel), true);
         $request = var_export(serialize($request), true);
@@ -97,30 +94,30 @@ class HttpKernelBrowser extends AbstractBrowser
         }
 
         $code = <<<EOF
-<?php
+            <?php
 
-error_reporting($errorReporting);
+            error_reporting($errorReporting);
 
-$requires
+            $requires
 
-\$kernel = unserialize($kernel);
-\$request = unserialize($request);
-EOF;
+            \$kernel = unserialize($kernel);
+            \$request = unserialize($request);
+            EOF;
 
         return $code.$this->getHandleScript();
     }
 
-    protected function getHandleScript()
+    protected function getHandleScript(): string
     {
         return <<<'EOF'
-$response = $kernel->handle($request);
+            $response = $kernel->handle($request);
 
-if ($kernel instanceof Symfony\Component\HttpKernel\TerminableInterface) {
-    $kernel->terminate($request, $response);
-}
+            if ($kernel instanceof Symfony\Component\HttpKernel\TerminableInterface) {
+                $kernel->terminate($request, $response);
+            }
 
-echo serialize($response);
-EOF;
+            echo serialize($response);
+            EOF;
     }
 
     protected function filterRequest(DomRequest $request): Request
@@ -183,10 +180,18 @@ EOF;
      */
     protected function filterResponse(object $response): DomResponse
     {
-        // this is needed to support StreamedResponse
-        ob_start();
-        $response->sendContent();
-        $content = ob_get_clean();
+        $content = '';
+        ob_start(static function ($chunk) use (&$content) {
+            $content .= $chunk;
+
+             return '';
+        });
+
+        try {
+            $response->sendContent();
+        } finally {
+            ob_end_clean();
+        }
 
         return new DomResponse($content, $response->getStatusCode(), $response->headers->all());
     }

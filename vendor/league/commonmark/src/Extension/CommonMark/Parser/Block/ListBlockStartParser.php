@@ -28,7 +28,11 @@ final class ListBlockStartParser implements BlockStartParserInterface, Configura
     /** @psalm-readonly-allow-private-mutation */
     private ?ConfigurationInterface $config = null;
 
-    /** @psalm-readonly-allow-private-mutation */
+    /**
+     * @psalm-var non-empty-string|null
+     *
+     * @psalm-readonly-allow-private-mutation
+     */
     private ?string $listMarkerRegex = null;
 
     public function setConfiguration(ConfigurationInterface $configuration): void
@@ -54,6 +58,7 @@ final class ListBlockStartParser implements BlockStartParserInterface, Configura
         if (! ($matched instanceof ListBlockParser) || ! $listData->equals($matched->getBlock()->getListData())) {
             $listBlockParser = new ListBlockParser($listData);
             // We start out with assuming a list is tight. If we find a blank line, we set it to loose later.
+            // TODO for 3.0: Just make them tight by default in the block so we can remove this call
             $listBlockParser->getBlock()->setTight(true);
 
             return BlockStart::of($listBlockParser, $listItemParser)->at($cursor);
@@ -131,6 +136,9 @@ final class ListBlockStartParser implements BlockStartParserInterface, Configura
         return $markerLength + $spacesAfterMarker;
     }
 
+    /**
+     * @psalm-return non-empty-string
+     */
     private function generateListMarkerRegex(): string
     {
         // No configuration given - use the defaults

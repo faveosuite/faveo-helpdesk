@@ -13,6 +13,7 @@ use App\User;
 // classes
 use Exception;
 use Lang;
+use Yajra\DataTables\Facades\DataTables;
 
 /**
  * CannedController.
@@ -52,6 +53,45 @@ class CannedController extends Controller
         } catch (Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }
+    }
+
+    /**
+     * Return Canned Responses as Yajra DataTables JSON for the current user.
+     *
+     * @return type JSON
+     */
+    public function canned_list()
+    {
+        $canneds = Canned::where('user_id', '=', \Auth::user()->id)->get();
+
+        return DataTables::of($canneds)
+            ->addColumn('title', function ($model) {
+                return $model->title;
+            })
+            ->addColumn('Actions', function ($model) {
+                $view = '<a data-bs-toggle="modal" data-bs-target="#view'.$model->id.'" href="#" class="btn btn-info btn-sm" onclick="updateModelTitle(\''.addslashes($model->title).'\')">'.Lang::get('lang.view').'</a>';
+                $edit = '<a href="'.route('canned.edit', $model->id).'" class="btn btn-primary btn-sm">'.Lang::get('lang.edit').'</a>';
+                $delete = '<form method="POST" action="'.route('canned.destroy', $model->id).'" style="display:inline;">
+                    '.csrf_field().'<input type="hidden" name="_method" value="DELETE">
+                    <button type="submit" class="btn btn-warning btn-sm" onclick="return confirm(\'Are you sure?\')">'.Lang::get('lang.delete').'</button>
+                </form>';
+                $modal = '<div class="modal fade" id="view'.$model->id.'">
+                    <div class="modal-dialog"><div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title"></h4>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body"><p><pre>'.e($model->message).'</pre></p></div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">'.Lang::get('lang.close').'</button>
+                        </div>
+                    </div></div>
+                </div>';
+
+                return $view.' '.$edit.' '.$delete.$modal;
+            })
+            ->rawColumns(['Actions'])
+            ->make(true);
     }
 
     /**

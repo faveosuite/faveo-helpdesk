@@ -23,19 +23,18 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 final class NamedConstructorNotFoundListener implements EventSubscriberInterface
 {
-    private $io;
-    private $resources;
-    private $generator;
-    private $methods = array();
+    /** @var array<class-string, array<string, array>> */
+    private array $methods = [];
 
-    public function __construct(ConsoleIO $io, ResourceManager $resources, GeneratorManager $generator)
+    public function __construct(
+        private ConsoleIO $io,
+        private ResourceManager $resources,
+        private GeneratorManager $generator
+    )
     {
-        $this->io        = $io;
-        $this->resources = $resources;
-        $this->generator = $generator;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents() : array
     {
         return array(
             'afterExample' => array('afterExample', 10),
@@ -54,7 +53,7 @@ final class NamedConstructorNotFoundListener implements EventSubscriberInterface
         }
 
         $className = \get_class($exception->getSubject());
-        $this->methods[$className .'::'.$exception->getMethodName()] = $exception->getArguments();
+        $this->methods[$className][$exception->getMethodName()] = $exception->getArguments();
     }
 
     public function afterSuite(SuiteEvent $event): void
@@ -63,28 +62,29 @@ final class NamedConstructorNotFoundListener implements EventSubscriberInterface
             return;
         }
 
-        foreach ($this->methods as $call => $arguments) {
-            list($classname, $method) = explode('::', $call);
-            $message = sprintf('Do you want me to create `%s()` for you?', $call);
+        foreach ($this->methods as $classname => $methods) {
+            foreach ($methods as $method => $arguments) {
+                $message = sprintf('Do you want me to create `%s::%s()` for you?', $classname, $method);
 
-            try {
-                $resource = $this->resources->createResource($classname);
-            } catch (\RuntimeException $e) {
-                continue;
-            }
+                try {
+                    $resource = $this->resources->createResource($classname);
+                } catch (\RuntimeException $e) {
+                    continue;
+                }
 
-            if ($this->io->askConfirmation($message)) {
-                $this->generator->generate($resource, 'named_constructor', array(
-                    'name'      => $method,
-                    'arguments' => $arguments
-                ));
-                $event->markAsWorthRerunning();
-
-                if (!method_exists($classname, '__construct')) {
-                    $this->generator->generate($resource, 'private-constructor', array(
+                if ($this->io->askConfirmation($message)) {
+                    $this->generator->generate($resource, 'named_constructor', array(
                         'name' => $method,
                         'arguments' => $arguments
                     ));
+                    $event->markAsWorthRerunning();
+
+                    if (!method_exists($classname, '__construct')) {
+                        $this->generator->generate($resource, 'private-constructor', array(
+                            'name' => $method,
+                            'arguments' => $arguments
+                        ));
+                    }
                 }
             }
         }

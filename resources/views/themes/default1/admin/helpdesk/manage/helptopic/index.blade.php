@@ -20,7 +20,7 @@ class="nav-link active"
 @stop
 <!-- header -->
 @section('PageHeader')
-<h1>{{Lang::get('lang.manage')}}</h1>
+<h3>{{Lang::get('lang.manage')}}</h3>
 @stop
 <!-- /header -->
 <!-- breadcrumbs -->
@@ -34,27 +34,27 @@ class="nav-link active"
 @section('content')
 <!-- check whether success or not -->
 @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <i class="fa  fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+    <i class="fa  fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {!! Session::get('success') !!}
 </div>
 @endif
 <!-- failure message -->
 @if(Session::has('fails'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fa fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!} !</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {!! Session::get('fails') !!}
 </div>
 @endif
 <div class="card card-light">
     <div class="card-header">
         <h3 class="card-title">{{Lang::get('lang.help_topic')}}</h3>
-        <div class="card-tools">
-            <a href="{{route('helptopic.create')}}" class="btn btn-default btn-tool">
-                <span class="fas fa-plus"></span>&nbsp;{{Lang::get('lang.create_help_topic')}}
+        <div class="card-tools d-flex">
+            <a href="{{route('helptopic.create')}}" class="btn btn-secondary btn-tool">
+                <span class="fa-solid fa-plus"></span>&nbsp;{{Lang::get('lang.create_help_topic')}}
             </a>        
         </div>
     </div>
@@ -126,22 +126,16 @@ class="nav-link active"
                 <td> {!! UTC::usertimezone($topic->updated_at) !!} </td>
                 <!-- Deleting Fields -->
                 <td>
-                    {!! Form::open(['route'=>['helptopic.destroy', $topic->id],'method'=>'DELETE']) !!}
-                    <a href="{{route('helptopic.edit',$topic->id)}}" class="btn btn-primary btn-xs"><i class="fas fa-edit"> </i> {!! Lang::get('lang.edit') !!}</a>
+                    {!! html()->form('DELETE', route('helptopic.destroy', [$topic->id]))->open() !!}
+                    <a href="{{route('helptopic.edit',$topic->id)}}" class="btn btn-primary btn-xs"><i class="fa-solid fa-pen-to-square"> </i> {!! Lang::get('lang.edit') !!}</a>
                     <!-- To pop up a confirm Message -->
                     @if($topic->id == $default_helptopic)
-                        {!! Form::button('<i class="fas fa-trash"> </i> '.Lang::get('lang.delete'),
-                        ['class'=> 'btn btn-danger btn-xs '.$disable])
-                        !!}
+                        {!! html()->button('<i class="fa-solid fa-trash"> </i> '.Lang::get('lang.delete'))->class('btn btn-danger btn-xs '.$disable) !!}
                     @else
-                        {!! Form::button('<i class="fas fa-trash"> </i> '.Lang::get('lang.delete'),
-                        ['type' => 'submit',
-                        'class'=> 'btn btn-danger btn-xs',
-                        'onclick'=>'return confirm("Are you sure?")'])
-                        !!}
+                        {!! html()->button('<i class="fa-solid fa-trash"> </i> '.Lang::get('lang.delete'))->class('btn btn-danger btn-xs')->attributes(['type' => 'submit', 'onclick' => 'return confirm("Are you sure?")']) !!}
                     @endif
                     </div>
-                    {!! Form::close() !!}
+                    {!! html()->closeModelForm() !!}
                 </td>
                 @endforeach
             </tr>

@@ -16,7 +16,7 @@ class = "nav-item active"
             margin-right: 10px; /* Adjust the value to increase or decrease the gap between list items */
         }
     </style>
-    <li class="breadcrumb-item"> <i class="fas fa-home"> </i> {!! Lang::get('lang.you_are_here') !!} : &nbsp;</li>
+    <li class="breadcrumb-item"> <i class="fa-solid fa-home"> </i> {!! Lang::get('lang.you_are_here') !!} : &nbsp;</li>
     <li><a class="words" href="{!! URL::route('home') !!}">{!! Lang::get('lang.knowledge_base') !!}</a></li>
     <li class="words">></li>
             <li><a href="{!! URL::route('category-list') !!}">{!! Lang::get('lang.category') !!}</a></li>
@@ -43,11 +43,11 @@ class = "nav-item active"
                 <h1 class="section-title h4 clearfix">
 
 
-                    <i class="far fa-folder-open fa-fw text-muted"></i>
+                    <i class="fa-regular fa-folder-open fa-fw text-muted"></i>
 
-                    <small class="float-right">
+                    <small class="float-end">
 
-                        <a href="{{url('category-list/'.$category->slug)}}"><i class="far fa-hdd fa-fw"></i>({{count($all)}})</a>
+                        <a href="{{url('category-list/'.$category->slug)}}"><i class="fa-regular fa-hdd fa-fw"></i>({{count($all)}})</a>
                     </small>
 
                      <a href="{{url('category-list/'.$category->slug)}}">{{$category->name}}</a>
@@ -71,7 +71,7 @@ class = "nav-item active"
 
                         <h3 class="h5" style="text-align:left">
 
-                            <i class="fa-li fa fa-list-alt fa-fw text-muted"></i>
+                            <i class="fa-li fa-solid fa-list-alt fa-fw text-muted"></i>
 
                             <a href="{{url('show/'.$arti->slug)}}">{{$arti->name}}</a>
 

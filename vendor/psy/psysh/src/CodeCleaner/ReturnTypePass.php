@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,6 +15,8 @@ use PhpParser\Node;
 use PhpParser\Node\Expr\Closure;
 use PhpParser\Node\Expr\ConstFetch;
 use PhpParser\Node\Identifier;
+use PhpParser\Node\IntersectionType;
+use PhpParser\Node\Name;
 use PhpParser\Node\NullableType;
 use PhpParser\Node\Stmt\Function_;
 use PhpParser\Node\Stmt\Return_;
@@ -32,13 +34,7 @@ class ReturnTypePass extends CodeCleanerPass
     const VOID_NULL_MESSAGE = 'A void function must not return a value (did you mean "return;" instead of "return null;"?)';
     const NULLABLE_VOID_MESSAGE = 'Void type cannot be nullable';
 
-    private $atLeastPhp71;
-    private $returnTypeStack = [];
-
-    public function __construct()
-    {
-        $this->atLeastPhp71 = \version_compare(\PHP_VERSION, '7.1', '>=');
-    }
+    private array $returnTypeStack = [];
 
     /**
      * {@inheritdoc}
@@ -47,20 +43,16 @@ class ReturnTypePass extends CodeCleanerPass
      */
     public function enterNode(Node $node)
     {
-        if (!$this->atLeastPhp71) {
-            return; // @codeCoverageIgnore
-        }
-
         if ($this->isFunctionNode($node)) {
-            $this->returnTypeStack[] = $node->returnType;
+            $this->returnTypeStack[] = \property_exists($node, 'returnType') ? $node->returnType : null;
 
-            return;
+            return null;
         }
 
         if (!empty($this->returnTypeStack) && $node instanceof Return_) {
             $expectedType = \end($this->returnTypeStack);
             if ($expectedType === null) {
-                return;
+                return null;
             }
 
             $msg = null;
@@ -82,9 +74,11 @@ class ReturnTypePass extends CodeCleanerPass
             }
 
             if ($msg !== null) {
-                throw new FatalErrorException($msg, 0, \E_ERROR, null, $node->getLine());
+                throw new FatalErrorException($msg, 0, \E_ERROR, null, $node->getStartLine());
             }
         }
+
+        return null;
     }
 
     /**
@@ -94,13 +88,11 @@ class ReturnTypePass extends CodeCleanerPass
      */
     public function leaveNode(Node $node)
     {
-        if (!$this->atLeastPhp71) {
-            return; // @codeCoverageIgnore
-        }
-
         if (!empty($this->returnTypeStack) && $this->isFunctionNode($node)) {
             \array_pop($this->returnTypeStack);
         }
+
+        return null;
     }
 
     private function isFunctionNode(Node $node): bool
@@ -114,12 +106,16 @@ class ReturnTypePass extends CodeCleanerPass
             return \implode('|', \array_map([$this, 'typeName'], $node->types));
         }
 
-        if ($node instanceof NullableType) {
-            return \strtolower($node->type->name);
+        if ($node instanceof IntersectionType) {
+            return \implode('&', \array_map([$this, 'typeName'], $node->types));
         }
 
-        if ($node instanceof Identifier) {
-            return \strtolower($node->name);
+        if ($node instanceof NullableType) {
+            return $this->typeName($node->type);
+        }
+
+        if ($node instanceof Identifier || $node instanceof Name) {
+            return $node->toLowerString();
         }
 
         throw new \InvalidArgumentException('Unable to find type name');

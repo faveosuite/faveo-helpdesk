@@ -16,7 +16,7 @@ class = "nav-item active"
                 margin-right: 10px; /* Adjust the value to increase or decrease the gap between list items */
             }
         </style>
-        <li class="breadcrumb-item"> <i class="fas fa-home"> </i> {!! Lang::get('lang.you_are_here') !!} : &nbsp;</li>
+        <li class="breadcrumb-item"> <i class="fa-solid fa-home"> </i> {!! Lang::get('lang.you_are_here') !!} : &nbsp;</li>
         <li><a class="words" href="{!! URL::route('home') !!}">{!! Lang::get('lang.knowledge_base') !!}</a></li>
         <li class="words">></li>
         <li><a class="words" href="{!! URL::route('category-list') !!}">{!! Lang::get('lang.category') !!}</a></li>
@@ -51,7 +51,7 @@ class = "nav-item active"
 
                 <header class="entry-header">
 
-                    <i class="fa fa-list-alt fa-2x fa-fw float-left text-muted"></i>
+                    <i class="fa-solid fa-list-alt fa-2x fa-fw float-start text-muted"></i>
 
                     <h2 class="entry-title h4">
 
@@ -74,7 +74,7 @@ class = "nav-item active"
 
                     <div class="entry-meta text-muted">
 
-                        <span style="margin-right:0px;"><i class="far fa-clock fa-fw"></i>
+                        <span style="margin-right:0px;"><i class="fa-regular fa-clock fa-fw"></i>
 
                             <span>{{$arti->created_at->format('l, d-m-Y')}}</span>
                         </span>
@@ -116,7 +116,7 @@ class = "nav-item active"
                     <h2 class="section-title h4 clearfix">
 
                         <b>   <i class="line" style="border-color: rgb(0, 154, 186);"></i>{!! Lang::get('lang.categories') !!}</b>
-                        <small class="float-right"><i class="far fa-hdd fa-fw"></i></small>
+                        <small class="float-end"><i class="fa-regular fa-hdd fa-fw"></i></small>
                     </h2>
 
                     <ul class="nav nav-pills nav-stacked nav-categories">
@@ -132,7 +132,7 @@ class = "nav-item active"
 
                             <a href="{{url('category-list/'.$category->slug)}}" class="list-group-item list-group-item-action" style="padding: 5px;">
 
-                                <span class="badge badge-pill float-right" style="margin-top: 2px;">{{$numcount}}</span>
+                                <span class="badge bg-pill float-end" style="margin-top: 2px;">{{$numcount}}</span>
 
                                 {{$category->name}}
                             </a>

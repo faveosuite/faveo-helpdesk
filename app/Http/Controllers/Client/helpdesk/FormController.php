@@ -19,6 +19,7 @@ use App\Model\helpdesk\Ticket\Ticket_Priority;
 use App\Model\helpdesk\Ticket\Ticket_source;
 use App\Model\helpdesk\Ticket\Ticket_Thread;
 use App\Model\helpdesk\Ticket\Tickets;
+use App\Model\helpdesk\Ticket\TicketToken;
 use App\Model\helpdesk\Utility\CountryCode;
 use App\User;
 use Exception;
@@ -270,10 +271,21 @@ class FormController extends Controller
      */
     public function post_ticket_reply($id, Request $request)
     {
+        $tickets = Tickets::where('id', '=', $id)->first();
+        if (!$tickets) {
+            return \Redirect::back()->with('fails1', Lang::get('lang.ticket_not_found'));
+        }
+        $authed = \Auth::check() && \Auth::user()->id === $tickets->user_id;
+        if (!$authed) {
+            $check_token = TicketToken::where('ticket_id', '=', $id)->first();
+            if (!$check_token || !\Hash::check($request->input('tid_token', ''), $check_token->token)) {
+                return \Redirect::back()->with('fails1', Lang::get('lang.sorry_you_are_not_allowed_token_expired'));
+            }
+        }
+
         try {
             $comment = $request->input('comment');
             if (!empty($comment)) {
-                $tickets = Tickets::where('id', '=', $id)->first();
                 $thread = Ticket_Thread::where('ticket_id', '=', $tickets->id)->first();
 
                 $subject = $thread->title.'[#'.$tickets->ticket_number.']';

@@ -7,15 +7,17 @@ use Illuminate\Contracts\Database\Eloquent\Castable;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Illuminate\Support\Collection;
 
+use function Illuminate\Support\enum_value;
+
 class AsEnumArrayObject implements Castable
 {
     /**
      * Get the caster class to use when casting from / to this cast target.
      *
-     * @template TEnum
+     * @template TEnum of \UnitEnum
      *
      * @param  array{class-string<TEnum>}  $arguments
-     * @return CastsAttributes<ArrayObject<array-key, TEnum>, iterable<TEnum>>
+     * @return \Illuminate\Contracts\Database\Eloquent\CastsAttributes<\Illuminate\Database\Eloquent\Casts\ArrayObject<array-key, TEnum>, iterable<TEnum>>
      */
     public static function castUsing(array $arguments)
     {
@@ -30,11 +32,11 @@ class AsEnumArrayObject implements Castable
 
             public function get($model, $key, $value, $attributes)
             {
-                if (! isset($attributes[$key]) || is_null($attributes[$key])) {
+                if (! isset($attributes[$key])) {
                     return;
                 }
 
-                $data = json_decode($attributes[$key], true);
+                $data = Json::decode($attributes[$key]);
 
                 if (! is_array($data)) {
                     return;
@@ -61,14 +63,14 @@ class AsEnumArrayObject implements Castable
                     $storable[] = $this->getStorableEnumValue($enum);
                 }
 
-                return [$key => json_encode($storable)];
+                return [$key => Json::encode($storable)];
             }
 
             public function serialize($model, string $key, $value, array $attributes)
             {
-                return (new Collection($value->getArrayCopy()))->map(function ($enum) {
-                    return $this->getStorableEnumValue($enum);
-                })->toArray();
+                return (new Collection($value->getArrayCopy()))
+                    ->map(fn ($enum) => $this->getStorableEnumValue($enum))
+                    ->toArray();
             }
 
             protected function getStorableEnumValue($enum)
@@ -77,8 +79,19 @@ class AsEnumArrayObject implements Castable
                     return $enum;
                 }
 
-                return $enum instanceof BackedEnum ? $enum->value : $enum->name;
+                return enum_value($enum);
             }
         };
+    }
+
+    /**
+     * Specify the Enum for the cast.
+     *
+     * @param  class-string  $class
+     * @return string
+     */
+    public static function of($class)
+    {
+        return static::class.':'.$class;
     }
 }

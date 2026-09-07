@@ -3,7 +3,7 @@
 namespace Spatie\LaravelIgnition\Http\Controllers;
 
 use Illuminate\Foundation\Validation\ValidatesRequests;
-use Spatie\Ignition\Contracts\SolutionProviderRepository;
+use Spatie\ErrorSolutions\Contracts\SolutionProviderRepository;
 use Spatie\LaravelIgnition\Exceptions\CannotExecuteSolutionForNonLocalIp;
 use Spatie\LaravelIgnition\Http\Requests\ExecuteSolutionRequest;
 use Spatie\LaravelIgnition\Support\RunnableSolutionsGuard;
@@ -22,7 +22,7 @@ class ExecuteSolutionController
 
         $solution = $request->getRunnableSolution();
 
-        $solution->run($request->get('parameters', []));
+        $solution->run($request->input('parameters', []));
 
         return response()->noContent();
     }

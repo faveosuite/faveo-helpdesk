@@ -14,21 +14,21 @@ namespace Mremi\UrlShortener\Provider;
 use Mremi\UrlShortener\Model\LinkInterface;
 
 /**
- * Url shortener provider interface.
+ * Url shortener provider interface
  *
  * @author Rémi Marseille <marseille.remi@gmail.com>
  */
 interface UrlShortenerProviderInterface
 {
     /**
-     * Gets the provider name.
+     * Gets the provider name
      *
      * @return string
      */
     public function getName();
 
     /**
-     * Shortens the long given URL.
+     * Shortens the long given URL
      *
      * @param LinkInterface $link A link instance
      *
@@ -37,7 +37,7 @@ interface UrlShortenerProviderInterface
     public function shorten(LinkInterface $link);
 
     /**
-     * Expands the short given URL.
+     * Expands the short given URL
      *
      * @param LinkInterface $link A link instance
      *

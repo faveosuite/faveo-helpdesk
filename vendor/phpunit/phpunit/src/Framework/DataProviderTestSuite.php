@@ -9,10 +9,16 @@
  */
 namespace PHPUnit\Framework;
 
+use function assert;
+use function class_exists;
+use function count;
 use function explode;
-use PHPUnit\Util\Test as TestUtil;
+use PHPUnit\Framework\TestSize\TestSize;
+use PHPUnit\Metadata\Api\Groups;
 
 /**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final class DataProviderTestSuite extends TestSuite
@@ -20,7 +26,12 @@ final class DataProviderTestSuite extends TestSuite
     /**
      * @var list<ExecutionOrderDependency>
      */
-    private $dependencies = [];
+    private array $dependencies = [];
+
+    /**
+     * @var ?non-empty-list<ExecutionOrderDependency>
+     */
+    private ?array $providedTests = null;
 
     /**
      * @param list<ExecutionOrderDependency> $dependencies
@@ -29,23 +40,22 @@ final class DataProviderTestSuite extends TestSuite
     {
         $this->dependencies = $dependencies;
 
-        foreach ($this->tests as $test) {
+        foreach ($this->tests() as $test) {
             if (!$test instanceof TestCase) {
-                // @codeCoverageIgnoreStart
                 continue;
-                // @codeCoverageIgnoreStart
             }
+
             $test->setDependencies($dependencies);
         }
     }
 
     /**
-     * @return list<ExecutionOrderDependency>
+     * @return non-empty-list<ExecutionOrderDependency>
      */
     public function provides(): array
     {
         if ($this->providedTests === null) {
-            $this->providedTests = [new ExecutionOrderDependency($this->getName())];
+            $this->providedTests = [new ExecutionOrderDependency($this->name())];
         }
 
         return $this->providedTests;
@@ -62,14 +72,16 @@ final class DataProviderTestSuite extends TestSuite
     }
 
     /**
-     * Returns the size of the each test created using the data provider(s).
-     *
-     * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+     * Returns the size of each test created using the data provider(s).
      */
-    public function getSize(): int
+    public function size(): TestSize
     {
-        [$className, $methodName] = explode('::', $this->getName());
+        assert(count(explode('::', $this->name())) === 2);
+        [$className, $methodName] = explode('::', $this->name());
 
-        return TestUtil::getSize($className, $methodName);
+        assert(class_exists($className));
+        assert($methodName !== '');
+
+        return (new Groups)->size($className, $methodName);
     }
 }

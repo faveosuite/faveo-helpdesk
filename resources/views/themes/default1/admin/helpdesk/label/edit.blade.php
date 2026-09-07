@@ -16,7 +16,7 @@ class="active"
 @stop
 <!-- header -->
 @section('PageHeader')
-<h1>Labels</h1>
+<h3>Labels</h3>
 @stop
 <!-- /header -->
 <!-- breadcrumbs -->
@@ -29,24 +29,24 @@ class="active"
 @section('content')
 
 @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <i class="fa fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+    <i class="fa-solid fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('success')}}
 </div>
 @endif
 @if(Session::has('fails'))
-<div class="alert alert-danger alert-dismissable">
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-danger alert-dismissible">
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('fails')}}
 </div>
 @endif
 @if(Session::has('errors'))
         <br><br>
-        <div class="alert alert-danger alert-dismissable">
-            <i class="fa fa-ban"></i>
+        <div class="alert alert-danger alert-dismissible">
+            <i class="fa-solid fa-ban"></i>
             <b>{!! Lang::get('lang.alert') !!}!</b>
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
             <br/>
             @if($errors->first('title'))
             <li class="error-message-padding">{!! $errors->first('title', ':message') !!}</li>
@@ -60,8 +60,8 @@ class="active"
         </div>
         @endif
 @if(Session::has('warn'))
-<div class="alert alert-warning alert-dismissable">
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-warning alert-dismissible">
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('warn')}}
 </div>
 @endif
@@ -71,49 +71,49 @@ class="active"
         <div class="box-title">
             {!! $label->titleWithColor() !!}
         </div>
-        {!! Form::model($label,['url'=>'labels/'.$label->id,'method'=>'patch', 'id' => 'label-form']) !!}
+        {!! html()->modelForm($label, 'PATCH', url('labels/'.$label->id))->attributes(['id' => 'label-form'])->open() !!}
     </div>
     <div class="box-body">
         <table class="table table-borderless">
             
            <tr>
-                <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
-                <td>{!! Form::label('title','Title') !!}<span class="text-red"> *</span></td>
+                <div class="mb-3 {{ $errors->has('title') ? 'has-error' : '' }}">
+                <td>{!! html()->label('Title', 'title') !!}<span class="text-red"> *</span></td>
                 <td>
-                    <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
-                        {!! Form::text('title',null,['class'=>'form-control']) !!}
+                    <div class="mb-3 {{ $errors->has('title') ? 'has-error' : '' }}">
+                        {!! html()->text('title', null)->class('form-control') !!}
                     </div>
                 </td>
                 </div>
             </tr>
              <tr>
-                <td>{!! Form::label('color','Color') !!}<span class="text-red"> *</span></td>
+                <td>{!! html()->label('Color', 'color') !!}<span class="text-red"> *</span></td>
                 <td>
-                    <div class="form-group {{ $errors->has('color') ? 'has-error' : '' }}">
-                    {!! Form::text('color', null,['class'=>'form-control my-colorpicker1 colorpicker-element']) !!}
+                    <div class="mb-3 {{ $errors->has('color') ? 'has-error' : '' }}">
+                    {!! html()->text('color', null)->class('form-control my-colorpicker1 colorpicker-element') !!}
                     </div>
                 </td>
             </tr>
             
              <tr>
-                <td>{!! Form::label('order','Order') !!}<span class="text-red"> *</span></td>
+                <td>{!! html()->label('Order', 'order') !!}<span class="text-red"> *</span></td>
                 <td>
-                    <div class="form-group {{ $errors->has('order') ? 'has-error' : '' }}">
-                    {!! Form::input('number', 'order', null, array('class' => 'form-control')) !!}
+                    <div class="mb-3 {{ $errors->has('order') ? 'has-error' : '' }}">
+                    {!! html()->number('order', null)->class('form-control') !!}
                     </div>
                 </td>
             </tr>
             
              <tr>
-                <td>{!! Form::label('status','Status') !!}</td>
-                <td><p>{!! Form::checkbox('status') !!}  {!!Lang::get('lang.enable')!!}</p></td>
+                <td>{!! html()->label('Status', 'status') !!}</td>
+                <td><p>{!! html()->checkbox('status') !!}  {!!Lang::get('lang.enable')!!}</p></td>
             </tr>
             
         </table>
     </div>
     <div class="box-footer">
-        {!! Form::submit('Save',['class'=>'btn btn-success']) !!}
-        {!! Form::close() !!}
+        {!! html()->submit('Save')->class('btn btn-success') !!}
+        {!! html()->closeModelForm() !!}
     </div>
 </div>
 @stop

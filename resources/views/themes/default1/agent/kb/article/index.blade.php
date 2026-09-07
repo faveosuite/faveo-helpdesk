@@ -37,33 +37,50 @@ class="nav-item menu-open"
 @section('content')
 <!-- check whether success or not -->
 @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <i class="fa  fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+    <i class="fa-solid fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('success')}}
 </div>
 @endif
 <!-- failure message -->
 @if(Session::has('fails'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fa fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('fails')}}
 </div>
 @endif
-<div class="card card-light">
+<div class="card">
     <div class="card-header">
         <h3 class="card-title">{{Lang::get('lang.allarticle')}}</h3>
     </div>
     <div class="card-body">
-        {!! Datatable::table()
-        ->addColumn(Lang::get('lang.name'),
-        Lang::get('lang.publish_time'),
-        Lang::get('lang.action'))       // these are the column headings to be shown
-        ->setOrder(array(1=>'desc')) 
-        ->setUrl(route('api.article'))   // this is the route where data will be retrieved
-        ->render() !!}
+        <table id="articles-table" class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>{!! Lang::get('lang.name') !!}</th>
+                    <th>{!! Lang::get('lang.publish_time') !!}</th>
+                    <th>{!! Lang::get('lang.action') !!}</th>
+                </tr>
+            </thead>
+        </table>
     </div>
 </div>
+<script>
+$(function() {
+    $('#articles-table').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: '{{ route("api.article") }}',
+        order: [[1, 'desc']],
+        columns: [
+            {data: 'name',         name: 'name'},
+            {data: 'publish_time', name: 'publish_time'},
+            {data: 'Actions',      name: 'Actions', orderable: false, searchable: false},
+        ]
+    });
+});
+</script>
 @stop

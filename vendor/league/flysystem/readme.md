@@ -31,19 +31,26 @@ for which ever storage is right for you.
 * **[AWS S3](https://flysystem.thephpleague.com/docs/adapter/aws-s3-v3/)**
 * **[AsyncAws S3](https://flysystem.thephpleague.com/docs/adapter/async-aws-s3/)**
 * **[Google Cloud Storage](https://flysystem.thephpleague.com/docs/adapter/google-cloud-storage/)**
-* **[Azure Blob Storage](https://flysystem.thephpleague.com/docs/adapter/azure-blob-storage/)**
+* **[MongoDB GridFS](https://flysystem.thephpleague.com/docs/adapter/gridfs/)**
 * **[WebDAV](https://flysystem.thephpleague.com/docs/adapter/webdav/)**
+* **[ZipArchive](https://flysystem.thephpleague.com/docs/adapter/zip-archive/)**
 
 ### Third party Adapters
 
+* **[Azure Blob Storage](https://github.com/Azure-OSS/azure-storage-php-adapter-flysystem)**
 * **[Gitlab](https://github.com/RoyVoetman/flysystem-gitlab-storage)**
 * **[Google Drive (using regular paths)](https://github.com/masbug/flysystem-google-drive-ext)**
 * **[bunny.net / BunnyCDN](https://github.com/PlatformCommunity/flysystem-bunnycdn/tree/v3)**
 * **[Sharepoint 365 / One Drive (Using MS Graph)](https://github.com/shitware-ltd/flysystem-msgraph)**
 * **[OneDrive](https://github.com/doerffler/flysystem-onedrive)**
 * **[Dropbox](https://github.com/spatie/flysystem-dropbox)**
+* **[ReplicateAdapter](https://github.com/ajgarlag/flysystem-replicate)**
+* **[Uploadcare](https://github.com/vormkracht10/flysystem-uploadcare)**
+* **[Useful adapters (FallbackAdapter, LogAdapter, ReadWriteAdapter, RetryAdapter)](https://github.com/ElGigi/FlysystemUsefulAdapters)**
+* **[Metadata Cache](https://github.com/jgivoni/flysystem-cache-adapter)**
 
-You can always [create an adapter](https://flysystem.thephpleague.com/v2/docs/advanced/creating-an-adapter/) yourself.
+
+You can always [create an adapter](https://flysystem.thephpleague.com/docs/advanced/creating-an-adapter/) yourself.
 
 ## Security
 

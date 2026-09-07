@@ -1,24 +1,17 @@
 <?php
 
+use libphonenumber\PhoneNumberFormat;
 use Propaganistas\LaravelPhone\PhoneNumber;
 
 if (! function_exists('phone')) {
     /**
-     * Get a PhoneNumber instance or a formatted string.
-     *
-     * @param string       $number
-     * @param string|array $country
-     * @param string|int   $format
-     * @return string|Propaganistas\LaravelPhone\PhoneNumber
+     * @param  array<string>|string|null  $country
+     * @return ($format is null ? \Propaganistas\LaravelPhone\PhoneNumber : string)
      */
-    function phone($number, $country = [], $format = null)
+    function phone(string $number, array|string|null $country = null, PhoneNumberFormat|string|null $format = null): PhoneNumber|string
     {
-        $phone = PhoneNumber::make($number, $country);
+        $phone = new PhoneNumber($number, $country);
 
-        if (! is_null($format)) {
-            return $phone->format($format);
-        }
-
-        return $phone;
+        return is_null($format) ? $phone : $phone->format($format);
     }
 }

@@ -20,11 +20,11 @@ use App\Model\helpdesk\Workflow\WorkflowAction;
 use App\Model\helpdesk\Workflow\WorkflowName;
 use App\Model\helpdesk\Workflow\WorkflowRules;
 use App\User;
-use Datatable;
-//classes
 use Exception;
+//classes
 use Illuminate\Http\Request;
 use Lang;
+use Yajra\DataTables\Facades\DataTables;
 
 /**
  * WorkflowController
@@ -72,13 +72,7 @@ class WorkflowController extends Controller
      */
     public function workFlowList()
     {
-        // returns chumper datatable
-        return Datatable::collection(WorkflowName::All())
-                        /* searcable column name */
-                        ->searchColumns('name')
-                        /* order column name and description */
-                        ->orderColumns('name')
-                        /* add column name */
+        return DataTables::of(WorkflowName::All())
                         ->addColumn('name', function ($model) {
                             return $model->name;
                         })
@@ -130,11 +124,10 @@ class WorkflowController extends Controller
                         })
                         /* add column action */
                         ->addColumn('Actions', function ($model) {
-                            $confirmation = 'Are you sure?';
-
                             return "<a class='btn btn-primary btn-xs' href='".route('workflow.edit', $model->id)."'><i class='fas fa-edit'></i> Edit</a>  <a class='btn btn-danger btn-xs' href='".route('workflow.delete', $model->id)."'><i class='fas fa-trash'></i> Delete</a>";
                         })
-                        ->make();
+                        ->rawColumns(['Actions'])
+                        ->make(true);
     }
 
     /**

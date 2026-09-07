@@ -67,9 +67,12 @@ class Cell
     /**
      * Attributes of the formula.
      *
-     * @var mixed
+     * @var ?array
      */
     private $formulaAttributes;
+
+    /** @var IgnoredErrors */
+    private $ignoredErrors;
 
     /**
      * Update the cell into the cell collection.
@@ -119,6 +122,7 @@ class Cell
         } elseif (self::getValueBinder()->bindValue($this, $value) === false) {
             throw new Exception('Value could not be bound to cell.');
         }
+        $this->ignoredErrors = new IgnoredErrors();
     }
 
     /**
@@ -196,10 +200,9 @@ class Cell
      * @param mixed $oldValue
      * @param mixed $newValue
      */
-    protected static function updateIfCellIsTableHeader(Worksheet $workSheet, self $cell, $oldValue, $newValue): void
+    protected static function updateIfCellIsTableHeader(?Worksheet $workSheet, self $cell, $oldValue, $newValue): void
     {
-//        var_dump('=>', $oldValue, $newValue);
-        if (StringHelper::strToLower($oldValue ?? '') === StringHelper::strToLower($newValue ?? '')) {
+        if (StringHelper::strToLower($oldValue ?? '') === StringHelper::strToLower($newValue ?? '') || $workSheet === null) {
             return;
         }
 
@@ -222,12 +225,16 @@ class Cell
      *    Sets the value for a cell, automatically determining the datatype using the value binder
      *
      * @param mixed $value Value
+     * @param null|IValueBinder $binder Value Binder to override the currently set Value Binder
+     *
+     * @throws Exception
      *
      * @return $this
      */
-    public function setValue($value): self
+    public function setValue($value, ?IValueBinder $binder = null): self
     {
-        if (!self::getValueBinder()->bindValue($this, $value)) {
+        $binder ??= self::getValueBinder();
+        if (!$binder->bindValue($this, $value)) {
             throw new Exception('Value could not be bound to cell.');
         }
 
@@ -388,7 +395,9 @@ class Cell
                 }
 
                 throw new \PhpOffice\PhpSpreadsheet\Calculation\Exception(
-                    $this->getWorksheet()->getTitle() . '!' . $this->getCoordinate() . ' -> ' . $ex->getMessage()
+                    $this->getWorksheet()->getTitle() . '!' . $this->getCoordinate() . ' -> ' . $ex->getMessage(),
+                    $ex->getCode(),
+                    $ex
                 );
             }
 
@@ -758,26 +767,14 @@ class Cell
         return $this->updateInCollection();
     }
 
-    /**
-     * Set the formula attributes.
-     *
-     * @param mixed $attributes
-     *
-     * @return $this
-     */
-    public function setFormulaAttributes($attributes): self
+    public function setFormulaAttributes(?array $attributes): self
     {
         $this->formulaAttributes = $attributes;
 
         return $this;
     }
 
-    /**
-     * Get the formula attributes.
-     *
-     * @return mixed
-     */
-    public function getFormulaAttributes()
+    public function getFormulaAttributes(): ?array
     {
         return $this->formulaAttributes;
     }
@@ -790,5 +787,10 @@ class Cell
     public function __toString()
     {
         return (string) $this->getValue();
+    }
+
+    public function getIgnoredErrors(): IgnoredErrors
+    {
+        return $this->ignoredErrors;
     }
 }

@@ -11,7 +11,7 @@
     @foreach($directories as $key => $dir_name)
     <tr>
       <td>
-        <i class="fa fa-folder-o"></i>
+        <i class="fa-solid fa-folder-o"></i>
         <a class="folder-item pointer" data-id="{{ $dir_name['long'] }}">
           {{ $dir_name['short'] }}
         </a>
@@ -27,7 +27,7 @@
     <tr>
       <td>
         @if($type == 'Images')
-        <i class="fa fa-image"></i>
+        <i class="fa-solid fa-image"></i>
         @else
         <i class="fa {{ $file['icon'] }}"></i>
         @endif
@@ -37,7 +37,7 @@
         </a>
         &nbsp;&nbsp;
         <a href="javascript:rename('{{ $file_name }}')">
-          <i class="fa fa-edit"></i>
+          <i class="fa-solid fa-pen-to-square"></i>
         </a>
       </td>
       <td>
@@ -51,17 +51,17 @@
       </td>
       <td>
         <a href="javascript:trash('{{ $file_name }}')">
-          <i class="fa fa-trash fa-fw"></i>
+          <i class="fa-solid fa-trash fa-fw"></i>
         </a>
         @if($type == 'Images')
         <a href="javascript:cropImage('{{ $file_name }}')">
-          <i class="fa fa-crop fa-fw"></i>
+          <i class="fa-solid fa-crop fa-fw"></i>
         </a>
         <a href="javascript:resizeImage('{{ $file_name }}')">
-          <i class="fa fa-arrows fa-fw"></i>
+          <i class="fa-solid fa-arrows fa-fw"></i>
         </a>
         {{--<a href="javascript:notImp()">--}}
-        {{--<i class="fa fa-rotate-left fa-fw"></i>--}}
+        {{--<i class="fa-solid fa-rotate-left fa-fw"></i>--}}
         {{--</a>--}}
         @endif
       </td>

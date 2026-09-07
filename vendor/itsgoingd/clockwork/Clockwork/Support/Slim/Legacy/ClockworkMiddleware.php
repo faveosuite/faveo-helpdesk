@@ -6,8 +6,7 @@ use Clockwork\DataSource\PsrMessageDataSource;
 use Clockwork\Storage\FileStorage;
 use Clockwork\Helpers\ServerTiming;
 
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Message\{ResponseInterface as Response, ServerRequestInterface as Request};
 
 // Slim 3 middleware
 class ClockworkMiddleware
@@ -34,7 +33,7 @@ class ClockworkMiddleware
 			return $this->authenticate($response, $request);
 		}
 
-		$clockworkDataUri = '#/__clockwork(?:/(?<id>[0-9-]+))?(?:/(?<direction>(?:previous|next)))?(?:/(?<count>\d+))?#';
+		$clockworkDataUri = '#/__clockwork(?:/(?<id>([0-9-]+|latest)))?(?:/(?<direction>(?:previous|next)))?(?:/(?<count>\d+))?#';
 		if (preg_match($clockworkDataUri, $request->getUri()->getPath(), $matches)) {
 			$matches = array_merge([ 'id' => null, 'direction' => null, 'count' => null ], $matches);
 			return $this->retrieveRequest($response, $request, $matches['id'], $matches['direction'], $matches['count']);

@@ -226,7 +226,7 @@ class SimpleMessage
     /**
      * Format the given line of text.
      *
-     * @param  \Illuminate\Contracts\Support\Htmlable|string|array  $line
+     * @param  \Illuminate\Contracts\Support\Htmlable|string|array|null  $line
      * @return \Illuminate\Contracts\Support\Htmlable|string
      */
     protected function formatLine($line)
@@ -236,10 +236,10 @@ class SimpleMessage
         }
 
         if (is_array($line)) {
-            return implode(' ', array_map('trim', $line));
+            return implode(' ', array_map(trim(...), $line));
         }
 
-        return trim(implode(' ', array_map('trim', preg_split('/\\r\\n|\\r|\\n/', $line ?? ''))));
+        return trim(implode(' ', array_map(trim(...), preg_split('/\\r\\n|\\r|\\n/', $line ?? ''))));
     }
 
     /**

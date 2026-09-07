@@ -61,12 +61,13 @@ class LibraryController extends Controller
             $public_key = openssl_get_publickey($key_content);
 
             $encrypted = $e = null;
-            openssl_seal($data, $encrypted, $e, [$public_key], 'rc4');
+            $iv = '';
+            openssl_seal($data, $encrypted, $e, [$public_key], 'aes-256-cbc', $iv);
 
             $sealed_data = base64_encode($encrypted);
             $envelope = base64_encode($e[0]);
 
-            $result = ['seal' => $sealed_data, 'envelope' => $envelope];
+            $result = ['seal' => $sealed_data, 'envelope' => $envelope, 'iv' => base64_encode($iv)];
 
             return json_encode($result);
         } catch (Exception $ex) {
@@ -83,16 +84,17 @@ class LibraryController extends Controller
                 $envelope = $encrypted->envelope;
                 $input = base64_decode($sealed_data);
                 $einput = base64_decode($envelope);
+                $iv = isset($encrypted->iv) ? base64_decode($encrypted->iv) : '';
                 $path = storage_path('app'.DIRECTORY_SEPARATOR.'private.key');
                 $key_content = file_get_contents($path);
                 $private_key = openssl_get_privatekey($key_content);
                 $plaintext = null;
-                openssl_open($input, $plaintext, $einput, $private_key);
+                openssl_open($input, $plaintext, $einput, $private_key, 'aes-256-cbc', $iv);
 
                 return $plaintext;
             }
         } catch (Exception $ex) {
-            dd($ex);
+            throw new Exception($ex->getMessage());
         }
     }
 

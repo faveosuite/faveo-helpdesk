@@ -6,8 +6,8 @@ The Routing component maps an HTTP request to a set of configuration variables.
 Getting Started
 ---------------
 
-```
-$ composer require symfony/routing
+```bash
+composer require symfony/routing
 ```
 
 ```php
@@ -41,6 +41,11 @@ $url = $generator->generate('blog_show', [
 // $url = '/blog/my-blog-post'
 ```
 
+Sponsor
+-------
+
+Help Symfony by [sponsoring][3] its development!
+
 Resources
 ---------
 
@@ -49,3 +54,5 @@ Resources
  * [Report issues](https://github.com/symfony/symfony/issues) and
    [send Pull Requests](https://github.com/symfony/symfony/pulls)
    in the [main Symfony repository](https://github.com/symfony/symfony)
+
+[3]: https://symfony.com/sponsor

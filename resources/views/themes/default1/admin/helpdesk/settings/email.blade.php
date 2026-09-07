@@ -20,7 +20,7 @@ class="nav-link active"
 @stop
 <!-- header -->
 @section('PageHeader')
-<h1>{{Lang::get('lang.emails')}}</h1>
+<h3>{{Lang::get('lang.emails')}}</h3>
 @stop
 <!-- /header -->
 <!-- breadcrumbs -->
@@ -32,30 +32,30 @@ class="nav-link active"
 <!-- content -->
 @section('content')
 <!-- open a form -->
-{!! Form::model($emails,['url' => 'postemail/'.$emails->id, 'method' => 'PATCH']) !!}
+{!! html()->modelForm($emails, 'PATCH', url('postemail/'.$emails->id))->open() !!}
 <!-- check whether success or not -->
 @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <i class="fas  fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+    <i class="fa-solid  fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {!!Session::get('success')!!}
 </div>
 @endif
 <!-- failure message -->
 @if(Session::has('fails'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fas fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! lang::get('lang.success') !!} !</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {!!Session::get('fails')!!}
 </div>
 @endif
 @if(Session::has('errors'))
 <?php //dd($errors); ?>
-<div class="alert alert-danger alert-dismissable">
-    <i class="fa fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     <br/>
     @if($errors->first('sys_email'))
     <li class="error-message-padding">{!! $errors->first('sys_email', ':message') !!}</li>
@@ -70,8 +70,8 @@ class="nav-link active"
         <!-- Accept All Emails:	CHECKBOX: Accept email from unknown Users  -->
         <div class="row">
             <div class="col-md-6">
-                <div class="form-group">
-                    {!! Form::checkbox('all_emails',1,true) !!}&nbsp;{{Lang::get('lang.accept_all_email')}}
+                <div class="mb-3">
+                    {!! html()->checkbox('all_emails', true, 1) !!}&nbsp;{{Lang::get('lang.accept_all_email')}}
                 </div>
             </div>
         </div>
@@ -81,22 +81,22 @@ class="nav-link active"
         <!-- Accept Email Collaborators: CHECKBOX : Automatically add collaborators from email fields   -->
         <div class="row">
             <div class="col-md-4">
-                <div class="form-group">
-                    {!! Form::checkbox('email_collaborator',1) !!}&nbsp;{{Lang::get('lang.accept_email_collab')}}
+                <div class="mb-3">
+                    {!! html()->checkbox('email_collaborator', null, 1) !!}&nbsp;{{Lang::get('lang.accept_email_collab')}}
                 </div>
             </div>
         </div>
         <!-- Attachments: CHECKBOX	: Email attachments to the user  -->
         <div class="row">
             <div class="col-md-4">
-                <div class="form-group">
-                    {!! Form::checkbox('attachment',1) !!}&nbsp;{{Lang::get('lang.attachments')}}
+                <div class="mb-3">
+                    {!! html()->checkbox('attachment', null, 1) !!}&nbsp;{{Lang::get('lang.attachments')}}
                 </div>
             </div>
         </div>
     </div>
     <div class="card-footer">
-        {!! Form::submit(Lang::get('lang.submit'),['class'=>'btn btn-primary'])!!}
+        {!! html()->submit(Lang::get('lang.submit'))->class('btn btn-primary') !!}
     </div>
 </div>
 @stop

@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,32 +11,55 @@
 
 namespace Psy\Command;
 
+use PhpParser\NodeTraverser;
+use PhpParser\PrettyPrinter\Standard as Printer;
+use Psy\CodeCleaner;
 use Psy\CodeCleaner\NoReturnValue;
+use Psy\CodeCleanerAware;
 use Psy\Context;
 use Psy\ContextAware;
 use Psy\Exception\ErrorException;
 use Psy\Exception\RuntimeException;
 use Psy\Exception\UnexpectedTargetException;
-use Psy\Reflection\ReflectionClassConstant;
-use Psy\Reflection\ReflectionConstant_;
+use Psy\Reflection\ReflectionConstant;
+use Psy\Sudo\SudoVisitor;
 use Psy\Util\Mirror;
+use Psy\Util\Str;
+use Symfony\Component\Console\Formatter\OutputFormatter;
+use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * An abstract command with helpers for inspecting the current context.
  */
-abstract class ReflectingCommand extends Command implements ContextAware
+abstract class ReflectingCommand extends Command implements ContextAware, CodeCleanerAware
 {
     const CLASS_OR_FUNC = '/^[\\\\\w]+$/';
     const CLASS_MEMBER = '/^([\\\\\w]+)::(\w+)$/';
     const CLASS_STATIC = '/^([\\\\\w]+)::\$(\w+)$/';
     const INSTANCE_MEMBER = '/^(\$\w+)(::|->)(\w+)$/';
 
+    protected Context $context;
+    protected CodeCleaner $cleaner;
+    private CodeArgumentParser $parser;
+    private NodeTraverser $traverser;
+    private Printer $printer;
+
     /**
-     * Context instance (for ContextAware interface).
-     *
-     * @var Context
+     * {@inheritdoc}
      */
-    protected $context;
+    public function __construct($name = null)
+    {
+        $this->parser = new CodeArgumentParser();
+
+        // @todo Pass visitor directly to once we drop support for PHP-Parser 4.x
+        $this->traverser = new NodeTraverser();
+        $this->traverser->addVisitor(new SudoVisitor());
+
+        $this->printer = new Printer();
+
+        parent::__construct($name);
+    }
 
     /**
      * ContextAware interface.
@@ -46,6 +69,14 @@ abstract class ReflectingCommand extends Command implements ContextAware
     public function setContext(Context $context)
     {
         $this->context = $context;
+    }
+
+    /**
+     * CodeCleanerAware interface.
+     */
+    public function setCodeCleaner(CodeCleaner $cleaner)
+    {
+        $this->cleaner = $cleaner;
     }
 
     /**
@@ -95,7 +126,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
      */
     protected function resolveName(string $name, bool $includeFunctions = false): string
     {
-        $shell = $this->getApplication();
+        $shell = $this->getShell();
 
         // While not *technically* 100% accurate, let's treat `self` and `static` as equivalent.
         if (\in_array(\strtolower($name), ['self', 'static'])) {
@@ -115,12 +146,23 @@ abstract class ReflectingCommand extends Command implements ContextAware
             return $name;
         }
 
-        // Check $name against the current namespace and use statements.
-        if (self::couldBeClassName($name)) {
+        // Use CodeCleaner to resolve the name through use statements and namespace
+        if (Str::isValidClassName($name)) {
+            $resolved = $this->cleaner->resolveClassName($name);
+
+            // If we got a different name back, use it
+            if ($resolved !== $name) {
+                return $resolved;
+            }
+
+            // Fall back to the old resolveCode approach for edge cases
             try {
-                $name = $this->resolveCode($name.'::class');
+                $resolved = $this->resolveCode($name.'::class');
+                if ($resolved !== $name) {
+                    return $resolved;
+                }
             } catch (RuntimeException $e) {
-                // /shrug
+                // Fall through to namespace check
             }
         }
 
@@ -136,24 +178,21 @@ abstract class ReflectingCommand extends Command implements ContextAware
     }
 
     /**
-     * Check whether a given name could be a class name.
-     */
-    protected function couldBeClassName(string $name): bool
-    {
-        // Regex based on https://www.php.net/manual/en/language.oop5.basic.php#language.oop5.basic.class
-        return \preg_match('/^[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*(\\\\[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*)*$/', $name) === 1;
-    }
-
-    /**
      * Get a Reflector and documentation for a function, class or instance, constant, method or property.
      *
-     * @param string $valueName Function, class, variable, constant, method or property name
+     * @param string               $valueName Function, class, variable, constant, method or property name
+     * @param OutputInterface|null $output    Optional output for displaying cleaner messages
      *
      * @return array (value, Reflector)
      */
-    protected function getTargetAndReflector(string $valueName): array
+    protected function getTargetAndReflector(string $valueName, ?OutputInterface $output = null): array
     {
         list($value, $member, $kind) = $this->getTarget($valueName);
+
+        // Display any implicit use statements that were added during name resolution
+        if ($output !== null) {
+            $this->writeCleanerMessages($output);
+        }
 
         return [$value, Mirror::get($value, $member, $kind)];
     }
@@ -170,7 +209,10 @@ abstract class ReflectingCommand extends Command implements ContextAware
     protected function resolveCode(string $code)
     {
         try {
-            $value = $this->getApplication()->execute($code, true);
+            // Add an implicit `sudo` to target resolution.
+            $nodes = $this->traverser->traverse($this->parser->parse($code));
+            $sudoCode = $this->printer->prettyPrint($nodes);
+            $value = $this->getShell()->execute($sudoCode, true);
         } catch (\Throwable $e) {
             // Swallow all exceptions?
         }
@@ -200,20 +242,6 @@ abstract class ReflectingCommand extends Command implements ContextAware
         }
 
         return $value;
-    }
-
-    /**
-     * @deprecated Use `resolveCode` instead
-     *
-     * @param string $name
-     *
-     * @return mixed Variable instance
-     */
-    protected function resolveInstance(string $name)
-    {
-        @\trigger_error('`resolveInstance` is deprecated; use `resolveCode` instead.', \E_USER_DEPRECATED);
-
-        return $this->resolveCode($name);
     }
 
     /**
@@ -289,7 +317,6 @@ abstract class ReflectingCommand extends Command implements ContextAware
 
             case \ReflectionProperty::class:
             case \ReflectionClassConstant::class:
-            case ReflectionClassConstant::class:
                 $classReflector = $reflector->getDeclaringClass();
                 $vars['__class'] = $classReflector->name;
                 if ($classReflector->inNamespace()) {
@@ -302,7 +329,7 @@ abstract class ReflectingCommand extends Command implements ContextAware
                 }
                 break;
 
-            case ReflectionConstant_::class:
+            case ReflectionConstant::class:
                 if ($reflector->inNamespace()) {
                     $vars['__namespace'] = $reflector->getNamespaceName();
                 }
@@ -318,5 +345,20 @@ abstract class ReflectingCommand extends Command implements ContextAware
         }
 
         $this->context->setCommandScopeVariables($vars);
+    }
+
+    /**
+     * Write log messages (e.g. implicit use statements) from CodeCleaner passes.
+     */
+    protected function writeCleanerMessages(OutputInterface $output)
+    {
+        // Write to stderr if this is a ConsoleOutput
+        if ($output instanceof ConsoleOutput) {
+            $output = $output->getErrorOutput();
+        }
+
+        foreach ($this->cleaner->getMessages() as $message) {
+            $output->writeln(\sprintf('<whisper>%s</whisper>', OutputFormatter::escape($message)));
+        }
     }
 }

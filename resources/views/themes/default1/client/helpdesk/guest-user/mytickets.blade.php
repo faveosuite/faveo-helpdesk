@@ -28,9 +28,9 @@ class="active"
     <div class="box-body no-padding">
         <div class="mailbox-controls">
             <!-- Check all button -->
-            <button class="btn btn-default btn-sm checkbox-toggle"><i class="fa fa-square-o"></i></button>
-            <button class="btn btn-default btn-sm"><i class="fa fa-trash-o"></i></button>
-            <button class="btn btn-default btn-sm" onclick="click()" id="click"><i class="fa fa-refresh"></i></button>
+            <button class="btn btn-secondary btn-sm checkbox-toggle"><i class="fa-solid fa-square-o"></i></button>
+            <button class="btn btn-secondary btn-sm"><i class="fa-solid fa-trash-o"></i></button>
+            <button class="btn btn-secondary btn-sm" onclick="click()" id="click"><i class="fa-solid fa-refresh"></i></button>
             <div class="pull-right">
                 <?php
 $counted = count(App\Model\Ticket\Tickets::where('status', '=', 1)->get());
@@ -96,7 +96,7 @@ if ($counted < 20) {
                         {
                             $title = $title;
                         }   ?>
-                        <td class="mailbox-name"><a href="{!! URL('myticket',[$ticket->id]) !!}" title="{!! $title->title !!}">{{$string}}   </a> ({!! $count!!}) <i class="fa fa-comment"></i></td>
+                        <td class="mailbox-name"><a href="{!! URL('myticket',[$ticket->id]) !!}" title="{!! $title->title !!}">{{$string}}   </a> ({!! $count!!}) <i class="fa-solid fa-comment"></i></td>
                         <td class="mailbox-Id">#{!! $ticket->ticket_number !!}</td>
                         <?php $priority = App\Model\Ticket\Ticket_Priority::where('priority_id', '=', $ticket->priority_id)->first();?>
                         <td class="mailbox-priority"><spam class="btn btn-{{$priority->priority_color}} btn-xs">{{$priority->priority}}</spam></td>

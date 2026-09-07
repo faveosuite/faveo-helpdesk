@@ -18,7 +18,7 @@ class Uservoice extends Server
     /**
      * @inheritDoc
      */
-    public function __construct($clientCredentials, SignatureInterface $signature = null)
+    public function __construct($clientCredentials, ?SignatureInterface $signature = null)
     {
         parent::__construct($clientCredentials, $signature);
 

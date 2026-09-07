@@ -1,9 +1,10 @@
+[![Latest Stable Version](https://poser.pugx.org/sebastian/object-reflector/v)](https://packagist.org/packages/sebastian/object-reflector)
+[![CI Status](https://github.com/sebastianbergmann/object-reflector/workflows/CI/badge.svg)](https://github.com/sebastianbergmann/object-reflector/actions)
+[![codecov](https://codecov.io/gh/sebastianbergmann/object-reflector/branch/main/graph/badge.svg)](https://codecov.io/gh/sebastianbergmann/object-reflector)
+
 # sebastian/object-reflector
 
-[![CI Status](https://github.com/sebastianbergmann/object-reflector/workflows/CI/badge.svg)](https://github.com/sebastianbergmann/object-reflector/actions)
-[![Type Coverage](https://shepherd.dev/github/sebastianbergmann/object-reflector/coverage.svg)](https://shepherd.dev/github/sebastianbergmann/object-reflector)
-
-Allows reflection of object attributes, including inherited and non-public ones.
+Allows reflection of object properties, including inherited and private as well as protected ones.
 
 ## Installation
 

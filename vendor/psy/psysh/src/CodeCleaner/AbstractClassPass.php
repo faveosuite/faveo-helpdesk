@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -21,8 +21,8 @@ use Psy\Exception\FatalErrorException;
  */
 class AbstractClassPass extends CodeCleanerPass
 {
-    private $class;
-    private $abstractMethods;
+    private Class_ $class;
+    private array $abstractMethods;
 
     /**
      * @throws FatalErrorException if the node is an abstract function with a body
@@ -43,10 +43,12 @@ class AbstractClassPass extends CodeCleanerPass
 
                 if ($node->stmts !== null) {
                     $msg = \sprintf('Abstract function %s cannot contain body', $name);
-                    throw new FatalErrorException($msg, 0, \E_ERROR, null, $node->getLine());
+                    throw new FatalErrorException($msg, 0, \E_ERROR, null, $node->getStartLine());
                 }
             }
         }
+
+        return null;
     }
 
     /**
@@ -68,8 +70,10 @@ class AbstractClassPass extends CodeCleanerPass
                     ($count === 1) ? '' : 's',
                     \implode(', ', $this->abstractMethods)
                 );
-                throw new FatalErrorException($msg, 0, \E_ERROR, null, $node->getLine());
+                throw new FatalErrorException($msg, 0, \E_ERROR, null, $node->getStartLine());
             }
         }
+
+        return null;
     }
 }

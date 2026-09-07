@@ -20,18 +20,16 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Uid\Exception\LogicException;
 use Symfony\Component\Uid\Factory\UuidFactory;
 use Symfony\Component\Uid\Uuid;
 
 #[AsCommand(name: 'uuid:generate', description: 'Generate a UUID')]
 class GenerateUuidCommand extends Command
 {
-    private UuidFactory $factory;
-
-    public function __construct(UuidFactory $factory = null)
-    {
-        $this->factory = $factory ?? new UuidFactory();
-
+    public function __construct(
+        private UuidFactory $factory = new UuidFactory(),
+    ) {
         parent::__construct();
     }
 
@@ -45,41 +43,41 @@ class GenerateUuidCommand extends Command
                 new InputOption('namespace', null, InputOption::VALUE_REQUIRED, 'The UUID to use at the namespace for named-based UUIDs, predefined namespaces keywords "dns", "url", "oid" and "x500" are accepted'),
                 new InputOption('random-based', null, InputOption::VALUE_NONE, 'To generate a random-based UUID'),
                 new InputOption('count', 'c', InputOption::VALUE_REQUIRED, 'The number of UUID to generate', 1),
-                new InputOption('format', 'f', InputOption::VALUE_REQUIRED, 'The UUID output format: rfc4122, base58 or base32', 'rfc4122'),
+                new InputOption('format', 'f', InputOption::VALUE_REQUIRED, \sprintf('The UUID output format ("%s")', implode('", "', $this->getAvailableFormatOptions())), 'rfc4122'),
             ])
             ->setHelp(<<<'EOF'
-The <info>%command.name%</info> generates a UUID.
+                The <info>%command.name%</info> generates a UUID.
 
-    <info>php %command.full_name%</info>
+                    <info>php %command.full_name%</info>
 
-To generate a time-based UUID:
+                To generate a time-based UUID:
 
-    <info>php %command.full_name% --time-based=now</info>
+                    <info>php %command.full_name% --time-based=now</info>
 
-To specify a time-based UUID's node:
+                To specify a time-based UUID's node:
 
-    <info>php %command.full_name% --time-based=@1613480254 --node=fb3502dc-137e-4849-8886-ac90d07f64a7</info>
+                    <info>php %command.full_name% --time-based=@1613480254 --node=fb3502dc-137e-4849-8886-ac90d07f64a7</info>
 
-To generate a name-based UUID:
+                To generate a name-based UUID:
 
-    <info>php %command.full_name% --name-based=foo</info>
+                    <info>php %command.full_name% --name-based=foo</info>
 
-To specify a name-based UUID's namespace:
+                To specify a name-based UUID's namespace:
 
-    <info>php %command.full_name% --name-based=bar --namespace=fb3502dc-137e-4849-8886-ac90d07f64a7</info>
+                    <info>php %command.full_name% --name-based=bar --namespace=fb3502dc-137e-4849-8886-ac90d07f64a7</info>
 
-To generate a random-based UUID:
+                To generate a random-based UUID:
 
-    <info>php %command.full_name% --random-based</info>
+                    <info>php %command.full_name% --random-based</info>
 
-To generate several UUIDs:
+                To generate several UUIDs:
 
-    <info>php %command.full_name% --count=10</info>
+                    <info>php %command.full_name% --count=10</info>
 
-To output a specific format:
+                To output a specific format:
 
-    <info>php %command.full_name% --format=base58</info>
-EOF
+                    <info>php %command.full_name% --format=base58</info>
+                EOF
             )
         ;
     }
@@ -118,7 +116,7 @@ EOF
                     try {
                         $node = Uuid::fromString($node);
                     } catch (\InvalidArgumentException $e) {
-                        $io->error(sprintf('Invalid node "%s": %s', $node, $e->getMessage()));
+                        $io->error(\sprintf('Invalid node "%s": %s', $node, $e->getMessage()));
 
                         return 1;
                     }
@@ -127,14 +125,12 @@ EOF
                 try {
                     new \DateTimeImmutable($time);
                 } catch (\Exception $e) {
-                    $io->error(sprintf('Invalid timestamp "%s": %s', $time, str_replace('DateTimeImmutable::__construct(): ', '', $e->getMessage())));
+                    $io->error(\sprintf('Invalid timestamp "%s": %s', $time, str_replace('DateTimeImmutable::__construct(): ', '', $e->getMessage())));
 
                     return 1;
                 }
 
-                $create = function () use ($node, $time): Uuid {
-                    return $this->factory->timeBased($node)->create(new \DateTimeImmutable($time));
-                };
+                $create = fn (): Uuid => $this->factory->timeBased($node)->create(new \DateTimeImmutable($time));
                 break;
 
             case null !== $name:
@@ -142,7 +138,7 @@ EOF
                     try {
                         $namespace = Uuid::fromString($namespace);
                     } catch (\InvalidArgumentException $e) {
-                        $io->error(sprintf('Invalid namespace "%s": %s', $namespace, $e->getMessage()));
+                        $io->error(\sprintf('Invalid namespace "%s": %s', $namespace, $e->getMessage()));
 
                         return 1;
                     }
@@ -151,7 +147,7 @@ EOF
                 $create = function () use ($namespace, $name): Uuid {
                     try {
                         $factory = $this->factory->nameBased($namespace);
-                    } catch (\LogicException) {
+                    } catch (LogicException) {
                         throw new \InvalidArgumentException('Missing namespace: use the "--namespace" option or configure a default namespace in the underlying factory.');
                     }
 
@@ -170,10 +166,10 @@ EOF
 
         $formatOption = $input->getOption('format');
 
-        if (\in_array($formatOption, $this->getAvailableFormatOptions())) {
+        if (\in_array($formatOption, $this->getAvailableFormatOptions(), true)) {
             $format = 'to'.ucfirst($formatOption);
         } else {
-            $io->error(sprintf('Invalid format "%s", did you mean "base32", "base58" or "rfc4122"?', $formatOption));
+            $io->error(\sprintf('Invalid format "%s", supported formats are "%s".', $formatOption, implode('", "', $this->getAvailableFormatOptions())));
 
             return 1;
         }
@@ -199,6 +195,7 @@ EOF
         }
     }
 
+    /** @return string[] */
     private function getAvailableFormatOptions(): array
     {
         return [

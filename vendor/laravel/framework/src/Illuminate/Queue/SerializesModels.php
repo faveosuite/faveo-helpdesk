@@ -2,6 +2,7 @@
 
 namespace Illuminate\Queue;
 
+use Illuminate\Queue\Attributes\WithoutRelations;
 use ReflectionClass;
 use ReflectionProperty;
 
@@ -18,18 +19,24 @@ trait SerializesModels
     {
         $values = [];
 
-        $properties = (new ReflectionClass($this))->getProperties();
+        $reflectionClass = new ReflectionClass($this);
 
-        $class = get_class($this);
+        [$class, $properties, $classLevelWithoutRelations] = [
+            get_class($this),
+            $reflectionClass->getProperties(),
+            ! empty($reflectionClass->getAttributes(WithoutRelations::class)),
+        ];
 
         foreach ($properties as $property) {
             if ($property->isStatic()) {
                 continue;
             }
 
-            $property->setAccessible(true);
-
             if (! $property->isInitialized($this)) {
+                continue;
+            }
+
+            if (method_exists($property, 'isVirtual') && $property->isVirtual()) {
                 continue;
             }
 
@@ -47,7 +54,11 @@ trait SerializesModels
                 $name = "\0*\0{$name}";
             }
 
-            $values[$name] = $this->getSerializedPropertyValue($value);
+            $values[$name] = $this->getSerializedPropertyValue(
+                $value,
+                ! $classLevelWithoutRelations &&
+                    empty($property->getAttributes(WithoutRelations::class))
+            );
         }
 
         return $values;
@@ -82,8 +93,6 @@ trait SerializesModels
                 continue;
             }
 
-            $property->setAccessible(true);
-
             $property->setValue(
                 $this, $this->getRestoredPropertyValue($values[$name])
             );
@@ -98,8 +107,6 @@ trait SerializesModels
      */
     protected function getPropertyValue(ReflectionProperty $property)
     {
-        $property->setAccessible(true);
-
         return $property->getValue($this);
     }
 }

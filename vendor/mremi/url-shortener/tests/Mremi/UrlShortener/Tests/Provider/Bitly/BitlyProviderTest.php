@@ -11,21 +11,14 @@
 
 namespace Mremi\UrlShortener\Tests\Provider\Bitly;
 
-use GuzzleHttp\ClientInterface;
-use Mremi\UrlShortener\Exception\InvalidApiResponseException;
-use Mremi\UrlShortener\Model\LinkInterface;
-use Mremi\UrlShortener\Provider\Bitly\AuthenticationInterface;
 use Mremi\UrlShortener\Provider\Bitly\BitlyProvider;
-use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\StreamInterface;
 
 /**
- * Tests BitlyProvider class.
+ * Tests BitlyProvider class
  *
  * @author Rémi Marseille <marseille.remi@gmail.com>
  */
-class BitlyProviderTest extends TestCase
+class BitlyProviderTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var object
@@ -33,67 +26,69 @@ class BitlyProviderTest extends TestCase
     private $provider;
 
     /**
-     * Tests the shorten method throws exception if Bit.ly returns a string.
+     * Tests the shorten method throws exception if Bit.ly returns a string
+     *
+     * @expectedException        \Mremi\UrlShortener\Exception\InvalidApiResponseException
+     * @expectedExceptionMessage Bit.ly response is probably mal-formed because cannot be json-decoded.
      */
     public function testShortenThrowsExceptionIfApiResponseIsString()
     {
-        $this->expectException(InvalidApiResponseException::class);
-        $this->expectExceptionMessage('Bit.ly response is probably mal-formed because cannot be json-decoded.');
-
         $this->mockClient($this->getMockResponseAsString());
 
         $this->provider->shorten($this->getBaseMockLink());
     }
 
     /**
-     * Tests the shorten method throws exception if Bit.ly returns an invalid status code.
+     * Tests the shorten method throws exception if Bit.ly returns a response with no status_code
+     *
+     * @expectedException        \Mremi\UrlShortener\Exception\InvalidApiResponseException
+     * @expectedExceptionMessage Property "status_code" does not exist within Bit.ly response.
+     */
+    public function testShortenThrowsExceptionIfApiResponseHasNoStatusCode()
+    {
+        $this->mockClient($this->getMockResponseAsInvalidObject());
+
+        $this->provider->shorten($this->getBaseMockLink());
+    }
+
+    /**
+     * Tests the shorten method throws exception if Bit.ly returns an invalid status code
+     *
+     * @expectedException        \Mremi\UrlShortener\Exception\InvalidApiResponseException
+     * @expectedExceptionMessage Bit.ly returned status code "500" with message "KO"
      */
     public function testShortenThrowsExceptionIfApiResponseHasInvalidStatusCode()
     {
-        $this->expectException(InvalidApiResponseException::class);
-        $this->expectExceptionMessage('Bit.ly returned status code "404" with message "NOT_FOUND"');
-
         $this->mockClient($this->getMockResponseWithInvalidStatusCode());
 
         $this->provider->shorten($this->getBaseMockLink());
     }
 
     /**
-     * Tests the shorten method with a valid Bit.ly's response.
+     * Tests the shorten method with a valid Bit.ly's response
      */
     public function testShortenWithValidApiResponse()
     {
         $response = $this->getBaseMockResponse();
 
-        $apiRawResponse = <<<'JSON'
+        $apiRawResponse = <<<JSON
 {
-  "id": "bit.ly/ze6poY",
-  "link": "http://bit.ly/ze6poY",
-  "long_url": "http://www.google.com/",
-  "created_at": "2012-03-12T16:18:23+0000",
-  "created_by": "xyzzy",
-  "client_id": "3f5101961529477287d0714a17a68023",
-  "references": {
-    "group": "https://api-ssl.bitly.com/v4/groups/74a81764c9d9"
-  }
+  "data": {
+    "global_hash": "900913",
+    "hash": "ze6poY",
+    "long_url": "http://www.google.com/",
+    "new_hash": 0,
+    "url": "http://bit.ly/ze6poY"
+  },
+  "status_code": 200,
+  "status_txt": "OK"
 }
 JSON;
-
-        $stream = $this->getBaseMockStream();
-        $stream
-            ->expects($this->once())
-            ->method('getContents')
-            ->will($this->returnValue($apiRawResponse));
 
         $response
             ->expects($this->once())
             ->method('getBody')
-            ->will($this->returnValue($stream));
-
-        $response
-            ->expects($this->once())
-            ->method('getStatusCode')
-            ->will($this->returnValue(201));
+            ->will($this->returnValue($apiRawResponse));
 
         $link = $this->getMockLongLink();
         $link
@@ -107,62 +102,72 @@ JSON;
     }
 
     /**
-     * Tests the expand method throws exception if Bit.ly returns a string.
+     * Tests the expand method throws exception if Bit.ly returns a string
+     *
+     * @expectedException        \Mremi\UrlShortener\Exception\InvalidApiResponseException
+     * @expectedExceptionMessage Bit.ly response is probably mal-formed because cannot be json-decoded.
      */
     public function testExpandThrowsExceptionIfApiResponseIsString()
     {
-        $this->expectException(InvalidApiResponseException::class);
-        $this->expectExceptionMessage('Bit.ly response is probably mal-formed because cannot be json-decoded.');
-
         $this->mockClient($this->getMockResponseAsString());
 
         $this->provider->expand($this->getBaseMockLink());
     }
 
     /**
-     * Tests the expand method throws exception if Bit.ly returns an invalid status code.
+     * Tests the expand method throws exception if Bit.ly returns a response with no status_code
+     *
+     * @expectedException        \Mremi\UrlShortener\Exception\InvalidApiResponseException
+     * @expectedExceptionMessage Property "status_code" does not exist within Bit.ly response.
+     */
+    public function testExpandThrowsExceptionIfApiResponseHasNoStatusCode()
+    {
+        $this->mockClient($this->getMockResponseAsInvalidObject());
+
+        $this->provider->expand($this->getBaseMockLink());
+    }
+
+    /**
+     * Tests the expand method throws exception if Bit.ly returns an invalid status code
+     *
+     * @expectedException        \Mremi\UrlShortener\Exception\InvalidApiResponseException
+     * @expectedExceptionMessage Bit.ly returned status code "500" with message "KO"
      */
     public function testExpandThrowsExceptionIfApiResponseHasInvalidStatusCode()
     {
-        $this->expectException(InvalidApiResponseException::class);
-        $this->expectExceptionMessage('Bit.ly returned status code "404" with message "NOT_FOUND"');
-
         $this->mockClient($this->getMockResponseWithInvalidStatusCode());
 
         $this->provider->expand($this->getBaseMockLink());
     }
 
     /**
-     * Tests the expand method with a valid Bit.ly's response.
+     * Tests the expand method with a valid Bit.ly's response
      */
     public function testExpandWithValidApiResponse()
     {
         $response = $this->getBaseMockResponse();
 
-        $apiRawResponse = <<<'JSON'
+        $apiRawResponse = <<<JSON
 {
-  "id":"bit.ly/ze6poY",
-  "link":"http://bit.ly/ze6poY",
-  "long_url": "http://www.google.com/",
-  "created_at":"2012-03-12T16:18:23+0000"
+  "data": {
+    "expand": [
+      {
+        "global_hash": "900913",
+        "long_url": "http://www.google.com/",
+        "short_url": "http://bit.ly/ze6poY",
+        "user_hash": "ze6poY"
+      }
+    ]
+  },
+  "status_code": 200,
+  "status_txt": "OK"
 }
 JSON;
-
-        $stream = $this->getBaseMockStream();
-        $stream
-            ->expects($this->once())
-            ->method('getContents')
-            ->will($this->returnValue($apiRawResponse));
 
         $response
             ->expects($this->once())
             ->method('getBody')
-            ->will($this->returnValue($stream));
-
-        $response
-            ->expects($this->once())
-            ->method('getStatusCode')
-            ->will($this->returnValue(200));
+            ->will($this->returnValue($apiRawResponse));
 
         $link = $this->getMockShortLink();
         $link
@@ -176,71 +181,57 @@ JSON;
     }
 
     /**
-     * Initializes the provider.
+     * Initializes the provider
      */
     protected function setUp()
     {
-        $auth = $this->createMock(AuthenticationInterface::class);
+        $auth = $this->getMock('Mremi\UrlShortener\Provider\Bitly\AuthenticationInterface');
 
-        $this->provider = $this->getMockBuilder(BitlyProvider::class)
-            ->setConstructorArgs([$auth])
-            ->setMethods(['createClient'])
+        $this->provider = $this->getMockBuilder('Mremi\UrlShortener\Provider\Bitly\BitlyProvider')
+            ->setConstructorArgs(array($auth))
+            ->setMethods(array('createClient'))
             ->getMock();
     }
 
     /**
-     * Cleanups the provider.
+     * Cleanups the provider
      */
     protected function tearDown()
     {
-        $this->provider = null;
+        unset($this->provider);
     }
 
     /**
-     * Gets mock of response.
+     * Gets mock of response
      *
      * @return object
      */
     private function getBaseMockResponse()
     {
-        return $this->createMock(ResponseInterface::class);
+        return $this->getMockBuilder('Guzzle\Http\Message\Response')
+            ->disableOriginalConstructor()
+            ->getMock();
     }
 
     /**
-     * Gets mock of stream.
-     *
-     * @return object
-     */
-    private function getBaseMockStream()
-    {
-        return $this->createMock(StreamInterface::class);
-    }
-
-    /**
-     * Returns an invalid response string.
+     * Returns an invalid response string
      *
      * @return object
      */
     private function getMockResponseAsString()
     {
-        $stream = $this->getBaseMockStream();
-        $stream
-            ->expects($this->once())
-            ->method('getContents')
-            ->will($this->returnValue('foo'));
-
         $response = $this->getBaseMockResponse();
 
         $response
             ->expects($this->once())
             ->method('getBody')
-            ->will($this->returnValue($stream));
+            ->will($this->returnValue('foo'));
 
         return $response;
     }
 
     /**
-     * Returns an invalid response object.
+     * Returns an invalid response object
      *
      * @return object
      */
@@ -248,36 +239,28 @@ JSON;
     {
         $response = $this->getBaseMockResponse();
 
-        $apiRawResponse = <<<'JSON'
+        $apiRawResponse = <<<JSON
 {
-  "id":"bit.ly/ze6poY",
-  "link":"http://bit.ly/ze6poY",
-  "longUrl": "http://www.google.com/",
-  "createdAt":"2012-03-12T16:18:23+0000"
+  "data": {
+    "global_hash": "900913",
+    "hash": "ze6poY",
+    "long_url": "http://www.google.com/",
+    "new_hash": 0,
+    "url": "http://bit.ly/ze6poY"
+  }
 }
 JSON;
-
-        $stream = $this->getBaseMockStream();
-        $stream
-            ->expects($this->once())
-            ->method('getContents')
-            ->will($this->returnValue($apiRawResponse));
 
         $response
             ->expects($this->once())
             ->method('getBody')
-            ->will($this->returnValue($stream));
-
-        $response
-            ->expects($this->once())
-            ->method('getStatusCode')
-            ->will($this->returnValue(200));
+            ->will($this->returnValue($apiRawResponse));
 
         return $response;
     }
 
     /**
-     * Returns a response with an invalid status code.
+     * Returns a response with an invalid status code
      *
      * @return object
      */
@@ -285,47 +268,46 @@ JSON;
     {
         $response = $this->getBaseMockResponse();
 
-        $apiRawResponse = <<<'JSON'
+        $apiRawResponse = <<<JSON
 {
-  "message": "NOT_FOUND",
-  "resource": "bitlinks",
-  "description": "What you are looking for cannot be found."
+  "data": {
+    "global_hash": "900913",
+    "hash": "ze6poY",
+    "long_url": "http://www.google.com/",
+    "new_hash": 0,
+    "url": "http://bit.ly/ze6poY"
+  },
+  "status_code": 500,
+  "status_txt": "KO"
 }
 JSON;
-
-        $stream = $this->getBaseMockStream();
-        $stream
-            ->expects($this->once())
-            ->method('getContents')
-            ->will($this->returnValue($apiRawResponse));
 
         $response
             ->expects($this->once())
             ->method('getBody')
-            ->will($this->returnValue($stream));
-
-        $response
-            ->expects($this->once())
-            ->method('getStatusCode')
-            ->will($this->returnValue(404));
+            ->will($this->returnValue($apiRawResponse));
 
         return $response;
     }
 
     /**
-     * Mocks the client.
+     * Mocks the client
      *
      * @param object $response
      */
     private function mockClient($response)
     {
-        $client = $this->getMockBuilder(ClientInterface::class)
-            ->setMethods(['send', 'sendAsync', 'request', 'requestAsync', 'getConfig', 'get', 'post'])
-            ->getMock();
+        $request = $this->getMock('Guzzle\Http\Message\RequestInterface');
+        $request
+            ->expects($this->once())
+            ->method('send')
+            ->will($this->returnValue($response));
+
+        $client = $this->getMock('Guzzle\Http\ClientInterface');
         $client
             ->expects($this->once())
-            ->method('post')
-            ->will($this->returnValue($response));
+            ->method('get')
+            ->will($this->returnValue($request));
 
         $this->provider
             ->expects($this->once())
@@ -334,17 +316,17 @@ JSON;
     }
 
     /**
-     * Gets mock of link.
+     * Gets mock of link
      *
      * @return object
      */
     private function getBaseMockLink()
     {
-        return $this->createMock(LinkInterface::class);
+        return $this->getMock('Mremi\UrlShortener\Model\LinkInterface');
     }
 
     /**
-     * Gets mock of short link.
+     * Gets mock of short link
      *
      * @return object
      */
@@ -361,7 +343,7 @@ JSON;
     }
 
     /**
-     * Gets mock of long link.
+     * Gets mock of long link
      *
      * @return object
      */

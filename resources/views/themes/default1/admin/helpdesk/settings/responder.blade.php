@@ -20,7 +20,7 @@ class="nav-link active"
 @stop
 <!-- header -->
 @section('PageHeader')
-<h1>{{ Lang::get('lang.settings') }}</h1>
+<h3>{{ Lang::get('lang.settings') }}</h3>
 @stop
 <!-- /header -->
 <!-- breadcrumbs -->
@@ -32,21 +32,21 @@ class="nav-link active"
 <!-- content -->
 @section('content')
 <!-- open a form -->
-{!! Form::model($responders,['url' => 'postresponder/'.$responders->id, 'method' => 'PATCH']) !!}
+{!! html()->modelForm($responders, 'PATCH', url('postresponder/'.$responders->id))->open() !!}
 <!-- check whether success or not -->
 @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <i class="fas fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+    <i class="fa-solid fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {!!Session::get('success')!!}
 </div>
 @endif
 <!-- failure message -->
 @if(Session::has('fails'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fas fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {!!Session::get('fails')!!}
 </div>
 @endif
@@ -57,18 +57,18 @@ class="nav-link active"
     <!-- New Ticket: CHECKBOX	 Ticket Owner   -->
     <div class="card-body">
         
-        <div class="form-group">
-            {!! Form::checkbox('new_ticket',1) !!} &nbsp;
-            {!! Form::label('new_ticket',Lang::get('lang.new_ticket')) !!}
+        <div class="mb-3">
+            {!! html()->checkbox('new_ticket', null, 1) !!} &nbsp;
+            {!! html()->label(Lang::get('lang.new_ticket'), 'new_ticket') !!}
         </div>
         <!-- New Ticket by Agent: CHECKBOX	 Ticket Owner   -->
         <div>
-            {!! Form::checkbox('agent_new_ticket',1) !!}&nbsp;
-            {!! Form::label('agent_new_ticket',Lang::get('lang.new_ticket_by_agent')) !!}
+            {!! html()->checkbox('agent_new_ticket', null, 1) !!}&nbsp;
+            {!! html()->label(Lang::get('lang.new_ticket_by_agent'), 'agent_new_ticket') !!}
         </div>
     </div>
     <div class="card-footer">
-        {!! Form::submit(Lang::get('lang.submit'),['class'=>'btn btn-primary'])!!}
+        {!! html()->submit(Lang::get('lang.submit'))->class('btn btn-primary') !!}
     </div>
 </div>
 @stop

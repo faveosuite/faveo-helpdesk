@@ -41,7 +41,7 @@ $('#upload-btn').click(function () {
   };
 
   function showRequest(formData, jqForm, options) {
-    $('#upload-btn').html('<i class="fa fa-refresh fa-spin"></i> {{ Lang::get("laravel-filemanager::lfm.btn-uploading") }}');
+    $('#upload-btn').html('<i class="fa-solid fa-refresh fa-spin"></i> {{ Lang::get("laravel-filemanager::lfm.btn-uploading") }}');
     return true;
   }
 

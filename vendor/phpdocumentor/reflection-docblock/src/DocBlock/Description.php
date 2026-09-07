@@ -48,15 +48,14 @@ use function vsprintf;
  * is mainly responsible for rendering.
  *
  * @see DescriptionFactory to create a new Description.
- * @see Description\Formatter for the formatting of the body and tags.
+ * @see Tags\Formatter for the formatting of the body and tags.
  */
 class Description
 {
-    /** @var string */
-    private $bodyTemplate;
+    private string $bodyTemplate;
 
     /** @var Tag[] */
-    private $tags;
+    private array $tags;
 
     /**
      * Initializes a Description with its body (template) and a listing of the tags used in the body template.
@@ -93,6 +92,10 @@ class Description
      */
     public function render(?Formatter $formatter = null): string
     {
+        if ($this->tags === []) {
+            return vsprintf($this->bodyTemplate, []);
+        }
+
         if ($formatter === null) {
             $formatter = new PassthroughFormatter();
         }

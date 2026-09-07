@@ -1,8 +1,9 @@
 <?php
 
-use DaveJamesMiller\Breadcrumbs\Facades\Breadcrumbs;
+use Diglactic\Breadcrumbs\Breadcrumbs;
+use Diglactic\Breadcrumbs\Generator as BreadcrumbTrail;
 
-Breadcrumbs::register('storage', function ($breadcrumbs) {
-    $breadcrumbs->parent('setting');
-    $breadcrumbs->push('Storage', route('storage'));
+Breadcrumbs::for('storage', function (BreadcrumbTrail $trail) {
+    $trail->parent('setting');
+    $trail->push('Storage', route('storage'));
 });

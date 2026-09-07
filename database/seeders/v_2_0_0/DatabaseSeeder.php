@@ -48,12 +48,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $tables = Schema::getAllTables();
+        $tables = Schema::getTableListing(\DB::connection()->getDatabaseName(), false);
 
-        foreach ($tables as $table) {
-            $tableName = (array) $table;
-            $tableName = reset($tableName);
-
+        foreach ($tables as $tableName) {
             $columns = Schema::getColumnListing($tableName);
 
             foreach ($columns as $column) {

@@ -2,114 +2,99 @@
 
 namespace Flow;
 
+use MongoDB\GridFS\Bucket;
+
 class Config implements ConfigInterface
 {
-    /**
-     * Config
-     *
-     * @var array
-     */
-    private $config;
-
-    /**
-     * Controller
-     *
-     * @param array $config
-     */
-    public function __construct($config = array())
+    public function __construct(private array $config = [])
     {
-        $this->config = $config;
     }
 
     /**
      * Set path to temporary directory for chunks storage
-     *
-     * @param $path
      */
-    public function setTempDir($path)
+    public function setTempDir(string $path): static
     {
         $this->config['tempDir'] = $path;
+
+        return $this;
     }
 
     /**
      * Get path to temporary directory for chunks storage
-     *
-     * @return string
      */
-    public function getTempDir()
+    public function getTempDir(): string
     {
-        return isset($this->config['tempDir']) ? $this->config['tempDir'] : '';
+        return $this->config['tempDir'] ?? '';
     }
 
     /**
      * Set chunk identifier
-     *
-     * @param callable $callback
      */
-    public function setHashNameCallback($callback)
+    public function setHashNameCallback(callable | array $callback): static
     {
         $this->config['hashNameCallback'] = $callback;
+
+        return $this;
     }
 
     /**
      * Generate chunk identifier
-     *
-     * @return callable
      */
-    public function getHashNameCallback()
+    public function getHashNameCallback(): callable | array
     {
-        return isset($this->config['hashNameCallback']) ? $this->config['hashNameCallback'] : '\Flow\Config::hashNameCallback';
+        return $this->config['hashNameCallback'] ?? ['\Flow\Config', 'hashNameCallback'];
     }
 
     /**
      * Callback to pre-process chunk
-     *
-     * @param callable $callback
      */
-    public function setPreprocessCallback($callback)
+    public function setPreprocessCallback(callable | array $callback): static
     {
         $this->config['preprocessCallback'] = $callback;
+
+        return $this;
     }
 
     /**
      * Callback to pre-process chunk
-     *
-     * @return callable|null
      */
-    public function getPreprocessCallback()
+    public function getPreprocessCallback(): callable | array | null
     {
-        return isset($this->config['preprocessCallback']) ? $this->config['preprocessCallback'] : null;
+        return $this->config['preprocessCallback'] ?? null;
     }
 
     /**
      * Delete chunks on save
-     *
-     * @param bool $delete
      */
-    public function setDeleteChunksOnSave($delete)
+    public function setDeleteChunksOnSave(bool $delete): static
     {
         $this->config['deleteChunksOnSave'] = $delete;
+
+        return $this;
     }
 
     /**
      * Delete chunks on save
-     *
-     * @return bool
      */
-    public function getDeleteChunksOnSave()
+    public function getDeleteChunksOnSave(): bool
     {
-        return isset($this->config['deleteChunksOnSave']) ? $this->config['deleteChunksOnSave'] : true;
+        return $this->config['deleteChunksOnSave'] ?? true;
     }
 
     /**
      * Generate chunk identifier
-     *
-     * @param RequestInterface $request
-     *
-     * @return string
      */
-    public static function hashNameCallback(RequestInterface $request)
+    public static function hashNameCallback(RequestInterface $request): string
     {
         return sha1($request->getIdentifier());
+    }
+
+    /**
+     * Only defined for MongoConfig
+     */
+    public function getGridFs(): ?Bucket
+    {
+        return null;
     }
 }

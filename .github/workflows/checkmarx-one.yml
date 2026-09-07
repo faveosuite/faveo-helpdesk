@@ -16,8 +16,7 @@ name: Checkmarx Scan
 # Controls when the workflow will run
 on:
   pull_request:
-    types: [opened, reopened, synchronize]
-    branches: [ "master", development ]
+    branches: []  # This prevents it from running
 
 permissions:
   contents: read

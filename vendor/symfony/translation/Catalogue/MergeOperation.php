@@ -24,7 +24,7 @@ use Symfony\Component\Translation\MessageCatalogueInterface;
  */
 class MergeOperation extends AbstractOperation
 {
-    protected function processDomain(string $domain)
+    protected function processDomain(string $domain): void
     {
         $this->messages[$domain] = [
             'all' => [],

@@ -12,6 +12,7 @@ use Laravel\SerializableClosure\Support\ReflectionClosure;
 use Laravel\SerializableClosure\Support\SelfReference;
 use Laravel\SerializableClosure\UnsignedSerializableClosure;
 use ReflectionObject;
+use ReflectionProperty;
 use UnitEnum;
 
 class Native implements Serializable
@@ -254,7 +255,7 @@ class Native implements Serializable
             $instance = $data;
             $reflection = new ReflectionObject($instance);
 
-            if (! $reflection->isUserDefined()) {
+            if (! $reflection->isUserDefined() || $reflection->hasMethod('__serialize')) {
                 $storage[$instance] = $data;
 
                 return;
@@ -268,13 +269,11 @@ class Native implements Serializable
                 }
 
                 foreach ($reflection->getProperties() as $property) {
-                    if ($property->isStatic() || ! $property->getDeclaringClass()->isUserDefined()) {
+                    if ($property->isStatic() || ! $property->getDeclaringClass()->isUserDefined() || static::isVirtualProperty($property)) {
                         continue;
                     }
 
-                    $property->setAccessible(true);
-
-                    if (PHP_VERSION >= 7.4 && ! $property->isInitialized($instance)) {
+                    if (! $property->isInitialized($instance)) {
                         continue;
                     }
 
@@ -368,13 +367,11 @@ class Native implements Serializable
                 }
 
                 foreach ($reflection->getProperties() as $property) {
-                    if ($property->isStatic() || ! $property->getDeclaringClass()->isUserDefined()) {
+                    if ($property->isStatic() || ! $property->getDeclaringClass()->isUserDefined() || static::isVirtualProperty($property)) {
                         continue;
                     }
 
-                    $property->setAccessible(true);
-
-                    if (PHP_VERSION >= 7.4 && ! $property->isInitialized($data)) {
+                    if (! $property->isInitialized($data) || $property->isReadOnly()) {
                         continue;
                     }
 
@@ -476,7 +473,7 @@ class Native implements Serializable
 
             $reflection = new ReflectionObject($data);
 
-            if (! $reflection->isUserDefined()) {
+            if (! $reflection->isUserDefined() || $reflection->hasMethod('__serialize')) {
                 $this->scope[$instance] = $data;
 
                 return;
@@ -490,13 +487,11 @@ class Native implements Serializable
                 }
 
                 foreach ($reflection->getProperties() as $property) {
-                    if ($property->isStatic() || ! $property->getDeclaringClass()->isUserDefined()) {
+                    if ($property->isStatic() || ! $property->getDeclaringClass()->isUserDefined() || static::isVirtualProperty($property)) {
                         continue;
                     }
 
-                    $property->setAccessible(true);
-
-                    if (PHP_VERSION >= 7.4 && ! $property->isInitialized($instance)) {
+                    if (! $property->isInitialized($instance) || ($property->isReadOnly() && $property->class !== $reflection->name)) {
                         continue;
                     }
 
@@ -510,5 +505,16 @@ class Native implements Serializable
                 }
             } while ($reflection = $reflection->getParentClass());
         }
+    }
+
+    /**
+     * Determine is virtual property.
+     *
+     * @param  \ReflectionProperty  $property
+     * @return bool
+     */
+    protected static function isVirtualProperty(ReflectionProperty $property): bool
+    {
+        return method_exists($property, 'isVirtual') && $property->isVirtual();
     }
 }

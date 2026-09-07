@@ -48,7 +48,7 @@ class RegisterListenersPass implements CompilerPassInterface
         return $this;
     }
 
-    public function process(ContainerBuilder $container)
+    public function process(ContainerBuilder $container): void
     {
         if (!$container->hasDefinition('event_dispatcher') && !$container->hasAlias('event_dispatcher')) {
             return;
@@ -65,35 +65,47 @@ class RegisterListenersPass implements CompilerPassInterface
         foreach ($container->findTaggedServiceIds('kernel.event_listener', true) as $id => $events) {
             $noPreload = 0;
 
+            $resolvedEvents = [];
             foreach ($events as $event) {
-                $priority = $event['priority'] ?? 0;
-
                 if (!isset($event['event'])) {
                     if ($container->getDefinition($id)->hasTag('kernel.event_subscriber')) {
                         continue;
                     }
 
                     $event['method'] ??= '__invoke';
-                    $event['event'] = $this->getEventFromTypeDeclaration($container, $id, $event['method']);
+                    $eventNames = $this->getEventFromTypeDeclaration($container, $id, $event['method']);
+                } else {
+                    $eventNames = [$event['event']];
                 }
 
-                $event['event'] = $aliases[$event['event']] ?? $event['event'];
+                foreach ($eventNames as $eventName) {
+                    $event['event'] = $aliases[$eventName] ?? $eventName;
+                    $resolvedEvents[] = $event;
+                }
+            }
+
+            foreach ($resolvedEvents as $event) {
+                $priority = $event['priority'] ?? 0;
 
                 if (!isset($event['method'])) {
                     $event['method'] = 'on'.preg_replace_callback([
                         '/(?<=\b|_)[a-z]/i',
                         '/[^a-z0-9]/i',
-                    ], function ($matches) { return strtoupper($matches[0]); }, $event['event']);
+                    ], fn ($matches) => strtoupper($matches[0]), $event['event']);
                     $event['method'] = preg_replace('/[^a-z0-9]/i', '', $event['method']);
 
-                    if (null !== ($class = $container->getDefinition($id)->getClass()) && ($r = $container->getReflectionClass($class, false)) && !$r->hasMethod($event['method']) && $r->hasMethod('__invoke')) {
+                    if (null !== ($class = $container->getDefinition($id)->getClass()) && ($r = $container->getReflectionClass($class, false)) && !$r->hasMethod($event['method'])) {
+                        if (!$r->hasMethod('__invoke')) {
+                            throw new InvalidArgumentException(\sprintf('None of the "%s" or "__invoke" methods exist for the service "%s". Please define the "method" attribute on "kernel.event_listener" tags.', $event['method'], $id));
+                        }
+
                         $event['method'] = '__invoke';
                     }
                 }
 
                 $dispatcherDefinition = $globalDispatcherDefinition;
                 if (isset($event['dispatcher'])) {
-                    $dispatcherDefinition = $container->getDefinition($event['dispatcher']);
+                    $dispatcherDefinition = $container->findDefinition($event['dispatcher']);
                 }
 
                 $dispatcherDefinition->addMethodCall('addListener', [$event['event'], [new ServiceClosureArgument(new Reference($id)), $event['method']], $priority]);
@@ -119,10 +131,10 @@ class RegisterListenersPass implements CompilerPassInterface
             $class = $def->getClass();
 
             if (!$r = $container->getReflectionClass($class)) {
-                throw new InvalidArgumentException(sprintf('Class "%s" used for service "%s" cannot be found.', $class, $id));
+                throw new InvalidArgumentException(\sprintf('Class "%s" used for service "%s" cannot be found.', $class, $id));
             }
             if (!$r->isSubclassOf(EventSubscriberInterface::class)) {
-                throw new InvalidArgumentException(sprintf('Service "%s" must implement interface "%s".', $id, EventSubscriberInterface::class));
+                throw new InvalidArgumentException(\sprintf('Service "%s" must implement interface "%s".', $id, EventSubscriberInterface::class));
             }
             $class = $r->name;
 
@@ -132,7 +144,7 @@ class RegisterListenersPass implements CompilerPassInterface
                     continue;
                 }
 
-                $dispatcherDefinitions[$attributes['dispatcher']] = $container->getDefinition($attributes['dispatcher']);
+                $dispatcherDefinitions[$attributes['dispatcher']] = $container->findDefinition($attributes['dispatcher']);
             }
 
             if (!$dispatcherDefinitions) {
@@ -163,21 +175,40 @@ class RegisterListenersPass implements CompilerPassInterface
         }
     }
 
-    private function getEventFromTypeDeclaration(ContainerBuilder $container, string $id, string $method): string
+    /**
+     * @return string[]
+     */
+    private function getEventFromTypeDeclaration(ContainerBuilder $container, string $id, string $method): array
     {
         if (
             null === ($class = $container->getDefinition($id)->getClass())
             || !($r = $container->getReflectionClass($class, false))
             || !$r->hasMethod($method)
             || 1 > ($m = $r->getMethod($method))->getNumberOfParameters()
-            || !($type = $m->getParameters()[0]->getType()) instanceof \ReflectionNamedType
-            || $type->isBuiltin()
-            || Event::class === ($name = $type->getName())
+            || !(($type = $m->getParameters()[0]->getType()) instanceof \ReflectionNamedType || $type instanceof \ReflectionUnionType)
         ) {
-            throw new InvalidArgumentException(sprintf('Service "%s" must define the "event" attribute on "kernel.event_listener" tags.', $id));
+            throw new InvalidArgumentException(\sprintf('Service "%s" must define the "event" attribute on "kernel.event_listener" tags.', $id));
         }
 
-        return $name;
+        $types = $type instanceof \ReflectionUnionType ? $type->getTypes() : [$type];
+
+        $names = [];
+        foreach ($types as $type) {
+            if (!$type instanceof \ReflectionNamedType
+                || $type->isBuiltin()
+                || Event::class === ($name = $type->getName())
+            ) {
+                continue;
+            }
+
+            $names[] = $name;
+        }
+
+        if (!$names) {
+            throw new InvalidArgumentException(\sprintf('Service "%s" must define the "event" attribute on "kernel.event_listener" tags.', $id));
+        }
+
+        return $names;
     }
 }
 
@@ -191,7 +222,7 @@ class ExtractingEventDispatcher extends EventDispatcher implements EventSubscrib
     public static array $aliases = [];
     public static string $subscriber;
 
-    public function addListener(string $eventName, callable|array $listener, int $priority = 0)
+    public function addListener(string $eventName, callable|array $listener, int $priority = 0): void
     {
         $this->listeners[] = [$eventName, $listener[1], $priority];
     }

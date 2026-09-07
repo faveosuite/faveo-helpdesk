@@ -17,17 +17,6 @@ class ForgetCommand extends Command
     protected $signature = 'cache:forget {key : The key to remove} {store? : The store to remove the key from}';
 
     /**
-     * The name of the console command.
-     *
-     * This name is used to identify the command during lazy loading.
-     *
-     * @var string|null
-     *
-     * @deprecated
-     */
-    protected static $defaultName = 'cache:forget';
-
-    /**
      * The console command description.
      *
      * @var string
@@ -45,7 +34,6 @@ class ForgetCommand extends Command
      * Create a new cache clear command instance.
      *
      * @param  \Illuminate\Cache\CacheManager  $cache
-     * @return void
      */
     public function __construct(CacheManager $cache)
     {

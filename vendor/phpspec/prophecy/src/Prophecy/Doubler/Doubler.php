@@ -31,34 +31,27 @@ class Doubler
     private $namer;
 
     /**
-     * @var ClassPatchInterface[]
+     * @var list<ClassPatchInterface>
      */
     private $patches = array();
 
     /**
-     * @var \Doctrine\Instantiator\Instantiator
+     * @var Instantiator|null
      */
     private $instantiator;
 
-    /**
-     * Initializes doubler.
-     *
-     * @param ClassMirror   $mirror
-     * @param ClassCreator  $creator
-     * @param NameGenerator $namer
-     */
-    public function __construct(ClassMirror $mirror = null, ClassCreator $creator = null,
-                                NameGenerator $namer = null)
+    public function __construct(?ClassMirror $mirror = null, ?ClassCreator $creator = null,
+        ?NameGenerator $namer = null)
     {
-        $this->mirror  = $mirror  ?: new ClassMirror;
-        $this->creator = $creator ?: new ClassCreator;
-        $this->namer   = $namer   ?: new NameGenerator;
+        $this->mirror  = $mirror ?: new ClassMirror();
+        $this->creator = $creator ?: new ClassCreator();
+        $this->namer   = $namer ?: new NameGenerator();
     }
 
     /**
      * Returns list of registered class patches.
      *
-     * @return ClassPatchInterface[]
+     * @return list<ClassPatchInterface>
      */
     public function getClassPatches()
     {
@@ -69,6 +62,8 @@ class Doubler
      * Registers new class patch.
      *
      * @param ClassPatchInterface $patch
+     *
+     * @return void
      */
     public function registerClassPatch(ClassPatchInterface $patch)
     {
@@ -82,21 +77,23 @@ class Doubler
     /**
      * Creates double from specific class or/and list of interfaces.
      *
-     * @param ReflectionClass   $class
-     * @param ReflectionClass[] $interfaces Array of ReflectionClass instances
-     * @param array             $args       Constructor arguments
+     * @template T of object
      *
-     * @return DoubleInterface
+     * @param ReflectionClass<T>|null   $class
+     * @param ReflectionClass<object>[] $interfaces Array of ReflectionClass instances
+     * @param array<mixed>|null         $args       Constructor arguments
+     *
+     * @return T&DoubleInterface
      *
      * @throws \Prophecy\Exception\InvalidArgumentException
      */
-    public function double(ReflectionClass $class = null, array $interfaces, array $args = null)
+    public function double(?ReflectionClass $class, array $interfaces, ?array $args = null)
     {
         foreach ($interfaces as $interface) {
             if (!$interface instanceof ReflectionClass) {
                 throw new InvalidArgumentException(sprintf(
-                    "[ReflectionClass \$interface1 [, ReflectionClass \$interface2]] array expected as\n".
-                    "a second argument to `Doubler::double(...)`, but got %s.",
+                    "[ReflectionClass \$interface1 [, ReflectionClass \$interface2]] array expected as\n"
+                    ."a second argument to `Doubler::double(...)`, but got %s.",
                     is_object($interface) ? get_class($interface).' class' : gettype($interface)
                 ));
             }
@@ -123,12 +120,14 @@ class Doubler
     /**
      * Creates double class and returns its FQN.
      *
-     * @param ReflectionClass   $class
-     * @param ReflectionClass[] $interfaces
+     * @template T of object
      *
-     * @return string
+     * @param ReflectionClass<T>|null   $class
+     * @param ReflectionClass<object>[] $interfaces
+     *
+     * @return class-string<T&DoubleInterface>
      */
-    protected function createDoubleClass(ReflectionClass $class = null, array $interfaces)
+    protected function createDoubleClass(?ReflectionClass $class, array $interfaces)
     {
         $name = $this->namer->name($class, $interfaces);
         $node = $this->mirror->reflect($class, $interfaces);
@@ -138,8 +137,10 @@ class Doubler
                 $patch->apply($node);
             }
         }
+        $node->addInterface(DoubleInterface::class);
 
         $this->creator->create($name, $node);
+        \assert(class_exists($name, false));
 
         return $name;
     }

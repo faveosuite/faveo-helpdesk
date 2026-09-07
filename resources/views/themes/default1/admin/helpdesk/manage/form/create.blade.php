@@ -29,11 +29,11 @@ class="active"
 <!-- content -->
 @section('content')
 <!-- open a form -->
-{!! Form::open(['action' => 'Admin\helpdesk\FormController@store','method' => 'post']) !!}
+{!! html()->form('POST', action('Admin\helpdesk\FormController@store'))->open() !!}
 <div class="box box-primary">
     <div class="box-header">
         
-        <h2 class="box-title"style="margin-left:-10px">{{Lang::get('lang.create')}}</h2>{!! Form::submit(Lang::get('lang.save'),['class'=>'pull-right btn btn-primary'])!!}
+        <h2 class="box-title"style="margin-left:-10px">{{Lang::get('lang.create')}}</h2>{!! html()->submit(Lang::get('lang.save'))->class('pull-right btn btn-primary') !!}
     </div>
     <div class="box-body">
         
@@ -41,48 +41,48 @@ class="active"
         <div class="box-body table-responsive no-padding"style="overflow:hidden">
             <div class="row">
                 <div class="col-md-6">
-                    <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
-                        {!! Form::label('title',Lang::get('lang.title')) !!}
+                    <div class="mb-3 {{ $errors->has('title') ? 'has-error' : '' }}">
+                        {!! html()->label(Lang::get('lang.title'), 'title') !!}
                         {!! $errors->first('title', '<spam class="help-block">:message</spam>') !!}
-                        {!! Form::text('title',null,['class' => 'form-control']) !!}
+                        {!! html()->text('title', null)->class('form-control') !!}
                     </div>
                 </div>
                 <!-- declare table head Label -->
                 <div class="col-md-6">
-                    <div class="form-group {{ $errors->has('label') ? 'has-error' : '' }}">
-                        {!! Form::label('label',Lang::get('lang.label')) !!}
+                    <div class="mb-3 {{ $errors->has('label') ? 'has-error' : '' }}">
+                        {!! html()->label(Lang::get('lang.label'), 'label') !!}
                         {!! $errors->first('label', '<spam class="help-block">:message</spam>') !!}
-                        {!! Form::text('label',null,['class' => 'form-control']) !!}
+                        {!! html()->text('label', null)->class('form-control') !!}
                     </div>
                 </div>
                 <!-- declare table head type -->
                 <div class="col-md-4">
-                    <div class="form-group {{ $errors->has('type') ? 'has-error' : '' }}">
-                        {!! Form::label('type',Lang::get('lang.type')) !!}
+                    <div class="mb-3 {{ $errors->has('type') ? 'has-error' : '' }}">
+                        {!! html()->label(Lang::get('lang.type'), 'type') !!}
                         {!! $errors->first('type', '<spam class="help-block">:message</spam>') !!}
-                        {!!Form::select('type', [''=>'Select a Type','types'=>$type->pluck('type','id')] ,null,['class' => 'form-control'] ) !!}
+                        {!! html()->select('type', [''=>'Select a Type','types'=>$type->pluck('type','id')], null)->class('form-control') !!}
                     </div>
                 </div>
                 <!-- declare table head Vissibility -->
                 <div class="col-md-4">
-                    <div class="form-group {{ $errors->has('visibility') ? 'has-error' : '' }}">
-                        {!! Form::label('visibility',Lang::get('lang.visibility')) !!}
+                    <div class="mb-3 {{ $errors->has('visibility') ? 'has-error' : '' }}">
+                        {!! html()->label(Lang::get('lang.visibility'), 'visibility') !!}
                         {!! $errors->first('visibility', '<spam class="help-block">:message</spam>') !!}
-                        {!!Form::select('visibility', [''=>'Select a Visibility','visibilities' =>$visibility->pluck('visibility','id')],null,['class' => 'form-control'] ) !!}
+                        {!! html()->select('visibility', [''=>'Select a Visibility','visibilities' =>$visibility->pluck('visibility','id')], null)->class('form-control') !!}
                     </div>
                 </div>
                 <!-- declare table head variable -->
                 <div class="col-md-4">
-                    <div class="form-group">
-                        {!! Form::label('variable',Lang::get('lang.variable')) !!}
-                        {!! Form::text('variable',null,['class' => 'form-control']) !!}
+                    <div class="mb-3">
+                        {!! html()->label(Lang::get('lang.variable'), 'variable') !!}
+                        {!! html()->text('variable', null)->class('form-control') !!}
                     </div>
                 </div>
                 <!-- instruction: textarea -->
                 <div class="col-md-6">
-                    <div class="form-group">
-                        {!! Form::label('instruction',Lang::get('lang.instruction')) !!}
-                        {!! Form::textarea('instruction',null,['class' => 'form-control','size' => '10x5']) !!}
+                    <div class="mb-3">
+                        {!! html()->label(Lang::get('lang.instruction'), 'instruction') !!}
+                        {!! html()->textarea('instruction', null)->class('form-control')->attributes(['size' => '10x5']) !!}
                     </div>
                 </div>
 
@@ -90,9 +90,9 @@ class="active"
 
                 <!-- txt area -->
                 <div class="col-md-6">
-                    <div class="form-group">
-                        {!! Form::label('internal_notes',Lang::get('lang.internal_notes')) !!}
-                        {!! Form::textarea('internal_notes',null,['class' => 'form-control','size' => '10x5']) !!}
+                    <div class="mb-3">
+                        {!! html()->label(Lang::get('lang.internal_notes'), 'internal_notes') !!}
+                        {!! html()->textarea('internal_notes', null)->class('form-control')->attributes(['size' => '10x5']) !!}
                     </div>
                 </div>
             </div>

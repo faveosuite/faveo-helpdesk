@@ -4,7 +4,7 @@ namespace Aws\AutoScaling;
 use Aws\AwsClient;
 
 /**
- * Auto Scaling client.
+ * This client is used to interact with the **AWS Auto Scaling** service.
  *
  * @method \Aws\Result attachInstances(array $args = [])
  * @method \GuzzleHttp\Promise\Promise attachInstancesAsync(array $args = [])
@@ -106,6 +106,8 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise exitStandbyAsync(array $args = [])
  * @method \Aws\Result getPredictiveScalingForecast(array $args = [])
  * @method \GuzzleHttp\Promise\Promise getPredictiveScalingForecastAsync(array $args = [])
+ * @method \Aws\Result launchInstances(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise launchInstancesAsync(array $args = [])
  * @method \Aws\Result putLifecycleHook(array $args = [])
  * @method \GuzzleHttp\Promise\Promise putLifecycleHookAsync(array $args = [])
  * @method \Aws\Result putNotificationConfiguration(array $args = [])
@@ -120,6 +122,8 @@ use Aws\AwsClient;
  * @method \GuzzleHttp\Promise\Promise recordLifecycleActionHeartbeatAsync(array $args = [])
  * @method \Aws\Result resumeProcesses(array $args = [])
  * @method \GuzzleHttp\Promise\Promise resumeProcessesAsync(array $args = [])
+ * @method \Aws\Result rollbackInstanceRefresh(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise rollbackInstanceRefreshAsync(array $args = [])
  * @method \Aws\Result setDesiredCapacity(array $args = [])
  * @method \GuzzleHttp\Promise\Promise setDesiredCapacityAsync(array $args = [])
  * @method \Aws\Result setInstanceHealth(array $args = [])

@@ -13,7 +13,7 @@
 <li>
     <a href="{!! URL('user/'.$user->id) !!}">
         <span>USER</span>
-        </br><i class="fa fa-user"></i> <b>{{$user->user_name}}</b>
+        </br><i class="fa-solid fa-user"></i> <b>{{$user->user_name}}</b>
     </a>
 </li>
 <li >
@@ -34,34 +34,34 @@
 <!-- Main content -->
 <div class="box box-primary">
     <div class="box-header">
-        <h3 class="box-title" id="refresh2"><i class="fa fa-user"> </i> {!! $thread->title !!} </h3>
+        <h3 class="box-title" id="refresh2"><i class="fa-solid fa-user"> </i> {!! $thread->title !!} </h3>
         <div class="pull-right">
-            <!-- <button type="button" class="btn btn-default"><i class="fa fa-edit" style="color:green;"> </i> Edit</button> -->
+            <!-- <button type="button" class="btn btn-secondary"><i class="fa-solid fa-pen-to-square text-success"> </i> Edit</button> -->
 
-            <button type="button" class="btn btn-default" id="Edit_Ticket" data-toggle="modal" data-target="#Edit"><i class="fa fa-edit" style="color:green;"> </i> Edit</button>
+            <button type="button" class="btn btn-secondary" id="Edit_Ticket" data-bs-toggle="modal" data-bs-target="#Edit"><i class="fa-solid fa-pen-to-square text-success"> </i> Edit</button>
 
-            <a href="{{url('ticket/print/'.$tickets->id)}}" target="_blank" class="btn btn-default"><i class="fa fa-print" style="color:blue;"> </i> Print</a>
+            <a href="{{url('ticket/print/'.$tickets->id)}}" target="_blank" class="btn btn-secondary"><i class="fa-solid fa-print text-primary"> </i> Print</a>
             <div class="btn-group">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="d1"><i class="fa fa-exchange" style="color:teal;" id="hidespin"> </i><i class="fa fa-spinner fa-spin" style="color:teal; display:none;" id="spin"></i>
+                <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" id="d1"><i class="fa-solid fa-exchange text-teal" id="hidespin"> </i>
                     Change Status <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu">
-                    <li id="open"><a href="#"><i class="fa fa-folder-open-o" style="color:red;"> </i>Open</a></li>
+                    <li id="open"><a href="#"><i class="fa-solid fa-folder-open-o text-danger"> </i>Open</a></li>
 
-                    <li id="close"><a href="#"><i class="fa fa-check" style="color:green;"> </i>Close</a></li>
+                    <li id="close"><a href="#"><i class="fa-solid fa-check text-success"> </i>Close</a></li>
 
-                    <li id="resolved"><a href="#"><i class="fa fa-check-circle-o " style="color:green;"> </i> Resolved</a></li>
+                    <li id="resolved"><a href="#"><i class="fa-solid fa-circle-check-o  text-success"> </i> Resolved</a></li>
                 </ul>
             </div>
 
             <div class="btn-group">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="d2"><i class="fa fa-cogs" style="color:teal;"> </i>
+                <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" id="d2"><i class="fa-solid fa-gears text-teal"> </i>
                     More <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu pull-right">
                  
-                    <li id="delete"><a href="#"><i class="fa fa-trash-o" style="color:red;"> </i>Delete Ticket</a></li>
-                    <li  data-toggle="modal" data-target="#banemail"><a href="#" ><i class="fa fa-ban" style="color:red;" > </i> Ban Email</a></li>
+                    <li id="delete"><a href="#"><i class="fa-solid fa-trash-o text-danger"> </i>Delete Ticket</a></li>
+                    <li  data-bs-toggle="modal" data-bs-target="#banemail"><a href="#" ><i class="fa-solid fa-ban text-danger" > </i> Ban Email</a></li>
                   </ul>
             </div>
            
@@ -69,23 +69,23 @@
     </div>
     <!-- ticket details Table -->
     <div class="box-body">
-    <div id="alert11" class="alert alert-success alert-dismissable" style="display:none;">
-        <button id="dismiss11" type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-        <h4><i class="icon fa fa-check"></i>Alert!</h4>
+    <div id="alert11" class="alert alert-success alert-dismissible d-none">
+        <button id="dismiss11" type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
+        <h4><i class="icon fa-solid fa-check"></i>Alert!</h4>
         <div id="message-success1"></div>
     </div>
-    <div id="alert12" class="alert alert-warning alert-dismissable" style="display:none;">
-        <button id="dismiss12" type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-        <h4><i class="icon fa fa-warning"></i>Alert!</h4>
+    <div id="alert12" class="alert alert-warning alert-dismissible d-none">
+        <button id="dismiss12" type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
+        <h4><i class="icon fa-solid fa-warning"></i>Alert!</h4>
         <div id="message-warning1"></div>
     </div>
-    <div id="alert13" class="alert alert-danger alert-dismissable" style="display:none;">
-        <button id="dismiss13" type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-        <h4><i class="icon fa fa-ban"></i>Alert!</h4>
+    <div id="alert13" class="alert alert-danger alert-dismissible d-none">
+        <button id="dismiss13" type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
+        <h4><i class="icon fa-solid fa-ban"></i>Alert!</h4>
         <div id="message-danger1"></div>
     </div>
         <div class="row">
-            <section class="content"  >
+            <section class="app-content"  >
                 <div class="col-md-12">
                     <?php
 $priority = App\Model\Ticket\Ticket_Priority::where('priority_id', '=', $tickets->priority_id)->first();
@@ -174,34 +174,34 @@ echo UTC::usertimezone(date_format($time, 'd/m/Y H:i:s'));
 </div>
 
 <div class='row'>
-    <div class='col-xs-12'>
+    <div class='col-12'>
         <div class="nav-tabs-custom">
             <ul class="nav nav-tabs">
-                <li class="active"><a href="#General" data-toggle="tab" style="color:green;" id="aa"><i class="fa fa-reply-all"> </i> Reply</a></li>
-                <!-- <li><a href="#Reply" data-toggle="tab" style="color:orange;"><i class="fa fa-mail-forward" > </i> Forward</a></li> -->
+                <li class="active"><a href="#General" data-bs-toggle="tab" style="color:green;" id="aa"><i class="fa-solid fa-reply-all"> </i> Reply</a></li>
+                <!-- <li><a href="#Reply" data-bs-toggle="tab" style="color:orange;"><i class="fa-solid fa-mail-forward" > </i> Forward</a></li> -->
             </ul>
             <div class="tab-content">
-                <div id="alert21" class="alert alert-success alert-dismissable" style="display:none;">
-                    <button id="dismiss21" type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-                    <h4><i class="icon fa fa-check"></i>Alert!</h4>
+                <div id="alert21" class="alert alert-success alert-dismissible d-none">
+                    <button id="dismiss21" type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
+                    <h4><i class="icon fa-solid fa-check"></i>Alert!</h4>
                     <div id="message-success2"></div>
                 </div>
-                <div id="alert22" class="alert alert-warning alert-dismissable" style="display:none;">
-                    <button id="dismiss22" type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-                    <h4><i class="icon fa fa-warning"></i>Alert!</h4>
+                <div id="alert22" class="alert alert-warning alert-dismissible d-none">
+                    <button id="dismiss22" type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
+                    <h4><i class="icon fa-solid fa-warning"></i>Alert!</h4>
                     <div id="message-warning2"></div>
                 </div>
-                <div id="alert23" class="alert alert-danger alert-dismissable" style="display:none;">
-                    <button id="dismiss23" type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-                    <h4><i class="icon fa fa-ban"></i>Alert!</h4>
+                <div id="alert23" class="alert alert-danger alert-dismissible d-none">
+                    <button id="dismiss23" type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
+                    <h4><i class="icon fa-solid fa-ban"></i>Alert!</h4>
                     <div id="message-danger2"></div>
                 </div>
                 <div class="tab-pane active" id="General">
-                    <div class="form-group">
+                    <div class="mb-3">
         
-                        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#{{$tickets->id}}assign"><i class="fa fa-hand-o-right" style="color:orange;"> </i> Assign</button>
+                        <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#{{$tickets->id}}assign"><i class="fa-solid fa-hand-o-right text-orange"> </i> Assign</button>
         
-                        <button type="button" id="internal" class="btn btn-default"><i class="fa fa-file-text" style="color:blue;"> </i>  Internal Notes</button>
+                        <button type="button" id="internal" class="btn btn-secondary"><i class="fa-solid fa-file-text text-primary"> </i>  Internal Notes</button>
                         
                     </div>
                     <!-- ticket reply -->
@@ -221,27 +221,27 @@ echo UTC::usertimezone(date_format($time, 'd/m/Y H:i:s'));
                         </br>
                     </div>
 
-                    {!! Form::model($tickets->id, ['id'=>'form3','method' => 'PATCH', 'enctype'=>'multipart/form-data'] )!!}
+                    {!! html()->modelForm($tickets->id, 'PATCH', url()->current())->attributes(['id' => 'form3'])->open() !!}
                     <div id="t1">
 
-                        <div class="form-group">
+                        <div class="mb-3">
                             <div class="row">
                             <!-- to -->
                                 <input type="hidden" name="ticket_ID" value="{{$tickets->id}}">
-                                <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
+                                <div class="mb-3 {{ $errors->has('title') ? 'has-error' : '' }}">
                                     <div class="col-md-2">
-                                        {!! Form::label('To', 'To:') !!}
+                                        {!! html()->label('To:', 'To') !!}
                                     </div>
                                     <div class="col-md-10">
-                                        {!! Form::text('To',$user->email,['id'=>'email','class'=>'form-control','style'=>'width:55%'])!!}
+                                        {!! html()->text('To', $user->email)->id('email')->class('form-control')->attributes(['style' => 'width:55%']) !!}
                                         {!! $errors->first('To', '<spam class="help-block text-red">:message</spam>') !!}
                         
-                                        <input type="checkbox"> <a href="#" onclick="AddCcc()" data-toggle="modal" data-target="#addccc"> Add Ccc </a>
+                                        <input type="checkbox"> <a href="#" onclick="AddCcc()" data-bs-toggle="modal" data-bs-target="#addccc"> Add Ccc </a>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <div class="row">
                             <!-- responnse -->
                                 <div class="col-md-2">
@@ -256,45 +256,45 @@ echo UTC::usertimezone(date_format($time, 'd/m/Y H:i:s'));
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <div class="row">
                             <!-- reply content -->
-                                <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
+                                <div class="mb-3 {{ $errors->has('title') ? 'has-error' : '' }}">
                                     <div class="col-md-2">
-                                        {!! Form::label('Reply Content', 'reply_content:') !!}
+                                        {!! html()->label('reply_content:', 'Reply Content') !!}
                                     </div>
                                     <div class="col-md-10">
                                         <textarea style="width:98%;height:200px;" name="reply_content" id="reply_content"></textarea>
                                         {!! $errors->first('reply_content', '<spam class="help-block text-red">:message</spam>') !!}
                                         <br/>
-                                        {{-- <div type="file" class="btn btn-default btn-file"><i class="fa fa-paperclip"> </i> Attachment<input type="file" name="attachment[]" multiple/></div><br/>
+                                        {{-- <div type="file" class="btn btn-secondary btn-file"><i class="fa-solid fa-paperclip"> </i> Attachment<input type="file" name="attachment[]" multiple/></div><br/>
                                         Max. 10MB --}}
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="form-group">
+                        <div class="mb-3">
                             <div class="row">
-                                <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
+                                <div class="mb-3 {{ $errors->has('title') ? 'has-error' : '' }}">
                                     <div class="col-md-2"></div>
                                     <div class="col-md-10">
-                                        <button type="submit" class="btn btn-primary"><i class="fa fa-check-square-o" style="color:white;"> </i> Update</button>
+                                        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-check-square-o text-white"> </i> Update</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    {!!Form::close()!!}
+                    {!! html()->closeModelForm() !!}
 
                     <!-- Internal Content -->
                     <div id="t2" style="display:none">
-                        {!! Form::model($tickets->id, ['id'=>'form2','method' => 'PATCH'] )!!}
+                        {!! html()->modelForm($tickets->id, 'PATCH', url()->current())->attributes(['id' => 'form2'])->open() !!}
                         <div id="t4">
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <div class="row">
                                 <!-- internal note -->
-                                    <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
+                                    <div class="mb-3 {{ $errors->has('title') ? 'has-error' : '' }}">
                                         <div class="col-md-2">
                                             <label>Internal Note</label>
                                         </div>
@@ -305,29 +305,29 @@ echo UTC::usertimezone(date_format($time, 'd/m/Y H:i:s'));
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <div class="row">
-                                    <div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
+                                    <div class="mb-3 {{ $errors->has('title') ? 'has-error' : '' }}">
                                         <div class="col-md-2"></div>
                                         <div class="col-md-10">
-                                            <button type="submit"  class="btn btn-primary"><i class="fa fa-check-square-o" style="color:white;"> </i> Update</button>
+                                            <button type="submit"  class="btn btn-primary"><i class="fa-solid fa-check-square-o text-white"> </i> Update</button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        {!!Form::close()!!}
+                        {!! html()->closeModelForm() !!}
                     </div>
                 </div>
                 <!-- ticket foreward -->
                 <!-- <div class="tab-pane" id="Reply" >
-                    <div class="form-group">
-                        <button type="button" class="btn btn-default"><i class="fa fa-mail-forward" style="color:green;"> </i> Send</button>
-                        <button type="button" class="btn btn-default"><i class="fa fa-th-large" style="color:teal;"> </i> Option</button>
-                        <button type="button" class="btn btn-default"><i class="fa fa-file-text" style="color:blue;"> </i> Internal Notes</button>
+                    <div class="mb-3">
+                        <button type="button" class="btn btn-secondary"><i class="fa-solid fa-mail-forward text-success"> </i> Send</button>
+                        <button type="button" class="btn btn-secondary"><i class="fa-solid fa-th-large text-teal"> </i> Option</button>
+                        <button type="button" class="btn btn-secondary"><i class="fa-solid fa-file-text text-primary"> </i> Internal Notes</button>
                     </div>
                     <form>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <div class="row">
                                 <div class="col-md-2">
                                     <label>From</label>
@@ -337,7 +337,7 @@ echo UTC::usertimezone(date_format($time, 'd/m/Y H:i:s'));
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <div class="row">
                                 <div class="col-md-2">
                                     <label>To</label>
@@ -347,7 +347,7 @@ echo UTC::usertimezone(date_format($time, 'd/m/Y H:i:s'));
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <div class="row">
                                 <div class="col-md-2">
                                     <label>Subject</label>
@@ -357,7 +357,7 @@ echo UTC::usertimezone(date_format($time, 'd/m/Y H:i:s'));
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <div class="row">
                                 <div class="col-md-2">
                                     <label>Response</label>
@@ -371,7 +371,7 @@ echo UTC::usertimezone(date_format($time, 'd/m/Y H:i:s'));
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <div class="row">
                                 <div class="col-md-2">
                                     <label>Reply Content</label>
@@ -408,7 +408,7 @@ $ConvDate1 = $conversation->created_at;
 	if (isset($data) && $date == $data) {
 
 	} else {
-		?> <span class="bg-green">
+		?> <span class="text-bg-success">
                                         {{date_format($conversation->created_at, 'd/m/Y')}}
                                     </span> <?php
 $data = $ConvDate[0];
@@ -418,13 +418,13 @@ $data = $ConvDate[0];
                             </li>
                             <li>
                                 <?php if($conversation->is_internal) { ?>
-                                <i class="fa fa-tag bg-purple" title="<?= Lang::get('lang.posted_by_system') ?>"></i>
+                                <i class="fa-solid fa-tag text-bg-purple" title="<?= Lang::get('lang.posted_by_system') ?>"></i>
                                     <?php }else{ if ($role->role == 'agent' || $role->role == 'admin') { ?>
-                                    <i class="fa fa-mail-reply-all bg-yellow" title="<?= Lang::get('lang.posted_by_support_team') ?>"></i>
+                                    <i class="fa-solid fa-mail-reply-all text-bg-warning" title="<?= Lang::get('lang.posted_by_support_team') ?>"></i>
                                 <?php } elseif ($role->role == 'user') {  ?>
-                                    <i class="fa fa-user bg-aqua" title="<?= Lang::get('lang.posted_by_customer') ?>"></i>
+                                    <i class="fa-solid fa-user text-bg-info" title="<?= Lang::get('lang.posted_by_customer') ?>"></i>
                                 <?php } else { ?>
-                                    <i class="fa fa-mail-reply-all bg-purple" title="<?= Lang::get('lang.posted_by_system') ?>"></i>
+                                    <i class="fa-solid fa-mail-reply-all text-bg-purple" title="<?= Lang::get('lang.posted_by_system') ?>"></i>
     <?php } }
     $attachment = App\Model\Ticket\Ticket_attachments::where('thread_id','=',$conversation->id)->first();
     if($attachment == null ) {
@@ -508,7 +508,7 @@ $data = $ConvDate[0];
 
     ?>
                                 <div class="timeline-item">
-                                    <span id="date" class="time"  style="color:#fff;"><i class="fa fa-clock-o"> </i> {{date_format($conversation->created_at, 'd/m/Y H:i:s')}}</span>
+                                    <span id="date" class="time text-white"><i class="fa-solid fa-clock-o"> </i> {{date_format($conversation->created_at, 'd/m/Y H:i:s')}}</span>
                                     <h3 class="timeline-header"  style="background-color:<?php 
                                     if($conversation->is_internal)
                                     {
@@ -584,7 +584,7 @@ $data = $ConvDate[0];
 <?php }
 ?>
                         <li>
-                            <i class="fa fa-clock-o bg-gray"></i>
+                            <i class="fa-solid fa-clock-o text-bg-secondary"></i>
                         </li>
                         <ul class="pull-right">
 <?php echo $conversations->setPath(url('/thread/' . $tickets->id))->render();?>
@@ -605,18 +605,18 @@ $data = $ConvDate[0];
     <div class="modal fade" id="Edit" >
         <div class="modal-dialog" style="width:60%;height:70%;">
             <div class="modal-content">
-                {!! Form::model($tickets->id, ['id'=>'form','method' => 'PATCH'] )!!}
+                {!! html()->modelForm($tickets->id, 'PATCH', url()->current())->attributes(['id' => 'form'])->open() !!}
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Edit <b>[#{!! $tickets->ticket_number !!}]</b>[{!! $user->user_name !!}]</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title">Edit <b>[#{!! $tickets->ticket_number !!}]</b>[{!! $user->user_name !!}]</h4>
                 </div>
                 <div class="modal-body" id="hide">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label>Title</label>
                         <input type="text" name="subject" class="form-control" value="{{$thread->title}}" required>
                         {!! $errors->first('subject', '<spam class="help-block text-red">:message</spam>') !!}
                     </div>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label>Body</label>
                         <textarea name="body" class="form-control" style="width:100%;height:200px;" required>{!! $thread->body !!}</textarea>
                         {!! $errors->first('body', '<spam class="help-block text-red">:message</spam>') !!}
@@ -632,10 +632,10 @@ $data = $ConvDate[0];
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal" id="dismis">Close</button>
+                    <button type="button" class="btn btn-secondary pull-left" data-bs-dismiss="modal" id="dismis">Close</button>
                     <input type="submit" class="btn btn-primary pull-right" value="Update">
                 </div>
-                {!! Form::close() !!}
+                {!! html()->closeModelForm() !!}
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
@@ -644,15 +644,15 @@ $data = $ConvDate[0];
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Ban Email</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title">Ban Email</h4>
                 </div>
                 <div class="modal-body">
                     Are you sure to ban {!! $user->email !!}
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal" id="dismis2">Close</button>
+                    <button type="button" class="btn btn-secondary pull-left" data-bs-dismiss="modal" id="dismis2">Close</button>
                     <button id="ban" type="button" class="btn btn-warning pull-right" >Ban Email</button>
                 </div>
             </div><!-- /.modal-content -->
@@ -663,13 +663,13 @@ $data = $ConvDate[0];
     <div class="modal fade" id="ChangeOwner">
         <div class="modal-dialog">
             <div class="modal-content">
-                {!! Form::model($tickets->id, ['id'=>'form4','method' => 'PATCH'] )!!}
+                {!! html()->modelForm($tickets->id, 'PATCH', url()->current())->attributes(['id' => 'form4'])->open() !!}
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Change Owner for ticket <b>#{!! $tickets->ticket_number !!}</b></h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title">Change Owner for ticket <b>#{!! $tickets->ticket_number !!}</b></h4>
                 </div>
                 <div class="modal-body" >
-                    <div class="form-group has-feedback">
+                    <div class="mb-3 has-feedback">
                         <!-- <input type="text" class="form-control" id="search" name="search" placeholder="Search Users"\> -->
 <?php $users = App\User::where('role', '=', 'user')->get();?>
                         Add another Owner
@@ -698,10 +698,10 @@ $data = $ConvDate[0];
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal" id="dismis2">Close</button>
+                    <button type="button" class="btn btn-secondary pull-left" data-bs-dismiss="modal" id="dismis2">Close</button>
                     <button id="ban" type="button" class="btn btn-warning pull-right" >Submit</button>
                 </div>
-                {!! Form::close() !!}
+                {!! html()->closeModelForm() !!}
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
@@ -709,10 +709,10 @@ $data = $ConvDate[0];
     <div class="modal fade" id="{{$tickets->id}}assign">
         <div class="modal-dialog">
             <div class="modal-content">
-                {!! Form::open(['id'=>'form1','method' => 'PATCH'] )!!}
+                {!! html()->form('PATCH', url()->current())->attributes(['id' => 'form1'])->open() !!}
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Assign</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title">Assign</h4>
                 </div>
                 <div class="modal-body">
                     <p>Whome do you want to assign ticket?</p>
@@ -725,10 +725,10 @@ $data = $ConvDate[0];
                     </select>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal" id="dismis4">Close</button>
+                    <button type="button" class="btn btn-secondary pull-left" data-bs-dismiss="modal" id="dismis4">Close</button>
                     <button type="submit" class="btn btn-success pull-right" id="submt2">Assign</button>
                 </div>
-                {!! Form::close()!!}
+                {!! html()->closeModelForm() !!}
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
@@ -737,14 +737,14 @@ $data = $ConvDate[0];
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Surrender</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title">Surrender</h4>
                 </div>
                 <div class="modal-body">
                     <p>Are you sure you want to surrender this Ticket?</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal" id="dismis6">Close</button>
+                    <button type="button" class="btn btn-secondary pull-left" data-bs-dismiss="modal" id="dismis6">Close</button>
                     <button type="button" class="btn btn-warning pull-right" id="Surrender">Surrender</button>
                 </div>
             </div><!-- /.modal-content -->
@@ -756,18 +756,18 @@ $data = $ConvDate[0];
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Add Collaborator</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title">Add Collaborator</h4>
                 </div>
                 <div class="modal-body">
                     <div class="callout callout-info">
-                        <i class="icon fa fa-info"> </i>&nbsp;&nbsp;&nbsp; Search existing users or add new users
+                        <i class="icon fa-solid fa-info"> </i>&nbsp;&nbsp;&nbsp; Search existing users or add new users
                         
                     </div>
                     <input type="text" class="form-control">
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal" id="dismis6">Close</button>
+                    <button type="button" class="btn btn-secondary pull-left" data-bs-dismiss="modal" id="dismis6">Close</button>
                     <button type="button" class="btn btn-warning pull-right" id="Surrender">Surrender</button>
                 </div>
             </div><!-- /.modal-content -->
@@ -791,22 +791,22 @@ function AddCcc(){
                 type: "GET",
                 url: "../ticket/close/{{$tickets->id}}",
                 beforeSend: function() {
-                    $("#hidespin").hide();
-                    $("#spin").show();
-                    $("#hide2").hide();
-                    $("#show2").show();
+                    $("#hidespin").addClass('d-none');
+                    $("#spin").removeClass('d-none');
+                    $("#hide2").addClass('d-none');
+                    $("#show2").removeClass('d-none');
                 },
                 success: function(response) {
                     $("#refresh").load("../thread/{{$tickets->id}}   #refresh");
-                    $("#show2").hide();
-                    $("#spin").hide();
-                    $("#hide2").show();
-                    $("#hidespin").show();
+                    $("#show2").addClass('d-none');
+                    $("#spin").addClass('d-none');
+                    $("#hide2").removeClass('d-none');
+                    $("#hidespin").removeClass('d-none');
                     $("#d1").trigger("click");
                     var message = "Success! Your Ticket have been Closed";
-                    $("#alert11").show();
+                    $("#alert11").removeClass('d-none');
                     $('#message-success1').html(message);
-                    setInterval(function(){$("#alert11").hide(); },4000);   
+                    setInterval(function(){$("#alert11").addClass('d-none'); },4000);   
                 }
             })
             return false;
@@ -818,18 +818,18 @@ function AddCcc(){
                 type: "GET",
                 url: "../ticket/resolve/{{$tickets->id}}",
                 beforeSend: function() {
-                    $("#hide2").hide();
-                    $("#show2").show();
+                    $("#hide2").addClass('d-none');
+                    $("#show2").removeClass('d-none');
                 },
                 success: function(response) {
                     $("#refresh").load("../thread/{{$tickets->id}}  #refresh");
                     $("#d1").trigger("click");
-                    $("#hide2").show();
-                    $("#show2").hide();
+                    $("#hide2").removeClass('d-none');
+                    $("#show2").addClass('d-none');
                     var message = "Success! Your Ticket have been Resolved";
-                    $("#alert11").show();
+                    $("#alert11").removeClass('d-none');
                     $('#message-success1').html(message);
-                    setInterval(function(){$("#alert11").hide(); },4000);   
+                    setInterval(function(){$("#alert11").addClass('d-none'); },4000);   
                 }
             })
             return false;
@@ -841,18 +841,18 @@ function AddCcc(){
                 type: "GET",
                 url: "../ticket/open/{{$tickets->id}}",
                 beforeSend: function() {
-                    $("#hide2").hide();
-                    $("#show2").show();
+                    $("#hide2").addClass('d-none');
+                    $("#show2").removeClass('d-none');
                 },
                 success: function(response) {
                     $("#refresh").load("../thread/{{$tickets->id}}   #refresh");
                     $("#d1").trigger("click");
-                    $("#hide2").show();
-                    $("#show2").hide();
+                    $("#hide2").removeClass('d-none');
+                    $("#show2").addClass('d-none');
                     var message = "Success! Your Ticket have been Opened";
-                    $("#alert11").show();
+                    $("#alert11").removeClass('d-none');
                     $('#message-success1').html(message);
-                    setInterval(function(){$("#alert11").hide(); },4000);   
+                    setInterval(function(){$("#alert11").addClass('d-none'); },4000);   
 
                 }
             })
@@ -865,18 +865,18 @@ function AddCcc(){
                 type: "GET",
                 url: "../ticket/delete/{{$tickets->id}}",
                 beforeSend: function() {
-                    $("#hide2").hide();
-                    $("#show2").show();
+                    $("#hide2").addClass('d-none');
+                    $("#show2").removeClass('d-none');
                 },                
                 success: function(response) {
                     $("#refresh").load("../thread/{{$tickets->id}}   #refresh");
                     $("#d2").trigger("click");
-                    $("#hide2").show();
-                    $("#show2").hide();
+                    $("#hide2").removeClass('d-none');
+                    $("#show2").addClass('d-none');
                     var message = "Success! Your Ticket have been moved to Trash";
-                    $("#alert11").show();
+                    $("#alert11").removeClass('d-none');
                     $('#message-success1').html(message);
-                    setInterval(function(){$("#alert11").hide(); },4000);   
+                    setInterval(function(){$("#alert11").addClass('d-none'); },4000);   
                 }
             })
             return false;
@@ -891,9 +891,9 @@ function AddCcc(){
                     $("#dismis2").trigger("click");
                     $("#refresh").load("../thread/{{$tickets->id}}   #refresh");
                     var message = "Success! This Email have been banned";
-                    $("#alert11").show();
+                    $("#alert11").removeClass('d-none');
                     $('#message-success1').html(message);
-                    setInterval(function(){$("#alert11").hide(); },4000);   
+                    setInterval(function(){$("#alert11").addClass('d-none'); },4000);   
                 }
             })
             return false;
@@ -901,14 +901,14 @@ function AddCcc(){
 
         // internal note
         $('#internal').click(function() {
-            $('#t1').hide();
-            $('#t2').show();
+            $('#t1').addClass('d-none');
+            $('#t2').removeClass('d-none');
         });
 
         // comment a ticket
         $('#aa').click(function() {
-            $('#t1').show();
-            $('#t2').hide();
+            $('#t1').removeClass('d-none');
+            $('#t2').addClass('d-none');
         });
 
 // Edit a ticket
@@ -920,12 +920,12 @@ function AddCcc(){
                 dataType: "html",
                 data: $(this).serialize(),
                 beforeSend: function() {
-                    $("#hide").hide();
-                    $("#show").show();
+                    $("#hide").addClass('d-none');
+                    $("#show").removeClass('d-none');
                 },
                 success: function(response) {
-                    $("#show").hide();
-                    $("#hide").show();
+                    $("#show").addClass('d-none');
+                    $("#hide").removeClass('d-none');
                     $("#dismis").trigger("click");
                     $("#refresh1").load("../thread/{{$tickets->id}}   #refresh1");
                     $("#refresh2").load("../thread/{{$tickets->id}}   #refresh2");
@@ -951,8 +951,8 @@ function AddCcc(){
                 dataType: "html",
                 data: $(this).serialize(),
                 // beforeSend: function() {
-                //     $("#hide").hide();
-                //     $("#show").show();
+                //     $("#hide").addClass('d-none');
+                //     $("#show").removeClass('d-none');
                 // },
                 success: function(response) {
                     $("#dismis4").trigger("click");
@@ -971,8 +971,8 @@ function AddCcc(){
                 dataType: "html",
                 data: $(this).serialize(),
                 beforeSend: function() {
-                    $("#t2").hide();
-                    $("#show3").show();
+                    $("#t2").addClass('d-none');
+                    $("#show3").removeClass('d-none');
 
                 },
                 success: function(response) {
@@ -982,9 +982,9 @@ function AddCcc(){
                         $("#refresh1").load("../thread/{{$tickets->id}}   #refresh1");
                         // $("#t4").load("../thread/{{$tickets->id}}   #t4");
                         var message = "Success! You have successfully replied to your ticket";
-                        $("#alert21").show();
+                        $("#alert21").removeClass('d-none');
                         $('#message-success2').html(message);
-                        setInterval(function(){$("#alert21").hide();  },4000);   
+                        setInterval(function(){$("#alert21").addClass('d-none');  },4000);   
                         
 
                     }
@@ -992,14 +992,14 @@ function AddCcc(){
                     {
                         // alert('fail');
                         var message = "Fail! For some reason your message was not posted. Please try again later";
-                        $("#alert23").show();
+                        $("#alert23").removeClass('d-none');
                         $('#message-danger2').html(message);
-                        setInterval(function(){$("#alert23").hide(); },4000);   
+                        setInterval(function(){$("#alert23").addClass('d-none'); },4000);   
                         // $( "#dismis4" ).trigger( "click" );
 
                     }
-                    $("#t2").show();
-                    $("#show3").hide();
+                    $("#t2").removeClass('d-none');
+                    $("#show3").addClass('d-none');
                 }
             })
             return false;
@@ -1014,8 +1014,8 @@ function AddCcc(){
                 data: $(this).serialize(),
                 beforeSend: function() {
 
-                    $("#t1").hide();
-                    $("#show3").show();
+                    $("#t1").addClass('d-none');
+                    $("#show3").removeClass('d-none');
                 },
 
                 success: function(response) {
@@ -1025,21 +1025,21 @@ function AddCcc(){
                         $("#refresh1").load("../thread/{{$tickets->id}}  #refresh1");
                         // $("#t1").load("../thread/{{$tickets->id}}  #t1");
                         var message = "Success! You have successfully replied to your ticket";
-                        $("#alert21").show();
+                        $("#alert21").removeClass('d-none');
                         $('#message-success2').html(message);
-                        setInterval(function(){$("#alert21").hide(); },4000);   
+                        setInterval(function(){$("#alert21").addClass('d-none'); },4000);   
                     }
                     else
                     {
                         // alert('fail');
                         // $( "#dismis4" ).trigger( "click" );
                         var message = "Fail! For some reason your reply was not posted. Please try again later";
-                        $("#alert23").show();
+                        $("#alert23").removeClass('d-none');
                         $('#message-danger2').html(message);
-                        setInterval(function(){$("#alert23").hide(); },4000);   
+                        setInterval(function(){$("#alert23").addClass('d-none'); },4000);   
                     }
-                    $("#show3").hide();
-                    $("#t1").show();
+                    $("#show3").addClass('d-none');
+                    $("#t1").removeClass('d-none');
                 }
             })
             return false;
@@ -1056,7 +1056,7 @@ function AddCcc(){
                     {
                         // alert('ticket has been un assigned');
                         var message = "Success! You have Unassigned your ticket";
-                        $("#alert21").show();
+                        $("#alert21").removeClass('d-none');
                         $('#message-success2').html(message);
                         setInterval(function(){$("#dismiss21").trigger("click"); },2000);   
                         // $("#refresh1").load( "http://localhost/faveo/public/thread/{{$tickets->id}}   #refresh1");
@@ -1064,7 +1064,7 @@ function AddCcc(){
                     else
                     {
                         var message = "Fail! For some reason your request failed";
-                        $("#alert23").show();
+                        $("#alert23").removeClass('d-none');
                         $('#message-danger2').html(message);
                         setInterval(function(){$("#dismiss23").trigger("click"); },2000);      
                         // alert('fail');

@@ -16,7 +16,7 @@ class FirefoxDriver extends LocalWebDriver
      * $capabilities = DesiredCapabilities::firefox();
      * $capabilities->setCapability(FirefoxOptions::CAPABILITY, $firefoxOptions);
      */
-    const PROFILE = 'firefox_profile';
+    public const PROFILE = 'firefox_profile';
 
     /**
      * Creates a new FirefoxDriver using default configuration.
@@ -26,7 +26,7 @@ class FirefoxDriver extends LocalWebDriver
      *
      * @return static
      */
-    public static function start(DesiredCapabilities $capabilities = null)
+    public static function start(?DesiredCapabilities $capabilities = null)
     {
         $service = FirefoxDriverService::createDefaultService();
 
@@ -43,7 +43,7 @@ class FirefoxDriver extends LocalWebDriver
      */
     public static function startUsingDriverService(
         FirefoxDriverService $service,
-        DesiredCapabilities $capabilities = null
+        ?DesiredCapabilities $capabilities = null
     ) {
         if ($capabilities === null) {
             $capabilities = DesiredCapabilities::firefox();

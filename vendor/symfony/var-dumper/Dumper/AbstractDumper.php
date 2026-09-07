@@ -26,14 +26,16 @@ abstract class AbstractDumper implements DataDumperInterface, DumperInterface
     public const DUMP_COMMA_SEPARATOR = 4;
     public const DUMP_TRAILING_COMMA = 8;
 
+    /** @var callable|resource|string|null */
     public static $defaultOutput = 'php://output';
 
-    protected $line = '';
+    protected string $line = '';
+    /** @var callable|null */
     protected $lineDumper;
+    /** @var resource|null */
     protected $outputStream;
-    protected $decimalPoint = '.';
-    protected $indentPad = '  ';
-    protected $flags;
+    protected string $decimalPoint = '.';
+    protected string $indentPad = '  ';
 
     private string $charset = '';
 
@@ -42,9 +44,11 @@ abstract class AbstractDumper implements DataDumperInterface, DumperInterface
      * @param string|null                   $charset The default character encoding to use for non-UTF8 strings
      * @param int                           $flags   A bit field of static::DUMP_* constants to fine tune dumps representation
      */
-    public function __construct($output = null, string $charset = null, int $flags = 0)
-    {
-        $this->flags = $flags;
+    public function __construct(
+        $output = null,
+        ?string $charset = null,
+        protected int $flags = 0,
+    ) {
         $this->setCharset($charset ?: \ini_get('php.output_encoding') ?: \ini_get('default_charset') ?: 'UTF-8');
         $this->setOutput($output ?: static::$defaultOutput);
         if (!$output && \is_string(static::$defaultOutput)) {
@@ -55,9 +59,9 @@ abstract class AbstractDumper implements DataDumperInterface, DumperInterface
     /**
      * Sets the output destination of the dumps.
      *
-     * @param callable|resource|string $output A line dumper callable, an opened stream or an output path
+     * @param callable|resource|string|null $output A line dumper callable, an opened stream or an output path
      *
-     * @return callable|resource|string The previous output destination
+     * @return callable|resource|string|null The previous output destination
      */
     public function setOutput($output)
     {
@@ -87,7 +91,7 @@ abstract class AbstractDumper implements DataDumperInterface, DumperInterface
         $prev = $this->charset;
 
         $charset = strtoupper($charset);
-        $charset = null === $charset || 'UTF-8' === $charset || 'UTF8' === $charset ? 'CP1252' : $charset;
+        $charset = 'UTF-8' === $charset || 'UTF8' === $charset ? 'CP1252' : $charset;
 
         $this->charset = $charset;
 
@@ -156,7 +160,7 @@ abstract class AbstractDumper implements DataDumperInterface, DumperInterface
      * @param int $depth The recursive depth in the dumped structure for the line being dumped,
      *                   or -1 to signal the end-of-dump to the line dumper callable
      */
-    protected function dumpLine(int $depth)
+    protected function dumpLine(int $depth): void
     {
         ($this->lineDumper)($this->line, $depth, $this->indentPad);
         $this->line = '';
@@ -165,7 +169,7 @@ abstract class AbstractDumper implements DataDumperInterface, DumperInterface
     /**
      * Generic line dumper callback.
      */
-    protected function echoLine(string $line, int $depth, string $indentPad)
+    protected function echoLine(string $line, int $depth, string $indentPad): void
     {
         if (-1 !== $depth) {
             fwrite($this->outputStream, str_repeat($indentPad, $depth).$line."\n");
@@ -181,17 +185,48 @@ abstract class AbstractDumper implements DataDumperInterface, DumperInterface
             return $s;
         }
 
-        if (!\function_exists('iconv')) {
-            throw new \RuntimeException('Unable to convert a non-UTF-8 string to UTF-8: required function iconv() does not exist. You should install ext-iconv or symfony/polyfill-iconv.');
+        if (\function_exists('iconv')) {
+            if (false !== $c = @iconv($this->charset, 'UTF-8', $s)) {
+                return $c;
+            }
+            if ('CP1252' !== $this->charset && false !== $c = @iconv('CP1252', 'UTF-8', $s)) {
+                return $c;
+            }
         }
 
-        if (false !== $c = @iconv($this->charset, 'UTF-8', $s)) {
-            return $c;
-        }
-        if ('CP1252' !== $this->charset && false !== $c = @iconv('CP1252', 'UTF-8', $s)) {
-            return $c;
+        $s .= $s;
+        $len = \strlen($s);
+        $mapCp1252 = false;
+
+        for ($i = $len >> 1, $j = 0; $i < $len; ++$i, ++$j) {
+            if ($s[$i] < "\x80") {
+                $s[$j] = $s[$i];
+            } elseif ($s[$i] < "\xC0") {
+                $s[$j] = "\xC2";
+                $s[++$j] = $s[$i];
+                if ($s[$i] < "\xA0") {
+                    $mapCp1252 = true;
+                }
+            } else {
+                $s[$j] = "\xC3";
+                $s[++$j] = \chr(\ord($s[$i]) - 64);
+            }
         }
 
-        return iconv('CP850', 'UTF-8', $s);
+        $s = substr($s, 0, $j);
+
+        if (!$mapCp1252) {
+            return $s;
+        }
+
+        return strtr($s, [
+            "\xC2\x80" => '€', "\xC2\x82" => '‚', "\xC2\x83" => 'ƒ', "\xC2\x84" => '„',
+            "\xC2\x85" => '…', "\xC2\x86" => '†', "\xC2\x87" => '‡', "\xC2\x88" => 'ˆ',
+            "\xC2\x89" => '‰', "\xC2\x8A" => 'Š', "\xC2\x8B" => '‹', "\xC2\x8C" => 'Œ',
+            "\xC2\x8D" => 'Ž', "\xC2\x91" => '‘', "\xC2\x92" => '’', "\xC2\x93" => '“',
+            "\xC2\x94" => '”', "\xC2\x95" => '•', "\xC2\x96" => '–', "\xC2\x97" => '—',
+            "\xC2\x98" => '˜', "\xC2\x99" => '™', "\xC2\x9A" => 'š', "\xC2\x9B" => '›',
+            "\xC2\x9C" => 'œ', "\xC2\x9E" => 'ž',
+        ]);
     }
 }

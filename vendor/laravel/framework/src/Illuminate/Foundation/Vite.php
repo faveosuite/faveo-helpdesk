@@ -2,10 +2,10 @@
 
 namespace Illuminate\Foundation;
 
-use Exception;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\HtmlString;
+use Illuminate\Support\Js;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
 
@@ -56,6 +56,13 @@ class Vite implements Htmlable
     protected $manifestFilename = 'manifest.json';
 
     /**
+     * The custom asset path resolver.
+     *
+     * @var callable|null
+     */
+    protected $assetPathResolver = null;
+
+    /**
      * The script tag attributes resolvers.
      *
      * @var array
@@ -89,6 +96,27 @@ class Vite implements Htmlable
      * @var array
      */
     protected static $manifests = [];
+
+    /**
+     * The prefetching strategy to use.
+     *
+     * @var null|'waterfall'|'aggressive'
+     */
+    protected $prefetchStrategy = null;
+
+    /**
+     * The number of assets to load concurrently when using the "waterfall" strategy.
+     *
+     * @var int
+     */
+    protected $prefetchConcurrently = 3;
+
+    /**
+     * The name of the event that should trigger prefetching. The event must be dispatched on the `window`.
+     *
+     * @var string
+     */
+    protected $prefetchEvent = 'load';
 
     /**
      * Get the preloaded assets.
@@ -148,6 +176,20 @@ class Vite implements Htmlable
     }
 
     /**
+     * Merge additional Vite entry points with the current set.
+     *
+     * @param  array  $entryPoints
+     * @return $this
+     */
+    public function mergeEntryPoints($entryPoints)
+    {
+        return $this->withEntryPoints(array_unique([
+            ...$this->entryPoints,
+            ...$entryPoints,
+        ]));
+    }
+
+    /**
      * Set the filename for the manifest file.
      *
      * @param  string  $filename
@@ -156,6 +198,19 @@ class Vite implements Htmlable
     public function useManifestFilename($filename)
     {
         $this->manifestFilename = $filename;
+
+        return $this;
+    }
+
+    /**
+     * Resolve asset paths using the provided resolver.
+     *
+     * @param  callable|null  $resolver
+     * @return $this
+     */
+    public function createAssetPathsUsing($resolver)
+    {
+        $this->assetPathResolver = $resolver;
 
         return $this;
     }
@@ -248,6 +303,62 @@ class Vite implements Htmlable
     }
 
     /**
+     * Eagerly prefetch assets.
+     *
+     * @param  int|null  $concurrency
+     * @param  string  $event
+     * @return $this
+     */
+    public function prefetch($concurrency = null, $event = 'load')
+    {
+        $this->prefetchEvent = $event;
+
+        return $concurrency === null
+            ? $this->usePrefetchStrategy('aggressive')
+            : $this->usePrefetchStrategy('waterfall', ['concurrency' => $concurrency]);
+    }
+
+    /**
+     * Use the "waterfall" prefetching strategy.
+     *
+     * @return $this
+     */
+    public function useWaterfallPrefetching(?int $concurrency = null)
+    {
+        return $this->usePrefetchStrategy('waterfall', [
+            'concurrency' => $concurrency ?? $this->prefetchConcurrently,
+        ]);
+    }
+
+    /**
+     * Use the "aggressive" prefetching strategy.
+     *
+     * @return $this
+     */
+    public function useAggressivePrefetching()
+    {
+        return $this->usePrefetchStrategy('aggressive');
+    }
+
+    /**
+     * Set the prefetching strategy.
+     *
+     * @param  'waterfall'|'aggressive'|null  $strategy
+     * @param  array  $config
+     * @return $this
+     */
+    public function usePrefetchStrategy($strategy, $config = [])
+    {
+        $this->prefetchStrategy = $strategy;
+
+        if ($strategy === 'waterfall') {
+            $this->prefetchConcurrently = $config['concurrency'] ?? $this->prefetchConcurrently;
+        }
+
+        return $this;
+    }
+
+    /**
      * Generate Vite tags for an entrypoint.
      *
      * @param  string|string[]  $entrypoints
@@ -258,7 +369,7 @@ class Vite implements Htmlable
      */
     public function __invoke($entrypoints, $buildDirectory = null)
     {
-        $entrypoints = collect($entrypoints);
+        $entrypoints = new Collection($entrypoints);
         $buildDirectory ??= $this->buildDirectory;
 
         if ($this->isRunningHot()) {
@@ -272,8 +383,8 @@ class Vite implements Htmlable
 
         $manifest = $this->manifest($buildDirectory);
 
-        $tags = collect();
-        $preloads = collect();
+        $tags = new Collection;
+        $preloads = new Collection;
 
         foreach ($entrypoints as $entrypoint) {
             $chunk = $this->chunk($manifest, $entrypoint);
@@ -294,7 +405,7 @@ class Vite implements Htmlable
                 ]);
 
                 foreach ($manifest[$import]['css'] ?? [] as $css) {
-                    $partialManifest = Collection::make($manifest)->where('file', $css);
+                    $partialManifest = (new Collection($manifest))->where('file', $css);
 
                     $preloads->push([
                         $partialManifest->keys()->first(),
@@ -320,7 +431,7 @@ class Vite implements Htmlable
             ));
 
             foreach ($chunk['css'] ?? [] as $css) {
-                $partialManifest = Collection::make($manifest)->where('file', $css);
+                $partialManifest = (new Collection($manifest))->where('file', $css);
 
                 $preloads->push([
                     $partialManifest->keys()->first(),
@@ -344,7 +455,122 @@ class Vite implements Htmlable
             ->sortByDesc(fn ($args) => $this->isCssPath($args[1]))
             ->map(fn ($args) => $this->makePreloadTagForChunk(...$args));
 
-        return new HtmlString($preloads->join('').$stylesheets->join('').$scripts->join(''));
+        $base = $preloads->join('').$stylesheets->join('').$scripts->join('');
+
+        if ($this->prefetchStrategy === null || $this->isRunningHot()) {
+            return new HtmlString($base);
+        }
+
+        $discoveredImports = [];
+
+        return (new Collection($entrypoints))
+            ->flatMap(fn ($entrypoint) => (new Collection($manifest[$entrypoint]['dynamicImports'] ?? []))
+                ->map(fn ($import) => $manifest[$import])
+                ->filter(fn ($chunk) => str_ends_with($chunk['file'], '.js') || str_ends_with($chunk['file'], '.css'))
+                ->flatMap($f = function ($chunk) use (&$f, $manifest, &$discoveredImports) {
+                    return (new Collection([...$chunk['imports'] ?? [], ...$chunk['dynamicImports'] ?? []]))
+                        ->reject(function ($import) use (&$discoveredImports) {
+                            if (isset($discoveredImports[$import])) {
+                                return true;
+                            }
+
+                            return ! $discoveredImports[$import] = true;
+                        })
+                        ->reduce(
+                            fn ($chunks, $import) => $chunks->merge(
+                                $f($manifest[$import])
+                            ), new Collection([$chunk]))
+                        ->merge((new Collection($chunk['css'] ?? []))->map(
+                            fn ($css) => (new Collection($manifest))->first(fn ($chunk) => $chunk['file'] === $css) ?? [
+                                'file' => $css,
+                            ],
+                        ));
+                })
+                ->map(function ($chunk) use ($buildDirectory, $manifest) {
+                    return (new Collection([
+                        ...$this->resolvePreloadTagAttributes(
+                            $chunk['src'] ?? null,
+                            $url = $this->assetPath("{$buildDirectory}/{$chunk['file']}"),
+                            $chunk,
+                            $manifest,
+                        ),
+                        'rel' => 'prefetch',
+                        'fetchpriority' => 'low',
+                        'href' => $url,
+                    ]))->reject(
+                        fn ($value) => in_array($value, [null, false], true)
+                    )->mapWithKeys(fn ($value, $key) => [
+                        $key = (is_int($key) ? $value : $key) => $value === true ? $key : $value,
+                    ])->all();
+                })
+                ->reject(fn ($attributes) => isset($this->preloadedAssets[$attributes['href']])))
+            ->unique('href')
+            ->values()
+            ->pipe(fn ($assets) => with(Js::from($assets), fn ($assets) => match ($this->prefetchStrategy) {
+                'waterfall' => new HtmlString($base.<<<HTML
+
+                    <script{$this->nonceAttribute()}>
+                         window.addEventListener('{$this->prefetchEvent}', () => window.setTimeout(() => {
+                            const makeLink = (asset) => {
+                                const link = document.createElement('link')
+
+                                Object.keys(asset).forEach((attribute) => {
+                                    link.setAttribute(attribute, asset[attribute])
+                                })
+
+                                return link
+                            }
+
+                            const loadNext = (assets, count) => window.setTimeout(() => {
+                                if (count > assets.length) {
+                                    count = assets.length
+
+                                    if (count === 0) {
+                                        return
+                                    }
+                                }
+
+                                const fragment = new DocumentFragment
+
+                                while (count > 0) {
+                                    const link = makeLink(assets.shift())
+                                    fragment.append(link)
+                                    count--
+
+                                    if (assets.length) {
+                                        link.onload = () => loadNext(assets, 1)
+                                        link.onerror = () => loadNext(assets, 1)
+                                    }
+                                }
+
+                                document.head.append(fragment)
+                            })
+
+                            loadNext({$assets}, {$this->prefetchConcurrently})
+                        }))
+                    </script>
+                    HTML),
+                'aggressive' => new HtmlString($base.<<<HTML
+
+                    <script{$this->nonceAttribute()}>
+                         window.addEventListener('{$this->prefetchEvent}', () => window.setTimeout(() => {
+                            const makeLink = (asset) => {
+                                const link = document.createElement('link')
+
+                                Object.keys(asset).forEach((attribute) => {
+                                    link.setAttribute(attribute, asset[attribute])
+                                })
+
+                                return link
+                            }
+
+                            const fragment = new DocumentFragment;
+                            {$assets}.forEach((asset) => fragment.append(makeLink(asset)))
+                            document.head.append(fragment)
+                         }))
+                    </script>
+                    HTML),
+            }));
     }
 
     /**
@@ -398,7 +624,7 @@ class Vite implements Htmlable
         }
 
         $this->preloadedAssets[$url] = $this->parseAttributes(
-            Collection::make($attributes)->forget('href')->all()
+            (new Collection($attributes))->forget('href')->all()
         );
 
         return '<link '.implode(' ', $this->parseAttributes($attributes)).' />';
@@ -467,6 +693,7 @@ class Vite implements Htmlable
             'crossorigin' => $this->resolveStylesheetTagAttributes($src, $url, $chunk, $manifest)['crossorigin'] ?? false,
         ] : [
             'rel' => 'modulepreload',
+            'as' => 'script',
             'href' => $url,
             'nonce' => $this->nonce ?? false,
             'crossorigin' => $this->resolveScriptTagAttributes($src, $url, $chunk, $manifest)['crossorigin'] ?? false,
@@ -574,7 +801,7 @@ class Vite implements Htmlable
      */
     protected function isCssPath($path)
     {
-        return preg_match('/\.(css|less|sass|scss|styl|stylus|pcss|postcss)$/', $path) === 1;
+        return preg_match('/\.(css|less|sass|scss|styl|stylus|pcss|postcss)(\?[^\.]*)?$/', $path) === 1;
     }
 
     /**
@@ -585,7 +812,7 @@ class Vite implements Htmlable
      */
     protected function parseAttributes($attributes)
     {
-        return Collection::make($attributes)
+        return (new Collection($attributes))
             ->reject(fn ($value, $key) => in_array($value, [false, null], true))
             ->flatMap(fn ($value, $key) => $value === true ? [$key] : [$key => $value])
             ->map(fn ($value, $key) => is_int($key) ? $value : $key.'="'.$value.'"')
@@ -656,6 +883,30 @@ class Vite implements Htmlable
     }
 
     /**
+     * Get the content of a given asset.
+     *
+     * @param  string  $asset
+     * @param  string|null  $buildDirectory
+     * @return string
+     *
+     * @throws \Illuminate\Foundation\ViteException
+     */
+    public function content($asset, $buildDirectory = null)
+    {
+        $buildDirectory ??= $this->buildDirectory;
+
+        $chunk = $this->chunk($this->manifest($buildDirectory), $asset);
+
+        $path = $this->publicPath($buildDirectory.'/'.$chunk['file']);
+
+        if (! is_file($path) || ! file_exists($path)) {
+            throw new ViteException("Unable to locate file from Vite manifest: {$path}.");
+        }
+
+        return file_get_contents($path);
+    }
+
+    /**
      * Generate an asset path for the application.
      *
      * @param  string  $path
@@ -664,16 +915,27 @@ class Vite implements Htmlable
      */
     protected function assetPath($path, $secure = null)
     {
-        return asset($path, $secure);
+        return ($this->assetPathResolver ?? asset(...))($path, $secure);
     }
 
     /**
-     * Get the the manifest file for the given build directory.
+     * Generate a public path for an asset.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    protected function publicPath($path)
+    {
+        return public_path($path);
+    }
+
+    /**
+     * Get the manifest file for the given build directory.
      *
      * @param  string  $buildDirectory
      * @return array
      *
-     * @throws \Exception
+     * @throws \Illuminate\Foundation\ViteManifestNotFoundException
      */
     protected function manifest($buildDirectory)
     {
@@ -681,7 +943,7 @@ class Vite implements Htmlable
 
         if (! isset(static::$manifests[$path])) {
             if (! is_file($path)) {
-                throw new Exception("Vite manifest not found at: {$path}");
+                throw new ViteManifestNotFoundException("Vite manifest not found at: $path");
             }
 
             static::$manifests[$path] = json_decode(file_get_contents($path), true);
@@ -729,15 +991,29 @@ class Vite implements Htmlable
      * @param  string  $file
      * @return array
      *
-     * @throws \Exception
+     * @throws \Illuminate\Foundation\ViteException
      */
     protected function chunk($manifest, $file)
     {
         if (! isset($manifest[$file])) {
-            throw new Exception("Unable to locate file in Vite manifest: {$file}.");
+            throw new ViteException("Unable to locate file in Vite manifest: {$file}.");
         }
 
         return $manifest[$file];
+    }
+
+    /**
+     * Get the nonce attribute for the prefetch script tags.
+     *
+     * @return \Illuminate\Support\HtmlString
+     */
+    protected function nonceAttribute()
+    {
+        if ($this->cspNonce() === null) {
+            return new HtmlString('');
+        }
+
+        return new HtmlString(' nonce="'.$this->cspNonce().'"');
     }
 
     /**
@@ -758,5 +1034,15 @@ class Vite implements Htmlable
     public function toHtml()
     {
         return $this->__invoke($this->entryPoints)->toHtml();
+    }
+
+    /**
+     * Flush state.
+     *
+     * @return void
+     */
+    public function flush()
+    {
+        $this->preloadedAssets = [];
     }
 }

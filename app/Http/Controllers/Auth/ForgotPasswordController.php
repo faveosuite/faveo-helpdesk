@@ -46,9 +46,10 @@ class ForgotPasswordController extends Controller
      */
     public function sendResetLinkEmail(Request $request)
     {
+        $this->validate($request, ['email' => 'required']);
+
         try {
             $date = date('Y-m-d H:i:s');
-            $this->validate($request, ['email' => 'required']);
             event('reset.password', []);
             $user = User::where('email', '=', $request->all('email'))->orWhere('mobile', '=', $request->all('email'))->first();
             if (isset($user)) {

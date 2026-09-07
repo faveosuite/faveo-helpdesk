@@ -18,7 +18,7 @@ class MultiLogger extends BaseLogger implements Log
      *
      * @return void
      */
-    public function __construct(array $loggers, Dispatcher $dispatcher = null)
+    public function __construct(array $loggers, $dispatcher = null)
     {
         parent::__construct($loggers);
 

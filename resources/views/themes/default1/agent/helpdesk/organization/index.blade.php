@@ -17,50 +17,69 @@ class="nav-link active"
 @stop
 
 @section('PageHeader')
-<h1>{!! Lang::get('lang.organizations') !!}</h1>
+<h3>{!! Lang::get('lang.organizations') !!}</h3>
 @stop
 <!-- content -->
 @section('content')
 
 @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <i class="fas fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+    <i class="fa-solid fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('success')}}
 </div>
 @endif
 <!-- failure message -->
 @if(Session::has('fails'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fas fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!} !</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('fails')}}
 </div>
 @endif
 
-<div class="card card-light">
+<div class="card">
 
     <div class="card-header">
 
         <h3 class="card-title">{{Lang::get('lang.organization_list')}}</h3>
 
-        <div class="card-tools">
+        <div class="card-tools d-flex">
 
-            <a href="{{route('organizations.create')}}" class="btn btn-default btn-tool"><i class="fas fa-plus"> </i> {{Lang::get('lang.create_organization')}}</a>
+            <a href="{{route('organizations.create')}}" class="btn btn-secondary btn-tool"><i class="fa-solid fa-plus"> </i> {{Lang::get('lang.create_organization')}}</a>
         </div>
 
     </div>
 
     <div class="card-body">
-
-        {!! Datatable::table()
-        ->addColumn(Lang::get('lang.name'),
-        Lang::get('lang.website'),
-        Lang::get('lang.phone'),
-        Lang::get('lang.action'))  // these are the column headings to be shown
-        ->setUrl(route('org.list'))  // this is the route where data will be retrieved
-        ->render() !!}
+        <table id="organizations-table" class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>{{Lang::get('lang.name')}}</th>
+                    <th>{{Lang::get('lang.website')}}</th>
+                    <th>{{Lang::get('lang.phone')}}</th>
+                    <th>{{Lang::get('lang.action')}}</th>
+                </tr>
+            </thead>
+        </table>
     </div>
 </div>
+
+<script>
+$(function() {
+    $('#organizations-table').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: '{{ route("org.list") }}',
+        columns: [
+            {data: 'name',    name: 'name'},
+            {data: 'website', name: 'website'},
+            {data: 'phone',   name: 'phone'},
+            {data: 'Actions', name: 'Actions', orderable: false, searchable: false},
+        ]
+    });
+});
+</script>
+
 @stop

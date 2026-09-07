@@ -3,6 +3,7 @@
 namespace Illuminate\Http\Resources\Json;
 
 use Countable;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\CollectsResources;
 use Illuminate\Pagination\AbstractCursorPaginator;
 use Illuminate\Pagination\AbstractPaginator;
@@ -22,7 +23,7 @@ class ResourceCollection extends JsonResource implements Countable, IteratorAggr
     /**
      * The mapped collection instance.
      *
-     * @var \Illuminate\Support\Collection
+     * @var \Illuminate\Support\Collection|null
      */
     public $collection;
 
@@ -44,7 +45,6 @@ class ResourceCollection extends JsonResource implements Countable, IteratorAggr
      * Create a new resource instance.
      *
      * @param  mixed  $resource
-     * @return void
      */
     public function __construct($resource)
     {
@@ -96,8 +96,13 @@ class ResourceCollection extends JsonResource implements Countable, IteratorAggr
      * @param  \Illuminate\Http\Request  $request
      * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
      */
-    public function toArray($request)
+    #[\Override]
+    public function toArray(Request $request)
     {
+        if ($this->collection->first() instanceof JsonResource) {
+            return $this->collection->map->resolve($request)->all();
+        }
+
         return $this->collection->map->toArray($request)->all();
     }
 

@@ -39,7 +39,7 @@
     </head>
     <body>
         <div class="container">
-            <div class="content">
+            <div class="app-content">
                 <div class="title">Tickets</div>
                 <div class="quote">Ticket base System Under Construction</div>
             </div>

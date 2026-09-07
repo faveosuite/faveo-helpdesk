@@ -20,7 +20,7 @@ class="nav-link active"
 @stop
 <!-- header -->
 @section('PageHeader')
-<h1>{{Lang::get('lang.teams')}}</h1>
+<h3>{{Lang::get('lang.teams')}}</h3>
 @stop
 <!-- /header -->
 <!-- breadcrumbs -->
@@ -33,13 +33,13 @@ class="nav-link active"
 <!-- content -->
 @section('content')
 <!-- open a form -->
-{!! Form::open(array('route' => 'teams.store') )!!}
+{!! html()->form('POST', route('teams.store'))->open() !!}
 
 @if(Session::has('errors'))
-    <div class="alert alert-danger alert-dismissable">
-        <i class="fa fa-ban"></i>
+    <div class="alert alert-danger alert-dismissible">
+        <i class="fa-solid fa-ban"></i>
         <b>Alert!</b>
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         <br/>
         @if($errors->first('name'))
         <li class="error-message-padding">{!! $errors->first('name', ':message') !!}</li>
@@ -63,26 +63,26 @@ class="nav-link active"
 
         <div class="row">
             <!-- name -->
-            <div class="col-sm-5 form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                {!! Form::label('name',Lang::get('lang.name')) !!} <span class="text-red"> *</span>
-                {!! Form::text('name',null,['class' => 'form-control']) !!}
+            <div class="col-sm-5 mb-3 {{ $errors->has('name') ? 'has-error' : '' }}">
+                {!! html()->label(Lang::get('lang.name'), 'name') !!} <span class="text-red"> *</span>
+                {!! html()->text('name', null)->class('form-control') !!}
             </div>
             <!-- team lead -->
-            <div class="col-sm-4 form-group {{ $errors->has('team_lead') ? 'has-error' : '' }}">
-                {!! Form::label('team_lead',Lang::get('lang.team_lead')) !!} 
-                {!! Form::select('team_lead',[''=>Lang::get('lang.select_a_team_lead'), Lang::get('lang.members')=>$user->pluck('full_name','id')->toArray()],null,['class' => 'form-control']) !!}	
+            <div class="col-sm-4 mb-3 {{ $errors->has('team_lead') ? 'has-error' : '' }}">
+                {!! html()->label(Lang::get('lang.team_lead'), 'team_lead') !!} 
+                {!! html()->select('team_lead', [''=>Lang::get('lang.select_a_team_lead'), Lang::get('lang.members')=>$user->pluck('full_name','id')->toArray()], null)->class('form-control') !!}	
             </div>
 
             <div class="col-sm-3">
                 <!-- status -->
-                <div class="form-group {{ $errors->has('status') ? 'has-error' : '' }}">
-                    {!! Form::label('status',Lang::get('lang.status')) !!}
+                <div class="mb-3 {{ $errors->has('status') ? 'has-error' : '' }}">
+                    {!! html()->label(Lang::get('lang.status'), 'status') !!}
                     <div class="row">
                         <div class="col-sm-6">
-                            {!! Form::radio('status','1',true) !!} {{Lang::get('lang.active')}}
+                            {!! html()->radio('status', true, '1') !!} {{Lang::get('lang.active')}}
                         </div>
                         <div class="col-sm-6">
-                            {!! Form::radio('status','0',null) !!} {{Lang::get('lang.inactive')}}
+                            {!! html()->radio('status', null, '0') !!} {{Lang::get('lang.inactive')}}
                         </div>
                     </div>
                 </div>
@@ -90,13 +90,13 @@ class="nav-link active"
         </div>
         <!-- admin notes -->
         <div>
-            {!! Form::label('admin_notes',Lang::get('lang.admin_notes')) !!}
-            {!! Form::textarea('admin_notes',null,['class' => 'form-control','size' => '30x5']) !!}
+            {!! html()->label(Lang::get('lang.admin_notes'), 'admin_notes') !!}
+            {!! html()->textarea('admin_notes', null)->class('form-control')->attributes(['size' => '30x5']) !!}
         </div>
     </div>
     <div class="card-footer">
-        {!! Form::submit(Lang::get('lang.submit'),['class'=>'btn btn-primary'])!!}
+        {!! html()->submit(Lang::get('lang.submit'))->class('btn btn-primary') !!}
     </div>
 </div>
-{!!Form::close()!!}
+{!! html()->closeModelForm() !!}
 @stop

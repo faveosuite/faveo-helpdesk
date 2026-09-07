@@ -20,17 +20,6 @@ class JobMakeCommand extends GeneratorCommand
     protected $name = 'make:job';
 
     /**
-     * The name of the console command.
-     *
-     * This name is used to identify the command during lazy loading.
-     *
-     * @var string|null
-     *
-     * @deprecated
-     */
-    protected static $defaultName = 'make:job';
-
-    /**
      * The console command description.
      *
      * @var string
@@ -51,9 +40,13 @@ class JobMakeCommand extends GeneratorCommand
      */
     protected function getStub()
     {
+        if ($this->option('batched')) {
+            return $this->resolveStubPath('/stubs/job.batched.queued.stub');
+        }
+
         return $this->option('sync')
-                        ? $this->resolveStubPath('/stubs/job.stub')
-                        : $this->resolveStubPath('/stubs/job.queued.stub');
+            ? $this->resolveStubPath('/stubs/job.stub')
+            : $this->resolveStubPath('/stubs/job.queued.stub');
     }
 
     /**
@@ -65,8 +58,8 @@ class JobMakeCommand extends GeneratorCommand
     protected function resolveStubPath($stub)
     {
         return file_exists($customPath = $this->laravel->basePath(trim($stub, '/')))
-                        ? $customPath
-                        : __DIR__.$stub;
+            ? $customPath
+            : __DIR__.$stub;
     }
 
     /**
@@ -89,7 +82,8 @@ class JobMakeCommand extends GeneratorCommand
     {
         return [
             ['force', 'f', InputOption::VALUE_NONE, 'Create the class even if the job already exists'],
-            ['sync', null, InputOption::VALUE_NONE, 'Indicates that job should be synchronous'],
+            ['sync', null, InputOption::VALUE_NONE, 'Indicates that the job should be synchronous'],
+            ['batched', null, InputOption::VALUE_NONE, 'Indicates that the job should be batchable'],
         ];
     }
 }

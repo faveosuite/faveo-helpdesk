@@ -18,28 +18,28 @@
 <!-- check whether success or not -->
 
 @if(Session::has('success'))
-    <div class="alert alert-success alert-dismissable">
-        <i class="fa  fa-check-circle"></i>
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <div class="alert alert-success alert-dismissible">
+        <i class="fa  fa-circle-check"></i>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         {{Session::get('success')}}
     </div>
     @endif
     <!-- failure message -->
     @if(Session::has('fails'))
-    <div class="alert alert-danger alert-dismissable">
-        <i class="fa fa-ban"></i>
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <div class="alert alert-danger alert-dismissible">
+        <i class="fa-solid fa-ban"></i>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         {{Session::get('fails')}}
     </div>
     @endif
 
 
 
-    <section class="content">
+    <section class="app-content">
 <div class="row">
-<div class="col-xs-12">
+<div class="col-12">
 
-<div id="example1_wrapper" class="dataTables_wrapper form-inline dt-bootstrap table table-hover" style="overflow:hidden;">
+<div id="example1_wrapper" class="dataTables_wrapper d-flex gap-2 dt-bootstrap table table-hover overflow-hidden">
 <div class="row">
 <div class="col-sm-12">
     <table id="allBlogs"  class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">

@@ -20,7 +20,7 @@ active
  <div id="form-content">
 <div ng-app="myApp">
         <h1 style="text-align: center;">Locale Information</h1>
-        {!! Form::open(['url'=>route('postaccount'), 'id' => 'postaccount']) !!}
+        {!! html()->form('POST', route('postaccount'))->attributes(['id' => 'postaccount'])->open() !!}
         
 
         <!-- checking if the form submit fails -->
@@ -70,10 +70,10 @@ active
                                 : red;font-size:12px;">*</span></label>
                         </td>
                         <td>
-                            {!! Form::text('firstname',null,['style' =>'margin-left:250px', 'required' => true]) !!}
+                            {!! html()->text('firstname', null)->required()->attributes(['style' => 'margin-left:250px']) !!}
                         </td>
                         <td>
-                            <button type="button" data-toggle="popover" data-placement="right" data-arrowcolor="#eeeeee" data-bordercolor="#bbbbbb" data-title-backcolor="#cccccc" data-title-bordercolor="#bbbbbb" data-title-textcolor="#444444" data-content-backcolor="#eeeeee" data-content-textcolor="#888888" title="@{{Nametitle}}" data-content="@{{Namecontent}}" style="padding: 0px;border: 0px; border-radius: 5px;"><i class="fa fa-question-circle" style="padding: 0px;"></i>
+                            <button type="button" data-bs-toggle="popover" data-bs-placement="right" data-arrowcolor="#eeeeee" data-bordercolor="#bbbbbb" data-title-backcolor="#cccccc" data-title-bordercolor="#bbbbbb" data-title-textcolor="#444444" data-content-backcolor="#eeeeee" data-content-textcolor="#888888" title="@{{Nametitle}}" data-bs-content="@{{Namecontent}}" style="padding: 0px;border: 0px; border-radius: 5px;"><i class="fa-solid fa-circle-question" style="padding: 0px;"></i>
                             </button>
                         </td>
                     </tr>
@@ -83,10 +83,10 @@ active
                                 : red;font-size:12px;">*</span></label>
                         </td>
                         <td>
-                            {!! Form::text('Lastname',null,['style' =>'margin-left:250px', 'required' => true]) !!}
+                            {!! html()->text('Lastname', null)->required()->attributes(['style' => 'margin-left:250px']) !!}
                         </td>
                         <td>
-                            <button type="button" data-toggle="popover" data-placement="right" data-arrowcolor="#eeeeee" data-bordercolor="#bbbbbb" data-title-backcolor="#cccccc" data-title-bordercolor="#bbbbbb" data-title-textcolor="#444444" data-content-backcolor="#eeeeee" data-content-textcolor="#888888" title="@{{Lasttitle}}" data-content="@{{Lastcontent}}" style="padding: 0px;border: 0px; border-radius: 5px;"><i class="fa fa-question-circle" style="padding: 0px;"></i>
+                            <button type="button" data-bs-toggle="popover" data-bs-placement="right" data-arrowcolor="#eeeeee" data-bordercolor="#bbbbbb" data-title-backcolor="#cccccc" data-title-bordercolor="#bbbbbb" data-title-textcolor="#444444" data-content-backcolor="#eeeeee" data-content-textcolor="#888888" title="@{{Lasttitle}}" data-bs-content="@{{Lastcontent}}" style="padding: 0px;border: 0px; border-radius: 5px;"><i class="fa-solid fa-circle-question" style="padding: 0px;"></i>
                             </button>
                         </td>
                     </tr>
@@ -96,10 +96,10 @@ active
                                 : red;font-size:12px;">*</span></label>
                         </td>
                         <td>
-                            {!! Form::email('email',null,['style' =>'margin-left:250px', 'required' => true]) !!}
+                            {!! html()->email('email', null)->required()->attributes(['style' => 'margin-left:250px']) !!}
                         </td>
                         <td>
-                            <button type="button" data-toggle="popover" data-placement="right" data-arrowcolor="#eeeeee" data-bordercolor="#bbbbbb" data-title-backcolor="#cccccc" data-title-bordercolor="#bbbbbb" data-title-textcolor="#444444" data-content-backcolor="#eeeeee" data-content-textcolor="#888888" title="@{{Emailtitle}}" data-content="@{{Emailcontent}}" style="padding: 0px;border: 0px; border-radius: 5px;"><i class="fa fa-question-circle" style="padding: 0px;"></i>
+                            <button type="button" data-bs-toggle="popover" data-bs-placement="right" data-arrowcolor="#eeeeee" data-bordercolor="#bbbbbb" data-title-backcolor="#cccccc" data-title-bordercolor="#bbbbbb" data-title-textcolor="#444444" data-content-backcolor="#eeeeee" data-content-textcolor="#888888" title="@{{Emailtitle}}" data-bs-content="@{{Emailcontent}}" style="padding: 0px;border: 0px; border-radius: 5px;"><i class="fa-solid fa-circle-question" style="padding: 0px;"></i>
                             </button>
                         </td>
                     </tr>
@@ -117,10 +117,10 @@ active
                             </label>
                         </td>
                         <td>
-                            {!! Form::text('username',null,['style' =>'margin-left:195px', 'required' => true]) !!}
+                            {!! html()->text('username', null)->required()->attributes(['style' => 'margin-left:195px']) !!}
                         </td>
                         <td>
-                            <button type="button" data-toggle="popover" data-placement="right" data-arrowcolor="#eeeeee" data-bordercolor="#bbbbbb" data-title-backcolor="#cccccc" data-title-bordercolor="#bbbbbb" data-title-textcolor="#444444" data-content-backcolor="#eeeeee" data-content-textcolor="#888888" title="@{{UserNametitle}}" data-content="@{{UserNamecontent}}" style="padding: 0px;border: 0px; border-radius: 5px;"><i class="fa fa-question-circle" style="padding: 0px;"></i>
+                            <button type="button" data-bs-toggle="popover" data-bs-placement="right" data-arrowcolor="#eeeeee" data-bordercolor="#bbbbbb" data-title-backcolor="#cccccc" data-title-bordercolor="#bbbbbb" data-title-textcolor="#444444" data-content-backcolor="#eeeeee" data-content-textcolor="#888888" title="@{{UserNametitle}}" data-bs-content="@{{UserNamecontent}}" style="padding: 0px;border: 0px; border-radius: 5px;"><i class="fa-solid fa-circle-question" style="padding: 0px;"></i>
                             </button>
                         </td>
                     </tr>
@@ -134,7 +134,7 @@ active
                             <input type="password" name="password" style="margin-left: 195px" required="true">
                         </td>
                         <td>
-                            <button type="button" data-toggle="popover" data-placement="right" data-arrowcolor="#eeeeee" data-bordercolor="#bbbbbb" data-title-backcolor="#cccccc" data-title-bordercolor="#bbbbbb" data-title-textcolor="#444444" data-content-backcolor="#eeeeee" data-content-textcolor="#888888" title="@{{Passtitle}}" data-content="@{{Passcontent}}" style="padding: 0px;border: 0px; border-radius: 5px;"><i class="fa fa-question-circle" style="padding: 0px;"></i>
+                            <button type="button" data-bs-toggle="popover" data-bs-placement="right" data-arrowcolor="#eeeeee" data-bordercolor="#bbbbbb" data-title-backcolor="#cccccc" data-title-bordercolor="#bbbbbb" data-title-textcolor="#444444" data-content-backcolor="#eeeeee" data-content-textcolor="#888888" title="@{{Passtitle}}" data-bs-content="@{{Passcontent}}" style="padding: 0px;border: 0px; border-radius: 5px;"><i class="fa-solid fa-circle-question" style="padding: 0px;"></i>
                             </button>
                         </td>
                     </tr>
@@ -148,7 +148,7 @@ active
                             <input type="password" name="confirmpassword" style="margin-left: 195px" required="true">
                         </td>
                         <td>
-                            <button type="button" data-toggle="popover" data-placement="right" data-arrowcolor="#eeeeee" data-bordercolor="#bbbbbb" data-title-backcolor="#cccccc" data-title-bordercolor="#bbbbbb" data-title-textcolor="#444444" data-content-backcolor="#eeeeee" data-content-textcolor="#888888" title="@{{Confirmtitle}}" data-content="@{{Confirmcontent}}" style="padding: 0px;border: 0px; border-radius: 5px;"><i class="fa fa-question-circle" style="padding: 0px;"></i>
+                            <button type="button" data-bs-toggle="popover" data-bs-placement="right" data-arrowcolor="#eeeeee" data-bordercolor="#bbbbbb" data-title-backcolor="#cccccc" data-title-bordercolor="#bbbbbb" data-title-textcolor="#444444" data-content-backcolor="#eeeeee" data-content-textcolor="#888888" title="@{{Confirmtitle}}" data-bs-content="@{{Confirmcontent}}" style="padding: 0px;border: 0px; border-radius: 5px;"><i class="fa-solid fa-circle-question" style="padding: 0px;"></i>
                             </button>
                         </td>
                     </tr>
@@ -159,7 +159,7 @@ active
                 <div>
                     <tr>
                         <td>
-                            {!! Form::label('date',Lang::get('lang.date_time')) !!}
+                            {!! html()->label(Lang::get('lang.date_time'), 'date') !!}
                         </td>
                         <td>
                             <div class="side-by-side clearfix moveleft">
@@ -173,13 +173,13 @@ active
                             </div>
                         </td>
                         <td>
-                            <button type="button" data-toggle="popover" data-placement="right" data-arrowcolor="#eeeeee" data-bordercolor="#bbbbbb" data-title-backcolor="#cccccc" data-title-bordercolor="#bbbbbb" data-title-textcolor="#444444" data-content-backcolor="#eeeeee" data-content-textcolor="#888888" title="@{{Datetimetitle}}" data-content="@{{Datetimecontent}}" style="padding: 0px;border: 0px; border-radius: 5px;"><i class="fa fa-question-circle" style="padding: 0px;"></i>
+                            <button type="button" data-bs-toggle="popover" data-bs-placement="right" data-arrowcolor="#eeeeee" data-bordercolor="#bbbbbb" data-title-backcolor="#cccccc" data-title-bordercolor="#bbbbbb" data-title-textcolor="#444444" data-content-backcolor="#eeeeee" data-content-textcolor="#888888" title="@{{Datetimetitle}}" data-bs-content="@{{Datetimecontent}}" style="padding: 0px;border: 0px; border-radius: 5px;"><i class="fa-solid fa-circle-question" style="padding: 0px;"></i>
                             </button>
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            {!! Form::label('time_zone',Lang::get('lang.time_zone')) !!}
+                            {!! html()->label(Lang::get('lang.time_zone'), 'time_zone') !!}
                         </td>
                         <?php  
 
@@ -201,18 +201,18 @@ active
                             <div class="side-by-side clearfix moveleft">
                                 <div>
 
-                     {!! Form::select('timezone', [Lang::get('lang.choose')=>$timezones],null,['class' => 'selectpicker chosen-select','required','data-live-search'=>'true','data-live-search-placeholder'=>'Search','style'=>'width:295px;']) !!}
+                     {!! html()->select('timezone', [Lang::get('lang.choose')=>$timezones], null)->class('selectpicker chosen-select')->required()->attribute('data-live-search', 'true')->attribute('data-live-search-placeholder', 'Search')->attributes(['style' => 'width:295px;']) !!}
                                </div>
                             </div>                
                         </td>
                         <td>
-                            <button type="button" data-toggle="popover" data-placement="right" data-arrowcolor="#eeeeee" data-bordercolor="#bbbbbb" data-title-backcolor="#cccccc" data-title-bordercolor="#bbbbbb" data-title-textcolor="#444444" data-content-backcolor="#eeeeee" data-content-textcolor="#888888" title="@{{Timezonetitle}}" data-content="@{{Timezonecontent}}" style="padding: 0px;border: 0px; border-radius: 5px;"><i class="fa fa-question-circle" style="padding: 0px;"></i>
+                            <button type="button" data-bs-toggle="popover" data-bs-placement="right" data-arrowcolor="#eeeeee" data-bordercolor="#bbbbbb" data-title-backcolor="#cccccc" data-title-bordercolor="#bbbbbb" data-title-textcolor="#444444" data-content-backcolor="#eeeeee" data-content-textcolor="#888888" title="@{{Timezonetitle}}" data-bs-content="@{{Timezonecontent}}" style="padding: 0px;border: 0px; border-radius: 5px;"><i class="fa-solid fa-circle-question" style="padding: 0px;"></i>
                             </button>
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            {!! Form::label('language',Lang::get('lang.language')) !!}
+                            {!! html()->label(Lang::get('lang.language'), 'language') !!}
                         </td>
                         <td>
                             <div class="side-by-side clearfix moveleft">
@@ -224,13 +224,12 @@ active
                             foreach($values as $value) {
                                 $show[$value] = Config::get('languages.' . $value)[0]."&nbsp;(".Config::get('languages.' . $value)[1].")";
                             }
-                            ?>  
-                                {!! Form::select('language', $show, 'en', ["class"=> "chosen-select", "style"=>"width:295px;", "tabindex"=>"2"]); !!}
-                                
+                            ?>
+                                {!! html()->select('language', $show, 'en')->attributes(["class"=> "chosen-select", "style"=>"width:295px;", "tabindex"=>"2"]) !!}
                            </div>
                         </td>
                         <td>
-                            <button type="button" data-toggle="popover" data-placement="right" data-arrowcolor="#eeeeee" data-bordercolor="#bbbbbb" data-title-backcolor="#cccccc" data-title-bordercolor="#bbbbbb" data-title-textcolor="#444444" data-content-backcolor="#eeeeee" data-content-textcolor="#888888" title="@{{Languagetitle}}" data-content="@{{Languagecontent}}" style="padding: 0px;border: 0px; border-radius: 5px;"><i class="fa fa-question-circle" style="padding: 0px;"></i>
+                            <button type="button" data-bs-toggle="popover" data-bs-placement="right" data-arrowcolor="#eeeeee" data-bordercolor="#bbbbbb" data-title-backcolor="#cccccc" data-title-bordercolor="#bbbbbb" data-title-textcolor="#444444" data-content-backcolor="#eeeeee" data-content-textcolor="#888888" title="@{{Languagetitle}}" data-bs-content="@{{Languagecontent}}" style="padding: 0px;border: 0px; border-radius: 5px;"><i class="fa-solid fa-circle-question" style="padding: 0px;"></i>
                             </button>
                         </td>
                     </tr>

@@ -1,102 +1,152 @@
 <?php
+
 /**
- * Mockery
+ * Mockery (https://docs.mockery.io/)
  *
- * LICENSE
- *
- * This source file is subject to the new BSD license that is bundled
- * with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://github.com/padraic/mockery/blob/master/LICENSE
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to padraic@php.net so we can send you a copy immediately.
- *
- * @category   Mockery
- * @package    Mockery
- * @copyright  Copyright (c) 2010 Pádraic Brady (http://blog.astrumfutura.com)
- * @license    http://github.com/padraic/mockery/blob/master/LICENSE New BSD License
+ * @copyright https://github.com/mockery/mockery/blob/HEAD/COPYRIGHT.md
+ * @license https://github.com/mockery/mockery/blob/HEAD/LICENSE BSD 3-Clause License
+ * @link https://github.com/mockery/mockery for the canonical source repository
  */
 
 namespace Mockery\Exception;
 
-use Mockery;
-use Mockery\Exception\RuntimeException;
+use Mockery\CountValidator\Exception;
+use Mockery\LegacyMockInterface;
 
-class InvalidCountException extends Mockery\CountValidator\Exception
+use function in_array;
+
+class InvalidCountException extends Exception
 {
-    protected $method = null;
-
-    protected $expected = 0;
-
-    protected $expectedComparative = '<=';
-
+    /**
+     * @var int|null
+     */
     protected $actual = null;
 
+    /**
+     * @var int
+     */
+    protected $expected = 0;
+
+    /**
+     * @var string
+     */
+    protected $expectedComparative = '<=';
+
+    /**
+     * @var string|null
+     */
+    protected $method = null;
+
+    /**
+     * @var LegacyMockInterface|null
+     */
     protected $mockObject = null;
 
-    public function setMock(Mockery\LegacyMockInterface $mock)
+    /**
+     * @return int|null
+     */
+    public function getActualCount()
     {
-        $this->mockObject = $mock;
-        return $this;
+        return $this->actual;
     }
 
-    public function setMethodName($name)
+    /**
+     * @return int
+     */
+    public function getExpectedCount()
     {
-        $this->method = $name;
-        return $this;
+        return $this->expected;
     }
 
+    /**
+     * @return string
+     */
+    public function getExpectedCountComparative()
+    {
+        return $this->expectedComparative;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getMethodName()
+    {
+        return $this->method;
+    }
+
+    /**
+     * @return LegacyMockInterface|null
+     */
+    public function getMock()
+    {
+        return $this->mockObject;
+    }
+
+    /**
+     * @throws RuntimeException
+     * @return string|null
+     */
+    public function getMockName()
+    {
+        $mock = $this->getMock();
+
+        if ($mock === null) {
+            return '';
+        }
+
+        return $mock->mockery_getName();
+    }
+
+    /**
+     * @param  int  $count
+     * @return self
+     */
     public function setActualCount($count)
     {
         $this->actual = $count;
         return $this;
     }
 
+    /**
+     * @param  int  $count
+     * @return self
+     */
     public function setExpectedCount($count)
     {
         $this->expected = $count;
         return $this;
     }
 
+    /**
+     * @param  string $comp
+     * @return self
+     */
     public function setExpectedCountComparative($comp)
     {
-        if (!in_array($comp, array('=', '>', '<', '>=', '<='))) {
-            throw new RuntimeException(
-                'Illegal comparative for expected call counts set: ' . $comp
-            );
+        if (! in_array($comp, ['=', '>', '<', '>=', '<='], true)) {
+            throw new RuntimeException('Illegal comparative for expected call counts set: ' . $comp);
         }
+
         $this->expectedComparative = $comp;
         return $this;
     }
 
-    public function getMock()
+    /**
+     * @param  string $name
+     * @return self
+     */
+    public function setMethodName($name)
     {
-        return $this->mockObject;
+        $this->method = $name;
+        return $this;
     }
 
-    public function getMethodName()
+    /**
+     * @return self
+     */
+    public function setMock(LegacyMockInterface $mock)
     {
-        return $this->method;
-    }
-
-    public function getActualCount()
-    {
-        return $this->actual;
-    }
-
-    public function getExpectedCount()
-    {
-        return $this->expected;
-    }
-
-    public function getMockName()
-    {
-        return $this->getMock()->mockery_getName();
-    }
-
-    public function getExpectedCountComparative()
-    {
-        return $this->expectedComparative;
+        $this->mockObject = $mock;
+        return $this;
     }
 }

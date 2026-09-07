@@ -3,8 +3,9 @@
 namespace Illuminate\Auth\Access;
 
 use Illuminate\Contracts\Support\Arrayable;
+use Stringable;
 
-class Response implements Arrayable
+class Response implements Arrayable, Stringable
 {
     /**
      * Indicates whether the response was allowed.
@@ -38,9 +39,8 @@ class Response implements Arrayable
      * Create a new response.
      *
      * @param  bool  $allowed
-     * @param  string  $message
+     * @param  string|null  $message
      * @param  mixed  $code
-     * @return void
      */
     public function __construct($allowed, $message = '', $code = null)
     {

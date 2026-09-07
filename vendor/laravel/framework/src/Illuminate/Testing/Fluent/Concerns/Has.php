@@ -15,7 +15,7 @@ trait Has
      * @param  int|null  $length
      * @return $this
      */
-    public function count($key, int $length = null): self
+    public function count($key, ?int $length = null): static
     {
         if (is_null($length)) {
             $path = $this->dotPath();
@@ -41,6 +41,38 @@ trait Has
     }
 
     /**
+     * Assert that the prop size is between a given minimum and maximum.
+     *
+     * @param  int|string  $min
+     * @param  int|string  $max
+     * @return $this
+     */
+    public function countBetween(int|string $min, int|string $max): static
+    {
+        $path = $this->dotPath();
+
+        $prop = $this->prop();
+
+        PHPUnit::assertGreaterThanOrEqual(
+            $min,
+            count($prop),
+            $path
+                ? sprintf('Property [%s] size is not greater than or equal to [%s].', $path, $min)
+                : sprintf('Root level size is not greater than or equal to [%s].', $min)
+        );
+
+        PHPUnit::assertLessThanOrEqual(
+            $max,
+            count($prop),
+            $path
+                ? sprintf('Property [%s] size is not less than or equal to [%s].', $path, $max)
+                : sprintf('Root level size is not less than or equal to [%s].', $max)
+        );
+
+        return $this;
+    }
+
+    /**
      * Ensure that the given prop exists.
      *
      * @param  string|int  $key
@@ -48,7 +80,7 @@ trait Has
      * @param  \Closure|null  $callback
      * @return $this
      */
-    public function has($key, $length = null, Closure $callback = null): self
+    public function has($key, $length = null, ?Closure $callback = null): static
     {
         $prop = $this->prop();
 
@@ -93,7 +125,7 @@ trait Has
      * @param  array|string  $key
      * @return $this
      */
-    public function hasAll($key): self
+    public function hasAll($key): static
     {
         $keys = is_array($key) ? $key : func_get_args();
 
@@ -114,7 +146,7 @@ trait Has
      * @param  array|string  $key
      * @return $this
      */
-    public function hasAny($key): self
+    public function hasAny($key): static
     {
         $keys = is_array($key) ? $key : func_get_args();
 
@@ -136,7 +168,7 @@ trait Has
      * @param  array|string  $key
      * @return $this
      */
-    public function missingAll($key): self
+    public function missingAll($key): static
     {
         $keys = is_array($key) ? $key : func_get_args();
 
@@ -153,7 +185,7 @@ trait Has
      * @param  string  $key
      * @return $this
      */
-    public function missing(string $key): self
+    public function missing(string $key): static
     {
         PHPUnit::assertNotTrue(
             Arr::has($this->prop(), $key),
@@ -185,7 +217,7 @@ trait Has
      * @param  string|null  $key
      * @return mixed
      */
-    abstract protected function prop(string $key = null);
+    abstract protected function prop(?string $key = null);
 
     /**
      * Instantiate a new "scope" at the path of the given key.

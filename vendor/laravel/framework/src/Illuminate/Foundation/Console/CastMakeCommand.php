@@ -17,17 +17,6 @@ class CastMakeCommand extends GeneratorCommand
     protected $name = 'make:cast';
 
     /**
-     * The name of the console command.
-     *
-     * This name is used to identify the command during lazy loading.
-     *
-     * @var string|null
-     *
-     * @deprecated
-     */
-    protected static $defaultName = 'make:cast';
-
-    /**
      * The console command description.
      *
      * @var string
@@ -49,8 +38,8 @@ class CastMakeCommand extends GeneratorCommand
     protected function getStub()
     {
         return $this->option('inbound')
-                    ? $this->resolveStubPath('/stubs/cast.inbound.stub')
-                    : $this->resolveStubPath('/stubs/cast.stub');
+            ? $this->resolveStubPath('/stubs/cast.inbound.stub')
+            : $this->resolveStubPath('/stubs/cast.stub');
     }
 
     /**

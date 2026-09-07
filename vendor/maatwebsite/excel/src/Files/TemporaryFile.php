@@ -2,6 +2,7 @@
 
 namespace Maatwebsite\Excel\Files;
 
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 abstract class TemporaryFile
@@ -49,14 +50,26 @@ abstract class TemporaryFile
      * @param  string|null  $disk
      * @return TemporaryFile
      */
-    public function copyFrom($filePath, string $disk = null): TemporaryFile
+    public function copyFrom($filePath, ?string $disk = null): TemporaryFile
     {
         if ($filePath instanceof UploadedFile) {
             $readStream = fopen($filePath->getRealPath(), 'rb');
         } elseif ($disk === null && realpath($filePath) !== false) {
             $readStream = fopen($filePath, 'rb');
         } else {
-            $readStream = app('filesystem')->disk($disk)->readStream($filePath);
+            $diskInstance = app('filesystem')->disk($disk);
+
+            if (!$diskInstance->exists($filePath)) {
+                $logPath = '[' . $filePath . ']';
+
+                if ($disk) {
+                    $logPath .= ' (' . $disk . ')';
+                }
+
+                throw new FileNotFoundException('File ' . $logPath . ' does not exist and can therefore not be imported.');
+            }
+
+            $readStream = $diskInstance->readStream($filePath);
         }
 
         $this->put($readStream);

@@ -19,6 +19,7 @@
         <!-- AdminLTE Skins. Choose a skin from the css/skins
              folder instead of downloading all of them to reduce the load. -->
         <link href="{{asset("lb-faveo/dist/css/skins/_all-skins.min.css")}}" rel="stylesheet" type="text/css" />
+        <link href="{{asset("css/common.css")}}" rel="stylesheet" type="text/css" />
         <!-- iCheck -->
         <link href="{{asset("lb-faveo/plugins/iCheck/flat/blue.css")}}" rel="stylesheet" type="text/css" />
         <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -39,7 +40,7 @@
         @yield('HeadInclude')
     </head>
     <body class="skin-blue">
-        <div class="wrapper" id="RefreshAssign">
+        <div class="app-wrapper" id="RefreshAssign">
 
             <header class="main-header">
             <?php $settings = App\Model\kb\Settings::where('id', '=', '1')->first();?>
@@ -51,8 +52,8 @@
                 <!-- Header Navbar: style can be found in header.less -->
                 <nav class="navbar navbar-static-top" role="navigation">
                     <!-- Sidebar toggle button-->
-                    <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
-                        <span class="sr-only">Toggle navigation</span>
+                    <a href="#" class="sidebar-toggle" data-bs-toggle="offcanvas" role="button">
+                        <span class="visually-hidden">Toggle navigation</span>
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
@@ -65,7 +66,7 @@
                         <ul class="nav navbar-nav navbar-right">
 
                             <li class="dropdown user user-menu">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
                                 @if(Auth::user())
                                     @if(Auth::user()->profile_pic)
                                         <img src="{{asset('lb-faveo/dist/img')}}{{'/'}}{{Auth::user()->profile_pic}}" class="user-image" alt="User Image"/>
@@ -93,10 +94,10 @@
                                     <!-- Menu Footer-->
                                     <li class="user-footer">
                                         <div class="pull-left">
-                                            <a href="{{url('profile')}}" class="btn btn-default btn-flat">{{Lang::get('lang.profile')}}</a>
+                                            <a href="{{url('profile')}}" class="btn btn-secondary ">{{Lang::get('lang.profile')}}</a>
                                         </div>
                                         <div class="pull-right">
-                                            <a href="{{ url('/auth/logout') }}" class="btn btn-default btn-flat">{{Lang::get('lang.signout')}}</a>
+                                            <a href="{{ url('/auth/logout') }}" class="btn btn-secondary ">{{Lang::get('lang.signout')}}</a>
                                         </div>
                                     </li>
                                 </ul>
@@ -105,7 +106,7 @@
 
 
                         <!-- <form class="navbar-form navbar-left" role="search">
-                          <div class="form-group">
+                          <div class="mb-3">
                             <input type="text" class="form-control" id="navbar-search-input" placeholder="Search">
                           </div>
                         </form> -->
@@ -114,7 +115,7 @@
                 </nav>
             </header>
             <!-- Left side column. contains the logo and sidebar -->
-            <aside class="main-sidebar">
+            <aside class="app-sidebar">
                 <!-- sidebar: style can be found in sidebar.less -->
                 <section class="sidebar">
                     <!-- Sidebar user panel -->
@@ -137,67 +138,67 @@
                                                 <p>{!! Auth::user()->firstname !!}{!! " ". Auth::user()->lastname !!}</p>
                                             @endif
                                             @if(Auth::user() && Auth::user()->active==1)
-                                                <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
+                                                <a href="#"><i class="fa-solid fa-circle text-success"></i> Online</a>
                                             @else
-                                                <a href="#"><i class="fa fa-circle"></i> Offline</a>
+                                                <a href="#"><i class="fa-solid fa-circle"></i> Offline</a>
                                             @endif
                             </div>
                         </div>
                         <li class="treeview @yield('category')">
                             <a href="#">
-                                <i class="fa fa-list-ul"></i> <span>{{Lang::get('lang.category')}}</span>
-                                <i class="fa fa-angle-left pull-right"></i>
+                                <i class="fa-solid fa-list-ul"></i> <span>{{Lang::get('lang.category')}}</span>
+                                <i class="fa-solid fa-angle-left pull-right"></i>
                             </a>
                                     <ul class="treeview-menu">
-                                        <li @yield('add-category')><a href="{{url('category/create')}}"><i class="fa fa-circle-o"></i> {{Lang::get('lang.addcategory')}}</a></li>
-                                         <li @yield('all-category')><a href="{{url('category')}}"><i class="fa fa-circle-o"></i> {{Lang::get('lang.allcategory')}}</a></li>
+                                        <li @yield('add-category')><a href="{{url('category/create')}}"><i class="fa-solid fa-circle-o"></i> {{Lang::get('lang.addcategory')}}</a></li>
+                                         <li @yield('all-category')><a href="{{url('category')}}"><i class="fa-solid fa-circle-o"></i> {{Lang::get('lang.allcategory')}}</a></li>
                                      </ul>
                         </li>
                         <li class="treeview @yield('article')">
                             <a href="#">
-                                <i class="fa fa-edit"></i> <span>{{Lang::get('lang.article')}}</span>
-                                <i class="fa fa-angle-left pull-right"></i>
+                                <i class="fa-solid fa-pen-to-square"></i> <span>{{Lang::get('lang.article')}}</span>
+                                <i class="fa-solid fa-angle-left pull-right"></i>
                             </a>
                                     <ul class="treeview-menu">
-                                        <li @yield('add-article')><a href="{{url('article/create')}}"><i class="fa fa-circle-o"></i> {{Lang::get('lang.addarticle')}}</a></li>
-                                         <li @yield('all-article')><a href="{{url('article')}}"><i class="fa fa-circle-o"></i> {{Lang::get('lang.allarticle')}}</a></li>
+                                        <li @yield('add-article')><a href="{{url('article/create')}}"><i class="fa-solid fa-circle-o"></i> {{Lang::get('lang.addarticle')}}</a></li>
+                                         <li @yield('all-article')><a href="{{url('article')}}"><i class="fa-solid fa-circle-o"></i> {{Lang::get('lang.allarticle')}}</a></li>
                                      </ul>
                         </li>
 
                         <li class="treeview @yield('pages')">
                             <a href="#">
-                                <i class="fa fa-file-text"></i> <span>{{Lang::get('lang.pages')}}</span>
-                                <i class="fa fa-angle-left pull-right"></i>
+                                <i class="fa-solid fa-file-text"></i> <span>{{Lang::get('lang.pages')}}</span>
+                                <i class="fa-solid fa-angle-left pull-right"></i>
                             </a>
                                     <ul class="treeview-menu">
-                                        <li @yield('add-pages')><a href="{{url('page/create')}}"><i class="fa fa-circle-o"></i> {{Lang::get('lang.addpages')}}</a></li>
-                                         <li @yield('all-pages')><a href="{{url('page')}}"><i class="fa fa-circle-o"></i> {{Lang::get('lang.allpages')}}</a></li>
+                                        <li @yield('add-pages')><a href="{{url('page/create')}}"><i class="fa-solid fa-circle-o"></i> {{Lang::get('lang.addpages')}}</a></li>
+                                         <li @yield('all-pages')><a href="{{url('page')}}"><i class="fa-solid fa-circle-o"></i> {{Lang::get('lang.allpages')}}</a></li>
                                      </ul>
                         </li>
                         <li class="treeview @yield('widget')">
                             <a href="#">
                                 <i class="fa  fa-th"></i> <span>{{Lang::get('lang.widgets')}}</span>
-                                <i class="fa fa-angle-left pull-right"></i>
+                                <i class="fa-solid fa-angle-left pull-right"></i>
                             </a>
                                     <ul class="treeview-menu">
-                                        <li @yield('footer1')><a href="{{url('create-footer')}}"><i class="fa fa-circle-o"></i> {{Lang::get('lang.footer1')}}</a></li>
-                                        <li @yield('footer2')><a href="{{url('create-footer2')}}"><i class="fa fa-circle-o"></i> {{Lang::get('lang.footer2')}}</a></li>
-                                        <li @yield('footer3')><a href="{{url('create-footer3')}}"><i class="fa fa-circle-o"></i> {{Lang::get('lang.footer3')}}</a></li>
-                                        <li @yield('footer4')><a href="{{url('create-footer4')}}"><i class="fa fa-circle-o"></i> {{Lang::get('lang.footer4')}}</a></li>
-                                        <li @yield('side1')><a href="{{url('side1')}}"><i class="fa fa-circle-o"></i> {{Lang::get('lang.sidewidget1')}}</a></li>
-                                        <li @yield('side2')><a href="{{url('side2')}}"><i class="fa fa-circle-o"></i> {{Lang::get('lang.sidewidget2')}}</a></li>
-                                        <li @yield('social')><a href="{{url('social')}}"><i class="fa fa-circle-o"></i> Social</a></li>
+                                        <li @yield('footer1')><a href="{{url('create-footer')}}"><i class="fa-solid fa-circle-o"></i> {{Lang::get('lang.footer1')}}</a></li>
+                                        <li @yield('footer2')><a href="{{url('create-footer2')}}"><i class="fa-solid fa-circle-o"></i> {{Lang::get('lang.footer2')}}</a></li>
+                                        <li @yield('footer3')><a href="{{url('create-footer3')}}"><i class="fa-solid fa-circle-o"></i> {{Lang::get('lang.footer3')}}</a></li>
+                                        <li @yield('footer4')><a href="{{url('create-footer4')}}"><i class="fa-solid fa-circle-o"></i> {{Lang::get('lang.footer4')}}</a></li>
+                                        <li @yield('side1')><a href="{{url('side1')}}"><i class="fa-solid fa-circle-o"></i> {{Lang::get('lang.sidewidget1')}}</a></li>
+                                        <li @yield('side2')><a href="{{url('side2')}}"><i class="fa-solid fa-circle-o"></i> {{Lang::get('lang.sidewidget2')}}</a></li>
+                                        <li @yield('social')><a href="{{url('social')}}"><i class="fa-solid fa-circle-o"></i> Social</a></li>
                                      </ul>
                         </li>
                          <li @yield('comment')>
                             <a href="{{url('comment')}}">
-                                <i class="fa fa-comments-o"></i>
+                                <i class="fa-solid fa-comments-o"></i>
                                 <span>{{Lang::get('lang.comments')}}</span>
                             </a>
                         </li>
                          <li @yield('settings')>
                             <a href="{{url('settings')}}">
-                                 <i class="fa fa-wrench"></i>
+                                 <i class="fa-solid fa-wrench"></i>
                                 <span>{{Lang::get('lang.settings')}}</span>
                             </a>
                         </li>
@@ -210,7 +211,7 @@
             </aside>
 
             <!-- Right side column. Contains the navbar and content of the page -->
-            <div class="content-wrapper">
+            <div class="app-main">
                 <!-- Content Header (Page header) -->
                 <div class="tab-content" style="background-color: white; border-top:1px solid #F0F0F0;">
                     <div class="collapse navbar-collapse" id="navbar-collapse">
@@ -219,19 +220,19 @@
                         </div>
                     </div>
                 </div>
-                <section class="content-header">
+                <section class="app-content-header">
                     @yield('PageHeader')
                     @yield('breadcrumbs')
                 </section>
 
                 <!-- Main content -->
-                <section class="content">
+                <section class="app-content">
 
                     @yield('content')
                 </section><!-- /.content -->
                 <!-- /.content-wrapper -->
             </div>
-            <footer class="main-footer">
+            <footer class="app-footer">
                 <div class="pull-right hidden-xs">
                     <b>{!! Lang::get('lang.version') !!}</b> {{$settings->version}}
                 </div>

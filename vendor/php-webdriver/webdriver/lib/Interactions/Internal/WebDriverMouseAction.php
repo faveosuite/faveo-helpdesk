@@ -19,11 +19,7 @@ class WebDriverMouseAction
      */
     protected $locationProvider;
 
-    /**
-     * @param WebDriverMouse $mouse
-     * @param WebDriverLocatable|null $location_provider
-     */
-    public function __construct(WebDriverMouse $mouse, WebDriverLocatable $location_provider = null)
+    public function __construct(WebDriverMouse $mouse, ?WebDriverLocatable $location_provider = null)
     {
         $this->mouse = $mouse;
         $this->locationProvider = $location_provider;

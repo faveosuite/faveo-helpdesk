@@ -18,19 +18,19 @@ class SqlSearch extends Search
 	protected $pdo;
 
 	// Create a new instance, takes search parameters
-	public function __construct($search = [], PDO $pdo = null)
+	public function __construct($search = [], ?PDO $pdo = null)
 	{
 		parent::__construct($search);
 
 		$this->pdo = $pdo;
 
-		list($this->conditions, $this->bindings) = $this->resolveConditions();
+		[ $this->conditions, $this->bindings ] = $this->resolveConditions();
 
 		$this->buildQuery();
 	}
 
 	// Creates a new instance from a base Search class instance
-	public static function fromBase(Search $search = null, PDO $pdo = null)
+	public static function fromBase(?Search $search = null, ?PDO $pdo = null)
 	{
 		return new static((array) $search, $pdo);
 	}
@@ -54,7 +54,7 @@ class SqlSearch extends Search
 			$this->resolveStringCondition([ 'type' ], $this->type),
 			$this->resolveStringCondition([ 'uri', 'commandName', 'jobName', 'testName' ], array_merge($this->uri, $this->name)),
 			$this->resolveStringCondition([ 'controller' ], $this->controller),
-			$this->resolveExactCondition([ 'method' ], $this->method),
+			$this->resolveExactCondition('method', $this->method),
 			$this->resolveNumberCondition([ 'responseStatus', 'commandExitCode', 'jobStatus', 'testStatus' ], $this->status),
 			$this->resolveNumberCondition([ 'responseDuration' ], $this->time),
 			$this->resolveDateCondition([ 'time' ], $this->received)
@@ -90,17 +90,15 @@ class SqlSearch extends Search
 	}
 
 	// Resolve an exact type condition and bindings
-	protected function resolveExactCondition($fields, $inputs)
+	protected function resolveExactCondition($field, $inputs)
 	{
 		if (! count($inputs)) return null;
 
 		$bindings = [];
-		$values = implode(' OR ', array_map(function ($field) use ($inputs, &$bindings) {
-			return implode(', ', array_map(function ($input, $index) use ($field, &$bindings) {
-				$bindings["{$field}{$index}"] = $input;
-				return ":{$field}{$index}";
-			}, $inputs, array_keys($inputs)));
-		}, $fields));
+		$values = implode(', ', array_map(function ($input, $index) use ($field, &$bindings) {
+			$bindings["{$field}{$index}"] = $input;
+			return ":{$field}{$index}";
+		}, $inputs, array_keys($inputs)));
 
 		return [ $this->quote($field) . " IN ({$values})", $bindings ];
 	}

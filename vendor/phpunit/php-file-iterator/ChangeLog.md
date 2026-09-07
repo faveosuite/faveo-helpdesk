@@ -2,6 +2,68 @@
 
 All notable changes to this project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [6.0.1] - 2026-02-02
+
+### Fixed
+
+* [#84](https://github.com/sebastianbergmann/php-file-iterator/issues/84): `Factory` drops directories during wildcard resolution
+
+## [6.0.0] - 2025-02-07
+
+### Removed
+
+* This component is no longer supported on PHP 8.2
+
+## [5.1.1] - 2026-02-02
+
+### Fixed
+
+* [#84](https://github.com/sebastianbergmann/php-file-iterator/issues/84): `Factory` drops directories during wildcard resolution
+
+## [5.1.0] - 2024-08-27
+
+### Added
+
+* [#83](https://github.com/sebastianbergmann/php-file-iterator/pull/83): Support for "Globstar" pattern
+
+## [5.0.1] - 2024-07-03
+
+### Changed
+
+* This project now uses PHPStan instead of Psalm for static analysis
+
+## [5.0.0] - 2024-02-02
+
+### Removed
+
+* This component is no longer supported on PHP 8.1
+
+## [4.1.0] - 2023-08-31
+
+### Added
+
+* [#81](https://github.com/sebastianbergmann/php-file-iterator/issues/81): Accept `array|string $paths` in `Facade::getFilesAsArray()`
+
+## [4.0.2] - 2023-05-07
+
+### Fixed
+
+* [#80](https://github.com/sebastianbergmann/php-file-iterator/pull/80): Ignore unresolvable symbolic link
+
+## [4.0.1] - 2023-02-10
+
+### Fixed
+
+* [#67](https://github.com/sebastianbergmann/php-file-iterator/issues/61): Excluded directories are traversed unnecessarily
+
+## [4.0.0] - 2023-02-03
+
+### Removed
+
+* The optional `$commonPath` parameter of `SebastianBergmann\FileIterator\Facade` as well as the functionality it controlled has been removed
+* The `SebastianBergmann\FileIterator\Factory` and `SebastianBergmann\FileIterator\Iterator` classes are now marked `@internal`
+* This component is no longer supported on PHP 7.3, PHP 7.4 and PHP 8.0
+
 ## [3.0.6] - 2021-12-02
 
 ### Changed
@@ -124,6 +186,16 @@ No changes
 
 * [#23](https://github.com/sebastianbergmann/php-file-iterator/pull/23): Added support for wildcards (glob) in exclude
 
+[6.0.1]: https://github.com/sebastianbergmann/php-file-iterator/compare/6.0.0...6.0.1
+[6.0.0]: https://github.com/sebastianbergmann/php-file-iterator/compare/5.1...6.0.0
+[5.1.1]: https://github.com/sebastianbergmann/php-file-iterator/compare/5.1.0...5.1.1
+[5.1.0]: https://github.com/sebastianbergmann/php-file-iterator/compare/5.0.1...5.1.0
+[5.0.1]: https://github.com/sebastianbergmann/php-file-iterator/compare/5.0.0...5.0.1
+[5.0.0]: https://github.com/sebastianbergmann/php-file-iterator/compare/4.1...5.0.0
+[4.1.0]: https://github.com/sebastianbergmann/php-file-iterator/compare/4.0.2...4.1.0
+[4.0.2]: https://github.com/sebastianbergmann/php-file-iterator/compare/4.0.1...4.0.2
+[4.0.1]: https://github.com/sebastianbergmann/php-file-iterator/compare/4.0.0...4.0.1
+[4.0.0]: https://github.com/sebastianbergmann/php-file-iterator/compare/3.0.6...4.0.0
 [3.0.6]: https://github.com/sebastianbergmann/php-file-iterator/compare/3.0.5...3.0.6
 [3.0.5]: https://github.com/sebastianbergmann/php-file-iterator/compare/3.0.4...3.0.5
 [3.0.4]: https://github.com/sebastianbergmann/php-file-iterator/compare/3.0.3...3.0.4

@@ -50,7 +50,7 @@ trait Interaction
      *
      * @return $this
      */
-    public function etc(): self
+    public function etc(): static
     {
         $this->interacted = array_keys($this->prop());
 
@@ -63,5 +63,5 @@ trait Interaction
      * @param  string|null  $key
      * @return mixed
      */
-    abstract protected function prop(string $key = null);
+    abstract protected function prop(?string $key = null);
 }

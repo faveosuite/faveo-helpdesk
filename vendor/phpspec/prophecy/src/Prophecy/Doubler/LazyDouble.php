@@ -20,21 +20,30 @@ use ReflectionClass;
  * Lazy double.
  * Gives simple interface to describe double before creating it.
  *
+ * @template T of object
+ *
  * @author Konstantin Kudryashov <ever.zet@gmail.com>
  */
 class LazyDouble
 {
     private $doubler;
+    /**
+     * @var ReflectionClass<T>|null
+     */
     private $class;
+    /**
+     * @var list<ReflectionClass<object>>
+     */
     private $interfaces = array();
+    /**
+     * @var array<mixed>|null
+     */
     private $arguments  = null;
+    /**
+     * @var (T&DoubleInterface)|null
+     */
     private $double;
 
-    /**
-     * Initializes lazy double.
-     *
-     * @param Doubler $doubler
-     */
     public function __construct(Doubler $doubler)
     {
         $this->doubler = $doubler;
@@ -43,10 +52,16 @@ class LazyDouble
     /**
      * Tells doubler to use specific class as parent one for double.
      *
-     * @param string|ReflectionClass $class
+     * @param class-string|ReflectionClass<object> $class
      *
-     * @throws \Prophecy\Exception\Doubler\ClassNotFoundException
-     * @throws \Prophecy\Exception\Doubler\DoubleException
+     * @return void
+     *
+     * @template U of object
+     * @phpstan-param class-string<U>|ReflectionClass<U> $class
+     * @phpstan-this-out static<U>
+     *
+     * @throws ClassNotFoundException
+     * @throws DoubleException
      */
     public function setParentClass($class)
     {
@@ -62,16 +77,24 @@ class LazyDouble
             $class = new ReflectionClass($class);
         }
 
+        /** @var static<U> $this */
+
         $this->class = $class;
     }
 
     /**
      * Tells doubler to implement specific interface with double.
      *
-     * @param string|ReflectionClass $interface
+     * @param class-string|ReflectionClass<object> $interface
      *
-     * @throws \Prophecy\Exception\Doubler\InterfaceNotFoundException
-     * @throws \Prophecy\Exception\Doubler\DoubleException
+     * @return void
+     *
+     * @template U of object
+     * @phpstan-param class-string<U>|ReflectionClass<U> $interface
+     * @phpstan-this-out static<T&U>
+     *
+     * @throws InterfaceNotFoundException
+     * @throws DoubleException
      */
     public function addInterface($interface)
     {
@@ -98,9 +121,11 @@ class LazyDouble
     /**
      * Sets constructor arguments.
      *
-     * @param array $arguments
+     * @param array<mixed>|null $arguments
+     *
+     * @return void
      */
-    public function setArguments(array $arguments = null)
+    public function setArguments(?array $arguments = null)
     {
         $this->arguments = $arguments;
     }
@@ -108,7 +133,7 @@ class LazyDouble
     /**
      * Creates double instance or returns already created one.
      *
-     * @return DoubleInterface
+     * @return T&DoubleInterface
      */
     public function getInstance()
     {

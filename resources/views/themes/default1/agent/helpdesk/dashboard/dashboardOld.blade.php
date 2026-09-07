@@ -20,18 +20,18 @@ class="active"
         <!-- check whether success or not -->
         {{-- Success message --}}
         @if(Session::has('success'))
-        <div class="alert alert-success alert-dismissable">
-            <i class="fa  fa-check-circle"></i>
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <div class="alert alert-success alert-dismissible">
+            <i class="fa  fa-circle-check"></i>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
             {{Session::get('success')}}
         </div>
         @endif
         {{-- failure message --}}
         @if(Session::has('fails'))
-        <div class="alert alert-danger alert-dismissable">
-            <i class="fa fa-ban"></i>
+        <div class="alert alert-danger alert-dismissible">
+            <i class="fa-solid fa-ban"></i>
             <b>{!! Lang::get('lang.alert') !!}!</b>
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
             {{Session::get('fails')}}
         </div>
         @endif
@@ -92,8 +92,8 @@ class="active"
  ?>
     <div class="col-md-2" style="width:20%;">
  <a href="{!! route('inbox.ticket') !!}">
-          <div class="info-box">
-             <span class="info-box-icon bg-aqua"><i class="fa fa-envelope-o"></i></span>
+          <div class="info-box shadow-sm">
+             <span class="info-box-icon text-bg-info"><i class="fa-solid fa-envelope-o"></i></span>
 
             <div class="info-box-content">
               <span class="info-box-text">{!! Lang::get('lang.inbox') !!}</span>
@@ -107,8 +107,8 @@ class="active"
         <!-- /.col -->
         <div class="col-md-2" style="width:20%;">
         <a href="{!! route('unassigned') !!}">
-            <div class="info-box">
-                <span class="info-box-icon bg-orange"><i class="fa fa-user-times"></i></span>
+            <div class="info-box shadow-sm">
+                <span class="info-box-icon bg-orange"><i class="fa-solid fa-user-xmark"></i></span>
                 <div class="info-box-content">
                     <span class="info-box-text">{!! Lang::get('lang.unassigned') !!}</span>
                     <span class="info-box-number">{{count($unassigned) }} <small> {!! Lang::get('lang.tickets') !!}</small></span>
@@ -121,8 +121,8 @@ class="active"
 
                <div class="col-md-2" style="width:20%;" >
           <a href="{!! route('overdue.ticket') !!}">
-            <div class="info-box">
-                <span class="info-box-icon bg-red"><i class="fa fa-calendar-times-o"></i></span>
+            <div class="info-box shadow-sm">
+                <span class="info-box-icon text-bg-danger"><i class="fa-solid fa-calendar-times-o"></i></span>
                 <div class="info-box-content">
                     <span class="info-box-text">{!! Lang::get('lang.overdue') !!}</span>
                     <span class="info-box-number">{{ $overdue_ticket }} <small> Tickets</small></span>
@@ -133,8 +133,8 @@ class="active"
 
         <div class="col-md-2" style="width:20%;">
           <a href="{!! route('myticket.ticket') !!}">
-            <div class="info-box">
-                <span class="info-box-icon bg-yellow"><i class="fa fa-user"></i></span>
+            <div class="info-box shadow-sm">
+                <span class="info-box-icon text-bg-warning"><i class="fa-solid fa-user"></i></span>
                 <div class="info-box-content">
                     <span class="info-box-text">{!! Lang::get('lang.my_tickets') !!}</span>
                     <span class="info-box-number">{{count($myticket) }} <small> Tickets</small></span>
@@ -145,8 +145,8 @@ class="active"
         <!-- /.col -->
                <div class="col-md-2" style="width:20%;">
                  <a href="{!! route('ticket.duetoday') !!}">
-            <div class="info-box">
-                <span class="info-box-icon bg-red"><i class="glyphicon glyphicon-eye-open"></i></span>
+            <div class="info-box shadow-sm">
+                <span class="info-box-icon text-bg-danger"><i class="glyphicon glyphicon-eye-open"></i></span>
                 <div class="info-box-content">
                     <span class="info-box-text">{!! Lang::get('lang.duetoday') !!}</span>
                     <span class="info-box-number">{{ $todaytickets }} <small> Tickets</small></span>
@@ -164,11 +164,11 @@ class="active"
     </div>
     <div class="box-body">
         <form id="foo">
-            <div  class="form-group">
+            <div  class="mb-3">
                 <div class="row">
                     <div class='col-sm-2'>
-                        {!! Form::label('date', 'Start Date:',['class' => 'lead']) !!}
-                        {!! Form::text('start_date',null,['class'=>'form-control','id'=>'datepicker4'])!!}
+                        {!! html()->label('Start Date:', 'date')->class('lead') !!}
+                        {!! html()->text('start_date', null)->class('form-control')->id('datepicker4') !!}
                     </div>
                     <?php
                     $start_date = App\Model\helpdesk\Ticket\Tickets::where('id', '=', '1')->first();
@@ -194,8 +194,8 @@ class="active"
                         });
                     </script>
                     <div class='col-sm-2'>
-                        {!! Form::label('start_time', 'End Date:' ,['class' => 'lead']) !!}
-                        {!! Form::text('end_date',null,['class'=>'form-control','id'=>'datetimepicker3'])!!}
+                        {!! html()->label('End Date:', 'start_time')->class('lead') !!}
+                        {!! html()->text('end_date', null)->class('form-control')->id('datetimepicker3') !!}
                     </div>
                     <script type="text/javascript">
                         $(function() {
@@ -209,7 +209,7 @@ class="active"
                         });
                     </script>
                     <div class='col-sm-1'>
-                        {!! Form::label('filter', 'Filter:',['class' => 'lead']) !!}<br>
+                        {!! html()->label('Filter:', 'filter')->class('lead') !!}<br>
                         <input type="submit" class="btn btn-primary">
                     </div>
                 </div>

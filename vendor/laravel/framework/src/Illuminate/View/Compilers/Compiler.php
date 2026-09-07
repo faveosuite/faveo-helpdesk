@@ -2,6 +2,7 @@
 
 namespace Illuminate\View\Compilers;
 
+use ErrorException;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
@@ -44,14 +45,21 @@ abstract class Compiler
     protected $compiledExtension = 'php';
 
     /**
+     * Indicates if view cache timestamps should be checked.
+     *
+     * @var bool
+     */
+    protected $shouldCheckTimestamps;
+
+    /**
      * Create a new compiler instance.
      *
      * @param  \Illuminate\Filesystem\Filesystem  $files
      * @param  string  $cachePath
      * @param  string  $basePath
      * @param  bool  $shouldCache
+     * @param  bool  $shouldCheckTimestamps
      * @param  string  $compiledExtension
-     * @return void
      *
      * @throws \InvalidArgumentException
      */
@@ -60,8 +68,9 @@ abstract class Compiler
         $cachePath,
         $basePath = '',
         $shouldCache = true,
-        $compiledExtension = 'php')
-    {
+        $compiledExtension = 'php',
+        $shouldCheckTimestamps = true,
+    ) {
         if (! $cachePath) {
             throw new InvalidArgumentException('Please provide a valid cache path.');
         }
@@ -71,6 +80,7 @@ abstract class Compiler
         $this->basePath = $basePath;
         $this->shouldCache = $shouldCache;
         $this->compiledExtension = $compiledExtension;
+        $this->shouldCheckTimestamps = $shouldCheckTimestamps;
     }
 
     /**
@@ -81,7 +91,7 @@ abstract class Compiler
      */
     public function getCompiledPath($path)
     {
-        return $this->cachePath.'/'.sha1('v2'.Str::after($path, $this->basePath)).'.'.$this->compiledExtension;
+        return $this->cachePath.'/'.hash('xxh128', 'v2'.Str::after($path, $this->basePath)).'.'.$this->compiledExtension;
     }
 
     /**
@@ -89,6 +99,8 @@ abstract class Compiler
      *
      * @param  string  $path
      * @return bool
+     *
+     * @throws \ErrorException
      */
     public function isExpired($path)
     {
@@ -105,8 +117,20 @@ abstract class Compiler
             return true;
         }
 
-        return $this->files->lastModified($path) >=
-               $this->files->lastModified($compiled);
+        if (! $this->shouldCheckTimestamps) {
+            return false;
+        }
+
+        try {
+            return $this->files->lastModified($path) >=
+                $this->files->lastModified($compiled);
+        } catch (ErrorException $exception) {
+            if (! $this->files->exists($compiled)) {
+                return true;
+            }
+
+            throw $exception;
+        }
     }
 
     /**

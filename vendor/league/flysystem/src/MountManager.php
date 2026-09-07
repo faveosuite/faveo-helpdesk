@@ -7,6 +7,7 @@ namespace League\Flysystem;
 use DateTimeInterface;
 use Throwable;
 
+use function compact;
 use function method_exists;
 use function sprintf;
 
@@ -18,13 +19,40 @@ class MountManager implements FilesystemOperator
     private $filesystems = [];
 
     /**
+     * @var Config
+     */
+    private $config;
+
+    /**
      * MountManager constructor.
      *
      * @param array<string,FilesystemOperator> $filesystems
      */
-    public function __construct(array $filesystems = [])
+    public function __construct(array $filesystems = [], array $config = [])
     {
         $this->mountFilesystems($filesystems);
+        $this->config = new Config($config);
+    }
+
+    /**
+     * It is not recommended to mount filesystems after creation because interacting
+     * with the Mount Manager becomes unpredictable. Use this as an escape hatch.
+     */
+    public function dangerouslyMountFilesystems(string $key, FilesystemOperator $filesystem): void
+    {
+        $this->mountFilesystem($key, $filesystem);
+    }
+
+    /**
+     * @param array<string,FilesystemOperator> $filesystems
+     */
+    public function extend(array $filesystems, array $config = []): MountManager
+    {
+        $clone = clone $this;
+        $clone->config = $this->config->extend($config);
+        $clone->mountFilesystems($filesystems);
+
+        return $clone;
     }
 
     public function fileExists(string $location): bool
@@ -138,15 +166,15 @@ class MountManager implements FilesystemOperator
         }
     }
 
-    public function visibility(string $location): string
+    public function visibility(string $path): string
     {
         /** @var FilesystemOperator $filesystem */
-        [$filesystem, $path] = $this->determineFilesystemAndPath($location);
+        [$filesystem, $location] = $this->determineFilesystemAndPath($path);
 
         try {
-            return $filesystem->visibility($path);
+            return $filesystem->visibility($location);
         } catch (UnableToRetrieveMetadata $exception) {
-            throw UnableToRetrieveMetadata::visibility($location, $exception->reason(), $exception);
+            throw UnableToRetrieveMetadata::visibility($path, $exception->reason(), $exception);
         }
     }
 
@@ -156,7 +184,7 @@ class MountManager implements FilesystemOperator
         [$filesystem, $path] = $this->determineFilesystemAndPath($location);
 
         try {
-            $filesystem->write($path, $contents, $config);
+            $filesystem->write($path, $contents, $this->config->extend($config)->toArray());
         } catch (UnableToWriteFile $exception) {
             throw UnableToWriteFile::atLocation($location, $exception->reason(), $exception);
         }
@@ -166,7 +194,7 @@ class MountManager implements FilesystemOperator
     {
         /** @var FilesystemOperator $filesystem */
         [$filesystem, $path] = $this->determineFilesystemAndPath($location);
-        $filesystem->writeStream($path, $contents, $config);
+        $filesystem->writeStream($path, $contents, $this->config->extend($config)->toArray());
     }
 
     public function setVisibility(string $path, string $visibility): void
@@ -206,7 +234,7 @@ class MountManager implements FilesystemOperator
         [$filesystem, $path] = $this->determineFilesystemAndPath($location);
 
         try {
-            $filesystem->createDirectory($path, $config);
+            $filesystem->createDirectory($path, $this->config->extend($config)->toArray());
         } catch (UnableToCreateDirectory $exception) {
             throw UnableToCreateDirectory::dueToFailure($location, $exception);
         }
@@ -224,7 +252,8 @@ class MountManager implements FilesystemOperator
             $sourcePath,
             $destinationPath,
             $source,
-            $destination
+            $destination,
+            $config,
         ) : $this->moveAcrossFilesystems($source, $destination, $config);
     }
 
@@ -240,15 +269,16 @@ class MountManager implements FilesystemOperator
             $sourcePath,
             $destinationPath,
             $source,
-            $destination
+            $destination,
+            $config,
         ) : $this->copyAcrossFilesystem(
-            $config['visibility'] ?? null,
             $sourceFilesystem,
             $sourcePath,
             $destinationFilesystem,
             $destinationPath,
             $source,
-            $destination
+            $destination,
+            $config,
         );
     }
 
@@ -273,7 +303,7 @@ class MountManager implements FilesystemOperator
             throw new UnableToGenerateTemporaryUrl(sprintf('%s does not support generating public urls.', $filesystem::class), $path);
         }
 
-        return $filesystem->temporaryUrl($path, $expiresAt, $config);
+        return $filesystem->temporaryUrl($path, $expiresAt, $this->config->extend($config)->toArray());
     }
 
     public function checksum(string $path, array $config = []): string
@@ -285,7 +315,7 @@ class MountManager implements FilesystemOperator
             throw new UnableToProvideChecksum(sprintf('%s does not support providing checksums.', $filesystem::class), $path);
         }
 
-        return $filesystem->checksum($path, $config);
+        return $filesystem->checksum($path, $this->config->extend($config)->toArray());
     }
 
     private function mountFilesystems(array $filesystems): void
@@ -298,11 +328,7 @@ class MountManager implements FilesystemOperator
         }
     }
 
-    /**
-     * @param mixed $key
-     * @param mixed $filesystem
-     */
-    private function guardAgainstInvalidMount($key, $filesystem): void
+    private function guardAgainstInvalidMount(mixed $key, mixed $filesystem): void
     {
         if ( ! is_string($key)) {
             throw UnableToMountFilesystem::becauseTheKeyIsNotValid($key);
@@ -321,7 +347,7 @@ class MountManager implements FilesystemOperator
     /**
      * @param string $path
      *
-     * @return array{0:FilesystemOperator, 1:string}
+     * @return array{0:FilesystemOperator, 1:string, 2:string}
      */
     private function determineFilesystemAndPath(string $path): array
     {
@@ -345,28 +371,37 @@ class MountManager implements FilesystemOperator
         string $sourcePath,
         string $destinationPath,
         string $source,
-        string $destination
+        string $destination,
+        array $config,
     ): void {
         try {
-            $sourceFilesystem->copy($sourcePath, $destinationPath);
+            $sourceFilesystem->copy($sourcePath, $destinationPath, $this->config->extend($config)->toArray());
         } catch (UnableToCopyFile $exception) {
             throw UnableToCopyFile::fromLocationTo($source, $destination, $exception);
         }
     }
 
     private function copyAcrossFilesystem(
-        ?string $visibility,
         FilesystemOperator $sourceFilesystem,
         string $sourcePath,
         FilesystemOperator $destinationFilesystem,
         string $destinationPath,
         string $source,
-        string $destination
+        string $destination,
+        array $config,
     ): void {
+        $config = $this->config->extend($config);
+        $retainVisibility = (bool) $config->get(Config::OPTION_RETAIN_VISIBILITY, true);
+        $visibility = $config->get(Config::OPTION_VISIBILITY);
+
         try {
-            $visibility = $visibility ?? $sourceFilesystem->visibility($sourcePath);
+            if ($visibility == null && $retainVisibility) {
+                $visibility = $sourceFilesystem->visibility($sourcePath);
+                $config = $config->extend(compact('visibility'));
+            }
+
             $stream = $sourceFilesystem->readStream($sourcePath);
-            $destinationFilesystem->writeStream($destinationPath, $stream, compact('visibility'));
+            $destinationFilesystem->writeStream($destinationPath, $stream, $config->toArray());
         } catch (UnableToRetrieveMetadata | UnableToReadFile | UnableToWriteFile $exception) {
             throw UnableToCopyFile::fromLocationTo($source, $destination, $exception);
         }
@@ -377,10 +412,11 @@ class MountManager implements FilesystemOperator
         string $sourcePath,
         string $destinationPath,
         string $source,
-        string $destination
+        string $destination,
+        array $config,
     ): void {
         try {
-            $sourceFilesystem->move($sourcePath, $destinationPath);
+            $sourceFilesystem->move($sourcePath, $destinationPath, $this->config->extend($config)->toArray());
         } catch (UnableToMoveFile $exception) {
             throw UnableToMoveFile::fromLocationTo($source, $destination, $exception);
         }

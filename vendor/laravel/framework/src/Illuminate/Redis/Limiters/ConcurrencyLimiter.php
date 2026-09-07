@@ -3,6 +3,7 @@
 namespace Illuminate\Redis\Limiters;
 
 use Illuminate\Contracts\Redis\LimiterTimeoutException;
+use Illuminate\Support\Sleep;
 use Illuminate\Support\Str;
 use Throwable;
 
@@ -43,7 +44,6 @@ class ConcurrencyLimiter
      * @param  string  $name
      * @param  int  $maxLocks
      * @param  int  $releaseAfter
-     * @return void
      */
     public function __construct($redis, $name, $maxLocks, $releaseAfter)
     {
@@ -75,7 +75,7 @@ class ConcurrencyLimiter
                 throw new LimiterTimeoutException;
             }
 
-            usleep($sleep * 1000);
+            Sleep::usleep($sleep * 1000);
         }
 
         if (is_callable($callback)) {

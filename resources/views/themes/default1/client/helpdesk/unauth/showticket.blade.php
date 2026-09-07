@@ -49,18 +49,18 @@ $thread = App\Model\helpdesk\Ticket\Ticket_Thread::where('ticket_id', '=', $tick
 
                 <div class="col-sm-9">
 
-                    <h3 class="entry-title"><i class="fas fa-ticket-alt"> </i> {{$thread->title}}
+                    <h3 class="entry-title"><i class="fa-solid fa-ticket-alt"> </i> {{$thread->title}}
 
                         <small> ( {{$tickets->ticket_number}} ) </small>
                     </h3>
                 </div>
 
-                <div class="col-sm-3 text-right">
+                <div class="col-sm-3 text-end">
 
                         <div>
                             <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: whitesmoke">
 
-                                <i class="fas fa-exchange-alt" style="color:teal;"> </i>
+                                <i class="fa-solid fa-right-left text-teal"> </i>
 
                                 {!! Lang::get('lang.change_status') !!}
 
@@ -71,19 +71,19 @@ $thread = App\Model\helpdesk\Ticket\Ticket_Thread::where('ticket_id', '=', $tick
                             <div class="dropdown-menu">
 
                                 <a class="dropdown-item" href="#" id="open">
-                                    <i class="fas fa-folder-open" style="color:#FFD600;"> </i> {!! Lang::get('lang.open') !!}
+                                    <i class="fa-solid fa-folder-open" style="color:#FFD600;"> </i> {!! Lang::get('lang.open') !!}
                                 </a>
 
                                 <a class="dropdown-item" href="#" id="close">
-                                    <i class="fas fa-check" style="color:#15F109;"> </i> {!! Lang::get('lang.close') !!}
+                                    <i class="fa-solid fa-check" style="color:#15F109;"> </i> {!! Lang::get('lang.close') !!}
                                 </a>
 
                                 <a class="dropdown-item" href="#" id="resolved">
-                                    <i class="fas fa-check-circle " style="color:#0EF1BE;"> </i> {!! Lang::get('lang.resolved') !!}
+                                    <i class="fa-solid fa-circle-check " style="color:#0EF1BE;"> </i> {!! Lang::get('lang.resolved') !!}
                                 </a>
                             </div>
                         </div>
-                    {!! Form::close() !!}
+                    {!! html()->closeModelForm() !!}
                 </div>
             </div>
         <br/>
@@ -91,7 +91,7 @@ $thread = App\Model\helpdesk\Ticket\Ticket_Thread::where('ticket_id', '=', $tick
 
             <div class="col-md-12 mb-1">
 
-                <div class="ticketratings float-right">
+                <div class="ticketratings float-end">
 
                     <table>
 
@@ -99,6 +99,7 @@ $thread = App\Model\helpdesk\Ticket\Ticket_Thread::where('ticket_id', '=', $tick
                         <?php $ratings = App\Model\helpdesk\Ratings\Rating::orderby('display_order')->get(); ?>
                         <form id="foo">
                             {!! csrf_field() !!}
+                            <input type="hidden" name="tid_token" value="{!! $token !!}">
                             @foreach($ratings as $rating)
 
                                 @if($rating->rating_area == 'Helpdesk Area')
@@ -351,6 +352,7 @@ foreach ($conversations as $conversation) {
                                     }
                                     ?>
                                 <form class="foo2">
+                                    <input type="hidden" name="tid_token" value="{!! $token !!}">
                                     <tr>
                                         <th><div class="ticketratingtitle">{!! $rating->name !!} &nbsp;</div></th>&nbsp
 
@@ -372,7 +374,7 @@ foreach ($conversations as $conversation) {
                     </div><!-- .comment-author -->
                     <div class="comment-metadata">
                         <small class="date text-muted">
-                            <time datetime="2013-10-23T01:50:50+00:00"><i class="fa fa-clock-o"> </i> {{ UTC::usertimezone($conversation->created_at) }}</time>
+                            <time datetime="2013-10-23T01:50:50+00:00"><i class="fa-solid fa-clock-o"> </i> {{ UTC::usertimezone($conversation->created_at) }}</time>
                         </small>
                     </div><!-- .comment-metadata -->
                 </footer><!-- .comment-meta -->
@@ -432,18 +434,18 @@ foreach ($conversations as $conversation) {
 </div>
 <br/><br/>
 @if(Session::has('success1'))
-<div class="alert alert-success alert-dismissable" id='formabc'>
-    <i class="fa  fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible" id='formabc'>
+    <i class="fa  fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('success1')}}
 </div>
 @endif
 <!-- failure message -->
 @if(Session::has('fails1'))
-<div class="alert alert-danger alert-dismissable" id='formabc'>
-    <i class="fa fa-ban"></i>
+<div class="alert alert-danger alert-dismissible" id='formabc'>
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('fails1')}}
 </div>
 @endif
@@ -453,23 +455,24 @@ foreach ($conversations as $conversation) {
 
                     <h3 id="reply-title" class="comment-reply-title section-title"><i class="line"></i>{!! Lang::get('lang.leave_a_reply') !!}</h3>
                     @if(Auth::user())
-                        {!! Form::open(['url'=>'post/reply/'.$id2.'#formabc']) !!}
+                        {!! html()->form('POST', url('post/reply/'.$id2.'#formabc'))->open() !!}
                     @else
-                        {!! Form::open(['url'=>'post-ticket-reply/'.$tickets->id.'#formabc']) !!}
+                        {!! html()->form('POST', url('post-ticket-reply/'.$tickets->id.'#formabc'))->open() !!}
+                        <input type="hidden" name="tid_token" value="{!! $token !!}">
                     @endif
                     <div class="row">
                         <div class="col-md-12">
-                            <div class="form-group " style="background-color: white">
+                            <div class="mb-3 " style="background-color: white">
                                 <textarea class="form-control" id="reply-input" name="comment" cols="30" rows="8" ></textarea>
                             </div>
                         </div>
                     </div>
 
-                    <div class="text-right">
+                    <div class="text-end">
 
                         <button type="submit" onClick="return checkFunction();" class="btn btn-custom btn-lg" style="background-color: #009aba; hov: #00c0ef; color: #fff">{!! Lang::get('lang.post_comment') !!}</button>
                     </div>
-                    {!! Form::close() !!}
+                    {!! html()->closeModelForm() !!}
                 </div>
             </div>
         </div>
@@ -578,8 +581,9 @@ $(function() {
 
     function changeStatus(id, ticket_id){
         $.ajax({
-                type: "GET",
+                type: "POST",
                 url: "../../show/change-status/"+ id +"/"+ {!! $tickets->id !!},
+                data:{"_token": "{{ csrf_token() }}", "tid_token": "{!! $token !!}"},
                 beforeSend: function() {
                     $("#refresh").hide();
                     $("#loader").show();
@@ -603,7 +607,7 @@ jQuery(document).ready(function () {
             type: "POST",
 
             url: "../../show/close/{!! $tickets->id !!}",
-            data:{"_token": "{{ csrf_token() }}"},
+            data:{"_token": "{{ csrf_token() }}", "tid_token": "{!! $token !!}"},
             beforeSend: function () {
                 $("#refresh").hide();
                 $("#loader").show();
@@ -635,7 +639,7 @@ jQuery(document).ready(function () {
         $.ajax({
             type: "POST",
             url: "../../show/resolve/{!! $tickets->id !!}",
-            data:{"_token": "{{ csrf_token() }}"},
+            data:{"_token": "{{ csrf_token() }}", "tid_token": "{!! $token !!}"},
             beforeSend: function () {
                 $("#refresh").hide();
                 $("#loader").show();
@@ -666,7 +670,7 @@ jQuery(document).ready(function () {
         $.ajax({
             type: "POST",
             url: "../../show/open/{!! $tickets->id !!}",
-            data:{"_token": "{{ csrf_token() }}"},
+            data:{"_token": "{{ csrf_token() }}", "tid_token": "{!! $token !!}"},
             beforeSend: function () {
                 $("#refresh").hide();
                 $("#loader").show();

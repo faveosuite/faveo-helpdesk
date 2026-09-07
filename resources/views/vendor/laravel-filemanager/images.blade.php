@@ -7,18 +7,18 @@
                 <div class="col-sm-6 col-md-2">
                     <div class="thumbnail text-center" data-id="{{ $dir_name }}">
                         <a id="folder_{{ $key }}" data-id="{{ $dir_name }}" onclick="clickFolder('folder_{{ $key }}',0)" class="folder-icon pointer">
-                            {{--<i class="fa fa-folder-o fa-5x"></i>--}}
+                            {{--<i class="fa-solid fa-folder-o fa-5x"></i>--}}
                             <img src="{{asset("/vendor/laravel-filemanager/img/folder.jpg")}}">
                         </a>
                     </div>
                     <div class="caption text-center">
                         <div class="btn-group">
-                            <button type="button" onclick="clickFolder('folder_{{ $key }}',0)" class="btn btn-default btn-xs">
+                            <button type="button" onclick="clickFolder('folder_{{ $key }}',0)" class="btn btn-secondary btn-xs">
                                 {{ Str::limit($dir_name, $limit = 10, $end = '...') }}
                             </button>
-                            <button type="button" class="btn btn-default dropdown-toggle btn-xs" data-toggle="dropdown" aria-expanded="false">
+                            <button type="button" class="btn btn-secondary dropdown-toggle btn-xs" data-bs-toggle="dropdown" aria-expanded="false">
                                 <span class="caret"></span>
-                                <span class="sr-only">Toggle Dropdown</span>
+                                <span class="visually-hidden">Toggle Dropdown</span>
                             </button>
                             <ul class="dropdown-menu" role="menu">
                                 <li><a href="javascript:rename('{{ $dir_name }}')">{{ Lang::get('laravel-filemanager::lfm.menu-rename') }}</a></li>
@@ -43,12 +43,12 @@
 
                     <div class="caption text-center">
                         <div class="btn-group ">
-                            <button type="button" onclick="useFile('{{ $file_name }}')" class="btn btn-default btn-xs">
+                            <button type="button" onclick="useFile('{{ $file_name }}')" class="btn btn-secondary btn-xs">
                                 {{ Str::limit($file_name, $limit = 10, $end = '...') }}
                             </button>
-                            <button type="button" class="btn btn-default dropdown-toggle btn-xs" data-toggle="dropdown" aria-expanded="false">
+                            <button type="button" class="btn btn-secondary dropdown-toggle btn-xs" data-bs-toggle="dropdown" aria-expanded="false">
                                 <span class="caret"></span>
-                                <span class="sr-only">Toggle Dropdown</span>
+                                <span class="visually-hidden">Toggle Dropdown</span>
                             </button>
                             <ul class="dropdown-menu" role="menu">
                                 <li><a href="javascript:rename('{{ $file_name }}')">{{ Lang::get('laravel-filemanager::lfm.menu-rename') }}</a></li>

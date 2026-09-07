@@ -36,7 +36,7 @@ class ClockworkMiddleware
 			return $this->authenticate($request);
 		}
 
-		$clockworkDataUri = '#/__clockwork(?:/(?<id>[0-9-]+))?(?:/(?<direction>(?:previous|next)))?(?:/(?<count>\d+))?#';
+		$clockworkDataUri = '#/__clockwork(?:/(?<id>([0-9-]+|latest)))?(?:/(?<direction>(?:previous|next)))?(?:/(?<count>\d+))?#';
 		if (preg_match($clockworkDataUri, $request->getUri()->getPath(), $matches)) {
 			$matches = array_merge([ 'id' => null, 'direction' => null, 'count' => null ], $matches);
 			return $this->retrieveRequest($request, $matches['id'], $matches['direction'], $matches['count']);
@@ -93,7 +93,7 @@ class ClockworkMiddleware
 			->withHeader('X-Clockwork-Version', Clockwork::VERSION);
 
 		if ($basePath = $this->app->getBasePath()) {
-			$response = $response->withHeader('X-Clockwork-Path', $basePath);
+			$response = $response->withHeader('X-Clockwork-Path', "$basePath/__clockwork/");
 		}
 
 		return $response->withHeader('Server-Timing', ServerTiming::fromRequest($clockworkRequest)->value());

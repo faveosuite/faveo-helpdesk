@@ -4,6 +4,7 @@ namespace Aws\S3\Crypto;
 use Aws\Crypto\DecryptionTraitV2;
 use Aws\Exception\CryptoException;
 use Aws\HashingStream;
+use Aws\MetricsBuilder;
 use Aws\PhpHash;
 use Aws\Crypto\AbstractCryptoClientV2;
 use Aws\Crypto\EncryptionTraitV2;
@@ -19,11 +20,11 @@ use GuzzleHttp\Psr7;
  * Provides a wrapper for an S3Client that supplies functionality to encrypt
  * data on putObject[Async] calls and decrypt data on getObject[Async] calls.
  *
- * AWS strongly recommends the upgrade to the S3EncryptionClientV2 (over the
- * S3EncryptionClient), as it offers updated data security best practices to our
- * customers who upgrade. S3EncryptionClientV2 contains breaking changes, so this
+ * AWS strongly recommends the upgrade to the S3EncryptionClientV3 (over the
+ * S3EncryptionClientV2), as it offers updated data security best practices to our
+ * customers who upgrade. S3EncryptionClientV3 contains breaking changes, so this
  * will require planning by engineering teams to migrate. New workflows should
- * just start with S3EncryptionClientV2.
+ * just start with S3EncryptionClientV3.
  *
  * Note that for PHP versions of < 7.1, this class uses an AES-GCM polyfill
  * for encryption since there is no native PHP support. The performance for large
@@ -74,6 +75,7 @@ use GuzzleHttp\Psr7;
  *         'Cipher' => 'gcm',
  *         'KeySize' => 256,
  *     ],
+ *     '@CommitmentPolicy' => 'FORBID_ENCRYPT_ALLOW_DECRYPT',
  *     'Bucket' => 'your-bucket',
  *     'Key' => 'your-key',
  * ]);
@@ -105,10 +107,21 @@ class S3EncryptionClientV2 extends AbstractCryptoClientV2
         S3Client $client,
         $instructionFileSuffix = null
     ) {
-        $this->appendUserAgent($client, 'feat/s3-encrypt/' . self::CRYPTO_VERSION);
+        trigger_error(
+            'S3EncryptionClientV2 will be deprecated soon and will be removed in a future ' .
+            'release due to security vulnerabilities (CVE-2024-56473). Please ' .
+            'migrate to S3EncryptionClientV3 as soon as possible.' . "\n" .
+            'See https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/' .
+            'security.html for upgrade guidance.',
+            E_USER_DEPRECATED
+        );
         $this->client = $client;
         $this->instructionFileSuffix = $instructionFileSuffix;
         $this->legacyWarningCount = 0;
+        MetricsBuilder::appendMetricsCaptureMiddleware(
+            $this->client->getHandlerList(),
+            MetricsBuilder::S3_CRYPTO_V2
+        );
     }
 
     private static function getDefaultStrategy()
@@ -289,7 +302,10 @@ class S3EncryptionClientV2 extends AbstractCryptoClientV2
      *      - 'V2_AND_LEGACY' indicates that objects encrypted with both
      *        S3EncryptionClientV2 and older legacy encryption clients are able
      *        to be decrypted.
-     *
+     * - @CommitmentPolicy: (string) Must be set to 'FORBID_ENCRYPT_ALLOW_DECRYPT'.
+     *      - 'FORBID_ENCRYPT_ALLOW_DECRYPT' indicates that the client is configured
+     *         to read messages encrypted with key commitment or without key commitment.
+     * 
      * The optional configuration arguments are as follows:
      *
      * - SaveAs: (string) The path to a file on disk to save the decrypted
@@ -322,6 +338,8 @@ class S3EncryptionClientV2 extends AbstractCryptoClientV2
         $provider = $this->getMaterialsProvider($args);
         unset($args['@MaterialsProvider']);
 
+        $keyCommitmentPolicy = $this->getKeyCommitmentPolicy($args);
+
         $instructionFileSuffix = $this->getInstructionFileSuffix($args);
         unset($args['@InstructionFileSuffix']);
 
@@ -342,9 +360,9 @@ class S3EncryptionClientV2 extends AbstractCryptoClientV2
             $this->legacyWarningCount++;
             trigger_error(
                 "This S3 Encryption Client operation is configured to"
-                    . " read encrypted data with legacy encryption modes. If you"
-                    . " don't have objects encrypted with these legacy modes,"
-                    . " you should disable support for them to enhance security. ",
+                . " read encrypted data with legacy encryption modes. If you"
+                . " don't have objects encrypted with these legacy modes,"
+                . " you should disable support for them to enhance security. ",
                 E_USER_WARNING
             );
         }
@@ -414,6 +432,10 @@ class S3EncryptionClientV2 extends AbstractCryptoClientV2
      *      - 'V2_AND_LEGACY' indicates that objects encrypted with both
      *        S3EncryptionClientV2 and older legacy encryption clients are able
      *        to be decrypted.
+     * - @CommitmentPolicy: (string) Must be set to 'FORBID_ENCRYPT_ALLOW_DECRYPT'.
+     *      - 'FORBID_ENCRYPT_ALLOW_DECRYPT' indicates that the client is 
+     *         configured to read messages encrypted with key commitment 
+     *         or without key commitment.
      *
      * The optional configuration arguments are as follows:
      *

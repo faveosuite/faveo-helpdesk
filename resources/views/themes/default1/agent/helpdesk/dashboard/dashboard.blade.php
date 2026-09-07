@@ -9,7 +9,7 @@ class="nav-link active"
 @stop
 
 @section('PageHeader')
-<h1>{!! Lang::get('lang.dashboard_reports') !!}</h1>
+<h3>{!! Lang::get('lang.dashboard_reports') !!}</h3>
 @stop
 
 @section('dashboard')
@@ -20,18 +20,18 @@ class="nav-item d-none d-sm-inline-block active"
 <!-- check whether success or not -->
 {{-- Success message --}}
 @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-	<i class="fas  fa-check-circle"></i>
-	<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+	<i class="fa-solid fa-circle-check"></i>
+	<button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
 	{{Session::get('success')}}
 </div>
 @endif
 {{-- failure message --}}
 @if(Session::has('fails'))
-<div class="alert alert-danger alert-dismissable">
-	<i class="fas fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+	<i class="fa-solid fa-ban"></i>
 	<b>{!! Lang::get('lang.alert') !!}!</b>
-	<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+	<button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
 	{{Session::get('fails')}}
 </div>
 @endif
@@ -42,9 +42,9 @@ class="nav-item d-none d-sm-inline-block active"
 		
 		<a href="{!! route('inbox.ticket') !!}" class="text-dark" style="cursor: pointer;">
 
-			<div class="info-box">
+			<div class="info-box shadow-sm">
 			
-				<span class="info-box-icon bg-info"><i class="far fa-envelope"></i></span>
+				<span class="info-box-icon bg-info"><i class="fa-regular fa-envelope"></i></span>
 
 			  	<div class="info-box-content">
 				
@@ -60,9 +60,9 @@ class="nav-item d-none d-sm-inline-block active"
 		
 		<a href="{!! route('unassigned') !!}" class="text-dark" style="cursor: pointer;">
 
-			<div class="info-box">
+			<div class="info-box shadow-sm">
 			
-				<span class="info-box-icon bg-orange"><i class="fas fa-user-times text-white"></i></span>
+				<span class="info-box-icon bg-warning"><i class="fa-solid fa-user-xmark text-white"></i></span>
 
 			  	<div class="info-box-content">
 				
@@ -78,9 +78,9 @@ class="nav-item d-none d-sm-inline-block active"
 		
 		<a href="{!! route('overdue.ticket') !!}" class="text-dark" style="cursor: pointer;">
 
-			<div class="info-box">
+			<div class="info-box shadow-sm">
 			
-				<span class="info-box-icon bg-danger"><i class="fas fa-calendar-times"></i></span>
+				<span class="info-box-icon bg-danger"><i class="fa-solid fa-calendar-xmark"></i></span>
 
 			  	<div class="info-box-content">
 				
@@ -96,9 +96,9 @@ class="nav-item d-none d-sm-inline-block active"
 		
 		<a href="{!! route('myticket.ticket') !!}" class="text-dark" style="cursor: pointer;">
 
-			<div class="info-box">
+			<div class="info-box shadow-sm">
 			
-				<span class="info-box-icon bg-warning"><i class="fas fa-user text-white"></i></span>
+				<span class="info-box-icon bg-warning"><i class="fa-solid fa-user text-white"></i></span>
 
 			  	<div class="info-box-content">
 				
@@ -122,9 +122,9 @@ class="nav-item d-none d-sm-inline-block active"
 	  	?>
 		<a href="{!! route('ticket.duetoday') !!}" class="text-dark" style="cursor: pointer;">
 
-			<div class="info-box">
+			<div class="info-box shadow-sm">
 			
-				<span class="info-box-icon bg-danger"><i class="fas fa-eye"></i></span>
+				<span class="info-box-icon bg-danger"><i class="fa-solid fa-eye"></i></span>
 
 			  	<div class="info-box-content">
 				
@@ -137,7 +137,7 @@ class="nav-item d-none d-sm-inline-block active"
 	</div>
 </div>
 
-<div class="card card-light">
+<div class="card">
 
 	<div class="card-header">
 		
@@ -148,13 +148,13 @@ class="nav-item d-none d-sm-inline-block active"
 		
 		<form id="foo">
 			
-			<div  class="form-group">
+			<div class="mb-3">
 			
 				<div class="row">
 					
 					<div class='col-sm-2'>
-						{!! Form::label('date', trans('lang.start_date')) !!}
-						{!! Form::text('start_date',null,['class'=>'form-control','id'=>'datepicker4'])!!}
+						{!! html()->label(trans('lang.start_date'), 'date') !!}
+						{!! html()->text('start_date', null)->class('form-control')->id('datepicker4') !!}
 					</div>
 					
 					<?php
@@ -184,8 +184,8 @@ class="nav-item d-none d-sm-inline-block active"
 
 					<div class='col-sm-2'>
 
-						{!! Form::label('start_time', trans('lang.end_date')) !!}
-						{!! Form::text('end_date',null,['class'=>'form-control','id'=>'datetimepicker3'])!!}
+						{!! html()->label(trans('lang.end_date'), 'start_time') !!}
+						{!! html()->text('end_date', null)->class('form-control')->id('datetimepicker3') !!}
 					</div>
 
 					<script type="text/javascript">
@@ -201,7 +201,7 @@ class="nav-item d-none d-sm-inline-block active"
 					</script>
 
 					<div class='col-sm-1'>
-						{!! Form::label('filter', 'Filter:',['style' => 'visibility:hidden;']) !!}<br>
+						{!! html()->label('Filter:', 'filter')->attributes(['style' => 'visibility:hidden;']) !!}<br>
 						<button type="submit" class="btn btn-primary">{{trans('lang.submit')}}</button>
 					</div>
 				</div>
@@ -236,7 +236,7 @@ class="nav-item d-none d-sm-inline-block active"
 	</div>
 </div>
 
-<div class="card card-light">
+<div class="card">
 
 	<div class="card-header">
 

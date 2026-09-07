@@ -21,16 +21,16 @@
             <div class="panel-body fill">
                 <div class="row fill">
                     <div class="wrapper fill">
-                        <div class="col-md-2 col-lg-2 col-sm-2 col-xs-2 left-nav fill" id="lfm-leftcol">
+                        <div class="col-md-2 col-lg-2 col-sm-2 col-2 left-nav fill" id="lfm-leftcol">
                             <div id="tree1">
                             </div>
                         </div>
-                        <div class="col-md-10 col-lg-10 col-sm-10 col-xs-10 right-nav" id="right-nav">
+                        <div class="col-md-10 col-lg-10 col-sm-10 col-10 right-nav" id="right-nav">
                             <nav class="navbar navbar-default">
                                 <div class="container-fluid">
                                     <div class="navbar-header">
-                                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-                                            <span class="sr-only">Toggle navigation</span>
+                                        <button type="button" class="navbar-toggle collapsed" data-bs-toggle="collapse" data-bs-target="#bs-example-navbar-collapse-1">
+                                            <span class="visually-hidden">Toggle navigation</span>
                                             <span class="icon-bar"></span>
                                             <span class="icon-bar"></span>
                                             <span class="icon-bar"></span>
@@ -39,13 +39,13 @@
                                     <div class="collapse navbar-collapse">
                                         <ul class="nav navbar-nav" id="nav-buttons">
                                             <li>
-                                                <a href="#!" id="upload" data-toggle="modal" data-target="#uploadModal"><i class="fa fa-upload"></i> Upload</a>
+                                                <a href="#!" id="upload" data-bs-toggle="modal" data-bs-target="#uploadModal"><i class="fa-solid fa-upload"></i> Upload</a>
                                             </li>
                                             <li>
-                                                <a href="#!" class="thumbnail-display" id="thumbnail-display"><i class="fa fa-picture-o"></i> Thumbnails</a>
+                                                <a href="#!" class="thumbnail-display" id="thumbnail-display"><i class="fa-solid fa-picture-o"></i> Thumbnails</a>
                                             </li>
                                             <li>
-                                                <a href="#!" class="list-display" id="list-display"><i class="fa fa-list"></i> List</a>
+                                                <a href="#!" class="list-display" id="list-display"><i class="fa-solid fa-list"></i> List</a>
                                             </li>
                                         </ul>
                                     </div>
@@ -56,7 +56,7 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="alert alert-danger" role="alert">
-                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                                             <ul>
                                                 @foreach($errors->all() as $error)
                                                     <li>{{ $error }}</li>
@@ -82,12 +82,12 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aia-hidden="true">&times;</span></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aia-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="myModalLabel">{{ Lang::get('laravel-filemanager::lfm.title-upload') }}</h4>
             </div>
             <div class="modal-body">
                 <form action="{{url('/laravel-filemanager/upload')}}" role='form' id='uploadForm' name='uploadForm' method='post' enctype='multipart/form-data'>
-                    <div class="form-group" id="attachment">
+                    <div class="mb-3" id="attachment">
                         <label for='upload' class='control-label'>{{ Lang::get('laravel-filemanager::lfm.message-choose') }}</label>
                         <div class="controls">
                             <div class="input-group" style="width: 100%">
@@ -101,7 +101,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">{{ Lang::get('laravel-filemanager::lfm.btn-close') }}</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ Lang::get('laravel-filemanager::lfm.btn-close') }}</button>
                 <button type="button" class="btn btn-primary" id="upload-btn">{{ Lang::get('laravel-filemanager::lfm.btn-upload') }}</button>
             </div>
         </div>
@@ -112,14 +112,14 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="fileLabel">{{ Lang::get('laravel-filemanager::lfm.title-view') }}</h4>
             </div>
             <div class="modal-body" id="fileview_body">
 
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">{{ Lang::get('laravel-filemanager::lfm.btn-close') }}</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ Lang::get('laravel-filemanager::lfm.btn-close') }}</button>
             </div>
         </div>
     </div>
@@ -164,7 +164,7 @@
         };
 
         function showRequest(formData, jqForm, options) {
-            $('#upload-btn').html('<i class="fa fa-refresh fa-spin"></i> {{ Lang::get("laravel-filemanager::lfm.btn-uploading") }}');
+            $('#upload-btn').html('<i class="fa-solid fa-refresh fa-spin"></i> {{ Lang::get("laravel-filemanager::lfm.btn-uploading") }}');
             return true;
         }
 

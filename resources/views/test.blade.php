@@ -13,26 +13,26 @@ class="active"
 @stop
 
 @section('content')
-  
+
       <div class="box box-info">
-                            
+
                 <div class="box-header with-border">
                     <h3 class="box-title">{!! Lang::get('lang.line_chart') !!}</h3>
                     <div class="box-tools pull-right">
-                      <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
-                      <button class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                      <button class="btn btn-box-tool" data-widget="collapse"><i class="fa-solid fa-minus"></i></button>
+                      <button class="btn btn-box-tool" data-widget="remove"><i class="fa-solid fa-xmark"></i></button>
                     </div>
                 </div>
                 <div class="box-body">
                     <div class="chart" >
                             <div id="legendDiv"></div>
-                            <canvas class="chart-data" id="tickets-graph" width="1000" height="400"></canvas>   
+                            <canvas class="chart-data" id="tickets-graph" width="1000" height="400"></canvas>
                     </div>
                 </div><!-- /.box-body -->
             </div><!-- /.box -->
             <hr/>
-            
-   
+
+
    <script src="{{asset("lb-faveo/plugins/chartjs/Chart.min.js")}}" type="text/javascript"></script>
          <script type="text/javascript">
     $(function(){
@@ -58,17 +58,17 @@ class="active"
       labels : labels,
       datasets : [
         {
-          label : "Total Tickets" , 
+          label : "Total Tickets" ,
           fillColor : "rgba(240, 127, 110, 0.3)",
           strokeColor : "#f56954",
           pointColor : "#A62121",
           pointStrokeColor : "#E60073",
           pointHighlightFill : "#FF4DC3",
           pointHighlightStroke : "rgba(151,187,205,1)",
-          data : open      
+          data : open
         }
         ,{
-          label : "Open Tickets" , 
+          label : "Open Tickets" ,
           fillColor : "rgba(255, 102, 204, 0.4)",
           strokeColor : "#f56954",
           pointColor : "#FF66CC",
@@ -76,7 +76,7 @@ class="active"
           pointHighlightFill : "#FF4DC3",
           pointHighlightStroke : "rgba(151,187,205,1)",
           data : closed
-          
+
         }
         ,{
           label : "Closed Tickets",
@@ -145,7 +145,7 @@ class="active"
                 +'<% } %>'
               +'</ul>'
     });
-    
+
     document.getElementById("legendDiv").innerHTML = myLineChart.generateLegend();
   });
 

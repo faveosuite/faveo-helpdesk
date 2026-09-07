@@ -37,7 +37,7 @@ class Extract
             return $e->getMessage();
         }
 
-        return mb_substr($value ?? '', 0, $chars, 'UTF-8');
+        return mb_substr($value, 0, $chars, 'UTF-8');
     }
 
     /**
@@ -68,7 +68,7 @@ class Extract
             return $e->getMessage();
         }
 
-        return mb_substr($value ?? '', --$start, $chars, 'UTF-8');
+        return mb_substr($value, --$start, $chars, 'UTF-8');
     }
 
     /**
@@ -96,7 +96,7 @@ class Extract
             return $e->getMessage();
         }
 
-        return mb_substr($value ?? '', mb_strlen($value ?? '', 'UTF-8') - $chars, $chars, 'UTF-8');
+        return mb_substr($value, mb_strlen($value, 'UTF-8') - $chars, $chars, 'UTF-8');
     }
 
     /**
@@ -261,7 +261,7 @@ class Extract
             $delimiter = Functions::flattenArray($delimiter);
             $quotedDelimiters = array_map(
                 function ($delimiter) {
-                    return preg_quote($delimiter ?? '');
+                    return preg_quote($delimiter ?? '', '/');
                 },
                 $delimiter
             );
@@ -270,7 +270,7 @@ class Extract
             return '(' . $delimiters . ')';
         }
 
-        return '(' . preg_quote($delimiter ?? '') . ')';
+        return '(' . preg_quote($delimiter ?? '', '/') . ')';
     }
 
     private static function matchFlags(int $matchMode): string

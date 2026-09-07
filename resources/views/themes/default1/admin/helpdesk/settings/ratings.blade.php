@@ -17,7 +17,7 @@ class="nav-link active"
 @stop
 
 @section('PageHeader')
-<h1>{!! Lang::get('lang.settings') !!}</h1>
+<h3>{!! Lang::get('lang.settings') !!}</h3>
 @stop
 
 @section('header')
@@ -25,17 +25,17 @@ class="nav-link active"
 
 @section('content')
 @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     <span>{{Session::get('success')}}</span>                
 </div>
 @endif
 <div class="card card-light">
     <div class="card-header">
         <h3 class="card-title">{!! Lang::get('lang.current_ratings') !!}</h3>
-        <div class="card-tools">
-            <a class="btn btn-default btn-tool" href="{{ route('rating.create') }}" title="{!! Lang::get('lang.create') !!}">
-                <i class="fas fa-plus"></i> {!! Lang::get('lang.create') !!}
+        <div class="card-tools d-flex">
+            <a class="btn btn-secondary btn-tool" href="{{ route('rating.create') }}" title="{!! Lang::get('lang.create') !!}">
+                <i class="fa-solid fa-plus"></i> {!! Lang::get('lang.create') !!}
             </a>
         </div><!-- /.box-header -->
     </div>
@@ -56,21 +56,25 @@ class="nav-link active"
                     <td>{!! $rating->display_order !!}</td>
                     <td>{!! $rating->rating_area !!}</td>
                     <td>
-                        {!! link_to_route('rating.edit',trans('lang.edit_ratings'),[$rating->id],['class'=>'btn btn-primary btn-sm']) !!}
-                        <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#delete{{$rating->id}}">{{trans('lang.delete')}}</button>
+                        <a href="{{ route('rating.edit', [$rating->id]) }}" class="btn btn-primary btn-sm">
+                            {{ trans('lang.edit_ratings') }}
+                        </a>
+                        <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#delete{{$rating->id}}">{{trans('lang.delete')}}</button>
                         <div class="modal fade" id="delete{{$rating->id}}">
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h4 class="modal-title">{!! Lang::get('lang.delete') !!}</h4>
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                        <h5 class="modal-title">{!! Lang::get('lang.delete') !!}</h4>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                                     </div>
                                     <div class="modal-body">
                                         <span>{!! Lang::get('lang.are_you_sure_you_want_to_delete') !!} ?</span>
                                     </div>
                                     <div class="modal-footer justify-content-between">
-                                        <button type="button" class="btn btn-default btn-sm" data-dismiss="modal">{!! Lang::get('lang.close') !!}</button>
-                                        {!! link_to_route('ratings.delete',Lang::get('lang.delete'),[$rating->id],['id'=>'delete','class'=>'btn btn-danger btn-sm']) !!}
+                                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">{!! Lang::get('lang.close') !!}</button>
+                                        <a href="{{ route('ratings.delete', [$rating->id]) }}" id="delete" class="btn btn-danger btn-sm">
+                                            {{ Lang::get('lang.delete') }}
+                                        </a>
                                     </div>
                                 </div> 
                             </div>

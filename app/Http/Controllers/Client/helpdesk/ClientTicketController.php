@@ -58,6 +58,11 @@ class ClientTicketController extends Controller
     public function reply($id, Request $request)
     {
         $tickets = Tickets::where('id', '=', $id)->first();
+
+        if (!$tickets || !$this->canAuthenticatedUserProceedToReply($tickets)) {
+            return \Redirect::back()->with('fails', Lang::get('lang.unauthorized_access'));
+        }
+
         $thread = Ticket_Thread::where('ticket_id', '=', $tickets->id)->first();
 
         $subject = $thread->title.'[#'.$tickets->ticket_number.']';
@@ -86,5 +91,20 @@ class ClientTicketController extends Controller
         $this->TicketWorkflowController->workflow($fromaddress, $fromname, $subject, $body, $phone, $phonecode, $mobile_number, $helptopic, $sla, $priority, $source, $collaborator, $dept, $assign, $team_assign, $ticket_status, $form_data, $auto_response);
 
         return \Redirect::back()->with('success1', Lang::get('lang.successfully_replied'));
+    }
+
+    /**
+     * Check if the authenticated user is the owner of the ticket.
+     *
+     * @param Tickets $ticket
+     *
+     * @return bool
+     */
+    private function canAuthenticatedUserProceedToReply($ticket)
+    {
+        return Tickets::where(function ($query) use ($ticket) {
+            $query->where('id', '=', $ticket->id)
+                  ->where('user_id', '=', Auth::id());
+        })->exists();
     }
 }

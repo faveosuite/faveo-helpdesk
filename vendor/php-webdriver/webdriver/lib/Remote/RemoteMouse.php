@@ -11,11 +11,11 @@ use Facebook\WebDriver\WebDriverMouse;
 class RemoteMouse implements WebDriverMouse
 {
     /** @internal */
-    const BUTTON_LEFT = 0;
+    public const BUTTON_LEFT = 0;
     /** @internal */
-    const BUTTON_MIDDLE = 1;
+    public const BUTTON_MIDDLE = 1;
     /** @internal */
-    const BUTTON_RIGHT = 2;
+    public const BUTTON_RIGHT = 2;
 
     /**
      * @var RemoteExecuteMethod
@@ -27,7 +27,6 @@ class RemoteMouse implements WebDriverMouse
     private $isW3cCompliant;
 
     /**
-     * @param RemoteExecuteMethod $executor
      * @param bool $isW3cCompliant
      */
     public function __construct(RemoteExecuteMethod $executor, $isW3cCompliant = false)
@@ -37,11 +36,9 @@ class RemoteMouse implements WebDriverMouse
     }
 
     /**
-     * @param null|WebDriverCoordinates $where
-     *
      * @return RemoteMouse
      */
-    public function click(WebDriverCoordinates $where = null)
+    public function click(?WebDriverCoordinates $where = null)
     {
         if ($this->isW3cCompliant) {
             $moveAction = $where ? [$this->createMoveAction($where)] : [];
@@ -68,11 +65,9 @@ class RemoteMouse implements WebDriverMouse
     }
 
     /**
-     * @param WebDriverCoordinates $where
-     *
      * @return RemoteMouse
      */
-    public function contextClick(WebDriverCoordinates $where = null)
+    public function contextClick(?WebDriverCoordinates $where = null)
     {
         if ($this->isW3cCompliant) {
             $moveAction = $where ? [$this->createMoveAction($where)] : [];
@@ -108,11 +103,9 @@ class RemoteMouse implements WebDriverMouse
     }
 
     /**
-     * @param WebDriverCoordinates $where
-     *
      * @return RemoteMouse
      */
-    public function doubleClick(WebDriverCoordinates $where = null)
+    public function doubleClick(?WebDriverCoordinates $where = null)
     {
         if ($this->isW3cCompliant) {
             $clickActions = $this->createClickActions();
@@ -138,11 +131,9 @@ class RemoteMouse implements WebDriverMouse
     }
 
     /**
-     * @param WebDriverCoordinates $where
-     *
      * @return RemoteMouse
      */
-    public function mouseDown(WebDriverCoordinates $where = null)
+    public function mouseDown(?WebDriverCoordinates $where = null)
     {
         if ($this->isW3cCompliant) {
             $this->executor->execute(DriverCommand::ACTIONS, [
@@ -172,14 +163,13 @@ class RemoteMouse implements WebDriverMouse
     }
 
     /**
-     * @param WebDriverCoordinates $where
      * @param int|null $x_offset
      * @param int|null $y_offset
      *
      * @return RemoteMouse
      */
     public function mouseMove(
-        WebDriverCoordinates $where = null,
+        ?WebDriverCoordinates $where = null,
         $x_offset = null,
         $y_offset = null
     ) {
@@ -215,11 +205,9 @@ class RemoteMouse implements WebDriverMouse
     }
 
     /**
-     * @param WebDriverCoordinates $where
-     *
      * @return RemoteMouse
      */
-    public function mouseUp(WebDriverCoordinates $where = null)
+    public function mouseUp(?WebDriverCoordinates $where = null)
     {
         if ($this->isW3cCompliant) {
             $moveAction = $where ? [$this->createMoveAction($where)] : [];
@@ -249,10 +237,7 @@ class RemoteMouse implements WebDriverMouse
         return $this;
     }
 
-    /**
-     * @param WebDriverCoordinates $where
-     */
-    protected function moveIfNeeded(WebDriverCoordinates $where = null)
+    protected function moveIfNeeded(?WebDriverCoordinates $where = null)
     {
         if ($where) {
             $this->mouseMove($where);
@@ -260,22 +245,21 @@ class RemoteMouse implements WebDriverMouse
     }
 
     /**
-     * @param WebDriverCoordinates $where
      * @param int|null $x_offset
      * @param int|null $y_offset
      *
      * @return array
      */
     private function createMoveAction(
-        WebDriverCoordinates $where = null,
+        ?WebDriverCoordinates $where = null,
         $x_offset = null,
         $y_offset = null
     ) {
         $move_action = [
             'type' => 'pointerMove',
             'duration' => 100, // to simulate human delay
-            'x' => $x_offset === null ? 0 : $x_offset,
-            'y' => $y_offset === null ? 0 : $y_offset,
+            'x' => $x_offset ?? 0,
+            'y' => $y_offset ?? 0,
         ];
 
         if ($where !== null) {

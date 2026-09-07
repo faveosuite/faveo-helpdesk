@@ -5,6 +5,7 @@ use Aws\Api\Service;
 use Aws\CommandInterface;
 use Aws\EndpointV2\EndpointProviderV2;
 use Aws\EndpointV2\EndpointV2SerializerTrait;
+use Aws\EndpointV2\Ruleset\RulesetEndpoint;
 use GuzzleHttp\Psr7\Request;
 use Psr\Http\Message\RequestInterface;
 
@@ -23,7 +24,7 @@ class QuerySerializer
     public function __construct(
         Service $api,
         $endpoint,
-        callable $paramBuilder = null
+        ?callable $paramBuilder = null
     ) {
         $this->api = $api;
         $this->endpoint = $endpoint;
@@ -35,15 +36,12 @@ class QuerySerializer
      * containing "method", "uri", "headers", and "body" key value pairs.
      *
      * @param CommandInterface $command Command to serialize into a request.
-     * @param $endpointProvider Provider used for dynamic endpoint resolution.
-     * @param $clientArgs Client arguments used for dynamic endpoint resolution.
-     *
+     * @param null $endpoint Endpoint resolved using EndpointProviderV2
      * @return RequestInterface
      */
     public function __invoke(
         CommandInterface $command,
-        $endpointProvider = null,
-        $clientArgs = null
+        $endpoint = null
     )
     {
         $operation = $this->api->getOperation($command->getName());
@@ -66,21 +64,17 @@ class QuerySerializer
             'Content-Length' => strlen($body),
             'Content-Type'   => 'application/x-www-form-urlencoded'
         ];
+        $requestUri = $operation['http']['requestUri'] ?? null;
 
-        if ($endpointProvider instanceof EndpointProviderV2) {
-            $this->setRequestOptions(
-                $endpointProvider,
-                $command,
-                $operation,
-                $commandArgs,
-                $clientArgs,
-                $headers
-            );
+        if ($endpoint instanceof RulesetEndpoint) {
+            $this->setEndpointV2RequestOptions($endpoint, $headers);
         }
+        $absoluteUri = str_ends_with($this->endpoint, '/')
+            ? $this->endpoint : $this->endpoint . $requestUri;
 
         return new Request(
             'POST',
-            $this->endpoint,
+            $absoluteUri,
             $headers,
             $body
         );

@@ -17,6 +17,7 @@
     <!-- AdminLTE Skins. Choose a skin from the css/skins
          folder instead of downloading all of them to reduce the load. -->
     <link href="dist/css/skins/_all-skins.min.css" rel="stylesheet" type="text/css" />
+    <link href="{{asset("css/common.css")}}" rel="stylesheet" type="text/css" />
     <link href="{{asset('dist/css/bootstrap.css')}}" rel="stylesheet">
     <link href="{{asset('dist/css/dataTables.bootstrap.css')}}" rel="stylesheet">
     <!-- Data tables CDN -->
@@ -32,7 +33,7 @@
     <![endif]-->
   </head>
   <body class="skin-blue">
-    <div class="wrapper" id="RefreshAssign">
+    <div class="app-wrapper" id="RefreshAssign">
 
       <header class="main-header">
             <?php $settings = App\Model\Settings::where('id', '=', '1')->first();?>
@@ -41,8 +42,8 @@
                 <!-- Header Navbar: style can be found in header.less -->
                 <nav class="navbar navbar-static-top" role="navigation">
                     <!-- Sidebar toggle button-->
-                    <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
-                        <span class="sr-only">Toggle navigation</span>
+                    <a href="#" class="sidebar-toggle" data-bs-toggle="offcanvas" role="button">
+                        <span class="visually-hidden">Toggle navigation</span>
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
@@ -55,7 +56,7 @@
                         <ul class="nav navbar-nav navbar-right">
 
                             <li class="dropdown user user-menu">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
                                  @if(Auth::user()->profile_pic==NULL)
                                     <img src="{{asset('dist/img/avatar.png')}}" class="user-image" alt="User Image"/>
                                     @else
@@ -81,17 +82,17 @@
                                     <!-- Menu Footer-->
                                     <li class="user-footer">
                                         <div class="pull-left">
-                                            <a href="{{url('profile')}}" class="btn btn-default btn-flat">Profile</a>
+                                            <a href="{{url('profile')}}" class="btn btn-secondary ">Profile</a>
                                         </div>
                                         <div class="pull-right">
-                                            <a href="{{ url('/auth/logout') }}" class="btn btn-default btn-flat">Sign out</a>
+                                            <a href="{{ url('/auth/logout') }}" class="btn btn-secondary ">Sign out</a>
                                         </div>
                                     </li>
                                 </ul>
                             </li>
                         </ul>
                         <!-- <form class="navbar-form navbar-left" role="search">
-                          <div class="form-group">
+                          <div class="mb-3">
                             <input type="text" class="form-control" id="navbar-search-input" placeholder="Search">
                           </div>
                         </form> -->
@@ -100,7 +101,7 @@
                 </nav>
             </header>
             <!-- Left side column. contains the logo and sidebar -->
-      <aside class="main-sidebar">
+      <aside class="app-sidebar">
                 <!-- sidebar: style can be found in sidebar.less -->
                 <section class="sidebar">
                     <!-- Sidebar user panel -->
@@ -112,59 +113,59 @@
                     <ul class="sidebar-menu">
                         <li class="treeview @yield('category')">
                             <a href="#">
-                                <i class="fa fa-list-ul"></i> <span>Category</span>
-                                <i class="fa fa-angle-left pull-right"></i>
+                                <i class="fa-solid fa-list-ul"></i> <span>Category</span>
+                                <i class="fa-solid fa-angle-left pull-right"></i>
                             </a>
                                     <ul class="treeview-menu">
-                                        <li @yield('add-category')><a href="{{url('category/create')}}"><i class="fa fa-circle-o"></i>Add Category</a></li>
-                                         <li @yield('all-category')><a href="{{url('category')}}"><i class="fa fa-circle-o"></i> All Category</a></li>
+                                        <li @yield('add-category')><a href="{{url('category/create')}}"><i class="fa-solid fa-circle-o"></i>Add Category</a></li>
+                                         <li @yield('all-category')><a href="{{url('category')}}"><i class="fa-solid fa-circle-o"></i> All Category</a></li>
                                      </ul>
                         </li>
                         <li class="treeview @yield('article')">
                             <a href="#">
-                                <i class="fa fa-edit"></i> <span>Article</span>
-                                <i class="fa fa-angle-left pull-right"></i>
+                                <i class="fa-solid fa-pen-to-square"></i> <span>Article</span>
+                                <i class="fa-solid fa-angle-left pull-right"></i>
                             </a>
                                     <ul class="treeview-menu">
-                                        <li @yield('add-article')><a href="{{url('article/create')}}"><i class="fa fa-circle-o"></i>Add Article</a></li>
-                                         <li @yield('all-article')><a href="{{url('article')}}"><i class="fa fa-circle-o"></i> All Article</a></li>
+                                        <li @yield('add-article')><a href="{{url('article/create')}}"><i class="fa-solid fa-circle-o"></i>Add Article</a></li>
+                                         <li @yield('all-article')><a href="{{url('article')}}"><i class="fa-solid fa-circle-o"></i> All Article</a></li>
                                      </ul>
                         </li>
 
                         <li class="treeview @yield('pages')">
                             <a href="#">
-                                <i class="fa fa-file-text"></i> <span>Pages</span>
-                                <i class="fa fa-angle-left pull-right"></i>
+                                <i class="fa-solid fa-file-text"></i> <span>Pages</span>
+                                <i class="fa-solid fa-angle-left pull-right"></i>
                             </a>
                                     <ul class="treeview-menu">
-                                        <li @yield('add-pages')><a href="{{url('page/create')}}"><i class="fa fa-circle-o"></i>Add Pages</a></li>
-                                         <li @yield('all-pages')><a href="{{url('page')}}"><i class="fa fa-circle-o"></i> All Pages</a></li>
+                                        <li @yield('add-pages')><a href="{{url('page/create')}}"><i class="fa-solid fa-circle-o"></i>Add Pages</a></li>
+                                         <li @yield('all-pages')><a href="{{url('page')}}"><i class="fa-solid fa-circle-o"></i> All Pages</a></li>
                                      </ul>
                         </li>
                         <li class="treeview @yield('widget')">
                             <a href="#">
                                 <i class="fa  fa-th"></i> <span>Widgets</span>
-                                <i class="fa fa-angle-left pull-right"></i>
+                                <i class="fa-solid fa-angle-left pull-right"></i>
                             </a>
                                     <ul class="treeview-menu">
-                                        <li @yield('footer1')><a href="{{url('create-footer')}}"><i class="fa fa-circle-o"></i>Footer 1</a></li>
-                                         <li @yield('footer2')><a href="{{url('create-footer2')}}"><i class="fa fa-circle-o"></i> Footer 2</a></li>
-                                         <li @yield('footer3')><a href="{{url('create-footer3')}}"><i class="fa fa-circle-o"></i> Footer 3</a></li>
-                                         <li @yield('footer4')><a href="{{url('create-footer4')}}"><i class="fa fa-circle-o"></i> Footer 4</a></li>
-                                         <li @yield('side1')><a href="{{url('side1')}}"><i class="fa fa-circle-o"></i>Side Widget 1</a></li>
-                                         <li @yield('side2')><a href="{{url('side2')}}"><i class="fa fa-circle-o"></i>Side Widget 2</a></li>
-                                         <li @yield('social')><a href="{{url('social')}}"><i class="fa fa-circle-o"></i>Social</a></li>
+                                        <li @yield('footer1')><a href="{{url('create-footer')}}"><i class="fa-solid fa-circle-o"></i>Footer 1</a></li>
+                                         <li @yield('footer2')><a href="{{url('create-footer2')}}"><i class="fa-solid fa-circle-o"></i> Footer 2</a></li>
+                                         <li @yield('footer3')><a href="{{url('create-footer3')}}"><i class="fa-solid fa-circle-o"></i> Footer 3</a></li>
+                                         <li @yield('footer4')><a href="{{url('create-footer4')}}"><i class="fa-solid fa-circle-o"></i> Footer 4</a></li>
+                                         <li @yield('side1')><a href="{{url('side1')}}"><i class="fa-solid fa-circle-o"></i>Side Widget 1</a></li>
+                                         <li @yield('side2')><a href="{{url('side2')}}"><i class="fa-solid fa-circle-o"></i>Side Widget 2</a></li>
+                                         <li @yield('social')><a href="{{url('social')}}"><i class="fa-solid fa-circle-o"></i>Social</a></li>
                                      </ul>
                         </li>
                          <li @yield('comment')>
                             <a href="{{url('comment')}}">
-                                <i class="fa fa-comments-o"></i>
+                                <i class="fa-solid fa-comments-o"></i>
                                 <span>Comments</span>
                             </a>
                         </li>
                          <li @yield('settings')>
                             <a href="{{url('settings')}}">
-                                 <i class="fa fa-wrench"></i>
+                                 <i class="fa-solid fa-wrench"></i>
                                 <span>Settings</span>
                             </a>
                         </li>
@@ -176,7 +177,7 @@
             </aside>
 
       <!-- Content Wrapper. Contains page content -->
-      <div class="content-wrapper">
+      <div class="app-main">
         <!-- Content Header (Page header) -->
         <!-- Content Header (Page header) -->
                 <div class="tab-content" style="background-color: white; border-top:1px solid #F0F0F0;">
@@ -189,13 +190,13 @@
 
 
         <!-- Main content -->
-        <section class="content">
+        <section class="app-content">
           <!-- Info boxes -->
           @yield('content')
         </section><!-- /.content -->
       </div><!-- /.content-wrapper -->
 
-      <footer class="main-footer">
+      <footer class="app-footer">
                 <div class="pull-right hidden-xs">
                     <b>{!! Lang::get('lang.version') !!}</b> {{$settings->version}}
                 </div>

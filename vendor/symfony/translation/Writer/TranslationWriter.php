@@ -31,7 +31,7 @@ class TranslationWriter implements TranslationWriterInterface
     /**
      * Adds a dumper to the writer.
      */
-    public function addDumper(string $format, DumperInterface $dumper)
+    public function addDumper(string $format, DumperInterface $dumper): void
     {
         $this->dumpers[$format] = $dumper;
     }
@@ -52,17 +52,17 @@ class TranslationWriter implements TranslationWriterInterface
      *
      * @throws InvalidArgumentException
      */
-    public function write(MessageCatalogue $catalogue, string $format, array $options = [])
+    public function write(MessageCatalogue $catalogue, string $format, array $options = []): void
     {
         if (!isset($this->dumpers[$format])) {
-            throw new InvalidArgumentException(sprintf('There is no dumper associated with format "%s".', $format));
+            throw new InvalidArgumentException(\sprintf('There is no dumper associated with format "%s".', $format));
         }
 
         // get the right dumper
         $dumper = $this->dumpers[$format];
 
-        if (isset($options['path']) && !is_dir($options['path']) && !@mkdir($options['path'], 0777, true) && !is_dir($options['path'])) {
-            throw new RuntimeException(sprintf('Translation Writer was not able to create directory "%s".', $options['path']));
+        if (isset($options['path']) && !is_dir($options['path']) && !@mkdir($options['path'], 0o777, true) && !is_dir($options['path'])) {
+            throw new RuntimeException(\sprintf('Translation Writer was not able to create directory "%s".', $options['path']));
         }
 
         // save

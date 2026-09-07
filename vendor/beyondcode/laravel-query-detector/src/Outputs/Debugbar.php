@@ -5,8 +5,9 @@ namespace BeyondCode\QueryDetector\Outputs;
 use Illuminate\Support\Collection;
 use Symfony\Component\HttpFoundation\Response;
 
-use Barryvdh\Debugbar\Facade as LaravelDebugbar;
+use Barryvdh\Debugbar\Facade as LaravelDebugbarV3;
 use DebugBar\DataCollector\MessagesCollector;
+use Fruitcake\LaravelDebugbar\Facades\Debugbar as LaravelDebugbar;
 
 class Debugbar implements Output
 {
@@ -15,9 +16,16 @@ class Debugbar implements Output
     public function boot()
     {
         $this->collector = new MessagesCollector('N+1 Queries');
-        
-        if (!LaravelDebugbar::hasCollector($this->collector->getName())) {
-            LaravelDebugbar::addCollector($this->collector);
+
+        if (class_exists(\Fruitcake\LaravelDebugbar\Facades\Debugbar::class)) {
+            if (!LaravelDebugbar::hasCollector($this->collector->getName())) {
+                LaravelDebugbar::addCollector($this->collector);
+            }
+            return;
+        }
+
+        if (!LaravelDebugbarV3::hasCollector($this->collector->getName())) {
+            LaravelDebugbarV3::addCollector($this->collector);
         }
     }
 

@@ -63,7 +63,7 @@ class="active"
                 <h3 class="box-title">About Me</h3>
             </div><!-- /.box-header -->
             <div class="box-body">
-                <strong><i class="fa fa-book margin-r-5"></i>  Education</strong>
+                <strong><i class="fa-solid fa-book margin-r-5"></i>  Education</strong>
                 <p class="text-muted">
                     B.S. in Computer Science from the University of Tennessee at Knoxville
                 </p>
@@ -74,9 +74,9 @@ class="active"
     <div class="col-md-9">
         <div class="nav-tabs-custom">
             <ul class="nav nav-tabs">
-                <li class="active"><a href="#activity" data-toggle="tab">Activity</a></li>
-                <li><a href="#timeline" data-toggle="tab">Timeline</a></li>
-                <li><a href="#settings" data-toggle="tab">Settings</a></li>
+                <li class="active"><a href="#activity" data-bs-toggle="tab">Activity</a></li>
+                <li><a href="#timeline" data-bs-toggle="tab">Timeline</a></li>
+                <li><a href="#settings" data-bs-toggle="tab">Settings</a></li>
             </ul>
             <div class="tab-content">
                 <div class="active tab-pane" id="activity">

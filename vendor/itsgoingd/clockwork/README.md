@@ -41,7 +41,7 @@
 Install the Clockwork library via [Composer](https://getcomposer.org/).
 
 ```
-$ composer require itsgoingd/clockwork
+composer require itsgoingd/clockwork
 ```
 
 Congratulations, you are done! To enable more features like commands or queue jobs profiling, publish the configuration file via the `vendor:publish` Artisan command.
@@ -74,7 +74,7 @@ Clockwork also collects stack traces for data like log messages or database quer
 
 ##### Web interface
 
-Open `your.app/clockwork` to view and interact with the collected data.
+Visit `/clockwork` route to view and interact with the collected data.
 
 The app will show all executed requests, which is useful when the request is not made by browser, but for example a mobile application you are developing an API for.
 

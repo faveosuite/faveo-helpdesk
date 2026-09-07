@@ -12,10 +12,9 @@ class MongoUploader
     /**
      * Delete chunks older than expiration time.
      *
-     * @param Bucket $gridFs
      * @param int $expirationTime seconds
      */
-    public static function pruneChunks($gridFs, $expirationTime = 172800)
+    public static function pruneChunks(Bucket $gridFs, int $expirationTime = 172800): void
     {
         $result = $gridFs->find([
             'flowUpdated' => ['$lt' => new \MongoDB\BSON\UTCDateTime(time() - $expirationTime)],

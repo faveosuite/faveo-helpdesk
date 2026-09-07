@@ -31,7 +31,7 @@ abstract class AbstractUploadManager implements Promise\PromisorInterface
         'before_initiate'     => null,
         'before_upload'       => null,
         'before_complete'     => null,
-        'exception_class'     => 'Aws\Exception\MultipartUploadException',
+        'exception_class'     => MultipartUploadException::class,
     ];
 
     /** @var Client Client used for the upload. */
@@ -49,6 +49,9 @@ abstract class AbstractUploadManager implements Promise\PromisorInterface
     /** @var UploadState State used to manage the upload. */
     protected $state;
 
+    /** @var bool Configuration used to indicate if upload progress will be displayed. */
+    protected $displayProgress;
+
     /**
      * @param Client $client
      * @param array  $config
@@ -59,6 +62,12 @@ abstract class AbstractUploadManager implements Promise\PromisorInterface
         $this->info = $this->loadUploadWorkflowInfo();
         $this->config = $config + self::$defaultConfig;
         $this->state = $this->determineState();
+
+        if (isset($config['display_progress'])
+            && is_bool($config['display_progress'])
+        ) {
+            $this->displayProgress = $config['display_progress'];
+        }
     }
 
     /**
@@ -88,7 +97,7 @@ abstract class AbstractUploadManager implements Promise\PromisorInterface
      *
      * @return PromiseInterface
      */
-    public function promise()
+    public function promise(): PromiseInterface
     {
         if ($this->promise) {
             return $this->promise;
@@ -218,10 +227,8 @@ abstract class AbstractUploadManager implements Promise\PromisorInterface
     /**
      * Based on the config and service-specific workflow info, creates a
      * `Promise` for an `UploadState` object.
-     *
-     * @return PromiseInterface A `Promise` that resolves to an `UploadState`.
      */
-    private function determineState()
+    private function determineState(): UploadState
     {
         // If the state was provided via config, then just use it.
         if ($this->config['state'] instanceof UploadState) {
@@ -240,7 +247,7 @@ abstract class AbstractUploadManager implements Promise\PromisorInterface
             }
             $id[$param] = $this->config[$key];
         }
-        $state = new UploadState($id);
+        $state = new UploadState($id, $this->config);
         $state->setPartSize($this->determinePartSize());
 
         return $state;
@@ -289,7 +296,7 @@ abstract class AbstractUploadManager implements Promise\PromisorInterface
         return function (callable $handler) use (&$errors) {
             return function (
                 CommandInterface $command,
-                RequestInterface $request = null
+                ?RequestInterface $request = null
             ) use ($handler, &$errors) {
                 return $handler($command, $request)->then(
                     function (ResultInterface $result) use ($command) {

@@ -20,7 +20,7 @@ class="nav-link active"
 @stop
 <!-- header -->
 @section('PageHeader')
-<h1>{{Lang::get('lang.manage')}}</h1>
+<h3>{{Lang::get('lang.manage')}}</h3>
 @stop
 <!-- /header -->
 <!-- breadcrumbs -->
@@ -33,9 +33,9 @@ class="nav-link active"
 @section('content')
 
 @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <i class="fas fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+    <i class="fa-solid fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('success')}}
 </div>
 @endif
@@ -43,9 +43,9 @@ class="nav-link active"
 <div class="card card-light">
     <div class="card-header">
         <h3 class="card-title">{!! Lang::get('lang.forms') !!}</h3>
-        <div class="card-tools">
-            <a href="{!! url('forms/create') !!}" class="btn btn-default btn-tool">
-                <span class="fas fa-plus"></span>&nbsp;{!! Lang::get('lang.create_form') !!}
+        <div class="card-tools d-flex">
+            <a href="{!! url('forms/create') !!}" class="btn btn-secondary btn-tool">
+                <span class="fa-solid fa-plus"></span>&nbsp;{!! Lang::get('lang.create_form') !!}
             </a>
         </div>
     </div>
@@ -67,31 +67,39 @@ class="nav-link active"
                     <td>{!! $form->formname !!}</td>
                     <td>
                         <div class="btn-group">
-                            {!! link_to_route('forms.edit', Lang::get('lang.edit') ,[$form->id],['id'=>'View','class'=>'btn btn-primary btn-sm']) !!}
+                            <a href="{{ route('forms.edit', [$form->id]) }}" id="View" class="btn btn-primary btn-sm">
+                                {{ Lang::get('lang.edit') }}
+                            </a>
                         </div>
                         <div class="btn-group">
-                            {!! link_to_route('forms.show', Lang::get('lang.view_this_form') ,[$form->id],['id'=>'View','class'=>'btn btn-primary btn-sm']) !!}
+                            <a href="{{ route('forms.show', [$form->id]) }}" id="View" class="btn btn-primary btn-sm">
+                                {{ Lang::get('lang.view_this_form') }}
+                            </a>
                         </div>
                         <div class="btn-group">
-                            {!! link_to_route('forms.add.child', Lang::get('lang.add-child') ,[$form->id],['id'=>'add-child','class'=>'btn btn-primary btn-sm']) !!}
+                            <a href="{{ route('forms.add.child', [$form->id]) }}" id="add-child" class="btn btn-primary btn-sm">
+                                {{ Lang::get('lang.add-child') }}
+                            </a>
                         </div>
                         <div class="btn-group">
-                            <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#delete{{$form->id}}">{!! Lang::get('lang.delete_from') !!}
+                            <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#delete{{$form->id}}">{!! Lang::get('lang.delete_from') !!}
                             </button>
                         </div>
                         <div class="modal fade" id="delete{{$form->id}}">
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h4 class="modal-title">{!! Lang::get('lang.delete') !!}</h4>
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                        <h5 class="modal-title">{!! Lang::get('lang.delete') !!}</h4>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                                     </div>
                                     <div class="modal-body">
                                         <span>{!! Lang::get('lang.are_you_sure_you_want_to_delete') !!} ?</span>
                                     </div>
                                     <div class="modal-footer justify-content-between">
-                                        <button type="button" class="btn btn-default" data-dismiss="modal">{!! Lang::get('lang.close') !!}</button>
-                                        {!! link_to_route('forms.delete', Lang::get('lang.delete'),[$form->id],['id'=>'delete','class'=>'btn btn-danger']) !!}
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{!! Lang::get('lang.close') !!}</button>
+                                        <a href="{{ route('forms.delete', [$form->id]) }}" id="delete" class="btn btn-danger">
+                                            {{ Lang::get('lang.delete') }}
+                                        </a>
                                     </div>
                                 </div> 
                             </div> 

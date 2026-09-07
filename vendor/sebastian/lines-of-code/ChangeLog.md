@@ -2,6 +2,43 @@
 
 All notable changes are documented in this file using the [Keep a CHANGELOG](https://keepachangelog.com/) principles.
 
+## [4.0.0] - 2025-02-07
+
+### Removed
+
+* This component is no longer supported on PHP 8.2
+
+## [3.0.1] - 2024-07-03
+
+### Changed
+
+* This project now uses PHPStan instead of Psalm for static analysis
+
+## [3.0.0] - 2024-02-02
+
+### Removed
+
+* This component now requires PHP-Parser 5
+* This component is no longer supported on PHP 8.1
+
+## [2.0.2] - 2023-12-21
+
+### Changed
+
+* This component is now compatible with `nikic/php-parser` 5.0
+
+## [2.0.1] - 2023-08-31
+
+### Changed
+
+* Improved type information
+
+## [2.0.0] - 2023-02-03
+
+### Removed
+
+* This component is no longer supported on PHP 7.3, PHP 7.4 and PHP 8.0
+
 ## [1.0.3] - 2020-11-28
 
 ### Fixed
@@ -28,6 +65,12 @@ All notable changes are documented in this file using the [Keep a CHANGELOG](htt
 
 * Initial release
 
+[4.0.0]: https://github.com/sebastianbergmann/lines-of-code/compare/3.0...4.0.0
+[3.0.1]: https://github.com/sebastianbergmann/lines-of-code/compare/3.0.0...3.0.1
+[3.0.0]: https://github.com/sebastianbergmann/lines-of-code/compare/2.0...3.0.0
+[2.0.2]: https://github.com/sebastianbergmann/lines-of-code/compare/2.0.1...2.0.2
+[2.0.1]: https://github.com/sebastianbergmann/lines-of-code/compare/2.0.0...2.0.1
+[2.0.0]: https://github.com/sebastianbergmann/lines-of-code/compare/1.0.3...2.0.0
 [1.0.3]: https://github.com/sebastianbergmann/lines-of-code/compare/1.0.2...1.0.3
 [1.0.2]: https://github.com/sebastianbergmann/lines-of-code/compare/1.0.1...1.0.2
 [1.0.1]: https://github.com/sebastianbergmann/lines-of-code/compare/1.0.0...1.0.1

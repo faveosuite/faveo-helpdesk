@@ -36,10 +36,7 @@ use RuntimeException;
  */
 final class Application extends BaseApplication
 {
-    /**
-     * @var IndexedServiceContainer
-     */
-    private $container;
+    private IndexedServiceContainer $container;
 
     public function __construct(string $version)
     {
@@ -70,10 +67,13 @@ final class Application extends BaseApplication
         $this->loadConfigurationFile($input, $this->container);
 
         foreach ($this->container->getByTag('console.commands') as $command) {
-            $this->add($command);
+            $this->addCommands([$command]);
         }
 
-        $this->setDispatcher($this->container->get('console_event_dispatcher'));
+        $dispatcher = $this->container->get('console_event_dispatcher');
+
+        /** @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $dispatcher */
+        $this->setDispatcher($dispatcher);
 
         $consoleWidth = (new Terminal)->getWidth();
 
@@ -124,7 +124,7 @@ final class Application extends BaseApplication
     /**
      * @throws \RuntimeException
      */
-    protected function loadConfigurationFile(InputInterface $input, IndexedServiceContainer $container)
+    protected function loadConfigurationFile(InputInterface $input, IndexedServiceContainer $container) : void
     {
         $config = $this->parseConfigurationFile($input);
 
@@ -142,7 +142,7 @@ final class Application extends BaseApplication
         }
     }
 
-    private function populateContainerParameters(IndexedServiceContainer $container, array $config)
+    private function populateContainerParameters(IndexedServiceContainer $container, array $config) : void
     {
         foreach ($config as $key => $val) {
             if ('extensions' !== $key && 'matchers' !== $key) {
@@ -151,18 +151,19 @@ final class Application extends BaseApplication
         }
     }
 
-    private function registerCustomMatchers(IndexedServiceContainer $container, array $matchersClassnames)
+    private function registerCustomMatchers(IndexedServiceContainer $container, array $matchersClassnames) : void
     {
         foreach ($matchersClassnames as $class) {
             $this->ensureIsValidMatcherClass($class);
 
             $container->define(sprintf('matchers.%s', $class), function () use ($class) {
+                /** @psalm-suppress InvalidStringClass */
                 return new $class();
             }, ['matchers']);
         }
     }
 
-    private function ensureIsValidMatcherClass(string $class)
+    private function ensureIsValidMatcherClass(string $class) : void
     {
         if (!class_exists($class)) {
             throw new InvalidConfigurationException(sprintf('Custom matcher %s does not exist.', $class));
@@ -177,7 +178,7 @@ final class Application extends BaseApplication
         }
     }
 
-    private function loadExtension(ServiceContainer $container, string $extensionClass, $config)
+    private function loadExtension(ServiceContainer $container, string $extensionClass, mixed $config) : void
     {
         if (!class_exists($extensionClass)) {
             throw new InvalidConfigurationException(sprintf('Extension class `%s` does not exist.', $extensionClass));
@@ -239,6 +240,7 @@ final class Application extends BaseApplication
             return array();
         }
 
+        /** @psalm-suppress ReservedWord, RedundantCondition */
         return Yaml::parse(file_get_contents($path)) ?: [];
     }
 

@@ -12,7 +12,13 @@
 namespace Prophecy\Doubler\Generator;
 
 use Prophecy\Doubler\Generator\Node\ReturnTypeNode;
+use Prophecy\Doubler\Generator\Node\Type\IntersectionType;
+use Prophecy\Doubler\Generator\Node\Type\ObjectType;
+use Prophecy\Doubler\Generator\Node\Type\SimpleType;
+use Prophecy\Doubler\Generator\Node\Type\TypeInterface;
+use Prophecy\Doubler\Generator\Node\Type\UnionType;
 use Prophecy\Doubler\Generator\Node\TypeNodeAbstract;
+use Prophecy\Exception\Doubler\ClassCreatorException;
 
 /**
  * Class code creator.
@@ -22,9 +28,8 @@ use Prophecy\Doubler\Generator\Node\TypeNodeAbstract;
  */
 class ClassCodeGenerator
 {
-    public function __construct(TypeHintReference $typeHintReference = null)
-    {
-    }
+    // Used to accept an optional first argument with the deprecated Prophecy\Doubler\Generator\TypeHintReference so careful when adding a new argument in a minor version.
+    public function __construct() {}
 
     /**
      * Generates PHP code for class node.
@@ -41,7 +46,7 @@ class ClassCodeGenerator
         $namespace = implode('\\', $parts);
 
         $code = sprintf("%sclass %s extends \%s implements %s {\n",
-            $class->isReadOnly() ? 'readonly ': '',
+            $class->isReadOnly() ? 'readonly ' : '',
             $classname,
             $class->getParentClass(),
             implode(', ',
@@ -62,12 +67,12 @@ class ClassCodeGenerator
         return sprintf("namespace %s {\n%s\n}", $namespace, $code);
     }
 
-    private function generateMethod(Node\MethodNode $method)
+    private function generateMethod(Node\MethodNode $method): string
     {
         $php = sprintf("%s %s function %s%s(%s)%s {\n",
             $method->getVisibility(),
             $method->isStatic() ? 'static' : '',
-            $method->returnsReference() ? '&':'',
+            $method->returnsReference() ? '&' : '',
             $method->getName(),
             implode(', ', $this->generateArguments($method->getArguments())),
             ($ret = $this->generateTypes($method->getReturnTypeNode())) ? ': '.$ret : ''
@@ -79,21 +84,21 @@ class ClassCodeGenerator
 
     private function generateTypes(TypeNodeAbstract $typeNode): string
     {
-        if (!$typeNode->getTypes()) {
+        if ($typeNode->getType() === null) {
             return '';
         }
 
-        // When we require PHP 8 we can stop generating ?foo nullables and remove this first block
-        if ($typeNode->canUseNullShorthand()) {
-            return sprintf( '?%s', $typeNode->getNonNullTypes()[0]);
-        } else {
-            return join('|', $typeNode->getTypes());
-        }
+        return (string) $typeNode->getType();
     }
 
-    private function generateArguments(array $arguments)
+    /**
+     * @param list<Node\ArgumentNode> $arguments
+     *
+     * @return list<string>
+     */
+    private function generateArguments(array $arguments): array
     {
-        return array_map(function (Node\ArgumentNode $argument){
+        return array_map(function (Node\ArgumentNode $argument) {
 
             $php = $this->generateTypes($argument->getTypeNode());
 
@@ -104,7 +109,14 @@ class ClassCodeGenerator
             $php .= '$'.$argument->getName();
 
             if ($argument->isOptional() && !$argument->isVariadic()) {
-                $php .= ' = '.var_export($argument->getDefault(), true);
+                $default = var_export($argument->getDefault(), true);
+
+                // This is necessary for PHP 8.1, as enum cases are exported without a leading slash in this version
+                if ($argument->getDefault() instanceof \UnitEnum && 0 !== strpos($default, '\\')) {
+                    $default = '\\'.$default;
+                }
+
+                $php .= ' = '.$default;
             }
 
             return $php;

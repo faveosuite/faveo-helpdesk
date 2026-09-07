@@ -13,7 +13,7 @@
             @foreach($directories as $key => $dir_name)
                 <tr>
                     <td>
-                        <i class="fa fa-folder-o"></i>
+                        <i class="fa-solid fa-folder-o"></i>
                         <a id="large_folder_{{ $key }}" data-id="{{ $dir_name }}" href="javascript:clickFolder('large_folder_{{ $key }}',1)">
                             {{ $dir_name }}
                         </a>
@@ -28,14 +28,14 @@
             @foreach($file_info as $file)
                 <tr>
                     <td>
-                        <i class="fa fa-image"></i>
+                        <i class="fa-solid fa-image"></i>
                         <?php $file_name = $file['name'];?>
                         <a href="javascript:useFile('{{ $file_name }}')">
                             {{ $file_name }}
                         </a>
                         &nbsp;&nbsp;
                         <a href="javascript:rename('{{ $file_name }}')">
-                            <i class="fa fa-edit"></i>
+                            <i class="fa-solid fa-pen-to-square"></i>
                         </a>
                     </td>
                     <td>
@@ -49,16 +49,16 @@
                     </td>
                     <td>
                         <a href="javascript:trash('{{ $file_name }}')">
-                            <i class="fa fa-trash fa-fw"></i>
+                            <i class="fa-solid fa-trash fa-fw"></i>
                         </a>
                         <a href="javascript:cropImage('{{ $file_name }}')">
-                            <i class="fa fa-crop fa-fw"></i>
+                            <i class="fa-solid fa-crop fa-fw"></i>
                         </a>
                         <a href="javascript:resizeImage('{{ $file_name }}')">
-                            <i class="fa fa-arrows fa-fw"></i>
+                            <i class="fa-solid fa-arrows fa-fw"></i>
                         </a>
                         {{--<a href="javascript:notImp()">--}}
-                            {{--<i class="fa fa-rotate-left fa-fw"></i>--}}
+                            {{--<i class="fa-solid fa-rotate-left fa-fw"></i>--}}
                         {{--</a>--}}
                     </td>
                 </tr>

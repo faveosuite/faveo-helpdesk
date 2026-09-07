@@ -161,7 +161,7 @@ class MailController extends Controller
     {
         //  dd($email);
         if ($email) {
-            $username = $email->email_address;
+            $username = $email->authUsername();
             $password = $email->password;
             $service = $email->fetching_protocol;
             $host = $email->fetching_host;
@@ -355,19 +355,45 @@ class MailController extends Controller
     public function get_data(Request $request)
     {
         $id = $request->input('image_id');
-        $attachment = \App\Model\helpdesk\Ticket\Ticket_attachments::where('id', '=', $id)->first();
+        $attachment = Ticket_attachments::where('id', '=', $id)->first();
+
+        if (!$attachment) {
+            abort(404);
+        }
+
+        // Resolve ticket via thread → ticket chain
+        $thread = Ticket_Thread::where('id', '=', $attachment->thread_id)->first();
+        $ticket = $thread ? Tickets::where('id', '=', $thread->ticket_id)->first() : null;
+
+        if (!$ticket) {
+            abort(404);
+        }
+
+        // Authorization: verify the requesting user may access this ticket
+        $user = \Auth::user();
+        if ($user->role === 'user') {
+            if ($ticket->user_id != $user->id) {
+                abort(403);
+            }
+        } elseif ($user->role === 'agent') {
+            if ($ticket->dept_id != $user->primary_dpt && $ticket->assigned_to != $user->id) {
+                abort(403);
+            }
+        }
+        // admin: no restriction
+
         if (mime($attachment->type) == true) {
             echo "<img src=data:$attachment->type;base64,".$attachment->file.'>';
         } else {
             $file = base64_decode($attachment->file);
 
             return response($file)
-                            ->header('Cache-Control', 'no-cache private')
-                            ->header('Content-Description', 'File Transfer')
-                            ->header('Content-Type', $attachment->type)
-                            ->header('Content-length', strlen($file))
-                            ->header('Content-Disposition', 'attachment; filename='.$attachment->name)
-                            ->header('Content-Transfer-Encoding', 'binary');
+                ->header('Cache-Control', 'no-cache private')
+                ->header('Content-Description', 'File Transfer')
+                ->header('Content-Type', $attachment->type)
+                ->header('Content-length', strlen($file))
+                ->header('Content-Disposition', 'attachment; filename='.$attachment->name)
+                ->header('Content-Transfer-Encoding', 'binary');
         }
     }
 

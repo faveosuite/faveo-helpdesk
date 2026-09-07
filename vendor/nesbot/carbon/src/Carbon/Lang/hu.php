@@ -82,7 +82,7 @@ return [
     'second_before' => ':count másodperccel',
     's_before' => ':count másodperccel',
     'months' => ['január', 'február', 'március', 'április', 'május', 'június', 'július', 'augusztus', 'szeptember', 'október', 'november', 'december'],
-    'months_short' => ['jan.', 'feb.', 'márc.', 'ápr.', 'máj.', 'jún.', 'júl.', 'aug.', 'szept.', 'okt.', 'nov.', 'dec.'],
+    'months_short' => ['jan.', 'febr.', 'márc.', 'ápr.', 'máj.', 'jún.', 'júl.', 'aug.', 'szept.', 'okt.', 'nov.', 'dec.'],
     'weekdays' => ['vasárnap', 'hétfő', 'kedd', 'szerda', 'csütörtök', 'péntek', 'szombat'],
     'weekdays_short' => ['vas', 'hét', 'kedd', 'sze', 'csüt', 'pén', 'szo'],
     'weekdays_min' => ['v', 'h', 'k', 'sze', 'cs', 'p', 'sz'],
@@ -102,11 +102,11 @@ return [
     'calendar' => [
         'sameDay' => '[ma] LT[-kor]',
         'nextDay' => '[holnap] LT[-kor]',
-        'nextWeek' => function (CarbonInterface $date) use ($huWeekEndings) {
+        'nextWeek' => static function (CarbonInterface $date) use ($huWeekEndings) {
             return '['.$huWeekEndings[$date->dayOfWeek].'] LT[-kor]';
         },
         'lastDay' => '[tegnap] LT[-kor]',
-        'lastWeek' => function (CarbonInterface $date) use ($huWeekEndings) {
+        'lastWeek' => static function (CarbonInterface $date) use ($huWeekEndings) {
             return '[múlt '.$huWeekEndings[$date->dayOfWeek].'] LT[-kor]';
         },
         'sameElse' => 'L',

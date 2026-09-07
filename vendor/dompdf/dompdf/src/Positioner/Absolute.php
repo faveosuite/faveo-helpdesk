@@ -1,11 +1,9 @@
 <?php
 /**
  * @package dompdf
- * @link    http://dompdf.github.com/
- * @author  Benj Carson <benjcarson@digitaljunkies.ca>
+ * @link    https://github.com/dompdf/dompdf
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
-
 namespace Dompdf\Positioner;
 
 use Dompdf\FrameDecorator\AbstractFrameDecorator;
@@ -20,7 +18,7 @@ class Absolute extends AbstractPositioner
     /**
      * @param AbstractFrameDecorator $frame
      */
-    function position(AbstractFrameDecorator $frame)
+    function position(AbstractFrameDecorator $frame): void
     {
         if ($frame->get_reflower() instanceof Block) {
             $style = $frame->get_style();
@@ -51,9 +49,8 @@ class Absolute extends AbstractPositioner
 
             list($width, $height) = [$frame->get_margin_width(), $frame->get_margin_height()];
 
-            $orig_style = $frame->get_original_style();
-            $orig_width = $orig_style->width;
-            $orig_height = $orig_style->height;
+            $orig_width = $style->get_specified("width");
+            $orig_height = $style->get_specified("height");
 
             /****************************
              *

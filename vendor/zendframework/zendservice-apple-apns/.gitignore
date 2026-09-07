@@ -1,7 +1,0 @@
-.DS_STORE
-.*.un~
-composer.lock
-composer.phar
-vendor/
-php-cs-fixer.phar
-/.project

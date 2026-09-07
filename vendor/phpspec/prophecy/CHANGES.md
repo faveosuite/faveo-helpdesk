@@ -1,7 +1,105 @@
+Unreleased
+==========
+
+1.25.0
+======
+
+**Added:**
+
+* Add support for PHPUnit 13 (@Jean85)
+
+1.24.0
+======
+
+**Added:**
+
+* Add support for PHP 8.5 (@andypost)
+
+1.23.1
+======
+
+**Changed:**
+
+* Refactor the ProphecyComparator to use composition instead of extending internal comparator classes (@stof)
+
+1.23.0
+======
+
+**Removed:**
+
+* Remove support for PHP lower than 8.2 (@Nek-)
+
+**Added:**
+
+* Add support for doubling classes using intersection types and DNF types (@Nek-)
+
+**Fixed:**
+
+* Fix deprecation for `SplObjectStorage` changes in PHP 8.5 (@Nek-)
+
+**Changed:**
+
+* Improve error message for unsupported default return values (@stof)
+
+1.22.0
+======
+
+**Removed:**
+
+* Support for PHP 7.2 and 7.3 (@jean85)
+
+1.21.0
+======
+
+**Added:**
+
+* Add support for PHPUnit 12 (@jean85)
+
+1.20.0
+======
+
+**Added:**
+
+* Add support for PHP 8.4 (@andypost)
+
+**Fixed:**
+
+* Fix support for doubling methods using an enum case as default value of a parameter (@jdreesen)
+* Fix deprecation when doubling a class with constructor parameters (@singinwhale, @W0rma)
+* Fix deprecation warning when using phpdocumentor/reflection-docblock 5.4+ (@jrfnl)
+
+1.19.0
+======
+
+**Added:**
+
+* Allow sebastian/comparator and sebastian/recursion-context 6
+
+1.18.0 / 2023-12-07
+===================
+
+* [added] Add support for PHP 8.3 [@rajeshreeputra]
+* [changed] Improve the error when using return types that Prophecy does not support for mocking [@stof]
+* [changed] Add more precise type for static analysis [@stof]
+* [fixed] Error when comparing object arguments with integers [@lucassabreu]
+* [changed] Add PHP 8.2 to test matrix [@Jean85]
+* [Added] Allow sebastian/comparator and sebastian/recursion-context 5, and phpunit/phpunit 10 [@Jean85]
+* [docs] Switch travis status badge to GHA one [@michalbundyra]
+
+1.17.0 / 2023-02-02
+===================
+
+* [added] Add generic types for ProphecyInterface and ObjectProphecy [@stof]
+* [added] Add the conditional return type for `ObjectProphecy::getMethodProphecies` [@stof]
+* [added] Add support for doctrine/instantiator 2.0 [@stof]
+* [added] Add the ability to customize the __toString representation of a CallbackToken [@ian-zunderdorp]
+* [changed] Remove support for instantiating a MethodProphecy without its arguments [@stof]
+* [deprecated] Deprecate `\Prophecy\Comparator\Factory` as `sebastian/comparator` v5 makes it parent class final [@stof]
+
 1.16.0 / 2022/11/29
 ===================
 
-* [added] Allow install with PHP 8.2 [@gquemener]
+* [added] Allow installing with PHP 8.2 [@gquemener]
 * [added] Use shorter object IDs for object comparison [@TysonAndre]
 * [added] Support standalone false,true and null types [@kschatzle]
 * [added] Support doubling readonly classes [@gquemener]

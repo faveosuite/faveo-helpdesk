@@ -36,15 +36,14 @@ class RequestDataCollector extends DataCollector implements EventSubscriberInter
      */
     private \SplObjectStorage $controllers;
     private array $sessionUsages = [];
-    private ?RequestStack $requestStack;
 
-    public function __construct(RequestStack $requestStack = null)
-    {
+    public function __construct(
+        private ?RequestStack $requestStack = null,
+    ) {
         $this->controllers = new \SplObjectStorage();
-        $this->requestStack = $requestStack;
     }
 
-    public function collect(Request $request, Response $response, \Throwable $exception = null)
+    public function collect(Request $request, Response $response, ?\Throwable $exception = null): void
     {
         // attributes are serialized and as they can be anything, they need to be converted to strings.
         $attributes = [];
@@ -63,7 +62,7 @@ class RequestDataCollector extends DataCollector implements EventSubscriberInter
         $sessionMetadata = [];
         $sessionAttributes = [];
         $flashes = [];
-        if ($request->hasSession()) {
+        if (!$request->attributes->getBoolean('_stateless') && $request->hasSession()) {
             $session = $request->getSession();
             if ($session->isStarted()) {
                 $sessionMetadata['Created'] = date(\DATE_RFC822, $session->getMetadataBag()->getCreated());
@@ -136,7 +135,7 @@ class RequestDataCollector extends DataCollector implements EventSubscriberInter
                 continue;
             }
             if ('request_headers' === $key || 'response_headers' === $key) {
-                $this->data[$key] = array_map(function ($v) { return isset($v[0]) && !isset($v[1]) ? $v[0] : $v; }, $value);
+                $this->data[$key] = array_map(fn ($v) => isset($v[0]) && !isset($v[1]) ? $v[0] : $v, $value);
             }
         }
 
@@ -173,141 +172,144 @@ class RequestDataCollector extends DataCollector implements EventSubscriberInter
         }
     }
 
-    public function lateCollect()
+    public function lateCollect(): void
     {
         $this->data = $this->cloneVar($this->data);
     }
 
-    public function reset()
+    public function reset(): void
     {
-        $this->data = [];
+        parent::reset();
         $this->controllers = new \SplObjectStorage();
         $this->sessionUsages = [];
     }
 
-    public function getMethod()
+    public function getMethod(): string
     {
         return $this->data['method'];
     }
 
-    public function getPathInfo()
+    public function getPathInfo(): string
     {
         return $this->data['path_info'];
     }
 
-    public function getRequestRequest()
+    public function getRequestRequest(): ParameterBag
     {
         return new ParameterBag($this->data['request_request']->getValue());
     }
 
-    public function getRequestQuery()
+    public function getRequestQuery(): ParameterBag
     {
         return new ParameterBag($this->data['request_query']->getValue());
     }
 
-    public function getRequestFiles()
+    public function getRequestFiles(): ParameterBag
     {
         return new ParameterBag($this->data['request_files']->getValue());
     }
 
-    public function getRequestHeaders()
+    public function getRequestHeaders(): ParameterBag
     {
         return new ParameterBag($this->data['request_headers']->getValue());
     }
 
-    public function getRequestServer(bool $raw = false)
+    public function getRequestServer(bool $raw = false): ParameterBag
     {
         return new ParameterBag($this->data['request_server']->getValue($raw));
     }
 
-    public function getRequestCookies(bool $raw = false)
+    public function getRequestCookies(bool $raw = false): ParameterBag
     {
         return new ParameterBag($this->data['request_cookies']->getValue($raw));
     }
 
-    public function getRequestAttributes()
+    public function getRequestAttributes(): ParameterBag
     {
         return new ParameterBag($this->data['request_attributes']->getValue());
     }
 
-    public function getResponseHeaders()
+    public function getResponseHeaders(): ParameterBag
     {
         return new ParameterBag($this->data['response_headers']->getValue());
     }
 
-    public function getResponseCookies()
+    public function getResponseCookies(): ParameterBag
     {
         return new ParameterBag($this->data['response_cookies']->getValue());
     }
 
-    public function getSessionMetadata()
+    public function getSessionMetadata(): array
     {
         return $this->data['session_metadata']->getValue();
     }
 
-    public function getSessionAttributes()
+    public function getSessionAttributes(): array
     {
         return $this->data['session_attributes']->getValue();
     }
 
-    public function getStatelessCheck()
+    public function getStatelessCheck(): bool
     {
         return $this->data['stateless_check'];
     }
 
-    public function getSessionUsages()
+    public function getSessionUsages(): Data|array
     {
         return $this->data['session_usages'];
     }
 
-    public function getFlashes()
+    public function getFlashes(): array
     {
         return $this->data['flashes']->getValue();
     }
 
+    /**
+     * @return string|resource
+     */
     public function getContent()
     {
         return $this->data['content'];
     }
 
-    public function isJsonRequest()
+    public function isJsonRequest(): bool
     {
         return 1 === preg_match('{^application/(?:\w+\++)*json$}i', $this->data['request_headers']['content-type']);
     }
 
-    public function getPrettyJson()
+    public function getPrettyJson(): ?string
     {
         $decoded = json_decode($this->getContent());
 
         return \JSON_ERROR_NONE === json_last_error() ? json_encode($decoded, \JSON_PRETTY_PRINT) : null;
     }
 
-    public function getContentType()
+    public function getContentType(): string
     {
         return $this->data['content_type'];
     }
 
-    public function getStatusText()
+    public function getStatusText(): string
     {
         return $this->data['status_text'];
     }
 
-    public function getStatusCode()
+    public function getStatusCode(): int
     {
         return $this->data['status_code'];
     }
 
-    public function getFormat()
+    public function getFormat(): string
     {
         return $this->data['format'];
     }
 
-    public function getLocale()
+    public function getLocale(): string
     {
         return $this->data['locale'];
     }
 
-    public function getDotenvVars()
+    public function getDotenvVars(): ParameterBag
     {
         return new ParameterBag($this->data['dotenv_vars']->getValue());
     }
@@ -322,7 +324,7 @@ class RequestDataCollector extends DataCollector implements EventSubscriberInter
         return $this->data['route'];
     }
 
-    public function getIdentifier()
+    public function getIdentifier(): string
     {
         return $this->data['identifier'];
     }
@@ -359,17 +361,17 @@ class RequestDataCollector extends DataCollector implements EventSubscriberInter
         return $this->data['redirect'] ?? false;
     }
 
-    public function getForwardToken()
+    public function getForwardToken(): ?string
     {
         return $this->data['forward_token'] ?? null;
     }
 
-    public function onKernelController(ControllerEvent $event)
+    public function onKernelController(ControllerEvent $event): void
     {
         $this->controllers[$event->getRequest()] = $event->getController();
     }
 
-    public function onKernelResponse(ResponseEvent $event)
+    public function onKernelResponse(ResponseEvent $event): void
     {
         if (!$event->isMainRequest()) {
             return;
@@ -413,7 +415,7 @@ class RequestDataCollector extends DataCollector implements EventSubscriberInter
         array_splice($trace, 0, $traceEndIndex);
 
         // Merge identical backtraces generated by internal call reports
-        $name = sprintf('%s:%s', $trace[1]['class'] ?? $trace[0]['file'], $trace[0]['line']);
+        $name = \sprintf('%s:%s', $trace[1]['class'] ?? $trace[0]['file'], $trace[0]['line']);
         if (!\array_key_exists($name, $this->sessionUsages)) {
             $this->sessionUsages[$name] = [
                 'name' => $name,
@@ -466,12 +468,12 @@ class RequestDataCollector extends DataCollector implements EventSubscriberInter
                 'line' => $r->getStartLine(),
             ];
 
-            if (str_contains($r->name, '{closure}')) {
+            if ($r->isAnonymous()) {
                 return $controller;
             }
             $controller['method'] = $r->name;
 
-            if ($class = \PHP_VERSION_ID >= 80111 ? $r->getClosureCalledClass() : $r->getClosureScopeClass()) {
+            if ($class = $r->getClosureCalledClass()) {
                 $controller['class'] = $class->name;
             } else {
                 return $r->name;

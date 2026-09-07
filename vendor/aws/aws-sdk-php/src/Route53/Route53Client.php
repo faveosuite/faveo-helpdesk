@@ -144,6 +144,8 @@ use Psr\Http\Message\RequestInterface;
  * @method \GuzzleHttp\Promise\Promise updateHealthCheckAsync(array $args = [])
  * @method \Aws\Result updateHostedZoneComment(array $args = [])
  * @method \GuzzleHttp\Promise\Promise updateHostedZoneCommentAsync(array $args = [])
+ * @method \Aws\Result updateHostedZoneFeatures(array $args = [])
+ * @method \GuzzleHttp\Promise\Promise updateHostedZoneFeaturesAsync(array $args = [])
  * @method \Aws\Result updateTrafficPolicyComment(array $args = [])
  * @method \GuzzleHttp\Promise\Promise updateTrafficPolicyCommentAsync(array $args = [])
  * @method \Aws\Result updateTrafficPolicyInstance(array $args = [])
@@ -160,7 +162,7 @@ class Route53Client extends AwsClient
     private function cleanIdFn()
     {
         return function (callable $handler) {
-            return function (CommandInterface $c, RequestInterface $r = null) use ($handler) {
+            return function (CommandInterface $c, ?RequestInterface $r = null) use ($handler) {
                 foreach (['Id', 'HostedZoneId', 'DelegationSetId'] as $clean) {
                     if ($c->hasParam($clean)) {
                         $c[$clean] = $this->cleanId($c[$clean]);

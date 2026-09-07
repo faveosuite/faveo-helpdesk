@@ -94,6 +94,13 @@ class Server
     protected $options = 0;
 
     /**
+     * This is the set of connection parameters
+     *
+     * @var array
+     */
+    protected $params = array();
+
+    /**
      * This is the resource connection to the server. It is required by a number of imap based functions to specify how
      * to connect.
      *
@@ -140,11 +147,15 @@ class Server
      *
      * @param string $username
      * @param string $password
+     * @param bool   $tryFasterAuth tries to auth faster by disabling GSSAPI & NTLM auth methods (set to false if you use either of these auth methods)
      */
-    public function setAuthentication($username, $password)
+    public function setAuthentication($username, $password, $tryFasterAuth=true)
     {
         $this->username = $username;
         $this->password = $password;
+        if ($tryFasterAuth) {
+            $this->setParam('DISABLE_AUTHENTICATOR', array('GSSAPI','NTLM'));
+        }
     }
 
     /**
@@ -226,13 +237,24 @@ class Server
     }
 
     /**
+     * This function is used to set connection parameters
+     *
+     * @param string $key
+     * @param string $value
+     */
+    public function setParam($key, $value)
+    {
+        $this->params[$key] = $value;
+    }
+
+    /**
      * This function gets the current saved imap resource and returns it.
      *
      * @return resource
      */
     public function getImapStream()
     {
-        if (!isset($this->imapStream))
+        if (empty($this->imapStream))
             $this->setImapStream();
 
         return $this->imapStream;
@@ -284,11 +306,11 @@ class Server
      */
     protected function setImapStream()
     {
-        if (isset($this->imapStream)) {
+        if (!empty($this->imapStream)) {
             if (!imap_reopen($this->imapStream, $this->getServerString(), $this->options, 1))
                 throw new \RuntimeException(imap_last_error());
         } else {
-            $imapStream = imap_open($this->getServerString(), $this->username, $this->password, $this->options, 1);
+            $imapStream = @imap_open($this->getServerString(), $this->username, $this->password, $this->options, 1, $this->params);
 
             if ($imapStream === false)
                 throw new \RuntimeException(imap_last_error());
@@ -300,11 +322,22 @@ class Server
     /**
      * This returns the number of messages that the current mailbox contains.
      *
+     * @param  string $mailbox
      * @return int
      */
-    public function numMessages()
+    public function numMessages($mailbox='')
     {
-        return imap_num_msg($this->getImapStream());
+        $cnt = 0;
+        if ($mailbox==='') {
+            $cnt = imap_num_msg($this->getImapStream());
+        } elseif ($this->hasMailbox($mailbox) && $mailbox !== '') {
+            $oldMailbox = $this->getMailBox();
+            $this->setMailbox($mailbox);
+            $cnt = $this->numMessages();
+            $this->setMailbox($oldMailbox);
+        }
+
+        return ((int) $cnt);
     }
 
     /**
@@ -425,7 +458,19 @@ class Server
      */
     public function hasMailBox($mailbox)
     {
-        return (boolean) imap_getmailboxes(
+        return (boolean) $this->getMailBoxDetails($mailbox);
+    }
+
+    /**
+    * Return information about the mailbox or mailboxes
+    *
+    * @param $mailbox
+    *
+    * @return array
+    */
+    public function getMailBoxDetails($mailbox)
+    {
+        return imap_getmailboxes(
             $this->getImapStream(),
             $this->getServerString(),
             $this->getServerSpecification() . $mailbox
@@ -455,4 +500,16 @@ class Server
     {
         return imap_list($this->getImapStream(), $this->getServerSpecification(), $pattern);
     }
+
+    /**
+     * Deletes the given mailbox.
+     *
+     * @param $mailbox
+     *
+     * @return bool
+     */
+     public function deleteMailBox($mailbox)
+     {
+         return imap_deletemailbox($this->getImapStream(), $this->getServerSpecification() . $mailbox);
+     }
 }

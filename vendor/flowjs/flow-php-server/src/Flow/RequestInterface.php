@@ -6,71 +6,51 @@ interface RequestInterface
 {
     /**
      * Get uploaded file name
-     *
-     * @return string
      */
-    public function getFileName();
+    public function getFileName(): ?string;
 
     /**
      * Get total file size in bytes
-     *
-     * @return int
      */
-    public function getTotalSize();
+    public function getTotalSize(): ?int;
 
     /**
      * Get file unique identifier
-     *
-     * @return string
      */
-    public function getIdentifier();
+    public function getIdentifier(): ?string;
 
     /**
      * Get file relative path
-     *
-     * @return string
      */
-    public function getRelativePath();
+    public function getRelativePath(): ?string;
 
     /**
      * Get total chunks number
-     *
-     * @return int
      */
-    public function getTotalChunks();
+    public function getTotalChunks(): ?int;
 
     /**
      * Get default chunk size
-     *
-     * @return int
      */
-    public function getDefaultChunkSize();
+    public function getDefaultChunkSize(): ?int;
 
     /**
      * Get current uploaded chunk number, starts with 1
-     *
-     * @return int
      */
-    public function getCurrentChunkNumber();
+    public function getCurrentChunkNumber(): ?int;
 
     /**
      * Get current uploaded chunk size
-     *
-     * @return int
      */
-    public function getCurrentChunkSize();
+    public function getCurrentChunkSize(): ?int;
 
     /**
      * Return $_FILES request
-     *
-     * @return array|null
      */
-    public function getFile();
+    public function getFile(): ?array;
 
     /**
      * Checks if request is formed by fusty flow
-     *
-     * @return bool
      */
-    public function isFustyFlowRequest();
+    public function isFustyFlowRequest(): bool;
 }

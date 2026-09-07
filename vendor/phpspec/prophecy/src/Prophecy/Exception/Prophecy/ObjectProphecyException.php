@@ -17,15 +17,19 @@ class ObjectProphecyException extends \RuntimeException implements ProphecyExcep
 {
     private $objectProphecy;
 
-    public function __construct($message, ObjectProphecy $objectProphecy)
+    /**
+     * @param string                 $message
+     * @param ObjectProphecy<object> $objectProphecy
+     */
+    public function __construct($message, ObjectProphecy $objectProphecy, ?\Throwable $previous = null)
     {
-        parent::__construct($message);
+        parent::__construct($message, 0, $previous);
 
         $this->objectProphecy = $objectProphecy;
     }
 
     /**
-     * @return ObjectProphecy
+     * @return ObjectProphecy<object>
      */
     public function getObjectProphecy()
     {

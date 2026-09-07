@@ -14,14 +14,12 @@ namespace Symfony\Component\HttpKernel\Profiler;
 use Symfony\Component\HttpKernel\DataCollector\DataCollectorInterface;
 
 /**
- * Profile.
- *
  * @author Fabien Potencier <fabien@symfony.com>
+ *
+ * @final since Symfony 7.4
  */
 class Profile
 {
-    private string $token;
-
     /**
      * @var DataCollectorInterface[]
      */
@@ -33,18 +31,19 @@ class Profile
     private ?int $time = null;
     private ?int $statusCode = null;
     private ?self $parent = null;
+    private ?string $virtualType = null;
 
     /**
      * @var Profile[]
      */
     private array $children = [];
 
-    public function __construct(string $token)
-    {
-        $this->token = $token;
+    public function __construct(
+        private string $token,
+    ) {
     }
 
-    public function setToken(string $token)
+    public function setToken(string $token): void
     {
         $this->token = $token;
     }
@@ -60,7 +59,7 @@ class Profile
     /**
      * Sets the parent token.
      */
-    public function setParent(self $parent)
+    public function setParent(self $parent): void
     {
         $this->parent = $parent;
     }
@@ -89,7 +88,7 @@ class Profile
         return $this->ip;
     }
 
-    public function setIp(?string $ip)
+    public function setIp(?string $ip): void
     {
         $this->ip = $ip;
     }
@@ -102,7 +101,7 @@ class Profile
         return $this->method;
     }
 
-    public function setMethod(string $method)
+    public function setMethod(string $method): void
     {
         $this->method = $method;
     }
@@ -115,7 +114,7 @@ class Profile
         return $this->url;
     }
 
-    public function setUrl(?string $url)
+    public function setUrl(?string $url): void
     {
         $this->url = $url;
     }
@@ -125,12 +124,12 @@ class Profile
         return $this->time ?? 0;
     }
 
-    public function setTime(int $time)
+    public function setTime(int $time): void
     {
         $this->time = $time;
     }
 
-    public function setStatusCode(int $statusCode)
+    public function setStatusCode(int $statusCode): void
     {
         $this->statusCode = $statusCode;
     }
@@ -138,6 +137,22 @@ class Profile
     public function getStatusCode(): ?int
     {
         return $this->statusCode;
+    }
+
+    /**
+     * @internal
+     */
+    public function setVirtualType(?string $virtualType): void
+    {
+        $this->virtualType = $virtualType;
+    }
+
+    /**
+     * @internal
+     */
+    public function getVirtualType(): ?string
+    {
+        return $this->virtualType;
     }
 
     /**
@@ -155,7 +170,7 @@ class Profile
      *
      * @param Profile[] $children
      */
-    public function setChildren(array $children)
+    public function setChildren(array $children): void
     {
         $this->children = [];
         foreach ($children as $child) {
@@ -166,7 +181,7 @@ class Profile
     /**
      * Adds the child token.
      */
-    public function addChild(self $child)
+    public function addChild(self $child): void
     {
         $this->children[] = $child;
         $child->setParent($this);
@@ -191,7 +206,7 @@ class Profile
     public function getCollector(string $name): DataCollectorInterface
     {
         if (!isset($this->collectors[$name])) {
-            throw new \InvalidArgumentException(sprintf('Collector "%s" does not exist.', $name));
+            throw new \InvalidArgumentException(\sprintf('Collector "%s" does not exist.', $name));
         }
 
         return $this->collectors[$name];
@@ -212,7 +227,7 @@ class Profile
      *
      * @param DataCollectorInterface[] $collectors
      */
-    public function setCollectors(array $collectors)
+    public function setCollectors(array $collectors): void
     {
         $this->collectors = [];
         foreach ($collectors as $collector) {
@@ -223,7 +238,7 @@ class Profile
     /**
      * Adds a Collector.
      */
-    public function addCollector(DataCollectorInterface $collector)
+    public function addCollector(DataCollectorInterface $collector): void
     {
         $this->collectors[$collector->getName()] = $collector;
     }
@@ -233,8 +248,11 @@ class Profile
         return isset($this->collectors[$name]);
     }
 
+    /**
+     * @internal since Symfony 7.4, will be replaced by `__serialize()` in 8.0
+     */
     public function __sleep(): array
     {
-        return ['token', 'parent', 'children', 'collectors', 'ip', 'method', 'url', 'time', 'statusCode'];
+        return ['token', 'parent', 'children', 'collectors', 'ip', 'method', 'url', 'time', 'statusCode', 'virtualType'];
     }
 }

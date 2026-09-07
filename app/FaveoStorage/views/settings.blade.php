@@ -56,56 +56,56 @@ class="nav-link active"
     <div class="card-header">
         <h3 class="card-title"> {{Lang::get('storage::lang.storage')}} </h3>
        
-        {!! Form::open(['url'=>'storage','method'=>'post']) !!}
+        {!! html()->form('POST', url('storage'))->open() !!}
     </div><!-- /.box-header -->
     <!-- /.box-header -->
     <div class="card-body">
         <div class="row">
             <div class="form-group col-md-8 {{ $errors->has('default') ? 'has-error' : '' }}">
-                {!! Form::label('default',Lang::get('storage::lang.default')) !!}
-                {!! Form::select('default',['database'=>'Database','local'=>'Local'],$default,['class'=>'form-control']) !!}             
+                {!! html()->label(Lang::get('storage::lang.default'), 'default') !!}
+                {!! html()->select('default', ['database'=>'Database','local'=>'Local'], $default)->class('form-control') !!}             
             </div>
             
             <div class="form-group col-md-6 {{ $errors->has('root') ? 'has-error' : '' }}" id="root" style="display: none;">
-                {!! Form::label('root',Lang::get('storage::lang.root')) !!}
-                {!! Form::select('root',$directories,$root,['class'=>'form-control']) !!}             
+                {!! html()->label(Lang::get('storage::lang.root'), 'root') !!}
+                {!! html()->select('root', $directories, $root)->class('form-control') !!}             
             </div>
             <div id="common" style="display: none;">
                 <div class="form-group col-md-6 {{ $errors->has('key') ? 'has-error' : '' }}">
-                    {!! Form::label('key',Lang::get('storage::lang.key')) !!}
-                    {!! Form::text('key',null,['class'=>'form-control']) !!}             
+                    {!! html()->label(Lang::get('storage::lang.key'), 'key') !!}
+                    {!! html()->text('key', null)->class('form-control') !!}             
                 </div>
                 <div class="form-group col-md-6 {{ $errors->has('region') ? 'has-error' : '' }}">
-                    {!! Form::label('region',Lang::get('storage::lang.region')) !!}
-                    {!! Form::text('region',null,['class'=>'form-control']) !!}             
+                    {!! html()->label(Lang::get('storage::lang.region'), 'region') !!}
+                    {!! html()->text('region', null)->class('form-control') !!}             
                 </div>
             </div>
             <div id="s3" style="display: none;">
                 <div class="form-group col-md-6 {{ $errors->has('secret') ? 'has-error' : '' }}">
-                    {!! Form::label('secret',Lang::get('storage::lang.secret')) !!}
-                    {!! Form::text('secret',null,['class'=>'form-control']) !!}             
+                    {!! html()->label(Lang::get('storage::lang.secret'), 'secret') !!}
+                    {!! html()->text('secret', null)->class('form-control') !!}             
                 </div>
                 <div class="form-group col-md-6 {{ $errors->has('bucket') ? 'has-error' : '' }}">
-                    {!! Form::label('bucket',Lang::get('storage::lang.bucket')) !!}
-                    {!! Form::text('bucket',null,['class'=>'form-control']) !!}             
+                    {!! html()->label(Lang::get('storage::lang.bucket'), 'bucket') !!}
+                    {!! html()->text('bucket', null)->class('form-control') !!}             
                 </div>
             </div>
             <div id="rackspace" style="display: none;">
                 <div class="form-group col-md-6 {{ $errors->has('username') ? 'has-error' : '' }}">
-                    {!! Form::label('username',Lang::get('storage::lang.username')) !!}
-                    {!! Form::text('username',null,['class'=>'form-control']) !!}             
+                    {!! html()->label(Lang::get('storage::lang.username'), 'username') !!}
+                    {!! html()->text('username', null)->class('form-control') !!}             
                 </div>
                 <div class="form-group col-md-6 {{ $errors->has('container') ? 'has-error' : '' }}">
-                    {!! Form::label('container',Lang::get('storage::lang.container')) !!}
-                    {!! Form::text('container',null,['class'=>'form-control']) !!}             
+                    {!! html()->label(Lang::get('storage::lang.container'), 'container') !!}
+                    {!! html()->text('container', null)->class('form-control') !!}             
                 </div>
                 <div class="form-group col-md-6 {{ $errors->has('endpoint') ? 'has-error' : '' }}">
-                    {!! Form::label('endpoint',Lang::get('storage::lang.endpoint')) !!}
-                    {!! Form::text('endpoint',null,['class'=>'form-control']) !!}             
+                    {!! html()->label(Lang::get('storage::lang.endpoint'), 'endpoint') !!}
+                    {!! html()->text('endpoint', null)->class('form-control') !!}             
                 </div>
                 <div class="form-group col-md-6 {{ $errors->has('url_type') ? 'has-error' : '' }}">
-                    {!! Form::label('url_type',Lang::get('storage::lang.url_type')) !!}
-                    {!! Form::text('url_type',null,['class'=>'form-control']) !!}             
+                    {!! html()->label(Lang::get('storage::lang.url_type'), 'url_type') !!}
+                    {!! html()->text('url_type', null)->class('form-control') !!}             
                 </div>
             </div>
 
@@ -114,8 +114,8 @@ class="nav-link active"
         <!-- /.box-body -->
     </div>
     <div class="card-footer">
-        {!! Form::submit(Lang::get('storage::lang.save'),['class'=>'btn btn-success']) !!}
-        {!! Form::close() !!}
+        {!! html()->submit(Lang::get('storage::lang.save'))->class('btn btn-success') !!}
+        {!! html()->closeModelForm() !!}
     </div>
     <!-- /.box -->
 </div>

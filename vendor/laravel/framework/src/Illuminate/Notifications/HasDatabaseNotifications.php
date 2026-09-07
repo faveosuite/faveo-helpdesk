@@ -7,7 +7,7 @@ trait HasDatabaseNotifications
     /**
      * Get the entity's notifications.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany<DatabaseNotification, $this>
      */
     public function notifications()
     {
@@ -17,7 +17,7 @@ trait HasDatabaseNotifications
     /**
      * Get the entity's read notifications.
      *
-     * @return \Illuminate\Database\Query\Builder
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany<DatabaseNotification, $this>
      */
     public function readNotifications()
     {
@@ -27,7 +27,7 @@ trait HasDatabaseNotifications
     /**
      * Get the entity's unread notifications.
      *
-     * @return \Illuminate\Database\Query\Builder
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany<DatabaseNotification, $this>
      */
     public function unreadNotifications()
     {

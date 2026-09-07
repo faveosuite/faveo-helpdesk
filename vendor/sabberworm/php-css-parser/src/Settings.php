@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sabberworm\CSS;
 
 /**
@@ -11,79 +13,112 @@ class Settings
 {
     /**
      * Multi-byte string support.
-     * If true (mbstring extension must be enabled), will use (slower) `mb_strlen`, `mb_convert_case`, `mb_substr`
+     *
+     * If `true` (`mbstring` extension must be enabled), will use (slower) `mb_strlen`, `mb_convert_case`, `mb_substr`
      * and `mb_strpos` functions. Otherwise, the normal (ASCII-Only) functions will be used.
      *
      * @var bool
      */
-    public $bMultibyteSupport;
+    private $multibyteSupport;
 
     /**
-     * The default charset for the CSS if no `@charset` rule is found. Defaults to utf-8.
+     * The default charset for the CSS if no `@charset` declaration is found. Defaults to utf-8.
      *
-     * @var string
+     * @var non-empty-string
      */
-    public $sDefaultCharset = 'utf-8';
+    private $defaultCharset = 'utf-8';
 
     /**
-     * Lenient parsing. When used (which is true by default), the parser will not choke
-     * on unexpected tokens but simply ignore them.
+     * Whether the parser silently ignore invalid rules instead of choking on them.
      *
      * @var bool
      */
-    public $bLenientParsing = true;
+    private $lenientParsing = true;
 
     private function __construct()
     {
-        $this->bMultibyteSupport = extension_loaded('mbstring');
+        $this->multibyteSupport = \extension_loaded('mbstring');
     }
 
-    /**
-     * @return self new instance
-     */
-    public static function create()
+    public static function create(): self
     {
         return new Settings();
     }
 
     /**
-     * @param bool $bMultibyteSupport
+     * Enables/disables multi-byte string support.
      *
-     * @return self fluent interface
+     * If `true` (`mbstring` extension must be enabled), will use (slower) `mb_strlen`, `mb_convert_case`, `mb_substr`
+     * and `mb_strpos` functions. Otherwise, the normal (ASCII-Only) functions will be used.
+     *
+     * @return $this fluent interface
      */
-    public function withMultibyteSupport($bMultibyteSupport = true)
+    public function withMultibyteSupport(bool $multibyteSupport = true): self
     {
-        $this->bMultibyteSupport = $bMultibyteSupport;
+        $this->multibyteSupport = $multibyteSupport;
+
         return $this;
     }
 
     /**
-     * @param string $sDefaultCharset
+     * Sets the charset to be used if the CSS does not contain an `@charset` declaration.
      *
-     * @return self fluent interface
+     * @param non-empty-string $defaultCharset
+     *
+     * @return $this fluent interface
      */
-    public function withDefaultCharset($sDefaultCharset)
+    public function withDefaultCharset(string $defaultCharset): self
     {
-        $this->sDefaultCharset = $sDefaultCharset;
+        $this->defaultCharset = $defaultCharset;
+
         return $this;
     }
 
     /**
-     * @param bool $bLenientParsing
+     * Configures whether the parser should silently ignore invalid rules.
      *
-     * @return self fluent interface
+     * @return $this fluent interface
      */
-    public function withLenientParsing($bLenientParsing = true)
+    public function withLenientParsing(bool $usesLenientParsing = true): self
     {
-        $this->bLenientParsing = $bLenientParsing;
+        $this->lenientParsing = $usesLenientParsing;
+
         return $this;
     }
 
     /**
-     * @return self fluent interface
+     * Configures the parser to choke on invalid rules.
+     *
+     * @return $this fluent interface
      */
-    public function beStrict()
+    public function beStrict(): self
     {
         return $this->withLenientParsing(false);
+    }
+
+    /**
+     * @internal
+     */
+    public function hasMultibyteSupport(): bool
+    {
+        return $this->multibyteSupport;
+    }
+
+    /**
+     * @return non-empty-string
+     *
+     * @internal
+     */
+    public function getDefaultCharset(): string
+    {
+        return $this->defaultCharset;
+    }
+
+    /**
+     * @internal
+     */
+    public function usesLenientParsing(): bool
+    {
+        return $this->lenientParsing;
     }
 }

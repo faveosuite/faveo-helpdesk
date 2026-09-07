@@ -5,86 +5,55 @@ namespace Flow;
 class File
 {
     /**
-     * @var RequestInterface
-     */
-    protected $request;
-
-    /**
-     * @var ConfigInterface
-     */
-    private $config;
-
-    /**
      * File hashed unique identifier
-     *
-     * @var string
      */
-    private $identifier;
+    private string $identifier;
 
-    /**
-     * Constructor
-     *
-     * @param ConfigInterface  $config
-     * @param RequestInterface $request
-     */
-    public function __construct(ConfigInterface $config, RequestInterface $request = null)
+    public function __construct(protected ConfigInterface $config, protected ?RequestInterface $request = null)
     {
-        $this->config = $config;
-
-        if ($request === null) {
-            $request = new Request();
+        if (null === $request) {
+            $this->request = new Request();
         }
 
-        $this->request = $request;
-        $this->identifier = call_user_func($this->config->getHashNameCallback(), $request);
+        $this->identifier = \call_user_func($this->config->getHashNameCallback(), $this->request);
     }
 
     /**
      * Get file identifier
-     *
-     * @return string
      */
-    public function getIdentifier()
+    public function getIdentifier(): string
     {
         return $this->identifier;
     }
 
     /**
      * Return chunk path
-     *
-     * @param int $index
-     *
-     * @return string
      */
-    public function getChunkPath($index)
+    public function getChunkPath(int $index): string
     {
-        return $this->config->getTempDir().DIRECTORY_SEPARATOR.basename($this->identifier).'_'. (int) $index;
+        return $this->config->getTempDir().DIRECTORY_SEPARATOR.basename($this->identifier).'_'.(int) $index;
     }
 
     /**
      * Check if chunk exist
-     *
-     * @return bool
      */
-    public function checkChunk()
+    public function checkChunk(): bool
     {
         return file_exists($this->getChunkPath($this->request->getCurrentChunkNumber()));
     }
 
     /**
      * Validate file request
-     *
-     * @return bool
      */
-    public function validateChunk()
+    public function validateChunk(): bool
     {
         $file = $this->request->getFile();
 
-        if (!$file) {
+        if (! $file) {
             return false;
         }
 
-        if (!isset($file['tmp_name']) || !isset($file['size']) || !isset($file['error'])) {
+        if (! isset($file['tmp_name']) || ! isset($file['size']) || ! isset($file['error'])) {
             return false;
         }
 
@@ -92,19 +61,13 @@ class File
             return false;
         }
 
-        if ($file['error'] !== UPLOAD_ERR_OK) {
-            return false;
-        }
-
-        return true;
+        return ! (UPLOAD_ERR_OK !== $file['error']);
     }
 
     /**
      * Save chunk
-     *
-     * @return bool
      */
-    public function saveChunk()
+    public function saveChunk(): bool
     {
         $file = $this->request->getFile();
 
@@ -113,17 +76,15 @@ class File
 
     /**
      * Check if file upload is complete
-     *
-     * @return bool
      */
-    public function validateFile()
+    public function validateFile(): bool
     {
         $totalChunks = $this->request->getTotalChunks();
         $totalChunksSize = 0;
 
         for ($i = $totalChunks; $i >= 1; $i--) {
             $file = $this->getChunkPath($i);
-            if (!file_exists($file)) {
+            if (! file_exists($file)) {
                 return false;
             }
             $totalChunksSize += filesize($file);
@@ -137,21 +98,20 @@ class File
      *
      * @param string $destination final file location
      *
-     *
      * @throws FileLockException
      * @throws FileOpenException
      * @throws \Exception
      *
      * @return bool indicates if file was saved
      */
-    public function save($destination)
+    public function save(string $destination): bool
     {
         $fh = fopen($destination, 'wb');
-        if (!$fh) {
+        if (! $fh) {
             throw new FileOpenException('failed to open destination file: '.$destination);
         }
 
-        if (!flock($fh, LOCK_EX | LOCK_NB, $blocked)) {
+        if (! flock($fh, LOCK_EX | LOCK_NB, $blocked)) {
             // @codeCoverageIgnoreStart
             if ($blocked) {
                 // Concurrent request has requested a lock.
@@ -171,14 +131,14 @@ class File
 
             for ($i = 1; $i <= $totalChunks; $i++) {
                 $file = $this->getChunkPath($i);
-                $chunk = fopen($file, "rb");
+                $chunk = fopen($file, 'rb');
 
-                if (!$chunk) {
+                if (! $chunk) {
                     throw new FileOpenException('failed to open chunk: '.$file);
                 }
 
-                if ($preProcessChunk !== null) {
-                    call_user_func($preProcessChunk, $chunk);
+                if (null !== $preProcessChunk) {
+                    \call_user_func($preProcessChunk, $chunk);
                 }
 
                 stream_copy_to_stream($chunk, $fh);
@@ -187,6 +147,7 @@ class File
         } catch (\Exception $e) {
             flock($fh, LOCK_UN);
             fclose($fh);
+
             throw $e;
         }
 
@@ -203,7 +164,7 @@ class File
     /**
      * Delete chunks dir
      */
-    public function deleteChunks()
+    public function deleteChunks(): static
     {
         $totalChunks = $this->request->getTotalChunks();
 
@@ -213,6 +174,8 @@ class File
                 unlink($path);
             }
         }
+
+        return $this;
     }
 
     /**
@@ -220,13 +183,8 @@ class File
      *
      * @private
      * @codeCoverageIgnore
-     *
-     * @param string $filePath
-     * @param string $destinationPath
-     *
-     * @return bool
      */
-    public function _move_uploaded_file($filePath, $destinationPath)
+    public function _move_uploaded_file(string $filePath, string $destinationPath): bool
     {
         return move_uploaded_file($filePath, $destinationPath);
     }

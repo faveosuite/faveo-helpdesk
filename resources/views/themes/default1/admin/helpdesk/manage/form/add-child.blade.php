@@ -20,7 +20,7 @@ class="nav-link active"
 @stop
 <!-- header -->
 @section('PageHeader')
-<h1>{{$form->formname}}</h1>
+<h3>{{$form->formname}}</h3>
 @stop
 @section('content')
 

@@ -46,7 +46,7 @@ class SingleCommandApplication extends Command
         return $this;
     }
 
-    public function run(InputInterface $input = null, OutputInterface $output = null): int
+    public function run(?InputInterface $input = null, ?OutputInterface $output = null): int
     {
         if ($this->running) {
             return parent::run($input, $output);
@@ -57,7 +57,7 @@ class SingleCommandApplication extends Command
         $application->setAutoExit($this->autoExit);
         // Fix the usage of the command displayed with "--help"
         $this->setName($_SERVER['argv'][0]);
-        $application->add($this);
+        $application->addCommand($this);
         $application->setDefaultCommand($this->getName(), true);
 
         $this->running = true;
@@ -67,6 +67,6 @@ class SingleCommandApplication extends Command
             $this->running = false;
         }
 
-        return $ret ?? 1;
+        return $ret;
     }
 }

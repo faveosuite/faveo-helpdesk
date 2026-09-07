@@ -137,7 +137,7 @@ class DomainPart extends PartParser
     {
         $commentParser = new Comment($this->lexer, new DomainComment());
         $result = $commentParser->parse();
-        $this->warnings = array_merge($this->warnings, $commentParser->getWarnings());
+        $this->warnings = [...$this->warnings, ...$commentParser->getWarnings()];
 
         return $result;
     }
@@ -213,9 +213,9 @@ class DomainPart extends PartParser
         return new ValidEmail();
     }
 
-     /** 
+     /**
      * @param Token<int, string> $token
-     * 
+     *
      * @return Result
      */
     private function checkNotAllowedChars(Token $token): Result
@@ -240,14 +240,14 @@ class DomainPart extends PartParser
 
         $domainLiteralParser = new DomainLiteralParser($this->lexer);
         $result = $domainLiteralParser->parse();
-        $this->warnings = array_merge($this->warnings, $domainLiteralParser->getWarnings());
+        $this->warnings = [...$this->warnings, ...$domainLiteralParser->getWarnings()];
         return $result;
     }
 
     /**
      * @param Token<int, string> $prev
      * @param bool $hasComments
-     * 
+     *
      * @return Result
      */
     protected function checkDomainPartExceptions(Token $prev, bool $hasComments): Result
@@ -307,6 +307,7 @@ class DomainPart extends PartParser
     {
         if (preg_match('/[^\x00-\x7F]/', $label)) {
             idn_to_ascii($label, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46, $idnaInfo);
+            /** @psalm-var array{errors: int, ...} $idnaInfo */
             return (bool) ($idnaInfo['errors'] & IDNA_ERROR_LABEL_TOO_LONG);
         }
         return strlen($label) > self::LABEL_MAX_LENGTH;
