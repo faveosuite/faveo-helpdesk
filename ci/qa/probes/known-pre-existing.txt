@@ -1,0 +1,12 @@
+# Findings that reproduce on the base branch, so they cannot be attributed to the
+# change under test. Reported as warnings instead of failures — see probe_fail in
+# lib.sh. One line per id: <id> <why it is pre-existing, and where to fix it>
+#
+# Delete an entry as soon as its defect is fixed. A stale entry silences a real
+# regression in the same check, which is worse than the false failure it replaced.
+
+# Empty on purpose. Every entry here was a UI-* or UX-* finding, and the browser
+# and UI/UX probe that produced those ids has been removed — UI coverage is the
+# executor's approved test cases now. The mechanism stays: probe_fail still
+# consults this file, so an API or security finding that turns out to predate the
+# pipeline can be listed here rather than failing PRs it has nothing to do with.
