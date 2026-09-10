@@ -57,12 +57,11 @@
  * directly, so it should not be needed, but if a first round finds an agent
  * missing tickets it should see, check that pivot next.
  */
+$appRoot = getenv('QA_APP_ROOT') ?: __DIR__.'/../..';
 
-$appRoot = getenv('QA_APP_ROOT') ?: __DIR__ . '/../..';
+require $appRoot.'/vendor/autoload.php';
 
-require $appRoot . '/vendor/autoload.php';
-
-$app = require_once $appRoot . '/bootstrap/app.php';
+$app = require_once $appRoot.'/bootstrap/app.php';
 $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
 
 use App\Model\helpdesk\Agent\Department;
@@ -100,7 +99,7 @@ function primary_department(): ?Department
 
     $department = Department::where('name', $wanted)->first() ?: Department::orderBy('id')->first();
 
-    if (! $department) {
+    if (!$department) {
         fwrite(STDERR, "seed-qa-users: no departments exist — in-scope accounts will see no tickets\n");
 
         return null;
@@ -122,7 +121,7 @@ function primary_department(): ?Department
 function default_group_id(): int
 {
     $exists = \Illuminate\Support\Facades\DB::table('groups')->where('id', 1)->exists();
-    if (! $exists) {
+    if (!$exists) {
         fwrite(STDERR, "seed-qa-users: groups.id=1 does not exist — is the database fully migrated and seeded?\n");
         exit(1);
     }
@@ -151,15 +150,21 @@ function ensure_user(string $email, string $password, string $roleKey, string $u
         ]
     );
 
-    printf("seed-qa-users: %s ready as '%s' (id %d, group %s, dept %s)\n",
-        $email, $roleKey, $user->id, $groupId ?? 'none', $primaryDept ?? 'none');
+    printf(
+        "seed-qa-users: %s ready as '%s' (id %d, group %s, dept %s)\n",
+        $email,
+        $roleKey,
+        $user->id,
+        $groupId ?? 'none',
+        $primaryDept ?? 'none'
+    );
 
     return (int) $user->id;
 }
 
 $department = primary_department();
-$deptId     = $department?->id;
-$groupId    = default_group_id();
+$deptId = $department?->id;
+$groupId = default_group_id();
 
 /*
  * in_department is the whole point of the table: which members are inside the
@@ -175,16 +180,16 @@ $cast = [
     'client2' => ['email' => 'QA_CLIENT2_EMAIL', 'password' => 'QA_CLIENT2_PASSWORD', 'role' => 'user',  'user_name' => 'qa_client_2', 'required' => false, 'in_department' => false],
 ];
 
-$ids     = [];
-$emails  = [];
+$ids = [];
+$emails = [];
 $skipped = [];
 
 foreach ($cast as $name => $member) {
     if ($member['required']) {
-        $email    = env_required($member['email']);
+        $email = env_required($member['email']);
         $password = env_required($member['password']);
     } else {
-        $email    = env_optional($member['email']);
+        $email = env_optional($member['email']);
         $password = env_optional($member['password']);
 
         if ($email === null || $password === null) {
@@ -193,7 +198,7 @@ foreach ($cast as $name => $member) {
         }
     }
 
-    $ids[$name]    = ensure_user(
+    $ids[$name] = ensure_user(
         $email,
         $password,
         $member['role'],

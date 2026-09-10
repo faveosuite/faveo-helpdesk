@@ -64,13 +64,12 @@
  * slowly. A socket is left out of the read set while the queue for its peer is
  * over the high-water mark, so the kernel applies the backpressure for us.
  */
-
-$listenPort   = (int) ($argv[1] ?? 0);
+$listenPort = (int) ($argv[1] ?? 0);
 $upstreamPort = (int) ($argv[2] ?? 0);
-$certFile     = $argv[3] ?? '';
-$pidFile      = $argv[4] ?? '';
+$certFile = $argv[3] ?? '';
+$pidFile = $argv[4] ?? '';
 
-if (! $listenPort || ! $upstreamPort || ! is_file($certFile)) {
+if (!$listenPort || !$upstreamPort || !is_file($certFile)) {
     fwrite(STDERR, "usage: tls-proxy.php <listen-port> <upstream-port> <cert.pem> [pid-file]\n");
     exit(2);
 }
@@ -110,14 +109,14 @@ $listener = @stream_socket_server(
     $ctx
 );
 
-if (! $listener) {
+if (!$listener) {
     fwrite(STDERR, "tls-proxy: cannot listen on {$listenPort}: {$errstr} ({$errno})\n");
     exit(1);
 }
 stream_set_blocking($listener, false);
 
 if ($pidFile !== '') {
-    file_put_contents($pidFile, (string) getmypid() . "\n");
+    file_put_contents($pidFile, (string) getmypid()."\n");
 }
 
 fwrite(STDERR, "tls-proxy: https://127.0.0.1:{$listenPort} -> http://127.0.0.1:{$upstreamPort}\n");
@@ -138,7 +137,7 @@ $nextId = 0;
 
 function closePair(array &$pairs, int $id): void
 {
-    if (! isset($pairs[$id])) {
+    if (!isset($pairs[$id])) {
         return;
     }
     foreach (['client', 'upstream'] as $side) {
@@ -174,29 +173,29 @@ function drain(&$queue, $sock): bool
 }
 
 while (true) {
-    $read  = [$listener];
+    $read = [$listener];
     $write = [];
 
     $now = microtime(true);
 
     foreach ($pairs as $id => $pair) {
-        if (! $pair['tls']) {
+        if (!$pair['tls']) {
             if ($now > $pair['deadline']) {
                 closePair($pairs, $id);
                 continue;
             }
             // OpenSSL may want to read or to write at any point in a handshake.
-            $read[]  = $pair['client'];
+            $read[] = $pair['client'];
             $write[] = $pair['client'];
             continue;
         }
 
         // Read only while the queue for the other side has room. That is the
         // backpressure: the kernel stops acknowledging data we are not ready for.
-        if (! $pair['clientEof'] && strlen($pair['toUpstream']) < HIGH_WATER) {
+        if (!$pair['clientEof'] && strlen($pair['toUpstream']) < HIGH_WATER) {
             $read[] = $pair['client'];
         }
-        if (! $pair['upstreamEof'] && strlen($pair['toClient']) < HIGH_WATER) {
+        if (!$pair['upstreamEof'] && strlen($pair['toClient']) < HIGH_WATER) {
             $read[] = $pair['upstream'];
         }
         if ($pair['toClient'] !== '') {
@@ -234,7 +233,7 @@ while (true) {
                 $uerrstr,
                 5
             );
-            if (! $upstream) {
+            if (!$upstream) {
                 fwrite(STDERR, "tls-proxy: upstream {$upstreamPort} refused: {$uerrstr}\n");
                 @fclose($client);
                 continue;
@@ -255,14 +254,14 @@ while (true) {
     }
 
     foreach ($pairs as $id => $pair) {
-        $client   = $pair['client'];
+        $client = $pair['client'];
         $upstream = $pair['upstream'];
-        $cid      = (int) $client;
-        $uid      = (int) $upstream;
+        $cid = (int) $client;
+        $uid = (int) $upstream;
 
         // ---- handshake -----------------------------------------------------
-        if (! $pair['tls']) {
-            if (! isset($readable[$cid]) && ! isset($writable[$cid])) {
+        if (!$pair['tls']) {
+            if (!isset($readable[$cid]) && !isset($writable[$cid])) {
                 continue;
             }
             $ok = @stream_socket_enable_crypto($client, true, STREAM_CRYPTO_METHOD_TLS_SERVER);
@@ -278,7 +277,7 @@ while (true) {
         }
 
         // ---- reads ---------------------------------------------------------
-        if (isset($readable[$cid]) && ! $pair['clientEof']) {
+        if (isset($readable[$cid]) && !$pair['clientEof']) {
             $data = @fread($client, CHUNK);
             if ($data === false || ($data === '' && feof($client))) {
                 $pairs[$id]['clientEof'] = true;
@@ -287,7 +286,7 @@ while (true) {
             }
         }
 
-        if (isset($readable[$uid]) && ! $pair['upstreamEof']) {
+        if (isset($readable[$uid]) && !$pair['upstreamEof']) {
             $data = @fread($upstream, CHUNK);
             if ($data === false || ($data === '' && feof($upstream))) {
                 $pairs[$id]['upstreamEof'] = true;
@@ -300,11 +299,11 @@ while (true) {
         // Attempted whenever there is something queued: after a read above there
         // may be new bytes to send, and a socket that was not in this pass's write
         // set is simply not ready yet, which drain() handles.
-        if ($pairs[$id]['toUpstream'] !== '' && ! drain($pairs[$id]['toUpstream'], $upstream)) {
+        if ($pairs[$id]['toUpstream'] !== '' && !drain($pairs[$id]['toUpstream'], $upstream)) {
             closePair($pairs, $id);
             continue;
         }
-        if ($pairs[$id]['toClient'] !== '' && ! drain($pairs[$id]['toClient'], $client)) {
+        if ($pairs[$id]['toClient'] !== '' && !drain($pairs[$id]['toClient'], $client)) {
             closePair($pairs, $id);
             continue;
         }
