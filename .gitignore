@@ -14,3 +14,48 @@ Homestead.json
 /app/FaveoJob
 /vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php
 /storage/app/attachments
+
+# AI first-round QA pipeline — per-build output. Never commit any of these:
+# qa-instance-creds-*.sh holds a generated instance password, and the evidence
+# and stream files are build artifacts that Jenkins archives.
+.env.qa-original
+.env.testing.qa-original
+qa-instance-creds-*.sh
+qa-context-*.json
+qa-report-*.md
+qa-probe-*.json
+qa-probe-*.md
+qa-probe-*.jsonl
+qa-exec-stream-*.jsonl
+qa-author-stream-*.jsonl
+qa-browser-probe-*.jsonl
+qa-*-failure-*.txt
+qa-phases-*.tsv
+qa-serve-*.log
+qa-proxy-*.log
+qa-serve-*.pid
+qa-proxy-*.pid
+qa-tls-*.pem
+qa-tls-*.crt
+qa-tls-*.key
+qa-users-*.json
+qa-work*.json
+qa-skip
+/qa-evidence-*
+/qa-session-*
+/qa-attachments-*
+/qa-code-map
+
+# Freestyle orchestration (ci/qa/freestyle/*.sh) per-build output.
+qa-number.env
+qa-provision-phase-*.txt
+qa-browser-unavailable-*.txt
+qa-body-*.md
+qa-comment.json
+
+# Hardening pass: the shared per-PR instance-state file (provision.sh writes,
+# teardown.sh/janitor.sh read) and the Community health-check log. The state
+# file records ports/PIDs/paths only, never a secret, but it is still
+# per-build output and does not belong in git.
+qa-instance-state-*.env
+qa-health-*.log
