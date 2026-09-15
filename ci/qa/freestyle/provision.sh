@@ -55,8 +55,12 @@ write_state() {
     echo "QA_INSTANCE_BASE_URL=${base}"
     echo "QA_INSTANCE_WORKSPACE=${ws}"
     echo "QA_INSTANCE_CREDS_FILE=${creds_file}"
-    [[ -f "${ws}/qa-serve-${pr}.pid" ]] && echo "QA_INSTANCE_SERVE_PID=$(cat "${ws}/qa-serve-${pr}.pid")"
-    [[ -f "${ws}/qa-proxy-${pr}.pid" ]] && echo "QA_INSTANCE_PROXY_PID=$(cat "${ws}/qa-proxy-${pr}.pid")"
+    if [[ -f "${ws}/qa-serve-${pr}.pid" ]]; then
+      echo "QA_INSTANCE_SERVE_PID=$(cat "${ws}/qa-serve-${pr}.pid")"
+    fi
+    if [[ -f "${ws}/qa-proxy-${pr}.pid" ]]; then
+      echo "QA_INSTANCE_PROXY_PID=$(cat "${ws}/qa-proxy-${pr}.pid")"
+    fi
   } > "$state_file"
 }
 write_state
