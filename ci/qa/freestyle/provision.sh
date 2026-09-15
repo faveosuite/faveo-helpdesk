@@ -118,14 +118,25 @@ if ! php artisan testing-setup --username="$DB_USER" --password="$DB_PASS" --dat
 fi
 
 # ---------------------------------------------------------------------------
-# 6. APP_URL and the served instance's own idea of its URL
+# 6. DB_DATABASE, APP_URL, and the served instance's own idea of its URL
 # ---------------------------------------------------------------------------
 # testing-setup's createEnv() writes only DB_USERNAME, DB_PASSWORD and
-# APP_ENV=development into .env — no APP_URL, no DB_INSTALL (Community has no
-# DB_INSTALL-gated install check: app/Http/Middleware/Install.php only checks
-# that .env EXISTS, not any config value, so the advance DB_INSTALL=1 step does
-# not apply here). Append APP_URL for anything that reads config('app.url').
+# APP_ENV=development into .env — no DB_DATABASE, no APP_URL, no DB_INSTALL
+# (Community has no DB_INSTALL-gated install check: app/Http/Middleware/
+# Install.php only checks that .env EXISTS, not any config value, so the
+# advance DB_INSTALL=1 step does not apply here).
+#
+# DB_DATABASE is REQUIRED, not cosmetic: SetupTestEnv::handle() only points
+# the mysql connection at $db_name in-memory (Config::set(...)), for the
+# lifetime of that one artisan process. Once it exits, every later process
+# (seed-qa-users.php, php artisan serve) reads .env fresh and, finding no
+# DB_DATABASE, falls back to config/database.php's hard-coded
+# env('DB_DATABASE', 'forge') — a database that does not exist. Without this
+# line, seeding fails and the served instance 500s on every request
+# ("SQLSTATE[HY000] [1049] Unknown database 'forge'"), which is exactly what
+# it did before this line was added.
 mark 'env url'
+printf 'DB_DATABASE=%s\n' "$db_name" >> .env
 printf 'APP_URL=%s\n' "$base" >> .env
 
 # updateAppUrl() in SetupTestEnv hardcodes settings_system.url to
