@@ -13,6 +13,12 @@
 export REPO_NAME=faveo-helpdesk
 export GITHUB_REPO=faveosuite/faveo-helpdesk
 
+# The GitHub ORGANIZATION (not repo) whose membership gates the label-driven
+# trigger — see freestyle/resolve-work.sh's gh_actor_is_org_member(). Faveo
+# Community is a public repo; anyone can open an issue/PR, and this is what
+# stops a non-member from triggering a round by applying the trigger label.
+export QA_GITHUB_ORG=faveosuite
+
 # Must match the login of the GitHub account behind the `faveobot` credential —
 # resolveWork()'s self-trigger loop guard compares gh_sender to this. Wrong value
 # = a possible relabel-and-refire loop. Verify with:

@@ -28,6 +28,63 @@ set -uo pipefail
 want="${1:?usage: resolve-work.sh <author|execute>}"
 tools="${QA_TOOLS:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 
+# shellcheck disable=SC1091
+. "${tools}/gh-client.sh"
+# gh-client.sh unconditionally does `set -euo pipefail` when sourced. This
+# script is deliberately -e-free (see the exit-code contract in the header —
+# a "not eligible" result is data this script returns via exit status, not an
+# error), so restore that immediately rather than let the source change it.
+set +e
+set -uo pipefail
+
+# ---------------------------------------------------------------------------
+# Organization-membership gate. Faveo Community is a public repository: anyone
+# can open an issue or PR, and on a repo where triage/write access is not
+# limited to maintainers, anyone with that access could apply the trigger
+# label. Per the TL decision, the label alone must not be sufficient to start
+# a round — the actor whose action produced this webhook delivery (gh_sender)
+# must also belong to the Faveo GitHub organization.
+#
+# Applies to cases 3 and 4 below (the webhook-driven label/synchronize/
+# check_suite triggers) — NOT to case 2 (an explicit QA_NUMBER build
+# parameter). That path only runs when someone with Jenkins access starts the
+# build by hand, which is already access-controlled by Jenkins itself, not by
+# a label anyone with repo triage rights could apply.
+#
+# Fails CLOSED: no token, no actor, a network error, or any HTTP status other
+# than the two GitHub documents (204 member / 404 not-a-member) all block the
+# trigger rather than allow it. A maintainer can always re-run a wrongly
+# blocked build with QA_NUMBER=<n> from Jenkins directly (case 2, unaffected
+# by this gate) — that costs one manual step. A silent bypass costs a lot more.
+gh_actor_is_org_member() {
+  local actor="${1:-}" org="${QA_GITHUB_ORG:-${GITHUB_REPO%%/*}}"
+  if [[ -z "$actor" ]]; then
+    printf 'resolve-work: no actor on this payload — cannot verify org membership, blocking (fail closed)\n' >&2
+    return 1
+  fi
+  if [[ -z "${GITHUB_TOKEN:-}" ]]; then
+    printf 'resolve-work: GITHUB_TOKEN not set — cannot verify %s is a member of %s, blocking (fail closed)\n' "$actor" "$org" >&2
+    return 1
+  fi
+  # GET /orgs/{org}/members/{username}: 204 = requester (this token's account)
+  # AND target user are both members; 404 = target is not a member; 302 = the
+  # TOKEN's own account is not a member of $org, so membership cannot be
+  # determined at all (this usually means the bound faveobot token itself is
+  # misconfigured, not that the actor is legitimately blocked).
+  local code
+  code=$(curl -sS -o /dev/null -w '%{http_code}' \
+    -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+    -H 'Accept: application/vnd.github+json' \
+    -H 'X-GitHub-Api-Version: 2022-11-28' \
+    "${GH_API:-https://api.github.com}/orgs/${org}/members/${actor}" 2>/dev/null)
+  case "${code:-000}" in
+    204) return 0 ;;
+    404) printf 'resolve-work: %s is not a member of %s — blocking trigger\n' "$actor" "$org" >&2; return 1 ;;
+    302) printf 'resolve-work: org membership check for %s inconclusive (HTTP 302 — the bound token'"'"'s own account may not be a member of %s) — blocking (fail closed)\n' "$actor" "$org" >&2; return 1 ;;
+    *)   printf 'resolve-work: org membership check for %s returned unexpected HTTP %s — blocking (fail closed)\n' "$actor" "${code:-000}" >&2; return 1 ;;
+  esac
+}
+
 # 1. Ignore our own label changes. Without this the webhook and a failure path
 # form a loop: authoring fails, the trigger label goes back on, GitHub fires
 # `labeled`, this fires again — indefinitely, spending tokens each time.
@@ -63,8 +120,13 @@ fi
 if [[ "$want" == "author" ]]; then
   if [[ -n "${gh_issue:-}" && -z "${gh_is_pr:-}" \
         && "${gh_label:-}" == "${QA_TRIGGER_LABEL:-QA: Test case needed}" ]]; then
-    printf 'QA_NUMBER=%s\n' "${gh_issue//[!0-9]/}"
-    exit 0
+    if gh_actor_is_org_member "${gh_sender:-}"; then
+      printf 'QA_NUMBER=%s\n' "${gh_issue//[!0-9]/}"
+      exit 0
+    fi
+    printf 'resolve-work: issue #%s labelled by non-member %s — authoring blocked\n' \
+      "${gh_issue}" "${gh_sender:-<unknown>}" >&2
+    exit 1
   fi
 fi
 
@@ -72,8 +134,13 @@ fi
 if [[ "$want" == "execute" ]]; then
   pr="${gh_pr:-${gh_check_pr:-}}"
   if [[ -n "$pr" ]]; then
-    printf 'QA_NUMBER=%s\n' "${pr//[!0-9]/}"
-    exit 0
+    if gh_actor_is_org_member "${gh_sender:-}"; then
+      printf 'QA_NUMBER=%s\n' "${pr//[!0-9]/}"
+      exit 0
+    fi
+    printf 'resolve-work: PR #%s event by non-member %s — execution blocked\n' \
+      "${pr}" "${gh_sender:-<unknown>}" >&2
+    exit 1
   fi
 fi
 
@@ -87,7 +154,35 @@ fi
 # are named on stderr so a human can see what was deferred, exactly as the
 # advance Pipeline's log line does, but nothing re-queues them automatically —
 # the next webhook or a manual re-run with QA_NUMBER set is what picks them up.
-if command -v jq >/dev/null && [[ -x "${tools}/discover.sh" ]]; then
+#
+# NOT covered by the org-membership gate above, and NOT merely a narrow
+# "webhook was missed" corner case: discover.sh finds already-labelled items
+# by their current label state, with no notion of who applied the label, so
+# there is no actor here to check at all.
+#
+# CONFIRMED REACHABLE on ordinary traffic, not just a missed delivery: cases 3
+# and 4 above are `if want == "author"/"execute"` blocks that only exit when
+# their INNER shape-match also succeeds. If it doesn't, execution falls
+# through past them into this sweep. Since both jobs receive every webhook
+# delivery, any PR-side event (a PR labelled, a review submitted, a
+# check_suite completing, a new commit pushed) is the "wrong shape" for the
+# author job's case 3 and falls through here — same for any issue-side event
+# reaching the execute job's case 4. That means this sweep, UNGUARDED, would
+# run on most ordinary webhook traffic on the repo, each time picking the
+# first item discover.sh finds regardless of who labelled it — a direct
+# bypass of the gate above.
+#
+# THE GUARD: gh_action ($.action) is populated by GitHub on all four
+# subscribed event types (issues, pull_request, pull_request_review,
+# check_suite all carry .action) — it is empty ONLY on a genuine manual/cron
+# invocation with no webhook payload at all. Restricting the sweep to that
+# case preserves the documented, intentional uses (a human building with
+# QA_NUMBER blank to sweep after a truly missed delivery; a cron janitor-style
+# run) while refusing to let a differently-shaped-but-real webhook event fall
+# through into an unguarded search. A GitHub "Redeliver" of a genuinely missed
+# webhook still has gh_action set, so it is handled by cases 3/4 (with the
+# actor check) on replay, never by this sweep — nothing legitimate is lost.
+if [[ -z "${gh_action:-}" ]] && command -v jq >/dev/null && [[ -x "${tools}/discover.sh" ]]; then
   all_json=$(bash "${tools}/discover.sh" "$want" 2>/dev/null | jq -s . 2>/dev/null || printf '[]')
   count=$(jq 'length' <<<"$all_json" 2>/dev/null || printf 0)
   if [[ "$count" -gt 0 ]]; then
