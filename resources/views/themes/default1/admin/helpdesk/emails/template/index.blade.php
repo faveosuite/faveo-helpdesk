@@ -39,24 +39,24 @@ class="active"
 <!-- check whether success or not -->
 
 @if(Session::has('success'))
-    <div class="alert alert-success alert-dismissable">
-        <i class="fa  fa-check-circle"></i>
+    <div class="alert alert-success alert-dismissible">
+        <i class="fa  fa-circle-check"></i>
         <b>Success!</b>
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         {{Session::get('success')}}
     </div>
     @endif
     <!-- failure message -->
     @if(Session::has('fails'))
-    <div class="alert alert-danger alert-dismissable">
-        <i class="fa fa-ban"></i>
+    <div class="alert alert-danger alert-dismissible">
+        <i class="fa-solid fa-ban"></i>
         <b>Fail!</b>
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         {{Session::get('fails')}}
     </div>
     @endif
 
-				<table class="table table-bordered dataTable" style="overflow:hidden;">
+				<table class="table table-bordered dataTable overflow-hidden">
 	<tr>
 		<th width="100px">{{Lang::get('lang.name')}}</th>
 		<th width="100px">{{Lang::get('lang.status')}}</th>
@@ -87,15 +87,11 @@ class="active"
 		<td> {!! UTC::usertimezone($template->updated_at) !!} </td>
 		<!-- Deleting Fields -->
 		<td>
-			{!! Form::open(['route'=>['template.destroy', $template->id],'method'=>'DELETE']) !!}
-			<a href="{{route('template.edit',$template->id)}}" class="btn btn-info btn-xs btn-flat"><i class="fa fa-edit" style="color:black;"> </i> Edit</a>
+			{!! html()->form('DELETE', route('template.destroy', [$template->id]))->open() !!}
+			<a href="{{route('template.edit',$template->id)}}" class="btn btn-info btn-xs "><i class="fa-solid fa-pen-to-square" style="color:black;"> </i> Edit</a>
 			<!-- To pop up a confirm Message -->
-				{!! Form::button('<i class="fa fa-trash" style="color:black;"> </i> Delete',
-            		['type' => 'submit',
-            		'class'=> 'btn btn-warning btn-xs btn-flat',
-            		'onclick'=>'return confirm("Are you sure?")'])
-            	!!}
-			{!! Form::close() !!}
+				{!! html()->button('<i class="fa-solid fa-trash" style="color:black;"> </i> Delete')->class('btn btn-warning btn-xs ')->attributes(['type' => 'submit', 'onclick' => 'return confirm("Are you sure?")']) !!}
+			{!! html()->closeModelForm() !!}
 		</td>
 		@endforeach
 	</tr>

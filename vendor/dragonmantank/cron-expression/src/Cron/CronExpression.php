@@ -12,7 +12,6 @@ use Exception;
 use InvalidArgumentException;
 use LogicException;
 use RuntimeException;
-use Webmozart\Assert\Assert;
 
 /**
  * CRON expression parser that can determine whether or not a CRON expression is
@@ -48,7 +47,7 @@ class CronExpression
     ];
 
     /**
-     * @var array CRON expression parts
+     * @var array<int, string> CRON expression parts
      */
     protected $cronParts;
 
@@ -63,7 +62,7 @@ class CronExpression
     protected $maxIterationCount = 1000;
 
     /**
-     * @var array Order in which to test of cron parts
+     * @var array<int, int> Order in which to test of cron parts
      */
     protected static $order = [
         self::YEAR,
@@ -148,7 +147,7 @@ class CronExpression
     /**
      * @deprecated since version 3.0.2, use __construct instead.
      */
-    public static function factory(string $expression, FieldFactoryInterface $fieldFactory = null): CronExpression
+    public static function factory(string $expression, ?FieldFactoryInterface $fieldFactory = null): CronExpression
     {
         /** @phpstan-ignore-next-line */
         return new static($expression, $fieldFactory);
@@ -177,8 +176,9 @@ class CronExpression
      *
      * @param string $expression CRON expression (e.g. '8 * * * *')
      * @param null|FieldFactoryInterface $fieldFactory Factory to create cron fields
+     * @throws InvalidArgumentException
      */
-    public function __construct(string $expression, FieldFactoryInterface $fieldFactory = null)
+    public function __construct(string $expression, ?FieldFactoryInterface $fieldFactory = null)
     {
         $shortcut = strtolower($expression);
         $expression = self::$registeredAliases[$shortcut] ?? $expression;
@@ -199,15 +199,29 @@ class CronExpression
     public function setExpression(string $value): CronExpression
     {
         $split = preg_split('/\s/', $value, -1, PREG_SPLIT_NO_EMPTY);
-        Assert::isArray($split);
 
-        $this->cronParts = $split;
-        if (\count($this->cronParts) < 5) {
+        if (!\is_array($split)) {
             throw new InvalidArgumentException(
                 $value . ' is not a valid CRON expression'
             );
         }
 
+        $notEnoughParts = \count($split) < 5;
+
+        $questionMarkInInvalidPart = array_key_exists(0, $split) && $split[0] === '?'
+            || array_key_exists(1, $split) && $split[1] === '?'
+            || array_key_exists(3, $split) && $split[3] === '?';
+
+        $tooManyQuestionMarks = array_key_exists(2, $split) && $split[2] === '?'
+            && array_key_exists(4, $split) && $split[4] === '?';
+
+        if ($notEnoughParts || $questionMarkInInvalidPart || $tooManyQuestionMarks) {
+            throw new InvalidArgumentException(
+                $value . ' is not a valid CRON expression'
+            );
+        }
+
+        $this->cronParts = $split;
         foreach ($this->cronParts as $position => $part) {
             $this->setPart($position, $part);
         }
@@ -324,7 +338,10 @@ class CronExpression
             $currentTime = new DateTime($currentTime);
         }
 
-        Assert::isInstanceOf($currentTime, DateTime::class);
+        if (!$currentTime instanceof DateTime) {
+            throw new InvalidArgumentException('invalid current time');
+        }
+
         $currentTime->setTimezone(new DateTimeZone($timeZone));
 
         $matches = [];
@@ -410,7 +427,10 @@ class CronExpression
             $currentTime = new DateTime($currentTime);
         }
 
-        Assert::isInstanceOf($currentTime, DateTime::class);
+        if (!$currentTime instanceof DateTime) {
+            throw new InvalidArgumentException('invalid current time');
+        }
+
         $currentTime->setTimezone(new DateTimeZone($timeZone));
 
         // drop the seconds to 0
@@ -452,7 +472,10 @@ class CronExpression
             $currentDate = new DateTime('now');
         }
 
-        Assert::isInstanceOf($currentDate, DateTime::class);
+        if (!$currentDate instanceof DateTime) {
+            throw new InvalidArgumentException('invalid current date');
+        }
+
         $currentDate->setTimezone(new DateTimeZone($timeZone));
         // Workaround for setTime causing an offset change: https://bugs.php.net/bug.php?id=81074
         $currentDate = DateTime::createFromFormat("!Y-m-d H:iO", $currentDate->format("Y-m-d H:iP"), $currentDate->getTimezone());

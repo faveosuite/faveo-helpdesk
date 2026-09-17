@@ -20,7 +20,7 @@ class="nav-link active"
 @stop
 <!-- header -->
 @section('PageHeader')
-<h1>{{$queue->name}}</h1>
+<h3>{{$queue->name}}</h3>
 @stop
 <!-- /header -->
 <!-- breadcrumbs -->
@@ -42,21 +42,21 @@ class="nav-link active"
 </div>
 @endif
 @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <i class="fa fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+    <i class="fa-solid fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('success')}}
 </div>
 @endif
 @if(Session::has('fails'))
-<div class="alert alert-danger alert-dismissable">
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-danger alert-dismissible">
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('fails')}}
 </div>
 @endif
 @if(Session::has('warn'))
-<div class="alert alert-warning alert-dismissable">
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-warning alert-dismissible">
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('warn')}}
 </div>
 @endif
@@ -65,15 +65,15 @@ class="nav-link active"
         <h3 class="card-title">{!! Lang::get('lang.queues') !!}</h3>
     </div>
     <div class="card-body">
-        {!! Form::open(['url'=>'queue/'.$queue->id,'method'=>'post','id'=>'form']) !!}
+        {!! html()->form('POST', url('queue/'.$queue->id))->attributes(['id' => 'form'])->open() !!}
         <div id="response">
 
         </div>
     </div>
 
     <div class="card-footer">
-        {!! Form::submit(Lang::get('lang.save'),['class'=>'btn btn-primary']) !!}
-        {!! Form::close() !!}
+        {!! html()->submit(Lang::get('lang.save'))->class('btn btn-primary') !!}
+        {!! html()->closeModelForm() !!}
     </div>
 </div>
 <script>

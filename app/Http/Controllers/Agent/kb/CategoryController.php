@@ -11,12 +11,12 @@ use App\Http\Requests\kb\CategoryUpdate;
 use App\Model\kb\Category;
 // Model
 use App\Model\kb\Relationship;
-use Datatable;
-// Classes
 use Exception;
+// Classes
 use Illuminate\Support\Str;
 use Lang;
 use Redirect;
+use Yajra\DataTables\Facades\DataTables;
 
 /**
  * CategoryController
@@ -69,13 +69,7 @@ class CategoryController extends Controller
      */
     public function getData()
     {
-        /* fetching chumper datatables */
-        return Datatable::collection(Category::All())
-                        /* search column name */
-                        ->searchColumns('name')
-                        /* order column name and description */
-                        ->orderColumns('name', 'description')
-                        /* add column name */
+        return DataTables::of(Category::All())
                         ->addColumn('name', function ($model) {
                             $string = strip_tags($model->name);
 
@@ -109,7 +103,8 @@ class CategoryController extends Controller
         			</div>
     			</div>';
                         })
-                        ->make();
+                        ->rawColumns(['Actions'])
+                        ->make(true);
     }
 
     /**

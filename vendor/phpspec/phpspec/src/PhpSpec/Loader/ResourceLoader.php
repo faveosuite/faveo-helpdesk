@@ -15,6 +15,7 @@ namespace PhpSpec\Loader;
 
 use PhpSpec\Event\ResourceEvent;
 use PhpSpec\Locator\Resource;
+use PhpSpec\Specification;
 use PhpSpec\Specification\ErrorSpecification;
 use PhpSpec\Util\DispatchTrait;
 use PhpSpec\Util\MethodAnalyser;
@@ -27,36 +28,20 @@ class ResourceLoader
 {
     use DispatchTrait;
 
-    /**
-     * @var ResourceManager
-     */
-    private $manager;
-
-    /**
-     * @var MethodAnalyser
-     */
-    private $methodAnalyser;
-
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
     public function __construct(
-        ResourceManager $manager,
-        MethodAnalyser $methodAnalyser,
-        EventDispatcherInterface $eventDispatcher
+        private ResourceManager $manager,
+        private MethodAnalyser $methodAnalyser,
+        private EventDispatcherInterface $eventDispatcher
     ) {
-        $this->manager = $manager;
-        $this->methodAnalyser = $methodAnalyser;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
-    public function load(string $locator = '', int $line = null): Suite
+    public function load(string $locator = '', ?int $line = null): Suite
     {
         $suite = new Suite();
         foreach ($this->manager->locateResources($locator) as $resource) {
-            if (!class_exists($resource->getSpecClassname(), false) && is_file($resource->getSpecFilename())) {
+            $classname = $resource->getSpecClassname();
+
+            if (!class_exists($classname, false) && is_file($resource->getSpecFilename())) {
                 try {
                     require_once StreamWrapper::wrapPath($resource->getSpecFilename());
                 }
@@ -72,16 +57,16 @@ class ResourceLoader
                 );
             }
 
-            if (!class_exists($resource->getSpecClassname(), false)) {
+            if (!class_exists($classname, false)) {
                 continue;
             }
 
-            $reflection = new ReflectionClass($resource->getSpecClassname());
+            $reflection = new ReflectionClass($classname);
 
             if ($reflection->isAbstract()) {
                 continue;
             }
-            if (!$reflection->implementsInterface('PhpSpec\Specification')) {
+            if (!$reflection->implementsInterface(Specification::class)) {
                 continue;
             }
 
@@ -117,9 +102,10 @@ class ResourceLoader
         return $line >= $method->getStartLine() && $line <= $method->getEndLine();
     }
 
-    private function addErrorThrowingExampleToSuite(Resource $resource, Suite $suite, \Error $error)
+    private function addErrorThrowingExampleToSuite(Resource $resource, Suite $suite, \Error $error) : void
     {
         $reflection = new ReflectionClass(ErrorSpecification::class);
+        /** @var ReflectionClass<Specification> $reflection */
         $spec = new Node\SpecificationNode($resource->getSrcClassname(), $reflection, $resource);
 
         $errorFunction = new \ReflectionFunction(

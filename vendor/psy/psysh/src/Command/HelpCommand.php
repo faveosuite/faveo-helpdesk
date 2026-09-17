@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,8 +11,7 @@
 
 namespace Psy\Command;
 
-use Psy\Output\ShellOutput;
-use Symfony\Component\Console\Helper\TableHelper;
+use Symfony\Component\Console\Exception\CommandNotFoundException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -24,12 +23,12 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class HelpCommand extends Command
 {
-    private $command;
+    private ?Command $command = null;
 
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('help')
@@ -56,15 +55,31 @@ class HelpCommand extends Command
      *
      * @return int 0 if everything went fine, or an exit code
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $shellOutput = $this->shellOutput($output);
+
         if ($this->command !== null) {
             // help for an individual command
-            $output->page($this->command->asText());
+            $shellOutput->page($this->command->asText());
             $this->command = null;
         } elseif ($name = $input->getArgument('command_name')) {
             // help for an individual command
-            $output->page($this->getApplication()->get($name)->asText());
+            try {
+                $cmd = $this->getApplication()->get($name);
+            } catch (CommandNotFoundException $e) {
+                $this->getShell()->writeException($e);
+                $output->writeln('');
+                $output->writeln(\sprintf(
+                    '<aside>To read PHP documentation, use <return>doc %s</return></aside>',
+                    $name
+                ));
+                $output->writeln('');
+
+                return 1;
+            }
+
+            $shellOutput->page($cmd->asText());
         } else {
             // list available commands
             $commands = $this->getApplication()->all();
@@ -89,19 +104,11 @@ class HelpCommand extends Command
                 ]);
             }
 
-            if ($output instanceof ShellOutput) {
-                $output->startPaging();
-            }
+            $shellOutput->startPaging();
 
-            if ($table instanceof TableHelper) {
-                $table->render($output);
-            } else {
-                $table->render();
-            }
+            $table->render();
 
-            if ($output instanceof ShellOutput) {
-                $output->stopPaging();
-            }
+            $shellOutput->stopPaging();
         }
 
         return 0;

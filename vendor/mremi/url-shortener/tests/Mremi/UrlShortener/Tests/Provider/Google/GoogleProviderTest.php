@@ -11,20 +11,14 @@
 
 namespace Mremi\UrlShortener\Tests\Provider\Google;
 
-use GuzzleHttp\ClientInterface;
-use Mremi\UrlShortener\Exception\InvalidApiResponseException;
-use Mremi\UrlShortener\Model\LinkInterface;
 use Mremi\UrlShortener\Provider\Google\GoogleProvider;
-use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\StreamInterface;
 
 /**
- * Tests GoogleProvider class.
+ * Tests GoogleProvider class
  *
  * @author Rémi Marseille <marseille.remi@gmail.com>
  */
-class GoogleProviderTest extends TestCase
+class GoogleProviderTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var object
@@ -32,7 +26,7 @@ class GoogleProviderTest extends TestCase
     private $provider;
 
     /**
-     * Tests the getUri method with no API key and no parameters.
+     * Tests the getUri method with no API key and no parameters
      */
     public function testGetUriWithNoApiKeyAndNoParameters()
     {
@@ -45,20 +39,20 @@ class GoogleProviderTest extends TestCase
     }
 
     /**
-     * Tests the getUri method with no API key and some parameters.
+     * Tests the getUri method with no API key and some parameters
      */
     public function testGetUriWithNoApiKeyAndSomeParameters()
     {
         $method = new \ReflectionMethod($this->provider, 'getUri');
         $method->setAccessible(true);
 
-        $uri = $method->invoke($this->provider, ['foo' => 'bar']);
+        $uri = $method->invoke($this->provider, array('foo' => 'bar'));
 
-        $this->assertSame('?foo=bar', $uri);
+        $this->assertEquals('?foo=bar', $uri);
     }
 
     /**
-     * Tests the getUri method with API key and no parameters.
+     * Tests the getUri method with API key and no parameters
      */
     public function testGetUriWithApiKeyAndNoParameters()
     {
@@ -69,11 +63,11 @@ class GoogleProviderTest extends TestCase
 
         $uri = $method->invoke($provider);
 
-        $this->assertSame('?key=secret', $uri);
+        $this->assertEquals('?key=secret', $uri);
     }
 
     /**
-     * Tests the getUri method with API key and some parameters.
+     * Tests the getUri method with API key and some parameters
      */
     public function testGetUriWithApiKeyAndSomeParameters()
     {
@@ -82,71 +76,71 @@ class GoogleProviderTest extends TestCase
         $method = new \ReflectionMethod($provider, 'getUri');
         $method->setAccessible(true);
 
-        $uri = $method->invoke($provider, ['foo' => 'bar']);
+        $uri = $method->invoke($provider, array('foo' => 'bar'));
 
-        $this->assertSame('?foo=bar&key=secret', $uri);
+        $this->assertEquals('?foo=bar&key=secret', $uri);
     }
 
     /**
-     * Tests the shorten method throws exception if Google returns a string.
+     * Tests the shorten method throws exception if Google returns a string
+     *
+     * @expectedException        \Mremi\UrlShortener\Exception\InvalidApiResponseException
+     * @expectedExceptionMessage Google response is probably mal-formed because cannot be json-decoded.
      */
     public function testShortenThrowsExceptionIfResponseApiIsString()
     {
-        $this->expectException(InvalidApiResponseException::class);
-        $this->expectExceptionMessage('Google response is probably mal-formed because cannot be json-decoded.');
-
         $this->mockClient($this->getMockResponseAsString(), 'post');
 
         $this->provider->shorten($this->getBaseMockLink());
     }
 
     /**
-     * Tests the shorten method throws exception if Google returns an error response.
+     * Tests the shorten method throws exception if Google returns an error response
+     *
+     * @expectedException        \Mremi\UrlShortener\Exception\InvalidApiResponseException
+     * @expectedExceptionMessage Google returned status code "400" with message "Required"
      */
     public function testShortenThrowsExceptionIfApiResponseIsError()
     {
-        $this->expectException(InvalidApiResponseException::class);
-        $this->expectExceptionMessage('Google returned status code "400" with message "Required"');
-
         $this->mockClient($this->getMockResponseWithError(), 'post');
 
         $this->provider->shorten($this->getBaseMockLink());
     }
 
     /**
-     * Tests the shorten method throws exception if Google returns a response with no id.
+     * Tests the shorten method throws exception if Google returns a response with no id
+     *
+     * @expectedException        \Mremi\UrlShortener\Exception\InvalidApiResponseException
+     * @expectedExceptionMessage Property "id" does not exist within Google response.
      */
     public function testShortenThrowsExceptionIfApiResponseHasNoId()
     {
-        $this->expectException(InvalidApiResponseException::class);
-        $this->expectExceptionMessage('Property "id" does not exist within Google response.');
-
         $this->mockClient($this->getMockResponseWithNoId(), 'post');
 
         $this->provider->shorten($this->getBaseMockLink());
     }
 
     /**
-     * Tests the shorten method throws exception if Google returns a response with no longUrl.
+     * Tests the shorten method throws exception if Google returns a response with no longUrl
+     *
+     * @expectedException        \Mremi\UrlShortener\Exception\InvalidApiResponseException
+     * @expectedExceptionMessage Property "longUrl" does not exist within Google response.
      */
     public function testShortenThrowsExceptionIfApiResponseHasNoLongUrl()
     {
-        $this->expectException(InvalidApiResponseException::class);
-        $this->expectExceptionMessage('Property "longUrl" does not exist within Google response.');
-
         $this->mockClient($this->getMockResponseWithNoLongUrl(), 'post');
 
         $this->provider->shorten($this->getBaseMockLink());
     }
 
     /**
-     * Tests the shorten method with a valid Google's response.
+     * Tests the shorten method with a valid Google's response
      */
     public function testShortenWithValidApiResponse()
     {
         $response = $this->getBaseMockResponse();
 
-        $apiRawResponse = <<<'JSON'
+        $apiRawResponse = <<<JSON
 {
  "kind": "urlshortener#url",
  "id": "http://goo.gl/fbsS",
@@ -154,16 +148,10 @@ class GoogleProviderTest extends TestCase
 }
 JSON;
 
-        $stream = $this->getBaseMockStream();
-        $stream
-            ->expects($this->once())
-            ->method('getContents')
-            ->will($this->returnValue($apiRawResponse));
-
         $response
             ->expects($this->once())
             ->method('getBody')
-            ->will($this->returnValue($stream));
+            ->will($this->returnValue($apiRawResponse));
 
         $link = $this->getMockLongLink();
         $link
@@ -177,68 +165,68 @@ JSON;
     }
 
     /**
-     * Tests the expand method throws exception if Google returns a string.
+     * Tests the expand method throws exception if Google returns a string
+     *
+     * @expectedException        \Mremi\UrlShortener\Exception\InvalidApiResponseException
+     * @expectedExceptionMessage Google response is probably mal-formed because cannot be json-decoded.
      */
     public function testExpandThrowsExceptionIfResponseApiIsString()
     {
-        $this->expectException(InvalidApiResponseException::class);
-        $this->expectExceptionMessage('Google response is probably mal-formed because cannot be json-decoded.');
-
         $this->mockClient($this->getMockResponseAsString(), 'get');
 
         $this->provider->expand($this->getBaseMockLink());
     }
 
     /**
-     * Tests the expand method throws exception if Google returns an error response.
+     * Tests the expand method throws exception if Google returns an error response
+     *
+     * @expectedException        \Mremi\UrlShortener\Exception\InvalidApiResponseException
+     * @expectedExceptionMessage Google returned status code "400" with message "Required"
      */
     public function testExpandThrowsExceptionIfApiResponseIsError()
     {
-        $this->expectException(InvalidApiResponseException::class);
-        $this->expectExceptionMessage('Google returned status code "400" with message "Required"');
-
         $this->mockClient($this->getMockResponseWithError(), 'get');
 
         $this->provider->expand($this->getBaseMockLink());
     }
 
     /**
-     * Tests the expand method throws exception if Google returns a response with no id.
+     * Tests the expand method throws exception if Google returns a response with no id
+     *
+     * @expectedException        \Mremi\UrlShortener\Exception\InvalidApiResponseException
+     * @expectedExceptionMessage Property "id" does not exist within Google response.
      */
     public function testExpandThrowsExceptionIfApiResponseHasNoId()
     {
-        $this->expectException(InvalidApiResponseException::class);
-        $this->expectExceptionMessage('Property "id" does not exist within Google response.');
-
         $this->mockClient($this->getMockResponseWithNoId(), 'get');
 
         $this->provider->expand($this->getBaseMockLink());
     }
 
     /**
-     * Tests the expand method throws exception if Google returns a response with no longUrl.
+     * Tests the expand method throws exception if Google returns a response with no longUrl
+     *
+     * @expectedException        \Mremi\UrlShortener\Exception\InvalidApiResponseException
+     * @expectedExceptionMessage Property "longUrl" does not exist within Google response.
      */
     public function testExpandThrowsExceptionIfApiResponseHasNoLongUrl()
     {
-        $this->expectException(InvalidApiResponseException::class);
-        $this->expectExceptionMessage('Property "longUrl" does not exist within Google response.');
-
         $this->mockClient($this->getMockResponseWithNoLongUrl(), 'get');
 
         $this->provider->expand($this->getBaseMockLink());
     }
 
     /**
-     * Tests the expand method throws exception if Google returns a response with no status.
+     * Tests the expand method throws exception if Google returns a response with no status
+     *
+     * @expectedException        \Mremi\UrlShortener\Exception\InvalidApiResponseException
+     * @expectedExceptionMessage Property "status" does not exist within Google response.
      */
     public function testExpandThrowsExceptionIfApiResponseHasNoStatus()
     {
-        $this->expectException(InvalidApiResponseException::class);
-        $this->expectExceptionMessage('Property "status" does not exist within Google response.');
-
         $response = $this->getBaseMockResponse();
 
-        $apiRawResponse = <<<'JSON'
+        $apiRawResponse = <<<JSON
 {
  "kind": "urlshortener#url",
  "id": "http://goo.gl/fbsS",
@@ -246,16 +234,10 @@ JSON;
 }
 JSON;
 
-        $stream = $this->getBaseMockStream();
-        $stream
-            ->expects($this->once())
-            ->method('getContents')
-            ->will($this->returnValue($apiRawResponse));
-
         $response
             ->expects($this->once())
             ->method('getBody')
-            ->will($this->returnValue($stream));
+            ->will($this->returnValue($apiRawResponse));
 
         $this->mockClient($response, 'get');
 
@@ -263,16 +245,16 @@ JSON;
     }
 
     /**
-     * Tests the expand method throws exception if Google returns an invalid status code.
+     * Tests the expand method throws exception if Google returns an invalid status code
+     *
+     * @expectedException        \Mremi\UrlShortener\Exception\InvalidApiResponseException
+     * @expectedExceptionMessage Google returned status code "KO".
      */
     public function testExpandThrowsExceptionIfApiResponseHasInvalidStatusCode()
     {
-        $this->expectException(InvalidApiResponseException::class);
-        $this->expectExceptionMessage('Google returned status code "KO".');
-
         $response = $this->getBaseMockResponse();
 
-        $apiRawResponse = <<<'JSON'
+        $apiRawResponse = <<<JSON
 {
  "kind": "urlshortener#url",
  "id": "http://goo.gl/fbsS",
@@ -281,16 +263,10 @@ JSON;
 }
 JSON;
 
-        $stream = $this->getBaseMockStream();
-        $stream
-            ->expects($this->once())
-            ->method('getContents')
-            ->will($this->returnValue($apiRawResponse));
-
         $response
             ->expects($this->once())
             ->method('getBody')
-            ->will($this->returnValue($stream));
+            ->will($this->returnValue($apiRawResponse));
 
         $this->mockClient($response, 'get');
 
@@ -298,13 +274,13 @@ JSON;
     }
 
     /**
-     * Tests the expand method with a valid Google's response.
+     * Tests the expand method with a valid Google's response
      */
     public function testExpandWithValidApiResponse()
     {
         $response = $this->getBaseMockResponse();
 
-        $apiRawResponse = <<<'JSON'
+        $apiRawResponse = <<<JSON
 {
  "kind": "urlshortener#url",
  "id": "http://goo.gl/fbsS",
@@ -313,16 +289,10 @@ JSON;
 }
 JSON;
 
-        $stream = $this->getBaseMockStream();
-        $stream
-            ->expects($this->once())
-            ->method('getContents')
-            ->will($this->returnValue($apiRawResponse));
-
         $response
             ->expects($this->once())
             ->method('getBody')
-            ->will($this->returnValue($stream));
+            ->will($this->returnValue($apiRawResponse));
 
         $link = $this->getMockShortLink();
         $link
@@ -336,68 +306,54 @@ JSON;
     }
 
     /**
-     * Initializes the provider.
+     * Initializes the provider
      */
     protected function setUp()
     {
-        $this->provider = $this->getMockBuilder(GoogleProvider::class)
-            ->setMethods(['createClient'])
+        $this->provider = $this->getMockBuilder('Mremi\UrlShortener\Provider\Google\GoogleProvider')
+            ->setMethods(array('createClient'))
             ->getMock();
     }
 
     /**
-     * Cleanups the provider.
+     * Cleanups the provider
      */
     protected function tearDown()
     {
-        $this->provider = null;
+        unset($this->provider);
     }
 
     /**
-     * Gets a mocked response.
+     * Gets a mocked response
      *
      * @return object
      */
     private function getBaseMockResponse()
     {
-        return $this->createMock(ResponseInterface::class);
+        return $this->getMockBuilder('Guzzle\Http\Message\Response')
+            ->disableOriginalConstructor()
+            ->getMock();
     }
 
     /**
-     * Gets mock of stream.
-     *
-     * @return object
-     */
-    private function getBaseMockStream()
-    {
-        return $this->createMock(StreamInterface::class);
-    }
-
-    /**
-     * Returns an invalid response string.
+     * Returns an invalid response string
      *
      * @return object
      */
     private function getMockResponseAsString()
     {
-        $stream = $this->getBaseMockStream();
-        $stream
-            ->expects($this->once())
-            ->method('getContents')
-            ->will($this->returnValue('foo'));
-
         $response = $this->getBaseMockResponse();
 
         $response
             ->expects($this->once())
             ->method('getBody')
-            ->will($this->returnValue($stream));
+            ->will($this->returnValue('foo'));
 
         return $response;
     }
 
     /**
-     * Returns a response object with "error" node.
+     * Returns a response object with "error" node
      *
      * @return object
      */
@@ -405,7 +361,7 @@ JSON;
     {
         $response = $this->getBaseMockResponse();
 
-        $apiRawResponse = <<<'JSON'
+        $apiRawResponse = <<<JSON
 {
  "error": {
   "errors": [
@@ -423,22 +379,16 @@ JSON;
 }
 JSON;
 
-        $stream = $this->getBaseMockStream();
-        $stream
-            ->expects($this->once())
-            ->method('getContents')
-            ->will($this->returnValue($apiRawResponse));
-
         $response
             ->expects($this->once())
             ->method('getBody')
-            ->will($this->returnValue($stream));
+            ->will($this->returnValue($apiRawResponse));
 
         return $response;
     }
 
     /**
-     * Returns a response object with no "id" node.
+     * Returns a response object with no "id" node
      *
      * @return object
      */
@@ -446,29 +396,23 @@ JSON;
     {
         $response = $this->getBaseMockResponse();
 
-        $apiRawResponse = <<<'JSON'
+        $apiRawResponse = <<<JSON
 {
  "kind": "urlshortener#url",
  "longUrl": "http://www.google.com/"
 }
 JSON;
 
-        $stream = $this->getBaseMockStream();
-        $stream
-            ->expects($this->once())
-            ->method('getContents')
-            ->will($this->returnValue($apiRawResponse));
-
         $response
             ->expects($this->once())
             ->method('getBody')
-            ->will($this->returnValue($stream));
+            ->will($this->returnValue($apiRawResponse));
 
         return $response;
     }
 
     /**
-     * Returns a response object with no "longUrl" node.
+     * Returns a response object with no "longUrl" node
      *
      * @return object
      */
@@ -476,42 +420,40 @@ JSON;
     {
         $response = $this->getBaseMockResponse();
 
-        $apiRawResponse = <<<'JSON'
+        $apiRawResponse = <<<JSON
 {
  "kind": "urlshortener#url",
  "id": "http://goo.gl/fbsS"
 }
 JSON;
 
-        $stream = $this->getBaseMockStream();
-        $stream
-            ->expects($this->once())
-            ->method('getContents')
-            ->will($this->returnValue($apiRawResponse));
-
         $response
             ->expects($this->once())
             ->method('getBody')
-            ->will($this->returnValue($stream));
+            ->will($this->returnValue($apiRawResponse));
 
         return $response;
     }
 
     /**
-     * Mocks the client.
+     * Mocks the client
      *
      * @param object $response      A mocked response
      * @param string $requestMethod A request method (get|post)
      */
     private function mockClient($response, $requestMethod)
     {
-        $client = $this->getMockBuilder(ClientInterface::class)
-            ->setMethods(['send', 'sendAsync', 'request', 'requestAsync', 'getConfig', 'get', 'post'])
-            ->getMock();
+        $request = $this->getMock('Guzzle\Http\Message\RequestInterface');
+        $request
+            ->expects($this->once())
+            ->method('send')
+            ->will($this->returnValue($response));
+
+        $client = $this->getMock('Guzzle\Http\ClientInterface');
         $client
             ->expects($this->once())
             ->method($requestMethod)
-            ->will($this->returnValue($response));
+            ->will($this->returnValue($request));
 
         $this->provider
             ->expects($this->once())
@@ -520,17 +462,17 @@ JSON;
     }
 
     /**
-     * Gets mock of link.
+     * Gets mock of link
      *
      * @return object
      */
     private function getBaseMockLink()
     {
-        return $this->createMock(LinkInterface::class);
+        return $this->getMock('Mremi\UrlShortener\Model\LinkInterface');
     }
 
     /**
-     * Gets mock of short link.
+     * Gets mock of short link
      *
      * @return object
      */
@@ -547,7 +489,7 @@ JSON;
     }
 
     /**
-     * Gets mock of long link.
+     * Gets mock of long link
      *
      * @return object
      */

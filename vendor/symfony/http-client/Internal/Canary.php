@@ -18,14 +18,12 @@ namespace Symfony\Component\HttpClient\Internal;
  */
 final class Canary
 {
-    private \Closure $canceller;
-
-    public function __construct(\Closure $canceller)
-    {
-        $this->canceller = $canceller;
+    public function __construct(
+        private \Closure $canceller,
+    ) {
     }
 
-    public function cancel()
+    public function cancel(): void
     {
         if (isset($this->canceller)) {
             $canceller = $this->canceller;

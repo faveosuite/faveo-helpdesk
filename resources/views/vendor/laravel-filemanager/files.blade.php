@@ -12,12 +12,12 @@
                     </div>
                     <div class="caption text-center">
                         <div class="btn-group">
-                            <button type="button" onclick="clickFolder('folder_{{ $key }}',0)" class="btn btn-default btn-xs">
+                            <button type="button" onclick="clickFolder('folder_{{ $key }}',0)" class="btn btn-secondary btn-xs">
                                 {{ Str::limit($dir_name, $limit = 10, $end = '...') }}
                             </button>
-                            <button type="button" class="btn btn-default dropdown-toggle btn-xs" data-toggle="dropdown" aria-expanded="false">
+                            <button type="button" class="btn btn-secondary dropdown-toggle btn-xs" data-bs-toggle="dropdown" aria-expanded="false">
                                 <span class="caret"></span>
-                                <span class="sr-only">Toggle Dropdown</span>
+                                <span class="visually-hidden">Toggle Dropdown</span>
                             </button>
                             <ul class="dropdown-menu" role="menu">
                                 <li><a href="javascript:rename('{{ $dir_name }}')">{{ Lang::get('laravel-filemanager::lfm.menu-rename') }}</a></li>
@@ -41,12 +41,12 @@
 
                     <div class="caption text-center">
                         <div class="btn-group ">
-                            <button type="button" onclick="useFile('{{ $file_name }}')" class="btn btn-default btn-xs">
+                            <button type="button" onclick="useFile('{{ $file_name }}')" class="btn btn-secondary btn-xs">
                                 {{ Str::limit($file_name, $limit = 10, $end = '...') }}
                             </button>
-                            <button type="button" class="btn btn-default dropdown-toggle btn-xs" data-toggle="dropdown" aria-expanded="false">
+                            <button type="button" class="btn btn-secondary dropdown-toggle btn-xs" data-bs-toggle="dropdown" aria-expanded="false">
                                 <span class="caret"></span>
-                                <span class="sr-only">Toggle Dropdown</span>
+                                <span class="visually-hidden">Toggle Dropdown</span>
                             </button>
                             <ul class="dropdown-menu" role="menu">
                                 <li><a href="javascript:rename('{{ $file_name }}')">{{ Lang::get('laravel-filemanager::lfm.menu-rename') }}</a></li>

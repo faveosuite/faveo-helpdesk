@@ -27,6 +27,7 @@
         {{-- jquery ui css --}}
         <link type="text/css" href="{{asset("downloads/jquery.ui.css")}}" rel="stylesheet">
         <link href="{{asset("lb-faveo/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css")}}" rel="stylesheet" type="text/css" />
+        <link href="{{asset("css/common.css")}}" rel="stylesheet" type="text/css" />
         <!-- <link type="text/css" href="http://code.jquery.com/ui/1.9.1/themes/redmond/jquery-ui.css" rel="stylesheet"> -->
         <!--[if lt IE 9]>
             <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
@@ -36,7 +37,7 @@
         @yield('HeadInclude')
     </head>
     <body class="skin-black fixed">
-        <div class="wrapper">
+        <div class="app-wrapper">
             <header class="main-header">
                 <a href="" class="logo"><b>Faveo </b>HELPDESK</a>
                 <?php
@@ -47,8 +48,8 @@ if ($company != null) {
                 <!-- Header Navbar: style can be found in header.less -->
                 <nav class="navbar navbar-static-top" role="navigation">
                     <!-- Sidebar toggle button-->
-                    <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
-                        <span class="sr-only">Toggle navigation</span>
+                    <a href="#" class="sidebar-toggle" data-bs-toggle="offcanvas" role="button">
+                        <span class="visually-hidden">Toggle navigation</span>
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
@@ -58,7 +59,7 @@ if ($company != null) {
                             <li><a href="{{url('agents')}}">Admin Panel</a></li>
                             <!-- User Account: style can be found in dropdown.less -->
                             <li class="dropdown user user-menu">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
                                 @if(Auth::user())
                                     @if(Auth::user()->profile_pic)
                                         <img src="{{asset('dist/img')}}{{'/'}}{{Auth::user()->profile_pic}}"class="user-image" alt="User Image"/>
@@ -93,7 +94,7 @@ if ($company != null) {
                             </nav>
                             </header>
                             <!-- Left side column. contains the logo and sidebar -->
-                            <aside class="main-sidebar">
+                            <aside class="app-sidebar">
                                 <!-- sidebar: style can be found in sidebar.less -->
                                 <section class="sidebar">
                                     <div class="user-panel">
@@ -101,8 +102,8 @@ if ($company != null) {
                                         <h1>@yield('profileimg')</h1>
                                     @else
                                     <div class = "row">
-                                        <div class="col-xs-3"></div>
-                                        <div class="col-xs-2" style="width:50%;">
+                                        <div class="col-3"></div>
+                                        <div class="col-2" style="width:50%;">
                                         @if(Auth::user() && Auth::user()->profile_pic)
                                         <img src="{{asset('dist/img')}}{{'/'}}{{Auth::user()->profile_pic}}" class="img-circle" alt="User Image" />
                                         @else
@@ -117,9 +118,9 @@ if ($company != null) {
                                             <p>{{Auth::user()->first_name}}</p>
                                             @endif
                                             @if(Auth::user() && Auth::user()->active==1)
-                                            <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
+                                            <a href="#"><i class="fa-solid fa-circle text-success"></i> Online</a>
                                             @else
-                                            <a href="#"><i class="fa fa-circle"></i> Offline</a>
+                                            <a href="#"><i class="fa-solid fa-circle"></i> Offline</a>
                                             @endif
                                         </div>
                                     </div>
@@ -128,7 +129,7 @@ if ($company != null) {
                                         <div class="input-group">
                                             <input type="text" name="q" class="form-control" placeholder="Search..."/>
                                             <span class="input-group-btn">
-                                                <button type='submit' name='seach' id='search-btn' class="btn btn-flat"><i class="fa fa-search"></i></button>
+                                                <button type='submit' name='seach' id='search-btn' class="btn "><i class="fa-solid fa-magnifying-glass"></i></button>
                                             </span>
                                         </div>
                                     </form>
@@ -139,29 +140,29 @@ if ($company != null) {
                                         <li class="header">TICKETS</li>
                                         <li>
                                              <a href="{{url('kb/category')}}">
-                                                <i class="fa fa-user"></i> <span>Category</span>
-                                                <small class="label pull-right bg-green"></small>
+                                                <i class="fa-solid fa-user"></i> <span>Category</span>
+                                                <small class="badge float-end text-bg-success"></small>
                                             </a>
                                         </li>
 
                                         <li>
                                             <a href="{{url('kb/article')}}">
-                                                <i class="fa fa-th"></i> <span>Article</span>
-                                                <small class="label pull-right bg-green"></small>
+                                                <i class="fa-solid fa-th"></i> <span>Article</span>
+                                                <small class="badge float-end text-bg-success"></small>
                                             </a>
                                         </li>
 
                                         <li>
                                             <a href="{{url('kb/page')}}">
-                                                <i class="fa fa-th"></i> <span>Page</span>
-                                                <small class="label pull-right bg-green"></small>
+                                                <i class="fa-solid fa-th"></i> <span>Page</span>
+                                                <small class="badge float-end text-bg-success"></small>
                                             </a>
                                         </li>
 
                                         <li>
                                             <a href="{{url('kb/page')}}">
-                                                <i class="fa fa-th"></i> <span>Page</span>
-                                                <small class="label pull-right bg-green"></small>
+                                                <i class="fa-solid fa-th"></i> <span>Page</span>
+                                                <small class="badge float-end text-bg-success"></small>
                                             </a>
                                         </li>
 
@@ -170,19 +171,19 @@ if ($company != null) {
                         <!-- /.sidebar -->
                         </aside>
                         <!-- Right side column. Contains the navbar and content of the page -->
-                        <div class="content-wrapper">
+                        <div class="app-main">
                             <!-- Content Header (Page header) -->
-                            <section class="content-header">
+                            <section class="app-content-header">
                                 @yield('PageHeader')
                                 @yield('breadcrumbs')
                             </section>
                             <!-- Main content -->
-                            <section class="content">
+                            <section class="app-content">
                                 @yield('content')
                             </section><!-- /.content -->
                             <!-- /.content-wrapper -->
                         </div>
-                        <footer class="main-footer">
+                        <footer class="app-footer">
                             <div class="pull-right hidden-xs">
                                 <b>{!! Lang::get('lang.version') !!}</b> 0.1
                             </div>

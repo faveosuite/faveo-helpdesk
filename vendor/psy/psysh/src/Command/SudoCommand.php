@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,8 +14,8 @@ namespace Psy\Command;
 use PhpParser\NodeTraverser;
 use PhpParser\PrettyPrinter\Standard as Printer;
 use Psy\Input\CodeArgument;
-use Psy\ParserFactory;
 use Psy\Readline\Readline;
+use Psy\Readline\ReadlineAware;
 use Psy\Sudo\SudoVisitor;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -23,21 +23,21 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Evaluate PHP code, bypassing visibility restrictions.
  */
-class SudoCommand extends Command
+class SudoCommand extends Command implements ReadlineAware
 {
-    private $readline;
-    private $parser;
-    private $traverser;
-    private $printer;
+    private Readline $readline;
+    private CodeArgumentParser $parser;
+    private NodeTraverser $traverser;
+    private Printer $printer;
 
     /**
      * {@inheritdoc}
      */
     public function __construct($name = null)
     {
-        $parserFactory = new ParserFactory();
-        $this->parser = $parserFactory->createParser();
+        $this->parser = new CodeArgumentParser();
 
+        // @todo Pass visitor directly to once we drop support for PHP-Parser 4.x
         $this->traverser = new NodeTraverser();
         $this->traverser->addVisitor(new SudoVisitor());
 
@@ -59,7 +59,7 @@ class SudoCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('sudo')
@@ -98,7 +98,7 @@ HELP
      *
      * @return int 0 if everything went fine, or an exit code
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $code = $input->getArgument('code');
 
@@ -111,37 +111,13 @@ HELP
             $code = $history[\count($history) - 2];
         }
 
-        if (\strpos($code, '<?') === false) {
-            $code = '<?php '.$code;
-        }
-
-        $nodes = $this->traverser->traverse($this->parse($code));
+        $nodes = $this->traverser->traverse($this->parser->parse($code));
 
         $sudoCode = $this->printer->prettyPrint($nodes);
-        $shell = $this->getApplication();
+
+        $shell = $this->getShell();
         $shell->addCode($sudoCode, !$shell->hasCode());
 
         return 0;
-    }
-
-    /**
-     * Lex and parse a string of code into statements.
-     *
-     * @param string $code
-     *
-     * @return array Statements
-     */
-    private function parse(string $code): array
-    {
-        try {
-            return $this->parser->parse($code);
-        } catch (\PhpParser\Error $e) {
-            if (\strpos($e->getMessage(), 'unexpected EOF') === false) {
-                throw $e;
-            }
-
-            // If we got an unexpected EOF, let's try it again with a semicolon.
-            return $this->parser->parse($code.';');
-        }
     }
 }

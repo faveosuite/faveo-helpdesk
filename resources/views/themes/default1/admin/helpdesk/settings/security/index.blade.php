@@ -17,7 +17,7 @@ class="nav-link active"
 @stop
 
 @section('PageHeader')
-<h1>{!! Lang::get('lang.settings') !!}</h1>
+<h3>{!! Lang::get('lang.settings') !!}</h3>
 @stop
 
 @section('header')
@@ -25,25 +25,25 @@ class="nav-link active"
 
 @section('content')
 @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <i class="fas fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+    <i class="fa-solid fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {!! Session::get('success') !!}
 </div>
 @endif
 @if(Session::has('failed'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fas fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang/alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     <p>{{Session::get('failed')}}</p>                
 </div>
 @endif
 @if(Session::has('errors'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fas fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     <br/>
     @if($errors->first('lockout_message'))
     <li class="error-message-padding">{!! $errors->first('lockout_message', ':message') !!}</li>
@@ -61,37 +61,37 @@ class="nav-link active"
         <h3 class="card-title">{!! Lang::get('lang.security_settings') !!}</h3>
     </div><!-- /.card-header -->
     <div class="card-body">
-        {!! Form::model($security,['route'=>['securitys.update', $security->id],'method'=>'PATCH','files' => true]) !!}
-        <div class="form-group {{ $errors->has('lockout_message') ? 'has-error' : '' }}">
+        {!! html()->modelForm($security, 'PATCH', route('securitys.update', [$security->id]))->acceptsFiles()->open() !!}
+        <div class="mb-3 {{ $errors->has('lockout_message') ? 'has-error' : '' }}">
             <div class="row">
                 <div class="col-md-3">
                     <label for="title">{{trans('lang.Lockout_Message:')}}<span class="text-red"> *</span></label>
                 </div>
                 <div  class="col-md-9">
-                    <div class="callout callout-default" style="font-style: oblique;">{!! Lang::get('lang.security_msg1') !!}</div>
-                    {!! Form::textarea('lockout_message',null,['class'=>'form-control'])!!}
+                    <div class="callout callout-default font-oblique">{!! Lang::get('lang.security_msg1') !!}</div>
+                    {!! html()->textarea('lockout_message', null)->class('form-control') !!}
                 </div>
             </div>
         </div>
-        <div class="form-group {{ $errors->has('backlist_threshold') ? 'has-error' : '' }}">
+        <div class="mb-3 {{ $errors->has('backlist_threshold') ? 'has-error' : '' }}">
             <div class="row">
                 <div class="col-md-3">
                     <label for="title">{!! Lang::get('lang.max_attempt') !!}: <span class="text-red"> *</span></label>
                 </div>
                 <div class="col-md-9">
-                    <div class="callout callout-default" style="font-style: oblique;">{!! Lang::get('lang.security_msg2') !!}</div>
-                    <span>{!! Form::text('backlist_threshold',null,['class'=>'form-control'])!!} {!! Lang::get('lang.lockouts') !!}</span>
+                    <div class="callout callout-default font-oblique">{!! Lang::get('lang.security_msg2') !!}</div>
+                    <span>{!! html()->text('backlist_threshold', null)->class('form-control') !!} {!! Lang::get('lang.lockouts') !!}</span>
                 </div>     
             </div>
         </div>
-        <div class="form-group {{ $errors->has('lockout_period') ? 'has-error' : '' }}"> 
+        <div class="mb-3 {{ $errors->has('lockout_period') ? 'has-error' : '' }}"> 
             <div class="row">
                 <div class="col-md-3">
                     <label for="title">{{trans('lang.lockout_period:')}}<span class="text-red"> *</span></label>
                 </div>
                 <div class="col-md-8">
-                    <div class="callout callout-default" style="font-style: oblique;">{!! Lang::get('lang.security_msg3') !!}</div>
-                    <span> {!! Form::text('lockout_period',null,['class'=>'form-control'])!!} {!! Lang::get('lang.minutes') !!}</span>
+                    <div class="callout callout-default font-oblique">{!! Lang::get('lang.security_msg3') !!}</div>
+                    <span> {!! html()->text('lockout_period', null)->class('form-control') !!} {!! Lang::get('lang.minutes') !!}</span>
                 </div>
             </div>
         </div>
@@ -99,6 +99,6 @@ class="nav-link active"
     <div class="card-footer">
         <button type="submit" class="btn btn-primary">{!! lang::get('lang.submit') !!}</button>
     </div>
-    {!! Form::close() !!}
+    {!! html()->closeModelForm() !!}
 </div>
 @stop

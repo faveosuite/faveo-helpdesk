@@ -20,7 +20,7 @@ class="nav-link active"
 @stop
 <!-- header -->
 @section('PageHeader')
-<h1>{!! Lang::get('lang.settings') !!}</h1>
+<h3>{!! Lang::get('lang.settings') !!}</h3>
 @stop
 <!-- /header -->
 <!-- breadcrumbs -->
@@ -33,17 +33,17 @@ class="nav-link active"
 @section('content')
 <!-- open a form -->
 @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <i class="fa fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+    <i class="fa-solid fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {!!Session::get('success')!!}
 </div>
 @endif
 <!-- failure message -->
 @if(Session::has('fails'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fa fa-ban"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     <b> {!! Lang::get('lang.alert') !!} ! </b>
     <li class="error-message-padding">{!!Session::get('fails')!!}</li>
 </div>
@@ -57,8 +57,8 @@ class="nav-link active"
 
         <div class="row">
             <div class="col-md-3 no-padding">
-                <div class="form-group">
-                    {!! Form::label('del_noti', Lang::get('lang.delete_noti')) !!}
+                <div class="mb-3">
+                    {!! html()->label(Lang::get('lang.delete_noti'), 'del_noti') !!}
                 </div>
             </div>
             <div class="col-md-6">
@@ -67,14 +67,14 @@ class="nav-link active"
         </div>
         <div class="row">
             <div class="col-md-3 no-padding">
-                <div class="form-group">
-                    {!! Form::label('del_noti', Lang::get('lang.noti_msg1')) !!}<span class="text-red"> *</span>
+                <div class="mb-3">
+                    {!! html()->label(Lang::get('lang.noti_msg1'), 'del_noti') !!}<span class="text-red"> *</span>
                 </div>
             </div>
             <div class="col-md-6">
                 <form action="{{ url('delete-notification-log') }}" method="post">
                 {{ csrf_field() }}
-                    <div class="callout callout-default" style="font-style: oblique;">{!! Lang::get('lang.noti_msg2') !!}</div>
+                    <div class="callout callout-default font-oblique">{!! Lang::get('lang.noti_msg2') !!}</div>
                     <input type="number" class="form-control" name='no_of_days' placeholder="{!! lang::get('lang.enter_no_of_days') !!}" min='1'>
                     <button type="submit" class="btn btn-primary">{!! Lang::get('lang.submit') !!}</button>
                 </form>

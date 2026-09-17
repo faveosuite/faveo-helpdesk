@@ -14,12 +14,15 @@ use Illuminate\Bus\UniqueLock;
 use Illuminate\Contracts\Broadcasting\Factory as FactoryContract;
 use Illuminate\Contracts\Broadcasting\ShouldBeUnique;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
+use Illuminate\Contracts\Broadcasting\ShouldRescue;
 use Illuminate\Contracts\Bus\Dispatcher as BusDispatcherContract;
 use Illuminate\Contracts\Cache\Repository as Cache;
 use Illuminate\Contracts\Foundation\CachesRoutes;
 use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Pusher\Pusher;
+use RuntimeException;
+use Throwable;
 
 /**
  * @mixin \Illuminate\Contracts\Broadcasting\Broadcaster
@@ -51,7 +54,6 @@ class BroadcastManager implements FactoryContract
      * Create a new manager instance.
      *
      * @param  \Illuminate\Contracts\Container\Container  $app
-     * @return void
      */
     public function __construct($app)
     {
@@ -64,7 +66,7 @@ class BroadcastManager implements FactoryContract
      * @param  array|null  $attributes
      * @return void
      */
-    public function routes(array $attributes = null)
+    public function routes(?array $attributes = null)
     {
         if ($this->app instanceof CachesRoutes && $this->app->routesAreCached()) {
             return;
@@ -86,7 +88,7 @@ class BroadcastManager implements FactoryContract
      * @param  array|null  $attributes
      * @return void
      */
-    public function userRoutes(array $attributes = null)
+    public function userRoutes(?array $attributes = null)
     {
         if ($this->app instanceof CachesRoutes && $this->app->routesAreCached()) {
             return;
@@ -110,9 +112,9 @@ class BroadcastManager implements FactoryContract
      * @param  array|null  $attributes
      * @return void
      */
-    public function channelRoutes(array $attributes = null)
+    public function channelRoutes(?array $attributes = null)
     {
-        return $this->routes($attributes);
+        $this->routes($attributes);
     }
 
     /**
@@ -133,9 +135,33 @@ class BroadcastManager implements FactoryContract
     }
 
     /**
+     * Begin sending an anonymous broadcast to the given channels.
+     */
+    public function on(Channel|string|array $channels): AnonymousEvent
+    {
+        return new AnonymousEvent($channels);
+    }
+
+    /**
+     * Begin sending an anonymous broadcast to the given private channels.
+     */
+    public function private(string $channel): AnonymousEvent
+    {
+        return $this->on(new PrivateChannel($channel));
+    }
+
+    /**
+     * Begin sending an anonymous broadcast to the given presence channels.
+     */
+    public function presence(string $channel): AnonymousEvent
+    {
+        return $this->on(new PresenceChannel($channel));
+    }
+
+    /**
      * Begin broadcasting an event.
      *
-     * @param  mixed|null  $event
+     * @param  mixed  $event
      * @return \Illuminate\Broadcasting\PendingBroadcast
      */
     public function event($event = null)
@@ -155,7 +181,12 @@ class BroadcastManager implements FactoryContract
             (is_object($event) &&
              method_exists($event, 'shouldBroadcastNow') &&
              $event->shouldBroadcastNow())) {
-            return $this->app->make(BusDispatcherContract::class)->dispatchNow(new BroadcastEvent(clone $event));
+            $dispatch = fn () => $this->app->make(BusDispatcherContract::class)
+                ->dispatchNow(new BroadcastEvent(clone $event));
+
+            return $event instanceof ShouldRescue
+                ? $this->rescue($dispatch)
+                : $dispatch();
         }
 
         $queue = null;
@@ -178,9 +209,13 @@ class BroadcastManager implements FactoryContract
             }
         }
 
-        $this->app->make('queue')
+        $push = fn () => $this->app->make('queue')
             ->connection($event->connection ?? null)
             ->pushOn($queue, $broadcastEvent);
+
+        $event instanceof ShouldRescue
+            ? $this->rescue($push)
+            : $push();
     }
 
     /**
@@ -259,7 +294,11 @@ class BroadcastManager implements FactoryContract
             throw new InvalidArgumentException("Driver [{$config['driver']}] is not supported.");
         }
 
-        return $this->{$driverMethod}($config);
+        try {
+            return $this->{$driverMethod}($config);
+        } catch (Throwable $e) {
+            throw new RuntimeException("Failed to create broadcaster for connection \"{$name}\" with error: {$e->getMessage()}.", 0, $e);
+        }
     }
 
     /**
@@ -271,6 +310,17 @@ class BroadcastManager implements FactoryContract
     protected function callCustomCreator(array $config)
     {
         return $this->customCreators[$config['driver']]($this->app, $config);
+    }
+
+    /**
+     * Create an instance of the driver.
+     *
+     * @param  array  $config
+     * @return \Illuminate\Contracts\Broadcasting\Broadcaster
+     */
+    protected function createReverbDriver(array $config)
+    {
+        return $this->createPusherDriver($config);
     }
 
     /**
@@ -292,14 +342,23 @@ class BroadcastManager implements FactoryContract
      */
     public function pusher(array $config)
     {
+        $guzzleClient = new GuzzleClient(
+            array_merge(
+                [
+                    'connect_timeout' => 10,
+                    'crypto_method' => STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT,
+                    'timeout' => 30,
+                ],
+                $config['client_options'] ?? [],
+            ),
+        );
+
         $pusher = new Pusher(
             $config['key'],
             $config['secret'],
             $config['app_id'],
             $config['options'] ?? [],
-            isset($config['client_options']) && ! empty($config['client_options'])
-                    ? new GuzzleClient($config['client_options'])
-                    : null,
+            $guzzleClient,
         );
 
         if ($config['log'] ?? false) {
@@ -406,7 +465,7 @@ class BroadcastManager implements FactoryContract
     }
 
     /**
-     * Disconnect the given disk and remove from local cache.
+     * Disconnect the given driver / connection and remove it from local cache.
      *
      * @param  string|null  $name
      * @return void
@@ -430,6 +489,21 @@ class BroadcastManager implements FactoryContract
         $this->customCreators[$driver] = $callback;
 
         return $this;
+    }
+
+    /**
+     * Execute the given callback using "rescue" if possible.
+     *
+     * @param  \Closure  $callback
+     * @return mixed
+     */
+    protected function rescue(Closure $callback)
+    {
+        if (function_exists('rescue')) {
+            return rescue($callback);
+        }
+
+        return $callback();
     }
 
     /**

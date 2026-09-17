@@ -50,7 +50,7 @@ class PhpRequest implements RequestInterface
      *
      * @return void
      */
-    public function __construct(array $server, array $session, array $cookies, array $headers, array $input = null)
+    public function __construct(array $server, array $session, array $cookies, array $headers, $input = null)
     {
         $this->server = $server;
         $this->session = $session;
@@ -127,7 +127,7 @@ class PhpRequest implements RequestInterface
     public function getContext()
     {
         if (isset($this->server['REQUEST_METHOD']) && isset($this->server['REQUEST_URI'])) {
-            return $this->server['REQUEST_METHOD'].' '.strtok($this->server['REQUEST_URI'], '?');
+            return $this->server['REQUEST_METHOD'] . ' ' . strtok($this->server['REQUEST_URI'], '?');
         }
 
         return null;
@@ -154,7 +154,7 @@ class PhpRequest implements RequestInterface
 
         $host = isset($this->server['HTTP_HOST']) ? $this->server['HTTP_HOST'] : 'localhost';
 
-        return $schema.$host.$this->server['REQUEST_URI'];
+        return $schema . $host . $this->server['REQUEST_URI'];
     }
 
     /**

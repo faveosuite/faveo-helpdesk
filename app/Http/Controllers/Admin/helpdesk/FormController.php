@@ -347,29 +347,43 @@ class FormController extends Controller
         }
         $type = $field->type;
         $field_type = self::getType($type);
+
+        $attrs = [
+            'class' => "form-control $field->id",
+            'id'    => $field->id,
+        ];
+        if ($required) {
+            $attrs['required'] = 'required';
+        }
+
         switch ($field_type) {
             case 'select':
                 return self::selectForm($field_type, $field, $required, $required_class);
+
             case 'text':
-                return Form::label($field->label, $field->label, ['class' => $required_class]).
-                        Form::$field_type($field->name, null, ['class' => "form-control $field->id", 'id' => $field->id, 'required' => $required]);
+                return html()->label($field->label, $field->label)->class($required_class).
+                    html()->text($field->name)->attributes($attrs);
+
             case 'email':
-                return Form::label($field->label, $field->label, ['class' => $required_class]).
-                        Form::$field_type($field->name, null, ['class' => "form-control $field->id", 'id' => $field->id, 'required' => $required]);
+                return html()->label($field->label, $field->label)->class($required_class).
+                    html()->email($field->name)->attributes($attrs);
+
             case 'password':
-                return Form::label($field->label, $field->label, ['class' => $required_class]).
-                        Form::$field_type($field->name, ['class' => "form-control $field->id", 'id' => $field->id, 'required' => $required]);
+                return html()->label($field->label, $field->label)->class($required_class).
+                    html()->password($field->name)->attributes($attrs);
 
             case 'textarea':
-                return Form::label($field->label, $field->label, ['class' => $required_class]).
-                        Form::$field_type($field->name, null, ['class' => "form-control $field->id", 'id' => $field->id, 'required' => $required]);
+                return html()->label($field->label, $field->label)->class($required_class).
+                    html()->textarea($field->name)->attributes($attrs);
+
             case 'radio':
                 return self::radioForm($field_type, $field, $required, $required_class);
 
             case 'checkbox':
                 return self::checkboxForm($field_type, $field, $required, $required_class);
+
             case 'hidden':
-                return Form::$field_type($field->name, null, ['id' => $field->id]);
+                return html()->hidden($field->name)->id($field->id);
         }
     }
 
@@ -544,8 +558,23 @@ class FormController extends Controller
     {
         $session = self::getSession();
         $script = self::jqueryScript($field->id, $field->name, $field_type);
-        $form_hidden = Form::hidden('fieldid[]', $field->id, ['id' => 'hidden'.$session.$field->id]).Form::label($field->label, $field->label, ['class' => $required_class]);
-        $select = Form::$field_type($field->name, ['' => 'Select', 'Selects' => self::removeUnderscoreFromDB($field->values()->pluck('field_value', 'field_value')->toArray())], null, ['class' => "form-control $session$field->id", 'id' => $session.$field->id, 'required' => $required]).'</br>';
+        $form_hidden = html()->hidden('fieldid[]', $field->id)->id('hidden'.$session.$field->id).
+            html()->label($field->label, $field->label)->class($required_class);
+
+        $options = ['' => 'Select', 'Selects' => self::removeUnderscoreFromDB(
+            $field->values()->pluck('field_value', 'field_value')->toArray()
+        )];
+
+        $attrs = [
+            'class'    => "form-control $session$field->id",
+            'id'       => $session.$field->id,
+        ];
+        if ($required) {
+            $attrs['required'] = 'required';
+        }
+
+        $select = html()->select($field->name, $options)->attributes($attrs).'</br>';
+
         $html = $script.$form_hidden.$select;
         $response_div = '<div id='.$session.$field->name.'></div>';
 
@@ -560,10 +589,14 @@ class FormController extends Controller
         if (count($values) > 0) {
             foreach ($values as $field_value) {
                 $script = self::jqueryScript($field_value, $field->id, $field->name, $field_type);
-                $radio .= '<div>'.Form::hidden('fieldid[]', $field->id, ['id' => $field->id.Str::slug($field_value)]);
-                $radio .= Form::$field_type($field->name, $field_value, null, ['class' => "$field->id", 'id' => Str::slug($field_value), 'required' => $required]).$script.'<span>   '.removeUnderscore($field_value).'</span></div>';
+                $radio .= '<div>'.html()->hidden('fieldid[]', $field->id)->id($field->id.Str::slug($field_value));
+                $radio .= html()->radio($field->name, false, $field_value)->attributes([
+                    'class'    => "$field->id",
+                    'id'       => Str::slug($field_value),
+                    'required' => $required,
+                ]).$script.'<span>   '.removeUnderscore($field_value).'</span></div>';
             }
-            $html = Form::label($field->label, $field->label, ['class' => $required_class]).'</br>'.$radio.'<div id='.$field->name.'></br></div>';
+            $html = html()->label($field->label, $field->label)->class($required_class).'</br>'.$radio.'<div id='.$field->name.'></br></div>';
         }
 
         return $html;
@@ -579,14 +612,17 @@ class FormController extends Controller
             $i = 1;
             foreach ($values as $field_value) {
                 $script = self::jqueryScript($field_value, $field->id, $field->name, $field_type, $i);
-                $checkbox .= Form::hidden('fieldid[]', $field->id, ['id' => 'f'.$session.$i]);
-                $checkbox .= Form::$field_type($field->name, $field_value, null, ['class' => "$field->id", 'id' => $session.$field->id.'_'.$i, 'required' => $required]);
+                $checkbox .= html()->hidden('fieldid[]', $field->id)->id('f'.$session.$i);
+                $checkbox .= html()->checkbox($field->name, false, $field_value)->attributes([
+                    'class'    => "$field->id",
+                    'id'       => $session.$field->id.'_'.$i,
+                    'required' => $required,
+                ]);
                 $checkbox .= '<span>   '.removeUnderscore($field_value).'</span>';
-                //$checkbox .="</br>";
                 $checkbox .= '<div>'.$script.'<div id=div'.$session.$field_value.'></div></div>';
                 $i++;
             }
-            $html = Form::label($field->label, $field->label, ['class' => $required_class]).'</br>'.$checkbox;
+            $html = html()->label($field->label, $field->label)->class($required_class).'</br>'.$checkbox;
         }
 
         return $html;

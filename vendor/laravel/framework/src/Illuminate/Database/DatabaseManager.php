@@ -2,16 +2,18 @@
 
 namespace Illuminate\Database;
 
-use Doctrine\DBAL\Types\Type;
 use Illuminate\Database\Connectors\ConnectionFactory;
 use Illuminate\Database\Events\ConnectionEstablished;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\ConfigurationUrlParser;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
 use InvalidArgumentException;
 use PDO;
 use RuntimeException;
+
+use function Illuminate\Support\enum_value;
 
 /**
  * @mixin \Illuminate\Database\Connection
@@ -44,6 +46,13 @@ class DatabaseManager implements ConnectionResolverInterface
     protected $connections = [];
 
     /**
+     * The dynamically configured (DB::build) connection configurations.
+     *
+     * @var array<string, array>
+     */
+    protected $dynamicConnectionConfigurations = [];
+
+    /**
      * The custom connection resolvers.
      *
      * @var array<string, callable>
@@ -58,18 +67,10 @@ class DatabaseManager implements ConnectionResolverInterface
     protected $reconnector;
 
     /**
-     * The custom Doctrine column types.
-     *
-     * @var array<string, array>
-     */
-    protected $doctrineTypes = [];
-
-    /**
      * Create a new database manager instance.
      *
      * @param  \Illuminate\Contracts\Foundation\Application  $app
      * @param  \Illuminate\Database\Connectors\ConnectionFactory  $factory
-     * @return void
      */
     public function __construct($app, ConnectionFactory $factory)
     {
@@ -77,21 +78,21 @@ class DatabaseManager implements ConnectionResolverInterface
         $this->factory = $factory;
 
         $this->reconnector = function ($connection) {
-            $this->reconnect($connection->getNameWithReadWriteType());
+            $connection->setPdo(
+                $this->reconnect($connection->getNameWithReadWriteType())->getRawPdo()
+            );
         };
     }
 
     /**
      * Get a database connection instance.
      *
-     * @param  string|null  $name
+     * @param  \UnitEnum|string|null  $name
      * @return \Illuminate\Database\Connection
      */
     public function connection($name = null)
     {
-        [$database, $type] = $this->parseConnectionName($name);
-
-        $name = $name ?: $database;
+        [$database, $type] = $this->parseConnectionName($name = enum_value($name) ?: $this->getDefaultConnection());
 
         // If we haven't created this connection, we'll create it based on the config
         // provided in the application. Once we've created the connections we will
@@ -101,14 +102,65 @@ class DatabaseManager implements ConnectionResolverInterface
                 $this->makeConnection($database), $type
             );
 
-            if ($this->app->bound('events')) {
-                $this->app['events']->dispatch(
-                    new ConnectionEstablished($this->connections[$name])
-                );
-            }
+            $this->dispatchConnectionEstablishedEvent($this->connections[$name]);
         }
 
         return $this->connections[$name];
+    }
+
+    /**
+     * Build a database connection instance from the given configuration.
+     *
+     * @param  array  $config
+     * @return \Illuminate\Database\ConnectionInterface
+     */
+    public function build(array $config)
+    {
+        $config['name'] ??= static::calculateDynamicConnectionName($config);
+
+        $this->dynamicConnectionConfigurations[$config['name']] = $config;
+
+        return $this->connectUsing($config['name'], $config, true);
+    }
+
+    /**
+     * Calculate the dynamic connection name for an on-demand connection based on its configuration.
+     *
+     * @param  array  $config
+     * @return string
+     */
+    public static function calculateDynamicConnectionName(array $config)
+    {
+        return 'dynamic_'.md5((new Collection($config))->map(function ($value, $key) {
+            return $key.(is_string($value) || is_int($value) ? $value : '');
+        })->implode(''));
+    }
+
+    /**
+     * Get a database connection instance from the given configuration.
+     *
+     * @param  \UnitEnum|string  $name
+     * @param  array  $config
+     * @param  bool  $force
+     * @return \Illuminate\Database\ConnectionInterface
+     */
+    public function connectUsing(string $name, array $config, bool $force = false)
+    {
+        if ($force) {
+            $this->purge($name = enum_value($name));
+        }
+
+        if (isset($this->connections[$name])) {
+            throw new RuntimeException("Cannot establish connection [$name] because another connection with that name already exists.");
+        }
+
+        $connection = $this->configure(
+            $this->factory->make($config, $name), null
+        );
+
+        $this->dispatchConnectionEstablishedEvent($connection);
+
+        return tap($connection, fn ($connection) => $this->connections[$name] = $connection);
     }
 
     /**
@@ -119,10 +171,9 @@ class DatabaseManager implements ConnectionResolverInterface
      */
     protected function parseConnectionName($name)
     {
-        $name = $name ?: $this->getDefaultConnection();
-
         return Str::endsWith($name, ['::read', '::write'])
-                            ? explode('::', $name, 2) : [$name, null];
+            ? explode('::', $name, 2)
+            : [$name, null];
     }
 
     /**
@@ -162,19 +213,16 @@ class DatabaseManager implements ConnectionResolverInterface
      */
     protected function configuration($name)
     {
-        $name = $name ?: $this->getDefaultConnection();
-
-        // To get the database connection configuration, we will just pull each of the
-        // connection configurations and get the configurations for the given name.
-        // If the configuration doesn't exist, we'll throw an exception and bail.
         $connections = $this->app['config']['database.connections'];
 
-        if (is_null($config = Arr::get($connections, $name))) {
+        $config = $this->dynamicConnectionConfigurations[$name] ?? Arr::get($connections, $name);
+
+        if (is_null($config)) {
             throw new InvalidArgumentException("Database connection [{$name}] not configured.");
         }
 
         return (new ConfigurationUrlParser)
-                    ->parseConfiguration($config);
+            ->parseConfiguration($config);
     }
 
     /**
@@ -204,9 +252,24 @@ class DatabaseManager implements ConnectionResolverInterface
         // the connection, which will allow us to reconnect from the connections.
         $connection->setReconnector($this->reconnector);
 
-        $this->registerConfiguredDoctrineTypes($connection);
-
         return $connection;
+    }
+
+    /**
+     * Dispatch the ConnectionEstablished event if the event dispatcher is available.
+     *
+     * @param  \Illuminate\Database\Connection  $connection
+     * @return void
+     */
+    protected function dispatchConnectionEstablishedEvent(Connection $connection)
+    {
+        if (! $this->app->bound('events')) {
+            return;
+        }
+
+        $this->app['events']->dispatch(
+            new ConnectionEstablished($connection)
+        );
     }
 
     /**
@@ -228,59 +291,14 @@ class DatabaseManager implements ConnectionResolverInterface
     }
 
     /**
-     * Register custom Doctrine types with the connection.
-     *
-     * @param  \Illuminate\Database\Connection  $connection
-     * @return void
-     */
-    protected function registerConfiguredDoctrineTypes(Connection $connection): void
-    {
-        foreach ($this->app['config']->get('database.dbal.types', []) as $name => $class) {
-            $this->registerDoctrineType($class, $name, $name);
-        }
-
-        foreach ($this->doctrineTypes as $name => [$type, $class]) {
-            $connection->registerDoctrineType($class, $name, $type);
-        }
-    }
-
-    /**
-     * Register a custom Doctrine type.
-     *
-     * @param  string  $class
-     * @param  string  $name
-     * @param  string  $type
-     * @return void
-     *
-     * @throws \Doctrine\DBAL\DBALException
-     * @throws \RuntimeException
-     */
-    public function registerDoctrineType(string $class, string $name, string $type): void
-    {
-        if (! class_exists('Doctrine\DBAL\Connection')) {
-            throw new RuntimeException(
-                'Registering a custom Doctrine type requires Doctrine DBAL (doctrine/dbal).'
-            );
-        }
-
-        if (! Type::hasType($name)) {
-            Type::addType($name, $class);
-        }
-
-        $this->doctrineTypes[$name] = [$type, $class];
-    }
-
-    /**
      * Disconnect from the given database and remove from local cache.
      *
-     * @param  string|null  $name
+     * @param  \UnitEnum|string|null  $name
      * @return void
      */
     public function purge($name = null)
     {
-        $name = $name ?: $this->getDefaultConnection();
-
-        $this->disconnect($name);
+        $this->disconnect($name = enum_value($name) ?: $this->getDefaultConnection());
 
         unset($this->connections[$name]);
     }
@@ -288,12 +306,12 @@ class DatabaseManager implements ConnectionResolverInterface
     /**
      * Disconnect from the given database.
      *
-     * @param  string|null  $name
+     * @param  \UnitEnum|string|null  $name
      * @return void
      */
     public function disconnect($name = null)
     {
-        if (isset($this->connections[$name = $name ?: $this->getDefaultConnection()])) {
+        if (isset($this->connections[$name = enum_value($name) ?: $this->getDefaultConnection()])) {
             $this->connections[$name]->disconnect();
         }
     }
@@ -301,24 +319,26 @@ class DatabaseManager implements ConnectionResolverInterface
     /**
      * Reconnect to the given database.
      *
-     * @param  string|null  $name
+     * @param  \UnitEnum|string|null  $name
      * @return \Illuminate\Database\Connection
      */
     public function reconnect($name = null)
     {
-        $this->disconnect($name = $name ?: $this->getDefaultConnection());
+        $this->disconnect($name = enum_value($name) ?: $this->getDefaultConnection());
 
         if (! isset($this->connections[$name])) {
             return $this->connection($name);
         }
 
-        return $this->refreshPdoConnections($name);
+        return tap($this->refreshPdoConnections($name), function ($connection) {
+            $this->dispatchConnectionEstablishedEvent($connection);
+        });
     }
 
     /**
      * Set the default database connection for the callback execution.
      *
-     * @param  string  $name
+     * @param  \UnitEnum|string  $name
      * @param  callable  $callback
      * @return mixed
      */
@@ -326,11 +346,13 @@ class DatabaseManager implements ConnectionResolverInterface
     {
         $previousName = $this->getDefaultConnection();
 
-        $this->setDefaultConnection($name);
+        $this->setDefaultConnection($name = enum_value($name));
 
-        return tap($callback(), function () use ($previousName) {
+        try {
+            return $callback();
+        } finally {
             $this->setDefaultConnection($previousName);
-        });
+        }
     }
 
     /**
@@ -348,8 +370,8 @@ class DatabaseManager implements ConnectionResolverInterface
         );
 
         return $this->connections[$name]
-                    ->setPdo($fresh->getRawPdo())
-                    ->setReadPdo($fresh->getRawReadPdo());
+            ->setPdo($fresh->getRawPdo())
+            ->setReadPdo($fresh->getRawReadPdo());
     }
 
     /**
@@ -374,13 +396,13 @@ class DatabaseManager implements ConnectionResolverInterface
     }
 
     /**
-     * Get all of the support drivers.
+     * Get all of the supported drivers.
      *
      * @return string[]
      */
     public function supportedDrivers()
     {
-        return ['mysql', 'pgsql', 'sqlite', 'sqlsrv'];
+        return ['mysql', 'mariadb', 'pgsql', 'sqlite', 'sqlsrv'];
     }
 
     /**

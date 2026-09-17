@@ -93,9 +93,9 @@ class Attachment
         $parameters = Message::getParametersFromStructure($structure);
 
         if (isset($parameters['filename'])) {
-            $this->filename = $parameters['filename'];
+            $this->setFileName($parameters['filename']);
         } elseif (isset($parameters['name'])) {
-            $this->filename = $parameters['name'];
+            $this->setFileName($parameters['name']);
         }
 
         $this->size = $structure->bytes;
@@ -218,6 +218,9 @@ class Attachment
                 $streamFilter = null;
         }
 
+        // Fix an issue causing server to throw an error
+        // See: https://github.com/tedious/Fetch/issues/74 for more details
+        $fetch  = imap_fetchbody($this->imapStream, $this->messageId, $this->partId ?: 1, FT_UID);
         $result = imap_savebody($this->imapStream, $filePointer, $this->messageId, $this->partId ?: 1, FT_UID);
 
         if ($streamFilter) {
@@ -227,5 +230,10 @@ class Attachment
         fclose($filePointer);
 
         return $result;
+    }
+
+    protected function setFileName($text)
+    {
+        $this->filename = MIME::decode($text, Message::$charset);
     }
 }

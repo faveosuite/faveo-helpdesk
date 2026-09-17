@@ -20,7 +20,7 @@ class="nav-link active"
 @stop
 <!-- header -->
 @section('PageHeader')
-<h1>{{Lang::get('lang.groups')}}</h1>
+<h3>{{Lang::get('lang.groups')}}</h3>
 @stop
 <!-- /header -->
 <!-- breadcrumbs -->
@@ -34,18 +34,18 @@ class="nav-link active"
 
 <!-- check whether success or not -->
 @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <i class="fa  fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+    <i class="fa  fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {!! Session::get('success') !!}
 </div>
 @endif
 <!-- failure message -->
 @if(Session::has('fails'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fa fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>Fail!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {!! Session::get('fails') !!}
 </div>
 @endif
@@ -54,9 +54,9 @@ class="nav-link active"
 
     <div class="card-header">
         <h3 class="card-title">{!! Lang::get('lang.list_of_groups') !!}</h3>
-        <div class="card-tools">
-            <a href="{{route('groups.create')}}" class="btn btn-default btn-tool">
-                <span class="fas fa-plus"></span>&nbsp;{{Lang::get('lang.create_group')}}
+        <div class="card-tools d-flex">
+            <a href="{{route('groups.create')}}" class="btn btn-secondary btn-tool">
+                <span class="fa-solid fa-plus"></span>&nbsp;{{Lang::get('lang.create_group')}}
             </a>        
         </div>
     </div>
@@ -80,15 +80,11 @@ class="nav-link active"
                     <span style="color:red">{{'Inactive'}}</span>
                     @endif
                 <td>
-                    {!! Form::open(['route'=>['groups.destroy', $group->id],'method'=>'DELETE']) !!}
-                    <a href="{{route('groups.edit', $group->id)}}" class="btn btn-primary btn-xs"><i class="fas fa-edit"> </i> {{trans('lang.edit')}}</a>
+                    {!! html()->form('DELETE', route('groups.destroy', [$group->id]))->open() !!}
+                    <a href="{{route('groups.edit', $group->id)}}" class="btn btn-primary btn-xs"><i class="fa-solid fa-pen-to-square"> </i> {{trans('lang.edit')}}</a>
                     <!-- To pop up a confirm Message -->
-                    {!! Form::button('<i class="fas fa-trash"> </i>'.trans('lang.delete'),
-                    ['type' => 'submit',
-                    'class'=> 'btn btn-danger btn-xs',
-                    'onclick'=>'return confirm("Are you sure?")'])
-                    !!}
-                    {!! Form::close() !!}
+                    {!! html()->button('<i class="fa-solid fa-trash"> </i>'.trans('lang.delete'))->class('btn btn-danger btn-xs')->attributes(['type' => 'submit', 'onclick' => 'return confirm("Are you sure?")']) !!}
+                    {!! html()->closeModelForm() !!}
                 </td>
             </tr>
             @endforeach

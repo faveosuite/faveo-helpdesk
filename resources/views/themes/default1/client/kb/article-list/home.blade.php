@@ -6,7 +6,7 @@ Knowledge Base -
 @section('breadcrumb')
     {{--<div class="site-hero clearfix">--}}
     <ol class="breadcrumb float-sm-right ">
-        <li class="breadcrumb-item"> <i class="fas fa-home"> </i> {!! Lang::get('lang.you_are_here') !!} : &nbsp;</li>
+        <li class="breadcrumb-item"> <i class="fa-solid fa-home"> </i> {!! Lang::get('lang.you_are_here') !!} : &nbsp;</li>
         <li><a href="{!! URL::route('home') !!}">{!! Lang::get('lang.knowledge_base') !!}</a></li>
     </ol>
 
@@ -17,18 +17,18 @@ class = "nav-item active"
 @section('content')
 
 @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <i class="fas  fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+    <i class="fa-solid  fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('success')}}
 </div>
 @endif
 <!-- failure message -->
 @if(Session::has('fails'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fas fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('fails')}}
 </div>
 @endif
@@ -55,11 +55,11 @@ class = "nav-item active"
 
                     <i class="line" style="border-color: rgb(0, 154, 186);"></i>
 
-                    <i class="far fa-folder-open fa-fw text-muted"></i>
+                    <i class="fa-regular fa-folder-open fa-fw text-muted"></i>
 
-                    <small class="float-right">
+                    <small class="float-end">
 
-                        <a href="{{url('category-list/'.$category->slug)}}"><i class="far fa-hdd fa-fw"></i>({{count($all)}})</a>
+                        <a href="{{url('category-list/'.$category->slug)}}"><i class="fa-regular fa-hdd fa-fw"></i>({{count($all)}})</a>
                     </small>
 
                     <a href="{{url('category-list/'.$category->slug)}}">{{$category->name}}</a>
@@ -91,7 +91,7 @@ class = "nav-item active"
 
                             <h3 class="h5" style="text-align:left">
 
-                                <i class="fa-li fa fa-list-alt fa-fw text-muted"></i>
+                                <i class="fa-li fa-solid fa-list-alt fa-fw text-muted"></i>
 
                                 <a href="{{url('show/'.$arti->slug)}}">{{$arti->name}}</a>
 
@@ -139,7 +139,7 @@ class = "nav-item active"
 
                     <b>   <i class="line"></i>{!! Lang::get('lang.categories') !!}</b>
 
-                    <small class="float-right"><i class="far fa-hdd fa-fw"></i></small>
+                    <small class="float-end"><i class="fa-regular fa-hdd fa-fw"></i></small>
                 </h2>
 
                 <ul class="nav nav-pills nav-stacked nav-categories">
@@ -155,7 +155,7 @@ class = "nav-item active"
 
                         <a  href="{{url('category-list/'.$category->slug)}}" class="list-group-item list-group-item-action" style="padding: 5px;">
 
-                            <span class="badge badge-pill float-right" style="margin-top: 2px;">{{$numcount}}</span>
+                            <span class="badge bg-pill float-end" style="margin-top: 2px;">{{$numcount}}</span>
 
                             {{$category->name}}
                         </a>

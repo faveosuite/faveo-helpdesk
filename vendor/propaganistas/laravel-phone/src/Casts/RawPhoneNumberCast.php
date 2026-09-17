@@ -2,48 +2,40 @@
 
 namespace Propaganistas\LaravelPhone\Casts;
 
+use Illuminate\Database\Eloquent\Model;
 use InvalidArgumentException;
 use Propaganistas\LaravelPhone\PhoneNumber;
 
 class RawPhoneNumberCast extends PhoneNumberCast
 {
     /**
-     * Cast the given value.
-     *
-     * @param  \Illuminate\Database\Eloquent\Model  $model
-     * @param  string  $key
-     * @param  mixed  $value
-     * @param  array  $attributes
-     * @return \Propaganistas\LaravelPhone\PhoneNumber|null
+     * Transform the attribute from the underlying model values.
      */
-    public function get($model, string $key, $value, array $attributes)
+    public function get(Model $model, string $key, mixed $value, array $attributes): ?PhoneNumber
     {
         if (! $value) {
             return null;
         }
 
-        $phone = new PhoneNumber($value);
-        $countries = $this->getPossibleCountries($key, $attributes);
+        $phone = new PhoneNumber($value,
+            $this->getPossibleCountries($key, $attributes)
+        );
 
-        if (empty($countries) && ! $phone->numberLooksInternational()) {
-            throw new InvalidArgumentException(
-                'Missing country specification for '.$key.' attribute cast'
-            );
+        $country = $phone->getCountry();
+
+        if ($country === null) {
+            throw new InvalidArgumentException('Missing country specification for '.$key.' attribute cast');
         }
 
-        return $phone->ofCountry($countries);
+        return new PhoneNumber($value, $country);
     }
 
     /**
-     * Prepare the given value for storage.
+     * Transform the attribute to its underlying model values.
      *
-     * @param  \Illuminate\Database\Eloquent\Model  $model
-     * @param  string  $key
-     * @param  mixed  $value
-     * @param  array  $attributes
-     * @return mixed
+     * @param  PhoneNumber|string|null  $value
      */
-    public function set($model, string $key, $value, array $attributes)
+    public function set(Model $model, string $key, mixed $value, array $attributes): ?string
     {
         if ($value instanceof PhoneNumber) {
             return $value->getRawNumber();
@@ -54,20 +46,13 @@ class RawPhoneNumberCast extends PhoneNumberCast
 
     /**
      * Serialize the attribute when converting the model to an array.
-     *
-     * @param  \Illuminate\Database\Eloquent\Model  $model
-     * @param  string  $key
-     * @param  mixed  $value
-     * @param  array  $attributes
-     * @return mixed
      */
-    public function serialize($model, string $key, $value, array $attributes)
+    public function serialize(Model $model, string $key, mixed $value, array $attributes): ?string
     {
         if (! $value) {
             return null;
         }
 
-        /** @var $value PhoneNumber */
         return $value->getRawNumber();
     }
 }

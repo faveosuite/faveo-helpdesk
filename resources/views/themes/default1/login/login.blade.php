@@ -7,31 +7,31 @@
       <div class="login-box-body">
         <p class="login-box-msg">Sign in to start your session</p>
         <!-- form open -->
-        {!!  Form::open(['route' => 'post.login']) !!}
+        {!! html()->form('POST', route('post.login'))->open() !!}
           <!-- Email -->
-          <div class="form-group has-feedback {{ $errors->has('email') ? 'has-error' : '' }}">
+          <div class="mb-3 has-feedback {{ $errors->has('email') ? 'has-error' : '' }}">
 			
-			{!! Form::text('email',null,['placeholder'=>'Email','class' => 'form-control']) !!}
+			{!! html()->text('email', null)->placeholder('Email')->class('form-control') !!}
 			{!! $errors->first('email', '<spam class="help-block">:message</spam>') !!}
-			<span class="far fa-envelope text-muted form-control-feedback"></span>
+			<span class="fa-regular fa-envelope text-muted form-control-feedback"></span>
           
           </div>
 
-          <div class="form-group has-feedback {{ $errors->has('password') ? 'has-error' : '' }}">
-            {!! Form::password('password',['placeholder'=>'Password','class' => 'form-control']) !!}
+          <div class="mb-3 has-feedback {{ $errors->has('password') ? 'has-error' : '' }}">
+            {!! html()->password('password')->placeholder('Password')->class('form-control') !!}
 			{!! $errors->first('password', '<spam class="help-block">:message</spam>') !!}
-            <span class="fa fa-lock text-muted form-control-feedback"></span>
+            <span class="fa-solid fa-lock text-muted form-control-feedback"></span>
           </div>
           <div class="row">
-            <div class="col-xs-8">    
+            <div class="col-8">    
               <div class="checkbox icheck">
                 <label>
                   <input type="checkbox" name="remember"> Remember Me
                 </label>
               </div>                        
             </div><!-- /.col -->
-            <div class="col-xs-4">
-              <button type="submit" class="btn btn-primary btn-block btn-flat">Sign In</button>
+            <div class="col-4">
+              <button type="submit" class="btn btn-primary btn-block ">Sign In</button>
             </div><!-- /.col -->
           </div>
         </form>

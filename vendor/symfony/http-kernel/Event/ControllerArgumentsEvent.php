@@ -29,11 +29,15 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 final class ControllerArgumentsEvent extends KernelEvent
 {
     private ControllerEvent $controllerEvent;
-    private array $arguments;
     private array $namedArguments;
 
-    public function __construct(HttpKernelInterface $kernel, callable|ControllerEvent $controller, array $arguments, Request $request, ?int $requestType)
-    {
+    public function __construct(
+        HttpKernelInterface $kernel,
+        callable|ControllerEvent $controller,
+        private array $arguments,
+        Request $request,
+        ?int $requestType,
+    ) {
         parent::__construct($kernel, $request, $requestType);
 
         if (!$controller instanceof ControllerEvent) {
@@ -41,7 +45,6 @@ final class ControllerArgumentsEvent extends KernelEvent
         }
 
         $this->controllerEvent = $controller;
-        $this->arguments = $arguments;
     }
 
     public function getController(): callable
@@ -52,7 +55,7 @@ final class ControllerArgumentsEvent extends KernelEvent
     /**
      * @param array<class-string, list<object>>|null $attributes
      */
-    public function setController(callable $controller, array $attributes = null): void
+    public function setController(callable $controller, ?array $attributes = null): void
     {
         $this->controllerEvent->setController($controller, $attributes);
         unset($this->namedArguments);
@@ -63,7 +66,7 @@ final class ControllerArgumentsEvent extends KernelEvent
         return $this->arguments;
     }
 
-    public function setArguments(array $arguments)
+    public function setArguments(array $arguments): void
     {
         $this->arguments = $arguments;
         unset($this->namedArguments);
@@ -94,10 +97,14 @@ final class ControllerArgumentsEvent extends KernelEvent
     }
 
     /**
-     * @return array<class-string, list<object>>
+     * @template T of object
+     *
+     * @param class-string<T>|null $className
+     *
+     * @return ($className is null ? array<class-string, list<object>> : list<T>)
      */
-    public function getAttributes(): array
+    public function getAttributes(?string $className = null): array
     {
-        return $this->controllerEvent->getAttributes();
+        return $this->controllerEvent->getAttributes($className);
     }
 }

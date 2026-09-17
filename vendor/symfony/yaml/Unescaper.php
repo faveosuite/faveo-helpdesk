@@ -45,9 +45,7 @@ class Unescaper
      */
     public function unescapeDoubleQuotedString(string $value): string
     {
-        $callback = function ($match) {
-            return $this->unescapeCharacter($match[0]);
-        };
+        $callback = fn ($match) => $this->unescapeCharacter($match[0]);
 
         // evaluate the string
         return preg_replace_callback('/'.self::REGEX_ESCAPED_CHARACTER.'/u', $callback, $value);
@@ -86,7 +84,7 @@ class Unescaper
             'x' => self::utf8chr(hexdec(substr($value, 2, 2))),
             'u' => self::utf8chr(hexdec(substr($value, 2, 4))),
             'U' => self::utf8chr(hexdec(substr($value, 2, 8))),
-            default => throw new ParseException(sprintf('Found unknown escape character "%s".', $value)),
+            default => throw new ParseException(\sprintf('Found unknown escape character "%s".', $value)),
         };
     }
 

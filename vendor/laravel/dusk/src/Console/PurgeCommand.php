@@ -3,9 +3,11 @@
 namespace Laravel\Dusk\Console;
 
 use Illuminate\Console\Command;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
 
+#[AsCommand(name: 'dusk:purge')]
 class PurgeCommand extends Command
 {
     /**
@@ -66,7 +68,7 @@ class PurgeCommand extends Command
     protected function purgeConsoleLogs()
     {
         $this->purgeDebuggingFiles(
-           'tests/Browser/console', '*.log'
+            'tests/Browser/console', '*.log'
         );
     }
 
@@ -94,7 +96,7 @@ class PurgeCommand extends Command
         $path = base_path($relativePath);
 
         if (! is_dir($path)) {
-            $this->warn(
+            $this->components->warn(
                 "Unable to purge missing directory [{$relativePath}].", OutputInterface::VERBOSITY_DEBUG
             );
 
@@ -109,6 +111,6 @@ class PurgeCommand extends Command
             @unlink($file->getRealPath());
         }
 
-        $this->info("Purged \"{$patterns}\" from [{$relativePath}].");
+        $this->components->info("Purged \"{$patterns}\" from [{$relativePath}].");
     }
 }

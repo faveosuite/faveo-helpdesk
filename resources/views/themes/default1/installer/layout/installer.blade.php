@@ -35,7 +35,7 @@
     <script src="{{asset("lb-faveo/js/ggpopover.js")}}" type="text/javascript"></script>
 
     <script type="text/javascript">
-        $('[data-toggle="popover"]').ggpopover();
+        $('[data-bs-toggle="popover"]').ggpopover();
     </script>
 
     <script src="{{asset("lb-faveo/js/chosen/chosen.jquery.js")}}" type="text/javascript"></script>

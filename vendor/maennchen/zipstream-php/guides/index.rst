@@ -22,15 +22,24 @@ Installation
 
 Simply add a dependency on ``maennchen/zipstream-php`` to your project's
 ``composer.json`` file if you use Composer to manage the dependencies of your
-project. Use following command to add the package to your project's dependencies:
+project. Use following command to add the package to your project's
+dependencies:
 
 .. code-block:: sh
    composer require maennchen/zipstream-php
 
+If you want to use``addFileFromPsr7Stream```
+(``Psr\Http\Message\StreamInterface``) or use a stream instead of a
+``resource`` as ``outputStream``, the following dependencies must be installed
+as well:
+
+.. code-block:: sh
+   composer require psr/http-message guzzlehttp/psr7
+
 If ``composer install`` yields the following error, your installation is missing
 the `mbstring extension <https://www.php.net/manual/en/book.mbstring.php>`_,
 either `install it <https://www.php.net/manual/en/mbstring.installation.php>`_
-or run the follwoing command:
+or run the following command:
 
 .. code-block::
     Your requirements could not be resolved to an installable set of packages.
@@ -52,25 +61,42 @@ Here's a simple example:
    // Autoload the dependencies
    require 'vendor/autoload.php';
 
-   // enable output of HTTP headers
-   $options = new ZipStream\Option\Archive();
-   $options->setSendHttpHeaders(true);
-
    // create a new zipstream object
-   $zip = new ZipStream\ZipStream('example.zip', $options);
+   $zip = new ZipStream\ZipStream(
+      outputName: 'example.zip',
+
+      // enable output of HTTP headers
+      sendHttpHeaders: true,
+   );
 
    // create a file named 'hello.txt'
-   $zip->addFile('hello.txt', 'This is the contents of hello.txt');
+   $zip->addFile(
+      fileName: 'hello.txt',
+      data: 'This is the contents of hello.txt',
+   );
 
    // add a file named 'some_image.jpg' from a local file 'path/to/image.jpg'
-   $zip->addFileFromPath('some_image.jpg', 'path/to/image.jpg');
+   $zip->addFileFromPath(
+      fileName: 'some_image.jpg',
+      path: 'path/to/image.jpg',
+   );
 
    // add a file named 'goodbye.txt' from an open stream resource
-   $fp = tmpfile();
-   fwrite($fp, 'The quick brown fox jumped over the lazy dog.');
-   rewind($fp);
-   $zip->addFileFromStream('goodbye.txt', $fp);
-   fclose($fp);
+   $filePointer = tmpfile();
+   fwrite($filePointer, 'The quick brown fox jumped over the lazy dog.');
+   rewind($filePointer);
+   $zip->addFileFromStream(
+      fileName: 'goodbye.txt',
+      stream: $filePointer,
+   );
+   fclose($filePointer);
+
+   // add a file named 'streamfile.txt' from the body of a `guzzle` response
+   // Setup with `psr/http-message` & `guzzlehttp/psr7` dependencies required.
+   $zip->addFileFromPsr7Stream(
+      fileName: 'streamfile.txt',
+      stream: $response->getBody(),
+   );
 
    // finish the zip stream
    $zip->finish();
@@ -87,14 +113,14 @@ The native Mac OS archive extraction tool prior to macOS 10.15 might not open
 archives in some conditions. A workaround is to disable the Zip64 feature with
 the option ``enableZip64: false``. This limits the archive to 4 Gb and 64k files
 but will allow users on macOS 10.14 and below to open them without issue.
-See `#116 <https://github.com/maennchen/ZipStream-PHP/issues/146>`_.
+See `#116 <https://github.com/maennchen/ZipStream-PHP/issues/116>`_.
 
 The linux ``unzip`` utility might not handle properly unicode characters.
 It is recommended to extract with another tool like
 `7-zip <https://www.7-zip.org/>`_.
 See `#146 <https://github.com/maennchen/ZipStream-PHP/issues/146>`_.
 
-It is the responsability of the client code to make sure that files are not
+It is the responsibility of the client code to make sure that files are not
 saved with the same path, as it is not possible for the library to figure it out
 while streaming a zip.
 See `#154 <https://github.com/maennchen/ZipStream-PHP/issues/154>`_.

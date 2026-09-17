@@ -19,13 +19,16 @@ Enable Doctrine deprecations to be sent to a PSR3 logger:
 ```
 
 Enable Doctrine deprecations to be sent as `@trigger_error($message, E_USER_DEPRECATED)`
-messages.
+messages by setting the `DOCTRINE_DEPRECATIONS` environment variable to `trigger`.
+Alternatively, call:
 
 ```php
 \Doctrine\Deprecations\Deprecation::enableWithTriggerError();
 ```
 
-If you only want to enable deprecation tracking, without logging or calling `trigger_error` then call:
+If you only want to enable deprecation tracking, without logging or calling `trigger_error`
+then set the `DOCTRINE_DEPRECATIONS` environment variable to `track`.
+Alternatively, call:
 
 ```php
 \Doctrine\Deprecations\Deprecation::enableTrackingDeprecations();
@@ -145,6 +148,65 @@ class MyTest extends TestCase
         triggerTheCodeWithoutDeprecation();
     }
 }
+```
+
+## Displaying deprecations after running a PHPUnit test suite
+
+It is possible to integrate this library with PHPUnit to display all
+deprecations triggered during the test suite execution.
+
+```xml
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         colors="true"
+         bootstrap="vendor/autoload.php"
+         displayDetailsOnTestsThatTriggerDeprecations="true"
+         failOnDeprecation="true"
+    >
+    <!-- one attribute to display the deprecations, the other to fail the test suite -->
+
+    <php>
+        <!-- ensures native PHP deprecations are used -->
+        <server name="DOCTRINE_DEPRECATIONS" value="trigger"/>
+    </php>
+
+    <!-- ensures the @ operator in @trigger_error is ignored -->
+    <source ignoreSuppressionOfDeprecations="true">
+        <include>
+            <directory>src</directory>
+        </include>
+    </source>
+</phpunit>
+```
+
+Note that you can still trigger Deprecations in your code, provided you use the
+`#[IgnoreDeprecations]` to ignore them for tests that call it.
+
+At the moment, it is not possible to disable deduplication with an environment
+variable, but you can use a bootstrap file to achieve that:
+
+```php
+// tests/bootstrap.php
+<?php
+
+declare(strict_types=1);
+
+require dirname(__DIR__) . '/vendor/autoload.php';
+
+use Doctrine\Deprecations\Deprecation;
+
+Deprecation::withoutDeduplication();
+```
+
+Then, reference that file in your PHPUnit configuration:
+
+```xml
+<phpunit …
+        bootstrap="tests/bootstrap.php"
+        …
+    >
+    …
+</phpunit>
 ```
 
 ## What is a deprecation identifier?

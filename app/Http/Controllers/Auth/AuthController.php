@@ -314,6 +314,23 @@ class AuthController extends Controller
                 $referer = '/';
             }
             $field = filter_var($usernameinput, FILTER_VALIDATE_EMAIL) ? 'email' : 'user_name';
+
+            // Identifier based lockout. The session counter further down can be reset by
+            // simply dropping the session cookie, this one is keyed on the submitted
+            // username and stored in the database so it survives that. It is driven by the
+            // same Settings > Security values (max attempts, lockout period, lockout
+            // message) as the existing IP based lock below.
+            $attemptCheck = checkAttemptsAndLockOut('account_login', $usernameinput);
+            if ($attemptCheck instanceof \Illuminate\Http\JsonResponse) {
+                return redirect()->back()
+                                ->withInput($request->only('email', 'remember'))
+                                ->withErrors([
+                                    'email'       => $this->getFailedLoginMessage(),
+                                    'password'    => $this->getFailedLoginMessage(),
+                                ])->with(['error' => $attemptCheck->getData(true)['message'],
+                                    'referer'     => $referer, ]);
+            }
+
             $result = $this->confirmIPAddress($value, $usernameinput);
 
             // If attempts > 3 and time < 30 minutes
@@ -407,6 +424,9 @@ class AuthController extends Controller
                     // If auth ok, redirect to restricted area
                     \Session::put('loginAttempts', $loginAttempts + 1);
                     if (Auth::Attempt([$field => $usernameinput, 'password' => $password], $request->has('remember'))) {
+                        // credentials were correct, drop the lock so past failures do not
+                        // count against this user any more
+                        clearAttemptLock('account_login', $usernameinput);
                         if (Auth::user()->role == 'user') {
                             if ($request->input('referer')) {
                                 return \Redirect::route($request->input('referer'));

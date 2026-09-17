@@ -34,11 +34,11 @@ class ClassNotFoundErrorEnhancer implements ErrorEnhancerInterface
         if (false !== $namespaceSeparatorIndex = strrpos($fullyQualifiedClassName, '\\')) {
             $className = substr($fullyQualifiedClassName, $namespaceSeparatorIndex + 1);
             $namespacePrefix = substr($fullyQualifiedClassName, 0, $namespaceSeparatorIndex);
-            $message = sprintf('Attempted to load %s "%s" from namespace "%s".', $typeName, $className, $namespacePrefix);
+            $message = \sprintf('Attempted to load %s "%s" from namespace "%s".', $typeName, $className, $namespacePrefix);
             $tail = ' for another namespace?';
         } else {
             $className = $fullyQualifiedClassName;
-            $message = sprintf('Attempted to load %s "%s" from the global namespace.', $typeName, $className);
+            $message = \sprintf('Attempted to load %s "%s" from the global namespace.', $typeName, $className);
             $tail = '?';
         }
 
@@ -107,7 +107,8 @@ class ClassNotFoundErrorEnhancer implements ErrorEnhancerInterface
 
     private function findClassInPath(string $path, string $class, string $prefix): array
     {
-        if (!$path = realpath($path.'/'.strtr($prefix, '\\_', '//')) ?: realpath($path.'/'.\dirname(strtr($prefix, '\\_', '//'))) ?: realpath($path)) {
+        $path = realpath($path.'/'.strtr($prefix, '\\_', '//')) ?: realpath($path.'/'.\dirname(strtr($prefix, '\\_', '//'))) ?: realpath($path);
+        if (!$path || !is_dir($path)) {
             return [];
         }
 
@@ -140,7 +141,7 @@ class ClassNotFoundErrorEnhancer implements ErrorEnhancerInterface
         ];
 
         if ($prefix) {
-            $candidates = array_filter($candidates, function ($candidate) use ($prefix) { return str_starts_with($candidate, $prefix); });
+            $candidates = array_filter($candidates, fn ($candidate) => str_starts_with($candidate, $prefix));
         }
 
         // We cannot use the autoloader here as most of them use require; but if the class
@@ -150,6 +151,14 @@ class ClassNotFoundErrorEnhancer implements ErrorEnhancerInterface
             if ($this->classExists($candidate)) {
                 return $candidate;
             }
+        }
+
+        // Symfony may ship some polyfills, like "Normalizer". But if the Intl
+        // extension is already installed, the next require_once will fail with
+        // a compile error because the class is already defined. And this one
+        // does not throw a Throwable. So it's better to skip it here.
+        if (str_contains($file, 'Resources/stubs')) {
+            return null;
         }
 
         try {

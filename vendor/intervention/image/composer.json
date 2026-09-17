@@ -1,47 +1,51 @@
 {
     "name": "intervention/image",
-    "description": "Image handling and manipulation library with support for Laravel integration",
-    "homepage": "http://image.intervention.io/",
-    "keywords": ["image", "gd", "imagick", "laravel", "watermark", "thumbnail"],
+    "description": "PHP Image Processing",
+    "homepage": "https://image.intervention.io",
+    "keywords": [
+        "image",
+        "gd",
+        "imagick",
+        "watermark",
+        "thumbnail",
+        "resize"
+    ],
     "license": "MIT",
     "authors": [
         {
             "name": "Oliver Vogel",
             "email": "oliver@intervention.io",
-            "homepage": "https://intervention.io/"
+            "homepage": "https://intervention.io"
         }
     ],
     "require": {
-        "php": ">=5.4.0",
-        "ext-fileinfo": "*",
-        "guzzlehttp/psr7": "~1.1 || ^2.0"
+        "php": "^8.1",
+        "ext-mbstring": "*",
+        "intervention/gif": "^4.2"
     },
     "require-dev": {
-        "phpunit/phpunit": "^4.8 || ^5.7 || ^7.5.15",
-        "mockery/mockery": "~0.9.2"
+        "phpunit/phpunit": "^10.0 || ^11.0 || ^12.0",
+        "mockery/mockery": "^1.6",
+        "phpstan/phpstan": "^2.1",
+        "squizlabs/php_codesniffer": "^3.8",
+        "slevomat/coding-standard": "~8.0"
     },
     "suggest": {
-        "ext-gd": "to use GD library based image processing.",
-        "ext-imagick": "to use Imagick based image processing.",
-        "intervention/imagecache": "Caching extension for the Intervention Image library"
+        "ext-exif": "Recommended to be able to read EXIF data properly."
     },
     "autoload": {
         "psr-4": {
-            "Intervention\\Image\\": "src/Intervention/Image"
+            "Intervention\\Image\\": "src"
         }
     },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "2.4-dev"
-        },
-        "laravel": {
-            "providers": [
-                "Intervention\\Image\\ImageServiceProvider"
-            ],
-            "aliases": {
-                "Image": "Intervention\\Image\\Facades\\Image"
-            }
+    "autoload-dev": {
+        "psr-4": {
+            "Intervention\\Image\\Tests\\": "tests"
         }
     },
-    "minimum-stability": "stable"
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
 }

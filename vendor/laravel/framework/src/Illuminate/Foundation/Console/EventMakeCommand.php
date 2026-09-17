@@ -17,17 +17,6 @@ class EventMakeCommand extends GeneratorCommand
     protected $name = 'make:event';
 
     /**
-     * The name of the console command.
-     *
-     * This name is used to identify the command during lazy loading.
-     *
-     * @var string|null
-     *
-     * @deprecated
-     */
-    protected static $defaultName = 'make:event';
-
-    /**
      * The console command description.
      *
      * @var string
@@ -72,8 +61,8 @@ class EventMakeCommand extends GeneratorCommand
     protected function resolveStubPath($stub)
     {
         return file_exists($customPath = $this->laravel->basePath(trim($stub, '/')))
-                        ? $customPath
-                        : __DIR__.$stub;
+            ? $customPath
+            : __DIR__.$stub;
     }
 
     /**

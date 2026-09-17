@@ -12,7 +12,7 @@ active
 class="active"
 @stop
 @section('PageHeader')
-<h1>{{Lang::get('lang.tickets')}}</h1>
+<h3>{{Lang::get('lang.tickets')}}</h3>
 <style>
  .tooltip1 {
      position: relative;
@@ -56,39 +56,39 @@ if (Auth::user()->role == 'agent') {
     </div><!-- /.box-header -->
     <div class="box-body">
         @if(Session::has('success'))
-        <div class="alert alert-success alert-dismissable">
-            <i class="fa  fa-check-circle"> </i> 
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        <div class="alert alert-success alert-dismissible">
+            <i class="fa  fa-circle-check"> </i> 
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
             {{Session::get('success')}}
         </div>
         @endif
         <!-- failure message -->
         @if(Session::has('fails'))
-        <div class="alert alert-danger alert-dismissable">
-            <i class="fa fa-ban"> </i> 
+        <div class="alert alert-danger alert-dismissible">
+            <i class="fa-solid fa-ban"> </i> 
             <b> {!! Lang::get('lang.alert') !!}! </b>
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
             {{Session::get('fails')}}
         </div>
         @endif
-        {!! Form::open(['id'=>'modalpopup', 'route'=>'select_all','method'=>'post']) !!}
+        {!! html()->form('POST', route('select_all'))->attributes(['id' => 'modalpopup'])->open() !!}
         <!--<div class="mailbox-controls">-->
         <!-- Check all button -->
-        <a class="btn btn-default btn-sm checkbox-toggle"><i class="fa fa-square-o"></i></a>
-        <!--<input type="submit" class="btn btn-default text-blue btn-sm" id="delete"  name="submit" value="{!! Lang::get('lang.open') !!}">
-        <input type="submit" class="btn btn-default text-yellow btn-sm" name="submit"  id="close" value="{!! Lang::get('lang.close') !!}">-->
+        <a class="btn btn-secondary btn-sm checkbox-toggle"><i class="fa-solid fa-square-o"></i></a>
+        <!--<input type="submit" class="btn btn-secondary text-blue btn-sm" id="delete"  name="submit" value="{!! Lang::get('lang.open') !!}">
+        <input type="submit" class="btn btn-secondary text-yellow btn-sm" name="submit"  id="close" value="{!! Lang::get('lang.close') !!}">-->
         <div class="btn-group">
-            <button type="button" class="btn btn-default dropdown-toggle btn-sm" data-toggle="dropdown" id="d1"><i class="fa fa-exchange" style="color:teal;" id="hidespin"> </i><i class="fa fa-spinner fa-spin" style="color:teal; display:none;" id="spin"></i>
+            <button type="button" class="btn btn-secondary dropdown-toggle btn-sm" data-bs-toggle="dropdown" id="d1"><i class="fa-solid fa-exchange text-teal" id="hidespin"> </i>
                 {!! Lang::get('lang.change_status') !!} <span class="caret"></span>
             </button>
             <ul class="dropdown-menu">
-                <li ><input type="submit" class="btn btn-block btn-default btn-sm text-green" id="delete"  name="submit" value="{!! Lang::get('lang.open') !!}">
+                <li ><input type="submit" class="btn btn-block btn-secondary btn-sm text-green" id="delete"  name="submit" value="{!! Lang::get('lang.open') !!}">
                 </li>
-                <li ><input type="submit" class="btn btn-block btn-default btn-sm text-yellow" name="submit"  id="close" value="{!! Lang::get('lang.close') !!}"></li>
+                <li ><input type="submit" class="btn btn-block btn-secondary btn-sm text-yellow" name="submit"  id="close" value="{!! Lang::get('lang.close') !!}"></li>
 
             </ul>
         </div>
-        <input type="submit" class="btn btn-default text-yellow btn-sm" name="submit"  id="hard-delete" value="{{Lang::get('lang.clean-up')}}" title="{{Lang::get('lang.trash-delete-title-msg')}}">
+        <input type="submit" class="btn btn-secondary text-yellow btn-sm" name="submit"  id="hard-delete" value="{{Lang::get('lang.clean-up')}}" title="{{Lang::get('lang.trash-delete-title-msg')}}">
         
         <!--</div>-->
         <p><p/>
@@ -96,10 +96,23 @@ if (Auth::user()->role == 'agent') {
             <p style="display:none;text-align:center; position:fixed; margin-left:40%;margin-top:-70px;" id="show" class="text-red"><b>{!! Lang::get('lang.loading') !!}...</b></p>
             <!-- table -->
 
-            {!!$table->render('vendor.Chumper.template')!!}
+            <table id="chumper" class="table table-bordered w-100 d-table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>{{Lang::get('lang.subject')}}</th>
+                        <th>{{Lang::get('lang.ticket_id')}}</th>
+                        <th>{{Lang::get('lang.priority')}}</th>
+                        <th>{{Lang::get('lang.from')}}</th>
+                        <th>{{Lang::get('lang.assigned_to')}}</th>
+                        <th>{{Lang::get('lang.last_activity')}}</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
 
         </div><!-- /.mail-box-messages -->
-        {!! Form::close() !!}
+        {!! html()->closeModelForm() !!}
     </div><!-- /.box-body -->
 </div><!-- /. box -->
 <!-- Modal -->   
@@ -109,21 +122,21 @@ if (Auth::user()->role == 'agent') {
         <div class="col-md-8">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close closemodal" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">x</span></button>
+                    <button type="button" class="btn-close closemodal" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">x</span></button>
                     <h4 class="modal-title" id="myModalLabel"></h4>
                 </div>
                 <div class="modal-body" id="custom-alert-body" >
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary pull-left yes" data-dismiss="modal">{{Lang::get('lang.ok')}}</button>
-                    <button type="button" class="btn btn-default no">{{Lang::get('lang.cancel')}}</button>
+                    <button type="button" class="btn btn-primary pull-left yes" data-bs-dismiss="modal">{{Lang::get('lang.ok')}}</button>
+                    <button type="button" class="btn btn-secondary no">{{Lang::get('lang.cancel')}}</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-{!! $table->script('vendor.Chumper.ticket-javascript') !!}
+@include('vendor.Chumper.ticket-javascript')
 <script>
     var option = null;
     $(function() {
@@ -163,7 +176,7 @@ if (Auth::user()->role == 'agent') {
             $('#refresh').load('trash #refresh');
             $('#title_refresh').load('trash #title_refresh');
             $('#count_refresh').load('trash #count_refresh');
-            $("#show").show();
+            $("#show").removeClass('d-none');
         });
 
         $('#delete').on('click', function() {

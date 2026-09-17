@@ -21,6 +21,8 @@ use League\Flysystem\ReadOnly\ReadOnlyFilesystemAdapter;
 use League\Flysystem\UnixVisibility\PortableVisibilityConverter;
 use League\Flysystem\Visibility;
 
+use function Illuminate\Support\enum_value;
+
 /**
  * @mixin \Illuminate\Contracts\Filesystem\Filesystem
  * @mixin \Illuminate\Filesystem\FilesystemAdapter
@@ -52,7 +54,6 @@ class FilesystemManager implements FactoryContract
      * Create a new filesystem manager instance.
      *
      * @param  \Illuminate\Contracts\Foundation\Application  $app
-     * @return void
      */
     public function __construct($app)
     {
@@ -73,12 +74,12 @@ class FilesystemManager implements FactoryContract
     /**
      * Get a filesystem instance.
      *
-     * @param  string|null  $name
+     * @param  \UnitEnum|string|null  $name
      * @return \Illuminate\Contracts\Filesystem\Filesystem
      */
     public function disk($name = null)
     {
-        $name = $name ?: $this->getDefaultDriver();
+        $name = enum_value($name) ?: $this->getDefaultDriver();
 
         return $this->disks[$name] = $this->get($name);
     }
@@ -86,7 +87,7 @@ class FilesystemManager implements FactoryContract
     /**
      * Get a default cloud filesystem instance.
      *
-     * @return \Illuminate\Contracts\Filesystem\Filesystem
+     * @return \Illuminate\Contracts\Filesystem\Cloud
      */
     public function cloud()
     {
@@ -137,19 +138,19 @@ class FilesystemManager implements FactoryContract
             throw new InvalidArgumentException("Disk [{$name}] does not have a configured driver.");
         }
 
-        $name = $config['driver'];
+        $driver = $config['driver'];
 
-        if (isset($this->customCreators[$name])) {
+        if (isset($this->customCreators[$driver])) {
             return $this->callCustomCreator($config);
         }
 
-        $driverMethod = 'create'.ucfirst($name).'Driver';
+        $driverMethod = 'create'.ucfirst($driver).'Driver';
 
         if (! method_exists($this, $driverMethod)) {
-            throw new InvalidArgumentException("Driver [{$name}] is not supported.");
+            throw new InvalidArgumentException("Driver [{$driver}] is not supported.");
         }
 
-        return $this->{$driverMethod}($config);
+        return $this->{$driverMethod}($config, $name);
     }
 
     /**
@@ -167,9 +168,10 @@ class FilesystemManager implements FactoryContract
      * Create an instance of the local driver.
      *
      * @param  array  $config
+     * @param  string  $name
      * @return \Illuminate\Contracts\Filesystem\Filesystem
      */
-    public function createLocalDriver(array $config)
+    public function createLocalDriver(array $config, string $name = 'local')
     {
         $visibility = PortableVisibilityConverter::fromArray(
             $config['permissions'] ?? [],
@@ -184,7 +186,14 @@ class FilesystemManager implements FactoryContract
             $config['root'], $visibility, $config['lock'] ?? LOCK_EX, $links
         );
 
-        return new FilesystemAdapter($this->createFlysystem($adapter, $config), $adapter, $config);
+        return (new LocalFilesystemAdapter(
+            $this->createFlysystem($adapter, $config), $adapter, $config
+        ))->diskName(
+            $name
+        )->shouldServeSignedUrls(
+            $config['serve'] ?? false,
+            fn () => $this->app['url'],
+        );
     }
 
     /**
@@ -214,7 +223,7 @@ class FilesystemManager implements FactoryContract
     {
         $provider = SftpConnectionProvider::fromArray($config);
 
-        $root = $config['root'] ?? '/';
+        $root = $config['root'] ?? '';
 
         $visibility = PortableVisibilityConverter::fromArray(
             $config['permissions'] ?? []
@@ -263,7 +272,11 @@ class FilesystemManager implements FactoryContract
         $config += ['version' => 'latest'];
 
         if (! empty($config['key']) && ! empty($config['secret'])) {
-            $config['credentials'] = Arr::only($config, ['key', 'secret', 'token']);
+            $config['credentials'] = Arr::only($config, ['key', 'secret']);
+
+            if (! empty($config['token'])) {
+                $config['credentials']['token'] = $config['token'];
+            }
         }
 
         return Arr::except($config, ['token']);
@@ -274,6 +287,8 @@ class FilesystemManager implements FactoryContract
      *
      * @param  array  $config
      * @return \Illuminate\Contracts\Filesystem\Filesystem
+     *
+     * @throws \InvalidArgumentException
      */
     public function createScopedDriver(array $config)
     {
@@ -284,8 +299,27 @@ class FilesystemManager implements FactoryContract
         }
 
         return $this->build(tap(
-            $this->getConfig($config['disk']),
-            fn (&$parent) => $parent['prefix'] = $config['prefix']
+            is_string($config['disk']) ? $this->getConfig($config['disk']) : $config['disk'],
+            function (&$parent) use ($config) {
+                if (empty($parent['prefix'])) {
+                    $parent['prefix'] = $config['prefix'];
+                } else {
+                    $separator = $parent['directory_separator'] ?? DIRECTORY_SEPARATOR;
+
+                    $parentPrefix = rtrim($parent['prefix'], $separator);
+                    $scopedPrefix = ltrim($config['prefix'], $separator);
+
+                    $parent['prefix'] = "{$parentPrefix}{$separator}{$scopedPrefix}";
+                }
+
+                if (isset($config['visibility'])) {
+                    $parent['visibility'] = $config['visibility'];
+                }
+
+                if (isset($config['throw'])) {
+                    $parent['throw'] = $config['throw'];
+                }
+            }
         ));
     }
 
@@ -298,7 +332,7 @@ class FilesystemManager implements FactoryContract
      */
     protected function createFlysystem(FlysystemAdapter $adapter, array $config)
     {
-        if ($config['read-only'] ?? false === true) {
+        if ($config['read-only'] ?? false) {
             $adapter = new ReadOnlyFilesystemAdapter($adapter);
         }
 
@@ -306,9 +340,14 @@ class FilesystemManager implements FactoryContract
             $adapter = new PathPrefixedAdapter($adapter, $config['prefix']);
         }
 
+        if (str_contains($config['endpoint'] ?? '', 'r2.cloudflarestorage.com')) {
+            $config['retain_visibility'] = false;
+        }
+
         return new Flysystem($adapter, Arr::only($config, [
             'directory_visibility',
             'disable_asserts',
+            'retain_visibility',
             'temporary_url',
             'url',
             'visibility',

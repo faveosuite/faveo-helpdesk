@@ -20,26 +20,20 @@ class ArgumentMetadata
 {
     public const IS_INSTANCEOF = 2;
 
-    private string $name;
-    private ?string $type;
-    private bool $isVariadic;
-    private bool $hasDefaultValue;
-    private mixed $defaultValue;
-    private bool $isNullable;
-    private array $attributes;
-
     /**
      * @param object[] $attributes
      */
-    public function __construct(string $name, ?string $type, bool $isVariadic, bool $hasDefaultValue, mixed $defaultValue, bool $isNullable = false, array $attributes = [])
-    {
-        $this->name = $name;
-        $this->type = $type;
-        $this->isVariadic = $isVariadic;
-        $this->hasDefaultValue = $hasDefaultValue;
-        $this->defaultValue = $defaultValue;
+    public function __construct(
+        private string $name,
+        private ?string $type,
+        private bool $isVariadic,
+        private bool $hasDefaultValue,
+        private mixed $defaultValue,
+        private bool $isNullable = false,
+        private array $attributes = [],
+        private string $controllerName = 'n/a',
+    ) {
         $this->isNullable = $isNullable || null === $type || ($hasDefaultValue && null === $defaultValue);
-        $this->attributes = $attributes;
     }
 
     /**
@@ -52,8 +46,6 @@ class ArgumentMetadata
 
     /**
      * Returns the type of the argument.
-     *
-     * The type is the PHP class in 5.5+ and additionally the basic type in PHP 7.0+.
      */
     public function getType(): ?string
     {
@@ -94,7 +86,7 @@ class ArgumentMetadata
     public function getDefaultValue(): mixed
     {
         if (!$this->hasDefaultValue) {
-            throw new \LogicException(sprintf('Argument $%s does not have a default value. Use "%s::hasDefaultValue()" to avoid this exception.', $this->name, __CLASS__));
+            throw new \LogicException(\sprintf('Argument $%s does not have a default value. Use "%s::hasDefaultValue()" to avoid this exception.', $this->name, __CLASS__));
         }
 
         return $this->defaultValue;
@@ -106,7 +98,7 @@ class ArgumentMetadata
      *
      * @return array<object>
      */
-    public function getAttributes(string $name = null, int $flags = 0): array
+    public function getAttributes(?string $name = null, int $flags = 0): array
     {
         if (!$name) {
             return $this->attributes;
@@ -141,5 +133,10 @@ class ArgumentMetadata
         }
 
         return $attributes;
+    }
+
+    public function getControllerName(): string
+    {
+        return $this->controllerName;
     }
 }

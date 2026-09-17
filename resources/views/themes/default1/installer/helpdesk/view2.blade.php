@@ -55,8 +55,8 @@ class TestResult {
      <?php
 
 function validate_php(&$results) {
-    if (version_compare(PHP_VERSION, '8.1') != 1) {
-        $results[] = new TestResult('PHP version required in order to run Faveo HELPDESK is PHP 7.1.* PHP version greater or lesser than 7.1 are not supported yet. Your PHP version: ' . PHP_VERSION, STATUS_ERROR);
+    if (version_compare(PHP_VERSION, '8.2') != 1) {
+        $results[] = new TestResult('PHP version required in order to run Faveo HELPDESK is PHP 8.2.* PHP version greater or lesser than 7.1 are not supported yet. Your PHP version: ' . PHP_VERSION, STATUS_ERROR);
         return false;
     } else {
         $results[] = new TestResult('Your PHP version is ' . PHP_VERSION, STATUS_OK);

@@ -1,137 +1,85 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sabberworm\CSS\Property;
 
-use Sabberworm\CSS\Comment\Comment;
+use Sabberworm\CSS\Comment\CommentContainer;
 use Sabberworm\CSS\OutputFormat;
+use Sabberworm\CSS\Position\Position;
+use Sabberworm\CSS\Position\Positionable;
 use Sabberworm\CSS\Value\URL;
 
 /**
  * Class representing an `@import` rule.
  */
-class Import implements AtRule
+class Import implements AtRule, Positionable
 {
+    use CommentContainer;
+    use Position;
+
     /**
      * @var URL
      */
-    private $oLocation;
+    private $location;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private $sMediaQuery;
+    private $mediaQuery;
 
     /**
-     * @var int
+     * @param int<1, max>|null $lineNumber
      */
-    protected $iLineNo;
-
-    /**
-     * @var array<array-key, Comment>
-     */
-    protected $aComments;
-
-    /**
-     * @param URL $oLocation
-     * @param string $sMediaQuery
-     * @param int $iLineNo
-     */
-    public function __construct(URL $oLocation, $sMediaQuery, $iLineNo = 0)
+    public function __construct(URL $location, ?string $mediaQuery, ?int $lineNumber = null)
     {
-        $this->oLocation = $oLocation;
-        $this->sMediaQuery = $sMediaQuery;
-        $this->iLineNo = $iLineNo;
-        $this->aComments = [];
+        $this->location = $location;
+        $this->mediaQuery = $mediaQuery;
+        $this->setPosition($lineNumber);
+    }
+
+    public function setLocation(URL $location): void
+    {
+        $this->location = $location;
+    }
+
+    public function getLocation(): URL
+    {
+        return $this->location;
     }
 
     /**
-     * @return int
+     * @return non-empty-string
      */
-    public function getLineNo()
+    public function render(OutputFormat $outputFormat): string
     {
-        return $this->iLineNo;
+        return $outputFormat->getFormatter()->comments($this) . '@import ' . $this->location->render($outputFormat)
+            . ($this->mediaQuery === null ? '' : ' ' . $this->mediaQuery) . ';';
     }
 
     /**
-     * @param URL $oLocation
-     *
-     * @return void
+     * @return non-empty-string
      */
-    public function setLocation($oLocation)
-    {
-        $this->oLocation = $oLocation;
-    }
-
-    /**
-     * @return URL
-     */
-    public function getLocation()
-    {
-        return $this->oLocation;
-    }
-
-    /**
-     * @return string
-     */
-    public function __toString()
-    {
-        return $this->render(new OutputFormat());
-    }
-
-    /**
-     * @return string
-     */
-    public function render(OutputFormat $oOutputFormat)
-    {
-        return "@import " . $this->oLocation->render($oOutputFormat)
-            . ($this->sMediaQuery === null ? '' : ' ' . $this->sMediaQuery) . ';';
-    }
-
-    /**
-     * @return string
-     */
-    public function atRuleName()
+    public function atRuleName(): string
     {
         return 'import';
     }
 
     /**
-     * @return array<int, URL|string>
+     * @return array{0: URL, 1?: non-empty-string}
      */
-    public function atRuleArgs()
+    public function atRuleArgs(): array
     {
-        $aResult = [$this->oLocation];
-        if ($this->sMediaQuery) {
-            array_push($aResult, $this->sMediaQuery);
+        $result = [$this->location];
+        if (\is_string($this->mediaQuery) && $this->mediaQuery !== '') {
+            $result[] = $this->mediaQuery;
         }
-        return $aResult;
+
+        return $result;
     }
 
-    /**
-     * @param array<array-key, Comment> $aComments
-     *
-     * @return void
-     */
-    public function addComments(array $aComments)
+    public function getMediaQuery(): ?string
     {
-        $this->aComments = array_merge($this->aComments, $aComments);
-    }
-
-    /**
-     * @return array<array-key, Comment>
-     */
-    public function getComments()
-    {
-        return $this->aComments;
-    }
-
-    /**
-     * @param array<array-key, Comment> $aComments
-     *
-     * @return void
-     */
-    public function setComments(array $aComments)
-    {
-        $this->aComments = $aComments;
+        return $this->mediaQuery;
     }
 }

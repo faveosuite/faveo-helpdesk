@@ -2,8 +2,6 @@
 
 namespace Faker\Provider\ar_EG;
 
-use Faker\Calculator\Luhn;
-
 class Person extends \Faker\Provider\Person
 {
     protected static $maleNameFormats = [
@@ -29,7 +27,7 @@ class Person extends \Faker\Provider\Person
         'حاتم', 'حازم', 'حافظ', 'حامد', 'حبيب', 'حسام', 'حسان', 'حسن', 'حسني', 'حسين', 'حمدان', 'حمدي', 'حمزة', 'حميد', 'خالد', 'خضر', 'خلف', 'خليفة', 'خليل', 'خميس', 'داوود', 'دياب', 'رأفت', 'رؤوف',
         'رائد', 'رائف', 'راجح', 'راجي', 'راشد', 'راضي', 'راغب', 'رافت', 'راكان', 'رامز', 'رامي', 'ربيع', 'رجب', 'رزق', 'رشاد', 'رشيد', 'رضا', 'رضوان', 'رياض', 'ريان', 'زاهر', 'زاهي', 'زايد',
         'زكريا', 'زمام', 'زهير', 'زياد', 'زيد', 'زيدان', 'زين', 'سالم', 'سامح', 'سامر', 'سامي', 'سعد', 'سعيد', 'سلام', 'سلطان', 'سلمان', 'سليم', 'سليمان', 'سمعان', 'سميح', 'سنان', 'سند',
-        'سيف', 'شادي', 'شاكر', 'شريف', 'شهاب', 'شهم', 'شوان', 'صادق', 'صافي', 'صالح', 'صفاء', 'صفوان', 'صقر', 'صلاح', 'صلاح الدين', 'صهيب', 'ضرغام', 'ضياء', 'ضياء الدين’, ', 'طارق', 'طالب', 'طاهر', 'طه', 'عادل', 'عاصم', 'عاطف',
+        'سيف', 'شادي', 'شاكر', 'شريف', 'شهاب', 'شهم', 'شوان', 'صادق', 'صافي', 'صالح', 'صفاء', 'صفوان', 'صقر', 'صلاح', 'صلاح الدين', 'صهيب', 'ضرغام', 'ضياء', 'ضياء الدين', 'طارق', 'طالب', 'طاهر', 'طه', 'عادل', 'عاصم', 'عاطف',
         'عبيدة', 'عثمان', 'عدلي', 'عدنان', 'عزت',
         'عصام', 'علاء', 'علي', 'عماد', 'عمار', 'عمر', 'عمرو', 'عنان', 'عواد', 'عوض', 'عوف', 'عوني', 'عيد', 'عيسى', 'غازي', 'غسان', 'غيث', 'فؤاد', 'فادي',
         'فارس', 'فاروق', 'فاضل', 'فايز', 'فتحي', 'فراس', 'فرح', 'فريد', 'فهد', 'فهمي', 'فوزي', 'فيصل', 'قارس', 'قاسم', 'قيس', 'كامل', 'كرم', 'كريم', 'كمال', 'لؤي', 'لبيب', 'لطفي', 'ليث', 'مأمون',
@@ -80,16 +78,30 @@ class Person extends \Faker\Provider\Person
     }
 
     /**
+     * @see https://ar.wikipedia.org/wiki/%D8%A8%D8%B7%D8%A7%D9%82%D8%A9_%D8%A7%D9%84%D8%B1%D9%82%D9%85_%D8%A7%D9%84%D9%82%D9%88%D9%85%D9%8A_%D8%A7%D9%84%D9%85%D8%B5%D8%B1%D9%8A%D8%A9
+     *
      * @example 27512310101010
+     *
+     * @return string
      */
-    public static function nationalIdNumber()
+    public static function nationalIdNumber($gender = null)
     {
-        $timestamp = self::numberBetween(1, time());
+        $randomBirthDateTimestamp = mt_rand(strtotime('1950-Jan-10'), strtotime('2005-Dec-25'));
 
-        $date = explode(':', date('y:m:d', $timestamp));
+        $centuryId = ((int) date('Y', $randomBirthDateTimestamp)) >= 2000 ? 3 : 2;
+        $fullBirthDate = date('ymd', $randomBirthDateTimestamp);
+        $governorateId = Address::governorateId();
+        $birthRegistrationSequence = mt_rand(1, 500);
 
-        $partialValue = static::numerify(2 . $date[0] . $date[1] . $date[2] . str_repeat('#', 6));
+        if ($gender === static::GENDER_MALE) {
+            $birthRegistrationSequence = $birthRegistrationSequence | 1; // Convert to the nearest odd number
+        } elseif ($gender === static::GENDER_FEMALE) {
+            $birthRegistrationSequence = $birthRegistrationSequence & ~1; // Convert to the nearest even number
+        }
 
-        return Luhn::generateLuhnNumber($partialValue);
+        $birthRegistrationSequence = str_pad((string) $birthRegistrationSequence, 4, '0', STR_PAD_LEFT);
+        $randomCheckDigit = mt_rand(1, 9);
+
+        return $centuryId . $fullBirthDate . $governorateId . $birthRegistrationSequence . $randomCheckDigit;
     }
 }

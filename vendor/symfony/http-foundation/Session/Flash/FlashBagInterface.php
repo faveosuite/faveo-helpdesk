@@ -23,12 +23,12 @@ interface FlashBagInterface extends SessionBagInterface
     /**
      * Adds a flash message for the given type.
      */
-    public function add(string $type, mixed $message);
+    public function add(string $type, mixed $message): void;
 
     /**
      * Registers one or more messages for a given type.
      */
-    public function set(string $type, string|array $messages);
+    public function set(string $type, string|array $messages): void;
 
     /**
      * Gets flash messages for a given type.
@@ -58,7 +58,7 @@ interface FlashBagInterface extends SessionBagInterface
     /**
      * Sets all flash messages.
      */
-    public function setAll(array $messages);
+    public function setAll(array $messages): void;
 
     /**
      * Has flash messages for a given type?

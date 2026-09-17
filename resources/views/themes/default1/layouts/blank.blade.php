@@ -36,7 +36,7 @@
         @yield('HeadInclude')
     </head>
     <body class="skin-yellow">
-        <div class="wrapper">
+        <div class="app-wrapper">
 
             <header class="main-header">
                 <a href="../../index2.html" class="logo"><b>SUPPORT </b> CENTER</a>
@@ -48,8 +48,8 @@
                 <!-- Header Navbar: style can be found in header.less -->
                 <nav class="navbar navbar-static-top" role="navigation">
                     <!-- Sidebar toggle button-->
-                    <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
-                        <span class="sr-only">Toggle navigation</span>
+                    <a href="#" class="sidebar-toggle" data-bs-toggle="offcanvas" role="button">
+                        <span class="visually-hidden">Toggle navigation</span>
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
@@ -80,19 +80,19 @@
                         </nav>
                             </header>
                             <!-- Left side column. contains the logo and sidebar -->
-                            <aside class="main-sidebar">
+                            <aside class="app-sidebar">
                                 <!-- sidebar: style can be found in sidebar.less -->
                                 <section class="sidebar">
                                         <ul class="sidebar-menu">
                                             <li class="header">MAIN NAVIGATION</li>
                                                 <li>
                                                     <a href="{{url('getform')}}">
-                                                        <i class="fa fa-envelope"></i> <span>Open A New Ticket</span>
+                                                        <i class="fa-solid fa-envelope"></i> <span>Open A New Ticket</span>
                                                     </a>
                                                 </li>
                                                 <li>
                                                     <a href="{{url('checkticket')}}">
-                                                        <i class="fa fa-th"></i> <span>Check your Ticket</span>
+                                                        <i class="fa-solid fa-th"></i> <span>Check your Ticket</span>
                                                     </a>
                                                 </li>
                                             </ul>
@@ -103,21 +103,21 @@
                             </aside>
 
                             <!-- Right side column. Contains the navbar and content of the page -->
-                            <div class="content-wrapper">
+                            <div class="app-main">
 
-                                <section class="content-header">
+                                <section class="app-content-header">
                                     @yield('PageHeader')
                                     @yield('breadcrumbs')
                                 </section>
 
                                 <!-- Main content -->
-                                <section class="content">
+                                <section class="app-content">
 
                                     @yield('content')
                                 </section><!-- /.content -->
                                 <!-- /.content-wrapper -->
                             </div>
-                            <footer class="main-footer">
+                            <footer class="app-footer">
                                 <div class="pull-right hidden-xs">
                                     <b>{!! Lang::get('lang.version') !!}</b> 0.1
                                 </div>

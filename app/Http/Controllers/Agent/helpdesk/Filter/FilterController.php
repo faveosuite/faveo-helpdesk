@@ -133,7 +133,8 @@ class FilterController extends Controller
                             \DB::raw('COUNT(DISTINCT th.id) as countthread'),
                             \DB::raw('substring_index(group_concat(if(`th`.`is_internal` = 0, `th`.`poster`,null)ORDER By th.id desc) , ",", 1) as last_replier'),
                             \DB::raw('substring_index(group_concat(th.title order by th.id asc SEPARATOR "-||,||-") , "-||,||-", 1) as ticket_title'),
-                            'ticket_source.name as source'
+                            'ticket_source.name as source',
+                            'tickets.closed'
                         )->groupby('tickets.id');
 
         return $tickets;

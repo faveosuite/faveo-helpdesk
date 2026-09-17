@@ -52,10 +52,5 @@
             "composer/package-versions-deprecated": true
         },
         "sort-packages": true
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-main": "v1.21-dev"
-        }
     }
 }

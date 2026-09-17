@@ -59,6 +59,45 @@ class Emails extends BaseModel
         }
     }
 
+    /**
+     * Resolves the credential used to authenticate against the mail server.
+     *
+     * "Email address" is the mailbox identity (who mail comes from) while
+     * "User name" is the login. Many providers do not accept the address as a
+     * login (Amazon SES uses an IAM SMTP key, Office 365 may use a different
+     * UPN, cPanel mailboxes often use a short name), so the configured user
+     * name always wins. It falls back to the address so accounts saved without
+     * a user name keep working exactly as before.
+     *
+     * Every place that authenticates - sending, fetching, and the connection
+     * tests run when the settings are saved - must use this method, so that a
+     * passing test guarantees the real operation uses the same credential.
+     *
+     * @return string
+     */
+    public function authUsername()
+    {
+        $username = trim((string) $this->user_name);
+
+        return $username !== '' ? $username : $this->email_address;
+    }
+
+    /**
+     * Same resolution as authUsername() for values that are not yet on a model,
+     * e.g. the create/update form request before it is persisted.
+     *
+     * @param string|null $userName
+     * @param string|null $emailAddress
+     *
+     * @return string
+     */
+    public static function resolveAuthUsername($userName, $emailAddress)
+    {
+        $userName = trim((string) $userName);
+
+        return $userName !== '' ? $userName : (string) $emailAddress;
+    }
+
     public function getPasswordAttribute($value)
     {
         try {

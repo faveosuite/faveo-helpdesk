@@ -17,31 +17,25 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class ResponseCookieValueSame extends Constraint
 {
-    private string $name;
-    private string $value;
-    private string $path;
-    private ?string $domain;
-
-    public function __construct(string $name, string $value, string $path = '/', string $domain = null)
-    {
-        $this->name = $name;
-        $this->value = $value;
-        $this->path = $path;
-        $this->domain = $domain;
+    public function __construct(
+        private string $name,
+        private string $value,
+        private string $path = '/',
+        private ?string $domain = null,
+    ) {
     }
 
     public function toString(): string
     {
-        $str = sprintf('has cookie "%s"', $this->name);
+        $str = \sprintf('has cookie "%s"', $this->name);
         if ('/' !== $this->path) {
-            $str .= sprintf(' with path "%s"', $this->path);
+            $str .= \sprintf(' with path "%s"', $this->path);
         }
         if ($this->domain) {
-            $str .= sprintf(' for domain "%s"', $this->domain);
+            $str .= \sprintf(' for domain "%s"', $this->domain);
         }
-        $str .= sprintf(' with value "%s"', $this->value);
 
-        return $str;
+        return $str.\sprintf(' with value "%s"', $this->value);
     }
 
     /**
@@ -69,9 +63,7 @@ final class ResponseCookieValueSame extends Constraint
     {
         $cookies = $response->headers->getCookies();
 
-        $filteredCookies = array_filter($cookies, function (Cookie $cookie) {
-            return $cookie->getName() === $this->name && $cookie->getPath() === $this->path && $cookie->getDomain() === $this->domain;
-        });
+        $filteredCookies = array_filter($cookies, fn (Cookie $cookie) => $cookie->getName() === $this->name && $cookie->getPath() === $this->path && $cookie->getDomain() === $this->domain);
 
         return reset($filteredCookies) ?: null;
     }

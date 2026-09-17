@@ -81,6 +81,17 @@ class Ticket_Thread extends Model
         }
     }
 
+    /**
+     * Sanitize thread body HTML before it is persisted, so stored replies/ticket
+     * content can never carry executable script or event-handler payloads
+     * (stored XSS), while keeping the rich-text formatting produced by the
+     * ticket/reply editor (bold, links, lists, images, tables, etc).
+     */
+    public function setBodyAttribute($value)
+    {
+        $this->attributes['body'] = sanitizeHtmlDescription($value);
+    }
+
     public function removeScript($html)
     {
         $doc = new \DOMDocument();

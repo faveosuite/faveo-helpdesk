@@ -37,7 +37,6 @@ use App\Model\helpdesk\Utility\Timezones;
 use App\User;
 use Auth;
 use Carbon\Carbon;
-use Chumper\Datatable\Facades\DatatableFacade;
 use Crypt;
 use DB;
 use Exception;
@@ -242,6 +241,30 @@ class TicketController extends Controller
         return view('themes.default1.agent.helpdesk.ticket.timeline', compact('tickets', 'max_size_in_bytes', 'max_size_in_actual', 'tickets_approval'), compact('thread', 'avg_rating'));
     }
 
+    /**
+     * Authorize ticket access for agents — same logic as thread().
+     * Admins can access any ticket.
+     * Agents can only access tickets in their department or assigned to them.
+     */
+    protected function authorizeTicketAccess($id)
+    {
+        $ticket = Tickets::where('id', '=', $id)->first();
+        if (!$ticket) {
+            return null;
+        }
+        if (Auth::user()->role == 'admin') {
+            return $ticket;
+        }
+        if (Auth::user()->role == 'agent') {
+            $dept = Department::where('id', '=', Auth::user()->primary_dpt)->first();
+            if ($ticket->dept_id == $dept->id || $ticket->assigned_to == Auth::user()->id) {
+                return $ticket;
+            }
+        }
+
+        return null;
+    }
+
     public function size()
     {
         $size = 0;
@@ -281,6 +304,10 @@ class TicketController extends Controller
      */
     public function reply(Ticket_Thread $thread, Request $request, Ticket_attachments $ta, $mail = true, $system_reply = true, $user_id = '')
     {
+        $ticket_id = $request->input('ticket_id');
+        if ($ticket_id && !$this->authorizeTicketAccess($ticket_id)) {
+            return response('Unauthorized', 403);
+        }
         event('reply.request', [$request]);
 
         try {
@@ -481,6 +508,30 @@ class TicketController extends Controller
     }
 
     /**
+     * Update only the due date of a ticket.
+     *
+     * @param int $ticket_id
+     *
+     * @return int 0 on success, 1 on error
+     */
+    public function updateDueDate($ticket_id, Request $request)
+    {
+        $ticket = Tickets::where('id', $ticket_id)->first();
+        if (!$ticket) {
+            return 1;
+        }
+
+        if ($request->duedate) {
+            $ticket->duedate = Carbon::createFromFormat('d/m/Y', $request->duedate)->format('Y-m-d H:i:s');
+        } else {
+            $ticket->duedate = null;
+        }
+        $ticket->save();
+
+        return 0;
+    }
+
+    /**
      * Print Ticket Details.
      *
      * @param type $id
@@ -489,6 +540,9 @@ class TicketController extends Controller
      */
     public function ticket_print($id)
     {
+        if (!$this->authorizeTicketAccess($id)) {
+            abort(403, 'Unauthorized');
+        }
         $tickets = Tickets::leftJoin('ticket_thread', function ($join) {
             $join->on('tickets.id', '=', 'ticket_thread.ticket_id')
                         ->whereNotNull('ticket_thread.title');
@@ -1291,7 +1345,10 @@ class TicketController extends Controller
      */
     public function delete($id, Tickets $ticket)
     {
-        $ticket_delete = $ticket->where('id', '=', $id)->first();
+        $ticket_delete = $this->authorizeTicketAccess($id);
+        if (!$ticket_delete) {
+            return response('Unauthorized', 403);
+        }
         if ($ticket_delete->status == 5) {
             $ticket_delete->delete();
             $ticket_threads = Ticket_Thread::where('ticket_id', '=', $id)->get();
@@ -1344,7 +1401,10 @@ class TicketController extends Controller
      */
     public function ban($id, Tickets $ticket)
     {
-        $ticket_ban = $ticket->where('id', '=', $id)->first();
+        $ticket_ban = $this->authorizeTicketAccess($id);
+        if (!$ticket_ban) {
+            return response('Unauthorized', 403);
+        }
         $ban_email = $ticket_ban->user_id;
         $user = User::where('id', '=', $ban_email)->first();
         $user->ban = 1;
@@ -1373,6 +1433,9 @@ class TicketController extends Controller
         $assign_to = explode('_', $UserEmail);
         $user_detail = null;
         foreach ($ticket_array as $id) {
+            if (!$this->authorizeTicketAccess($id)) {
+                continue;
+            }
             $ticket = Tickets::where('id', '=', $id)->first();
             if ($assign_to[0] == 'team') {
                 $ticket->team_id = $assign_to[1];
@@ -1436,6 +1499,9 @@ class TicketController extends Controller
      */
     public function InternalNote($id)
     {
+        if (!$this->authorizeTicketAccess($id)) {
+            return response('Unauthorized', 403);
+        }
         $InternalContent = Input::get('InternalContent');
         $thread = Ticket_Thread::where('ticket_id', '=', $id)->first();
         $NewThread = new Ticket_Thread();
@@ -1756,6 +1822,17 @@ class TicketController extends Controller
             $value = Input::get('submit');
             foreach ($selectall as $delete) {
                 $ticket = Tickets::whereId($delete)->first();
+                if (!$ticket) {
+                    continue;
+                }
+                $role = Auth::user()->role;
+                if ($role === 'user') {
+                    // Users can only act on their own tickets
+                    if ($ticket->user_id != Auth::user()->id) {
+                        continue;
+                    }
+                }
+                // admin role: no restriction
                 if ($value == 'Delete') {
                     $this->delete($delete, new Tickets());
                 } elseif ($value == 'Close') {
@@ -1929,6 +2006,11 @@ class TicketController extends Controller
      */
     public function rating($id, Request $request, \App\Model\helpdesk\Ratings\RatingRef $rating_ref)
     {
+        $ticket = Tickets::find($id);
+        if (!$ticket || $ticket->user_id != Auth::id()) {
+            abort(403);
+        }
+
         foreach ($request->all() as $key => $value) {
             if ($key == '_token') {
                 continue;
@@ -1967,6 +2049,11 @@ class TicketController extends Controller
      */
     public function ratingReply($id, Request $request, \App\Model\helpdesk\Ratings\RatingRef $rating_ref)
     {
+        $ticket = Tickets::find($id);
+        if (!$ticket || $ticket->user_id != Auth::id()) {
+            abort(403);
+        }
+
         foreach ($request->all() as $key => $value) {
             if ($key == '_token') {
                 continue;
@@ -2073,6 +2160,9 @@ class TicketController extends Controller
      */
     public function changeOwner($id)
     {
+        if (!$this->authorizeTicketAccess($id)) {
+            return response('Unauthorized', 403);
+        }
         $action = Input::get('action');
         $email = Input::get('email');
         $ticket_id = Input::get('ticket_id');
@@ -2230,6 +2320,9 @@ class TicketController extends Controller
 
     public function mergeTickets($id)
     {
+        if (!$this->authorizeTicketAccess($id)) {
+            return response('Unauthorized', 403);
+        }
         // split the phrase by any number of commas or space characters,
         // which include " ", \r, \t, \n and \f
         $t_id = preg_split("/[\s,]+/", $id);
@@ -2452,6 +2545,9 @@ class TicketController extends Controller
             //dd($thread);
             if (!$thread) {
                 throw new Exception('Sorry we can not find your request');
+            }
+            if (!$this->authorizeTicketAccess($thread->ticket_id)) {
+                abort(403, 'Unauthorized');
             }
             $company = \App\Model\helpdesk\Settings\Company::where('id', '=', '1')->first();
             $system = \App\Model\helpdesk\Settings\System::where('id', '=', '1')->first();
@@ -2706,29 +2802,9 @@ class TicketController extends Controller
      *
      * @return object
      */
-    public function getTableFormat()
-    {
-        return DatatableFacade::table()
-            ->addColumn(
-                '<a class="checkbox-toggle"><i class="far fa-square fa-2x"></i></a>',
-                Lang::get('lang.subject'),
-                Lang::get('lang.ticket_id'),
-                Lang::get('lang.from'),
-                Lang::get('lang.assigned_to'),
-                Lang::get('lang.last_activity')
-            )->noScript();
-    }
-
-    /**
-     * Function to return new ticket table view.
-     *
-     * @return repsone/view
-     */
     public function getTicketsView()
     {
-        $table = $this->getTableFormat();
-
-        return view('themes.default1.agent.helpdesk.ticket.tickets', compact('table'));
+        return view('themes.default1.agent.helpdesk.ticket.tickets');
     }
 
     /**
@@ -2741,6 +2817,18 @@ class TicketController extends Controller
     public static function genreateTableJson($tickets)
     {
         return DataTables::of($tickets)
+                        ->filterColumn('title', function ($query, $keyword) {
+                            $query->where('th.title', 'like', "%{$keyword}%");
+                        })
+                        ->filterColumn('ticket_number', function ($query, $keyword) {
+                            $query->where('tickets.ticket_number', 'like', "%{$keyword}%");
+                        })
+                        ->filterColumn('c_uname', function ($query, $keyword) {
+                            $query->where('u1.user_name', 'like', "%{$keyword}%");
+                        })
+                        ->filterColumn('a_uname', function ($query, $keyword) {
+                            $query->where('u2.user_name', 'like', "%{$keyword}%");
+                        })
                         ->editColumn('id', function ($tickets) {
                             $rep = ($tickets->last_replier == 'client') ? '#F39C12'
                                         : '#000';
@@ -2779,12 +2867,12 @@ class TicketController extends Controller
                             }
 
                             $due = '';
-                            if ($tickets->duedate != null) {
+                            if ($tickets->duedate != null && !$tickets->closed) {
                                 $now = strtotime(\Carbon\Carbon::now()->tz(timezone()));
                                 $duedate = strtotime($tickets->duedate);
 
                                 if ($duedate - $now < 0) {
-                                    $due = '&nbsp;<span style="background-color: rgba(221, 75, 57, 0.67) !important" title="'.Lang::get('lang.is_overdue').'" class="label label-danger">'.Lang::get('lang.overdue').'</span>';
+                                    $due = '&nbsp;<span style="" title="'.Lang::get('lang.is_overdue').'" class="badge text-bg-danger text-xs">'.Lang::get('lang.overdue').'</span>';
                                 } else {
                                     if (date('Ymd', $duedate) == date('Ymd', $now)) {
                                         $due = '&nbsp;<span style="background-color: rgba(240, 173, 78, 0.67) !important" title="'.Lang::get('lang.going-overdue-today').'" class="label label-warning">'.Lang::get('lang.duetoday').'</span>';
@@ -2849,7 +2937,7 @@ class TicketController extends Controller
                             return '<span style="display:none">'.$updated.'</span>'.UTC::usertimezone($updated);
                         })
                         ->rawColumns(['id', 'title', 'ticket_number', 'c_uname', 'a_uname', 'updated_at'])
-                        ->make();
+                        ->make(true);
     }
 
     /**
@@ -2869,20 +2957,7 @@ class TicketController extends Controller
      */
     public function inbox_ticket_list()
     {
-        $table = \Datatable::table()
-                ->addColumn(
-                    '',
-                    Lang::get('lang.subject'),
-                    Lang::get('lang.ticket_id'),
-                    Lang::get('lang.priority'),
-                    Lang::get('lang.from'),
-                    Lang::get('lang.assigned_to'),
-                    Lang::get('lang.last_activity'),
-                    Lang::get('lang.created-at')
-                )
-                ->noScript();
-
-        return view('themes.default1.agent.helpdesk.ticket.inbox', compact('table'));
+        return view('themes.default1.agent.helpdesk.ticket.inbox');
     }
 
     /**
@@ -2892,20 +2967,7 @@ class TicketController extends Controller
      */
     public function open_ticket_list()
     {
-        $table = \Datatable::table()
-                ->addColumn(
-                    '',
-                    Lang::get('lang.subject'),
-                    Lang::get('lang.ticket_id'),
-                    Lang::get('lang.priority'),
-                    Lang::get('lang.from'),
-                    Lang::get('lang.assigned_to'),
-                    Lang::get('lang.last_activity'),
-                    Lang::get('lang.created-at')
-                )
-                ->noScript();
-
-        return view('themes.default1.agent.helpdesk.ticket.open', compact('table'));
+        return view('themes.default1.agent.helpdesk.ticket.open');
     }
 
     /**
@@ -2915,20 +2977,7 @@ class TicketController extends Controller
      */
     public function answered_ticket_list()
     {
-        $table = \Datatable::table()
-                ->addColumn(
-                    '',
-                    Lang::get('lang.subject'),
-                    Lang::get('lang.ticket_id'),
-                    Lang::get('lang.priority'),
-                    Lang::get('lang.from'),
-                    Lang::get('lang.assigned_to'),
-                    Lang::get('lang.last_activity'),
-                    Lang::get('lang.created-at')
-                )
-                ->noScript();
-
-        return view('themes.default1.agent.helpdesk.ticket.answered', compact('table'));
+        return view('themes.default1.agent.helpdesk.ticket.answered');
     }
 
     /**
@@ -2938,20 +2987,7 @@ class TicketController extends Controller
      */
     public function myticket_ticket_list()
     {
-        $table = \Datatable::table()
-                ->addColumn(
-                    '',
-                    Lang::get('lang.subject'),
-                    Lang::get('lang.ticket_id'),
-                    Lang::get('lang.priority'),
-                    Lang::get('lang.from'),
-                    Lang::get('lang.assigned_to'),
-                    Lang::get('lang.last_activity'),
-                    Lang::get('lang.created-at')
-                )
-                ->noScript();
-
-        return view('themes.default1.agent.helpdesk.ticket.myticket', compact('table'));
+        return view('themes.default1.agent.helpdesk.ticket.myticket');
     }
 
     /**
@@ -2961,20 +2997,7 @@ class TicketController extends Controller
      */
     public function overdue_ticket_list()
     {
-        $table = \Datatable::table()
-                ->addColumn(
-                    '',
-                    Lang::get('lang.subject'),
-                    Lang::get('lang.ticket_id'),
-                    Lang::get('lang.priority'),
-                    Lang::get('lang.from'),
-                    Lang::get('lang.assigned_to'),
-                    Lang::get('lang.last_activity'),
-                    Lang::get('lang.created-at')
-                )
-                ->noScript();
-
-        return view('themes.default1.agent.helpdesk.ticket.overdue', compact('table'));
+        return view('themes.default1.agent.helpdesk.ticket.overdue');
     }
 
     /**
@@ -2984,20 +3007,7 @@ class TicketController extends Controller
      */
     public function dueTodayTicketlist()
     {
-        $table = \Datatable::table()
-                ->addColumn(
-                    '',
-                    Lang::get('lang.subject'),
-                    Lang::get('lang.ticket_id'),
-                    Lang::get('lang.priority'),
-                    Lang::get('lang.from'),
-                    Lang::get('lang.assigned_to'),
-                    Lang::get('lang.last_activity'),
-                    Lang::get('lang.created-at')
-                )
-                ->noScript();
-
-        return view('themes.default1.agent.helpdesk.ticket.duetodayticket', compact('table'));
+        return view('themes.default1.agent.helpdesk.ticket.duetodayticket');
     }
 
     /**
@@ -3007,20 +3017,7 @@ class TicketController extends Controller
      */
     public function closed_ticket_list()
     {
-        $table = \Datatable::table()
-                ->addColumn(
-                    '',
-                    Lang::get('lang.subject'),
-                    Lang::get('lang.ticket_id'),
-                    Lang::get('lang.priority'),
-                    Lang::get('lang.from'),
-                    Lang::get('lang.assigned_to'),
-                    Lang::get('lang.last_activity'),
-                    Lang::get('lang.created-at')
-                )
-                ->noScript();
-
-        return view('themes.default1.agent.helpdesk.ticket.closed', compact('table'));
+        return view('themes.default1.agent.helpdesk.ticket.closed');
     }
 
     /**
@@ -3030,20 +3027,7 @@ class TicketController extends Controller
      */
     public function assigned_ticket_list()
     {
-        $table = \Datatable::table()
-                ->addColumn(
-                    '',
-                    Lang::get('lang.subject'),
-                    Lang::get('lang.ticket_id'),
-                    Lang::get('lang.priority'),
-                    Lang::get('lang.from'),
-                    Lang::get('lang.assigned_to'),
-                    Lang::get('lang.last_activity'),
-                    Lang::get('lang.created-at')
-                )
-                ->noScript();
-
-        return view('themes.default1.agent.helpdesk.ticket.assigned', compact('table'));
+        return view('themes.default1.agent.helpdesk.ticket.assigned');
     }
 
     /**
@@ -3073,20 +3057,8 @@ class TicketController extends Controller
                 return redirect()->back()->with('fails', Lang::get('lang.unauthorized_access'));
             }
         }
-        $table = \Datatable::table()
-                ->addColumn(
-                    '',
-                    Lang::get('lang.subject'),
-                    Lang::get('lang.ticket_id'),
-                    Lang::get('lang.priority'),
-                    Lang::get('lang.from'),
-                    Lang::get('lang.assigned_to'),
-                    Lang::get('lang.last_activity'),
-                    Lang::get('lang.created-at')
-                )
-                ->noScript();
 
-        return view('themes.default1.agent.helpdesk.dept-ticket.tickets', compact('dept', 'status', 'table'));
+        return view('themes.default1.agent.helpdesk.dept-ticket.tickets', compact('dept', 'status'));
     }
 
     /**
@@ -3096,20 +3068,7 @@ class TicketController extends Controller
      */
     public function trash()
     {
-        $table = \Datatable::table()
-                ->addColumn(
-                    '',
-                    Lang::get('lang.subject'),
-                    Lang::get('lang.ticket_id'),
-                    Lang::get('lang.priority'),
-                    Lang::get('lang.from'),
-                    Lang::get('lang.assigned_to'),
-                    Lang::get('lang.last_activity'),
-                    Lang::get('lang.created-at')
-                )
-                ->noScript();
-
-        return view('themes.default1.agent.helpdesk.ticket.trash', compact('table'));
+        return view('themes.default1.agent.helpdesk.ticket.trash');
     }
 
     /**
@@ -3119,20 +3078,7 @@ class TicketController extends Controller
      */
     public function unassigned()
     {
-        $table = \Datatable::table()
-                ->addColumn(
-                    '',
-                    Lang::get('lang.subject'),
-                    Lang::get('lang.ticket_id'),
-                    Lang::get('lang.priority'),
-                    Lang::get('lang.from'),
-                    Lang::get('lang.assigned_to'),
-                    Lang::get('lang.last_activity'),
-                    Lang::get('lang.created-at')
-                )
-                ->noScript();
-
-        return view('themes.default1.agent.helpdesk.ticket.unassigned', compact('table'));
+        return view('themes.default1.agent.helpdesk.ticket.unassigned');
     }
 
     /**
@@ -3142,20 +3088,7 @@ class TicketController extends Controller
      */
     public function myticket()
     {
-        $table = \Datatable::table()
-                ->addColumn(
-                    '',
-                    Lang::get('lang.subject'),
-                    Lang::get('lang.ticket_id'),
-                    Lang::get('lang.priority'),
-                    Lang::get('lang.from'),
-                    Lang::get('lang.assigned_to'),
-                    Lang::get('lang.last_activity'),
-                    Lang::get('lang.created-at')
-                )
-                ->noScript();
-
-        return view('themes.default1.agent.helpdesk.ticket.myticket', compact('table'));
+        return view('themes.default1.agent.helpdesk.ticket.myticket');
     }
 
     /**
@@ -3164,20 +3097,7 @@ class TicketController extends Controller
     public function followupTicketList()
     {
         try {
-            $table = \Datatable::table()
-                    ->addColumn(
-                        '',
-                        Lang::get('lang.subject'),
-                        Lang::get('lang.ticket_id'),
-                        Lang::get('lang.priority'),
-                        Lang::get('lang.from'),
-                        Lang::get('lang.assigned_to'),
-                        Lang::get('lang.last_activity'),
-                        Lang::get('lang.created-at')
-                    )
-                    ->noScript();
-
-            return view('themes.default1.agent.helpdesk.followup.followup', compact('table'));
+            return view('themes.default1.agent.helpdesk.followup.followup');
         } catch (Exception $e) {
             return Redirect()->back()->with('fails', $e->getMessage());
         }
@@ -3285,6 +3205,6 @@ class TicketController extends Controller
                     return '<span style="display:none">'.$updated.'</span>'.UTC::usertimezone($updated);
                 })
                 ->rawColumns(['id', 'title', 'ticket_number', 'priority', 'user_name', 'assign_user_name', 'updated_at', 'created_at'])
-                ->make();
+                ->make(true);
     }
 }

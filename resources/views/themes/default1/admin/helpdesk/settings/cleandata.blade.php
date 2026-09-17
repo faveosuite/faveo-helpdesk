@@ -16,7 +16,7 @@ class="active"
 @stop
 <!-- header -->
 @section('PageHeader')
-<h1>{{Lang::get('lang.delete_dummy_data')}}</h1>
+<h3>{{Lang::get('lang.delete_dummy_data')}}</h3>
 @stop
 <!-- /header -->
 <!-- breadcrumbs -->
@@ -44,7 +44,7 @@ class="active"
         <input type="checkbox" id="clean-confirm">&nbsp;{!! Lang::get('lang.clean-confirm') !!}</input>
         </div>
         <div class="box-footer">
-          <input type="button" class="btn btn-sm btn-primary" disabled="disabled" data-toggle="modal" data-target="#loadingpopup" value="{!! Lang::get('lang.clean-data-btn') !!}" id="clean-btn"></input>
+          <input type="button" class="btn btn-sm btn-primary" disabled="disabled" data-bs-toggle="modal" data-bs-target="#loadingpopup" value="{!! Lang::get('lang.clean-data-btn') !!}" id="clean-btn"></input>
         </div>
 </div>
 <div class="modal fade" id="loadingpopup" style="padding:200px;">
@@ -52,7 +52,7 @@ class="active"
         <div class="modal-content">
             <div class="modal-header">
                 <div id="head">
-                    <button type="button" class="close" id="close" data-dismiss="modal" aria-label="Close" style="display:none;"><span aria-hidden="true">×</span></button>
+                    <button type="button" class="btn-close" id="close" data-bs-dismiss="modal" aria-label="Close" style="display:none;"><span aria-hidden="true">×</span></button>
                     <div class="col-md-5"></div><div class="col-md-2"><img src="{{asset("lb-faveo/media/images/gifloader.gif")}}" ></div><div class="col-md-5"></div>
                     <br/>
                     <br/>

@@ -16,7 +16,7 @@ class="active"
 @stop
 <!-- header -->
 @section('PageHeader')
-<h1>{!! Lang::get('lang.settings') !!}</h1>
+<h3>{!! Lang::get('lang.settings') !!}</h3>
 @stop
 <!-- /header -->
 <!-- breadcrumbs -->
@@ -37,17 +37,17 @@ class="active"
             <!-- check whether success or not -->
             <div class="box-body table-responsive"style="overflow:hidden;">
                 @if(Session::has('success'))
-                <div class="alert alert-success alert-dismissable">
-                    <i class="fa fa-check-circle"></i>
-                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                <div class="alert alert-success alert-dismissible">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
                     {!!Session::get('success')!!}
                 </div>
                 @endif
                 <!-- failure message -->
                 @if(Session::has('fails'))
-                <div class="alert alert-danger alert-dismissable">
-                    <i class="fa fa-ban"></i>
-                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                <div class="alert alert-danger alert-dismissible">
+                    <i class="fa-solid fa-ban"></i>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
                     <b> {!! Lang::get('lang.alert') !!} ! </b>
                     <li class="error-message-padding">{!!Session::get('fails')!!}</li>
                 </div>
@@ -57,15 +57,15 @@ class="active"
                     <!-- Default System Email:  DROPDOWN value from emails table : Required -->
                     <div class="col-md-12">
                         <div class="col-md-3 no-padding">
-                            <div class="form-group">
-                                {!! Form::label('del_noti', Lang::get('lang.close_all_ticket_for_approval')) !!}
+                            <div class="mb-3">
+                                {!! html()->label(Lang::get('lang.close_all_ticket_for_approval'), 'del_noti') !!}
                             </div>
                         </div>
      
                         <div class="col-md-6">
                             <div class="btn-group" id="toggle_event_editing">
-                                <button type="button"  class="btn {{$approval_status->status == '0' ? 'btn-info' : 'btn-default'}} locked_active">OFF</button>
-                                <button type="button"  class="btn {{$approval_status->status == '1' ? 'btn-info' : 'btn-default'}} unlocked_inactive">ON</button>
+                                <button type="button"  class="btn {{$approval_status->status == '0' ? 'btn-info' : 'btn-secondary'}} locked_active">OFF</button>
+                                <button type="button"  class="btn {{$approval_status->status == '1' ? 'btn-info' : 'btn-secondary'}} unlocked_inactive">ON</button>
                             </div>
                             <!-- <div class="alert alert-info" id="switch_status"></div> -->
                         </div>
@@ -90,8 +90,8 @@ class="active"
         }
 
         /* reverse locking status */
-        $('#toggle_event_editing button').eq(0).toggleClass('locked_inactive locked_active btn-default btn-info');
-        $('#toggle_event_editing button').eq(1).toggleClass('unlocked_inactive unlocked_active btn-info btn-default');
+        $('#toggle_event_editing button').eq(0).toggleClass('locked_inactive locked_active btn-secondary btn-info');
+        $('#toggle_event_editing button').eq(1).toggleClass('unlocked_inactive unlocked_active btn-info btn-secondary');
         $.ajax({
             type: 'post',
             url: '{{route("settingsUpdateApproval.settings")}}',

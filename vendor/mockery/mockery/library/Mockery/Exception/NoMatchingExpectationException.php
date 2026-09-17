@@ -1,70 +1,102 @@
 <?php
+
 /**
- * Mockery
+ * Mockery (https://docs.mockery.io/)
  *
- * LICENSE
- *
- * This source file is subject to the new BSD license that is bundled
- * with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://github.com/padraic/mockery/blob/master/LICENSE
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to padraic@php.net so we can send you a copy immediately.
- *
- * @category   Mockery
- * @package    Mockery
- * @copyright  Copyright (c) 2010 Pádraic Brady (http://blog.astrumfutura.com)
- * @license    http://github.com/padraic/mockery/blob/master/LICENSE New BSD License
+ * @copyright https://github.com/mockery/mockery/blob/HEAD/COPYRIGHT.md
+ * @license https://github.com/mockery/mockery/blob/HEAD/LICENSE BSD 3-Clause License
+ * @link https://github.com/mockery/mockery for the canonical source repository
  */
 
 namespace Mockery\Exception;
 
-use Mockery;
+use Mockery\Exception;
+use Mockery\LegacyMockInterface;
 
-class NoMatchingExpectationException extends Mockery\Exception
+class NoMatchingExpectationException extends Exception
 {
+    /**
+     * @var array<mixed>
+     */
+    protected $actual = [];
+
+    /**
+     * @var string|null
+     */
     protected $method = null;
 
-    protected $actual = array();
-
+    /**
+     * @var LegacyMockInterface|null
+     */
     protected $mockObject = null;
 
-    public function setMock(Mockery\LegacyMockInterface $mock)
+    /**
+     * @return array<mixed>
+     */
+    public function getActualArguments()
     {
-        $this->mockObject = $mock;
-        return $this;
+        return $this->actual;
     }
 
-    public function setMethodName($name)
+    /**
+     * @return string|null
+     */
+    public function getMethodName()
     {
-        $this->method = $name;
-        return $this;
+        return $this->method;
     }
 
+    /**
+     * @return LegacyMockInterface|null
+     */
+    public function getMock()
+    {
+        return $this->mockObject;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getMockName()
+    {
+        $mock = $this->getMock();
+
+        if ($mock === null) {
+            return $mock;
+        }
+
+        return $mock->mockery_getName();
+    }
+
+    /**
+     * @todo Rename param `count` to `args`
+     * @template TMixed
+     *
+     * @param  array<TMixed> $count
+     * @return self
+     */
     public function setActualArguments($count)
     {
         $this->actual = $count;
         return $this;
     }
 
-    public function getMock()
+    /**
+     * @param  string $name
+     * @return self
+     */
+    public function setMethodName($name)
     {
-        return $this->mockObject;
+        $this->method = $name;
+        return $this;
     }
 
-    public function getMethodName()
+    /**
+     * @return self
+     */
+    public function setMock(LegacyMockInterface $mock)
     {
-        return $this->method;
-    }
-
-    public function getActualArguments()
-    {
-        return $this->actual;
-    }
-
-    public function getMockName()
-    {
-        return $this->getMock()->mockery_getName();
+        $this->mockObject = $mock;
+        return $this;
     }
 }

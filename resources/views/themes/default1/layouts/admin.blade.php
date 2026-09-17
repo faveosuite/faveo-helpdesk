@@ -26,6 +26,7 @@
         <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
         <link rel="stylesheet" href="{{asset("lb-faveo/dist/css/editor.css")}}" type="text/css">
         <link href="{{asset("lb-faveo/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css")}}" rel="stylesheet" type="text/css" />
+        <link href="{{asset("css/common.css")}}" rel="stylesheet" type="text/css" />
         <!--[if lt IE 9]>
             <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
             <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
@@ -33,15 +34,15 @@
         @yield('HeadInclude')
     </head>
     <body class="skin-yellow fixed">
-        <div class="wrapper">
+        <div class="app-wrapper">
 
             <header class="main-header">
                 <a href="../../index2.html" class="logo"><b>Faveo </b>HELPDESK</a>
                 <!-- Header Navbar: style can be found in header.less -->
                 <nav class="navbar navbar-static-top" role="navigation">
                     <!-- Sidebar toggle button-->
-                    <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
-                        <span class="sr-only">Toggle navigation</span>
+                    <a href="#" class="sidebar-toggle" data-bs-toggle="offcanvas" role="button">
+                        <span class="visually-hidden">Toggle navigation</span>
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
@@ -49,19 +50,19 @@
                     <!-- Collect the nav links, forms, and other content for toggling -->
                     <div class="collapse navbar-collapse" id="navbar-collapse">
                         <ul class="tabs tabs-horizontal nav navbar-nav">
-                            <li><a data-target="#tabA" href="#">Home</a></li>
-                            <li @yield('Staffs')><a data-target="#tabB" href="#">Staffs</a></li>
-                            <li @yield('Emails')><a data-target="#tabC" href="#">Emails</a></li>
-                            <li @yield('Manage')><a data-target="#tabD" href="#">Manage</a></li>
-                            <li @yield('Settings')><a data-target="#tabE" href="#">Settings</a></li>
-                            <li @yield('Themes')><a data-target="#tabF" href="#">Themes</a></li>
+                            <li><a data-bs-target="#tabA" href="#">Home</a></li>
+                            <li @yield('Staffs')><a data-bs-target="#tabB" href="#">Staffs</a></li>
+                            <li @yield('Emails')><a data-bs-target="#tabC" href="#">Emails</a></li>
+                            <li @yield('Manage')><a data-bs-target="#tabD" href="#">Manage</a></li>
+                            <li @yield('Settings')><a data-bs-target="#tabE" href="#">Settings</a></li>
+                            <li @yield('Themes')><a data-bs-target="#tabF" href="#">Themes</a></li>
                         </ul>
 
                         <ul class="nav navbar-nav navbar-right">
                             <li><a href="{{url('user')}}">Agent Panel</a></li>
                             <!-- User Account: style can be found in dropdown.less -->
                             <li class="dropdown user user-menu">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
                                 @if(Auth::user())
                                     @if(Auth::user()->profile_pic)
                                         <img src="{{asset('lb-faveo/dist/img')}}{{'/'}}{{Auth::user()->profile_pic}}"class="user-image" alt="User Image"/>
@@ -102,14 +103,14 @@
                             </nav>
                             </header>
                             <!-- Left side column. contains the logo and sidebar -->
-                            <aside class="main-sidebar">
+                            <aside class="app-sidebar">
                                 <!-- sidebar: style can be found in sidebar.less -->
                                 <section class="sidebar">
                                     <div class="user-panel">
                                     <div class = "row">
-                                        <div class="col-xs-3"></div>
+                                        <div class="col-3"></div>
 
-                                        <div class="col-xs-2" style="width:50%;">
+                                        <div class="col-2" style="width:50%;">
                                         @if(Auth::user() && Auth::user()->profile_pic)
                                             <img src="{{asset('lb-faveo/dist/img')}}{{'/'}}{{Auth::user()->profile_pic}}" class="img-circle" alt="User Image" />
                                         @else
@@ -123,9 +124,9 @@
                                                 <p>{!! Auth::user()->first_name !!}{!! " ". Auth::user()->last_name !!}</p>
                                             @endif
                                             @if(Auth::user() && Auth::user()->active==1)
-                                                <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
+                                                <a href="#"><i class="fa-solid fa-circle text-success"></i> Online</a>
                                             @else
-                                                <a href="#"><i class="fa fa-circle"></i> Offline</a>
+                                                <a href="#"><i class="fa-solid fa-circle"></i> Offline</a>
                                             @endif
                                         </div>
                                     </div>
@@ -134,7 +135,7 @@
                                         <div class="input-group">
                                             <input type="text" name="q" class="form-control" placeholder="Search..."/>
                                             <span class="input-group-btn">
-                                                <button type='submit' name='seach' id='search-btn' class="btn btn-flat"><i class="fa fa-search"></i></button>
+                                                <button type='submit' name='seach' id='search-btn' class="btn "><i class="fa-solid fa-magnifying-glass"></i></button>
                                             </span>
                                         </div>
                                     </form>
@@ -153,7 +154,7 @@
      ?>
                                         <li>
                                             <a href="{{ url('/ticket/open') }}">
-                                                <i class="fa fa-envelope"></i> <span>Inbox</span> <small class="label pull-right bg-green"><?php echo $i;?></small>
+                                                <i class="fa-solid fa-envelope"></i> <span>Inbox</span> <small class="badge float-end text-bg-success"><?php echo $i;?></small>
                                             </a>
                                         </li>
 <?php
@@ -162,23 +163,23 @@
 
                                         <li @yield('myticket')>
                                              <a href="{{url('ticket/myticket')}}">
-                                                <i class="fa fa-user"></i> <span>My Tickets</span>
+                                                <i class="fa-solid fa-user"></i> <span>My Tickets</span>
 
-                                                <small class="label pull-right bg-green">{{count($myticket) }}</small>
+                                                <small class="badge float-end text-bg-success">{{count($myticket) }}</small>
                                             </a>
                                         </li>
                                         <li>
                                             <a href="{{url('unassigned')}}">
-                                                <i class="fa fa-th"></i> <span>Unassigned</span>
+                                                <i class="fa-solid fa-th"></i> <span>Unassigned</span>
 
-                                                <small class="label pull-right bg-green">{{count($unassigned)}}</small>
+                                                <small class="badge float-end text-bg-success">{{count($unassigned)}}</small>
                                             </a>
                                         </li>
                                         <li>
                                             <a href="{{url('trash')}}">
-                                                <i class="fa fa-trash-o"></i> <span>Trash</span>
+                                                <i class="fa-solid fa-trash-o"></i> <span>Trash</span>
                                                 <?php $deleted = App\Model\helpdesk\Ticket\Tickets::where('status', '5')->get();?>
-                                                <small class="label pull-right bg-green">{{count($deleted)}}</small>
+                                                <small class="badge float-end text-bg-success">{{count($deleted)}}</small>
                                             </a>
                                         </li>
                                 </section>
@@ -186,7 +187,7 @@
                             </aside>
 
                             <!-- Right side column. Contains the navbar and content of the page -->
-                            <div class="content-wrapper">
+                            <div class="app-main">
                                 <!-- Content Header (Page header) -->
                                 <div class="tab-content" style="background-color: white;padding: 0 20px 0 20px">
                                     <div class="collapse navbar-collapse" id="navbar-collapse">
@@ -242,18 +243,18 @@
                                         </div>
                                     </div>
                                 </div>
-                                <section class="content-header">
+                                <section class="app-content-header">
                                     @yield('PageHeader')
                                     @yield('breadcrumbs')
                                 </section>
 
                                 <!-- Main content -->
-                                <section class="content">
+                                <section class="app-content">
                                     @yield('content')
                                 </section><!-- /.content -->
                                 <!-- /.content-wrapper -->
                             </div>
-                            <footer class="main-footer">
+                            <footer class="app-footer">
                                 <div class="pull-right hidden-xs">
                                     <b>{!! Lang::get('lang.version') !!}</b> 0.1
                                 </div>

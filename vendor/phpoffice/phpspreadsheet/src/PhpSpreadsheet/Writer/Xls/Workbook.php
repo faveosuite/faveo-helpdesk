@@ -55,13 +55,13 @@ class Workbook extends BIFFwriter
     private $parser;
 
     /**
-     * The BIFF file size for the workbook.
+     * The BIFF file size for the workbook. Not currently used.
      *
      * @var int
      *
      * @see calcSheetOffsets()
      */
-    private $biffSize;
+    private $biffSize; // @phpstan-ignore-line
 
     /**
      * XF Writers.
@@ -163,6 +163,8 @@ class Workbook extends BIFFwriter
 
     /**
      * Color cache.
+     *
+     * @var array
      */
     private $colors;
 
@@ -581,7 +583,7 @@ class Workbook extends BIFFwriter
      * Writes all the DEFINEDNAME records (BIFF8).
      * So far this is only used for repeating rows/columns (print titles) and print areas.
      */
-    private function writeAllDefinedNamesBiff8()
+    private function writeAllDefinedNamesBiff8(): string
     {
         $chunk = '';
 
@@ -641,9 +643,8 @@ class Workbook extends BIFFwriter
 
                 // store the DEFINEDNAME record
                 $chunk .= $this->writeData($this->writeDefinedNameBiff8(pack('C', 0x07), $formulaData, $i + 1, true));
-
-            // (exclusive) either repeatColumns or repeatRows
             } elseif ($sheetSetup->isColumnsToRepeatAtLeftSet() || $sheetSetup->isRowsToRepeatAtTopSet()) {
+                // (exclusive) either repeatColumns or repeatRows.
                 // Columns to repeat
                 if ($sheetSetup->isColumnsToRepeatAtLeftSet()) {
                     $repeat = $sheetSetup->getColumnsToRepeatAtLeft();
@@ -886,7 +887,7 @@ class Workbook extends BIFFwriter
     /**
      * Write Internal SUPBOOK record.
      */
-    private function writeSupbookInternal()
+    private function writeSupbookInternal(): string
     {
         $record = 0x01AE; // Record identifier
         $length = 0x0004; // Bytes to follow
@@ -901,7 +902,7 @@ class Workbook extends BIFFwriter
      * Writes the Excel BIFF EXTERNSHEET record. These references are used by
      * formulas.
      */
-    private function writeExternalsheetBiff8()
+    private function writeExternalsheetBiff8(): string
     {
         $totalReferences = count($this->parser->references);
         $record = 0x0017; // Record identifier
@@ -1060,7 +1061,7 @@ class Workbook extends BIFFwriter
             $headerinfo = unpack('vlength/Cencoding', $string);
 
             // currently, this is always 1 = uncompressed
-            $encoding = $headerinfo['encoding'];
+            $encoding = $headerinfo['encoding'] ?? 1;
 
             // initialize finished writing current $string
             $finished = false;
@@ -1100,16 +1101,15 @@ class Workbook extends BIFFwriter
                     // 2. space remaining is greater than or equal to minimum space needed
                     //        here we write as much as we can in the current block, then move to next record data block
 
-                    // 1. space remaining is less than minimum space needed
                     if ($space_remaining < $min_space_needed) {
+                        // 1. space remaining is less than minimum space needed.
                         // we close the block, store the block data
                         $recordDatas[] = $recordData;
 
                         // and start new record data block where we start writing the string
                         $recordData = '';
-
-                    // 2. space remaining is greater than or equal to minimum space needed
                     } else {
+                        // 2. space remaining is greater than or equal to minimum space needed.
                         // initialize effective remaining space, for Unicode strings this may need to be reduced by 1, see below
                         $effective_space_remaining = $space_remaining;
 
@@ -1155,7 +1155,7 @@ class Workbook extends BIFFwriter
     /**
      * Writes the MSODRAWINGGROUP record if needed. Possibly split using CONTINUE records.
      */
-    private function writeMsoDrawingGroup()
+    private function writeMsoDrawingGroup(): string
     {
         // write the Escher stream if necessary
         if (isset($this->escher)) {

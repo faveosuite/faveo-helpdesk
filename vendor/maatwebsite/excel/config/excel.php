@@ -1,6 +1,7 @@
 <?php
 
 use Maatwebsite\Excel\Excel;
+use PhpOffice\PhpSpreadsheet\Reader\Csv;
 
 return [
     'exports' => [
@@ -86,7 +87,7 @@ return [
         | you can enable it by setting read_only to false.
         |
         */
-        'read_only' => true,
+        'read_only'    => true,
 
         /*
         |--------------------------------------------------------------------------
@@ -110,7 +111,7 @@ return [
         | Available options: none|slug|custom
         |
         */
-        'heading_row' => [
+        'heading_row'  => [
             'formatter' => 'slug',
         ],
 
@@ -122,12 +123,12 @@ return [
         | Configure e.g. delimiter, enclosure and line ending for CSV imports.
         |
         */
-        'csv'         => [
+        'csv'          => [
             'delimiter'        => null,
             'enclosure'        => '"',
             'escape_character' => '\\',
             'contiguous'       => false,
-            'input_encoding'   => 'UTF-8',
+            'input_encoding'   => Csv::GUESS_ENCODING,
         ],
 
         /*
@@ -138,7 +139,7 @@ return [
         | Configure e.g. default title, creator, subject,...
         |
         */
-        'properties'  => [
+        'properties'   => [
             'creator'        => '',
             'lastModifiedBy' => '',
             'title'          => '',
@@ -148,6 +149,21 @@ return [
             'category'       => '',
             'manager'        => '',
             'company'        => '',
+        ],
+
+        /*
+       |--------------------------------------------------------------------------
+       | Cell Middleware
+       |--------------------------------------------------------------------------
+       |
+       | Configure middleware that is executed on getting a cell value
+       |
+       */
+        'cells'        => [
+            'middleware' => [
+                //\Maatwebsite\Excel\Middleware\TrimCellValue::class,
+                //\Maatwebsite\Excel\Middleware\ConvertEmptyCellValuesToNull::class,
+            ],
         ],
 
     ],
@@ -207,11 +223,11 @@ return [
     | [x] PhpOffice\PhpSpreadsheet\Cell\AdvancedValueBinder::class
     |
     */
-    'value_binder' => [
+    'value_binder'       => [
         'default' => Maatwebsite\Excel\DefaultValueBinder::class,
     ],
 
-    'cache' => [
+    'cache'        => [
         /*
         |--------------------------------------------------------------------------
         | Default cell caching driver
@@ -228,7 +244,7 @@ return [
         | Drivers: memory|illuminate|batch
         |
         */
-        'driver'     => 'memory',
+        'driver'      => 'memory',
 
         /*
         |--------------------------------------------------------------------------
@@ -240,7 +256,7 @@ return [
         | Here you can tweak the memory limit to your liking.
         |
         */
-        'batch'     => [
+        'batch'       => [
             'memory_limit' => 60000,
         ],
 
@@ -256,9 +272,23 @@ return [
         | at "null" it will use the default store.
         |
         */
-        'illuminate' => [
+        'illuminate'  => [
             'store' => null,
         ],
+
+        /*
+        |--------------------------------------------------------------------------
+        | Cache Time-to-live (TTL)
+        |--------------------------------------------------------------------------
+        |
+        | The TTL of items written to cache. If you want to keep the items cached
+        | indefinitely, set this to null.  Otherwise, set a number of seconds,
+        | a \DateInterval, or a callable.
+        |
+        | Allowable types: callable|\DateInterval|int|null
+        |
+         */
+        'default_ttl' => 10800,
     ],
 
     /*
@@ -292,9 +322,26 @@ return [
         |
         | When exporting and importing files, we use a temporary file, before
         | storing reading or downloading. Here you can customize that path.
+        | permissions is an array with the permission flags for the directory (dir)
+        | and the create file (file).
         |
         */
         'local_path'          => storage_path('framework/cache/laravel-excel'),
+
+        /*
+        |--------------------------------------------------------------------------
+        | Local Temporary Path Permissions
+        |--------------------------------------------------------------------------
+        |
+        | Permissions is an array with the permission flags for the directory (dir)
+        | and the create file (file).
+        | If omitted the default permissions of the filesystem will be used.
+        |
+        */
+        'local_permissions'   => [
+            // 'dir'  => 0755,
+            // 'file' => 0644,
+        ],
 
         /*
         |--------------------------------------------------------------------------

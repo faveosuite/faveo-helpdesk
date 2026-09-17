@@ -84,10 +84,10 @@ var filterClick = 0;
                                 $('#refresh').css('display','none');
                                 $('#loader1').css('display','block');
                                 $('#d1').prop('disabled', true);
-                                $("#hidespin").hide();
-                                $("#spin").show();
-                                $("#hide2").hide();
-                                $("#show2").show();
+                                $("#hidespin").addClass('d-none');
+                                $("#spin").removeClass('d-none');
+                                $("#hide2").addClass('d-none');
+                                $("#show2").removeClass('d-none');
                             },
                             success: function(response) {
                                 $('.loader1').css('display','none');
@@ -95,13 +95,13 @@ var filterClick = 0;
                                 $('#refresh').css('display','block');
                                 $('#loader1').css('display','none');
                                 $('#d1').prop('disabled', false);
-                                $("#hide2").show();
-                                $("#show2").hide();
-                                $("#hidespin").show();
-                                $("#spin").hide();
+                                $("#hide2").removeClass('d-none');
+                                $("#show2").addClass('d-none');
+                                $("#hidespin").removeClass('d-none');
+                                $("#spin").addClass('d-none');
                                 var message = "{!! Lang::get('lang.status-changed-successfully') !!} {!! Lang::get('lang.reload-be-patient-message') !!}";
                                 $(".success-message, .success-msg, .get-success, #get-success").html(message);
-                                $(".alert-success").show();
+                                $(".alert-success").removeClass('d-none');
                                 setTimeout(function(){
                                     location.reload();
                                 }, 3000)
@@ -111,13 +111,13 @@ var filterClick = 0;
                                 $('.loader').css('display','none');
                                 if (xhr.status == 403) {
                                     $('#d1').prop('disabled', false);
-                                    $("#hide2").show();
-                                    $("#show2").hide();
-                                    $("#hidespin").show();
-                                    $("#spin").hide();
+                                    $("#hide2").removeClass('d-none');
+                                    $("#show2").addClass('d-none');
+                                    $("#hidespin").removeClass('d-none');
+                                    $("#spin").addClass('d-none');
                                     var message = JSON.parse(xhr.responseText);
                                     $(".error-message, #get-danger").html(message.message[0]);
-                                    $(".alert-danger").show();
+                                    $(".alert-danger").removeClass('d-none');
                                 }
                             }
                         })
@@ -205,31 +205,31 @@ var filterClick = 0;
                     beforeSend: function () {
                         $('.loader1').css('display','block');
                         $('.loader').css('display','block');
-                        $("#merge_body").hide();
-                        $("#merge_loader").show();
+                        $("#merge_body").addClass('d-none');
+                        $("#merge_loader").removeClass('d-none');
                     },
                     success: function (response) {
                         $('.loader1').css('display','none');
                         $('.loader').css('display','none');
                         if (response == 0) {
-                            $("#merge_body").show();
-                            $("#merge-succ-alert").hide();
-                            $("#merge-body-alert").show();
-                            $("#merge-body-form").hide();
-                            $("#merge_loader").hide();
+                            $("#merge_body").removeClass('d-none');
+                            $("#merge-succ-alert").addClass('d-none');
+                            $("#merge-body-alert").removeClass('d-none');
+                            $("#merge-body-form").addClass('d-none');
+                            $("#merge_loader").addClass('d-none');
                             $("#merge-btn").attr('disabled', true);
                             var message = "{{Lang::get('lang.select-tickets-to merge')}}";
-                            $("#merge-err-alert").show();
+                            $("#merge-err-alert").removeClass('d-none');
                             $('#message-merge-err').html(message);
                         } else if (response == 2) {
-                            $("#merge_body").show();
-                            $("#merge-succ-alert").hide();
-                            $("#merge-body-alert").show();
-                            $("#merge-body-form").hide();
-                            $("#merge_loader").hide();
+                            $("#merge_body").removeClass('d-none');
+                            $("#merge-succ-alert").addClass('d-none');
+                            $("#merge-body-alert").removeClass('d-none');
+                            $("#merge-body-form").addClass('d-none');
+                            $("#merge_loader").addClass('d-none');
                             $("#merge-btn").attr('disabled', true);
                             var message = "{{Lang::get('lang.different-users')}}";
-                            $("#merge-err-alert").show();
+                            $("#merge-err-alert").removeClass('d-none');
                             $('#message-merge-err').html(message);
                         } else {
                             $.ajax({
@@ -243,12 +243,12 @@ var filterClick = 0;
                                 success: function (data) {
                                     $('.loader1').css('display','none');
                                     $('.loader').css('display','none');
-                                    $("#merge_body").show();
-                                    $("#merge-body-alert").hide();
-                                    $("#merge-body-form").show();
-                                    $("#merge_loader").hide();
+                                    $("#merge_body").removeClass('d-none');
+                                    $("#merge-body-alert").addClass('d-none');
+                                    $("#merge-body-form").removeClass('d-none');
+                                    $("#merge_loader").addClass('d-none');
                                     $("#merge-btn").attr('disabled', false);
-                                    $("#merge_loader").hide();
+                                    $("#merge_loader").addClass('d-none');
                                     $('#select-merge-parent').html(data);
                                 }
                                 // return false;
@@ -268,34 +268,34 @@ var filterClick = 0;
                     beforeSend: function () {
                         $('.loader1').css('display','block');
                         $('.loader').css('display','block');
-                        $("#merge_body").hide();
-                        $("#merge_loader").show();
+                        $("#merge_body").addClass('d-none');
+                        $("#merge_loader").removeClass('d-none');
                     },
                     success: function (response) {
                         $('.loader1').css('display','none');
                         $('.loader').css('display','none');
                         if (response == 0) {
-                            $("#merge_body").show();
-                            $("#merge-succ-alert").hide();
-                            $("#merge-body-alert").show();
-                            $("#merge-body-form").hide();
-                            $("#merge_loader").hide();
+                            $("#merge_body").removeClass('d-none');
+                            $("#merge-succ-alert").addClass('d-none');
+                            $("#merge-body-alert").removeClass('d-none');
+                            $("#merge-body-form").addClass('d-none');
+                            $("#merge_loader").addClass('d-none');
                             $("#merge-btn").attr('disabled', true);
                             var message = "{{Lang::get('lang.merge-error')}}";
-                            $("#merge-err-alert").show();
+                            $("#merge-err-alert").removeClass('d-none');
                             $('#message-merge-err').html(message);
                         } else {
-                            $("#merge_body").show();
-                            $("#merge-err-alert").hide();
-                            $("#merge-body-alert").show();
-                            $("#merge-body-form").hide();
-                            $("#merge_loader").hide();
+                            $("#merge_body").removeClass('d-none');
+                            $("#merge-err-alert").addClass('d-none');
+                            $("#merge-body-alert").removeClass('d-none');
+                            $("#merge-body-form").addClass('d-none');
+                            $("#merge_loader").addClass('d-none');
                             $("#merge-btn").attr('disabled', true);
                             var message = "{{Lang::get('lang.merge-success')}}";
-                            $("#merge-succ-alert").show();
+                            $("#merge-succ-alert").removeClass('d-none');
                             $('#message-merge-succ').html(message);
                             setTimeout(function () {
-                                $("#alert11").hide();
+                                $("#alert11").addClass('d-none');
                                 location.reload();
                             }, 1000);
                         }
@@ -306,11 +306,11 @@ var filterClick = 0;
 
             $('#AssignTickets').on('show.bs.modal', function() {
                 //select_assigen_list.val(null).trigger("change");
-                $("#assign_body").hide();
-                $("#assign_loader").show();
+                $("#assign_body").addClass('d-none');
+                $("#assign_loader").removeClass('d-none');
                 setTimeout(function(){
-                    $("#assign_body").show();
-                    $("#assign_loader").hide();
+                    $("#assign_body").removeClass('d-none');
+                    $("#assign_loader").addClass('d-none');
                 }, 2000);
             });
             
@@ -332,8 +332,8 @@ var filterClick = 0;
                     beforeSend: function() {
                         $('.loader1').css('display','block');
                         $('.loader').css('display','block');
-                        $("#assign_body").hide();
-                        $("#assign_loader").show();
+                        $("#assign_body").addClass('d-none');
+                        $("#assign_loader").removeClass('d-none');
                     },
                     success: function(response) {
                         $('.loader1').css('display','none');
@@ -341,7 +341,7 @@ var filterClick = 0;
                         if (response == 1) {
                             var message = "{!!Lang::get('lang.ticket-assigned-successfully')!!} {!!Lang::get('lang.reload-be-patient-message')!!}"
                             $(".success-message, .success-msg, .get-success, #get-success").html(message);
-                            $(".alert-success").show();
+                            $(".alert-success").removeClass('d-none');
                             $("#assign-close").trigger("click");
                             setTimeout(function(){
                             location.reload();
@@ -351,8 +351,8 @@ var filterClick = 0;
                     error: function(){
                         $('.loader1').css('display','none');
                         $('.loader').css('display','none');
-                        $("#assign_body").show();
-                        $("#assign_loader").hide();
+                        $("#assign_body").removeClass('d-none');
+                        $("#assign_loader").addClass('d-none');
                     }
                 })
                 return false;

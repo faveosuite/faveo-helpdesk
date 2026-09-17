@@ -15,14 +15,13 @@ use App\Model\kb\Relationship;
 use App\Model\kb\Settings;
 use Auth;
 // Classes
-use Chumper\Datatable\Table;
-use Datatable;
 use DB;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Lang;
 use Redirect;
+use Yajra\DataTables\Facades\DataTables;
 
 /**
  * ArticleController
@@ -69,10 +68,7 @@ class ArticleController extends Controller
                 ->orderBy('publish_time', 'desc')
                 ->get();
 
-        // returns chumper datatable
-        return Datatable::Collection($articles)
-
-                        /* add column name */
+        return DataTables::of($articles)
                         ->addColumn('name', function ($model) {
                             $name = Str::limit($model->name, 20, '...');
 
@@ -106,9 +102,8 @@ class ArticleController extends Controller
         			</div>
     			</div>';
                         })
-                        ->searchColumns('name', 'description', 'publish_time')
-                        ->orderColumns('name', 'description', 'publish_time')
-                        ->make();
+                        ->rawColumns(['name', 'Actions'])
+                        ->make(true);
     }
 
     /**

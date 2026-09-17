@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -29,24 +29,16 @@ use Symfony\Component\VarDumper\Caster\Caster;
  */
 class ParseCommand extends Command implements ContextAware, PresenterAware
 {
-    /**
-     * Context instance (for ContextAware interface).
-     *
-     * @var Context
-     */
-    protected $context;
-
-    private $presenter;
-    private $parserFactory;
-    private $parsers;
+    protected Context $context;
+    private Presenter $presenter;
+    private Parser $parser;
 
     /**
      * {@inheritdoc}
      */
     public function __construct($name = null)
     {
-        $this->parserFactory = new ParserFactory();
-        $this->parsers = [];
+        $this->parser = (new ParserFactory())->createParser();
 
         parent::__construct($name);
     }
@@ -88,19 +80,14 @@ class ParseCommand extends Command implements ContextAware, PresenterAware
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
-        $kindMsg = 'One of PhpParser\\ParserFactory constants: '
-            .\implode(', ', ParserFactory::getPossibleKinds())
-            ." (default is based on current interpreter's version).";
-
         $this
             ->setName('parse')
             ->setDefinition([
-            new CodeArgument('code', CodeArgument::REQUIRED, 'PHP code to parse.'),
-            new InputOption('depth', '', InputOption::VALUE_REQUIRED, 'Depth to parse.', 10),
-            new InputOption('kind', '', InputOption::VALUE_REQUIRED, $kindMsg, $this->parserFactory->getDefaultKind()),
-        ])
+                new CodeArgument('code', CodeArgument::REQUIRED, 'PHP code to parse.'),
+                new InputOption('depth', '', InputOption::VALUE_REQUIRED, 'Depth to parse.', 10),
+            ])
             ->setDescription('Parse PHP code and show the abstract syntax tree.')
             ->setHelp(
                 <<<'HELP'
@@ -119,56 +106,36 @@ HELP
     /**
      * {@inheritdoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $code = $input->getArgument('code');
-        if (\strpos($code, '<?') === false) {
+        $depth = $input->getOption('depth');
+
+        if (!\preg_match('/^\s*<\\?/', $code)) {
             $code = '<?php '.$code;
         }
 
-        $parserKind = $input->getOption('kind');
-        $depth = $input->getOption('depth');
-        $nodes = $this->parse($this->getParser($parserKind), $code);
-        $output->page($this->presenter->present($nodes, $depth));
+        try {
+            $nodes = $this->parser->parse($code);
+        } catch (\PhpParser\Error $e) {
+            if ($this->parseErrorIsEOF($e)) {
+                $nodes = $this->parser->parse($code.';');
+            } else {
+                throw $e;
+            }
+        }
+
+        $this->shellOutput($output)->page($this->presenter->present($nodes, $depth));
 
         $this->context->setReturnValue($nodes);
 
         return 0;
     }
 
-    /**
-     * Lex and parse a string of code into statements.
-     *
-     * @param Parser $parser
-     * @param string $code
-     *
-     * @return array Statements
-     */
-    private function parse(Parser $parser, string $code): array
+    private function parseErrorIsEOF(\PhpParser\Error $e): bool
     {
-        try {
-            return $parser->parse($code);
-        } catch (\PhpParser\Error $e) {
-            if (\strpos($e->getMessage(), 'unexpected EOF') === false) {
-                throw $e;
-            }
+        $msg = $e->getRawMessage();
 
-            // If we got an unexpected EOF, let's try it again with a semicolon.
-            return $parser->parse($code.';');
-        }
-    }
-
-    /**
-     * Get (or create) the Parser instance.
-     *
-     * @param string|null $kind One of Psy\ParserFactory constants (only for PHP parser 2.0 and above)
-     */
-    private function getParser(string $kind = null): Parser
-    {
-        if (!\array_key_exists($kind, $this->parsers)) {
-            $this->parsers[$kind] = $this->parserFactory->createParser($kind);
-        }
-
-        return $this->parsers[$kind];
+        return ($msg === 'Unexpected token EOF') || (\strpos($msg, 'Syntax error, unexpected EOF') !== false);
     }
 }

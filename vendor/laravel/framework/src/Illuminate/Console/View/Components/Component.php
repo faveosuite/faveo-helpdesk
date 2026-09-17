@@ -6,6 +6,7 @@ use Illuminate\Console\OutputStyle;
 use Illuminate\Console\QuestionHelper;
 use ReflectionClass;
 use Symfony\Component\Console\Helper\SymfonyQuestionHelper;
+
 use function Termwind\render;
 use function Termwind\renderUsing;
 
@@ -29,7 +30,6 @@ abstract class Component
      * Creates a new component instance.
      *
      * @param  \Illuminate\Console\OutputStyle  $output
-     * @return void
      */
     public function __construct($output)
     {
@@ -56,7 +56,7 @@ abstract class Component
      *
      * @param  string  $view
      * @param  array  $data
-     * @return void
+     * @return string
      */
     protected function compile($view, $data)
     {
@@ -103,11 +103,9 @@ abstract class Component
      */
     protected function usingQuestionHelper($callable)
     {
-        $property = with(new ReflectionClass(OutputStyle::class))
+        $property = (new ReflectionClass(OutputStyle::class))
             ->getParentClass()
             ->getProperty('questionHelper');
-
-        $property->setAccessible(true);
 
         $currentHelper = $property->isInitialized($this->output)
             ? $property->getValue($this->output)

@@ -24,25 +24,25 @@
     {{ $show_number }}
     </span>
 </h4>
-<h4 id="loading-screen" class="login-box-msg" style="display:none">
+<h4 id="loading-screen" class="login-box-msg d-none">
 
 <center>Wait we are sending a new OTP code to your number.<br/><img src="{{asset('lb-faveo/media/images/gifloader.gif')}}"></center>
 </h4>
 
-<div id="success" style="display:none" class="alert alert-success alert-dismissable">
-    <i class="fa  fa-check-circle"> </i>
+<div id="success" style="display:none" class="alert alert-success alert-dismissible">
+    <i class="fa-solid fa-circle-check"> </i>
     <span id = "success_message"></span>
 </div>
-<div id="ere_msg" style="display:none" class="alert alert-danger alert-dismissable">
-    <i class="fa fa-ban"> </i> <b> {!! Lang::get('lang.alert') !!}! </b>
+<div id="ere_msg" style="display:none" class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"> </i> <b> {!! Lang::get('lang.alert') !!}! </b>
     <span id = "error_message"></span>
 </div>
 
 <!-- failure message -->
 @if(Session::has('errors'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fa fa-ban"> </i> <b> {!! Lang::get('lang.alert') !!}! </b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"> </i> <b> {!! Lang::get('lang.alert') !!}! </b>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     @if(Session::has('error'))    
     <li>{!! Session::get('error') !!}</li>
     @else
@@ -52,28 +52,28 @@
 @endif
 <!-- failure message -->
 @if(Session::has('fails'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fa fa-ban"> </i> <b> {!! Lang::get('lang.alert') !!}! </b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"> </i> <b> {!! Lang::get('lang.alert') !!}! </b>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     <li>{!! Session::get('fails') !!}</li>
 </div>
 @endif
 
 <!-- form open -->
-{!!  Form::open(['route'=> 'otp-verification', 'method'=>'post']) !!}
+{!! html()->form('POST', route('otp-verification'))->open() !!}
 <!-- Email -->
-<div class="form-group has-feedback {{ $errors->has('email') ? 'has-error' : '' }}">
-    {!! Form::hidden('email',null,['placeholder'=> Lang::get("lang.email") ,'class' => 'form-control']) !!}
+<div class="mb-3 has-feedback {{ $errors->has('email') ? 'has-error' : '' }}">
+    {!! html()->hidden('email', null)->placeholder(Lang::get("lang.email"))->class('form-control') !!}
     <!-- {!! $errors->first('email', '<spam class="help-block">:message</spam>') !!} -->
 </div>
 
 <!-- Password -->
-<div class="form-group has-feedback {{ $errors->has('password') ? 'has-error' : '' }}">
-    {!! Form::hidden('password',['placeholder'=>Lang::get("lang.password"),'class' => 'form-control']) !!}
+<div class="mb-3 has-feedback {{ $errors->has('password') ? 'has-error' : '' }}">
+    {!! html()->hidden('password', ['placeholder'=>Lang::get("lang.password"),'class' => 'form-control']) !!}
     <!-- {!! $errors->first('password', '<spam class="help-block">:message</spam>') !!} -->
 </div>
-<div class="form-group has-feedback {{ $errors->has('otp') ? 'has-error' : '' }}">
-    {!! Form::input('text','otp',null,['placeholder'=> Lang::get("lang.enter-otp") ,'class' => 'form-control' , 'required' => true, 'pattern' => "[0-9]{6}", "title" => Lang::get('lang.otp-input-title')]) !!}
+<div class="mb-3 {{ $errors->has('otp') ? 'has-error' : '' }}">
+    {!! html()->text('otp', null)->placeholder(Lang::get("lang.enter-otp"))->class('form-control')->required()->attributes(['pattern' => "[0-9]{6}", 'title' => Lang::get('lang.otp-input-title')]) !!}
     <!-- {!! $errors->first('email', '<spam class="help-block">:message</spam>') !!} -->
 </div>
 @if (Session::has('referer'))
@@ -82,12 +82,12 @@
     <input type='hidden' name="referer" value="form">
 @endif
 <div class="row">
-    <div class="col-xs-8">
+    <div class="col-8">
         {!! Lang::get('lang.did-not-recive-code') !!}<br/>
         <a id="resend" onclick="resendOTP();" href="#" title="{!!Lang::get('lang.resend-otp-title') !!}">{!! Lang::get("lang.resend_otp") !!}</a><br>
     </div><!-- /.col -->
-    <div class="col-xs-4">
-        <button type="submit" class="btn btn-primary btn-block btn-flat">{!! Lang::get("lang.verify") !!}</button>
+    <div class="col-4">
+        <button type="submit" class="btn btn-primary w-100">{!! Lang::get("lang.verify") !!}</button>
     </div><!-- /.col -->
 </div>
 </form>
@@ -118,7 +118,7 @@ input[type=number]::-webkit-outer-spin-button {
                 $('#success').css('display', 'none');
                 $('#ere_msg').css('display','none');
                 $('#otp-screen').css('display','none');
-                $(".close").trigger("click");
+                $(".btn-close").trigger("click");
                 $('#loading-screen').css('display','block');
             },
             success: function(response) {
