@@ -143,22 +143,22 @@ try {
 
         <span id="wait"></span>
 
-        {!! Form::open( ['id'=>'form','method' => 'POST'] )!!}
+        {!! html()->form('POST', url()->current())->attributes(['id' => 'form'])->open() !!}
         {{-- <input type="hidden" name="_token" value="{{ csrf_token() }}"> --}}
         <!-- <b>default</b><br> -->
-        <input type="hidden" name="default" value="{!! $default !!}"/>
+        <input type="hidden" name="default" value="{{ $default }}"/>
         <!-- <b>Host</b><br> -->
-        <input type="hidden"  name="host" value="{!! $host !!}"/>
+        <input type="hidden"  name="host" value="{{ $host }}"/>
         <!-- <b>Database Name</b><br> -->
-        <input type="hidden" name="databasename" value="{!! $databasename !!}"/>
+        <input type="hidden" name="databasename" value="{{ $databasename }}"/>
         <!-- <b>User Name</b><br> -->
-        <input type="hidden" name="username" value="{!! $username !!}"/>
+        <input type="hidden" name="username" value="{{ $username }}"/>
         <!-- <b>User Password</b><br> -->
-        <input type="hidden" name="password" value="{!! $password !!}"/>
+        <input type="hidden" name="password" value="{{ $password }}"/>
         <!-- <b>Port</b><br> -->
-        <input type="hidden" name="port" value="{!! $port !!}"/>
+        <input type="hidden" name="port" value="{{ $port }}"/>
         <!-- Dummy data installation -->
-        <input type="hidden" name="dummy_install" value="{!! $dummy_install !!}"/>
+        <input type="hidden" name="dummy_install" value="{{ $dummy_install }}"/>
 
         <input type="submit" style="display:none;">
 
@@ -211,8 +211,8 @@ try {
                     callApi(api);
                 },
                 error: function(response){
-                    var data=response.responseJSON.result;
-                    $('#wait').append('<ul><li style="color:red">'+data.error+'</li></ul>');
+                    var errorMsg = (response.responseJSON && response.responseJSON.result) ? response.responseJSON.result.error : 'An unexpected server error occurred. Please check server logs.';
+                    $('#wait').append('<ul><li style="color:red">'+errorMsg+'</li></ul>');
                     $('#loader').hide();
                     $('#next').find('#submitme').hide();
                     $('#retry').append('<input type="button" id="submitm" class="button-primary button button-large button-next" value="Retry" onclick="reload()">');
@@ -247,8 +247,8 @@ try {
                 },
                 error: function(response){
                     console.log(response);
-                    var data=response.responseJSON.result;
-                    $('#seco').append('<p style="color:red">'+data.error+'</p>');
+                    var errorMsg = (response.responseJSON && response.responseJSON.result) ? response.responseJSON.result.error : 'An unexpected server error occurred. Please check server logs.';
+                    $('#wait ul').append('<li style="color:red">'+errorMsg+'</li>');
                     $('#loader').hide();
                     $('#next').find('#submitme').hide();
                     $('#retry').append('<input type="button" id="submitm" class="button-primary button button-large button-next" value="Retry" onclick="reload()">');
@@ -258,7 +258,7 @@ try {
         function reload(){
             $('#retry').find('#submitm').remove();
             $('#loader').show();
-            $('#wait').find('ol').remove();
+            $('#wait').find('ul').remove();
             $.ajax({
                 type: "GET",
                 url: "{!! url('create/env') !!}",
@@ -280,8 +280,8 @@ try {
                     callApi(api);
                 },
                 error: function(response){
-                    var data=response.responseJSON.result;
-                    $('#wait').append('<ul><li style="color:red">'+data.error+'</li></ul>');
+                    var errorMsg = (response.responseJSON && response.responseJSON.result) ? response.responseJSON.result.error : 'An unexpected server error occurred. Please check server logs.';
+                    $('#wait').append('<ul><li style="color:red">'+errorMsg+'</li></ul>');
                     $('#loader').hide();
                     $('#next').find('#submitme').hide();
                     $('#retry').append('<input type="button" id="submitm" class="button-primary button button-large button-next" value="Retry" onclick="reload()">');

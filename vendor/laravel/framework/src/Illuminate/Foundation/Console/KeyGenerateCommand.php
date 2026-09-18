@@ -22,17 +22,6 @@ class KeyGenerateCommand extends Command
                     {--force : Force the operation to run when in production}';
 
     /**
-     * The name of the console command.
-     *
-     * This name is used to identify the command during lazy loading.
-     *
-     * @var string|null
-     *
-     * @deprecated
-     */
-    protected static $defaultName = 'key:generate';
-
-    /**
      * The console command description.
      *
      * @var string
@@ -112,7 +101,11 @@ class KeyGenerateCommand extends Command
         );
 
         if ($replaced === $input || $replaced === null) {
-            $this->error('Unable to set application key. No APP_KEY variable was found in the .env file.');
+            if (isset($_ENV['APP_KEY'])) {
+                $this->components->error('Unable to set application key. APP_KEY is already present in the environment.');
+            } else {
+                $this->components->error('Unable to set application key. No APP_KEY variable was found in the .env file.');
+            }
 
             return false;
         }

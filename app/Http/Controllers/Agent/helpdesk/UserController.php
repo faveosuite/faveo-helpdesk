@@ -32,7 +32,6 @@ use App\Model\helpdesk\Utility\Otp;
 use App\User;
 // classes
 use Auth;
-use Datatables;
 use DateTime;
 use DB;
 use Exception;
@@ -79,21 +78,7 @@ class UserController extends Controller
     public function index()
     {
         try {
-            /* get all values in Sys_user */
-
-            $table = \Datatable::table()
-            ->addColumn(
-                Lang::get('lang.name'),
-                Lang::get('lang.email'),
-                Lang::get('lang.phone'),
-                Lang::get('lang.status'),
-                Lang::get('lang.last_login'),
-                Lang::get('lang.role'),
-                Lang::get('lang.action')
-            )  // these are the column headings to be shown
-                ->noScript();
-
-            return view('themes.default1.agent.helpdesk.user.index', compact('table'));
+            return view('themes.default1.agent.helpdesk.user.index');
         } catch (Exception $e) {
             return redirect()->back()->with('fails', $e->getMessage());
         }
@@ -385,9 +370,19 @@ class UserController extends Controller
      */
     public function randomPostPassword($id, ChangepasswordRequest $request)
     {
+        $authUser = \Auth::user();
+        $targetUser = User::whereId($id)->first();
+        if (!$targetUser) {
+            return redirect('user')->with('fails', Lang::get('lang.user_not_found'));
+        }
+        // Only admins can change any user's password; agents can only change regular users' passwords
+        if ($authUser->role !== 'admin' && in_array($targetUser->role, ['admin', 'agent'])) {
+            return redirect('user')->with('fails', Lang::get('lang.you_are_not_authorized'));
+        }
+
         try {
             $changepassword = $request->change_password;
-            $user = User::whereId($id)->first();
+            $user = $targetUser;
             $password = $request->change_password;
             $user->password = Hash::make($password);
             $user->save();
@@ -411,6 +406,10 @@ class UserController extends Controller
      */
     public function changeRoleAdmin($id, Request $request)
     {
+        if (\Auth::user()->role !== 'admin') {
+            return redirect('user')->with('fails', Lang::get('lang.you_are_not_authorized'));
+        }
+
         try {
             $user = User::whereId($id)->first();
             $user->role = 'admin';

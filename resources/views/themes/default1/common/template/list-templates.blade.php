@@ -22,17 +22,17 @@ class="nav-link active"
 
 @section('content')
  @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <i class="fas fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+    <i class="fa-solid fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('success')}}
 </div>
 @endif
 @if(Session::has('failed'))
-<div class="alert alert-danger alert-dismissable">
-    <i class="fas fa-ban"></i>
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
     <b>{!! Lang::get('lang.alert') !!}!</b>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     <p>{{Session::get('failed')}}</p>                
 </div>
 @endif
@@ -57,7 +57,9 @@ class="nav-link active"
                     <td>{!! $type->name !!}</td>
                     <td>{!! $template->name !!}</td>
                     <td>
-                        {!! link_to_route('templates.edit', Lang::get('lang.edit_templates'),[$template->id],['class'=>'btn btn-success btn-sm']) !!}
+                        <a href="{{ route('templates.edit', [$template->id]) }}" class="btn btn-success btn-sm">
+                            {{ Lang::get('lang.edit_templates') }}
+                        </a>
                     </td>
                 </tr>
                 @endforeach

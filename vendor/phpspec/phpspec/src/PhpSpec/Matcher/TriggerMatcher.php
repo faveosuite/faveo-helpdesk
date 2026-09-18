@@ -21,31 +21,22 @@ use PhpSpec\Exception\Fracture\MethodNotFoundException;
 
 final class TriggerMatcher implements Matcher
 {
-    /**
-     * @var Unwrapper
-     */
-    private $unwrapper;
-
-    
-    public function __construct(Unwrapper $unwrapper)
+    public function __construct(
+        private Unwrapper $unwrapper
+    )
     {
-        $this->unwrapper = $unwrapper;
     }
 
-    
-    public function supports(string $name, $subject, array $arguments): bool
+    public function supports(string $name, mixed $subject, array $arguments): bool
     {
         return 'trigger' === $name;
     }
-
-    
-    public function positiveMatch(string $name, $subject, array $arguments): DelayedCall
+    public function positiveMatch(string $name, mixed $subject, array $arguments): DelayedCall
     {
         return $this->getDelayedCall(array($this, 'verifyPositive'), $subject, $arguments);
     }
 
-    
-    public function negativeMatch(string $name, $subject, array $arguments): DelayedCall
+    public function negativeMatch(string $name, mixed $subject, array $arguments): DelayedCall
     {
         return $this->getDelayedCall(array($this, 'verifyNegative'), $subject, $arguments);
     }
@@ -53,9 +44,10 @@ final class TriggerMatcher implements Matcher
     /**
      * @throws \PhpSpec\Exception\Example\FailureException
      */
-    public function verifyPositive(callable $callable, array $arguments, int $level = null, string $message = null)
+    public function verifyPositive(callable $callable, array $arguments, ?int $level = null, ?string $message = null) : void
     {
         $triggered = 0;
+        $prevHandler = function($type, $str, $file, $line, $context=[]){};
 
         $prevHandler = set_error_handler(function ($type, $str, $file, $line, $context=[]) use (&$prevHandler, $level, $message, &$triggered) {
             if (null !== $level && $level !== $type) {
@@ -81,9 +73,10 @@ final class TriggerMatcher implements Matcher
     /**
      * @throws \PhpSpec\Exception\Example\FailureException
      */
-    public function verifyNegative(callable $callable, array $arguments, int $level = null, string $message = null)
+    public function verifyNegative(callable $callable, array $arguments, ?int $level = null, ?string $message = null) : void
     {
         $triggered = 0;
+        $prevHandler = function($type, $str, $file, $line, $context=[]){};
 
         $prevHandler = set_error_handler(function ($type, $str, $file, $line, $context) use (&$prevHandler, $level, $message, &$triggered) {
             if (null !== $level && $level !== $type) {
@@ -102,6 +95,7 @@ final class TriggerMatcher implements Matcher
         restore_error_handler();
 
         if ($triggered > 0) {
+            /** @psalm-suppress NoValue */
             throw new FailureException(
                 sprintf(
                     'Expected to not trigger errors, but got %d.',
@@ -111,20 +105,19 @@ final class TriggerMatcher implements Matcher
         }
     }
 
-    
+
     public function getPriority(): int
     {
         return 1;
     }
 
-    
-    private function getDelayedCall(callable $check, $subject, array $arguments): DelayedCall
+    private function getDelayedCall(callable $check, mixed $subject, array $arguments): DelayedCall
     {
         $unwrapper = $this->unwrapper;
         list($level, $message) = $this->unpackArguments($arguments);
 
         return new DelayedCall(
-            function ($method, $arguments) use ($check, $subject, $level, $message, $unwrapper) {
+            function (mixed $method, mixed $arguments) use ($check, $subject, $level, $message, $unwrapper) : mixed {
                 $arguments = $unwrapper->unwrapAll($arguments);
 
                 $methodName = $arguments[0];
@@ -146,7 +139,6 @@ final class TriggerMatcher implements Matcher
         );
     }
 
-    
     private function unpackArguments(array $arguments): array
     {
         $count = \count($arguments);

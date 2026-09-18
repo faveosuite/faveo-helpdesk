@@ -40,7 +40,7 @@ class DropTables extends Command
     {
         $colname = 'Tables_in_'.env('DB_DATABASE');
 
-        $droplist = \Schema::getConnection()->getDoctrineSchemaManager()->listTableNames();
+        $droplist = \Schema::getTableListing(\DB::connection()->getDatabaseName(), false);
         $droplist = implode(',', $droplist);
 
         DB::beginTransaction();

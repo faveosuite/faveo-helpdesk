@@ -20,7 +20,7 @@ class="nav-link active"
 @stop
 <!-- header -->
 @section('PageHeader')
-<h1>{!! Lang::get('lang.forms') !!}</h1>
+<h3>{!! Lang::get('lang.forms') !!}</h3>
 @stop
 <!-- /header -->
 <!-- breadcrumbs -->
@@ -42,21 +42,21 @@ class="nav-link active"
 </div>
 @endif
 @if(Session::has('success'))
-<div class="alert alert-success alert-dismissable">
-    <i class="fa fa-check-circle"></i>
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-success alert-dismissible">
+    <i class="fa-solid fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('success')}}
 </div>
 @endif
 @if(Session::has('fails'))
-<div class="alert alert-danger alert-dismissable">
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-danger alert-dismissible">
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('fails')}}
 </div>
 @endif
 @if(Session::has('warn'))
-<div class="alert alert-warning alert-dismissable">
-    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+<div class="alert alert-warning alert-dismissible">
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('warn')}}
 </div>
 @endif
@@ -66,16 +66,16 @@ class="nav-link active"
     </div>
     <div class="card-body">
 
-        {!! Form::open(['route'=>'forms.store']) !!}
+        {!! html()->form('POST', route('forms.store'))->open() !!}
 
         <div class="row">
-            <div class="form-group col-sm-6">
+            <div class="mb-3 col-sm-6">
                 <label>{!! Lang::get('lang.form_name') !!}: <span class="text-red"> *</span></label>
                 <input type="text" name="formname" class="form-control">
             </div>
         </div>
         
-        <div class="callout callout-default" style="font-style: oblique;">{!! Lang::get('lang.instructions_on_creating_form') !!}.</div>
+        <div class="callout callout-default font-oblique">{!! Lang::get('lang.instructions_on_creating_form') !!}.</div>
 
         <div class="callout callout-default"> {!! Lang::get('lang.click_add_fields_button_to_add_fields') !!} </div>
 
@@ -83,9 +83,9 @@ class="nav-link active"
             
             <div class="card-header">
                 <h3 class="card-title">{!! Lang::get('lang.adding_fields') !!}</h3>
-                <div class="card-tools"> 
-                    <button type="button" class="btn btn-default btn-tool addField" value="Show Div" onclick="showDiv()" >
-                        <i class="fas fa-plus"></i>&nbsp; {!! Lang::get('lang.add_fields') !!}
+                <div class="card-tools d-flex"> 
+                    <button type="button" class="btn btn-secondary btn-tool addField" value="Show Div" onclick="showDiv()" >
+                        <i class="fa-solid fa-plus"></i>&nbsp; {!! Lang::get('lang.add_fields') !!}
                     </button>
                 </div>
             </div>
@@ -119,7 +119,7 @@ class="nav-link active"
                             </td>
                             <td><input type="text" name="value[]" class="form-control"></td>
                             <td><input type=radio name="required[0]" value=1 checked>&nbsp;&nbsp;{!! Lang::get("lang.yes") !!}&nbsp;&nbsp;<input type=radio name="required[0]" value=0>&nbsp;&nbsp;{!! Lang::get("lang.no") !!}</td>
-                            <td><button type="button" class="remove_field btn btn-danger"><i class="fas fa-trash"></i></button></td>
+                            <td><button type="button" class="remove_field btn btn-danger"><i class="fa-solid fa-trash"></i></button></td>
                         </tr>
                         
                     </tbody>
@@ -131,7 +131,7 @@ class="nav-link active"
         <input type="submit" class="btn btn-primary" value="{!! Lang::get('lang.save_form') !!}">
     </div>
 </div>
-{!! Form::close() !!}
+{!! html()->closeModelForm() !!}
 <script>
     function showDiv() {
         document.getElementById('welcomeDiv').style.display = "block";
@@ -146,7 +146,7 @@ class="nav-link active"
             e.preventDefault();
             if (x < max_fields) {
                 x++;
-                $(wrapper).append('<tr><td><input type="text" class="form-control" name="label[]"></td><td><input type="text" class="form-control" name="name[]"></td><td><select name="type[]" class="form-control"><option>text</option><option>email</option><option>password</option><option>textarea</option><option>select</option><option>radio</option><option>checkbox</option><option>hidden</option></select></td><td><input type="text" name="value[]" class="form-control"></td><td><input type=radio name="required['+x+']" value=1 checked>&nbsp;&nbsp;{!! Lang::get("lang.yes") !!}&nbsp;&nbsp;<input type=radio name="required['+x+']" value=0>&nbsp;&nbsp;{!! Lang::get("lang.no") !!}</td><td><button type="button" class="remove_field btn btn-danger"><i class="fas fa-trash"></i></button></td></tr>');
+                $(wrapper).append('<tr><td><input type="text" class="form-control" name="label[]"></td><td><input type="text" class="form-control" name="name[]"></td><td><select name="type[]" class="form-control"><option>text</option><option>email</option><option>password</option><option>textarea</option><option>select</option><option>radio</option><option>checkbox</option><option>hidden</option></select></td><td><input type="text" name="value[]" class="form-control"></td><td><input type=radio name="required['+x+']" value=1 checked>&nbsp;&nbsp;{!! Lang::get("lang.yes") !!}&nbsp;&nbsp;<input type=radio name="required['+x+']" value=0>&nbsp;&nbsp;{!! Lang::get("lang.no") !!}</td><td><button type="button" class="remove_field btn btn-danger"><i class="fa-solid fa-trash"></i></button></td></tr>');
             }
         });
         $(wrapper).on("click", ".remove_field", function(e)

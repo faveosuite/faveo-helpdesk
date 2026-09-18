@@ -28,7 +28,7 @@ class Person extends \Faker\Provider\Person
     protected static $firstNameMale = [
         'Adam', 'Aleš', 'Alois', 'Antonín', 'Bohumil', 'Bohuslav', 'Dagmar',
         'Dalibor', 'Daniel', 'David', 'Dominik', 'Dušan', 'Eduard', 'Emil',
-        'Filip', 'František', 'Ilona', 'Ivan', 'Ivo', 'Jakub', 'Jan', 'Ján',
+        'Filip', 'František', 'Igor', 'Ivan', 'Ivo', 'Jakub', 'Jan', 'Ján',
         'Jaromír', 'Jaroslav', 'Jindřich', 'Jiří', 'Josef', 'Jozef', 'Kamil',
         'Karel', 'Kryštof', 'Ladislav', 'Libor', 'Lubomír', 'Luboš', 'Luděk',
         'Ludvík', 'Lukáš', 'Marcel', 'Marek', 'Martin', 'Matěj', 'Matyáš',
@@ -438,8 +438,8 @@ class Person extends \Faker\Provider\Person
             $gender = $this->generator->boolean() ? static::GENDER_MALE : static::GENDER_FEMALE;
         }
 
-        $startTimestamp = strtotime("-${maxAge} year");
-        $endTimestamp = strtotime("-${minAge} year");
+        $startTimestamp = strtotime(sprintf('-%d year', $maxAge));
+        $endTimestamp = strtotime(sprintf('-%d year', $minAge));
         $randTimestamp = self::numberBetween($startTimestamp, $endTimestamp);
 
         $year = (int) (date('Y', $randTimestamp));
@@ -451,6 +451,7 @@ class Person extends \Faker\Provider\Person
         if ($gender == static::GENDER_FEMALE) {
             $month += 50;
         }
+
         // from year 2004 everyone has +20 to month when birth numbers in one day are exhausted
         if ($year >= 2004 && $this->generator->boolean(10)) {
             $month += 20;

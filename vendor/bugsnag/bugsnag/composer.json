@@ -16,7 +16,7 @@
         "guzzlehttp/guzzle": "^5.0|^6.0|^7.0"
     },
     "require-dev": {
-        "guzzlehttp/psr7": "^1.3",
+        "guzzlehttp/psr7": "^1.3|^2.0",
         "mtdowling/burgomaster": "dev-master#72151eddf5f0cf101502b94bf5031f9c53501a04",
         "phpunit/phpunit": "^4.8.36|^7.5.15|^9.3.10",
         "php-mock/php-mock-phpunit": "^1.1|^2.1",

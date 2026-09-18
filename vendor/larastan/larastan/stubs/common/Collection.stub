@@ -1,0 +1,108 @@
+<?php
+
+namespace Illuminate\Support;
+
+use ArrayAccess;
+use Illuminate\Contracts\Support\CanBeEscapedWhenCastToString;
+use Illuminate\Support\Traits\EnumeratesValues;
+
+/**
+ * @template TKey of array-key
+ * @template TValue
+ *
+ * @implements \ArrayAccess<TKey, TValue>
+ * @implements \Illuminate\Support\Enumerable<TKey, TValue>
+ */
+class Collection implements ArrayAccess, CanBeEscapedWhenCastToString, Enumerable
+{
+    /**
+     * @use \Illuminate\Support\Traits\EnumeratesValues<TKey, TValue>
+     */
+    use EnumeratesValues;
+
+   /**
+    * Get one or a specified number of items randomly from the collection.
+    *
+    * @param  (callable(TValue): int)|int|null  $number
+    * @return ($number is null ? TValue : static<int, TValue>)
+    *
+    * @throws \InvalidArgumentException
+    */
+    public function random($number = null);
+
+    /**
+     * Create a collection by using this collection for keys and another for its values.
+     *
+     * @template TCombineValue
+     *
+     * @param  \Illuminate\Contracts\Support\Arrayable<array-key, TCombineValue>|iterable<array-key, TCombineValue>  $values
+     * @return static<array-key, TCombineValue>
+     */
+    public function combine($values);
+
+    /**
+     * Get and remove the last N items from the collection.
+     *
+     * @param  int  $count
+     * @return ($count is 1 ? TValue|null : static<int, TValue>)
+     */
+    public function pop($count = 1);
+
+    /**
+     * Get and remove the first N items from the collection.
+     *
+     * @param  int  $count
+     * @return ($count is 1 ? TValue|null : static<int, TValue>)
+     */
+    public function shift($count = 1);
+
+    /**
+     * Group an associative array by a field or using a callback.
+     *
+     * @template TGroupKey of array-key|\UnitEnum|\Stringable
+     *
+     * @param  (callable(TValue, TKey): TGroupKey)|list<string|\Closure>|string  $groupBy
+     * @param  bool  $preserveKeys
+     * @return static<
+     *  ($groupBy is (array|string)
+     *      ? array-key
+     *      : (TGroupKey is \UnitEnum ? array-key : (TGroupKey is \Stringable ? string : array-key))),
+     *  static<($preserveKeys is true ? TKey : int), ($groupBy is array ? mixed : TValue)>
+     * >
+     */
+    public function groupBy($groupBy, $preserveKeys = false);
+
+    /**
+     * Key an associative array by a field or using a callback.
+     *
+     * @template TNewKey of array-key
+     *
+     * @param  (callable(TValue, TKey): TNewKey)|list<string|\Closure>|string  $keyBy
+     * @return static<($keyBy is string ? array-key : ($keyBy is array ? array-key : TNewKey)), TValue>
+     */
+    public function keyBy($keyBy);
+}
+
+/**
+ * @template TKey of array-key
+ * @template TValue
+ *
+ * @implements \Illuminate\Support\Enumerable<TKey, TValue>
+ */
+class LazyCollection implements CanBeEscapedWhenCastToString, Enumerable
+{
+    /**
+     * @use \Illuminate\Support\Traits\EnumeratesValues<TKey, TValue>
+     */
+    use EnumeratesValues;
+
+    /**
+     * Create a collection by using this collection for keys and another for its values.
+     *
+     * @template TCombineValue
+     *
+     * @param  \Illuminate\Contracts\Support\Arrayable<array-key, TCombineValue>|iterable<array-key, TCombineValue>  $values
+     * @return static<array-key, TCombineValue>
+     */
+    public function combine($values);
+}

@@ -4,18 +4,23 @@ namespace Illuminate\View;
 
 use ArrayAccess;
 use ArrayIterator;
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Conditionable;
+use Illuminate\Support\Traits\InteractsWithData;
 use Illuminate\Support\Traits\Macroable;
 use IteratorAggregate;
+use JsonSerializable;
+use Stringable;
 use Traversable;
 
-class ComponentAttributeBag implements ArrayAccess, Htmlable, IteratorAggregate
+class ComponentAttributeBag implements Arrayable, ArrayAccess, IteratorAggregate, JsonSerializable, Htmlable, Stringable
 {
-    use Conditionable, Macroable;
+    use Conditionable, InteractsWithData, Macroable;
 
     /**
      * The raw array of attributes.
@@ -28,11 +33,25 @@ class ComponentAttributeBag implements ArrayAccess, Htmlable, IteratorAggregate
      * Create a new component attribute bag instance.
      *
      * @param  array  $attributes
-     * @return void
      */
     public function __construct(array $attributes = [])
     {
-        $this->attributes = $attributes;
+        $this->setAttributes($attributes);
+    }
+
+    /**
+     * Get all the attribute values.
+     *
+     * @param  mixed  $keys
+     * @return array
+     */
+    public function all($keys = null)
+    {
+        if (is_null($keys)) {
+            return $this->attributes;
+        }
+
+        return $this->only($keys)->toArray();
     }
 
     /**
@@ -59,25 +78,19 @@ class ComponentAttributeBag implements ArrayAccess, Htmlable, IteratorAggregate
     }
 
     /**
-     * Determine if a given attribute exists in the attribute array.
+     * Retrieve data from the instance.
      *
-     * @param  string  $key
-     * @return bool
+     * @param  string|null  $key
+     * @param  mixed  $default
+     * @return mixed
      */
-    public function has($key)
+    protected function data($key = null, $default = null)
     {
-        return array_key_exists($key, $this->attributes);
-    }
+        if (is_null($key)) {
+            return $this->attributes;
+        }
 
-    /**
-     * Determine if a given attribute is missing from the attribute array.
-     *
-     * @param  string  $key
-     * @return bool
-     */
-    public function missing($key)
-    {
-        return ! $this->has($key, $this->attributes);
+        return $this->get($key, $default);
     }
 
     /**
@@ -102,7 +115,7 @@ class ComponentAttributeBag implements ArrayAccess, Htmlable, IteratorAggregate
     /**
      * Exclude the given attribute from the attribute array.
      *
-     * @param  mixed|array  $keys
+     * @param  mixed  $keys
      * @return static
      */
     public function except($keys)
@@ -126,7 +139,7 @@ class ComponentAttributeBag implements ArrayAccess, Htmlable, IteratorAggregate
      */
     public function filter($callback)
     {
-        return new static(collect($this->attributes)->filter($callback)->all());
+        return new static((new Collection($this->attributes))->filter($callback)->all());
     }
 
     /**
@@ -169,49 +182,29 @@ class ComponentAttributeBag implements ArrayAccess, Htmlable, IteratorAggregate
     /**
      * Only include the given attribute from the attribute array.
      *
-     * @param  mixed|array  $keys
+     * @param  mixed  $keys
      * @return static
      */
     public function onlyProps($keys)
     {
-        return $this->only($this->extractPropNames($keys));
+        return $this->only(static::extractPropNames($keys));
     }
 
     /**
      * Exclude the given attribute from the attribute array.
      *
-     * @param  mixed|array  $keys
+     * @param  mixed  $keys
      * @return static
      */
     public function exceptProps($keys)
     {
-        return $this->except($this->extractPropNames($keys));
-    }
-
-    /**
-     * Extract prop names from given keys.
-     *
-     * @param  mixed|array  $keys
-     * @return array
-     */
-    protected function extractPropNames($keys)
-    {
-        $props = [];
-
-        foreach ($keys as $key => $defaultValue) {
-            $key = is_numeric($key) ? $defaultValue : $key;
-
-            $props[] = $key;
-            $props[] = Str::kebab($key);
-        }
-
-        return $props;
+        return $this->except(static::extractPropNames($keys));
     }
 
     /**
      * Conditionally merge classes into the attribute bag.
      *
-     * @param  mixed|array  $classList
+     * @param  mixed  $classList
      * @return static
      */
     public function class($classList)
@@ -224,7 +217,7 @@ class ComponentAttributeBag implements ArrayAccess, Htmlable, IteratorAggregate
     /**
      * Conditionally merge styles into the attribute bag.
      *
-     * @param  mixed|array  $styleList
+     * @param  mixed  $styleList
      * @return static
      */
     public function style($styleList)
@@ -245,22 +238,22 @@ class ComponentAttributeBag implements ArrayAccess, Htmlable, IteratorAggregate
     {
         $attributeDefaults = array_map(function ($value) use ($escape) {
             return $this->shouldEscapeAttributeValue($escape, $value)
-                        ? e($value)
-                        : $value;
+                ? e($value)
+                : $value;
         }, $attributeDefaults);
 
-        [$appendableAttributes, $nonAppendableAttributes] = collect($this->attributes)
-                    ->partition(function ($value, $key) use ($attributeDefaults) {
-                        return $key === 'class' || $key === 'style' || (
-                            isset($attributeDefaults[$key]) &&
-                            $attributeDefaults[$key] instanceof AppendableAttributeValue
-                        );
-                    });
+        [$appendableAttributes, $nonAppendableAttributes] = (new Collection($this->attributes))
+            ->partition(function ($value, $key) use ($attributeDefaults) {
+                return $key === 'class' || $key === 'style' || (
+                    isset($attributeDefaults[$key]) &&
+                    $attributeDefaults[$key] instanceof AppendableAttributeValue
+                );
+            });
 
         $attributes = $appendableAttributes->mapWithKeys(function ($value, $key) use ($attributeDefaults, $escape) {
             $defaultsValue = isset($attributeDefaults[$key]) && $attributeDefaults[$key] instanceof AppendableAttributeValue
-                        ? $this->resolveAppendableAttributeDefault($attributeDefaults, $key, $escape)
-                        : ($attributeDefaults[$key] ?? '');
+                ? $this->resolveAppendableAttributeDefault($attributeDefaults, $key, $escape)
+                : ($attributeDefaults[$key] ?? '');
 
             if ($key === 'style') {
                 $value = Str::finish($value, ';');
@@ -319,6 +312,26 @@ class ComponentAttributeBag implements ArrayAccess, Htmlable, IteratorAggregate
     }
 
     /**
+     * Determine if the attribute bag is empty.
+     *
+     * @return bool
+     */
+    public function isEmpty()
+    {
+        return trim((string) $this) === '';
+    }
+
+    /**
+     * Determine if the attribute bag is not empty.
+     *
+     * @return bool
+     */
+    public function isNotEmpty()
+    {
+        return ! $this->isEmpty();
+    }
+
+    /**
      * Get all of the raw attributes.
      *
      * @return array
@@ -346,6 +359,26 @@ class ComponentAttributeBag implements ArrayAccess, Htmlable, IteratorAggregate
         }
 
         $this->attributes = $attributes;
+    }
+
+    /**
+     * Extract "prop" names from given keys.
+     *
+     * @param  array  $keys
+     * @return array
+     */
+    public static function extractPropNames(array $keys)
+    {
+        $props = [];
+
+        foreach ($keys as $key => $default) {
+            $key = is_numeric($key) ? $default : $key;
+
+            $props[] = $key;
+            $props[] = Str::kebab($key);
+        }
+
+        return $props;
     }
 
     /**
@@ -425,6 +458,26 @@ class ComponentAttributeBag implements ArrayAccess, Htmlable, IteratorAggregate
     }
 
     /**
+     * Convert the object into a JSON serializable form.
+     *
+     * @return mixed
+     */
+    public function jsonSerialize(): mixed
+    {
+        return $this->attributes;
+    }
+
+    /**
+     * Get all the attribute values.
+     *
+     * @return array
+     */
+    public function toArray()
+    {
+        return $this->all();
+    }
+
+    /**
      * Implode the attributes into a single HTML ready string.
      *
      * @return string
@@ -439,7 +492,7 @@ class ComponentAttributeBag implements ArrayAccess, Htmlable, IteratorAggregate
             }
 
             if ($value === true) {
-                $value = $key;
+                $value = $key === 'x-data' || str_starts_with($key, 'wire:') ? '' : $key;
             }
 
             $string .= ' '.$key.'="'.str_replace('"', '\\"', trim($value)).'"';

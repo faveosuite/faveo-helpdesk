@@ -134,7 +134,7 @@ class Person extends \Faker\Provider\Person
         'Abdirahim', 'Abdirahman', 'Abdirashid', 'Abdirizak', 'Abdul', 'Abdulahi', 'Abdulkadir', 'Abdullah',
         'Abdullahi', 'Abdulqadir', 'Abdurahman', 'Abed', 'Abel', 'Abid', 'Abraham', 'Absalon', 'Abu', 'Abubakar',
         'Adam', 'Adan', 'Adeel', 'Adelheid', 'Adelsten', 'Adem', 'Aden', 'Adham', 'Adi', 'Adil', 'Adis', 'Adler',
-        'Admir', 'Adnan', 'Adolf', 'Adrian', 'Afanasi', 'Afrim', 'Afshin', 'Agim', 'Agmund', 'Agnar', 'Agvald', 'Ahmad',
+        'Admir', 'Adnan', 'Adrian', 'Afanasi', 'Afrim', 'Afshin', 'Agim', 'Agmund', 'Agnar', 'Agvald', 'Ahmad',
         'Ahmed', 'Aiden', 'Ailo', 'Aimar', 'Aime', 'Ajdin', 'Ajmal', 'Akam', 'Akbar', 'Akram', 'Aksel', 'Alain', 'Alan',
         'Alban', 'Albert', 'Alberto', 'Albin', 'Albrecht', 'Alejandro', 'Aleksander', 'Alen', 'Alessandro', 'Alex',
         'Alexander', 'Alexsander', 'Alf', 'Alfred', 'Algirdas', 'Algot', 'Ali', 'Allan', 'Almar', 'Almas', 'Almaz',
@@ -288,12 +288,11 @@ class Person extends \Faker\Provider\Person
      *
      * @see https://no.wikipedia.org/wiki/Personnummer
      *
-     * @param \DateTime $birthdate
-     * @param string    $gender    Person::GENDER_MALE || Person::GENDER_FEMALE
+     * @param string $gender Person::GENDER_MALE || Person::GENDER_FEMALE
      *
      * @return string on format DDMMYY#####
      */
-    public function personalIdentityNumber(\DateTime $birthdate = null, $gender = null)
+    public function personalIdentityNumber(?\DateTime $birthdate = null, $gender = null)
     {
         if (!$birthdate) {
             $birthdate = \Faker\Provider\DateTime::dateTimeThisCentury();

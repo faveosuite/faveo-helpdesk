@@ -2,6 +2,9 @@
 
 namespace Laravel\Socialite\Two;
 
+use Exception;
+use Firebase\JWT\JWK;
+use Firebase\JWT\JWT;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Arr;
 
@@ -46,6 +49,10 @@ class GoogleProvider extends AbstractProvider implements ProviderInterface
      */
     protected function getUserByToken($token)
     {
+        if ($this->isJwtToken($token)) {
+            return $this->getUserFromJwtToken($token);
+        }
+
         $response = $this->getHttpClient()->get('https://www.googleapis.com/oauth2/v3/userinfo', [
             RequestOptions::QUERY => [
                 'prettyPrint' => 'false',
@@ -56,7 +63,22 @@ class GoogleProvider extends AbstractProvider implements ProviderInterface
             ],
         ]);
 
-        return json_decode($response->getBody(), true);
+        return json_decode((string) $response->getBody(), true);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function refreshToken($refreshToken)
+    {
+        $response = $this->getRefreshTokenResponse($refreshToken);
+
+        return new Token(
+            Arr::get($response, 'access_token'),
+            Arr::get($response, 'refresh_token', $refreshToken),
+            Arr::get($response, 'expires_in'),
+            explode($this->scopeSeparator, Arr::get($response, 'scope', ''))
+        );
     }
 
     /**
@@ -77,5 +99,60 @@ class GoogleProvider extends AbstractProvider implements ProviderInterface
             'avatar' => $avatarUrl = Arr::get($user, 'picture'),
             'avatar_original' => $avatarUrl,
         ]);
+    }
+
+    /**
+     * Determine if the given token is a JWT (ID token).
+     *
+     * @param  string  $token
+     * @return bool
+     */
+    protected function isJwtToken($token)
+    {
+        return substr_count($token, '.') === 2 && strlen($token) > 100;
+    }
+
+    /**
+     * Get user data from Google ID token (JWT).
+     *
+     * @param  string  $idToken
+     * @return array
+     *
+     * @throws \Exception
+     */
+    protected function getUserFromJwtToken($idToken)
+    {
+        try {
+            $user = (array) JWT::decode(
+                $idToken, JWK::parseKeySet($this->getGoogleJwks())
+            );
+
+            if (! isset($user['iss']) ||
+                $user['iss'] !== 'https://accounts.google.com') {
+                throw new Exception('Invalid ID token issuer.');
+            }
+
+            if (! isset($user['aud']) || $user['aud'] !== $this->clientId) {
+                throw new Exception('Invalid ID token audience.');
+            }
+
+            return $user;
+        } catch (Exception $e) {
+            throw new Exception('Failed to verify Google JWT token: '.$e->getMessage());
+        }
+    }
+
+    /**
+     * Get Google's JSON Web Key Set for JWT verification.
+     *
+     * @return array
+     */
+    protected function getGoogleJwks()
+    {
+        $response = $this->getHttpClient()->get(
+            'https://www.googleapis.com/oauth2/v3/certs'
+        );
+
+        return json_decode((string) $response->getBody(), true);
     }
 }

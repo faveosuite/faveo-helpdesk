@@ -1,0 +1,95 @@
+# Provenance of the imported ci/qa scripts
+#
+# These files are a VERBATIM copy from the Faveo Helpdesk Advance repository.
+# They are shared logic — the GitHub client, the QA Touch client, the gate, the
+# marker contract, the probe framework. Do not edit them here.
+#
+# WHY NOT: the advance repo keeps fixing bugs in these (most of their comments
+# exist because something went wrong once). An edit here forks the file, and you
+# then maintain two clients with two different sets of QA Touch workarounds.
+# Community-specific behaviour belongs in NEW files instead — see
+# FREESTYLE-PLAN.md §12, commits 2 and 3.
+#
+# TO RE-SYNC: copy the files listed below from the advance repo again and update
+# the SHA. Diff first; if a file has been edited here, that edit is a bug.
+
+source_repo    faveosuite/faveo-helpdesk-advance
+source_path    ci/qa/
+source_branch  location_add
+source_sha     3cb2dafe9a760b0f8dc53b9677355fc0ad2fbb71
+source_date    2026-08-25T16:22:37+05:30
+imported_on    2026-08-28
+imported_into  faveosuite/faveo-helpdesk (Faveo Helpdesk Community)
+
+# --- imported verbatim, same filename -------------------------------------
+gh-client.sh                 GitHub API client; tolerant label resolution
+qatouch-client.sh            QA Touch API client, 33 functions
+qatouch-facts.md             measured API behaviour that contradicts the docs
+marker.sh                    the qa-touch-cases marker: read, write, amend
+marker.md                    the marker contract
+label.sh                     add|remove|has, resolved against the repo's real labels
+discover.sh                  find labelled issues and PRs (the sweep)
+stage3-gate.sh               the seven eligibility conditions; 0 go / 3 skip / 4 stop
+stage1-publish.sh            validate authored JSON, create cases, publish on the issue
+fetch-issue.sh               issue JSON to a file, so the agent holds no token
+fetch-attachments.sh         attachments + manifest.json of what could not be opened
+module-list.sh               existing QA Touch module names, one per line
+limit-reset.sh               parse a usage-limit reset instant out of a CLI stream
+phase-summary.sh             per-phase timing table from a marks TSV
+instance-health.sh           0 healthy / 3 unlicensed / 4 unusable
+tls-proxy.php                pure-PHP TLS terminator (AppServiceProvider forces https)
+mcp-ci.json                  Playwright MCP config for the executor's browser
+probes/lib.sh                probe framework: severity vs blocking, JSONL records
+probes/summarize.sh          merge probe JSONL into one verdict + markdown
+probes/known-pre-existing.txt findings that predate the pipeline, demoted to warnings
+
+# --- imported verbatim, RENAMED -------------------------------------------
+# Content is unchanged; only the filename differs. These describe the PAID
+# version's Pipeline setup (Jenkinsfile.qa, project MeLq, licence credentials),
+# none of which applies to Community's Freestyle jobs. Renamed so nobody follows
+# them by mistake. The Community setup is FREESTYLE-PLAN.md.
+README.advance.md            <- ci/qa/README.md           every script and variable
+GETTING-STARTED.advance.md   <- ci/qa/GETTING-STARTED.md  the Pipeline setup guide
+
+# --- deliberately NOT imported --------------------------------------------
+# Verified absent from Community; importing them would be dead code that reads
+# as coverage. See FREESTYLE-PLAN.md §2, axis B.
+probes/api.sh                Community routes/api.php has ONE stub route
+probes/dusk.sh               no phpunit.dusk.xml in Community
+dusk-changed.sh              same
+enable-api.php               no v3 API to enable
+activate-plugins.php         no plugins table or directory
+relax-lockout.php            no attempt_locks table
+seed-qa-users.php            advance's users schema; a Community version is commit 2
+code-map.sh                  needs verifying against Community's structure first
+kb-sync.sh                   KB may describe advance behaviour; verify first
+stage1-author-prompt.md      contains advance API conventions; commit 2
+stage3-prompt.md             contains advance Vue-SPA navigation rules; commit 2
+probes/security.sh           half is /api/admin/* boundary checks; split in commit 2
+local-stage3.sh              written for a specific dev box; adapt in commit 3
+lint-jenkinsfile.sh          no Jenkinsfile in Community
+stage3-gate.sh is imported   (listed above) — the gate itself is application-agnostic
+
+# --- KNOWN HAZARD in an imported file -------------------------------------
+# qatouch-client.sh line 49:
+#
+#     qt_project() { printf '%s' "${QATOUCH_PROJECT:-MeLq}"; }
+#
+# The default is the ADVANCE project. If QATOUCH_PROJECT is ever unset — a build
+# step that forgets to source env.community.sh, a local shell, a cron — every
+# QA Touch call silently targets MeLq instead of NEXQ, and QA Touch has no
+# delete-case endpoint to undo cases written into the wrong project.
+#
+# DO NOT fix this by editing qatouch-client.sh; that forks the file. Fix it at
+# the two places that are ours:
+#   1. ci/qa/env.community.sh sets QATOUCH_PROJECT=NEXQ  (commit 2)
+#   2. build step 00 asserts it is set AND equals NEXQ before anything runs:
+#        [ "${QATOUCH_PROJECT:-}" = NEXQ ] || { echo "wrong QA Touch project" >&2; exit 1; }
+#
+# Every other MeLq mention in that file is prose in a comment and is harmless.
+
+# --- imported but currently unused ----------------------------------------
+license-segments.sh          Community has no licensing and its testing-setup takes
+                             no licence arguments. Kept because it is small and
+                             costs nothing to hold in sync if Community ever gains
+                             a licence step. Nothing calls it today.

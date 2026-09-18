@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace phpDocumentor\Reflection\DocBlock;
 
+use phpDocumentor\Reflection\DocBlock\Tags\Factory\Factory;
 use phpDocumentor\Reflection\Types\Context as TypeContext;
 use phpDocumentor\Reflection\Utils;
 
@@ -47,13 +48,12 @@ use const PREG_SPLIT_DELIM_CAPTURE;
  */
 class DescriptionFactory
 {
-    /** @var TagFactory */
-    private $tagFactory;
+    private Factory $tagFactory;
 
     /**
      * Initializes this factory with the means to construct (inline) tags.
      */
-    public function __construct(TagFactory $tagFactory)
+    public function __construct(Factory $tagFactory)
     {
         $this->tagFactory = $tagFactory;
     }

@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,9 +11,11 @@
 
 namespace Psy\Command;
 
+use Psy\ConfigPaths;
 use Psy\Input\FilterOptions;
-use Psy\Output\ShellOutput;
+use Psy\Output\ShellOutputAdapter;
 use Psy\Readline\Readline;
+use Psy\Readline\ReadlineAware;
 use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -24,10 +26,10 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * Shows, searches and replays readline history. Not too shabby.
  */
-class HistoryCommand extends Command
+class HistoryCommand extends Command implements ReadlineAware
 {
-    private $filter;
-    private $readline;
+    private FilterOptions $filter;
+    private Readline $readline;
 
     /**
      * {@inheritdoc}
@@ -52,7 +54,7 @@ class HistoryCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         list($grep, $insensitive, $invert) = FilterOptions::getOptions();
 
@@ -93,16 +95,19 @@ HELP
      *
      * @return int 0 if everything went fine, or an exit code
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->validateOnlyOne($input, ['show', 'head', 'tail']);
         $this->validateOnlyOne($input, ['save', 'replay', 'clear']);
 
-        $history = $this->getHistorySlice(
-            $input->getOption('show'),
-            $input->getOption('head'),
-            $input->getOption('tail')
-        );
+        // For --show, slice first (uses original line numbers), then filter
+        $show = $input->getOption('show');
+
+        // For --head/--tail, filter first, then slice (uses result count)
+        $head = $input->getOption('head');
+        $tail = $input->getOption('tail');
+
+        $history = $this->getHistorySlice($show);
         $highlighted = false;
 
         $this->filter->bind($input);
@@ -120,12 +125,18 @@ HELP
                     }
                 } else {
                     unset($history[$i]);
+                    unset($highlighted[$i]);
                 }
             }
         }
 
+        $history = $this->applyHeadOrTail($history, $head, $tail);
+        if ($highlighted) {
+            $highlighted = $this->applyHeadOrTail($highlighted, $head, $tail);
+        }
+
         if ($save = $input->getOption('save')) {
-            $output->writeln(\sprintf('Saving history in %s...', $save));
+            $output->writeln(\sprintf('Saving history in %s...', ConfigPaths::prettyPath($save)));
             \file_put_contents($save, \implode(\PHP_EOL, $history).\PHP_EOL);
             $output->writeln('<info>History saved.</info>');
         } elseif ($input->getOption('replay')) {
@@ -135,17 +146,18 @@ HELP
 
             $count = \count($history);
             $output->writeln(\sprintf('Replaying %d line%s of history', $count, ($count !== 1) ? 's' : ''));
-            $this->getApplication()->addInput($history);
+
+            $this->getShell()->addInput($history);
         } elseif ($input->getOption('clear')) {
             $this->clearHistory();
             $output->writeln('<info>History cleared.</info>');
         } else {
-            $type = $input->getOption('no-numbers') ? 0 : ShellOutput::NUMBER_LINES;
+            $type = $input->getOption('no-numbers') ? 0 : ShellOutputAdapter::NUMBER_LINES;
             if (!$highlighted) {
                 $type = $type | OutputInterface::OUTPUT_RAW;
             }
 
-            $output->page($highlighted ?: $history, $type);
+            $this->shellOutput($output)->page($highlighted ?: $history, $type);
         }
 
         return 0;
@@ -156,12 +168,12 @@ HELP
      *
      * @param string $range
      *
-     * @return array [ start, end ]
+     * @return int[] [ start, end ]
      */
     private function extractRange(string $range): array
     {
         if (\preg_match('/^\d+$/', $range)) {
-            return [$range, $range + 1];
+            return [(int) $range, (int) $range + 1];
         }
 
         $matches = [];
@@ -176,43 +188,51 @@ HELP
     }
 
     /**
-     * Retrieve a slice of the readline history.
+     * Retrieve a slice of the readline history by range.
      *
-     * @param string|null $show
-     * @param string|null $head
-     * @param string|null $tail
+     * @param string|null $show Range specification (e.g., "5..10")
      *
      * @return array A slice of history
      */
-    private function getHistorySlice($show, $head, $tail): array
+    private function getHistorySlice(?string $show): array
     {
         $history = $this->readline->listHistory();
-
         // don't show the current `history` invocation
         \array_pop($history);
 
-        if ($show) {
-            list($start, $end) = $this->extractRange($show);
-            $length = $end - $start;
-        } elseif ($head) {
+        if ($show === null) {
+            return $history;
+        }
+
+        list($start, $end) = $this->extractRange($show);
+        $length = $end - $start;
+
+        return \array_slice($history, $start, $length, true);
+    }
+
+    /**
+     * Apply --head or --tail to a history array.
+     */
+    private function applyHeadOrTail(array $history, ?string $head, ?string $tail): array
+    {
+        if ($head) {
             if (!\preg_match('/^\d+$/', $head)) {
                 throw new \InvalidArgumentException('Please specify an integer argument for --head');
             }
 
-            $start = 0;
-            $length = (int) $head;
+            return \array_slice($history, 0, (int) $head, true);
         } elseif ($tail) {
             if (!\preg_match('/^\d+$/', $tail)) {
                 throw new \InvalidArgumentException('Please specify an integer argument for --tail');
             }
 
-            $start = \count($history) - $tail;
+            $start = \count($history) - (int) $tail;
             $length = (int) $tail + 1;
-        } else {
-            return $history;
+
+            return \array_slice($history, $start, $length, true);
         }
 
-        return \array_slice($history, $start, $length, true);
+        return $history;
     }
 
     /**

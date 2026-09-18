@@ -19,13 +19,9 @@ abstract class WebDriverTouchAction
      */
     protected $locationProvider;
 
-    /**
-     * @param WebDriverTouchScreen $touch_screen
-     * @param WebDriverLocatable $location_provider
-     */
     public function __construct(
         WebDriverTouchScreen $touch_screen,
-        WebDriverLocatable $location_provider = null
+        ?WebDriverLocatable $location_provider = null
     ) {
         $this->touchScreen = $touch_screen;
         $this->locationProvider = $location_provider;

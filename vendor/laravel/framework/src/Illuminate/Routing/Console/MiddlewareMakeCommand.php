@@ -19,22 +19,11 @@ class MiddlewareMakeCommand extends GeneratorCommand
     protected $name = 'make:middleware';
 
     /**
-     * The name of the console command.
-     *
-     * This name is used to identify the command during lazy loading.
-     *
-     * @var string|null
-     *
-     * @deprecated
-     */
-    protected static $defaultName = 'make:middleware';
-
-    /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Create a new middleware class';
+    protected $description = 'Create a new HTTP middleware class';
 
     /**
      * The type of class being generated.

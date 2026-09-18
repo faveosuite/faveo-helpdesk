@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -23,10 +23,14 @@ use Symfony\Component\Console\Output\StreamOutput;
  */
 class ProcOutputPager extends StreamOutput implements OutputPager
 {
-    private $proc;
-    private $pipe;
+    /** @var ?resource */
+    private $proc = null;
+    /** @var ?resource */
+    private $pipe = null;
+    /** @var resource */
     private $stream;
-    private $cmd;
+    private string $cmd;
+    private bool $closedEarly = false;
 
     /**
      * Constructor.
@@ -48,14 +52,25 @@ class ProcOutputPager extends StreamOutput implements OutputPager
      *
      * @throws \RuntimeException When unable to write output (should never happen)
      */
-    public function doWrite($message, $newline)
+    public function doWrite($message, $newline): void
     {
+        // If the pager was closed early (user quit), don't reopen it.
+        if ($this->closedEarly) {
+            return;
+        }
+
         $pipe = $this->getPipe();
         if (false === @\fwrite($pipe, $message.($newline ? \PHP_EOL : ''))) {
             // @codeCoverageIgnoreStart
-            // should never happen
+            // When the message is sufficiently long, writing to the pipe fails
+            // if the pager process is closed before the entire message is read.
+            //
+            // This is a normal condition, so we close the pipe and ignore any
+            // further writes until the next paging session.
             $this->close();
-            throw new \RuntimeException('Unable to write output');
+            $this->closedEarly = true;
+
+            return;
             // @codeCoverageIgnoreEnd
         }
 
@@ -80,6 +95,7 @@ class ProcOutputPager extends StreamOutput implements OutputPager
 
         $this->pipe = null;
         $this->proc = null;
+        $this->closedEarly = false;
     }
 
     /**

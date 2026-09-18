@@ -3,15 +3,16 @@
 namespace Illuminate\Testing;
 
 use Closure;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Traits\Macroable;
 use Illuminate\Testing\Assert as PHPUnit;
 use Illuminate\Testing\Constraints\SeeInOrder;
 use Illuminate\View\View;
+use Stringable;
 
-class TestView
+class TestView implements Stringable
 {
     use Macroable;
 
@@ -33,7 +34,6 @@ class TestView
      * Create a new test view instance.
      *
      * @param  \Illuminate\View\View  $view
-     * @return void
      */
     public function __construct(View $view)
     {
@@ -60,10 +60,10 @@ class TestView
             PHPUnit::assertTrue($value(Arr::get($this->view->gatherData(), $key)));
         } elseif ($value instanceof Model) {
             PHPUnit::assertTrue($value->is(Arr::get($this->view->gatherData(), $key)));
-        } elseif ($value instanceof Collection) {
+        } elseif ($value instanceof EloquentCollection) {
             $actual = Arr::get($this->view->gatherData(), $key);
 
-            PHPUnit::assertInstanceOf(Collection::class, $actual);
+            PHPUnit::assertInstanceOf(EloquentCollection::class, $actual);
             PHPUnit::assertSameSize($value, $actual);
 
             $value->each(fn ($item, $index) => PHPUnit::assertTrue($actual->get($index)->is($item)));
@@ -107,6 +107,18 @@ class TestView
     }
 
     /**
+     * Assert that the view's rendered content is empty.
+     *
+     * @return $this
+     */
+    public function assertViewEmpty()
+    {
+        PHPUnit::assertEmpty($this->rendered);
+
+        return $this;
+    }
+
+    /**
      * Assert that the given string is contained within the view.
      *
      * @param  string  $value
@@ -131,7 +143,7 @@ class TestView
      */
     public function assertSeeInOrder(array $values, $escape = true)
     {
-        $values = $escape ? array_map('e', $values) : $values;
+        $values = $escape ? array_map(e(...), $values) : $values;
 
         PHPUnit::assertThat($values, new SeeInOrder($this->rendered));
 
@@ -163,7 +175,7 @@ class TestView
      */
     public function assertSeeTextInOrder(array $values, $escape = true)
     {
-        $values = $escape ? array_map('e', $values) : $values;
+        $values = $escape ? array_map(e(...), $values) : $values;
 
         PHPUnit::assertThat($values, new SeeInOrder(strip_tags($this->rendered)));
 

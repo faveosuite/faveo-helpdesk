@@ -12,35 +12,32 @@
 namespace Symfony\Component\Translation;
 
 use Symfony\Component\HttpKernel\CacheWarmer\WarmableInterface;
-use Symfony\Component\Translation\Exception\InvalidArgumentException;
+use Symfony\Contracts\Service\ResetInterface;
 use Symfony\Contracts\Translation\LocaleAwareInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * @author Abdellatif Ait boudad <a.aitboudad@gmail.com>
  */
-class DataCollectorTranslator implements TranslatorInterface, TranslatorBagInterface, LocaleAwareInterface, WarmableInterface
+final class DataCollectorTranslator implements TranslatorInterface, TranslatorBagInterface, LocaleAwareInterface, WarmableInterface, ResetInterface
 {
     public const MESSAGE_DEFINED = 0;
     public const MESSAGE_MISSING = 1;
     public const MESSAGE_EQUALS_FALLBACK = 2;
 
-    private TranslatorInterface $translator;
     private array $messages = [];
 
-    /**
-     * @param TranslatorInterface&TranslatorBagInterface&LocaleAwareInterface $translator
-     */
-    public function __construct(TranslatorInterface $translator)
-    {
-        if (!$translator instanceof TranslatorBagInterface || !$translator instanceof LocaleAwareInterface) {
-            throw new InvalidArgumentException(sprintf('The Translator "%s" must implement TranslatorInterface, TranslatorBagInterface and LocaleAwareInterface.', get_debug_type($translator)));
-        }
-
-        $this->translator = $translator;
+    public function __construct(
+        private TranslatorInterface&TranslatorBagInterface&LocaleAwareInterface $translator,
+    ) {
     }
 
-    public function trans(?string $id, array $parameters = [], string $domain = null, string $locale = null): string
+    public function reset(): void
+    {
+        $this->messages = [];
+    }
+
+    public function trans(?string $id, array $parameters = [], ?string $domain = null, ?string $locale = null): string
     {
         $trans = $this->translator->trans($id = (string) $id, $parameters, $domain, $locale);
         $this->collectMessage($locale, $domain, $id, $trans, $parameters);
@@ -48,7 +45,7 @@ class DataCollectorTranslator implements TranslatorInterface, TranslatorBagInter
         return $trans;
     }
 
-    public function setLocale(string $locale)
+    public function setLocale(string $locale): void
     {
         $this->translator->setLocale($locale);
     }
@@ -58,7 +55,7 @@ class DataCollectorTranslator implements TranslatorInterface, TranslatorBagInter
         return $this->translator->getLocale();
     }
 
-    public function getCatalogue(string $locale = null): MessageCatalogueInterface
+    public function getCatalogue(?string $locale = null): MessageCatalogueInterface
     {
         return $this->translator->getCatalogue($locale);
     }
@@ -68,13 +65,10 @@ class DataCollectorTranslator implements TranslatorInterface, TranslatorBagInter
         return $this->translator->getCatalogues();
     }
 
-    /**
-     * @return string[]
-     */
-    public function warmUp(string $cacheDir): array
+    public function warmUp(string $cacheDir, ?string $buildDir = null): array
     {
         if ($this->translator instanceof WarmableInterface) {
-            return (array) $this->translator->warmUp($cacheDir);
+            return $this->translator->warmUp($cacheDir, $buildDir);
         }
 
         return [];
@@ -92,10 +86,16 @@ class DataCollectorTranslator implements TranslatorInterface, TranslatorBagInter
         return [];
     }
 
-    /**
-     * Passes through all unknown calls onto the translator object.
-     */
-    public function __call(string $method, array $args)
+    public function getGlobalParameters(): array
+    {
+        if ($this->translator instanceof Translator || method_exists($this->translator, 'getGlobalParameters')) {
+            return $this->translator->getGlobalParameters();
+        }
+
+        return [];
+    }
+
+    public function __call(string $method, array $args): mixed
     {
         return $this->translator->{$method}(...$args);
     }
@@ -105,7 +105,7 @@ class DataCollectorTranslator implements TranslatorInterface, TranslatorBagInter
         return $this->messages;
     }
 
-    private function collectMessage(?string $locale, ?string $domain, string $id, string $translation, ?array $parameters = [])
+    private function collectMessage(?string $locale, ?string $domain, string $id, string $translation, ?array $parameters = []): void
     {
         $domain ??= 'messages';
 

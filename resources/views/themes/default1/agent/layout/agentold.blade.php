@@ -41,6 +41,7 @@
         <link href="{{asset("lb-faveo/plugins/select2/select2.min.css")}}" rel="stylesheet" type="text/css" />
 
         <link href="{{asset("css/close-button.css")}}" rel="stylesheet" type="text/css" />
+        <link href="{{asset("css/common.css")}}" rel="stylesheet" type="text/css" />
         <!--Daterangepicker-->
         <link rel="stylesheet" href="{{asset("lb-faveo/plugins/daterangepicker/daterangepicker.css")}}" rel="stylesheet" type="text/css" />
         <!--calendar -->
@@ -57,7 +58,7 @@
         @yield('HeadInclude')
     </head>
     <body class="skin-blue fixed">
-        <div class="wrapper">
+        <div class="app-wrapper">
             <header class="main-header">
                 <a href="http://www.faveohelpdesk.com" class="logo"><img src="{{ asset('lb-faveo/media/images/logo.png')}}" width="100px;"></a>
                 <?php
@@ -86,8 +87,8 @@
                 <!-- Header Navbar: style can be found in header.less -->
                 <nav class="navbar navbar-static-top">
                     <!-- Sidebar toggle button-->
-                    <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
-                        <span class="sr-only">Toggle navigation</span>
+                    <a href="#" class="sidebar-toggle" data-bs-toggle="offcanvas" role="button">
+                        <span class="visually-hidden">Toggle navigation</span>
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
@@ -98,10 +99,10 @@
                     <div class="collapse navbar-collapse" id="navbar-collapse">
                         @if($replacetop==0)
                         <ul class="tabs tabs-horizontal nav navbar-nav navbar-left">
-                            <li @yield('Dashboard')><a id="dash" data-target="#tabA" href="{{URL::route('dashboard')}}" onclick="clickDashboard(event);">{!! Lang::get('lang.dashboard') !!}</a></li>
-                            <li @yield('Users')><a data-target="#tabB" href="#">{!! Lang::get('lang.users') !!}</a></li>
-                            <li @yield('Tickets')><a data-target="#tabC" href="#">{!! Lang::get('lang.tickets') !!}</a></li>
-                            <li @yield('Tools')><a data-target="#tabD" href="#">{!! Lang::get('lang.tools') !!}</a></li>
+                            <li @yield('Dashboard')><a id="dash" data-bs-target="#tabA" href="{{URL::route('dashboard')}}" onclick="clickDashboard(event);">{!! Lang::get('lang.dashboard') !!}</a></li>
+                            <li @yield('Users')><a data-bs-target="#tabB" href="#">{!! Lang::get('lang.users') !!}</a></li>
+                            <li @yield('Tickets')><a data-bs-target="#tabC" href="#">{!! Lang::get('lang.tickets') !!}</a></li>
+                            <li @yield('Tools')><a data-bs-target="#tabD" href="#">{!! Lang::get('lang.tools') !!}</a></li>
                             @if(Auth::user()->role == 'admin')
                                 <li @yield('Report')><a href="{{URL::route('report.index')}}" onclick="clickReport(event);">{!! Lang::get('lang.report') !!}</a></li>
                             @endif
@@ -118,15 +119,15 @@
                             @endif
                             <!-- User Account: style can be found in dropdown.less -->
                             <li class="dropdown notifications-menu" id="myDropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" onclick="myFunction()">
-                                    <i class="fa fa-bell-o"></i>
-                                    <span class="label label-danger" id="count">{!! count($noti) !!}</span>
+                                <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown" onclick="myFunction()">
+                                    <i class="fa-solid fa-bell-o"></i>
+                                    <span class="badge text-bg-danger" id="count">{!! count($noti) !!}</span>
                                 </a>
                                 <ul class="dropdown-menu" style="width:500px">
 
-                                    <div id="alert11" class="alert alert-success alert-dismissable" style="display:none;">
-                                        <button id="dismiss11" type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-                                        <h4><i class="icon fa fa-check"></i>Alert!</h4>
+                                    <div id="alert11" class="alert alert-success alert-dismissible d-none">
+                                        <button id="dismiss11" type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
+                                        <h4><i class="icon fa-solid fa-check"></i>Alert!</h4>
                                         <div id="message-success1"></div>
                                     </div>
 
@@ -180,7 +181,7 @@
                         </li>
                         <!-- User Account: style can be found in dropdown.less -->
                         <li class="dropdown user user-menu">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
                                 @if(Auth::user())
                                 <img src="{{Auth::user()->profile_pic}}"class="user-image" alt="User Image"/>
                                 <span class="hidden-xs">{{Auth::user()->first_name." ".Auth::user()->last_name}}</span>
@@ -211,7 +212,7 @@
                 </nav>
             </header>
             <!-- Left side column. contains the logo and sidebar -->
-            <aside class="main-sidebar">
+            <aside class="app-sidebar">
                 <!-- sidebar: style can be found in sidebar.less -->
                 <section class="sidebar">
                     <div class="user-panel">
@@ -219,8 +220,8 @@
                         <h1>@yield('profileimg')</h1>
                         @else
                         <div class = "row">
-                            <div class="col-xs-3"></div>
-                            <div class="col-xs-2" style="width:50%;">
+                            <div class="col-3"></div>
+                            <div class="col-2" style="width:50%;">
                                 <a href="{!! url('profile') !!}">
                                     <img src="{{Auth::user()->profile_pic}}" class="img-circle" alt="User Image" />
                                 </a>
@@ -232,9 +233,9 @@
                             <p>{{Auth::user()->first_name." ".Auth::user()->last_name}}</p>
                             @endif
                             @if(Auth::user() && Auth::user()->active==1)
-                            <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
+                            <a href="#"><i class="fa-solid fa-circle text-success"></i> Online</a>
                             @else
-                            <a href="#"><i class="fa fa-circle"></i> Offline</a>
+                            <a href="#"><i class="fa-solid fa-circle"></i> Offline</a>
                             @endif
                         </div>
                     </div>
@@ -243,7 +244,7 @@
                     {{-- < div class = "input-group" > --}}
                     {{-- < input type = "text" name = "q" class = "form-control" placeholder = "Search..." / > --}}
                     {{-- < span class = "input-group-btn" > --}}
-                    {{-- < button type = 'submit' name = 'seach' id = 'search-btn' class = "btn btn-flat" > < i class = "fa fa-search" > < /i></button > --}}
+                    {{-- < button type = 'submit' name = 'seach' id = 'search-btn' class = "btn " > < i class = "fa-solid fa-magnifying-glass" > < /i></button > --}}
                     {{-- < /span> --}}
                     {{-- < /div> --}}
                     {{-- < /form> --}}
@@ -305,31 +306,31 @@
                         ?>
                         <li @yield('inbox')>
                             <a href="{{ url('/ticket/inbox')}}" id="load-inbox">
-                                <i class="fa fa-envelope"></i> <span>{!! Lang::get('lang.inbox') !!}</span> <small class="label pull-right bg-green"><?php echo count($tickets); ?></small>
+                                <i class="fa-solid fa-envelope"></i> <span>{!! Lang::get('lang.inbox') !!}</span> <small class="badge float-end text-bg-success"><?php echo count($tickets); ?></small>
                             </a>
                         </li>
                         <li @yield('myticket')>
                             <a href="{{url('ticket/myticket')}}" id="load-myticket">
-                                <i class="fa fa-user"></i> <span>{!! Lang::get('lang.my_tickets') !!} </span>
-                                <small class="label pull-right bg-green">{{count($myticket)}}</small>
+                                <i class="fa-solid fa-user"></i> <span>{!! Lang::get('lang.my_tickets') !!} </span>
+                                <small class="badge float-end text-bg-success">{{count($myticket)}}</small>
                             </a>
                         </li>
                         <li @yield('unassigned')>
                             <a href="{{url('unassigned')}}" id="load-unassigned">
-                                <i class="fa fa-th"></i> <span>{!! Lang::get('lang.unassigned') !!}</span>
-                                <small class="label pull-right bg-green">{{count($unassigned)}}</small>
+                                <i class="fa-solid fa-th"></i> <span>{!! Lang::get('lang.unassigned') !!}</span>
+                                <small class="badge float-end text-bg-success">{{count($unassigned)}}</small>
                             </a>
                         </li>
                         <li @yield('overdue')>
                             <a href="{{url('ticket/overdue')}}" id="load-unassigned">
-                                <i class="fa fa-calendar-times-o"></i> <span>{!! Lang::get('lang.overdue') !!}</span>
-                                <small class="label pull-right bg-green">{{$overdue_ticket}}</small>
+                                <i class="fa-solid fa-calendar-times-o"></i> <span>{!! Lang::get('lang.overdue') !!}</span>
+                                <small class="badge float-end text-bg-success">{{$overdue_ticket}}</small>
                             </a>
                         </li>
                         <li @yield('followup')>
                              <a href="{{ url('/ticket/inbox')}}" id="load-inbox">
                                 <i class="glyphicon glyphicon-import"></i> <span>{!! Lang::get('lang.followup') !!}</span>
-                                <small class="label pull-right bg-green">{{count($followup_ticket)}}</small>
+                                <small class="badge float-end text-bg-success">{{count($followup_ticket)}}</small>
                             </a>
                         </li>
                         <?php
@@ -339,15 +340,15 @@
                        @if($settings->status == 1)
                         <li @yield('approval')>
                              <a href="{{url('ticket/approval/closed')}}" id="load-unassigned">
-                                <i class="fa fa fa-bell"></i> <span>{!! Lang::get('lang.approval') !!}</span>
-                                <small class="label pull-right bg-green">{{count($closingapproval)}}</small>
+                                <i class="fa fa-solid fa-bell"></i> <span>{!! Lang::get('lang.approval') !!}</span>
+                                <small class="badge float-end text-bg-success">{{count($closingapproval)}}</small>
                             </a>
                         </li>
                         @endif
                         <li @yield('trash')>
                              <a href="{{url('trash')}}">
-                                <i class="fa fa-trash-o"></i> <span>{!! Lang::get('lang.trash') !!}</span>
-                                <small class="label pull-right bg-green">{{count($deleted)}}</small>
+                                <i class="fa-solid fa-trash-o"></i> <span>{!! Lang::get('lang.trash') !!}</span>
+                                <small class="badge float-end text-bg-success">{{count($deleted)}}</small>
                             </a>
                         </li>
                         <li class="header">{!! Lang::get('lang.Departments') !!}</li>
@@ -365,23 +366,23 @@
                                 ?>
                                 <li class="treeview">
                                     <a href="#">
-                                        <i class="fa fa-folder-open"></i> <span>{!! $dept->name !!}</span> <i class="fa fa-angle-left pull-right"></i>
+                                        <i class="fa-solid fa-folder-open"></i> <span>{!! $dept->name !!}</span> <i class="fa-solid fa-angle-left pull-right"></i>
                                     </a>
                                     <ul class="treeview-menu">
-                                        <li><a href="{!! url::route('dept.open.ticket',$dept->name) !!}"><i class="fa fa-circle-o"></i>{!! Lang::get('lang.open') !!}<small class="label pull-right bg-green">{!! $open !!}</small></a></li>
-                                        <li><a href="{!! url::route('dept.inprogress.ticket',$dept->name) !!}"><i class="fa fa-circle-o"></i>{!! Lang::get('lang.assigned') !!}<small class="label pull-right bg-green">{!! $underprocess !!}</small></a></li>
-                                        <li><a href="{!! url::route('dept.closed.ticket',$dept->name) !!}"><i class="fa fa-circle-o"></i>{!! Lang::get('lang.closed') !!}<small class="label pull-right bg-green">{!! $closed !!}</small></a></li>
+                                        <li><a href="{!! url::route('dept.open.ticket',$dept->name) !!}"><i class="fa-solid fa-circle-o"></i>{!! Lang::get('lang.open') !!}<small class="badge float-end text-bg-success">{!! $open !!}</small></a></li>
+                                        <li><a href="{!! url::route('dept.inprogress.ticket',$dept->name) !!}"><i class="fa-solid fa-circle-o"></i>{!! Lang::get('lang.assigned') !!}<small class="badge float-end text-bg-success">{!! $underprocess !!}</small></a></li>
+                                        <li><a href="{!! url::route('dept.closed.ticket',$dept->name) !!}"><i class="fa-solid fa-circle-o"></i>{!! Lang::get('lang.closed') !!}<small class="badge float-end text-bg-success">{!! $closed !!}</small></a></li>
                                     </ul>
                                 </li>
                             <?php } if (Auth::user()->role == 'agent' && Auth::user()->primary_dpt == $dept->id) { ?>
                                 <li class="treeview">
                                     <a href="#">
-                                        <i class="fa fa-folder-open"></i> <span>{!! $dept->name !!}</span> <i class="fa fa-angle-left pull-right"></i>
+                                        <i class="fa-solid fa-folder-open"></i> <span>{!! $dept->name !!}</span> <i class="fa-solid fa-angle-left pull-right"></i>
                                     </a>
                                     <ul class="treeview-menu">
-                                        <li><a href="{!! url::route('dept.open.ticket',$dept->name) !!}"><i class="fa fa-circle-o"></i>{!! Lang::get('lang.open') !!}<small class="label pull-right bg-green">{!! $open !!}</small></a></li>
-                                        <li><a href="{!! url::route('dept.inprogress.ticket',$dept->name) !!}"><i class="fa fa-circle-o"></i>{!! Lang::get('lang.assigned') !!}<small class="label pull-right bg-green">{!! $underprocess !!}</small></a></li>
-                                        <li><a href="{!! url::route('dept.closed.ticket',$dept->name) !!}"><i class="fa fa-circle-o"></i>{!! Lang::get('lang.closed') !!}<small class="label pull-right bg-green">{!! $closed !!}</small></a></li>
+                                        <li><a href="{!! url::route('dept.open.ticket',$dept->name) !!}"><i class="fa-solid fa-circle-o"></i>{!! Lang::get('lang.open') !!}<small class="badge float-end text-bg-success">{!! $open !!}</small></a></li>
+                                        <li><a href="{!! url::route('dept.inprogress.ticket',$dept->name) !!}"><i class="fa-solid fa-circle-o"></i>{!! Lang::get('lang.assigned') !!}<small class="badge float-end text-bg-success">{!! $underprocess !!}</small></a></li>
+                                        <li><a href="{!! url::route('dept.closed.ticket',$dept->name) !!}"><i class="fa-solid fa-circle-o"></i>{!! Lang::get('lang.closed') !!}<small class="badge float-end text-bg-success">{!! $closed !!}</small></a></li>
                                     </ul>
                                 </li>
                             <?php }
@@ -399,7 +400,7 @@
             $group = App\Model\helpdesk\Agent\Groups::where('id', '=', $agent_group)->where('group_status', '=', '1')->first();
             ?>
             <!-- Right side column. Contains the navbar and content of the page -->
-            <div class="content-wrapper">
+            <div class="app-main">
                 <!-- Content Header (Page header) -->
                 <div class="tab-content" style="background-color: white;padding: 0 20px 0 20px">
                     <div class="collapse navbar-collapse" id="navbar-collapse">
@@ -448,16 +449,16 @@
                         </div>
                     </div>
                 </div>
-                <section class="content-header">
+                <section class="app-content-header">
                     @yield('PageHeader')
                     {!! Breadcrumbs::render() !!}
                 </section>
                 <!-- Main content -->
-                <section class="content">
+                <section class="app-content">
                     @yield('content')
                 </section><!-- /.content -->
             </div>
-            <footer class="main-footer">
+            <footer class="app-footer">
                 <div class="pull-right hidden-xs">
                     <b>{!! Lang::get('lang.version') !!}</b> {!! Config::get('app.version') !!}
                 </div>

@@ -1,5 +1,9 @@
 <?php
-
+/**
+ * @package dompdf
+ * @link    https://github.com/dompdf/dompdf
+ * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
+ */
 namespace Dompdf\Frame;
 
 use DOMDocument;
@@ -9,13 +13,7 @@ use DOMXPath;
 
 use Dompdf\Exception;
 use Dompdf\Frame;
-
-/**
- * @package dompdf
- * @link    http://dompdf.github.com/
- * @author  Benj Carson <benjcarson@digitaljunkies.ca>
- * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
- */
+use IteratorAggregate;
 
 /**
  * Represents an entire document as a tree of frames
@@ -27,7 +25,7 @@ use Dompdf\Frame;
  *
  * @package dompdf
  */
-class FrameTree
+class FrameTree implements IteratorAggregate
 {
     /**
      * Tags to ignore while parsing the tree
@@ -124,11 +122,22 @@ class FrameTree
     /**
      * Returns a post-order iterator for all frames in the tree
      *
-     * @return FrameTreeList|Frame[]
+     * @deprecated Iterate the tree directly instead
+     * @return FrameTreeIterator
      */
-    public function get_frames()
+    public function get_frames(): FrameTreeIterator
     {
-        return new FrameTreeList($this->_root);
+        return new FrameTreeIterator($this->_root);
+    }
+
+    /**
+     * Returns a post-order iterator for all frames in the tree
+     *
+     * @return FrameTreeIterator
+     */
+    public function getIterator(): FrameTreeIterator
+    {
+        return new FrameTreeIterator($this->_root);
     }
 
     /**

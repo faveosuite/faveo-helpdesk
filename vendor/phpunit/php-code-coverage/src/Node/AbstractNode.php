@@ -11,9 +11,14 @@ namespace SebastianBergmann\CodeCoverage\Node;
 
 use const DIRECTORY_SEPARATOR;
 use function array_merge;
+use function str_ends_with;
 use function str_replace;
 use function substr;
 use Countable;
+use SebastianBergmann\CodeCoverage\Data\ProcessedClassType;
+use SebastianBergmann\CodeCoverage\Data\ProcessedFunctionType;
+use SebastianBergmann\CodeCoverage\Data\ProcessedTraitType;
+use SebastianBergmann\CodeCoverage\StaticAnalysis\LinesOfCode;
 use SebastianBergmann\CodeCoverage\Util\Percentage;
 
 /**
@@ -21,39 +26,27 @@ use SebastianBergmann\CodeCoverage\Util\Percentage;
  */
 abstract class AbstractNode implements Countable
 {
-    /**
-     * @var string
-     */
-    private $name;
+    private readonly string $name;
+    private string $pathAsString;
 
     /**
-     * @var string
+     * @var non-empty-list<self>
      */
-    private $pathAsString;
+    private array $pathAsArray;
+    private readonly ?AbstractNode $parent;
+    private string $id;
 
-    /**
-     * @var array
-     */
-    private $pathAsArray;
-
-    /**
-     * @var AbstractNode
-     */
-    private $parent;
-
-    /**
-     * @var string
-     */
-    private $id;
-
-    public function __construct(string $name, self $parent = null)
+    public function __construct(string $name, ?self $parent = null)
     {
-        if (substr($name, -1) === DIRECTORY_SEPARATOR) {
+        if (str_ends_with($name, DIRECTORY_SEPARATOR)) {
             $name = substr($name, 0, -1);
         }
 
         $this->name   = $name;
         $this->parent = $parent;
+
+        $this->processId();
+        $this->processPath();
     }
 
     public function name(): string
@@ -63,50 +56,19 @@ abstract class AbstractNode implements Countable
 
     public function id(): string
     {
-        if ($this->id === null) {
-            $parent = $this->parent();
-
-            if ($parent === null) {
-                $this->id = 'index';
-            } else {
-                $parentId = $parent->id();
-
-                if ($parentId === 'index') {
-                    $this->id = str_replace(':', '_', $this->name);
-                } else {
-                    $this->id = $parentId . '/' . $this->name;
-                }
-            }
-        }
-
         return $this->id;
     }
 
     public function pathAsString(): string
     {
-        if ($this->pathAsString === null) {
-            if ($this->parent === null) {
-                $this->pathAsString = $this->name;
-            } else {
-                $this->pathAsString = $this->parent->pathAsString() . DIRECTORY_SEPARATOR . $this->name;
-            }
-        }
-
         return $this->pathAsString;
     }
 
+    /**
+     * @return non-empty-list<self>
+     */
     public function pathAsArray(): array
     {
-        if ($this->pathAsArray === null) {
-            if ($this->parent === null) {
-                $this->pathAsArray = [];
-            } else {
-                $this->pathAsArray = $this->parent->pathAsArray();
-            }
-
-            $this->pathAsArray[] = $this;
-        }
-
         return $this->pathAsArray;
     }
 
@@ -175,7 +137,7 @@ abstract class AbstractNode implements Countable
     {
         return Percentage::fromFractionAndTotal(
             $this->numberOfExecutedBranches(),
-            $this->numberOfExecutableBranches()
+            $this->numberOfExecutableBranches(),
         );
     }
 
@@ -183,7 +145,7 @@ abstract class AbstractNode implements Countable
     {
         return Percentage::fromFractionAndTotal(
             $this->numberOfExecutedPaths(),
-            $this->numberOfExecutablePaths()
+            $this->numberOfExecutablePaths(),
         );
     }
 
@@ -197,6 +159,9 @@ abstract class AbstractNode implements Countable
         return $this->numberOfTestedClasses() + $this->numberOfTestedTraits();
     }
 
+    /**
+     * @return array<string, ProcessedClassType|ProcessedTraitType>
+     */
     public function classesAndTraits(): array
     {
         return array_merge($this->classes(), $this->traits());
@@ -212,16 +177,40 @@ abstract class AbstractNode implements Countable
         return $this->numberOfTestedFunctions() + $this->numberOfTestedMethods();
     }
 
-    abstract public function classes(): array;
+    /**
+     * @return non-negative-int
+     */
+    public function cyclomaticComplexity(): int
+    {
+        $ccn = 0;
 
-    abstract public function traits(): array;
+        foreach ($this->classesAndTraits() as $classLike) {
+            $ccn += $classLike->ccn;
+        }
 
-    abstract public function functions(): array;
+        foreach ($this->functions() as $function) {
+            $ccn += $function->ccn;
+        }
+
+        return $ccn;
+    }
 
     /**
-     * @psalm-return array{linesOfCode: int, commentLinesOfCode: int, nonCommentLinesOfCode: int}
+     * @return array<string, ProcessedClassType>
      */
-    abstract public function linesOfCode(): array;
+    abstract public function classes(): array;
+
+    /**
+     * @return array<string, ProcessedTraitType>
+     */
+    abstract public function traits(): array;
+
+    /**
+     * @return array<string, ProcessedFunctionType>
+     */
+    abstract public function functions(): array;
+
+    abstract public function linesOfCode(): LinesOfCode;
 
     abstract public function numberOfExecutableLines(): int;
 
@@ -250,4 +239,36 @@ abstract class AbstractNode implements Countable
     abstract public function numberOfFunctions(): int;
 
     abstract public function numberOfTestedFunctions(): int;
+
+    private function processId(): void
+    {
+        if ($this->parent === null) {
+            $this->id = 'index';
+
+            return;
+        }
+
+        $parentId = $this->parent->id();
+
+        if ($parentId === 'index') {
+            $this->id = str_replace(':', '_', $this->name);
+        } else {
+            $this->id = $parentId . '/' . $this->name;
+        }
+    }
+
+    private function processPath(): void
+    {
+        if ($this->parent === null) {
+            $this->pathAsArray  = [$this];
+            $this->pathAsString = $this->name;
+
+            return;
+        }
+
+        $this->pathAsArray  = $this->parent->pathAsArray();
+        $this->pathAsString = $this->parent->pathAsString() . DIRECTORY_SEPARATOR . $this->name;
+
+        $this->pathAsArray[] = $this;
+    }
 }

@@ -1,31 +1,40 @@
 <?php
+
 /**
- * Mockery
+ * Mockery (https://docs.mockery.io/)
  *
- * LICENSE
- *
- * This source file is subject to the new BSD license that is bundled
- * with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://github.com/padraic/mockery/blob/master/LICENSE
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to padraic@php.net so we can send you a copy immediately.
- *
- * @category   Mockery
- * @package    Mockery
- * @copyright  Copyright (c) 2010 Pádraic Brady (http://blog.astrumfutura.com)
- * @license    http://github.com/padraic/mockery/blob/master/LICENSE New BSD License
+ * @copyright https://github.com/mockery/mockery/blob/HEAD/COPYRIGHT.md
+ * @license https://github.com/mockery/mockery/blob/HEAD/LICENSE BSD 3-Clause License
+ * @link https://github.com/mockery/mockery for the canonical source repository
  */
 
 namespace Mockery\Generator\StringManipulation\Pass;
 
 use Mockery\Generator\Method;
-use Mockery\Generator\Parameter;
 use Mockery\Generator\MockConfiguration;
+use Mockery\Generator\Parameter;
+use function array_values;
+use function count;
+use function enum_exists;
+use function get_class;
+use function implode;
+use function in_array;
+use function is_object;
+use function preg_match;
+use function sprintf;
+use function strpos;
+use function strrpos;
+use function strtolower;
+use function substr;
+use function var_export;
+use const PHP_VERSION_ID;
 
 class MethodDefinitionPass implements Pass
 {
+    /**
+     * @param  string $code
+     * @return string
+     */
     public function apply($code, MockConfiguration $config)
     {
         foreach ($config->getMethodsToMock() as $method) {
@@ -54,6 +63,12 @@ class MethodDefinitionPass implements Pass
         return $code;
     }
 
+    protected function appendToClass($class, $code)
+    {
+        $lastBrace = strrpos($class, '}');
+        return substr($class, 0, $lastBrace) . $code . "\n    }\n";
+    }
+
     protected function renderParams(Method $method, $config)
     {
         $class = $method->getDeclaringClass();
@@ -65,18 +80,41 @@ class MethodDefinitionPass implements Pass
             }
         }
 
-        $methodParams = array();
+        $methodParams = [];
         $params = $method->getParameters();
+        $isPhp81 = PHP_VERSION_ID >= 80100;
         foreach ($params as $param) {
             $paramDef = $this->renderTypeHint($param);
             $paramDef .= $param->isPassedByReference() ? '&' : '';
             $paramDef .= $param->isVariadic() ? '...' : '';
             $paramDef .= '$' . $param->getName();
 
-            if (!$param->isVariadic()) {
-                if (false !== $param->isDefaultValueAvailable()) {
+            if (! $param->isVariadic()) {
+                if ($param->isDefaultValueAvailable() !== false) {
                     $defaultValue = $param->getDefaultValue();
-                    $paramDef .= ' = ' . (is_object($defaultValue) ? get_class($defaultValue) : var_export($defaultValue, true));
+
+                    if (is_object($defaultValue)) {
+                        $prefix = get_class($defaultValue);
+                        if ($isPhp81) {
+                            if (enum_exists($prefix)) {
+                                $prefix = var_export($defaultValue, true);
+                            } elseif (
+                                ! $param->isDefaultValueConstant() &&
+                                // "Parameter #1 [ <optional> F\Q\CN $a = new \F\Q\CN(param1, param2: 2) ]
+                                preg_match(
+                                    '#<optional>\s.*?\s=\snew\s(.*?)\s]$#',
+                                    $param->__toString(),
+                                    $matches
+                                ) === 1
+                            ) {
+                                $prefix = 'new ' . $matches[1];
+                            }
+                        }
+                    } else {
+                        $prefix = var_export($defaultValue, true);
+                    }
+
+                    $paramDef .= ' = ' . $prefix;
                 } elseif ($param->isOptional()) {
                     $paramDef .= ' = null';
                 }
@@ -84,6 +122,7 @@ class MethodDefinitionPass implements Pass
 
             $methodParams[] = $paramDef;
         }
+
         return '(' . implode(', ', $methodParams) . ')';
     }
 
@@ -92,13 +131,6 @@ class MethodDefinitionPass implements Pass
         $type = $method->getReturnType();
 
         return $type ? sprintf(': %s', $type) : '';
-    }
-
-    protected function appendToClass($class, $code)
-    {
-        $lastBrace = strrpos($class, "}");
-        $class = substr($class, 0, $lastBrace) . $code . "\n    }\n";
-        return $class;
     }
 
     protected function renderTypeHint(Parameter $param)
@@ -131,8 +163,8 @@ BODY;
                 $param = $params[$i];
                 if (strpos($param, '&') !== false) {
                     $body .= <<<BODY
-if (\$argc > $i) {
-    \$argv[$i] = {$param};
+if (\$argc > {$i}) {
+    \$argv[{$i}] = {$param};
 }
 
 BODY;
@@ -143,12 +175,13 @@ BODY;
             $paramCount = count($params);
             for ($i = 0; $i < $paramCount; ++$i) {
                 $param = $params[$i];
-                if (!$param->isPassedByReference()) {
+                if (! $param->isPassedByReference()) {
                     continue;
                 }
+
                 $body .= <<<BODY
-if (\$argc > $i) {
-    \$argv[$i] =& \${$param->getName()};
+if (\$argc > {$i}) {
+    \$argv[{$i}] =& \${$param->getName()};
 }
 
 BODY;
@@ -157,11 +190,10 @@ BODY;
 
         $body .= "\$ret = {$invoke}(__FUNCTION__, \$argv);\n";
 
-        if (! in_array($method->getReturnType(), ['never','void'], true)) {
+        if (! in_array($method->getReturnType(), ['never', 'void'], true)) {
             $body .= "return \$ret;\n";
         }
 
-        $body .= "}\n";
-        return $body;
+        return $body . "}\n";
     }
 }

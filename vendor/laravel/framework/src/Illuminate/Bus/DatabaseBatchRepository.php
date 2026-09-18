@@ -9,6 +9,7 @@ use Illuminate\Database\Connection;
 use Illuminate\Database\PostgresConnection;
 use Illuminate\Database\Query\Expression;
 use Illuminate\Support\Str;
+use Throwable;
 
 class DatabaseBatchRepository implements PrunableBatchRepository
 {
@@ -57,14 +58,14 @@ class DatabaseBatchRepository implements PrunableBatchRepository
     public function get($limit = 50, $before = null)
     {
         return $this->connection->table($this->table)
-                            ->orderByDesc('id')
-                            ->take($limit)
-                            ->when($before, fn ($q) => $q->where('id', '<', $before))
-                            ->get()
-                            ->map(function ($batch) {
-                                return $this->toBatch($batch);
-                            })
-                            ->all();
+            ->orderByDesc('id')
+            ->limit($limit)
+            ->when($before, fn ($q) => $q->where('id', '<', $before))
+            ->get()
+            ->map(function ($batch) {
+                return $this->toBatch($batch);
+            })
+            ->all();
     }
 
     /**
@@ -76,9 +77,9 @@ class DatabaseBatchRepository implements PrunableBatchRepository
     public function find(string $batchId)
     {
         $batch = $this->connection->table($this->table)
-                            ->useWritePdo()
-                            ->where('id', $batchId)
-                            ->first();
+            ->useWritePdo()
+            ->where('id', $batchId)
+            ->first();
 
         if ($batch) {
             return $this->toBatch($batch);
@@ -140,7 +141,7 @@ class DatabaseBatchRepository implements PrunableBatchRepository
             return [
                 'pending_jobs' => $batch->pending_jobs - 1,
                 'failed_jobs' => $batch->failed_jobs,
-                'failed_job_ids' => json_encode(array_values(array_diff(json_decode($batch->failed_job_ids, true), [$jobId]))),
+                'failed_job_ids' => json_encode(array_values(array_diff((array) json_decode($batch->failed_job_ids, true), [$jobId]))),
             ];
         });
 
@@ -163,7 +164,7 @@ class DatabaseBatchRepository implements PrunableBatchRepository
             return [
                 'pending_jobs' => $batch->pending_jobs,
                 'failed_jobs' => $batch->failed_jobs + 1,
-                'failed_job_ids' => json_encode(array_values(array_unique(array_merge(json_decode($batch->failed_job_ids, true), [$jobId])))),
+                'failed_job_ids' => json_encode(array_values(array_unique(array_merge((array) json_decode($batch->failed_job_ids, true), [$jobId])))),
             ];
         });
 
@@ -184,8 +185,8 @@ class DatabaseBatchRepository implements PrunableBatchRepository
     {
         return $this->connection->transaction(function () use ($batchId, $callback) {
             $batch = $this->connection->table($this->table)->where('id', $batchId)
-                        ->lockForUpdate()
-                        ->first();
+                ->lockForUpdate()
+                ->first();
 
             return is_null($batch) ? [] : tap($callback($batch), function ($values) use ($batchId) {
                 $this->connection->table($this->table)->where('id', $batchId)->update($values);
@@ -246,7 +247,7 @@ class DatabaseBatchRepository implements PrunableBatchRepository
         $totalDeleted = 0;
 
         do {
-            $deleted = $query->take(1000)->delete();
+            $deleted = $query->limit(1000)->delete();
 
             $totalDeleted += $deleted;
         } while ($deleted !== 0);
@@ -269,7 +270,7 @@ class DatabaseBatchRepository implements PrunableBatchRepository
         $totalDeleted = 0;
 
         do {
-            $deleted = $query->take(1000)->delete();
+            $deleted = $query->limit(1000)->delete();
 
             $totalDeleted += $deleted;
         } while ($deleted !== 0);
@@ -292,7 +293,7 @@ class DatabaseBatchRepository implements PrunableBatchRepository
         $totalDeleted = 0;
 
         do {
-            $deleted = $query->take(1000)->delete();
+            $deleted = $query->limit(1000)->delete();
 
             $totalDeleted += $deleted;
         } while ($deleted !== 0);
@@ -309,6 +310,16 @@ class DatabaseBatchRepository implements PrunableBatchRepository
     public function transaction(Closure $callback)
     {
         return $this->connection->transaction(fn () => $callback());
+    }
+
+    /**
+     * Rollback the last database transaction for the connection.
+     *
+     * @return void
+     */
+    public function rollBack()
+    {
+        $this->connection->rollBack(toLevel: 0);
     }
 
     /**
@@ -339,7 +350,11 @@ class DatabaseBatchRepository implements PrunableBatchRepository
             $serialized = base64_decode($serialized);
         }
 
-        return unserialize($serialized);
+        try {
+            return unserialize($serialized);
+        } catch (Throwable) {
+            return [];
+        }
     }
 
     /**
@@ -357,11 +372,11 @@ class DatabaseBatchRepository implements PrunableBatchRepository
             (int) $batch->total_jobs,
             (int) $batch->pending_jobs,
             (int) $batch->failed_jobs,
-            json_decode($batch->failed_job_ids, true),
+            (array) json_decode($batch->failed_job_ids, true),
             $this->unserialize($batch->options),
-            CarbonImmutable::createFromTimestamp($batch->created_at),
-            $batch->cancelled_at ? CarbonImmutable::createFromTimestamp($batch->cancelled_at) : $batch->cancelled_at,
-            $batch->finished_at ? CarbonImmutable::createFromTimestamp($batch->finished_at) : $batch->finished_at
+            CarbonImmutable::createFromTimestamp($batch->created_at, date_default_timezone_get()),
+            $batch->cancelled_at ? CarbonImmutable::createFromTimestamp($batch->cancelled_at, date_default_timezone_get()) : $batch->cancelled_at,
+            $batch->finished_at ? CarbonImmutable::createFromTimestamp($batch->finished_at, date_default_timezone_get()) : $batch->finished_at
         );
     }
 

@@ -3,7 +3,7 @@
 @stop
 <!-- header -->
 @section('PageHeader')
-        <h1>{!! Lang::get('lang.admin_panel') !!}</h1>
+        <h3>{!! Lang::get('lang.admin_panel') !!}</h3>
 @stop
 <!-- /header -->
 <!-- breadcrumbs -->
@@ -27,7 +27,7 @@
                                             <div class="settingiconblue">
                                                 <div class="settingdivblue">
                                                     <a href="{{ url('agents') }}"><span class="fa-stack fa-2x">
-                                                        <i class="fa fa-user fa-stack-1x"></i>
+                                                        <i class="fa-solid fa-user fa-stack-1x"></i>
                                                     </span></a>
                                                 </div>
                                                 <center class="box-title" >{!! Lang::get('lang.agents') !!}</center>
@@ -39,7 +39,7 @@
                                             <div class="settingiconblue">
                                                 <div class="settingdivblue">
                                                     <a href="{{ url('departments') }}"><span class="fa-stack fa-2x">
-                                                        <i class="fa fa-sitemap fa-stack-1x"></i>
+                                                        <i class="fa-solid fa-sitemap fa-stack-1x"></i>
                                                         </span></a>
                                                 </div>
                                                 <center class="box-title" >{!! Lang::get('lang.departments') !!}</center>
@@ -52,7 +52,7 @@
                                             <div class="settingiconblue">
                                                 <div class="settingdivblue">
                                                     <a href="{{ url('teams') }}"><span class="fa-stack fa-2x">
-                                                        <i class="fa fa-users fa-stack-1x"></i>
+                                                        <i class="fa-solid fa-users fa-stack-1x"></i>
                                                         </span></a>
                                                 </div>
                                                 <center class="box-title" >{!! Lang::get('lang.teams') !!}</center>
@@ -65,7 +65,7 @@
                                                 <div class="settingdivblue">
                                                     <a href="{{ url('groups') }}"><span class="fa-stack fa-2x">
                                                         
-                                                        <i class="fa fa-group fa-stack-1x"></i>
+                                                        <i class="fa-solid fa-group fa-stack-1x"></i>
                                                         </span></a>
                                                 </div>
                                                 <center class="box-title" >{!! Lang::get('lang.groups') !!}</center>
@@ -95,7 +95,7 @@
                                             <div class="settingiconblue">
                                                 <div class="settingdivblue">
                                                     <a href="{{ url('emails') }}"><span class="fa-stack fa-2x">
-                                                    <i class="fa fa-envelope-o fa-stack-1x"></i>
+                                                    <i class="fa-solid fa-envelope-o fa-stack-1x"></i>
                                                     </span></a>
                                                 </div>
                                                 <center class="box-title" >{!! Lang::get('lang.emails') !!}</center>
@@ -108,7 +108,7 @@
                                             <div class="settingiconblue">
                                                 <div class="settingdivblue">
                                                     <a href="{{ url('banlist') }}"><span class="fa-stack fa-2x">
-                                                        <i class="fa fa-ban fa-stack-1x"></i>
+                                                        <i class="fa-solid fa-ban fa-stack-1x"></i>
                                                         </span></a>
                                                 </div>
                                                 <center class="box-title" >{!! Lang::get('lang.ban_lists') !!}</center>
@@ -122,7 +122,7 @@
                                                 <div class="settingdivblue">
                                                     <a href="{{ url('list-directories') }}"><span class="fa-stack fa-2x">
                                                         
-                                                        <i class="fa fa-mail-forward fa-stack-1x"></i>
+                                                        <i class="fa-solid fa-mail-forward fa-stack-1x"></i>
                                                         </span></a>
                                                 </div>
                                                 <center class="box-title" >{!! Lang::get('lang.templates') !!}</center>
@@ -136,7 +136,7 @@
                                                 <div class="settingdivblue">
                                                     <a href="{{ url('getdiagno') }}"><span class="fa-stack fa-2x">
                                                         
-                                                        <i class="fa fa-plus fa-stack-1x"></i>
+                                                        <i class="fa-solid fa-plus fa-stack-1x"></i>
                                                         </span></a>
                                                 </div>
                                                 <center class="box-title" >{!! Lang::get('lang.diagnostics') !!}</center>
@@ -168,7 +168,7 @@
                                                 <div class="settingdivblue">
                                                     <a href="{{url('helptopic')}}"><span class="fa-stack fa-2x">
                                                         
-                                                        <i class="fa fa-file-text-o fa-stack-1x"></i>
+                                                        <i class="fa-solid fa-file-text-o fa-stack-1x"></i>
                                                     </span></a>
                                                 </div>
                                                 <center class="box-title" >{!! Lang::get('lang.help_topics') !!}</center>
@@ -181,7 +181,7 @@
                                                 <div class="settingdivblue">
                                                     <a href="{{url('sla')}}"><span class="fa-stack fa-2x">
                                                         
-                                                        <i class="fa fa-clock-o fa-stack-1x"></i>
+                                                        <i class="fa-solid fa-clock-o fa-stack-1x"></i>
                                                         </span></a>
                                                 </div>
                                                 <center class="box-title" >{!! Lang::get('lang.sla_plans') !!}</center>
@@ -195,7 +195,7 @@
                                                 <div class="settingdivblue">
                                                     <a href="{{url('forms')}}"><span class="fa-stack fa-2x">
                                                         
-                                                        <i class="fa fa-file-text fa-stack-1x"></i>
+                                                        <i class="fa-solid fa-file-text fa-stack-1x"></i>
                                                         </span></a>
                                                 </div>
                                                 <center class="box-title" >{!! Lang::get('lang.forms') !!}</center>
@@ -208,7 +208,7 @@
                                                 <div class="settingdivblue">
                                                     <a href="{{url('workflow')}}"><span class="fa-stack fa-2x">
                                                         
-                                                        <i class="fa fa-sitemap fa-stack-1x"></i>
+                                                        <i class="fa-solid fa-sitemap fa-stack-1x"></i>
                                                         </span></a>
                                                 </div>
                                                 <center class="box-title" >{!! Lang::get('lang.workflow') !!}</center>
@@ -239,7 +239,7 @@
                                                 <div class="settingdivblue">
                                                     <a href="{{url('getcompany')}}"><span class="fa-stack fa-2x">
                                                         
-                                                        <i class="fa fa-building-o fa-stack-1x"></i>
+                                                        <i class="fa-solid fa-building-o fa-stack-1x"></i>
                                                     </span></a>
                                                 </div>
                                                 <center class="box-title" >{!! Lang::get('lang.company') !!}</center>
@@ -252,7 +252,7 @@
                                                 <div class="settingdivblue">
                                                     <a href="{{url('getsystem')}}"><span class="fa-stack fa-2x">
                                                         
-                                                        <i class="fa fa-laptop fa-stack-1x"></i>
+                                                        <i class="fa-solid fa-laptop fa-stack-1x"></i>
                                                         </span></a>
                                                 </div>
                                                 <center class="box-title" >{!! Lang::get('lang.system') !!}</center>
@@ -266,7 +266,7 @@
                                                 <div class="settingdivblue">
                                                     <a href="{{url('getemail')}}"><span class="fa-stack fa-2x">
                                                         
-                                                        <i class="fa fa-at fa-stack-1x"></i>
+                                                        <i class="fa-solid fa-at fa-stack-1x"></i>
                                                         </span></a>
                                                 </div>
                                                 <center class="box-title" >{!! Lang::get('lang.email') !!}</center>
@@ -280,7 +280,7 @@
                                                 <div class="settingdivblue">
                                                     <a href="{{url('getticket')}}"><span class="fa-stack fa-2x">
                                                         
-                                                        <i class="fa fa-file-text-o fa-stack-1x"></i>
+                                                        <i class="fa-solid fa-file-text-o fa-stack-1x"></i>
                                                         </span></a>
                                                 </div>
                                                 <center class="box-title" >{!! Lang::get('lang.ticket') !!}</center>
@@ -294,7 +294,7 @@
                                                 <div class="settingdivblue">
                                                     <a href="{{url('getresponder')}}"><span class="fa-stack fa-2x">
                                                         
-                                                        <i class="fa fa-reply-all fa-stack-1x"></i>
+                                                        <i class="fa-solid fa-reply-all fa-stack-1x"></i>
                                                         </span></a>
                                                 </div>
                                                 <center class="box-title" >{!! Lang::get('lang.auto_response') !!}</center>
@@ -307,7 +307,7 @@
                                             <div class="settingiconblue">
                                                 <div class="settingdivblue">
                                                     <a href="{{url('getalert')}}"><span class="fa-stack fa-2x">
-                                                        <i class="fa fa-bell-o fa-stack-1x"></i>
+                                                        <i class="fa-solid fa-bell-o fa-stack-1x"></i>
                                                         </span></a>
                                                 </div>
                                                 <center class="box-title" >{!! Lang::get('lang.alert_notices') !!}</center>
@@ -320,7 +320,7 @@
                                             <div class="settingiconblue">
                                                 <div class="settingdivblue">
                                                     <a href="{{url('languages')}}"><span class="fa-stack fa-2x">
-                                                        <i class="fa fa-language fa-stack-1x"></i>
+                                                        <i class="fa-solid fa-language fa-stack-1x"></i>
                                                         </span></a>
                                                 </div>
                                                 <center class="box-title">{!! Lang::get('lang.language') !!}</center>
@@ -363,7 +363,7 @@
                                             <div class="settingiconblue">
                                                 <div class="settingdivblue">
                                                     <a href="{{ url('widgets') }}"><span class="fa-stack fa-2x">
-                                                        <i class="fa fa-list-alt fa-stack-1x"></i>
+                                                        <i class="fa-solid fa-list-alt fa-stack-1x"></i>
                                                     </span></a>
                                                 </div>
                                                 <center class="box-title" >{!! Lang::get('lang.widgets') !!}</center>
@@ -377,7 +377,7 @@
                                             <div class="settingiconblue">
                                                 <div class="settingdivblue">
                                                     <a href="{{ url('social-buttons') }}"><span class="fa-stack fa-2x">
-                                                        <i class="fa fa-cubes fa-stack-1x"></i>
+                                                        <i class="fa-solid fa-cubes fa-stack-1x"></i>
                                                     </span></a>
                                                 </div>
                                                 <center class="box-title" >{!! Lang::get('lang.social') !!}</center>
@@ -408,7 +408,7 @@
                                                 <div class="settingdivblue">
                                                     <a href="{{ url('plugins') }}"><span class="fa-stack fa-2x">
                                                         
-                                                        <i class="fa fa-plug fa-stack-1x"></i>
+                                                        <i class="fa-solid fa-plug fa-stack-1x"></i>
                                                     </span></a>
                                                 </div>
                                                 <center class="box-title" >{!! Lang::get('lang.plugin') !!}</center>

@@ -1,116 +1,135 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sabberworm\CSS\Value;
 
+use Sabberworm\CSS\CSSElement;
 use Sabberworm\CSS\Parsing\ParserState;
 use Sabberworm\CSS\Parsing\SourceException;
 use Sabberworm\CSS\Parsing\UnexpectedEOFException;
 use Sabberworm\CSS\Parsing\UnexpectedTokenException;
-use Sabberworm\CSS\Renderable;
+use Sabberworm\CSS\Position\Position;
+use Sabberworm\CSS\Position\Positionable;
 
-abstract class Value implements Renderable
+/**
+ * Abstract base class for specific classes of CSS values: `Size`, `Color`, `CSSString` and `URL`, and another
+ * abstract subclass `ValueList`.
+ */
+abstract class Value implements CSSElement, Positionable
 {
-    /**
-     * @var int
-     */
-    protected $iLineNo;
+    use Position;
 
     /**
-     * @param int $iLineNo
+     * @param int<1, max>|null $lineNumber
      */
-    public function __construct($iLineNo = 0)
+    public function __construct(?int $lineNumber = null)
     {
-        $this->iLineNo = $iLineNo;
+        $this->setPosition($lineNumber);
     }
 
     /**
-     * @param array<array-key, string> $aListDelimiters
+     * @param array<non-empty-string> $listDelimiters
      *
-     * @return RuleValueList|CSSFunction|CSSString|LineName|Size|URL|string
+     * @return Value|string
      *
      * @throws UnexpectedTokenException
      * @throws UnexpectedEOFException
+     *
+     * @internal since V8.8.0
      */
-    public static function parseValue(ParserState $oParserState, array $aListDelimiters = [])
+    public static function parseValue(ParserState $parserState, array $listDelimiters = [])
     {
-        /** @var array<int, RuleValueList|CSSFunction|CSSString|LineName|Size|URL|string> $aStack */
-        $aStack = [];
-        $oParserState->consumeWhiteSpace();
+        /** @var list<Value|string> $stack */
+        $stack = [];
+        $parserState->consumeWhiteSpace();
         //Build a list of delimiters and parsed values
         while (
-            !($oParserState->comes('}') || $oParserState->comes(';') || $oParserState->comes('!')
-            || $oParserState->comes(')')
-            || $oParserState->comes('\\'))
+        !($parserState->comes('}') || $parserState->comes(';') || $parserState->comes('!')
+            || $parserState->comes(')')
+            || $parserState->isEnd())
         ) {
-            if (count($aStack) > 0) {
-                $bFoundDelimiter = false;
-                foreach ($aListDelimiters as $sDelimiter) {
-                    if ($oParserState->comes($sDelimiter)) {
-                        array_push($aStack, $oParserState->consume($sDelimiter));
-                        $oParserState->consumeWhiteSpace();
-                        $bFoundDelimiter = true;
+            if (\count($stack) > 0) {
+                $foundDelimiter = false;
+                foreach ($listDelimiters as $delimiter) {
+                    if ($parserState->comes($delimiter)) {
+                        \array_push($stack, $parserState->consume($delimiter));
+                        $parserState->consumeWhiteSpace();
+                        $foundDelimiter = true;
                         break;
                     }
                 }
-                if (!$bFoundDelimiter) {
+                if (!$foundDelimiter) {
                     //Whitespace was the list delimiter
-                    array_push($aStack, ' ');
+                    \array_push($stack, ' ');
                 }
             }
-            array_push($aStack, self::parsePrimitiveValue($oParserState));
-            $oParserState->consumeWhiteSpace();
+            \array_push($stack, self::parsePrimitiveValue($parserState));
+            $parserState->consumeWhiteSpace();
         }
         // Convert the list to list objects
-        foreach ($aListDelimiters as $sDelimiter) {
-            if (count($aStack) === 1) {
-                return $aStack[0];
+        foreach ($listDelimiters as $delimiter) {
+            $stackSize = \count($stack);
+            if ($stackSize === 1) {
+                return $stack[0];
             }
-            $iStartPosition = null;
-            while (($iStartPosition = array_search($sDelimiter, $aStack, true)) !== false) {
-                $iLength = 2; //Number of elements to be joined
-                for ($i = $iStartPosition + 2; $i < count($aStack); $i += 2, ++$iLength) {
-                    if ($sDelimiter !== $aStack[$i]) {
+            $newStack = [];
+            for ($offset = 0; $offset < $stackSize; ++$offset) {
+                if ($offset === ($stackSize - 1) || $delimiter !== $stack[$offset + 1]) {
+                    $newStack[] = $stack[$offset];
+                    continue;
+                }
+                $length = 2; //Number of elements to be joined
+                for ($i = $offset + 3; $i < $stackSize; $i += 2, ++$length) {
+                    if ($delimiter !== $stack[$i]) {
                         break;
                     }
                 }
-                $oList = new RuleValueList($sDelimiter, $oParserState->currentLine());
-                for ($i = $iStartPosition - 1; $i - $iStartPosition + 1 < $iLength * 2; $i += 2) {
-                    $oList->addListComponent($aStack[$i]);
+                $list = new RuleValueList($delimiter, $parserState->currentLine());
+                for ($i = $offset; $i - $offset < $length * 2; $i += 2) {
+                    $list->addListComponent($stack[$i]);
                 }
-                array_splice($aStack, $iStartPosition - 1, $iLength * 2 - 1, [$oList]);
+                $newStack[] = $list;
+                $offset += $length * 2 - 2;
             }
+            $stack = $newStack;
         }
-        if (!isset($aStack[0])) {
+        if (!isset($stack[0])) {
             throw new UnexpectedTokenException(
-                " {$oParserState->peek()} ",
-                $oParserState->peek(1, -1) . $oParserState->peek(2),
+                " {$parserState->peek()} ",
+                $parserState->peek(1, -1) . $parserState->peek(2),
                 'literal',
-                $oParserState->currentLine()
+                $parserState->currentLine()
             );
         }
-        return $aStack[0];
+        return $stack[0];
     }
 
     /**
-     * @param bool $bIgnoreCase
-     *
      * @return CSSFunction|string
      *
      * @throws UnexpectedEOFException
      * @throws UnexpectedTokenException
+     *
+     * @internal since V8.8.0
      */
-    public static function parseIdentifierOrFunction(ParserState $oParserState, $bIgnoreCase = false)
+    public static function parseIdentifierOrFunction(ParserState $parserState, bool $ignoreCase = false)
     {
-        $sResult = $oParserState->parseIdentifier($bIgnoreCase);
+        $anchor = $parserState->anchor();
+        $result = $parserState->parseIdentifier($ignoreCase);
 
-        if ($oParserState->comes('(')) {
-            $oParserState->consume('(');
-            $aArguments = Value::parseValue($oParserState, ['=', ' ', ',']);
-            $sResult = new CSSFunction($sResult, $aArguments, ',', $oParserState->currentLine());
-            $oParserState->consume(')');
+        if ($parserState->comes('(')) {
+            $anchor->backtrack();
+            if ($parserState->streql('url', $result)) {
+                $result = URL::parse($parserState);
+            } elseif ($parserState->streql('calc', $result)) {
+                $result = CalcFunction::parse($parserState);
+            } else {
+                $result = CSSFunction::parse($parserState, $ignoreCase);
+            }
         }
 
-        return $sResult;
+        return $result;
     }
 
     /**
@@ -119,80 +138,74 @@ abstract class Value implements Renderable
      * @throws UnexpectedEOFException
      * @throws UnexpectedTokenException
      * @throws SourceException
+     *
+     * @internal since V8.8.0
      */
-    public static function parsePrimitiveValue(ParserState $oParserState)
+    public static function parsePrimitiveValue(ParserState $parserState)
     {
-        $oValue = null;
-        $oParserState->consumeWhiteSpace();
+        $value = null;
+        $parserState->consumeWhiteSpace();
         if (
-            is_numeric($oParserState->peek())
-            || ($oParserState->comes('-.')
-                && is_numeric($oParserState->peek(1, 2)))
-            || (($oParserState->comes('-') || $oParserState->comes('.')) && is_numeric($oParserState->peek(1, 1)))
+            \is_numeric($parserState->peek())
+            || ($parserState->comes('-.')
+                && \is_numeric($parserState->peek(1, 2)))
+            || (($parserState->comes('-') || $parserState->comes('.')) && \is_numeric($parserState->peek(1, 1)))
         ) {
-            $oValue = Size::parse($oParserState);
-        } elseif ($oParserState->comes('#') || $oParserState->comes('rgb', true) || $oParserState->comes('hsl', true)) {
-            $oValue = Color::parse($oParserState);
-        } elseif ($oParserState->comes('url', true)) {
-            $oValue = URL::parse($oParserState);
-        } elseif (
-            $oParserState->comes('calc', true) || $oParserState->comes('-webkit-calc', true)
-            || $oParserState->comes('-moz-calc', true)
-        ) {
-            $oValue = CalcFunction::parse($oParserState);
-        } elseif ($oParserState->comes("'") || $oParserState->comes('"')) {
-            $oValue = CSSString::parse($oParserState);
-        } elseif ($oParserState->comes("progid:") && $oParserState->getSettings()->bLenientParsing) {
-            $oValue = self::parseMicrosoftFilter($oParserState);
-        } elseif ($oParserState->comes("[")) {
-            $oValue = LineName::parse($oParserState);
-        } elseif ($oParserState->comes("U+")) {
-            $oValue = self::parseUnicodeRangeValue($oParserState);
+            $value = Size::parse($parserState);
+        } elseif ($parserState->comes('#') || $parserState->comes('rgb', true) || $parserState->comes('hsl', true)) {
+            $value = Color::parse($parserState);
+        } elseif ($parserState->comes("'") || $parserState->comes('"')) {
+            $value = CSSString::parse($parserState);
+        } elseif ($parserState->comes('progid:') && $parserState->getSettings()->usesLenientParsing()) {
+            $value = self::parseMicrosoftFilter($parserState);
+        } elseif ($parserState->comes('[')) {
+            $value = LineName::parse($parserState);
+        } elseif ($parserState->comes('U+')) {
+            $value = self::parseUnicodeRangeValue($parserState);
         } else {
-            $oValue = self::parseIdentifierOrFunction($oParserState);
-        }
-        $oParserState->consumeWhiteSpace();
-        return $oValue;
-    }
-
-    /**
-     * @return CSSFunction
-     *
-     * @throws UnexpectedEOFException
-     * @throws UnexpectedTokenException
-     */
-    private static function parseMicrosoftFilter(ParserState $oParserState)
-    {
-        $sFunction = $oParserState->consumeUntil('(', false, true);
-        $aArguments = Value::parseValue($oParserState, [',', '=']);
-        return new CSSFunction($sFunction, $aArguments, ',', $oParserState->currentLine());
-    }
-
-    /**
-     * @return string
-     *
-     * @throws UnexpectedEOFException
-     * @throws UnexpectedTokenException
-     */
-    private static function parseUnicodeRangeValue(ParserState $oParserState)
-    {
-        $iCodepointMaxLength = 6; // Code points outside BMP can use up to six digits
-        $sRange = "";
-        $oParserState->consume("U+");
-        do {
-            if ($oParserState->comes('-')) {
-                $iCodepointMaxLength = 13; // Max length is 2 six digit code points + the dash(-) between them
+            $nextCharacter = $parserState->peek(1);
+            try {
+                $value = self::parseIdentifierOrFunction($parserState);
+            } catch (UnexpectedTokenException $e) {
+                if (\in_array($nextCharacter, ['+', '-', '*', '/'], true)) {
+                    $value = $parserState->consume(1);
+                } else {
+                    throw $e;
+                }
             }
-            $sRange .= $oParserState->consume(1);
-        } while (strlen($sRange) < $iCodepointMaxLength && preg_match("/[A-Fa-f0-9\?-]/", $oParserState->peek()));
-        return "U+{$sRange}";
+        }
+        $parserState->consumeWhiteSpace();
+
+        return $value;
     }
 
     /**
-     * @return int
+     * @throws UnexpectedEOFException
+     * @throws UnexpectedTokenException
      */
-    public function getLineNo()
+    private static function parseMicrosoftFilter(ParserState $parserState): CSSFunction
     {
-        return $this->iLineNo;
+        $function = $parserState->consumeUntil('(', false, true);
+        $arguments = Value::parseValue($parserState, [',', '=']);
+        return new CSSFunction($function, $arguments, ',', $parserState->currentLine());
+    }
+
+    /**
+     * @throws UnexpectedEOFException
+     * @throws UnexpectedTokenException
+     */
+    private static function parseUnicodeRangeValue(ParserState $parserState): string
+    {
+        $codepointMaxLength = 6; // Code points outside BMP can use up to six digits
+        $range = '';
+        $parserState->consume('U+');
+        do {
+            if ($parserState->comes('-')) {
+                $codepointMaxLength = 13; // Max length is 2 six-digit code points + the dash(-) between them
+            }
+            $range .= $parserState->consume(1);
+        } while (\strlen($range) < $codepointMaxLength && \preg_match('/[A-Fa-f0-9\\?-]/', $parserState->peek()));
+
+        return "U+{$range}";
     }
 }

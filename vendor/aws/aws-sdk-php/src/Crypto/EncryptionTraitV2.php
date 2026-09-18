@@ -85,9 +85,7 @@ trait EncryptionTraitV2
                 . ' an integer.');
         }
 
-        if (!MaterialsProviderV2::isSupportedKeySize(
-            $cipherOptions['KeySize']
-        )) {
+        if (!MaterialsProviderV2::isSupportedKeySize($cipherOptions['KeySize'])) {
             throw new \InvalidArgumentException('The cipher "KeySize" requested'
                 . ' is not supported by AES (128 or 256).');
         }
@@ -130,12 +128,12 @@ trait EncryptionTraitV2
             $provider->getWrapAlgorithmName();
         $envelope[MetadataEnvelope::CONTENT_CRYPTO_SCHEME_HEADER] = $aesName;
         $envelope[MetadataEnvelope::UNENCRYPTED_CONTENT_LENGTH_HEADER] =
-            strlen($plaintext);
+            (string) strlen($plaintext);
         $envelope[MetadataEnvelope::MATERIALS_DESCRIPTION_HEADER] =
             json_encode($materialsDescription);
         if (!empty($cipherOptions['Tag'])) {
             $envelope[MetadataEnvelope::CRYPTO_TAG_LENGTH_HEADER] =
-                strlen($cipherOptions['Tag']) * 8;
+                (string) (strlen($cipherOptions['Tag']) * 8);
         }
 
         return $encryptingStream;
@@ -152,7 +150,7 @@ trait EncryptionTraitV2
      * @param array $cipherOptions Options for use in determining the cipher to
      *                             be used for encrypting data.
      *
-     * @return [AesStreamInterface, string]
+     * @return array returns an array with two elements as follows: [string, AesStreamInterface]
      *
      * @internal
      */
@@ -170,9 +168,7 @@ trait EncryptionTraitV2
                     $plaintext,
                     $cek,
                     $cipherOptions['Iv'],
-                    $cipherOptions['Aad'] = isset($cipherOptions['Aad'])
-                        ? $cipherOptions['Aad']
-                        : '',
+                    $cipherOptions['Aad'] = $cipherOptions['Aad'] ?? '',
                     $cipherOptions['TagLength'],
                     $cipherOptions['KeySize']
                 );

@@ -5,8 +5,10 @@ namespace Laravel\Ui;
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Finder\SplFileInfo;
 
+#[AsCommand(name: 'ui:controllers')]
 class ControllersCommand extends Command
 {
     /**
@@ -44,6 +46,6 @@ class ControllersCommand extends Command
                 );
             });
 
-        $this->info('Authentication scaffolding generated successfully.');
+        $this->components->info('Authentication scaffolding generated successfully.');
     }
 }

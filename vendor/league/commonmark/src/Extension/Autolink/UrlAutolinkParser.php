@@ -23,7 +23,7 @@ final class UrlAutolinkParser implements InlineParserInterface
     private const ALLOWED_AFTER = [null, ' ', "\t", "\n", "\x0b", "\x0c", "\x0d", '*', '_', '~', '('];
 
     // RegEx adapted from https://github.com/symfony/symfony/blob/6.3/src/Symfony/Component/Validator/Constraints/UrlValidator.php
-    private const REGEX = '~
+    private const REGEX = '~^
         (
             # Must start with a supported scheme + auth, or "www"
             (?:
@@ -34,7 +34,7 @@ final class UrlAutolinkParser implements InlineParserInterface
                 (?:
                     (?:xn--[a-z0-9-]++\.)*+xn--[a-z0-9-]++            # a domain name using punycode
                         |
-                    (?:[\pL\pN\pS\pM\-\_]++\.)+[\pL\pN\pM]++          # a multi-level domain name
+                    (?:[\pL\pN\pS\pM\-\_]++\.){1,127}[\pL\pN\pM]++    # a multi-level domain name; total length must be 253 bytes or less
                         |
                     [a-z0-9\-\_]++                                    # a single-level domain name
                 )\.?
@@ -56,21 +56,32 @@ final class UrlAutolinkParser implements InlineParserInterface
      *
      * @psalm-readonly
      */
-    private array $prefixes = ['www'];
+    private array $prefixes = ['www.'];
 
-    /** @psalm-readonly */
+    /**
+     * @psalm-var non-empty-string
+     *
+     * @psalm-readonly
+     */
     private string $finalRegex;
+
+    private string $defaultProtocol;
 
     /**
      * @param array<int, string> $allowedProtocols
      */
-    public function __construct(array $allowedProtocols = ['http', 'https', 'ftp'])
+    public function __construct(array $allowedProtocols = ['http', 'https', 'ftp'], string $defaultProtocol = 'http')
     {
+        /**
+         * @psalm-suppress PropertyTypeCoercion
+         */
         $this->finalRegex = \sprintf(self::REGEX, \implode('|', $allowedProtocols));
 
         foreach ($allowedProtocols as $protocol) {
             $this->prefixes[] = $protocol . '://';
         }
+
+        $this->defaultProtocol = $defaultProtocol;
     }
 
     public function getMatchDefinition(): InlineParserMatch
@@ -113,9 +124,9 @@ final class UrlAutolinkParser implements InlineParserInterface
 
         $cursor->advanceBy(\mb_strlen($url, 'UTF-8'));
 
-        // Auto-prefix 'http://' onto 'www' URLs
+        // Auto-prefix 'http(s)://' onto 'www' URLs
         if (\substr($url, 0, 4) === 'www.') {
-            $inlineContext->getContainer()->appendChild(new Link('http://' . $url, $url));
+            $inlineContext->getContainer()->appendChild(new Link($this->defaultProtocol . '://' . $url, $url));
 
             return true;
         }

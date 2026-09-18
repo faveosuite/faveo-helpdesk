@@ -13,8 +13,9 @@ namespace Monolog\Handler;
 
 use Monolog\Formatter\LineFormatter;
 use Monolog\Formatter\FormatterInterface;
-use Monolog\Logger;
+use Monolog\Level;
 use Monolog\Utils;
+use Monolog\LogRecord;
 
 /**
  * Stores to PHP error_log() handler.
@@ -26,20 +27,21 @@ class ErrorLogHandler extends AbstractProcessingHandler
     public const OPERATING_SYSTEM = 0;
     public const SAPI = 4;
 
-    /** @var int */
-    protected $messageType;
-    /** @var bool */
-    protected $expandNewlines;
+    /** @var 0|4 */
+    protected int $messageType;
+    protected bool $expandNewlines;
 
     /**
-     * @param int  $messageType    Says where the error should go.
+     * @param 0|4 $messageType    Says where the error should go.
      * @param bool $expandNewlines If set to true, newlines in the message will be expanded to be take multiple log entries
+     *
+     * @throws \InvalidArgumentException If an unsupported message type is set
      */
-    public function __construct(int $messageType = self::OPERATING_SYSTEM, $level = Logger::DEBUG, bool $bubble = true, bool $expandNewlines = false)
+    public function __construct(int $messageType = self::OPERATING_SYSTEM, int|string|Level $level = Level::Debug, bool $bubble = true, bool $expandNewlines = false)
     {
         parent::__construct($level, $bubble);
 
-        if (false === in_array($messageType, self::getAvailableTypes(), true)) {
+        if (false === \in_array($messageType, self::getAvailableTypes(), true)) {
             $message = sprintf('The given message type "%s" is not supported', print_r($messageType, true));
 
             throw new \InvalidArgumentException($message);
@@ -61,7 +63,7 @@ class ErrorLogHandler extends AbstractProcessingHandler
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     protected function getDefaultFormatter(): FormatterInterface
     {
@@ -69,20 +71,21 @@ class ErrorLogHandler extends AbstractProcessingHandler
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
-    protected function write(array $record): void
+    protected function write(LogRecord $record): void
     {
         if (!$this->expandNewlines) {
-            error_log((string) $record['formatted'], $this->messageType);
+            error_log((string) $record->formatted, $this->messageType);
 
             return;
         }
 
-        $lines = preg_split('{[\r\n]+}', (string) $record['formatted']);
+        $lines = preg_split('{[\r\n]+}', (string) $record->formatted);
         if ($lines === false) {
             $pcreErrorCode = preg_last_error();
-            throw new \RuntimeException('Failed to preg_split formatted string: ' . $pcreErrorCode . ' / '. Utils::pcreLastErrorMessage($pcreErrorCode));
+
+            throw new \RuntimeException('Failed to preg_split formatted string: ' . $pcreErrorCode . ' / '. preg_last_error_msg());
         }
         foreach ($lines as $line) {
             error_log($line, $this->messageType);

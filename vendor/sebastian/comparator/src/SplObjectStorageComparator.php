@@ -9,61 +9,52 @@
  */
 namespace SebastianBergmann\Comparator;
 
+use function assert;
+use SebastianBergmann\Exporter\Exporter;
 use SplObjectStorage;
 
 /**
- * Compares \SplObjectStorage instances for equality.
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for sebastian/comparator
+ *
+ * @internal This class is not covered by the backward compatibility promise for sebastian/comparator
  */
-class SplObjectStorageComparator extends Comparator
+final class SplObjectStorageComparator extends Comparator
 {
-    /**
-     * Returns whether the comparator can compare two values.
-     *
-     * @param mixed $expected The first value to compare
-     * @param mixed $actual   The second value to compare
-     *
-     * @return bool
-     */
-    public function accepts($expected, $actual)
+    public function accepts(mixed $expected, mixed $actual): bool
     {
         return $expected instanceof SplObjectStorage && $actual instanceof SplObjectStorage;
     }
 
     /**
-     * Asserts that two values are equal.
-     *
-     * @param mixed $expected     First value to compare
-     * @param mixed $actual       Second value to compare
-     * @param float $delta        Allowed numerical distance between two values to consider them equal
-     * @param bool  $canonicalize Arrays are sorted before comparison when set to true
-     * @param bool  $ignoreCase   Case is ignored when set to true
-     *
      * @throws ComparisonFailure
      */
-    public function assertEquals($expected, $actual, $delta = 0.0, $canonicalize = false, $ignoreCase = false)/*: void*/
+    public function assertEquals(mixed $expected, mixed $actual, float $delta = 0.0, bool $canonicalize = false, bool $ignoreCase = false): void
     {
+        assert($expected instanceof SplObjectStorage);
+        assert($actual instanceof SplObjectStorage);
+
+        $exporter = new Exporter;
+
         foreach ($actual as $object) {
-            if (!$expected->contains($object)) {
+            if (!$expected->offsetExists($object)) {
                 throw new ComparisonFailure(
                     $expected,
                     $actual,
-                    $this->exporter->export($expected),
-                    $this->exporter->export($actual),
-                    false,
-                    'Failed asserting that two objects are equal.'
+                    $exporter->export($expected),
+                    $exporter->export($actual),
+                    'Failed asserting that two objects are equal.',
                 );
             }
         }
 
         foreach ($expected as $object) {
-            if (!$actual->contains($object)) {
+            if (!$actual->offsetExists($object)) {
                 throw new ComparisonFailure(
                     $expected,
                     $actual,
-                    $this->exporter->export($expected),
-                    $this->exporter->export($actual),
-                    false,
-                    'Failed asserting that two objects are equal.'
+                    $exporter->export($expected),
+                    $exporter->export($actual),
+                    'Failed asserting that two objects are equal.',
                 );
             }
         }

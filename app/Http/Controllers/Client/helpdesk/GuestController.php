@@ -187,9 +187,13 @@ class GuestController extends Controller
      *
      * @return type Response
      */
-    public function getMyticket()
+    public function getMyticket(CommonSettings $common_settings)
     {
-        return view('themes.default1.client.helpdesk.mytickets');
+        $user_ticket_status = $common_settings->select('status')
+            ->where('option_name', '=', 'user_set_ticket_status')
+            ->first();
+
+        return view('themes.default1.client.helpdesk.mytickets', compact('user_ticket_status'));
     }
 
     /**

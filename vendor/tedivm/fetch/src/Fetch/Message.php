@@ -10,7 +10,6 @@
  */
 
 namespace Fetch;
-use Exception;
 
 /**
  * This library is a wrapper around the Imap library functions included in php. This class represents a single email
@@ -42,6 +41,13 @@ class Message
      * @var resource
      */
     protected $imapStream;
+
+    /**
+     * This as an string which contains raw header information for the message.
+     *
+     * @var string
+     */
+    protected $rawHeaders;
 
     /**
      * This as an object which contains header information for the message.
@@ -77,7 +83,7 @@ class Message
      *
      * @var string
      */
-    protected static $flagTypes = array('recent', 'flagged', 'answered', 'deleted', 'seen', 'draft');
+    protected static $flagTypes = array(self::FLAG_RECENT, self::FLAG_FLAGGED, self::FLAG_ANSWERED, self::FLAG_DELETED, self::FLAG_SEEN, self::FLAG_DRAFT);
 
     /**
      * This holds the plantext email message.
@@ -227,7 +233,7 @@ class Message
 
             return false;
 
-        $this->subject = isset($messageOverview->subject) ? $messageOverview->subject : null;
+        $this->subject = MIME::decode($messageOverview->subject, self::$charset);
         $this->date    = strtotime($messageOverview->date);
         $this->size    = $messageOverview->size;
 
@@ -282,6 +288,9 @@ class Message
         if ($forceReload || !isset($this->messageOverview)) {
             // returns an array, and since we just want one message we can grab the only result
             $results               = imap_fetch_overview($this->imapStream, $this->uid, FT_UID);
+            if ( sizeof($results) == 0 ) {
+                throw new \RuntimeException('Error fetching overview');
+            }
             $this->messageOverview = array_shift($results);
             if ( ! isset($this->messageOverview->date)) {
                 $this->messageOverview->date = null;
@@ -289,6 +298,22 @@ class Message
         }
 
         return $this->messageOverview;
+    }
+
+    /**
+     * This function returns an object containing the raw headers of the message.
+     *
+     * @param  bool   $forceReload
+     * @return string
+     */
+    public function getRawHeaders($forceReload = false)
+    {
+        if ($forceReload || !isset($this->rawHeaders)) {
+            // raw headers (since imap_headerinfo doesn't use the unique id)
+            $this->rawHeaders = imap_fetchheader($this->imapStream, $this->uid, FT_UID);
+        }
+
+        return $this->rawHeaders;
     }
 
     /**
@@ -303,7 +328,7 @@ class Message
     {
         if ($forceReload || !isset($this->headers)) {
             // raw headers (since imap_headerinfo doesn't use the unique id)
-            $rawHeaders = imap_fetchheader($this->imapStream, $this->uid, FT_UID);
+            $rawHeaders = $this->getRawHeaders();
 
             // convert raw header string into a usable object
             $headerObject = imap_rfc822_parse_headers($rawHeaders);
@@ -361,7 +386,7 @@ class Message
             }
         } else {
             if (!isset($this->plaintextMessage) && isset($this->htmlMessage)) {
-                $output = preg_replace('/\<br(\s*)?\/?\>/i', PHP_EOL, trim($this->htmlMessage) );
+                $output = preg_replace('/\s*\<br\s*\/?\>/i', PHP_EOL, trim($this->htmlMessage) );
                 $output = strip_tags($output);
 
                 return $output;
@@ -371,6 +396,24 @@ class Message
         }
 
         return false;
+    }
+
+    /**
+     * This function returns the plain text body of the email or false if not present.
+     * @return string|bool Returns false if not present
+     */
+    public function getPlainTextBody()
+    {
+        return isset($this->plaintextMessage) ? $this->plaintextMessage : false;
+    }
+
+    /**
+     * This function returns the HTML body of the email or false if not present.
+     * @return string|bool Returns false if not present
+     */
+    public function getHtmlBody()
+    {
+        return isset($this->htmlMessage) ? $this->htmlMessage : false;
     }
 
     /**
@@ -472,26 +515,30 @@ class Message
             $this->attachments[] = $attachment;
         } elseif ($structure->type == 0 || $structure->type == 1) {
             $messageBody = isset($partIdentifier) ?
-                imap_fetchbody($this->imapStream, $this->uid, $partIdentifier, FT_UID)
-                : imap_body($this->imapStream, $this->uid, FT_UID);
+                imap_fetchbody($this->imapStream, $this->uid, $partIdentifier, FT_UID | FT_PEEK)
+                : imap_body($this->imapStream, $this->uid, FT_UID | FT_PEEK);
 
             $messageBody = self::decode($messageBody, $structure->encoding);
 
             if (!empty($parameters['charset']) && $parameters['charset'] !== self::$charset) {
                 $mb_converted = false;
                 if (function_exists('mb_convert_encoding')) {
-                    try {
-                        $messageBody = mb_convert_encoding($messageBody, self::$charset, $parameters['charset']);
-                        $mb_converted = true;
-                    } catch (Exception $e) {
-                        // @TODO Handle exception
+                    if (!in_array($parameters['charset'], mb_list_encodings())) {
+                        if ($structure->encoding === 0) {
+                            $parameters['charset'] = 'US-ASCII';
+                        } else {
+                            $parameters['charset'] = 'UTF-8';
+                        }
                     }
+
+                    $messageBody = @mb_convert_encoding($messageBody, self::$charset, $parameters['charset']);
+                    $mb_converted = true;
                 }
                 if (!$mb_converted) {
-                    try {
-                        $messageBody = iconv($parameters['charset'], self::$charset . self::$charsetFlag, $messageBody);
-                    } catch (Exception $e) {
-                        // @TODO Handle exception
+                    $messageBodyConv = @iconv($parameters['charset'], self::$charset . self::$charsetFlag, $messageBody);
+
+                    if ($messageBodyConv !== false) {
+                        $messageBody = $messageBodyConv;
                     }
                 }
             }
@@ -623,11 +670,14 @@ class Message
         $outputAddresses = array();
         if (is_array($addresses))
             foreach ($addresses as $address) {
-                $currentAddress            = array();
-                $currentAddress['address'] = $address->mailbox . '@' . $address->host;
-                if (isset($address->personal))
-                    $currentAddress['name'] = $address->personal;
-                $outputAddresses[] = $currentAddress;
+                if (property_exists($address, 'mailbox') && $address->mailbox != 'undisclosed-recipients') {
+                    $currentAddress = array();
+                    $currentAddress['address'] = $address->mailbox . '@' . $address->host;
+                    if (isset($address->personal)) {
+                        $currentAddress['name'] = MIME::decode($address->personal, self::$charset);
+                    }
+                    $outputAddresses[] = $currentAddress;
+                }
             }
 
         return $outputAddresses;
@@ -683,33 +733,42 @@ class Message
      * @param  string $flag Recent, Flagged, Answered, Deleted, Seen, Draft
      * @return bool
      */
-    public function checkFlag($flag = 'flagged')
+    public function checkFlag($flag = self::FLAG_FLAGGED)
     {
         return (isset($this->status[$flag]) && $this->status[$flag] === true);
     }
 
     /**
-     * This function is used to enable or disable a flag on the imap message.
+     * This function is used to enable or disable one or more flags on the imap message.
      *
-     * @param  string                    $flag   Flagged, Answered, Deleted, Seen, Draft
+     * @param  string|array              $flag   Flagged, Answered, Deleted, Seen, Draft
      * @param  bool                      $enable
      * @throws \InvalidArgumentException
      * @return bool
      */
     public function setFlag($flag, $enable = true)
     {
-        if (!in_array($flag, self::$flagTypes) || $flag == 'recent')
-            throw new \InvalidArgumentException('Unable to set invalid flag "' . $flag . '"');
+        $flags = (is_array($flag)) ? $flag : array($flag);
 
-        $imapifiedFlag = '\\' . ucfirst($flag);
+        foreach ($flags as $i => $flag) {
+            $flag = ltrim(strtolower($flag), '\\');
+            if (!in_array($flag, self::$flagTypes) || $flag == self::FLAG_RECENT)
+                throw new \InvalidArgumentException('Unable to set invalid flag "' . $flag . '"');
+
+            if ($enable) {
+                $this->status[$flag] = true;
+            } else {
+                unset($this->status[$flag]);
+            }
+
+            $flags[$i] = $flag;
+        }
+
+        $imapifiedFlag = '\\'.implode(' \\', array_map('ucfirst', $flags));
 
         if ($enable === true) {
-            $this->status[$flag] = true;
-
             return imap_setflag_full($this->imapStream, $this->uid, $imapifiedFlag, ST_UID);
         } else {
-            unset($this->status[$flag]);
-
             return imap_clearflag_full($this->imapStream, $this->uid, $imapifiedFlag, ST_UID);
         }
     }

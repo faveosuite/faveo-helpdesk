@@ -64,6 +64,10 @@ class TestCommand extends Command
             $this->info('❌ The `flare` logging channel defined in the `logging` config file is not set to `flare`.');
         }
 
+        if ($this->config->get('ignition.with_stack_frame_arguments') && ini_get('zend.exception_ignore_args')) {
+            $this->info('⚠️ The `zend.exception_ignore_args` php ini setting is enabled. This will prevent Flare from showing stack trace arguments.');
+        }
+
         $this->info('✅ The Flare logging driver was configured correctly.');
 
         return $this;

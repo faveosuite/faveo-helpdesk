@@ -3,8 +3,11 @@
 namespace Facebook\WebDriver\Remote;
 
 use Facebook\WebDriver\Exception\ElementNotInteractableException;
+use Facebook\WebDriver\Exception\Internal\IOException;
+use Facebook\WebDriver\Exception\Internal\LogicException;
+use Facebook\WebDriver\Exception\Internal\UnexpectedResponseException;
+use Facebook\WebDriver\Exception\PhpWebDriverExceptionInterface;
 use Facebook\WebDriver\Exception\UnsupportedOperationException;
-use Facebook\WebDriver\Exception\WebDriverException;
 use Facebook\WebDriver\Interactions\Internal\WebDriverCoordinates;
 use Facebook\WebDriver\Internal\WebDriverLocatable;
 use Facebook\WebDriver\Support\ScreenshotHelper;
@@ -38,7 +41,6 @@ class RemoteWebElement implements WebDriverElement, WebDriverLocatable
     protected $isW3cCompliant;
 
     /**
-     * @param RemoteExecuteMethod $executor
      * @param string $id
      * @param bool $isW3cCompliant
      */
@@ -53,7 +55,7 @@ class RemoteWebElement implements WebDriverElement, WebDriverLocatable
     /**
      * Clear content editable or resettable element
      *
-     * @return RemoteWebElement The current instance.
+     * @return $this The current instance.
      */
     public function clear()
     {
@@ -68,7 +70,7 @@ class RemoteWebElement implements WebDriverElement, WebDriverLocatable
     /**
      * Click this element.
      *
-     * @return RemoteWebElement The current instance.
+     * @return $this The current instance.
      */
     public function click()
     {
@@ -94,8 +96,7 @@ class RemoteWebElement implements WebDriverElement, WebDriverLocatable
      * search the entire document from the root, not just the children (relative context) of this current node.
      * Use ".//" to limit your search to the children of this element.
      *
-     * @param WebDriverBy $by
-     * @return RemoteWebElement NoSuchElementException is thrown in HttpCommandExecutor if no element is found.
+     * @return static NoSuchElementException is thrown in HttpCommandExecutor if no element is found.
      * @see WebDriverBy
      */
     public function findElement(WebDriverBy $by)
@@ -118,8 +119,7 @@ class RemoteWebElement implements WebDriverElement, WebDriverLocatable
      * search the entire document from the root, not just the children (relative context) of this current node.
      * Use ".//" to limit your search to the children of this element.
      *
-     * @param WebDriverBy $by
-     * @return RemoteWebElement[] A list of all WebDriverElements, or an empty
+     * @return static[] A list of all WebDriverElements, or an empty
      *    array if nothing matches
      * @see WebDriverBy
      */
@@ -131,6 +131,10 @@ class RemoteWebElement implements WebDriverElement, WebDriverLocatable
             DriverCommand::FIND_CHILD_ELEMENTS,
             $params
         );
+
+        if (!is_array($raw_elements)) {
+            throw UnexpectedResponseException::forError('Server response to findChildElements command is not an array');
+        }
 
         $elements = [];
         foreach ($raw_elements as $raw_element) {
@@ -241,11 +245,11 @@ class RemoteWebElement implements WebDriverElement, WebDriverLocatable
     {
         if ($this->isW3cCompliant) {
             $script = <<<JS
-var e = arguments[0];
-e.scrollIntoView({ behavior: 'instant', block: 'end', inline: 'nearest' }); 
-var rect = e.getBoundingClientRect(); 
-return {'x': rect.left, 'y': rect.top};
-JS;
+                var e = arguments[0];
+                e.scrollIntoView({ behavior: 'instant', block: 'end', inline: 'nearest' });
+                var rect = e.getBoundingClientRect();
+                return {'x': rect.left, 'y': rect.top};
+            JS;
 
             $result = $this->executor->execute(DriverCommand::EXECUTE_SCRIPT, [
                 'script' => $script,
@@ -377,7 +381,7 @@ JS;
      * Simulate typing into an element, which may set its value.
      *
      * @param mixed $value The data to be typed.
-     * @return RemoteWebElement The current instance.
+     * @return static The current instance.
      */
     public function sendKeys($value)
     {
@@ -408,7 +412,7 @@ JS;
                     // This is so far non-W3C compliant method, so it may fail - if so, we just ignore the exception.
                     // @see https://github.com/w3c/webdriver/issues/1355
                     $fileName = $this->upload($local_file);
-                } catch (WebDriverException $e) {
+                } catch (PhpWebDriverExceptionInterface $e) {
                     $fileName = $local_file;
                 }
 
@@ -439,8 +443,7 @@ JS;
      *
      *   eg. `$element->setFileDetector(new LocalFileDetector);`
      *
-     * @param FileDetector $detector
-     * @return RemoteWebElement
+     * @return $this
      * @see FileDetector
      * @see LocalFileDetector
      * @see UselessFileDetector
@@ -455,14 +458,14 @@ JS;
     /**
      * If this current element is a form, or an element within a form, then this will be submitted to the remote server.
      *
-     * @return RemoteWebElement The current instance.
+     * @return $this The current instance.
      */
     public function submit()
     {
         if ($this->isW3cCompliant) {
             // Submit method cannot be called directly in case an input of this form is named "submit".
             // We use this polyfill to trigger 'submit' event using form.dispatchEvent().
-            $submitPolyfill = $script = <<<HTXT
+            $submitPolyfill = <<<HTXT
                 var form = arguments[0];
                 while (form.nodeName !== "FORM" && form.parentNode) { // find the parent form of this element
                     form = form.parentNode;
@@ -474,7 +477,7 @@ JS;
                 if (form.dispatchEvent(event)) {
                     HTMLFormElement.prototype.submit.call(form);
                 }
-HTXT;
+            HTXT;
             $this->executor->execute(DriverCommand::EXECUTE_SCRIPT, [
                 'script' => $submitPolyfill,
                 'args' => [[JsonWireCompat::WEB_DRIVER_ELEMENT_IDENTIFIER => $this->id]],
@@ -515,7 +518,6 @@ HTXT;
     /**
      * Test if two elements IDs refer to the same DOM element.
      *
-     * @param WebDriverElement $other
      * @return bool
      */
     public function equals(WebDriverElement $other)
@@ -602,13 +604,13 @@ HTXT;
      *
      * @param string $local_file
      *
-     * @throws WebDriverException
+     * @throws LogicException
      * @return string The remote path of the file.
      */
     protected function upload($local_file)
     {
         if (!is_file($local_file)) {
-            throw new WebDriverException('You may only upload files: ' . $local_file);
+            throw LogicException::forError('You may only upload files: ' . $local_file);
         }
 
         $temp_zip_path = $this->createTemporaryZipArchive($local_file);
@@ -635,7 +637,7 @@ HTXT;
 
         $zip = new ZipArchive();
         if (($errorCode = $zip->open($tempZipPath, ZipArchive::CREATE)) !== true) {
-            throw new WebDriverException(sprintf('Error creating zip archive: %s', $errorCode));
+            throw IOException::forFileError(sprintf('Error creating zip archive: %s', $errorCode), $tempZipPath);
         }
 
         $info = pathinfo($fileToZip);

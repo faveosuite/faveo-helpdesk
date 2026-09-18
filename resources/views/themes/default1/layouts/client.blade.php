@@ -79,19 +79,19 @@
 						</ul><!-- .navbar-user -->
                         @else
 						<ul class="nav navbar-nav navbar-login">
-							<li><a href="#" class="collapsed" data-toggle="collapse" data-target="#login-form">Login <i class="sub-indicator fa fa-chevron-circle-down fa-fw text-muted"></i></a></li>
+							<li><a href="#" class="collapsed" data-bs-toggle="collapse" data-bs-target="#login-form">Login <i class="sub-indicator fa-solid fa-chevron-circle-down fa-fw text-muted"></i></a></li>
 						</ul><!-- .navbar-login -->
 						<div id="login-form" class="login-form collapse fade clearfix">
-            {!!  Form::open(['route' => 'post.login']) !!}
+            {!! html()->form('POST', route('post.login'))->open() !!}
 
-			<div class="form-group has-feedback {{ $errors->has('email') ? 'has-error' : '' }}">
-				{!! Form::text('email',null,['placeholder'=>'Email','class' => 'form-control']) !!}
+			<div class="mb-3 has-feedback {{ $errors->has('email') ? 'has-error' : '' }}">
+				{!! html()->text('email', null)->placeholder('Email')->class('form-control') !!}
 				{!! $errors->first('email', '<spam class="help-block">:message</spam>') !!}
 				<span class="glyphicon glyphicon-envelope form-control-feedback"></span>
           	</div>
 
-			<div class="form-group has-feedback {{ $errors->has('password') ? 'has-error' : '' }}">
-	            {!! Form::password('password',['placeholder'=>'Password','class' => 'form-control']) !!}
+			<div class="mb-3 has-feedback {{ $errors->has('password') ? 'has-error' : '' }}">
+	            {!! html()->password('password')->placeholder('Password')->class('form-control') !!}
 				{!! $errors->first('password', '<spam class="help-block">:message</spam>') !!}
 	            <span class="glyphicon glyphicon-lock form-control-feedback"></span>
           	</div>
@@ -100,35 +100,35 @@
 									<li><a href="#">Create Account</a></li>
 								</ul>
 								<button type="submit" class="btn btn-custom pull-right">Login</button>
-							{!! Form::close() !!}
+							{!! html()->closeModelForm() !!}
 						</div><!-- #login-form -->
                         @endif
 					</nav><!-- #site-navigation -->
 				</div><!-- #navbar -->
 	<div id="header-search" class="site-search clearfix">
     @if(Session::has('success'))
-    	<div class="alert alert-success alert-dismissable">
-	        <i class="fa  fa-check-circle"></i>
+    	<div class="alert alert-success alert-dismissible">
+	        <i class="fa  fa-circle-check"></i>
 	        <b>Success!</b>
-	        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+	        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
 	        {{Session::get('success')}}
     	</div>
     @endif
     <!-- failure message -->
     @if(Session::has('fails'))
-	    <div class="alert alert-danger alert-dismissable">
-	        <i class="fa fa-ban"></i>
+	    <div class="alert alert-danger alert-dismissible">
+	        <i class="fa-solid fa-ban"></i>
 	        <b>Alert!</b> Failed.
-	        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+	        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
 	        {{Session::get('fails')}}
 	    </div>
     @endif
 
     @if($errors->first('email') || $errors->first('password'))
-		<div class="alert alert-danger alert-dismissable">
-	        <i class="fa fa-ban"></i>
+		<div class="alert alert-danger alert-dismissible">
+	        <i class="fa-solid fa-ban"></i>
 	        <b>Alert!</b> Failed.
-	        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+	        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
 	        <li>{!! $errors->first('email', '<spam class="help-block">:message</spam>') !!}</li>
 			<li>{!! $errors->first('password', '<spam class="help-block ">:message</spam>') !!}</li>
 	    </div>

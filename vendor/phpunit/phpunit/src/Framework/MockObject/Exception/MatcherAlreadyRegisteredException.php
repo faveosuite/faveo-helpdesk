@@ -12,6 +12,8 @@ namespace PHPUnit\Framework\MockObject;
 use function sprintf;
 
 /**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final class MatcherAlreadyRegisteredException extends \PHPUnit\Framework\Exception implements Exception
@@ -21,8 +23,8 @@ final class MatcherAlreadyRegisteredException extends \PHPUnit\Framework\Excepti
         parent::__construct(
             sprintf(
                 'Matcher with id <%s> is already registered',
-                $id
-            )
+                $id,
+            ),
         );
     }
 }

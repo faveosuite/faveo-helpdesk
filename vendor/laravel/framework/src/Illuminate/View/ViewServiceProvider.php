@@ -2,6 +2,7 @@
 
 namespace Illuminate\View;
 
+use Illuminate\Container\Container;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\View\Compilers\BladeCompiler;
 use Illuminate\View\Engines\CompilerEngine;
@@ -99,6 +100,7 @@ class ViewServiceProvider extends ServiceProvider
                 $app['config']->get('view.relative_hash', false) ? $app->basePath() : '',
                 $app['config']->get('view.cache', true),
                 $app['config']->get('view.compiled_extension', 'php'),
+                $app['config']->get('view.check_cache_timestamps', true),
             ), function ($blade) {
                 $blade->component('dynamic-component', DynamicComponent::class);
             });
@@ -135,7 +137,7 @@ class ViewServiceProvider extends ServiceProvider
     public function registerFileEngine($resolver)
     {
         $resolver->register('file', function () {
-            return new FileEngine($this->app['files']);
+            return new FileEngine(Container::getInstance()->make('files'));
         });
     }
 
@@ -148,7 +150,7 @@ class ViewServiceProvider extends ServiceProvider
     public function registerPhpEngine($resolver)
     {
         $resolver->register('php', function () {
-            return new PhpEngine($this->app['files']);
+            return new PhpEngine(Container::getInstance()->make('files'));
         });
     }
 
@@ -161,9 +163,14 @@ class ViewServiceProvider extends ServiceProvider
     public function registerBladeEngine($resolver)
     {
         $resolver->register('blade', function () {
-            $compiler = new CompilerEngine($this->app['blade.compiler'], $this->app['files']);
+            $app = Container::getInstance();
 
-            $this->app->terminating(static function () use ($compiler) {
+            $compiler = new CompilerEngine(
+                $app->make('blade.compiler'),
+                $app->make('files'),
+            );
+
+            $app->terminating(static function () use ($compiler) {
                 $compiler->forgetCompiledOrNotExpired();
             });
 

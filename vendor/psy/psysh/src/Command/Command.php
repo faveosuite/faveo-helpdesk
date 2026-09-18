@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2023 Justin Hileman
+ * (c) 2012-2026 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,12 +11,17 @@
 
 namespace Psy\Command;
 
+use Psy\CodeCleanerAware;
+use Psy\ContextAware;
+use Psy\Output\ShellOutputAdapter;
+use Psy\Readline\ReadlineAware;
 use Psy\Shell;
+use Psy\VarDumper\PresenterAware;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command as BaseCommand;
 use Symfony\Component\Console\Helper\Table;
-use Symfony\Component\Console\Helper\TableHelper;
 use Symfony\Component\Console\Helper\TableStyle;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -31,13 +36,43 @@ abstract class Command extends BaseCommand
      *
      * @api
      */
-    public function setApplication(Application $application = null)
+    public function setApplication(?Application $application = null): void
     {
         if ($application !== null && !$application instanceof Shell) {
             throw new \InvalidArgumentException('PsySH Commands require an instance of Psy\Shell');
         }
 
-        return parent::setApplication($application);
+        parent::setApplication($application);
+    }
+
+    /**
+     * getApplication, but is guaranteed to return a Shell instance.
+     */
+    protected function getShell(): Shell
+    {
+        $shell = $this->getApplication();
+        if (!$shell instanceof Shell) {
+            throw new \RuntimeException('PsySH Commands require an instance of Psy\Shell');
+        }
+
+        return $shell;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function run(InputInterface $input, OutputInterface $output): int
+    {
+        if (
+            $this instanceof ContextAware ||
+            $this instanceof CodeCleanerAware ||
+            $this instanceof PresenterAware ||
+            $this instanceof ReadlineAware
+        ) {
+            $this->getShell()->boot($input, $output);
+        }
+
+        return parent::run($input, $output);
     }
 
     /**
@@ -141,9 +176,13 @@ abstract class Command extends BaseCommand
                     $default = '';
                 }
 
+                $name = $argument->getName();
+                // @phan-suppress-next-line PhanParamSuspiciousOrder - intentionally padding empty string to create spaces
+                $pad = \str_pad('', $max - \strlen($name));
+                // @phan-suppress-next-line PhanParamSuspiciousOrder - intentionally padding empty string to create spaces
                 $description = \str_replace("\n", "\n".\str_pad('', $max + 2, ' '), $argument->getDescription());
 
-                $messages[] = \sprintf(" <info>%-{$max}s</info> %s%s", $argument->getName(), $description, $default);
+                $messages[] = \sprintf(' <info>%s</info>%s %s%s', $name, $pad, $description, $default);
             }
 
             $messages[] = '';
@@ -172,6 +211,7 @@ abstract class Command extends BaseCommand
                 }
 
                 $multiple = $option->isArray() ? '<comment> (multiple values allowed)</comment>' : '';
+                // @phan-suppress-next-line PhanParamSuspiciousOrder - intentionally padding empty string to create spaces
                 $description = \str_replace("\n", "\n".\str_pad('', $max + 2, ' '), $option->getDescription());
 
                 $optionMax = $max - \strlen($option->getName()) - 2;
@@ -231,16 +271,10 @@ abstract class Command extends BaseCommand
     /**
      * Get a Table instance.
      *
-     * Falls back to legacy TableHelper.
-     *
-     * @return Table|TableHelper
+     * @return Table
      */
     protected function getTable(OutputInterface $output)
     {
-        if (!\class_exists(Table::class)) {
-            return $this->getTableHelper();
-        }
-
         $style = new TableStyle();
 
         // Symfony 4.1 deprecated single-argument style setters.
@@ -262,16 +296,10 @@ abstract class Command extends BaseCommand
     }
 
     /**
-     * Legacy fallback for getTable.
+     * Get a ShellOutputAdapter for the given output.
      */
-    protected function getTableHelper(): TableHelper
+    protected function shellOutput(OutputInterface $output): ShellOutputAdapter
     {
-        $table = $this->getApplication()->getHelperSet()->get('table');
-
-        return $table
-            ->setRows([])
-            ->setLayout(TableHelper::LAYOUT_BORDERLESS)
-            ->setHorizontalBorderChar('')
-            ->setCrossingChar('');
+        return new ShellOutputAdapter($output);
     }
 }

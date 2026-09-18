@@ -1,23 +1,11 @@
-   {!! Form::open( array('route' => 'settings.create','method' => 'post', 'id' => 'form-add-setting' ) ) !!}
+   {!! html()->form('POST', route('settings.create'))->attributes(['id' => 'form-add-setting'])->open() !!}
      
-    {!! Form::label( 'setting_name', 'Setting Name:' ) !!}
-    {!! Form::text( 'setting_name', '', array(
-        'id' => 'setting_name',
-        'placeholder' => 'Enter Setting Name',
-        'maxlength' => 20,
-        'required' => true,
-    ) ) !!}
-    {!! Form::label( 'setting_value', 'Setting Value:' ) !!}
-    {!! Form::text( 'setting_value', '', array(
-        'id' => 'setting_value',
-        'placeholder' => 'Enter Setting Value',
-        'maxlength' => 255,
-        'required' => true,
-    ) ) !!}
+    {!! html()->label('Setting Name:', 'setting_name') !!}
+    {!! html()->text('setting_name', '')->id('setting_name')->placeholder('Enter Setting Name')->required()->attributes(['maxlength' => 20]) !!}
+    {!! html()->label('Setting Value:', 'setting_value') !!}
+    {!! html()->text('setting_value', '')->id('setting_value')->placeholder('Enter Setting Value')->required()->attributes(['maxlength' => 255]) !!}
      
-    {!! Form::submit( 'Add Setting', array(
-        'id' => 'btn-add-setting',
-    ) ) !!}
+    {!! html()->submit('Add Setting')->id('btn-add-setting') !!}
      
-    {!! Form::close() !!}
+    {!! html()->closeModelForm() !!}
 

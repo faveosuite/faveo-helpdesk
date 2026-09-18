@@ -36,10 +36,8 @@ interface MessageCatalogueInterface
      * Gets the messages within a given domain.
      *
      * If $domain is null, it returns all messages.
-     *
-     * @param string $domain The domain name
      */
-    public function all(string $domain = null): array;
+    public function all(?string $domain = null): array;
 
     /**
      * Sets a message translation.
@@ -48,7 +46,7 @@ interface MessageCatalogueInterface
      * @param string $translation The messages translation
      * @param string $domain      The domain name
      */
-    public function set(string $id, string $translation, string $domain = 'messages');
+    public function set(string $id, string $translation, string $domain = 'messages'): void;
 
     /**
      * Checks if a message has a translation.
@@ -80,7 +78,7 @@ interface MessageCatalogueInterface
      * @param array  $messages An array of translations
      * @param string $domain   The domain name
      */
-    public function replace(array $messages, string $domain = 'messages');
+    public function replace(array $messages, string $domain = 'messages'): void;
 
     /**
      * Adds translations for a given domain.
@@ -88,14 +86,14 @@ interface MessageCatalogueInterface
      * @param array  $messages An array of translations
      * @param string $domain   The domain name
      */
-    public function add(array $messages, string $domain = 'messages');
+    public function add(array $messages, string $domain = 'messages'): void;
 
     /**
      * Merges translations from the given Catalogue into the current one.
      *
      * The two catalogues must have the same locale.
      */
-    public function addCatalogue(self $catalogue);
+    public function addCatalogue(self $catalogue): void;
 
     /**
      * Merges translations from the given Catalogue into the current one
@@ -103,7 +101,7 @@ interface MessageCatalogueInterface
      *
      * This is used to provide default translations when they do not exist for the current locale.
      */
-    public function addFallbackCatalogue(self $catalogue);
+    public function addFallbackCatalogue(self $catalogue): void;
 
     /**
      * Gets the fallback catalogue.
@@ -120,5 +118,5 @@ interface MessageCatalogueInterface
     /**
      * Adds a resource for this collection.
      */
-    public function addResource(ResourceInterface $resource);
+    public function addResource(ResourceInterface $resource): void;
 }

@@ -42,6 +42,19 @@ trait HidesAttributes
     }
 
     /**
+     * Merge new hidden attributes with existing hidden attributes on the model.
+     *
+     * @param  array<string>  $hidden
+     * @return $this
+     */
+    public function mergeHidden(array $hidden)
+    {
+        $this->hidden = array_values(array_unique(array_merge($this->hidden, $hidden)));
+
+        return $this;
+    }
+
+    /**
      * Get the visible attributes for the model.
      *
      * @return array<string>
@@ -65,6 +78,19 @@ trait HidesAttributes
     }
 
     /**
+     * Merge new visible attributes with existing visible attributes on the model.
+     *
+     * @param  array<string>  $visible
+     * @return $this
+     */
+    public function mergeVisible(array $visible)
+    {
+        $this->visible = array_values(array_unique(array_merge($this->visible, $visible)));
+
+        return $this;
+    }
+
+    /**
      * Make the given, typically hidden, attributes visible.
      *
      * @param  array<string>|string|null  $attributes
@@ -77,7 +103,7 @@ trait HidesAttributes
         $this->hidden = array_diff($this->hidden, $attributes);
 
         if (! empty($this->visible)) {
-            $this->visible = array_merge($this->visible, $attributes);
+            $this->visible = array_values(array_unique(array_merge($this->visible, $attributes)));
         }
 
         return $this;
@@ -103,9 +129,9 @@ trait HidesAttributes
      */
     public function makeHidden($attributes)
     {
-        $this->hidden = array_merge(
+        $this->hidden = array_values(array_unique(array_merge(
             $this->hidden, is_array($attributes) ? $attributes : func_get_args()
-        );
+        )));
 
         return $this;
     }

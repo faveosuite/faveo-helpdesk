@@ -2,485 +2,305 @@
 
 namespace Propaganistas\LaravelPhone;
 
-use Exception;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
+use InvalidArgumentException;
 use JsonSerializable;
-use libphonenumber\NumberParseException as libNumberParseException;
 use libphonenumber\PhoneNumberFormat;
 use libphonenumber\PhoneNumberType;
 use libphonenumber\PhoneNumberUtil;
-use Propaganistas\LaravelPhone\Exceptions\CountryCodeException;
-use Propaganistas\LaravelPhone\Exceptions\NumberFormatException;
-use Propaganistas\LaravelPhone\Exceptions\NumberParseException;
-use Propaganistas\LaravelPhone\Traits\ParsesCountries;
-use Propaganistas\LaravelPhone\Traits\ParsesFormats;
-use Propaganistas\LaravelPhone\Traits\ParsesTypes;
-use Serializable;
+use Throwable;
 
-class PhoneNumber implements Jsonable, JsonSerializable, Serializable
+class PhoneNumber implements Jsonable, JsonSerializable
 {
-    use Macroable,
-        ParsesCountries,
-        ParsesFormats,
-        ParsesTypes;
+    use Macroable;
+
+    protected string $number;
+
+    protected array $countries;
+
+    protected bool $lenient = false;
 
     /**
-     * The provided phone number.
-     *
-     * @var string
+     * @param  array<string>|string|null  $country
      */
-    protected $number;
-
-    /**
-     * The provided phone country.
-     *
-     * @var array
-     */
-    protected $countries = [];
-
-    /**
-     * The detected phone country.
-     *
-     * @var string
-     */
-    protected $country;
-
-    /**
-     * Whether to allow lenient checks (i.e. landline numbers without area codes).
-     *
-     * @var bool
-     */
-    protected $lenient = false;
-
-    /**
-     * @var \libphonenumber\PhoneNumberUtil
-     */
-    protected $lib;
-
-    /**
-     * Phone constructor.
-     *
-     * @param string $number
-     */
-    public function __construct($number)
+    final public function __construct(string $number, array|string|null $country = null)
     {
         $this->number = $number;
-        $this->lib = PhoneNumberUtil::getInstance();
+        $this->countries = Arr::wrap($country);
+    }
+
+    public function getCountry(): ?string
+    {
+        // Try to detect the country first from the number itself.
+        try {
+            return PhoneNumberUtil::getInstance()->getRegionCodeForNumber(
+                PhoneNumberUtil::getInstance()->parse($this->number)
+            );
+        } catch (Throwable) {
+        }
+
+        // Only then iterate over the provided countries.
+        $countries = array_filter($this->countries, function ($country) {
+            return is_string($country) && static::isValidCountry($country);
+        });
+
+        foreach (array_unique($countries) as $country) {
+            try {
+                $libPhoneObject = PhoneNumberUtil::getInstance()->parse($this->number, $country);
+            } catch (Throwable) {
+                continue;
+            }
+
+            if ($this->lenient) {
+                if (PhoneNumberUtil::getInstance()->isPossibleNumber($libPhoneObject, $country)) {
+                    return mb_strtoupper($country);
+                }
+
+                continue;
+            }
+
+            if (PhoneNumberUtil::getInstance()->isValidNumberForRegion($libPhoneObject, $country)) {
+                return PhoneNumberUtil::getInstance()->getRegionCodeForNumber($libPhoneObject);
+            }
+        }
+
+        return null;
     }
 
     /**
-     * Create a phone instance.
-     *
-     * @param string       $number
-     * @param string|array $country
-     * @return static
+     * @param  string|array<string>  $country
      */
-    public static function make($number, $country = [])
+    public function isOfCountry(array|string $country): bool
     {
-        $instance = new static($number);
-
-        return $instance->ofCountry($country);
-    }
-
-    /**
-     * Set the country to which the phone number belongs to.
-     *
-     * @param string|array $country
-     * @return static
-     */
-    public function ofCountry($country)
-    {
-        $countries = is_array($country) ? $country : func_get_args();
-
         $instance = clone $this;
-        $instance->countries = array_unique(
-            array_merge($instance->countries, static::parseCountries($countries))
-        );
+        $instance->countries = Arr::wrap($country);
+        
+        $instanceCountry = $instance->getCountry();
 
-        return $instance;
+        if ($instanceCountry === null) {
+            return false;
+        }
+
+        return in_array(
+            mb_strtoupper($instanceCountry),
+            array_map('mb_strtoupper', $instance->countries)
+        );
+    }
+
+    public static function isValidCountry(string $country): bool
+    {
+        $supported = PhoneNumberUtil::getInstance()->getSupportedRegions();
+
+        return in_array(
+            mb_strtoupper($country),
+            array_map('mb_strtoupper', $supported)
+        );
+    }
+
+    public function getType(): PhoneNumberType
+    {
+        return PhoneNumberUtil::getInstance()->getNumberType(
+            $this->toLibPhoneObject()
+        );
     }
 
     /**
-     * Format the phone number in international format.
-     *
-     * @return string
+     * @param  PhoneNumberType|string|array<string|PhoneNumberType>  $type
      */
-    public function formatInternational()
+    public function isOfType(PhoneNumberType|string|array $type): bool
+    {
+        $types = array_map(fn ($value) => static::normalizeType($value), Arr::wrap($type));
+
+        // Add the unsure type when applicable.
+        if (in_array(PhoneNumberType::FIXED_LINE, $types) || in_array(PhoneNumberType::MOBILE, $types)) {
+            $types[] = PhoneNumberType::FIXED_LINE_OR_MOBILE;
+        }
+
+        return in_array($this->getType(), $types, true);
+    }
+
+    /** @internal */
+    public static function normalizeType(PhoneNumberType|string $type): PhoneNumberType
+    {
+        if ($type instanceof PhoneNumberType) {
+            return $type;
+        }
+
+        foreach (PhoneNumberType::cases() as $case) {
+            if (mb_strtoupper($case->name) === mb_strtoupper($type)) {
+                return $case;
+            }
+        }
+
+        throw new InvalidArgumentException(sprintf('"%s" could not be matched to a valid PhoneNumberType', $type));
+    }
+
+    public function format(PhoneNumberFormat|string $format): string
+    {
+        return PhoneNumberUtil::getInstance()->format(
+            $this->toLibPhoneObject(), static::normalizeFormat($format)
+        );
+    }
+
+    public function formatInternational(): string
     {
         return $this->format(PhoneNumberFormat::INTERNATIONAL);
     }
 
-    /**
-     * Format the phone number in national format.
-     *
-     * @return string
-     */
-    public function formatNational()
+    public function formatNational(): string
     {
         return $this->format(PhoneNumberFormat::NATIONAL);
     }
 
-    /**
-     * Format the phone number in E164 format.
-     *
-     * @return string
-     */
-    public function formatE164()
+    public function formatE164(): string
     {
         return $this->format(PhoneNumberFormat::E164);
     }
 
-    /**
-     * Format the phone number in RFC3966 format.
-     *
-     * @return string
-     */
-    public function formatRFC3966()
+    public function formatRFC3966(): string
     {
         return $this->format(PhoneNumberFormat::RFC3966);
     }
 
-    /**
-     * Format the phone number in a given format.
-     *
-     * @param string|int $format
-     * @return string
-     * @throws \Propaganistas\LaravelPhone\Exceptions\NumberFormatException
-     */
-    public function format($format)
+    /** @internal */
+    public static function normalizeFormat(PhoneNumberFormat|string $format): PhoneNumberFormat
     {
-        $parsedFormat = static::parseFormat($format);
-
-        if (is_null($parsedFormat)) {
-            throw NumberFormatException::invalid($format);
+        if ($format instanceof PhoneNumberFormat) {
+            return $format;
         }
 
-        return $this->lib->format(
-            $this->getPhoneNumberInstance(),
-            $parsedFormat
-        );
+        foreach (PhoneNumberFormat::cases() as $case) {
+            if (mb_strtoupper($case->name) === mb_strtoupper($format)) {
+                return $case;
+            }
+        }
+
+        throw new InvalidArgumentException(sprintf('"%s" could not be matched to a valid PhoneNumberFormat', $format));
     }
 
-    /**
-     * Format the phone number in a way that it can be dialled from the provided country.
-     *
-     * @param string $country
-     * @return string
-     * @throws \Propaganistas\LaravelPhone\Exceptions\CountryCodeException
-     */
-    public function formatForCountry($country)
+    public function formatForCountry(string $country): string
     {
-        if (! static::isValidCountryCode($country)) {
-            throw CountryCodeException::invalid($country);
+        if (! static::isValidCountry($country)) {
+            throw new InvalidArgumentException(sprintf('"%s" could not be matched to a valid country', $country));
         }
 
-        return $this->lib->formatOutOfCountryCallingNumber(
-            $this->getPhoneNumberInstance(),
+        return PhoneNumberUtil::getInstance()->formatOutOfCountryCallingNumber(
+            $this->toLibPhoneObject(),
             $country
         );
     }
 
-    /**
-     * Format the phone number in a way that it can be dialled from the provided country using a cellphone.
-     *
-     * @param string $country
-     * @param bool   $withFormatting
-     * @return string
-     * @throws \Propaganistas\LaravelPhone\Exceptions\CountryCodeException
-     */
-    public function formatForMobileDialingInCountry($country, $withFormatting = false)
+    public function formatForMobileDialingInCountry(string $country, bool $withFormatting = false): string
     {
-        if (! static::isValidCountryCode($country)) {
-            throw CountryCodeException::invalid($country);
+        if (! static::isValidCountry($country)) {
+            throw new InvalidArgumentException(sprintf('"%s" could not be matched to a valid country', $country));
         }
 
-        return $this->lib->formatNumberForMobileDialing(
-            $this->getPhoneNumberInstance(),
+        return PhoneNumberUtil::getInstance()->formatNumberForMobileDialing(
+            $this->toLibPhoneObject(),
             $country,
             $withFormatting
         );
     }
 
-    /**
-     * Get the phone number's country.
-     *
-     * @return string
-     */
-    public function getCountry()
-    {
-        if (! $this->country) {
-            $this->country = $this->filterValidCountry($this->countries);
-        }
-
-        return $this->country;
-    }
-
-    /**
-     * Check if the phone number is of (a) given country(ies).
-     *
-     * @param string|array $country
-     * @return bool
-     */
-    public function isOfCountry($country)
-    {
-        $countries = static::parseCountries($country);
-
-        return in_array($this->getCountry(), $countries);
-    }
-
-    /**
-     * Filter the provided countries to the one that is valid for the number.
-     *
-     * @param string|array $countries
-     * @return string
-     * @throws \Propaganistas\LaravelPhone\Exceptions\NumberParseException
-     */
-    protected function filterValidCountry($countries)
-    {
-        $result = Collection::make($countries)
-            ->filter(function ($country) {
-                try {
-                    $instance = $this->lib->parse($this->number, $country);
-
-                    return $this->lenient
-                        ? $this->lib->isPossibleNumber($instance, $country)
-                        : $this->lib->isValidNumberForRegion($instance, $country);
-                } catch (libNumberParseException $e) {
-                    return false;
-                }
-            })->first();
-
-        // If we got a new result, return it.
-        if ($result) {
-            return $result;
-        }
-
-        // Last resort: try to detect it from an international number.
-        if ($this->numberLooksInternational()) {
-            $countries[] = null;
-        }
-
-        foreach ($countries as $country) {
-            $instance = $this->lib->parse($this->number, $country);
-
-            if (($this->lenient && $this->lib->isPossibleNumber($instance)) || $this->lib->isValidNumber($instance)) {
-                return $this->lib->getRegionCodeForNumber($instance);
-            }
-        }
-
-        $countries = array_filter($countries);
-
-        if (! empty($countries)) {
-            throw NumberParseException::countryMismatch($this->number, $countries);
-        }
-
-        throw NumberParseException::countryRequired($this->number);
-    }
-
-    /**
-     * Get the phone number's type.
-     *
-     * @param bool $asConstant
-     * @return string|int|null
-     */
-    public function getType($asConstant = false)
-    {
-        $type = $this->lib->getNumberType($this->getPhoneNumberInstance());
-
-        if ($asConstant) {
-            return $type;
-        }
-
-        $stringType = Arr::get(static::parseTypesAsStrings($type), 0);
-
-        return $stringType ? strtolower($stringType) : null;
-    }
-
-    /**
-     * Check if the phone number is of (a) given type(s).
-     *
-     * @param string $type
-     * @return bool
-     */
-    public function isOfType($type)
-    {
-        $types = static::parseTypes($type);
-
-        // Add the unsure type when applicable.
-        if (array_intersect([PhoneNumberType::FIXED_LINE, PhoneNumberType::MOBILE], $types)) {
-            $types[] = PhoneNumberType::FIXED_LINE_OR_MOBILE;
-        }
-
-        return in_array($this->getType(true), $types, true);
-    }
-
-    /**
-     * Determine if two phone numbers are the same.
-     *
-     * @param string|static $number
-     * @param string|array|null $country
-     * @return bool
-     */
-    public function equals($number, $country = null)
+    public function isValid(): bool
     {
         try {
-            if (! $number instanceof static) {
-                $number = static::make($number, $country);
+            if ($this->lenient) {
+                return PhoneNumberUtil::getInstance()->isPossibleNumber(
+                    $this->toLibPhoneObject()
+                );
             }
 
-            return $this->formatE164() === $number->formatE164();
-        } catch (NumberParseException $e) {
+            return PhoneNumberUtil::getInstance()->isValidNumberForRegion(
+                $this->toLibPhoneObject(),
+                $this->getCountry(),
+            );
+        } catch (Throwable) {
             return false;
         }
     }
 
-    /**
-     * Determine if two phone numbers are not the same.
-     *
-     * @param string|static $number
-     * @param string|array|null $country
-     * @return bool
-     */
-    public function notEquals($number, $country = null)
+    public function lenient(bool $enable = true): self
     {
-        return ! $this->equals($number, $country);
-    }
-
-    /**
-     * Get the raw provided number.
-     *
-     * @return string
-     */
-    public function getRawNumber()
-    {
-    	return $this->number;
-    }
-
-    /**
-     * Get the PhoneNumber instance of the current number.
-     *
-     * @return \libphonenumber\PhoneNumber
-     */
-    public function getPhoneNumberInstance()
-    {
-        return $this->lib->parse($this->number, $this->getCountry());
-    }
-
-    /**
-     * Determine whether the phone number seems to be in international format.
-     *
-     * @return bool
-     */
-    public function numberLooksInternational()
-    {
-        if (empty($this->number)) {
-            return false;
-        }
-
-        if (Str::startsWith($this->number, '+')) {
-            return true;
-        }
-
-        return strpos($this->number, '+', 2) && static::isValidCountryCode(Str::substr($this->number, 0, 2));
-    }
-
-    /**
-     * Enable lenient number parsing.
-     *
-     * @return $this
-     */
-    public function lenient()
-    {
-        $this->lenient = true;
+        $this->lenient = $enable;
 
         return $this;
     }
 
     /**
-     * Convert the phone instance to JSON.
-     *
-     * @param  int $options
-     * @return string
+     * @param  string|array<string>|null  $country
      */
+    public function equals(PhoneNumber|string $number, array|string|null $country = null): bool
+    {
+        try {
+            if (! $number instanceof static) {
+                $number = new static($number, $country);
+            }
+
+            return $this->formatE164() === $number->formatE164();
+        } catch (Throwable) {
+            return false;
+        }
+    }
+
+    /**
+     * @param  string|array<string>|null  $country
+     */
+    public function notEquals(PhoneNumber|string $number, array|string|null $country = null): bool
+    {
+        return ! $this->equals($number, $country);
+    }
+
+    public function getRawNumber(): string
+    {
+        return $this->number;
+    }
+
+    /**
+     * @throws \libphonenumber\NumberParseException
+     */
+    public function toLibPhoneObject(): \libphonenumber\PhoneNumber
+    {
+        return PhoneNumberUtil::getInstance()->parse(
+            $this->number, $this->getCountry()
+        );
+    }
+
+    /**
+     * @param  int  $options
+     * @return string
+     **/
     public function toJson($options = 0)
     {
         return json_encode($this->jsonSerialize(), $options);
     }
 
-    /**
-     * Convert the phone instance into something JSON serializable.
-     *
-     * @return string
-     */
-    #[\ReturnTypeWillChange]
-    public function jsonSerialize()
+    public function jsonSerialize(): string
     {
         return $this->formatE164();
     }
 
-    /**
-     * Convert the phone instance into a string representation.
-     *
-     * @return string
-     *
-     * @deprecated PHP 8.1
-     */
-    public function serialize()
-    {
-        return $this->__serialize()['number'];
-    }
-
-    /**
-     * Reconstructs the phone instance from a string representation.
-     *
-     * @param string|array $serialized
-     *
-     * @deprecated PHP 8.1
-     */
-    public function unserialize($serialized)
-    {
-       $this->__unserialize(is_array($serialized) ? $serialized : ['number' => $serialized]);
-    }
-    
-    /**
-     * Convert the phone instance into a string representation.
-     *
-     * @return array
-     */
     public function __serialize()
     {
         return ['number' => $this->formatE164()];
     }
 
-    /**
-     * Reconstructs the phone instance from a string representation.
-     *
-     * @param array $serialized
-     */
-    public function __unserialize(array $serialized)
+    public function __unserialize(array $serialized): void
     {
-        $this->lib = PhoneNumberUtil::getInstance();
         $this->number = $serialized['number'];
-        $this->country = $this->lib->getRegionCodeForNumber($this->getPhoneNumberInstance());
     }
 
-    /**
-     * Convert the phone instance to a formatted number.
-     *
-     * @return string
-     */
-    public function __toString()
+    public function __toString(): string
     {
         // Formatting the phone number could throw an exception, but __toString() doesn't cope well with that.
         // Let's just return the original number in that case.
         try {
             return $this->formatE164();
-        } catch (Exception $exception) {
-            return (string) $this->number;
+        } catch (Throwable) {
+            return $this->number;
         }
     }
 }
