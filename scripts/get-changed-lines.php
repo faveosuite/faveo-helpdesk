@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Parses git diff and outputs a JSON map of repo-relative paths to the
  * line numbers that were ADDED or CHANGED on this branch vs the base branch.
@@ -16,9 +17,8 @@
  * The output is also streamed rather than read into one string, so memory use
  * stays flat regardless of how large the diff is.
  */
-
 $workspace = rtrim($argv[1] ?? getcwd(), '/');
-$baseRef   = $argv[2] ?? 'origin/development';
+$baseRef = $argv[2] ?? 'origin/development';
 
 $excludes = [
     ':(exclude)vendor/*',
@@ -28,12 +28,12 @@ $excludes = [
     ':(exclude)bootstrap/cache/*',
 ];
 
-$cmd = 'git -C ' . escapeshellarg($workspace)
-     . ' diff --unified=0 --diff-filter=d ' . escapeshellarg($baseRef . '..HEAD')
-     . ' -- ' . escapeshellarg('*.php');
+$cmd = 'git -C '.escapeshellarg($workspace)
+     .' diff --unified=0 --diff-filter=d '.escapeshellarg($baseRef.'..HEAD')
+     .' -- '.escapeshellarg('*.php');
 
 foreach ($excludes as $exclude) {
-    $cmd .= ' ' . escapeshellarg($exclude);
+    $cmd .= ' '.escapeshellarg($exclude);
 }
 
 $cmd .= ' 2>/dev/null';
@@ -45,9 +45,9 @@ if ($handle === false) {
     exit(1);
 }
 
-$result      = [];
+$result = [];
 $currentFile = null;
-$newLineNum  = 0;
+$newLineNum = 0;
 
 while (($line = fgets($handle)) !== false) {
     $line = rtrim($line, "\r\n");
@@ -59,7 +59,9 @@ while (($line = fgets($handle)) !== false) {
         continue;
     }
 
-    if ($currentFile === null) continue;
+    if ($currentFile === null) {
+        continue;
+    }
 
     if (str_starts_with($line, '--- ')
         || str_starts_with($line, 'diff ')
@@ -89,6 +91,7 @@ pclose($handle);
 // Test files are never the subject of these checks.
 $result = array_filter($result, static function (string $path): bool {
     $lower = strtolower($path);
+
     return !str_starts_with($lower, 'tests/')
         && !preg_match('#(^|/)tests?/#', $lower);
 }, ARRAY_FILTER_USE_KEY);
