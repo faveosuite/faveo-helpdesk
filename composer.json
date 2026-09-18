@@ -79,7 +79,8 @@
         "barryvdh/laravel-debugbar": "^3.8",
         "spatie/laravel-ignition": "^2.0",
         "laravel/pint": "^1.4",
-        "beyondcode/laravel-query-detector": "^2.0"
+        "beyondcode/laravel-query-detector": "^2.0",
+        "larastan/larastan": "^3.0"
     },
     "autoload": {
         "classmap": [
