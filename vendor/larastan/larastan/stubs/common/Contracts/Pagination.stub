@@ -1,0 +1,26 @@
+<?php
+
+namespace Illuminate\Contracts\Pagination;
+
+/**
+ * @template TKey of array-key
+ * @template TValue
+ */
+interface Paginator
+{}
+
+/**
+ * @template TKey of array-key
+ * @template TValue
+ *
+ * @extends Paginator<TKey, TValue>
+ */
+interface LengthAwarePaginator extends Paginator
+{}
+
+/**
+ * @template TKey of array-key
+ * @template TValue
+ */
+interface CursorPaginator
+{}

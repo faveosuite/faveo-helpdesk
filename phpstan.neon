@@ -1,0 +1,54 @@
+# Larastan / PHPStan static analysis for Faveo Helpdesk (Community).
+#
+# Mirrors the Paid repo's approach: level 8 with the entire existing debt frozen
+# in phpstan-baseline.neon, so the gate only defends newly written code.
+#
+# Unlike the Paid repo, phpstan/extension-installer is NOT installed here, so
+# Larastan's Laravel extension (Eloquent/facade/container type inference) has to
+# be included explicitly below.
+includes:
+    - vendor/larastan/larastan/extension.neon
+    - phpstan-baseline.neon
+
+parameters:
+    # Allowlist rather than `paths: .` — vendor/ is committed in this repository
+    # (21k+ tracked files), so scanning from the root would walk all of it.
+    paths:
+        - app
+        - database
+        - routes
+        - config
+
+    level: 8
+
+    reportUnmatchedIgnoredErrors: true
+    treatPhpDocTypesAsCertain: true
+
+    # Empty on purpose: suppression is centralised in phpstan-baseline.neon so it
+    # shows up in a diff and can be reviewed.
+    ignoreErrors:
+
+    # Applies to files passed as CLI arguments too, so paths outside `paths:` are
+    # listed as well. `(?)` marks a path that may legitimately not exist.
+    excludePaths:
+        - vendor/*
+        - node_modules (?)
+        - storage/*
+        - bootstrap/cache (?)
+        # public/ contains vendored third-party PHP (CKEditor samples, probe.php)
+        - public/*
+        - tests (?)
+        # Blade templates: *.blade.php matches *.php and would otherwise be parsed
+        - resources/views (?)
+        # Plain array-return translation files — nothing to type-check
+        - lang (?)
+        - resources/lang (?)
+        # ── Unanalysable dead code (errors here cannot be baselined) ───────────
+        # All three are unreferenced by any route or class. They should be
+        # DELETED rather than excluded; excluded for now so the gate can ship.
+        #   HomeController  — extends Controller without `use App\Http\Controllers\Controller`
+        #   ImapMail        — extends PhpImap\Mailbox; php-imap is not a Community dependency
+        #   Socialite       — `class Socialite extends Socialite`, a class extending itself
+        - app/Http/Controllers/Admin/helpdesk/HomeController.php
+        - app/Http/Controllers/Agent/helpdesk/ImapMail.php
+        - app/Http/Controllers/Common/Socialite.php

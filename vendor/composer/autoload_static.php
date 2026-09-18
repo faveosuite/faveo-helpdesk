@@ -123,6 +123,7 @@ class ComposerStaticInit10c1836cea18dd9470bc2e97275d9d56
         '6124b4c8570aa390c21fafd04a26c69f' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/deep_copy.php',
         '2a3c2110e8e0295330dc3d11a4cbc4cb' => __DIR__ . '/..' . '/php-webdriver/webdriver/lib/Exception/TimeoutException.php',
         'decc78cc4436b1292c6c0d151b19445c' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/bootstrap.php',
+        '9b38cf48e83f5d8f60375221cd213eee' => __DIR__ . '/..' . '/phpstan/phpstan/bootstrap.php',
         '801c31d8ed748cfa537fa45402288c95' => __DIR__ . '/..' . '/psy/psysh/src/functions.php',
         '4a1f389d6ce373bda9e57857d3b61c84' => __DIR__ . '/..' . '/barryvdh/laravel-debugbar/src/helpers.php',
         'c72349b1fe8d0deeedd3a52e8aa814d8' => __DIR__ . '/..' . '/mockery/mockery/library/helpers.php',
@@ -149,6 +150,10 @@ class ComposerStaticInit10c1836cea18dd9470bc2e97275d9d56
         'l' =>
         array (
             'libphonenumber\\' => 15,
+        ),
+        'i' =>
+        array (
+            'iamcal\\' => 7,
         ),
         'Z' =>
         array (
@@ -287,6 +292,7 @@ class ComposerStaticInit10c1836cea18dd9470bc2e97275d9d56
             'Laravel\\Dusk\\' => 13,
             'LaravelFCM\\Mocks\\' => 17,
             'LaravelFCM\\' => 11,
+            'Larastan\\Larastan\\' => 18,
         ),
         'J' =>
         array (
@@ -383,6 +389,10 @@ class ComposerStaticInit10c1836cea18dd9470bc2e97275d9d56
         'libphonenumber\\' =>
         array (
             0 => __DIR__ . '/..' . '/giggsey/libphonenumber-for-php-lite/src',
+        ),
+        'iamcal\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/iamcal/sql-parser/src',
         ),
         'ZipStream\\' =>
         array (
@@ -796,6 +806,10 @@ class ComposerStaticInit10c1836cea18dd9470bc2e97275d9d56
         'LaravelFCM\\' =>
         array (
             0 => __DIR__ . '/..' . '/brozot/laravel-fcm/src',
+        ),
+        'Larastan\\Larastan\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/larastan/larastan/src',
         ),
         'JmesPath\\' =>
         array (

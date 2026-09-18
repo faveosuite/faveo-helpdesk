@@ -1,0 +1,29 @@
+<?php
+
+namespace Illuminate\Contracts\View;
+
+interface Factory
+{
+    /**
+     * Determine if a given view exists.
+     *
+     * @param  string  $view
+     * @return bool
+     *
+     * @phpstan-assert-if-true view-string $view
+     */
+    public function exists($view);
+
+    /**
+     * Get the evaluated view contents for the given view.
+     *
+     * @param  view-string  $view
+     * @param  \Illuminate\Contracts\Support\Arrayable<array-key, mixed>|array<string, mixed>  $data
+     * @param  array<string, mixed>  $mergeData
+     * @return \Illuminate\Contracts\View\View
+     */
+    public function make($view, $data = [], $mergeData = []);
+}
+
+interface View
+{}
