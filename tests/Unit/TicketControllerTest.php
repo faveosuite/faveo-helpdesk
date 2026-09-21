@@ -8,8 +8,8 @@ use App\User;
 use Faker\Factory as FakerFactory;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
@@ -109,7 +109,7 @@ class TicketControllerTest extends TestCase
         // Build this test's own agent and ticket. It used to pick up
         // User::latest() / Tickets::latest(), i.e. whatever the previously-run test
         // happened to leave behind, which made the result depend on test order.
-        $user    = $this->actingAsAgent();
+        $user = $this->actingAsAgent();
         $tickets = $this->makeTicket($user);
 
         $this->assertAuthenticated();
@@ -277,7 +277,6 @@ class TicketControllerTest extends TestCase
         return $ticket;
     }
 
-
     /**
      * Ticket creation sends a confirmation mail, and PhpMailController throws
      * 'system-email-not-configured' unless an emails row with sending_status = 1
@@ -402,7 +401,7 @@ class TicketControllerTest extends TestCase
 
     public function test_select_all_resolves_tickets()
     {
-        $agent  = $this->actingAsAgent();
+        $agent = $this->actingAsAgent();
         $ticket = $this->makeTicket($agent);
 
         $this->post(route('select_all'), ['select_all' => [$ticket->id], 'submit' => 'Resolve'])
@@ -413,7 +412,7 @@ class TicketControllerTest extends TestCase
 
     public function test_select_all_moves_tickets_to_trash()
     {
-        $agent  = $this->actingAsAgent();
+        $agent = $this->actingAsAgent();
         $ticket = $this->makeTicket($agent);
 
         $this->post(route('select_all'), ['select_all' => [$ticket->id], 'submit' => 'Delete'])
@@ -425,9 +424,9 @@ class TicketControllerTest extends TestCase
 
     public function test_select_all_deletes_tickets_permanently()
     {
-        $agent  = $this->actingAsAgent();
+        $agent = $this->actingAsAgent();
         $ticket = $this->makeTicket($agent);
-        $id     = $ticket->id;
+        $id = $ticket->id;
 
         $this->post(route('select_all'), ['select_all' => [$id], 'submit' => 'Delete forever'])
             ->assertStatus(302);
@@ -449,7 +448,7 @@ class TicketControllerTest extends TestCase
 
     public function test_close_route_sets_status_to_closed()
     {
-        $agent  = $this->actingAsAgent();
+        $agent = $this->actingAsAgent();
         $ticket = $this->makeTicket($agent);
 
         $this->post(route('ticket.close', ['id' => $ticket->id]))->assertStatus(200);
@@ -458,7 +457,7 @@ class TicketControllerTest extends TestCase
 
     public function test_resolve_route_sets_status_to_resolved()
     {
-        $agent  = $this->actingAsAgent();
+        $agent = $this->actingAsAgent();
         $ticket = $this->makeTicket($agent);
 
         $this->post(route('ticket.resolve', ['id' => $ticket->id]))->assertStatus(200);
@@ -467,7 +466,7 @@ class TicketControllerTest extends TestCase
 
     public function test_open_route_reopens_a_closed_ticket()
     {
-        $agent  = $this->actingAsAgent();
+        $agent = $this->actingAsAgent();
         $ticket = $this->makeTicket($agent, ['status' => 3]);
 
         $this->post(route('ticket.open', ['id' => $ticket->id]))->assertStatus(200);
@@ -476,9 +475,9 @@ class TicketControllerTest extends TestCase
 
     public function test_delete_route_trashes_then_removes_the_ticket()
     {
-        $agent  = $this->actingAsAgent();
+        $agent = $this->actingAsAgent();
         $ticket = $this->makeTicket($agent);
-        $id     = $ticket->id;
+        $id = $ticket->id;
 
         // First call trashes it (status 5, is_deleted 1)...
         $this->post(route('ticket.delete', ['id' => $id]))->assertStatus(200);
@@ -492,7 +491,7 @@ class TicketControllerTest extends TestCase
 
     public function test_status_actions_are_refused_for_a_ticket_outside_the_agents_department()
     {
-        $agent  = $this->actingAsAgent(['primary_dpt' => 1]);
+        $agent = $this->actingAsAgent(['primary_dpt' => 1]);
         $ticket = $this->makeTicket($agent, ['dept_id' => 2]);
 
         $this->post(route('ticket.delete', ['id' => $ticket->id]))->assertStatus(403);
@@ -502,7 +501,7 @@ class TicketControllerTest extends TestCase
 
     public function test_thread_page_renders_for_an_agent()
     {
-        $agent  = $this->actingAsAgent();
+        $agent = $this->actingAsAgent();
         $ticket = $this->makeTicket($agent);
 
         $this->get(route('ticket.thread', ['id' => $ticket->id]))->assertStatus(200);
@@ -517,10 +516,11 @@ class TicketControllerTest extends TestCase
      */
     public function test_ticket_print_streams_a_pdf()
     {
-        $agent  = $this->actingAsAgent();
+        $agent = $this->actingAsAgent();
         $ticket = $this->makeTicket($agent);
 
         ob_start();
+
         try {
             $response = $this->get(route('ticket.print', ['id' => $ticket->id]));
         } finally {
@@ -534,12 +534,13 @@ class TicketControllerTest extends TestCase
 
     public function test_ticket_print_is_refused_for_a_ticket_outside_the_agents_department()
     {
-        $owner  = $this->actingAsAgent();
+        $owner = $this->actingAsAgent();
         $ticket = $this->makeTicket($owner, ['dept_id' => 2]);
 
         $this->actingAsAgent(['primary_dpt' => 1]);
 
         ob_start();
+
         try {
             $response = $this->get(route('ticket.print', ['id' => $ticket->id]));
         } finally {
@@ -551,7 +552,7 @@ class TicketControllerTest extends TestCase
 
     public function test_surrender_releases_the_ticket_assignment()
     {
-        $agent  = $this->actingAsAgent();
+        $agent = $this->actingAsAgent();
         $ticket = $this->makeTicket($agent);
         $ticket->assigned_to = $agent->id;
         $ticket->save();
@@ -569,7 +570,7 @@ class TicketControllerTest extends TestCase
 
     public function test_check_lock_returns_a_response_for_an_unlocked_ticket()
     {
-        $agent  = $this->actingAsAgent();
+        $agent = $this->actingAsAgent();
         $ticket = $this->makeTicket($agent);
 
         // NOTE: the route name 'lock' is registered twice (GET check/lock/{id} and
@@ -618,7 +619,7 @@ class TicketControllerTest extends TestCase
         $this->assertDatabaseHas('users', ['email' => $email]);
 
         // ...and a ticket plus its opening thread exist for them.
-        $user   = User::where('email', $email)->first();
+        $user = User::where('email', $email)->first();
         $ticket = Tickets::where('user_id', $user->id)->latest()->first();
 
         $this->assertNotNull($ticket, 'post_newticket should create a ticket for the requester');
@@ -708,7 +709,7 @@ class TicketControllerTest extends TestCase
      */
     public function test_agent_without_a_primary_department_is_refused_not_crashed()
     {
-        $owner  = $this->actingAsAgent();
+        $owner = $this->actingAsAgent();
         $ticket = $this->makeTicket($owner, ['dept_id' => 1]);
 
         $this->actingAsAgent(['primary_dpt' => null]);
@@ -727,7 +728,7 @@ class TicketControllerTest extends TestCase
      */
     public function test_agent_without_a_department_may_act_on_a_ticket_assigned_to_them()
     {
-        $owner  = $this->actingAsAgent();
+        $owner = $this->actingAsAgent();
         $ticket = $this->makeTicket($owner, ['dept_id' => 1]);
 
         $agent = $this->actingAsAgent(['primary_dpt' => null]);
@@ -818,7 +819,7 @@ class TicketControllerTest extends TestCase
      */
     public function test_admin_may_act_on_a_ticket_in_any_department()
     {
-        $owner  = $this->actingAsAgent(['primary_dpt' => 1]);
+        $owner = $this->actingAsAgent(['primary_dpt' => 1]);
         $ticket = $this->makeTicket($owner, ['dept_id' => 2]);
 
         $this->actingAsAgent(['role' => 'admin', 'primary_dpt' => 1]);
