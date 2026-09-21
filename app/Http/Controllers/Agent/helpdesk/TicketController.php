@@ -255,14 +255,20 @@ class TicketController extends Controller
         if (Auth::user()->role == 'admin') {
             return $ticket;
         }
+        // An agent reaches a ticket through their own department, or because it is
+        // assigned to them directly.
+        //
+        // primary_dpt may be null, or may point at a department that has since been
+        // removed. Dereferencing the lookup without checking turned a simple
+        // "not allowed" into a fatal error on every delete/ban/resolve.
+        $allowed = false;
         if (Auth::user()->role == 'agent') {
             $dept = Department::where('id', '=', Auth::user()->primary_dpt)->first();
-            if ($ticket->dept_id == $dept->id || $ticket->assigned_to == Auth::user()->id) {
-                return $ticket;
-            }
+            $allowed = ($dept && $ticket->dept_id == $dept->id)
+                || $ticket->assigned_to == Auth::user()->id;
         }
 
-        return null;
+        return $allowed ? $ticket : null;
     }
 
     public function size()
@@ -724,7 +730,15 @@ class TicketController extends Controller
                 $user->email = $emailadd;
             }
             $user->password = Hash::make($password);
-            $user->phone_number = $phone;
+            // users.phone_number and users.country_code are NOT NULL with no
+            // default. The new-ticket form does not require a phone, so a null
+            // reached the insert and creation died on an integrity violation —
+            // swallowed by post_newticket()'s catch into a generic 'fails'.
+            // users.phone_number is NOT NULL with no default, but the new-ticket
+            // form does not require a phone, so a null used to reach the insert and
+            // kill creation with an integrity violation. country_code is nullable
+            // and is left exactly as supplied.
+            $user->phone_number = (string) $phone;
             $user->country_code = $phonecode;
             if ($mobile_number == '') {
                 $user->mobile = null;
@@ -1352,12 +1366,18 @@ class TicketController extends Controller
         if ($ticket_delete->status == 5) {
             $ticket_delete->delete();
             $ticket_threads = Ticket_Thread::where('ticket_id', '=', $id)->get();
+            // ticket_attachment is keyed by thread_id — there is no ticket_id
+            // column — so the thread ids have to be captured before the threads go.
+            // Querying it by ticket_id raised "Unknown column 'ticket_id'" and made
+            // permanent deletion of a trashed ticket fail outright.
+            $threadIds = $ticket_threads->pluck('id')->all();
             foreach ($ticket_threads as $ticket_thread) {
                 $ticket_thread->delete();
             }
-            $ticket_attachments = Ticket_attachments::where('ticket_id', '=', $id)->get();
-            foreach ($ticket_attachments as $ticket_attachment) {
-                $ticket_attachment->delete();
+            if ($threadIds) {
+                foreach (Ticket_attachments::whereIn('thread_id', $threadIds)->get() as $ticket_attachment) {
+                    $ticket_attachment->delete();
+                }
             }
             $data = [
                 'id'         => $ticket_delete->ticket_number,
@@ -1825,12 +1845,11 @@ class TicketController extends Controller
                 if (!$ticket) {
                     continue;
                 }
+                // Users may only act on their own tickets; admins and agents are
+                // unrestricted here.
                 $role = Auth::user()->role;
-                if ($role === 'user') {
-                    // Users can only act on their own tickets
-                    if ($ticket->user_id != Auth::user()->id) {
-                        continue;
-                    }
+                if ($role === 'user' && $ticket->user_id != Auth::user()->id) {
+                    continue;
                 }
                 // admin role: no restriction
                 if ($value == 'Delete') {
@@ -1964,38 +1983,46 @@ class TicketController extends Controller
     /**
      * Show the deptclose ticket list page.
      *
-     * @return type response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function deptclose($id)
     {
         $dept = Department::where('name', '=', $id)->first();
         if (Auth::user()->role == 'agent') {
             if (Auth::user()->primary_dpt == $dept->id) {
-                return view('themes.default1.agent.helpdesk.dept-ticket.closed', compact('id'));
+            // The shared dept-ticket view reads the department and status from URL
+            // segments 1 and 2, which only exist on the canonical
+            // /tickets/{dept}/{status} route. Rendering it from '{dept}/closed'
+            // raised "Undefined array key 2", so redirect to the canonical URL.
+                return redirect('tickets/'.$id.'/closed');
             } else {
                 return redirect()->back()->with('fails', 'Unauthorised!');
             }
         } else {
-            return view('themes.default1.agent.helpdesk.dept-ticket.closed', compact('id'));
+            return redirect('tickets/'.$id.'/closed');
         }
     }
 
     /**
      * Show the deptinprogress ticket list page.
      *
-     * @return type response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function deptinprogress($id)
     {
         $dept = Department::where('name', '=', $id)->first();
         if (Auth::user()->role == 'agent') {
             if (Auth::user()->primary_dpt == $dept->id) {
-                return view('themes.default1.agent.helpdesk.dept-ticket.inprogress', compact('id'));
+            // The shared dept-ticket view reads the department and status from URL
+            // segments 1 and 2, which only exist on the canonical
+            // /tickets/{dept}/{status} route. Rendering it from '{dept}/assigned'
+            // raised "Undefined array key 2", so redirect to the canonical URL.
+                return redirect('tickets/'.$id.'/assigned');
             } else {
                 return redirect()->back()->with('fails', 'Unauthorised!');
             }
         } else {
-            return view('themes.default1.agent.helpdesk.dept-ticket.inprogress', compact('id'));
+            return redirect('tickets/'.$id.'/assigned');
         }
     }
 
@@ -3033,19 +3060,23 @@ class TicketController extends Controller
     /**
      * Show the deptopen ticket list page.
      *
-     * @return type response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function deptopen($id)
     {
         $dept = Department::where('name', '=', $id)->first();
         if (Auth::user()->role == 'agent') {
             if (Auth::user()->primary_dpt == $dept->id) {
-                return view('themes.default1.agent.helpdesk.dept-ticket.tickets', compact('id'));
+            // The shared dept-ticket view reads the department and status from URL
+            // segments 1 and 2, which only exist on the canonical
+            // /tickets/{dept}/{status} route. Rendering it from '{dept}/open'
+            // raised "Undefined array key 2", so redirect to the canonical URL.
+                return redirect('tickets/'.$id.'/open');
             } else {
                 return redirect()->back()->with('fails', 'Unauthorised!');
             }
         } else {
-            return view('themes.default1.agent.helpdesk.dept-ticket.tickets', compact('id'));
+            return redirect('tickets/'.$id.'/open');
         }
     }
 
@@ -3096,11 +3127,11 @@ class TicketController extends Controller
      */
     public function followupTicketList()
     {
-        try {
-            return view('themes.default1.agent.helpdesk.followup.followup');
-        } catch (Exception $e) {
-            return Redirect()->back()->with('fails', $e->getMessage());
-        }
+        // There is no 'agent.helpdesk.followup.followup' view in the application —
+        // follow-ups are rendered by the unified ticket page, which switches on the
+        // show[] parameter. Rendering the missing view only ever produced a
+        // redirect with a ViewException in the flash message.
+        return redirect('tickets?show%5B%5D=followup&departments%5B%5D=All');
     }
 
     /*

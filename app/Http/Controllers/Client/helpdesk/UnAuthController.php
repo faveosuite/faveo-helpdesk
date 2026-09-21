@@ -147,7 +147,7 @@ class UnAuthController extends Controller
     {
         try {
             $check_token = TicketToken::where('ticket_id', '=', $ticket_id)->first();
-            if ($check_token && Hash::check($token, $check_token->token) == true) {
+            if ($check_token && Hash::check($token, $check_token->token)) {
                 $token_time = CommonSettings::where('option_name', '=', 'ticket_token_time_duration')->first();
                 $time = $token_time->option_value;
                 $new_time = date_add($check_token->updated_at, date_interval_create_from_date_string($time.' Hours'));
