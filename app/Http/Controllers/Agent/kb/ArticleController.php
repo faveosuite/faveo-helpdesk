@@ -160,7 +160,9 @@ class ArticleController extends Controller
         $article->publish_time = $publishTime;
         $article->fill($request->except('created_at', 'slug'))->save();
         // creating article category relationship
-        $requests = $request->input('category_id');
+        // category_id arrives as an array from the multi-select, but a single
+        // value is posted as a scalar — foreach over an int is a fatal error.
+        $requests = (array) $request->input('category_id');
         $id = $article->id;
 
         foreach ($requests as $req) {

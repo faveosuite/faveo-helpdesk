@@ -12,6 +12,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Session\TokenMismatchException;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -92,10 +93,10 @@ class Handler extends ExceptionHandler
     /**
      * Function to render 500 error page.
      *
-     * @param type $request
-     * @param type $e
+     * @param \Illuminate\Http\Request $request
+     * @param \Throwable                $e
      *
-     * @return type mixed
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function render500($request, $e)
     {
@@ -110,22 +111,26 @@ class Handler extends ExceptionHandler
         if (config('app.debug') == true) {
             return parent::render($request, $e);
         } elseif ($e instanceof ValidationException) {
-            return parent::render($request, $e);
-        } elseif ($e instanceof \Illuminate\Validation\ValidationException) {
+            // Note: the import at the top of this file is already
+            // Illuminate\Validation\ValidationException, so a second branch
+            // spelling out the FQCN was unreachable and has been removed.
             return parent::render($request, $e);
         }
 
-        return response()->view('errors.500');
+        // response()->view() defaults to HTTP 200, so every unhandled server error
+        // was served as a success with the error page as its body. Uptime checks,
+        // caches and tests all read that as "fine". The status must say 500.
+        return response()->view('errors.500', [], 500);
         //return redirect()->route('error500', []);
     }
 
     /**
      * Function to render 404 error page.
      *
-     * @param type $request
-     * @param type $e
+     * @param \Illuminate\Http\Request $request
+     * @param HttpException             $e
      *
-     * @return type mixed
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function render404($request, $e)
     {
@@ -147,10 +152,10 @@ class Handler extends ExceptionHandler
     /**
      * Function to render database connection failed.
      *
-     * @param type $request
-     * @param type $e
+     * @param \Illuminate\Http\Request $request
+     * @param \Throwable                $e
      *
-     * @return type mixed
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function renderDB($request, $e)
     {
@@ -166,20 +171,26 @@ class Handler extends ExceptionHandler
     }
 
     /**
-     * Common finction to render both types of codes.
+     * Common function to render both types of codes.
      *
-     * @param type $request
-     * @param type $e
+     * @param \Illuminate\Http\Request $request
+     * @param \Throwable                $e
      *
-     * @return type mixed
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function common($request, $e)
     {
         switch ($e) {
-            case $e instanceof HttpException:
-                return $this->render404($request, $e);
             case $e instanceof NotFoundHttpException:
                 return $this->render404($request, $e);
+            case $e instanceof HttpException:
+                // Only a genuine 404 belongs on the not-found page. Every other
+                // HttpException — abort(403), abort(401), abort(405) — used to be
+                // funnelled here too and came back as a 500, so an authorisation
+                // refusal was indistinguishable from a server fault.
+                return $e->getStatusCode() === 404
+                    ? $this->render404($request, $e)
+                    : parent::render($request, $e);
             case $e instanceof PDOException:
                 if (strpos('1045', $e->getMessage()) == true) {
                     return $this->renderDB($request, $e);

@@ -15,6 +15,17 @@ use Tests\TestCase;
 
 class CategoryControllerTest extends TestCase
 {
+    // Unique per test run. The name is created by testValidationPasses and
+    // then re-used by the uniqueness tests, so it must be the same value
+    // throughout a run — but NOT the same value across runs, or the row
+    // left behind by the previous run makes the `unique` rule fail.
+    private static $categoryName;
+
+    private static function categoryName(): string
+    {
+        return self::$categoryName ??= 'New Category '.Str::random(6);
+    }
+
     protected $user; // Declare a user property
 
     // Set up the authenticated user before each test
@@ -61,7 +72,7 @@ class CategoryControllerTest extends TestCase
     public function testValidationPasses()
     {
         $data = [
-            'name'        => 'New Category',
+            'name'        => self::categoryName(),
             'description' => 'Category Description',
         ];
 
@@ -105,7 +116,7 @@ class CategoryControllerTest extends TestCase
     public function testValidationFailsWhenNameNotUnique()
     {
         $data = [
-            'name'        => 'New Category',
+            'name'        => self::categoryName(),
             'description' => 'Category Description',
         ];
 
@@ -119,7 +130,7 @@ class CategoryControllerTest extends TestCase
     public function testValidationFailsWhenDescriptionMissing()
     {
         $data = [
-            'name' => 'New Category',
+            'name' => self::categoryName(),
         ];
 
         $validator = Validator::make($data, (new CategoryRequest())->rules());

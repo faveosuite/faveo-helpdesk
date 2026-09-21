@@ -545,7 +545,7 @@
                               <a href="{{ url('/tickets?show=closed') }}" @yield('closed') class="nav-link">{!! Lang::get('lang.closed') !!}</a>
                             </li>
 
-                            <?php if ($group->can_create_ticket == 1) { ?>
+                            <?php if ($group && $group->can_create_ticket == 1) { ?>
                             <li class="nav-item d-none d-sm-inline-block">
                               <a href="{{ url('/newticket')}}" @yield('newticket') class="nav-link">{!! Lang::get('lang.create_ticket') !!}</a>
                             </li>
@@ -698,7 +698,7 @@
                                     $("#notification-loader").show();
                             },
                             success: function (response) {
-                            $("#refreshNote").load("<?php echo $_SERVER['REQUEST_URI']; ?>  #refreshNote");
+                            $("#refreshNote").load("{{ request()->getRequestUri() }}  #refreshNote");
                                     $("#notification-loader").hide();
                                     $('#myDropdown').removeClass('show');
                             }

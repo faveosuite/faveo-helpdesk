@@ -65,7 +65,7 @@ class ArticleControllerTest extends TestCase
     {
         // Create a Category model for testing
         $data = [
-            'name'        => 'Test Category',
+            'name'        => 'Test Category '.Str::random(6),  // unique per run: the row persists after the test
             'description' => 'Test Category Description',
         ];
 
@@ -82,7 +82,7 @@ class ArticleControllerTest extends TestCase
 
         // Article data
         $articleData = [
-            'name'        => 'Test Article',
+            'name'        => 'Test Article '.Str::random(6),  // unique:kb_article — must differ per run
             'description' => 'Test Article Description',
             'category_id' => $category->id,
             'year'        => '2023',
@@ -100,14 +100,18 @@ class ArticleControllerTest extends TestCase
 
             $this->assertTrue($validator->passes());
             $response = $this->post(route('article.store'), $articleData);
-            $response->assertStatus(200);
+            // ArticleController::store() redirects to 'article' with a success
+            // flash. This previously asserted 200 only because unhandled errors
+            // were served with a 200 status.
+            $response->assertStatus(302);
+            $response->assertSessionHas('success');
         } catch (Exception $e) {
             $response = null;
         }
 
         // Assert
         if ($response) {
-            $response->assertStatus(200); // Check if the response status code is a redirect (302)
+            $response->assertStatus(302);
 
             $article = Article::latest()->first();
 

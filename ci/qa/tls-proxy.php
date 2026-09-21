@@ -87,6 +87,11 @@ const HIGH_WATER = 1048576;
 /** A handshake that has not finished by then is a client that went away. */
 const HANDSHAKE_TIMEOUT = 15.0;
 
+// Accepted TLS versions for the handshake. TLSv1.3 exists only from PHP 7.4, so
+// it is added conditionally rather than assumed.
+define('TLS_CRYPTO_METHOD', STREAM_CRYPTO_METHOD_TLSv1_2_SERVER
+    | (defined('STREAM_CRYPTO_METHOD_TLSv1_3_SERVER') ? STREAM_CRYPTO_METHOD_TLSv1_3_SERVER : 0));
+
 $ctx = stream_context_create(['ssl' => [
     'local_cert'          => $certFile,
     'allow_self_signed'   => true,
@@ -264,7 +269,11 @@ while (true) {
             if (!isset($readable[$cid]) && !isset($writable[$cid])) {
                 continue;
             }
-            $ok = @stream_socket_enable_crypto($client, true, STREAM_CRYPTO_METHOD_TLS_SERVER);
+            // TLS 1.2 and above only. STREAM_CRYPTO_METHOD_TLS_SERVER means "any
+            // TLS version" (0b1111000) and still advertises TLS 1.0 and 1.1, both
+            // deprecated by RFC 8996 and refused by every current browser — so
+            // excluding them removes nothing a client could have used.
+            $ok = @stream_socket_enable_crypto($client, true, TLS_CRYPTO_METHOD);
             if ($ok === true) {
                 $pairs[$id]['tls'] = true;
             } elseif ($ok === false) {
