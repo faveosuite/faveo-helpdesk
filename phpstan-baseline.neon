@@ -3013,43 +3013,7 @@ parameters:
 			path: app/Exceptions/Handler.php
 
 		-
-			message: '#^Call to method ajax\(\) on an unknown class App\\Exceptions\\type\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Exceptions/Handler.php
-
-		-
 			message: '#^Call to method getMessage\(\) on an unknown class App\\Exceptions\\PDOException\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Exceptions/Handler.php
-
-		-
-			message: '#^Call to method getMessage\(\) on an unknown class App\\Exceptions\\type\.$#'
-			identifier: class.notFound
-			count: 2
-			path: app/Exceptions/Handler.php
-
-		-
-			message: '#^Call to method getStatusCode\(\) on an unknown class App\\Exceptions\\type\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Exceptions/Handler.php
-
-		-
-			message: '#^Call to method segments\(\) on an unknown class App\\Exceptions\\type\.$#'
-			identifier: class.notFound
-			count: 3
-			path: app/Exceptions/Handler.php
-
-		-
-			message: '#^Call to method url\(\) on an unknown class App\\Exceptions\\type\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Exceptions/Handler.php
-
-		-
-			message: '#^Call to method wantsJson\(\) on an unknown class App\\Exceptions\\type\.$#'
 			identifier: class.notFound
 			count: 1
 			path: app/Exceptions/Handler.php
@@ -3061,110 +3025,14 @@ parameters:
 			path: app/Exceptions/Handler.php
 
 		-
-			message: '#^Class App\\Exceptions\\HttpException not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Exceptions/Handler.php
-
-		-
 			message: '#^Class App\\Exceptions\\PDOException not found\.$#'
 			identifier: class.notFound
 			count: 1
 			path: app/Exceptions/Handler.php
 
 		-
-			message: '#^Method App\\Exceptions\\Handler\:\:common\(\) has invalid return type App\\Exceptions\\type\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Exceptions/Handler.php
-
-		-
-			message: '#^Method App\\Exceptions\\Handler\:\:common\(\) should return App\\Exceptions\\type but returns Illuminate\\Http\\JsonResponse\.$#'
-			identifier: return.type
-			count: 2
-			path: app/Exceptions/Handler.php
-
-		-
-			message: '#^Method App\\Exceptions\\Handler\:\:common\(\) should return App\\Exceptions\\type but returns Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: return.type
-			count: 2
-			path: app/Exceptions/Handler.php
-
-		-
 			message: '#^Method App\\Exceptions\\Handler\:\:render\(\) has invalid return type App\\Exceptions\\type\.$#'
 			identifier: class.notFound
-			count: 1
-			path: app/Exceptions/Handler.php
-
-		-
-			message: '#^Method App\\Exceptions\\Handler\:\:render404\(\) has invalid return type App\\Exceptions\\type\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Exceptions/Handler.php
-
-		-
-			message: '#^Method App\\Exceptions\\Handler\:\:render404\(\) should return App\\Exceptions\\type but returns Illuminate\\Http\\JsonResponse\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Exceptions/Handler.php
-
-		-
-			message: '#^Method App\\Exceptions\\Handler\:\:render404\(\) should return App\\Exceptions\\type but returns Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: return.type
-			count: 2
-			path: app/Exceptions/Handler.php
-
-		-
-			message: '#^Method App\\Exceptions\\Handler\:\:render404\(\) should return App\\Exceptions\\type but returns Symfony\\Component\\HttpFoundation\\Response\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Exceptions/Handler.php
-
-		-
-			message: '#^Method App\\Exceptions\\Handler\:\:render500\(\) has invalid return type App\\Exceptions\\type\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Exceptions/Handler.php
-
-		-
-			message: '#^Method App\\Exceptions\\Handler\:\:render500\(\) should return App\\Exceptions\\type but returns Illuminate\\Http\\JsonResponse\.$#'
-			identifier: return.type
-			count: 2
-			path: app/Exceptions/Handler.php
-
-		-
-			message: '#^Method App\\Exceptions\\Handler\:\:render500\(\) should return App\\Exceptions\\type but returns Illuminate\\Http\\Response\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Exceptions/Handler.php
-
-		-
-			message: '#^Method App\\Exceptions\\Handler\:\:render500\(\) should return App\\Exceptions\\type but returns Symfony\\Component\\HttpFoundation\\Response\.$#'
-			identifier: return.type
-			count: 3
-			path: app/Exceptions/Handler.php
-
-		-
-			message: '#^Method App\\Exceptions\\Handler\:\:renderDB\(\) has invalid return type App\\Exceptions\\type\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Exceptions/Handler.php
-
-		-
-			message: '#^Method App\\Exceptions\\Handler\:\:renderDB\(\) should return App\\Exceptions\\type but returns Illuminate\\Http\\JsonResponse\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Exceptions/Handler.php
-
-		-
-			message: '#^Method App\\Exceptions\\Handler\:\:renderDB\(\) should return App\\Exceptions\\type but returns Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Exceptions/Handler.php
-
-		-
-			message: '#^Method App\\Exceptions\\Handler\:\:renderDB\(\) should return App\\Exceptions\\type but returns Symfony\\Component\\HttpFoundation\\Response\.$#'
-			identifier: return.type
 			count: 1
 			path: app/Exceptions/Handler.php
 
@@ -3195,84 +3063,6 @@ parameters:
 		-
 			message: '#^PHPDoc type array of property App\\Exceptions\\Handler\:\:\$dontReport is not covariant with PHPDoc type array\<int, class\-string\<Throwable\>\> of overridden property Illuminate\\Foundation\\Exceptions\\Handler\:\:\$dontReport\.$#'
 			identifier: property.phpDocType
-			count: 1
-			path: app/Exceptions/Handler.php
-
-		-
-			message: '#^Parameter \#1 \$request of method App\\Exceptions\\Handler\:\:common\(\) expects App\\Exceptions\\type, Illuminate\\Http\\Request given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Exceptions/Handler.php
-
-		-
-			message: '#^Parameter \#1 \$request of method App\\Exceptions\\Handler\:\:invalidJson\(\) expects Illuminate\\Http\\Request, App\\Exceptions\\type given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Exceptions/Handler.php
-
-		-
-			message: '#^Parameter \#1 \$request of method Illuminate\\Foundation\\Exceptions\\Handler\:\:render\(\) expects Illuminate\\Http\\Request, App\\Exceptions\\type given\.$#'
-			identifier: argument.type
-			count: 5
-			path: app/Exceptions/Handler.php
-
-		-
-			message: '#^Parameter \#2 \$e of method App\\Exceptions\\Handler\:\:common\(\) expects App\\Exceptions\\type, Throwable given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Exceptions/Handler.php
-
-		-
-			message: '#^Parameter \#2 \$e of method Illuminate\\Foundation\\Exceptions\\Handler\:\:render\(\) expects Throwable, App\\Exceptions\\type given\.$#'
-			identifier: argument.type
-			count: 3
-			path: app/Exceptions/Handler.php
-
-		-
-			message: '#^Parameter \$e of method App\\Exceptions\\Handler\:\:common\(\) has invalid type App\\Exceptions\\type\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Exceptions/Handler.php
-
-		-
-			message: '#^Parameter \$e of method App\\Exceptions\\Handler\:\:render404\(\) has invalid type App\\Exceptions\\type\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Exceptions/Handler.php
-
-		-
-			message: '#^Parameter \$e of method App\\Exceptions\\Handler\:\:render500\(\) has invalid type App\\Exceptions\\type\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Exceptions/Handler.php
-
-		-
-			message: '#^Parameter \$e of method App\\Exceptions\\Handler\:\:renderDB\(\) has invalid type App\\Exceptions\\type\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Exceptions/Handler.php
-
-		-
-			message: '#^Parameter \$request of method App\\Exceptions\\Handler\:\:common\(\) has invalid type App\\Exceptions\\type\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Exceptions/Handler.php
-
-		-
-			message: '#^Parameter \$request of method App\\Exceptions\\Handler\:\:render404\(\) has invalid type App\\Exceptions\\type\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Exceptions/Handler.php
-
-		-
-			message: '#^Parameter \$request of method App\\Exceptions\\Handler\:\:render500\(\) has invalid type App\\Exceptions\\type\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Exceptions/Handler.php
-
-		-
-			message: '#^Parameter \$request of method App\\Exceptions\\Handler\:\:renderDB\(\) has invalid type App\\Exceptions\\type\.$#'
-			identifier: class.notFound
 			count: 1
 			path: app/Exceptions/Handler.php
 
@@ -14170,7 +13960,7 @@ parameters:
 		-
 			message: '#^Cannot access property \$id on App\\Model\\helpdesk\\Agent\\Department\|null\.$#'
 			identifier: property.nonObject
-			count: 5
+			count: 4
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
 
 		-
@@ -15188,32 +14978,8 @@ parameters:
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
 
 		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:deptclose\(\) has invalid return type App\\Http\\Controllers\\Agent\\helpdesk\\type\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
 			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:deptclose\(\) has parameter \$id with no type specified\.$#'
 			identifier: missingType.parameter
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:deptclose\(\) should return App\\Http\\Controllers\\Agent\\helpdesk\\type but returns Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:deptclose\(\) should return App\\Http\\Controllers\\Agent\\helpdesk\\type but returns Illuminate\\View\\View\.$#'
-			identifier: return.type
-			count: 2
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:deptinprogress\(\) has invalid return type App\\Http\\Controllers\\Agent\\helpdesk\\type\.$#'
-			identifier: class.notFound
 			count: 1
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
 
@@ -15224,39 +14990,9 @@ parameters:
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
 
 		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:deptinprogress\(\) should return App\\Http\\Controllers\\Agent\\helpdesk\\type but returns Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:deptinprogress\(\) should return App\\Http\\Controllers\\Agent\\helpdesk\\type but returns Illuminate\\View\\View\.$#'
-			identifier: return.type
-			count: 2
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:deptopen\(\) has invalid return type App\\Http\\Controllers\\Agent\\helpdesk\\type\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
 			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:deptopen\(\) has parameter \$id with no type specified\.$#'
 			identifier: missingType.parameter
 			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:deptopen\(\) should return App\\Http\\Controllers\\Agent\\helpdesk\\type but returns Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:deptopen\(\) should return App\\Http\\Controllers\\Agent\\helpdesk\\type but returns Illuminate\\View\\View\.$#'
-			identifier: return.type
-			count: 2
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
 
 		-
@@ -15345,12 +15081,6 @@ parameters:
 
 		-
 			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:followupTicketList\(\) should return App\\Http\\Controllers\\Agent\\helpdesk\\type but returns Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:followupTicketList\(\) should return App\\Http\\Controllers\\Agent\\helpdesk\\type but returns Illuminate\\View\\View\.$#'
 			identifier: return.type
 			count: 1
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
@@ -16292,12 +16022,6 @@ parameters:
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
 
 		-
-			message: '#^Parameter \#1 \$view of function view expects view\-string\|null, string given\.$#'
-			identifier: argument.type
-			count: 5
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
 			message: '#^Parameter \#2 \$body of method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:ticketThread\(\) expects App\\Http\\Controllers\\Agent\\helpdesk\\type, string given\.$#'
 			identifier: argument.type
 			count: 1
@@ -16689,12 +16413,6 @@ parameters:
 
 		-
 			message: '#^Property App\\Model\\helpdesk\\Ticket\\Tickets\:\:\$user_id \(int\<0, max\>\|null\) does not accept App\\Http\\Controllers\\Agent\\helpdesk\\type\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Property App\\User\:\:\$phone_number \(string\) does not accept App\\Http\\Controllers\\Agent\\helpdesk\\type\.$#'
 			identifier: assign.propertyType
 			count: 1
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
