@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Run the load-bearing half of the Stage 3 round on this machine, against an
 # isolated copy of a pull request — the Community adaptation of the advance
-# repo's ci/qa/local-stage3.sh (FREESTYLE-PLAN.md §9 calls this "the model to
+# repo's ci/qa/local-stage3.sh (which this is modelled on — "the model to
 # follow. Adapt it for Community rather than writing a new local workflow").
 #
 #   ci/qa/local-community.sh --pr <n> [--port 8099] [--keep] [--probes]
@@ -20,10 +20,10 @@
 #   * Never touches the working tree's own .env/.env.testing or database.
 #   * Never runs php/artisan/composer as root.
 #
-# Calls the SAME ci/qa scripts the Freestyle jobs call
-# (freestyle/provision.sh's sequence, reproduced here rather than shelled out
-# to, because provision.sh assumes it is already sitting inside the checked-out
-# PR — see its own header), so a local pass says something about Jenkins.
+# Calls the SAME ci/qa scripts the Jenkins Pipeline job calls, in the same
+# order its provisioning stage uses (reproduced here rather than shared, since
+# that sequence now lives in the pipeline script, which is pasted into the job
+# and not committed), so a local pass says something about Jenkins.
 
 set -uo pipefail
 

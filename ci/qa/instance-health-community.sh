@@ -6,16 +6,17 @@
 # in Community:
 #
 #   * a licence gate (CheckValidLicense -> /licenseError) — Community has no
-#     licensing at all (env.community.sh, "no CheckValidLicense, no
-#     faveo_license"), so that branch can never fire here and exit code 3 is
-#     unreachable by design, not by omission (FREESTYLE-PLAN.md, "Keep 0/4,
+#     licensing at all — no CheckValidLicense, no faveo_license, and
+#     testing-setup takes no licence segments — so that branch can never fire
+#     here and exit code 3 is
+#     unreachable by design, not by omission (see the "Keep 0/4,
 #     ignore 3").
 #   * a Vue SPA entry script under public/build/v<version>/entry/*.js on the
 #     /login page — Community serves plain Blade (verified below), so this
 #     check ALWAYS reports exit 4 ("unusable") on a perfectly healthy
 #     Community instance. That is a real, previously-flagged defect in the
 #     shared file (see the prior implementation report, "defects found in
-#     imported files") and freestyle/provision.sh must not rely on it.
+#     imported files") and provisioning must not rely on it.
 #
 #   ci/qa/instance-health-community.sh <base-url>
 #
@@ -45,7 +46,7 @@
 #     honestly instead of passing on HTTP status alone).
 #
 # Does NOT attempt an authenticated check — that needs the seeded fixture
-# cast (freestyle/provision.sh seeds users AFTER this could run, and
+# cast (provisioning seeds users AFTER this could run, and
 # probes/security-community.sh already exercises an authenticated round trip
 # with real credentials). This script only answers "is the instance up and
 # actually serving Community's UI", which is what must be true before either

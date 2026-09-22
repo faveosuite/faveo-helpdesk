@@ -4,7 +4,7 @@
 #   ci/qa/probes/security-community.sh <base-url> <out.jsonl>
 #
 # The generic-application half of the advance repo's probes/security.sh
-# (ci/qa/README.advance.md / FREESTYLE-PLAN.md §2, axis B). Community has no
+# (ci/qa/README.advance.md). Community has no
 # `/api/admin/*` boundary and no `/api/agent-info` — routes/api.php holds one
 # stub route — so the role-boundary and admin-data-leak checks that depend on
 # that surface (advance SEC-08, SEC-22) are DROPPED, not adapted: there is
