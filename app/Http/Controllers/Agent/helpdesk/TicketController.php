@@ -1990,10 +1990,10 @@ class TicketController extends Controller
         $dept = Department::where('name', '=', $id)->first();
         if (Auth::user()->role == 'agent') {
             if (Auth::user()->primary_dpt == $dept->id) {
-            // The shared dept-ticket view reads the department and status from URL
-            // segments 1 and 2, which only exist on the canonical
-            // /tickets/{dept}/{status} route. Rendering it from '{dept}/closed'
-            // raised "Undefined array key 2", so redirect to the canonical URL.
+                // The shared dept-ticket view reads the department and status from URL
+                // segments 1 and 2, which only exist on the canonical
+                // /tickets/{dept}/{status} route. Rendering it from '{dept}/closed'
+                // raised "Undefined array key 2", so redirect to the canonical URL.
                 return redirect('tickets/'.$id.'/closed');
             } else {
                 return redirect()->back()->with('fails', 'Unauthorised!');
@@ -2013,10 +2013,10 @@ class TicketController extends Controller
         $dept = Department::where('name', '=', $id)->first();
         if (Auth::user()->role == 'agent') {
             if (Auth::user()->primary_dpt == $dept->id) {
-            // The shared dept-ticket view reads the department and status from URL
-            // segments 1 and 2, which only exist on the canonical
-            // /tickets/{dept}/{status} route. Rendering it from '{dept}/assigned'
-            // raised "Undefined array key 2", so redirect to the canonical URL.
+                // The shared dept-ticket view reads the department and status from URL
+                // segments 1 and 2, which only exist on the canonical
+                // /tickets/{dept}/{status} route. Rendering it from '{dept}/assigned'
+                // raised "Undefined array key 2", so redirect to the canonical URL.
                 return redirect('tickets/'.$id.'/assigned');
             } else {
                 return redirect()->back()->with('fails', 'Unauthorised!');
@@ -3067,10 +3067,10 @@ class TicketController extends Controller
         $dept = Department::where('name', '=', $id)->first();
         if (Auth::user()->role == 'agent') {
             if (Auth::user()->primary_dpt == $dept->id) {
-            // The shared dept-ticket view reads the department and status from URL
-            // segments 1 and 2, which only exist on the canonical
-            // /tickets/{dept}/{status} route. Rendering it from '{dept}/open'
-            // raised "Undefined array key 2", so redirect to the canonical URL.
+                // The shared dept-ticket view reads the department and status from URL
+                // segments 1 and 2, which only exist on the canonical
+                // /tickets/{dept}/{status} route. Rendering it from '{dept}/open'
+                // raised "Undefined array key 2", so redirect to the canonical URL.
                 return redirect('tickets/'.$id.'/open');
             } else {
                 return redirect()->back()->with('fails', 'Unauthorised!');

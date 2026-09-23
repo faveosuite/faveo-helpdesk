@@ -94,7 +94,7 @@ class Handler extends ExceptionHandler
      * Function to render 500 error page.
      *
      * @param \Illuminate\Http\Request $request
-     * @param \Throwable                $e
+     * @param \Throwable               $e
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
@@ -128,7 +128,7 @@ class Handler extends ExceptionHandler
      * Function to render 404 error page.
      *
      * @param \Illuminate\Http\Request $request
-     * @param HttpException             $e
+     * @param HttpException            $e
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
@@ -153,7 +153,7 @@ class Handler extends ExceptionHandler
      * Function to render database connection failed.
      *
      * @param \Illuminate\Http\Request $request
-     * @param \Throwable                $e
+     * @param \Throwable               $e
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
@@ -174,7 +174,7 @@ class Handler extends ExceptionHandler
      * Common function to render both types of codes.
      *
      * @param \Illuminate\Http\Request $request
-     * @param \Throwable                $e
+     * @param \Throwable               $e
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
