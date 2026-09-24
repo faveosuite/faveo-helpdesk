@@ -27,6 +27,6 @@
     "moment": "^2.9.0"
   },
   "devDependencies": {
-    "node-sass": "^3.4.2"
+    "node-sass": "^9.0.0"
   }
 }
