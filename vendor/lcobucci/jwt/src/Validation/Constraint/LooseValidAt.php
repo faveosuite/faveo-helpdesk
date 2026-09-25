@@ -5,19 +5,17 @@ namespace Lcobucci\JWT\Validation\Constraint;
 
 use DateInterval;
 use DateTimeInterface;
-use Lcobucci\Clock\Clock;
 use Lcobucci\JWT\Token;
 use Lcobucci\JWT\Validation\ConstraintViolation;
 use Lcobucci\JWT\Validation\ValidAt as ValidAtInterface;
+use Psr\Clock\ClockInterface as Clock;
 
 final class LooseValidAt implements ValidAtInterface
 {
-    private Clock $clock;
-    private DateInterval $leeway;
+    private readonly DateInterval $leeway;
 
-    public function __construct(Clock $clock, ?DateInterval $leeway = null)
+    public function __construct(private readonly Clock $clock, ?DateInterval $leeway = null)
     {
-        $this->clock  = $clock;
         $this->leeway = $this->guardLeeway($leeway);
     }
 

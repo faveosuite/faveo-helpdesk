@@ -151,7 +151,7 @@ class="nav-link active"
                                        
                                         <h4 class="modal-title">Remove user from Organization</h4>
 
-                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
                                         <span>Are you sure you want to Remove ?</span>
@@ -170,21 +170,21 @@ class="nav-link active"
                     @endif
 
                     <li class="list-group-item mb-0">
-                        <b>{{Lang::get('lang.role')}}</b> <a class="float-end text-success"> {!! $users->role !!}</a>
+                        <b>{{Lang::get('lang.role')}}</b> <a class="float-end text-success"> {{ in_array($users->role, ['user', 'agent', 'admin'], true) ? Lang::get('lang.'.$users->role) : $users->role }}</a>
                     </li>
 
                     <li class="list-group-item mb-0">
                         <b>{{Lang::get('lang.status')}}</b> 
                         <a class="float-end">
                             @if($users->active == '1')
-                            <span style="color:green;"> 
-                                <span class="glyphicon glyphicon-ok-circle"></span>  
-                                <span class="glyphicon glyphicon-user"></span>
+                            <span class="text-success" title="{{Lang::get('lang.active')}}">
+                                <i class="fa-regular fa-circle-check"></i>
+                                <i class="fa-solid fa-user"></i>
                             </span>
                             @else
-                            <span style="color:red;">
-                                <span class="glyphicon glyphicon-ban-circle"></span>
-                                <span class="glyphicon glyphicon-user"></span>
+                            <span class="text-danger" title="{{Lang::get('lang.inactive')}}">
+                                <i class="fa-solid fa-ban"></i>
+                                <i class="fa-solid fa-user"></i>
                             </span>
                             @endif
                         </a>
@@ -432,20 +432,25 @@ class="nav-link active"
                                 <b>{!! Lang::get('lang.loading') !!}...</b>
                             </p>
                             
-                            <table id="chumper" class="table table-bordered w-100 d-table">
-                                <thead>
-                                    <tr>
-                                        <th></th>
-                                        <th>{{Lang::get('lang.subject')}}</th>
-                                        <th>{{Lang::get('lang.ticket_id')}}</th>
-                                        <th>{{Lang::get('lang.priority')}}</th>
-                                        <th>{{Lang::get('lang.from')}}</th>
-                                        <th>{{Lang::get('lang.assigned_to')}}</th>
-                                        <th>{{Lang::get('lang.last_activity')}}</th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
+                            {{-- Wrapped for small screens: this table overflowed the 375px viewport.
+                 table-responsive is the theme's own convention (see
+                 client/helpdesk/mytickets.blade.php). Desktop layout is unchanged. --}}
+                            <div class="table-responsive">
+                                <table id="chumper" class="table table-bordered w-100 d-table">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>{{Lang::get('lang.subject')}}</th>
+                                            <th>{{Lang::get('lang.ticket_id')}}</th>
+                                            <th>{{Lang::get('lang.priority')}}</th>
+                                            <th>{{Lang::get('lang.from')}}</th>
+                                            <th>{{Lang::get('lang.assigned_to')}}</th>
+                                            <th>{{Lang::get('lang.last_activity')}}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
 
                         </div><!-- /.mail-box-messages -->
                     </div><!-- /.col -->          
@@ -561,7 +566,7 @@ class="nav-link active"
                     
                     <h5 class="modal-title">{!! Lang::get('lang.create_organization') !!}</h4>
 
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidd en="true">&times;</span></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <!-- failure message -->                                
@@ -582,7 +587,7 @@ class="nav-link active"
                         <div class="col-md-4">
                             <div class="mb-3">
                                 <label>{!! Lang::get('lang.phone') !!}</label>
-                                <input type="number" name="phone" class="form-control">
+                                <input type="tel" inputmode="numeric" pattern="[0-9]*" name="phone" class="form-control">
                                 <br/>
                             </div>
                         </div>
@@ -685,7 +690,7 @@ class="nav-link active"
 
                     <h5 class="modal-title">{!! Lang::get('lang.assign') !!}</h4>
 
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" id="dismiss" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" id="dismiss" aria-label="Close"></button>
                     
                 </div>
         
@@ -747,7 +752,7 @@ class="nav-link active"
                     
                     <h5 class="modal-title">{!! Lang::get('lang.assign') !!}</h4>
 
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" id="dismiss" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" id="dismiss" aria-label="Close"></button>
                 </div>
                 <!--   <div id="assign_alert" class="alert alert-success alert-dismissible d-none">
                       <button id="assign_dismiss" type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
@@ -1298,9 +1303,7 @@ class="nav-link active"
                             <h4 class="modal-title" id="titleLabel">{{Lang::get('lang.delete_agent')}}</h4>
                             @endif
 
-                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span
-                                    aria-hidden="true">&times;</span>
-                            </button>
+                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 
                         </div>
 
@@ -1384,9 +1387,7 @@ class="nav-link active"
                     <div class="modal-header">
 
                         <h4 class="modal-title" id="titleLabel">{{Lang::get('lang.role_change')}}:</h4>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span
-                                aria-hidden="true">&times;</span>
-                        </button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                        
                     </div>
 
@@ -1426,9 +1427,7 @@ class="nav-link active"
 
                          <h4 class="modal-title" id="titleLabel">{{Lang::get('lang.role_change')}}:</h4>
 
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span
-                                aria-hidden="true">&times;</span>
-                        </button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                        
                     </div>
 
@@ -1456,9 +1455,7 @@ class="nav-link active"
                     <div class="modal-header">
 
                         <h4 class="modal-title" id="titleLabel">{{Lang::get('lang.role_change')}}:</h4>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span
-                                aria-hidden="true">&times;</span>
-                        </button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         
                     </div>
 
@@ -1496,9 +1493,7 @@ class="nav-link active"
                 <div class="modal-header">
 
                     <h4 class="modal-title" id="titleLabel">{{Lang::get('lang.change_password')}}:</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span
-                            aria-hidden="true">&times;</span>
-                    </button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     
                 </div>
 
@@ -1512,9 +1507,15 @@ class="nav-link active"
 
                             <!-- <div class="mb-3 {{ $errors->has('change_password') ? 'has-error' : '' }}"> -->
                             {!! html()->label(Lang::get('lang.new_password'), 'New password') !!} <span class="text-red"> *</span>
-                            <input type="text" class="form-control" name="change_password" id="changepassword1" >
+                            <div class="input-group">
+                                <input type="password" class="form-control" name="change_password" id="changepassword1" autocomplete="new-password">
+                                <button class="input-group-text" type="button" id="changepassword1-toggle" onclick="toggleChangePassword()" tabindex="-1" aria-label="Show password">
+                                    <i class="fa-solid fa-eye-slash"></i>
+                                </button>
+                            </div>
+                            @include('partials.password-rules', ['input' => 'changepassword1'])
 
-                            <p id="demo" style="color:red"></p>
+                            <p id="demo" style="color:red">{{ $errors->first('change_password') }}</p>
 
                             <!-- </div> -->
 
@@ -1540,9 +1541,7 @@ class="nav-link active"
                     <div class="modal-header">
 
                           <h4 class="modal-title" id="titleLabel">{{Lang::get('lang.restore')}}:</h4>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span
-                                aria-hidden="true">&times;</span>
-                        </button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                       
                     </div>
 
@@ -1579,7 +1578,33 @@ $(document).ready(function(){
                 document.getElementById("demo").innerHTML = "Enter Password";
                 return false;
             }
+            document.getElementById("demo").innerHTML = "";
+            if (!FaveoPasswordRules.check('changepassword1')) {
+                return false;
+            }
+            // block a second click while the request is on its way
+            var submit = document.getElementById('savepassword');
+            submit.disabled = true;
+            submit.value = @json(Lang::get('lang.please_wait'));
+            return true;
         }
+
+        // Back button can restore the page from cache with the button still disabled.
+        window.addEventListener('pageshow', function () {
+            var submit = document.getElementById('savepassword');
+            if (submit) {
+                submit.disabled = false;
+                submit.value = @json(Lang::get('lang.submit'));
+            }
+        });
+
+        // The server rejected the password (e.g. JavaScript was off): reopen the modal
+        // so the message under the field is seen.
+        @if($errors->has('change_password'))
+        document.addEventListener('DOMContentLoaded', function () {
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('addNewCategoryModal')).show();
+        });
+        @endif
     </script>
     <script>
 
@@ -1595,10 +1620,33 @@ $(document).ready(function(){
                     var sum = result;
 
                     document.getElementById("changepassword1").value = sum;
+                    // show the generated password so it can be copied and shared
+                    toggleChangePassword(true);
+                    FaveoPasswordRules.check('changepassword1');
+                    document.getElementById("demo").innerHTML = "";
 
                 }
             });
 
+        });
+
+        // Show/hide the new password; the eye icon follows the current state.
+        // force: true = show, false = hide, omitted = toggle.
+        function toggleChangePassword(force) {
+            var input = document.getElementById('changepassword1');
+            var btn = document.getElementById('changepassword1-toggle');
+            var show = typeof force === 'boolean' ? force : input.type === 'password';
+            input.type = show ? 'text' : 'password';
+            btn.querySelector('i').className = show ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
+            btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+        }
+
+        // every time the modal opens, start hidden again
+        $('#addNewCategoryModal').on('show.bs.modal', function () {
+            toggleChangePassword(false);
+            if (!document.getElementById('changepassword1').value) {
+                FaveoPasswordRules.reset('changepassword1');
+            }
         });
 
     </script>

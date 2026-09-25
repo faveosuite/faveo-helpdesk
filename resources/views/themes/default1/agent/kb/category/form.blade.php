@@ -2,7 +2,7 @@
 <div>
 	@if(Session::has('success'))
 	<div class="alert alert-success alert-dismissible">
-	  <i class="fa  fa-circle-check"></i>
+	  <i class="fa-solid fa-circle-check"></i>
 	  <b>Success</b>
 	  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
 	  {{Session::get('success')}}
@@ -32,14 +32,14 @@
 			{!! html()->label(Lang::get('lang.status'), 'status') !!}
 			{!! $errors->first('status', '<spam class="help-block">:message</spam>') !!}
 			
-			<div class="row">
-				<div class="col-sm-6">
-					{!! html()->radio('status', true, '1') !!}{!! Lang::get('lang.active') !!}
-				</div>
-				<div class="col-sm-6">
-					{!! html()->radio('status', null, '0') !!}{!! Lang::get('lang.inactive') !!}
-				</div>
-		</div>
+            <div>
+                <label class="fw-normal me-3">
+                    {!! html()->radio('status', true, '1')->id('modal-status-active') !!} {!! Lang::get('lang.active') !!}
+                </label>
+                <label class="fw-normal me-3">
+                    {!! html()->radio('status', null, '0')->id('modal-status-inactive') !!} {!! Lang::get('lang.inactive') !!}
+                </label>
+            </div>
 	</div>
 
 	<div class="mb-3 col-sm-12 {{ $errors->has('description') ? 'has-error' : '' }}">

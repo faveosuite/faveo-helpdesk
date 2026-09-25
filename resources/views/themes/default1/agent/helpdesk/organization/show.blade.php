@@ -911,7 +911,7 @@ class="nav-link active"
             {!! html()->modelForm($orgs->id, 'PATCH', url()->current())->attributes(['id' => 'org_head'])->open() !!}
             <div class="modal-header">
                 <h5 class="modal-title">{!! Lang::get('lang.assign') !!}</h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" id="dismiss" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" id="dismiss" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="row">

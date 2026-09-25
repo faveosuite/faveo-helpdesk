@@ -165,7 +165,7 @@ class BinaryFileResponse extends Response
             $filename = $this->file->getFilename();
         }
 
-        if ('' === $filenameFallback && (!preg_match('/^[\x20-\x7e]*$/', $filename) || str_contains($filename, '%'))) {
+        if ('' === $filenameFallback && (!preg_match('/^[\x20-\x7e]*$/D', $filename) || str_contains($filename, '%'))) {
             $encoding = mb_detect_encoding($filename, null, true) ?: '8bit';
 
             for ($i = 0, $filenameLength = mb_strlen($filename, $encoding); $i < $filenameLength; ++$i) {
@@ -187,7 +187,7 @@ class BinaryFileResponse extends Response
 
     public function prepare(Request $request): static
     {
-        if ($this->isInformational() || $this->isEmpty()) {
+        if (!$this->isSuccessful() || $this->isEmpty()) {
             parent::prepare($request);
 
             $this->maxlen = 0;
@@ -260,13 +260,15 @@ class BinaryFileResponse extends Response
             if (!$request->headers->has('If-Range') || $this->hasValidIfRangeHeader($request->headers->get('If-Range'))) {
                 $range = $request->headers->get('Range');
 
-                if (str_starts_with($range, 'bytes=')) {
-                    [$start, $end] = explode('-', substr($range, 6), 2) + [1 => 0];
+                if (preg_match('/^bytes=(\d*)-(\d*)$/i', $range, $matches) && ('' !== $matches[1] || '' !== $matches[2])) {
+                    $start = $matches[1];
+                    $end = $matches[2];
 
                     $end = ('' === $end) ? $fileSize - 1 : (int) $end;
 
                     if ('' === $start) {
-                        $start = $fileSize - $end;
+                        // a suffix longer than the file selects the whole file, see RFC 9110 section 14.1.2
+                        $start = max(0, $fileSize - $end);
                         $end = $fileSize - 1;
                     } else {
                         $start = (int) $start;

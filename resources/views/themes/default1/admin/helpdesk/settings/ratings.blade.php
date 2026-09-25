@@ -65,7 +65,7 @@ class="nav-link active"
                                 <div class="modal-content">
                                     <div class="modal-header">
                                         <h5 class="modal-title">{!! Lang::get('lang.delete') !!}</h4>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
                                         <span>{!! Lang::get('lang.are_you_sure_you_want_to_delete') !!} ?</span>

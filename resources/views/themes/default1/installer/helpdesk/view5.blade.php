@@ -17,36 +17,38 @@ active
 @stop
 
 @section('content')
- <div id="form-content">
+<style>
+    /* style.css pushes every "td input/select" right with margin-left:250px; reset it for this table */
+    #getting-started-table { border-collapse: collapse; }
+    #getting-started-table td { vertical-align: middle; padding: 4px 0; }
+    #getting-started-table td.gs-label { width: 430px; }
+    #getting-started-table td.gs-help { width: 30px; padding-left: 8px; }
+    #getting-started-table td.gs-help i { float: none; padding: 0; }
+    #getting-started-table td.gs-section { padding-top: 20px; }
+    #getting-started-table td.gs-section h1 { border-bottom: 0; margin: 0; }
+    #getting-started-table td input,
+    #getting-started-table td select { margin-left: 0; width: 295px; box-sizing: border-box; padding: 3px; }
+    #password-rules-label { font-size: 14px; color: #666; padding-top: 4px; }
+    #password-rules { list-style: disc; margin: 0; padding: 0 0 0 20px; }
+    #password-rules li { font-size: 14px; padding-bottom: 0; }
+    #confirm-password-error { font-size: 14px; color: red; }
+</style>
+<div id="form-content">
 <div ng-app="myApp">
-        <h1 style="text-align: center;">Locale Information</h1>
+        <h1 style="text-align: center; border-bottom: 0;">Getting Started</h1>
         {!! html()->form('POST', route('postaccount'))->attributes(['id' => 'postaccount'])->open() !!}
-        
 
         <!-- checking if the form submit fails -->
-        @if($errors->first('firstname')||$errors->first('Lastname')||$errors->first('email')||$errors->first('username')||$errors->first('password')||$errors->first('confirm_password'))
+        @if($errors->first('firstname')||$errors->first('Lastname')||$errors->first('email')||$errors->first('username')||$errors->first('password')||$errors->first('confirmpassword'))
             <div class="woocommerce-message woocommerce-tracker">
                 <div class="fail">
-                    @if($errors->first('firstname'))
-                        <span id="fail">{!! $errors->first('firstname', ':message') !!}</span><br/>
-                    @endif
-                    @if($errors->first('Lastname'))
-                        <span id="fail">{!! $errors->first('Lastname', ':message') !!}</span><br/>
-                    @endif
-                    @if($errors->first('email'))
-                        <span id="fail">{!! $errors->first('email', ':message') !!}</span><br/>
-                    @endif
-                    @if($errors->first('username'))
-                        <span id="fail">{!! $errors->first('username', ':message') !!}</span><br/>
-                    @endif
-                    @if($errors->first('password'))
-                        <span id="fail">{!! $errors->first('password', ':message') !!}</span><br/>
-                    @endif
-                    @if($errors->first('confirm_password'))
-                        <span id="fail">{!! $errors->first('confirm_password', ':message') !!}</span><br/><br/>
-                    @endif
+                    @foreach(['firstname', 'Lastname', 'email', 'username', 'password', 'confirmpassword'] as $field)
+                        @if($errors->first($field))
+                            <span id="fail">{!! $errors->first($field, ':message') !!}</span><br/>
+                        @endif
+                    @endforeach
                 </div>
-            </div>        
+            </div>
         @endif
 
         <!-- checking if the system fails -->
@@ -59,250 +61,249 @@ active
         @endif
 
     <div ng-controller="MainController">
-            <table>                
-                <p>Welcome to the five-minute Faveo installation process! Just fill in the information below.</p>
-                <h1 style="border-top:1px solid #dedede; border-bottom:1px solid #dedede; padding: 10px 0px 10px 0px;">Personal Information</h1>
-                <p>Please provide the following information. Don’t worry, you can always change these settings later.</p>
-                <div>
-                    <tr>
-                        <td>
-                            <label for="box1">{!! Lang::get('lang.name') !!}<span style="color
-                                : red;font-size:12px;">*</span></label>
-                        </td>
-                        <td>
-                            {!! html()->text('firstname', null)->required()->attributes(['style' => 'margin-left:250px']) !!}
-                        </td>
-                        <td>
-                            <button type="button" data-bs-toggle="popover" data-bs-placement="right" data-arrowcolor="#eeeeee" data-bordercolor="#bbbbbb" data-title-backcolor="#cccccc" data-title-bordercolor="#bbbbbb" data-title-textcolor="#444444" data-content-backcolor="#eeeeee" data-content-textcolor="#888888" title="@{{Nametitle}}" data-bs-content="@{{Namecontent}}" style="padding: 0px;border: 0px; border-radius: 5px;"><i class="fa-solid fa-circle-question" style="padding: 0px;"></i>
-                            </button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label for="box2">Last Name<span style="color
-                                : red;font-size:12px;">*</span></label>
-                        </td>
-                        <td>
-                            {!! html()->text('Lastname', null)->required()->attributes(['style' => 'margin-left:250px']) !!}
-                        </td>
-                        <td>
-                            <button type="button" data-bs-toggle="popover" data-bs-placement="right" data-arrowcolor="#eeeeee" data-bordercolor="#bbbbbb" data-title-backcolor="#cccccc" data-title-bordercolor="#bbbbbb" data-title-textcolor="#444444" data-content-backcolor="#eeeeee" data-content-textcolor="#888888" title="@{{Lasttitle}}" data-bs-content="@{{Lastcontent}}" style="padding: 0px;border: 0px; border-radius: 5px;"><i class="fa-solid fa-circle-question" style="padding: 0px;"></i>
-                            </button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label for="box2">Email<span style="color
-                                : red;font-size:12px;">*</span></label>
-                        </td>
-                        <td>
-                            {!! html()->email('email', null)->required()->attributes(['style' => 'margin-left:250px']) !!}
-                        </td>
-                        <td>
-                            <button type="button" data-bs-toggle="popover" data-bs-placement="right" data-arrowcolor="#eeeeee" data-bordercolor="#bbbbbb" data-title-backcolor="#cccccc" data-title-bordercolor="#bbbbbb" data-title-textcolor="#444444" data-content-backcolor="#eeeeee" data-content-textcolor="#888888" title="@{{Emailtitle}}" data-bs-content="@{{Emailcontent}}" style="padding: 0px;border: 0px; border-radius: 5px;"><i class="fa-solid fa-circle-question" style="padding: 0px;"></i>
-                            </button>
-                        </td>
-                    </tr>
+        <table id="getting-started-table">
+            <tr>
+                <td colspan="3" class="gs-section"><h1>Sign up as Admin</h1></td>
+            </tr>
+            <tr>
+                <td class="gs-label">
+                    <label for="firstname">First Name<span style="color: red;font-size:12px;">*</span></label>
+                </td>
+                <td>
+                    {!! html()->text('firstname', null)->id('firstname')->required() !!}
+                </td>
+                <td class="gs-help"></td>
+            </tr>
+            <tr>
+                <td class="gs-label">
+                    <label for="Lastname">Last Name<span style="color: red;font-size:12px;">*</span></label>
+                </td>
+                <td>
+                    {!! html()->text('Lastname', null)->id('Lastname')->required() !!}
+                </td>
+                <td class="gs-help"></td>
+            </tr>
+            <tr>
+                <td class="gs-label">
+                    <label for="email">Email<span style="color: red;font-size:12px;">*</span></label>
+                </td>
+                <td>
+                    {!! html()->email('email', null)->id('email')->required() !!}
+                </td>
+                <td class="gs-help"></td>
+            </tr>
+            <tr>
+                <td class="gs-label">
+                    <label for="username">Username<span style="color: red;font-size:12px;">*</span></label>
+                </td>
+                <td>
+                    {!! html()->text('username', null)->id('username')->required() !!}
+                </td>
+                <td class="gs-help">
+                    <button type="button" data-bs-toggle="popover" tabIndex="-1" data-placement="right" data-arrowcolor="#eeeeee" data-bordercolor="#bbbbbb" data-title-backcolor="#cccccc" data-title-bordercolor="#bbbbbb" data-title-textcolor="#444444" data-content-backcolor="#eeeeee" data-content-textcolor="#888888" title="@{{UserNametitle}}" data-content="@{{UserNamecontent}}" style="padding: 0px;border: 0px; border-radius: 5px;"><i class="fa fa-question-circle" style="padding: 0px;"></i>
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td class="gs-label" style="vertical-align: top; padding-top: 6px;">
+                    <label for="password">Password<span style="color: red;font-size:12px;">*</span></label>
+                </td>
+                <td>
+                    <input type="password" name="password" id="password" required="true">
+                    <div id="password-rules-label"></div>
+                    <ul id="password-rules"></ul>
+                </td>
+                <td class="gs-help"></td>
+            </tr>
+            <tr>
+                <td class="gs-label">
+                    <label for="confirmpassword">Confirm Password<span style="color: red;font-size:12px;">*</span></label>
+                </td>
+                <td>
+                    <input type="password" name="confirmpassword" id="confirmpassword" required="true">
+                    <div id="confirm-password-error"></div>
+                </td>
+                <td class="gs-help"></td>
+            </tr>
 
-                </div>
-            </table>
-            <table>
-                <h1>Login Information</h1>
-                <div>
-
-                    <tr>
-                        <td>
-                            <label for="box4">User Name <span style="color
-                                    : red;font-size:12px;">*</span>
-                            </label>
-                        </td>
-                        <td>
-                            {!! html()->text('username', null)->required()->attributes(['style' => 'margin-left:195px']) !!}
-                        </td>
-                        <td>
-                            <button type="button" data-bs-toggle="popover" data-bs-placement="right" data-arrowcolor="#eeeeee" data-bordercolor="#bbbbbb" data-title-backcolor="#cccccc" data-title-bordercolor="#bbbbbb" data-title-textcolor="#444444" data-content-backcolor="#eeeeee" data-content-textcolor="#888888" title="@{{UserNametitle}}" data-bs-content="@{{UserNamecontent}}" style="padding: 0px;border: 0px; border-radius: 5px;"><i class="fa-solid fa-circle-question" style="padding: 0px;"></i>
-                            </button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label for="box4">Password <span style="color
-                                    : red;font-size:12px;">*</span>
-                            </label>
-                        </td>
-                        <td>
-                            <input type="password" name="password" style="margin-left: 195px" required="true">
-                        </td>
-                        <td>
-                            <button type="button" data-bs-toggle="popover" data-bs-placement="right" data-arrowcolor="#eeeeee" data-bordercolor="#bbbbbb" data-title-backcolor="#cccccc" data-title-bordercolor="#bbbbbb" data-title-textcolor="#444444" data-content-backcolor="#eeeeee" data-content-textcolor="#888888" title="@{{Passtitle}}" data-bs-content="@{{Passcontent}}" style="padding: 0px;border: 0px; border-radius: 5px;"><i class="fa-solid fa-circle-question" style="padding: 0px;"></i>
-                            </button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label for="box5">Confirm Password<span style="color
-                                    : red;font-size:12px;">*</span>
-                            </label>
-                        </td>
-                        <td>
-                            <input type="password" name="confirmpassword" style="margin-left: 195px" required="true">
-                        </td>
-                        <td>
-                            <button type="button" data-bs-toggle="popover" data-bs-placement="right" data-arrowcolor="#eeeeee" data-bordercolor="#bbbbbb" data-title-backcolor="#cccccc" data-title-bordercolor="#bbbbbb" data-title-textcolor="#444444" data-content-backcolor="#eeeeee" data-content-textcolor="#888888" title="@{{Confirmtitle}}" data-bs-content="@{{Confirmcontent}}" style="padding: 0px;border: 0px; border-radius: 5px;"><i class="fa-solid fa-circle-question" style="padding: 0px;"></i>
-                            </button>
-                        </td>
-                    </tr>
-                </div>
-            </table>
-            <table>
-                <h1>Locale Information</h1>
-                <div>
-                    <tr>
-                        <td>
-                            {!! html()->label(Lang::get('lang.date_time'), 'date') !!}
-                        </td>
-                        <td>
-                            <div class="side-by-side clearfix moveleft">
-                                <div>
-                                    <select name="datetime" data-placeholder="Choose a date format..." class="chosen-select" style="width:295px;" tabindex="2">
-                                        <option value="d/m/Y H:i:s">DD/MM/YYYY H:i:s</option>
-                                        <option value="m/d/Y H:i:s">MM/DD/YYYY H:i:s</option>
-                                        <option value="Y/m/d H:i:s">YYYY/MM/DD H:i:s</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <button type="button" data-bs-toggle="popover" data-bs-placement="right" data-arrowcolor="#eeeeee" data-bordercolor="#bbbbbb" data-title-backcolor="#cccccc" data-title-bordercolor="#bbbbbb" data-title-textcolor="#444444" data-content-backcolor="#eeeeee" data-content-textcolor="#888888" title="@{{Datetimetitle}}" data-bs-content="@{{Datetimecontent}}" style="padding: 0px;border: 0px; border-radius: 5px;"><i class="fa-solid fa-circle-question" style="padding: 0px;"></i>
-                            </button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            {!! html()->label(Lang::get('lang.time_zone'), 'time_zone') !!}
-                        </td>
-                        <?php  
-
-                                    $timezonesList = \App\Model\helpdesk\Utility\Timezones::orderBy('name','ASC')->get();
-
-                                                 //
-                                    foreach ($timezonesList as $timezone) {
-                                    $location = $timezone->location;
-                                    $start  = strpos($location, '(');
-                                    $end    = strpos($location, ')', $start + 1);
-                                    $length = $end - $start;
-                                    $result = substr($location, $start + 1, $length - 1);
-                                    $display[]=(['id'=>$timezone->name ,'name'=> '('.$result.')'.' '.$timezone->name]);
-                                    }
-                                     //for display 
-                                    $timezones = array_column($display,'name','id');
-                                  ?>
-                        <td>
-                            <div class="side-by-side clearfix moveleft">
-                                <div>
-
-                     {!! html()->select('timezone', [Lang::get('lang.choose')=>$timezones], null)->class('selectpicker chosen-select')->required()->attribute('data-live-search', 'true')->attribute('data-live-search-placeholder', 'Search')->attributes(['style' => 'width:295px;']) !!}
-                               </div>
-                            </div>                
-                        </td>
-                        <td>
-                            <button type="button" data-bs-toggle="popover" data-bs-placement="right" data-arrowcolor="#eeeeee" data-bordercolor="#bbbbbb" data-title-backcolor="#cccccc" data-title-bordercolor="#bbbbbb" data-title-textcolor="#444444" data-content-backcolor="#eeeeee" data-content-textcolor="#888888" title="@{{Timezonetitle}}" data-bs-content="@{{Timezonecontent}}" style="padding: 0px;border: 0px; border-radius: 5px;"><i class="fa-solid fa-circle-question" style="padding: 0px;"></i>
-                            </button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            {!! html()->label(Lang::get('lang.language'), 'language') !!}
-                        </td>
-                        <td>
-                            <div class="side-by-side clearfix moveleft">
-                            <?php 
-                            $path = base_path('lang');
-                            $values = scandir($path);
-                            $values = array_slice($values, 2);
-                            $show = [];
-                            foreach($values as $value) {
-                                $show[$value] = Config::get('languages.' . $value)[0]."&nbsp;(".Config::get('languages.' . $value)[1].")";
-                            }
-                            ?>
-                                {!! html()->select('language', $show, 'en')->attributes(["class"=> "chosen-select", "style"=>"width:295px;", "tabindex"=>"2"]) !!}
-                           </div>
-                        </td>
-                        <td>
-                            <button type="button" data-bs-toggle="popover" data-bs-placement="right" data-arrowcolor="#eeeeee" data-bordercolor="#bbbbbb" data-title-backcolor="#cccccc" data-title-bordercolor="#bbbbbb" data-title-textcolor="#444444" data-content-backcolor="#eeeeee" data-content-textcolor="#888888" title="@{{Languagetitle}}" data-bs-content="@{{Languagecontent}}" style="padding: 0px;border: 0px; border-radius: 5px;"><i class="fa-solid fa-circle-question" style="padding: 0px;"></i>
-                            </button>
-                        </td>
-                    </tr>
-                </div>
-            </table>
-            <br><br>
-            <p class="setup-actions step">
-                <input type="submit" id="submitme" class="button-primary button button-large button-next" value="Install">
-                <a href="{{url('step4')}}" class="button button-large button-next" style="float: left">Previous</a>
-            </p>
-        </form>
+            <tr>
+                <td colspan="3" class="gs-section"><h1>System Information</h1></td>
+            </tr>
+            <tr>
+                <td class="gs-label">
+                    {!! html()->label(Lang::get('lang.date_time'), 'datetime') !!}
+                </td>
+                <td>
+                    <select name="datetime" id="datetime" data-placeholder="Choose a date format..." class="chosen-select" style="width:295px;">
+                        <option value="d/m/Y H:i:s" @if(old('datetime') == 'd/m/Y H:i:s') selected @endif>DD/MM/YYYY H:i:s</option>
+                        <option value="m/d/Y H:i:s" @if(old('datetime') == 'm/d/Y H:i:s') selected @endif>MM/DD/YYYY H:i:s</option>
+                        <option value="Y/m/d H:i:s" @if(old('datetime') == 'Y/m/d H:i:s') selected @endif>YYYY/MM/DD H:i:s</option>
+                    </select>
+                </td>
+                <td class="gs-help">
+                    <button type="button" data-bs-toggle="popover" tabIndex="-1" data-placement="right" data-arrowcolor="#eeeeee" data-bordercolor="#bbbbbb" data-title-backcolor="#cccccc" data-title-bordercolor="#bbbbbb" data-title-textcolor="#444444" data-content-backcolor="#eeeeee" data-content-textcolor="#888888" title="@{{Datetimetitle}}" data-content="@{{Datetimecontent}}" style="padding: 0px;border: 0px; border-radius: 5px;"><i class="fa fa-question-circle" style="padding: 0px;"></i>
+                    </button>
+                </td>
+            </tr>
+            <?php
+                $display = [];
+                $timezonesList = \App\Model\helpdesk\Utility\Timezones::orderBy('name', 'ASC')->get();
+                foreach ($timezonesList as $timezone) {
+                    $location = $timezone->location;
+                    $start = strpos($location, '(');
+                    $end = strpos($location, ')', $start + 1);
+                    $result = substr($location, $start + 1, $end - $start - 1);
+                    $display[] = ['id' => $timezone->name, 'name' => '('.$result.')'.' '.$timezone->name];
+                }
+                $timezones = array_column($display, 'name', 'id');
+            ?>
+            <tr>
+                <td class="gs-label">
+                    {!! html()->label(Lang::get('lang.time_zone'), 'timezone') !!}
+                </td>
+                <td>
+                    <select name="timezone" id="timezone" data-placeholder="Choose a timezone..." class="chosen-select" style="width:295px;" required>
+                        @foreach($timezones as $key => $value)
+                            <option value="{{ $key }}" @if(old('timezone') == $key) selected @endif>{{ $value }}</option>
+                        @endforeach
+                    </select>
+                </td>
+                <td class="gs-help">
+                    <button type="button" data-bs-toggle="popover" tabIndex="-1" data-placement="right" data-arrowcolor="#eeeeee" data-bordercolor="#bbbbbb" data-title-backcolor="#cccccc" data-title-bordercolor="#bbbbbb" data-title-textcolor="#444444" data-content-backcolor="#eeeeee" data-content-textcolor="#888888" title="@{{Timezonetitle}}" data-content="@{{Timezonecontent}}" style="padding: 0px;border: 0px; border-radius: 5px;"><i class="fa fa-question-circle" style="padding: 0px;"></i>
+                    </button>
+                </td>
+            </tr>
+            <?php
+                $values = array_slice(scandir(base_path('lang')), 2);
+                $selectedLanguage = old('language', 'en');
+            ?>
+            <tr>
+                <td class="gs-label">
+                    {!! html()->label(Lang::get('lang.language'), 'language') !!}
+                </td>
+                <td>
+                    <select name="language" id="language" data-placeholder="Choose a language..." class="chosen-select" style="width:295px;">
+                        @foreach($values as $value)
+                            @if(Config::get('languages.' . $value))
+                                <option value="{{ $value }}" @if($value == $selectedLanguage) selected @endif>{!! Config::get('languages.' . $value)[0] !!}&nbsp;({!! Config::get('languages.' . $value)[1] !!})</option>
+                            @endif
+                        @endforeach
+                    </select>
+                </td>
+                <td class="gs-help">
+                    <button type="button" data-bs-toggle="popover" tabIndex="-1" data-placement="right" data-arrowcolor="#eeeeee" data-bordercolor="#bbbbbb" data-title-backcolor="#cccccc" data-title-bordercolor="#bbbbbb" data-title-textcolor="#444444" data-content-backcolor="#eeeeee" data-content-textcolor="#888888" title="@{{Languagetitle}}" data-content="@{{Languagecontent}}" style="padding: 0px;border: 0px; border-radius: 5px;"><i class="fa fa-question-circle" style="padding: 0px;"></i>
+                    </button>
+                </td>
+            </tr>
+        </table>
+        <br><br>
+        <p class="setup-actions step" style="overflow: hidden; padding-bottom: 50px;">
+            <input type="submit" id="submitme" class="button-primary button button-large button-next" value="Install">
+        </p>
+        {!! html()->form()->close() !!}
     </div>
-    </p>
     <script src="//code.jquery.com/jquery-1.10.2.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.0/angular.min.js"></script>
     <script src="{{asset("lb-faveo/js/angular2.js")}}" type="text/javascript"></script>
-    </div>
-    </div>
+</div>
+</div>
     <script type="text/javascript">
-            @if($errors->has('firstname'))
-                addErrorClass('firstname');
-            @endif
-            @if($errors->has('lastname'))
-                addErrorClass('Lastname');
-            @endif
-            @if($errors->has('email'))
-                addErrorClass('email');
-            @endif
-            @if($errors->has('username'))
-                addErrorClass('username');
-            @endif
-            @if($errors->has('password'))
-                addErrorClass('password');
-            @endif
-            @if($errors->has('confirmpassword'))
-                addErrorClass('confirmpassword');
-            @endif
-
-        $('#postaccount').on('submit', function(e) {
-            $('#submitme').attr('disabled', true);
-            $('#submitme').val('Installing, please wait...');
-            $empty_field = 0;
-            $("#postaccount input").each(function() {
-                if($(this).attr('name') == 'firstname' ||
-                   $(this).attr('name') == 'Lastname' ||
-                   $(this).attr('name') == 'email' ||
-                   $(this).attr('name') == 'username' ||
-                   $(this).attr('name') == 'password' ||
-                   $(this).attr('name') == 'confirmpassword'){
-                    if ($(this).val() == '') {
-                        $(this).css('border-color','red')
-                        $(this).css('border-width','1px');
-                        $empty_field = 1;
-                    } else {
-                        $empty_field = 0;
+        // Preselect the browser's timezone (runs before the layout initialises chosen).
+        @if(!old('timezone'))
+        (function () {
+            try {
+                var tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                // Browsers may report legacy IANA names; map them to the names stored in the timezones table.
+                var aliases = {
+                    'Asia/Calcutta': 'Asia/Kolkata', 'Asia/Saigon': 'Asia/Ho_Chi_Minh', 'Asia/Katmandu': 'Asia/Kathmandu',
+                    'Asia/Rangoon': 'Asia/Yangon', 'Europe/Kiev': 'Europe/Kyiv', 'America/Buenos_Aires': 'America/Argentina/Buenos_Aires'
+                };
+                var select = document.getElementById('timezone');
+                if (tz && select) {
+                    var candidates = [tz, aliases[tz]];
+                    for (var i = 0; i < candidates.length; i++) {
+                        if (candidates[i] && select.querySelector('option[value="' + candidates[i] + '"]')) {
+                            select.value = candidates[i];
+                            break;
+                        }
                     }
                 }
+            } catch (e) {}
+        })();
+        @endif
+
+        var requiredFields = ['firstname', 'Lastname', 'email', 'username', 'password', 'confirmpassword'];
+
+        var passwordRequirements = [
+            { regex: /^.{9,16}$/, message: 'Between 9-16 characters' },
+            { regex: /[a-z]/, message: 'One lowercase letter (a-z)' },
+            { regex: /[A-Z]/, message: 'One uppercase letter (A-Z)' },
+            { regex: /[0-9]/, message: 'One number (0-9)' },
+            { regex: /[~!@#$%^&*()_+|;:,.<>?]/, message: 'One special character (@, #, $, etc.)' }
+        ];
+
+        function validatePassword() {
+            var value = $('#password').val();
+            var $rules = $('#password-rules').empty();
+            var allValid = true;
+            $('#password-rules-label').text('Passwords must include at least:');
+            $.each(passwordRequirements, function (i, req) {
+                var isValid = req.regex.test(value);
+                $('<li>').text(req.message).css('color', isValid ? 'green' : 'red').appendTo($rules);
+                if (!isValid) allValid = false;
             });
-            if ($empty_field !=0 ) {
+            return allValid;
+        }
+
+        function validateConfirmPassword() {
+            var matches = $('#password').val() === $('#confirmpassword').val();
+            $('#confirm-password-error').text(matches ? '' : 'Passwords do not match');
+            return matches;
+        }
+
+        $('#password').on('input', function () {
+            validatePassword();
+            if ($('#confirmpassword').val()) validateConfirmPassword();
+        });
+        $('#confirmpassword').on('input', validateConfirmPassword);
+
+        @foreach(['firstname', 'Lastname', 'email', 'username', 'password', 'confirmpassword'] as $field)
+            @if($errors->has($field))
+                addErrorClass('{{ $field }}');
+            @endif
+        @endforeach
+
+        $('#postaccount').on('submit', function(e) {
+            var emptyField = false;
+            $.each(requiredFields, function (i, name) {
+                if ($('[name="' + name + '"]').val() == '') {
+                    addErrorClass(name);
+                    emptyField = true;
+                }
+            });
+            if (emptyField) {
                 alert('Please fill all required values.');
                 e.preventDefault();
-                $('#submitme').attr('disabled', false);
-                $('#submitme').val('Install');
+                return;
             }
+            var passwordOk = validatePassword();
+            var confirmOk = validateConfirmPassword();
+            if (!passwordOk || !confirmOk) {
+                if (!passwordOk) addErrorClass('password');
+                if (!confirmOk) addErrorClass('confirmpassword');
+                e.preventDefault();
+                return;
+            }
+            $('#submitme').attr('disabled', true).val('Installing, please wait...');
         });
 
         $('input').on('focus', function(){
-            $(this).css('border-color','#A9A9A9')
+            $(this).css('border-color','#A9A9A9');
             $(this).css('border-width','1px');
-        })
+        });
 
         $('input').on('blur', function(){
-            if($(this).val() == ''){
+            if (requiredFields.indexOf($(this).attr('name')) !== -1 && $(this).val() == '') {
                 addErrorClass($(this).attr('name'));
             }
         });

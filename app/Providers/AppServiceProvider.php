@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Model\Update\BarNotification;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -39,10 +40,44 @@ class AppServiceProvider extends ServiceProvider
             loging('Failed Job - '.$event->connectionName, json_encode([$event->job->payload(), 'error' => $event->exception->getMessage().' file=>'.$event->exception->getFile().' line=>'.$event->exception->getLine()]));
         });
         Route::singularResourceParameters(false);
+        // One pagination look across the whole app: every server-side paginated
+        // list (->links()/->render()) renders through the DataTables-styled view,
+        // matching the jQuery DataTables tables. The view still emits the standard
+        // Bootstrap 5 .pagination markup, and is defensive (handles simplePaginate
+        // and single-page cases), so this does not change pagination behaviour.
+        // Revert to Paginator::useBootstrapFive(); to restore Laravel's default.
+        Paginator::defaultView('vendor.pagination.datatables');
+        Paginator::defaultSimpleView('vendor.pagination.datatables');
         $this->composer();
-        URL::forceScheme('https');
+        if ($this->shouldForceHttps()) {
+            URL::forceScheme('https');
+        }
 
         require base_path('app/Http/breadcrumbs.php');
+    }
+
+    /**
+     * Whether every generated URL (links, forms, assets, email links) must use https://.
+     *
+     * This used to be forced unconditionally, which broke sites that run over plain HTTP: every link
+     * and asset pointed to an https:// address that does not load, and the installer even saved an
+     * https APP_URL for them. HTTPS is still forced in every case where it was working before (APP_URL
+     * is https, or the page was opened over HTTPS directly or through an SSL proxy); it is only left
+     * off when the site is both configured for and reached over plain HTTP.
+     */
+    public function shouldForceHttps(): bool
+    {
+        if (stripos((string) config('app.url'), 'http://') !== 0) {
+            return true;
+        }
+
+        if ($this->app->runningInConsole()) {
+            return false;
+        }
+
+        $request = $this->app->make('request');
+
+        return $request->isSecure() || strtolower((string) $request->header('X-Forwarded-Proto')) === 'https';
     }
 
     public function composer()

@@ -96,7 +96,7 @@ class TicketController extends Controller
      *
      * @param type CreateTicketRequest $request
      *
-     * @return type response
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|array<string, mixed>
      */
     public function post_newticket(CreateTicketRequest $request, CountryCode $code, $api = false)
     {
@@ -125,7 +125,8 @@ class TicketController extends Controller
             } else {
                 $mobile_number = null;
             }
-            $source = Ticket_source::where('name', '=', 'agent')->first();
+            // API tickets get their own source so "API Calls" workflows can target them
+            $source = Ticket_source::where('name', '=', $api != false ? 'api' : 'agent')->first() ?: Ticket_source::where('name', '=', 'agent')->first();
             $headers = null;
             $help = Help_topic::where('id', '=', $helptopic)->first();
             $form_data = $request->except('name', 'phone', 'email', 'subject', 'body', 'helptopic', '_wysihtml5_mode', '_token', 'mobile', 'code', 'priority', 'attachment', 'first_name', 'last_name', 'sla', 'duedate', 'assignto', 'files'); //added "files" in exception list because some genius has added a new editor 'summernote' to impress his boss and screwed the functional code with his genius ability. Hence to make world capable of handling this genius's work I am adding a shitty workaround for it. After looking for solution everywhere and referring to https://stackoverflow.com/questions/59938588/summernote-adds-files-field-to-post
@@ -161,8 +162,24 @@ class TicketController extends Controller
                     }
                 }
             }
-            //create user
-            $result = $this->create_user($email, $fullname, $subject, $body, $phone, $phonecode, $mobile_number, $helptopic, $sla, $priority, $source->id, $headers, $help->department, $assignto, $form_data, $auto_response, $status, $duedate);
+            //create user, through the workflow engine so "Any", "Agent Panel" and "API Calls" workflows apply
+            $workflow = new TicketWorkflowController($this);
+            $result = $workflow->workflow($email, $fullname, $subject, $body, $phone, $phonecode, $mobile_number, $helptopic, $sla, $priority, $source->id, $headers, $help->department, $assignto, null, $status, $form_data, $auto_response, $duedate);
+            // only API calls are refused for a banned email; the agent panel may still raise the ticket
+            if (!empty($result['banned'])) {
+                if ($api != false) {
+                    return response()->json(['error' => Lang::get('lang.email-is-banned')], 403);
+                }
+
+                return Redirect('newticket')->with('fails', Lang::get('lang.email-is-banned'))->withInput($request->except('password'));
+            }
+            if ($result[0] === false) {
+                if ($api != false) {
+                    return response()->json(['error' => Lang::get('lang.ticket-rejected-by-workflow')], 422);
+                }
+
+                return Redirect('newticket')->with('fails', Lang::get('lang.ticket-rejected-by-workflow'))->withInput($request->except('password'));
+            }
             if ($result[1]) {
                 $status = $this->checkUserVerificationStatus();
                 if ($status == 1) {
@@ -181,11 +198,17 @@ class TicketController extends Controller
                     return Redirect('newticket')->with('success', Lang::get('lang.Ticket-created-successfully2'));
                 }
             } else {
+                // Tell the agent whose mobile it is, so they can use that user's email
+                // (or pick the user from the autocomplete) instead of guessing.
+                $owner = User::where('mobile', $mobile_number)->first();
+                $message = $owner
+                    ? Lang::get('lang.mobile-belongs-to-existing-user', ['name' => trim($owner->first_name.' '.$owner->last_name), 'email' => $owner->email ?: $owner->user_name])
+                    : Lang::get('lang.failed-to-create-user-tcket-as-mobile-has-been-taken');
                 if ($api != false) {
-                    return response()->json(['error' => Lang::get('lang.failed-to-create-user-tcket-as-mobile-has-been-taken')], 500);
+                    return response()->json(['error' => $message], 500);
                 }
 
-                return Redirect('newticket')->with('fails', Lang::get('lang.failed-to-create-user-tcket-as-mobile-has-been-taken'))->withInput($request->except('password'));
+                return Redirect('newticket')->with('fails', $message)->withInput($request->except('password'));
             }
         } catch (Exception $e) {
             if ($api != false) {
@@ -205,20 +228,10 @@ class TicketController extends Controller
      */
     public function thread($id)
     {
-        if (Auth::user()->role == 'agent') {
-            $dept = Department::where('id', '=', Auth::user()->primary_dpt)->first();
-            $tickets = Tickets::where('id', '=', $id)->first();
-            if ($tickets->dept_id == $dept->id) {
-                $tickets = $tickets;
-            } elseif ($tickets->assigned_to == Auth::user()->id) {
-                $tickets = $tickets;
-            } else {
-                $tickets = null;
-            }
-//            $tickets = $tickets->where('dept_id', '=', $dept->id)->orWhere('assigned_to', Auth::user()->id)->first();
-//            dd($tickets);
-        } elseif (Auth::user()->role == 'admin') {
-            $tickets = Tickets::where('id', '=', $id)->first();
+        if (Auth::user()->role == 'agent' || Auth::user()->role == 'admin') {
+            // Same rule as every other per-ticket handler; also copes with a
+            // missing ticket or a missing primary department instead of erroring.
+            $tickets = $this->authorizeTicketAccess($id);
         } elseif (Auth::user()->role == 'user') {
             $thread = Ticket_Thread::where('ticket_id', '=', $id)->first();
             $ticket_id = \Crypt::encrypt($id);
@@ -248,11 +261,22 @@ class TicketController extends Controller
      */
     protected function authorizeTicketAccess($id)
     {
+        // Only a single positive integer id is accepted. MySQL casts a string such
+        // as '12,34' or '12abc' to 12 when comparing it with an integer column, so
+        // a list could pass the check on its first id while the caller went on to
+        // act on the rest.
+        if (!is_int($id) && !(is_string($id) && ctype_digit($id))) {
+            return null;
+        }
+        $user = Auth::user();
+        if (!$user instanceof User) {
+            return null;
+        }
         $ticket = Tickets::where('id', '=', $id)->first();
         if (!$ticket) {
             return null;
         }
-        if (Auth::user()->role == 'admin') {
+        if ($user->role == 'admin') {
             return $ticket;
         }
         // An agent reaches a ticket through their own department, or because it is
@@ -262,13 +286,65 @@ class TicketController extends Controller
         // removed. Dereferencing the lookup without checking turned a simple
         // "not allowed" into a fatal error on every delete/ban/resolve.
         $allowed = false;
-        if (Auth::user()->role == 'agent') {
-            $dept = Department::where('id', '=', Auth::user()->primary_dpt)->first();
+        if ($user->role == 'agent') {
+            $dept = Department::where('id', '=', $user->primary_dpt)->first();
             $allowed = ($dept && $ticket->dept_id == $dept->id)
-                || $ticket->assigned_to == Auth::user()->id;
+                || $ticket->assigned_to == $user->id;
         }
 
         return $allowed ? $ticket : null;
+    }
+
+    /**
+     * True only when the list is non-empty and the current user may act on
+     * every ticket in it. A request that names one ticket out of reach is
+     * refused as a whole rather than partly applied.
+     *
+     * @param mixed $ids
+     */
+    protected function authorizeTicketIds($ids): bool
+    {
+        if (!is_array($ids) || count($ids) === 0) {
+            return false;
+        }
+        foreach ($ids as $id) {
+            if (!$this->authorizeTicketAccess($id)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Limit a Tickets query to the rows the current user may act on, using the
+     * same rule as authorizeTicketAccess(): admins see everything, agents see
+     * their primary department plus tickets assigned to them.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder<Tickets> $query
+     *
+     * @return \Illuminate\Database\Eloquent\Builder<Tickets>
+     */
+    protected function restrictToAccessibleTickets($query)
+    {
+        $user = Auth::user();
+        if (!$user instanceof User) {
+            return $query->whereRaw('1 = 0');
+        }
+        if ($user->role == 'admin') {
+            return $query;
+        }
+        if ($user->role != 'agent') {
+            return $query->whereRaw('1 = 0');
+        }
+        $deptId = Department::where('id', '=', $user->primary_dpt)->value('id');
+
+        return $query->where(function ($q) use ($user, $deptId) {
+            $q->where('assigned_to', '=', $user->id);
+            if ($deptId) {
+                $q->orWhere('dept_id', '=', $deptId);
+            }
+        });
     }
 
     public function size()
@@ -310,8 +386,13 @@ class TicketController extends Controller
      */
     public function reply(Ticket_Thread $thread, Request $request, Ticket_attachments $ta, $mail = true, $system_reply = true, $user_id = '')
     {
-        $ticket_id = $request->input('ticket_id');
-        if ($ticket_id && !$this->authorizeTicketAccess($ticket_id)) {
+        // Authorize the id this method actually acts on. The agent reply form posts
+        // ticket_ID, and everything below reads ticket_ID; checking the lowercase
+        // ticket_id instead let a normal request skip the check entirely, and let a
+        // forged one pass it with one ticket while writing to another. Fail closed
+        // when the id is missing.
+        $ticket_id = $request->input('ticket_ID');
+        if (!$ticket_id || !$this->authorizeTicketAccess($ticket_id)) {
             return response('Unauthorized', 403);
         }
         event('reply.request', [$request]);
@@ -481,7 +562,7 @@ class TicketController extends Controller
      * @param type $ticket_id
      * @param type Ticket_Thread $thread
      *
-     * @return type bool
+     * @return int|\Illuminate\Http\Response
      */
     public function ticketEditPost($ticket_id, Ticket_Thread $thread, Tickets $ticket)
     {
@@ -496,7 +577,10 @@ class TicketController extends Controller
         } elseif (Input::get('ticket_priority') == null) {
             return 5;
         } else {
-            $ticket = $ticket->where('id', '=', $ticket_id)->first();
+            $ticket = $this->authorizeTicketAccess($ticket_id);
+            if (!$ticket) {
+                return response('Unauthorized', 403);
+            }
             $ticket->sla = Input::get('sla_paln');
             $ticket->help_topic_id = Input::get('help_topic');
             $ticket->source = Input::get('ticket_source');
@@ -518,13 +602,16 @@ class TicketController extends Controller
      *
      * @param int $ticket_id
      *
-     * @return int 0 on success, 1 on error
+     * @return int|\Illuminate\Http\Response 0 on success, 1 on error, 403 when not permitted
      */
     public function updateDueDate($ticket_id, Request $request)
     {
-        $ticket = Tickets::where('id', $ticket_id)->first();
-        if (!$ticket) {
+        if (!Tickets::where('id', $ticket_id)->exists()) {
             return 1;
+        }
+        $ticket = $this->authorizeTicketAccess($ticket_id);
+        if (!$ticket) {
+            return response('Unauthorized', 403);
         }
 
         if ($request->duedate) {
@@ -568,7 +655,78 @@ class TicketController extends Controller
          * @see https://github.com/dompdf/dompdf/issues/1272
          * For time bieng we are silencing the error using "@" operator in front of it
          */
-        return PdfFacade::load($html1)->show(false, false, false);
+        return PdfFacade::load($this->repairTableRowsForPdf($html1))->show(false, false, false);
+    }
+
+    /**
+     * Makes stray table rows safe for Dompdf.
+     *
+     * Marketing e-mails routinely contain invalid table markup such as
+     * <table><div><tr>...</tr></div></table>. Browsers quietly repair it; Dompdf
+     * does not and aborts the whole document with "Min/max width is undefined for
+     * table rows", so printing a ticket that holds such a mail returned HTTP 500.
+     *
+     * A wrapper sitting between a table and its rows is removed, and rows that have
+     * no table at all are given one. Valid markup is returned untouched.
+     *
+     * @param string $html
+     *
+     * @return string
+     */
+    protected function repairTableRowsForPdf($html)
+    {
+        if (stripos($html, '<tr') === false) {
+            return $html;
+        }
+
+        $doc = new \DOMDocument();
+        $previous = libxml_use_internal_errors(true);
+        $loaded = $doc->loadHTML($html);
+        libxml_clear_errors();
+        libxml_use_internal_errors($previous);
+        if (!$loaded) {
+            return $html;
+        }
+
+        $sections = ['table', 'tbody', 'thead', 'tfoot'];
+        $xpath = new \DOMXPath($doc);
+        $changed = false;
+        do {
+            $again = false;
+            $rows = $xpath->query('//tr');
+            if ($rows === false) {
+                break;
+            }
+            foreach ($rows as $row) {
+                if (!$row instanceof \DOMElement) {
+                    continue;
+                }
+                $parent = $row->parentNode;
+                if (!$parent instanceof \DOMElement || in_array($parent->nodeName, $sections, true)) {
+                    continue;
+                }
+                $grand = $parent->parentNode;
+                if ($grand instanceof \DOMElement && in_array($grand->nodeName, $sections, true)) {
+                    while ($parent->firstChild instanceof \DOMNode) {
+                        $grand->insertBefore($parent->firstChild, $parent);
+                    }
+                    $grand->removeChild($parent);
+                } else {
+                    $table = $doc->createElement('table');
+                    $parent->insertBefore($table, $row);
+                    while ($table->nextSibling && ($table->nextSibling->nodeName === 'tr'
+                        || ($table->nextSibling->nodeType === XML_TEXT_NODE && trim((string) $table->nextSibling->nodeValue) === ''))) {
+                        $table->appendChild($table->nextSibling);
+                    }
+                }
+                $again = $changed = true;
+                break;
+            }
+        } while ($again);
+
+        $repaired = $changed ? $doc->saveHTML() : false;
+
+        return $repaired === false ? $html : $repaired;
     }
 
     /**
@@ -804,7 +962,8 @@ class TicketController extends Controller
                 }
                 $encoded_ticketid = Crypt::encrypt($ticketdata->id);
                 $link = url('check_ticket/'.$encoded_ticketid);
-                if ($source == 3) {
+                // tickets raised by an agent, from the agent panel or the API, get the "created by agent" mail
+                if ($source == 3 || $source == Ticket_source::where('name', '=', 'api')->value('id')) {
                     try {
                         if ($auto_response == 0) {
                             $encoded_ticketid = Crypt::encrypt($ticketdata->id);
@@ -991,7 +1150,8 @@ class TicketController extends Controller
             $find_number = Tickets::where('ticket_number', '=', $new_subject)->first();
             $thread_body = explode('---Reply above this line---', $body);
             $body = $thread_body[0];
-            if ($find_number->count() > 0) {
+            // the [#number] may belong to a deleted ticket or another helpdesk
+            if ($find_number) {
                 $id = $find_number->id;
                 $ticket_number = $find_number->ticket_number;
                 if ($find_number->status > 1) {
@@ -1205,15 +1365,14 @@ class TicketController extends Controller
      * @param type $id
      * @param type Tickets $ticket
      *
-     * @return type string
+     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse|string|int
      */
     public function close($id, Tickets $ticket)
     {
-        $ticket = Tickets::where('id', '=', $id)->first();
         if (Auth::user()->role == 'user') {
             $ticket_status = $ticket->where('id', '=', $id)->where('user_id', '=', Auth::user()->id)->first();
-        } else {
-            $ticket_status = $ticket->where('id', '=', $id)->first();
+        } elseif (!$ticket_status = $this->authorizeTicketAccess($id)) {
+            return response('Unauthorized', 403);
         }
         // checking for unautherised access attempt on other than owner ticket id
         if ($ticket_status == null) {
@@ -1269,14 +1428,14 @@ class TicketController extends Controller
      * @param type $id
      * @param type Tickets $ticket
      *
-     * @return type string
+     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse|string
      */
     public function resolve($id, Tickets $ticket)
     {
         if (Auth::user()->role == 'user') {
             $ticket_status = $ticket->where('id', '=', $id)->where('user_id', '=', Auth::user()->id)->first();
-        } else {
-            $ticket_status = $ticket->where('id', '=', $id)->first();
+        } elseif (!$ticket_status = $this->authorizeTicketAccess($id)) {
+            return response('Unauthorized', 403);
         }
         // checking for unautherised access attempt on other than owner ticket id
         if ($ticket_status == null) {
@@ -1315,14 +1474,14 @@ class TicketController extends Controller
      * @param type $id
      * @param type Tickets $ticket
      *
-     * @return type
+     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse|string
      */
     public function open($id, Tickets $ticket)
     {
         if (Auth::user()->role == 'user') {
             $ticket_status = $ticket->where('id', '=', $id)->where('user_id', '=', Auth::user()->id)->first();
-        } else {
-            $ticket_status = $ticket->where('id', '=', $id)->first();
+        } elseif (!$ticket_status = $this->authorizeTicketAccess($id)) {
+            return response('Unauthorized', 403);
         }
         // checking for unautherised access attempt on other than owner ticket id
         if ($ticket_status == null) {
@@ -1378,6 +1537,14 @@ class TicketController extends Controller
                 foreach (Ticket_attachments::whereIn('thread_id', $threadIds)->get() as $ticket_attachment) {
                     $ticket_attachment->delete();
                 }
+            }
+            // remove the ticket's in-app notifications too, otherwise they are left
+            // pointing at a ticket that no longer exists and crash the notification
+            // widget with "Attempt to read property ticket_number on null".
+            $ticketNotifications = Notification::where('model_id', '=', $id)->pluck('id')->all();
+            if ($ticketNotifications) {
+                UserNotification::whereIn('notification_id', $ticketNotifications)->delete();
+                Notification::whereIn('id', $ticketNotifications)->delete();
             }
             $data = [
                 'id'         => $ticket_delete->ticket_number,
@@ -1547,11 +1714,14 @@ class TicketController extends Controller
      *
      * @param type $id
      *
-     * @return type bool
+     * @return int|\Illuminate\Http\Response
      */
     public function surrender($id)
     {
-        $ticket = Tickets::where('id', '=', $id)->first();
+        $ticket = $this->authorizeTicketAccess($id);
+        if (!$ticket) {
+            return response('Unauthorized', 403);
+        }
         $InternalContent = Auth::user()->first_name.' '.Auth::user()->last_name.' has Surrendered the assigned Ticket';
         $thread = Ticket_Thread::where('ticket_id', '=', $id)->first();
         $NewThread = new Ticket_Thread();
@@ -1739,12 +1909,17 @@ class TicketController extends Controller
      *
      * @param type Image $image
      *
-     * @return type json
+     * @return \Illuminate\Http\Response|string
      */
     public function usersearch()
     {
         $email = Input::get('search');
         $ticket_id = Input::get('ticket_id');
+        // A collaborator receives the ticket's notifications, so adding one is an
+        // action on the ticket: same rule as every other per-ticket handler.
+        if (!$this->authorizeTicketAccess($ticket_id)) {
+            return response('Unauthorized', 403);
+        }
         $data = User::where('email', '=', $email)->first();
         if ($data == null) {
             return '<div id="alert11" class="alert alert-warning alert-dismissable">'
@@ -1774,12 +1949,18 @@ class TicketController extends Controller
      *
      * @param type Image $image
      *
-     * @return type json
+     * @return \Illuminate\Http\Response|string|array<int, string>
      */
     public function useradd()
     {
         $name = Input::get('name');
         $email = Input::get('email');
+        $ticket_id = Input::get('ticket_id');
+        // Checked before anything is written: a refused request must not create
+        // the user account either.
+        if (!$this->authorizeTicketAccess($ticket_id)) {
+            return response('Unauthorized', 403);
+        }
         $validator = \Validator::make(
             ['email' => $email, 'name' => $name],
             ['email' => 'required|email']
@@ -1787,7 +1968,6 @@ class TicketController extends Controller
         if ($validator->fails()) {
             return $validator->messages()->all();
         }
-        $ticket_id = Input::get('ticket_id');
         $user_search = User::where('email', '=', $email)->first();
         if (isset($user_search)) {
             return '<div id="alert11" class="alert alert-warning alert-dismissable" ><button id="dismiss11" type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button><h4><i class="icon fa fa-alert"></i>'.Lang::get('lang.alert').'!</h4><div id="message-success1">'.Lang::get('lang.user_already_exist').'</div></div>';
@@ -1820,12 +2000,18 @@ class TicketController extends Controller
     /**
      * user remove.
      *
-     * @return type
+     * @return int|\Illuminate\Http\Response
      */
     public function userremove()
     {
         $id = Input::get('data1');
-        $ticket_collaborator = Ticket_Collaborator::where('id', '=', $id)->delete();
+        // The request names a collaborator row, not a ticket: authorize against
+        // the ticket that row belongs to.
+        $ticket_collaborator = Ticket_Collaborator::where('id', '=', $id)->first();
+        if (!$ticket_collaborator || !$this->authorizeTicketAccess((string) $ticket_collaborator->ticket_id)) {
+            return response('Unauthorized', 403);
+        }
+        $ticket_collaborator->delete();
 
         return 1;
     }
@@ -1833,25 +2019,32 @@ class TicketController extends Controller
     /**
      * select_all.
      *
-     * @return type
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function select_all()
     {
         if (Input::has('select_all')) {
             $selectall = Input::get('select_all');
             $value = Input::get('submit');
-            foreach ($selectall as $delete) {
+            // Customers may only close/reopen their own tickets; never delete.
+            if (Auth::user()->role === 'user' && !in_array($value, ['Close', 'Open'], true)) {
+                return redirect()->back()->with('fails', 'Unauthorized');
+            }
+            foreach ((array) $selectall as $delete) {
                 $ticket = Tickets::whereId($delete)->first();
                 if (!$ticket) {
                     continue;
                 }
-                // Users may only act on their own tickets; admins and agents are
-                // unrestricted here.
+                // Users may only act on their own tickets. Agents only on tickets
+                // in their department or assigned to them - 'Delete forever' below
+                // runs inline, not through delete(), so it needs the check here.
                 $role = Auth::user()->role;
                 if ($role === 'user' && $ticket->user_id != Auth::user()->id) {
                     continue;
                 }
-                // admin role: no restriction
+                if ($role !== 'user' && !$this->authorizeTicketAccess($delete)) {
+                    continue;
+                }
                 if ($value == 'Delete') {
                     $this->delete($delete, new Tickets());
                 } elseif ($value == 'Close') {
@@ -2131,10 +2324,14 @@ class TicketController extends Controller
      *
      * @param int $id
      *
-     * @return int
+     * @return int|string|\Illuminate\Http\Response
      */
     public function checkLock($id)
     {
+        // Taking or refreshing the lock writes to the ticket.
+        if (!$this->authorizeTicketAccess($id)) {
+            return response('Unauthorized', 403);
+        }
         $ticket = DB::table('tickets')->select('id', 'lock_at', 'lock_by')->where('id', '=', $id)->first();
         $cad = DB::table('settings_ticket')->select('collision_avoid')->where('id', '=', 1)->first();
         $cad = $cad->collision_avoid; //collision avoid duration defined in system
@@ -2290,21 +2487,51 @@ class TicketController extends Controller
         }
     }
 
+    /**
+     * One <option> per ticket for the merge pickers. Ids are cast and titles
+     * escaped: a ticket subject is customer-supplied text.
+     *
+     * @param int|string $ticketId
+     */
+    private function mergeTicketOption($ticketId): string
+    {
+        $title = Ticket_Thread::select('title')->where('ticket_id', '=', $ticketId)->first();
+
+        return "<option value='".(int) $ticketId."'>".e($title ? $title->title : '').'</option>';
+    }
+
+    /**
+     * The customer's other open tickets that the current user may act on.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection<int, Tickets>
+     */
+    private function mergeCandidates(Tickets $ticket)
+    {
+        return $this->restrictToAccessibleTickets(
+            Tickets::select('ticket_number', 'id')
+                ->where('user_id', '=', $ticket->user_id)
+                ->where('id', '!=', $ticket->id)
+                ->where('status', '=', 1)
+        )->get();
+    }
+
     public function getMergeTickets($id)
     {
         if ($id == 0) {
             $t_id = Input::get('data1');
+            if (!$this->authorizeTicketIds($t_id)) {
+                return response('Unauthorized', 403);
+            }
             foreach ($t_id as $value) {
-                $title = Ticket_Thread::select('title')->where('ticket_id', '=', $value)->first();
-                echo "<option value='$value'>".$title->title.'</option>';
+                echo $this->mergeTicketOption($value);
             }
         } else {
-            $ticket = Tickets::select('user_id')->where('id', '=', $id)->first();
-            $ticket_data = Tickets::select('ticket_number', 'id')
-                            ->where('user_id', '=', $ticket->user_id)->where('id', '!=', $id)->where('status', '=', 1)->get();
-            foreach ($ticket_data as $value) {
-                $title = Ticket_Thread::select('title')->where('ticket_id', '=', $value->id)->first();
-                echo "<option value='$value->id'>".$title->title.'</option>';
+            $ticket = $this->authorizeTicketAccess($id);
+            if (!$ticket) {
+                return response('Unauthorized', 403);
+            }
+            foreach ($this->mergeCandidates($ticket) as $value) {
+                echo $this->mergeTicketOption($value->id);
             }
         }
     }
@@ -2312,10 +2539,13 @@ class TicketController extends Controller
     public function checkMergeTickets($id)
     {
         if ($id == 0) {
-            if (Input::get('data1') == null || count(Input::get('data1')) == 1) {
+            if (Input::get('data1') == null || !is_array(Input::get('data1')) || count(Input::get('data1')) == 1) {
                 return 0;
             } else {
                 $t_id = Input::get('data1');
+                if (!$this->authorizeTicketIds($t_id)) {
+                    return response('Unauthorized', 403);
+                }
                 $previousValue = null;
                 $match = 1;
                 foreach ($t_id as $value) {
@@ -2332,27 +2562,24 @@ class TicketController extends Controller
                 return $match;
             }
         } else {
-            $ticket = Tickets::select('user_id')->where('id', '=', $id)->first();
-            $ticket_data = Tickets::select('ticket_number', 'id')
-                            ->where('user_id', '=', $ticket->user_id)
-                            ->where('id', '!=', $id)
-                            ->where('status', '=', 1)->get();
-            if (isset($ticket_data) && count($ticket_data) >= 1) {
-                return 1;
-            } else {
-                return 0;
+            $ticket = $this->authorizeTicketAccess($id);
+            if (!$ticket) {
+                return response('Unauthorized', 403);
             }
+
+            return count($this->mergeCandidates($ticket)) >= 1 ? 1 : 0;
         }
     }
 
     public function mergeTickets($id)
     {
-        if (!$this->authorizeTicketAccess($id)) {
-            return response('Unauthorized', 403);
-        }
         // split the phrase by any number of commas or space characters,
         // which include " ", \r, \t, \n and \f
-        $t_id = preg_split("/[\s,]+/", $id);
+        $url_ids = preg_split("/[\s,]+/", trim($id), -1, PREG_SPLIT_NO_EMPTY);
+        if (!$this->authorizeTicketIds($url_ids)) {
+            return response('Unauthorized', 403);
+        }
+        $t_id = $url_ids;
         if (count($t_id) > 1) {
             $p_id = Input::get('p_id'); //parent ticket id
             $t_id = array_diff($t_id, [$p_id]);
@@ -2360,6 +2587,8 @@ class TicketController extends Controller
             $t_id = Input::get('t_id'); //getting array of tickets to merge
             if ($t_id == null) {
                 return 2;
+            } elseif (!is_array($t_id)) {
+                return response('Unauthorized', 403);
             } else {
                 $temp_id = Input::get('p_id'); //getting parent ticket
                 if ($id == $temp_id) {
@@ -2370,6 +2599,13 @@ class TicketController extends Controller
                     $t_id = array_diff($t_id, [$temp_id]);
                 }
             }
+        }
+        // p_id and t_id[] come from the request body, not the URL: the parent
+        // receives the children's threads, and each child is closed, so every one
+        // of them must be within the user's reach - not just the id in the path.
+        $t_id = array_values($t_id);
+        if (count($t_id) === 0 || !$this->authorizeTicketIds(array_merge([$p_id], $t_id))) {
+            return response('Unauthorized', 403);
         }
         $parent_ticket = Tickets::select('ticket_number')->where('id', '=', $p_id)->first();
         $parent_thread = Ticket_Thread::where('ticket_id', '=', $p_id)->first();
@@ -2428,12 +2664,13 @@ class TicketController extends Controller
 
     public function getParentTickets($id)
     {
-        $title = Ticket_Thread::select('title')->where('ticket_id', '=', $id)->first();
-        echo "<option value='$id'>".$title->title.'</option>';
         $tickets = Input::get('data1');
+        if (!$this->authorizeTicketIds(array_merge([$id], is_array($tickets) ? $tickets : [$tickets]))) {
+            return response('Unauthorized', 403);
+        }
+        echo $this->mergeTicketOption($id);
         foreach ($tickets as $value) {
-            $title = Ticket_Thread::select('title')->where('ticket_id', '=', $value)->first();
-            echo "<option value='$value'>".$title->title.'</option>';
+            echo $this->mergeTicketOption($value);
         }
     }
 
@@ -2476,22 +2713,30 @@ class TicketController extends Controller
 
     public function getTooltip(Request $request)
     {
-        $ticketid = $request->input('ticketid');
-        $ticket = Tickets::find($ticketid);
-        if ($ticket) {
-            $threads = $ticket->thread()->select('user_id', 'poster', 'body')->get();
-            $numThreads = $threads->count();
-            $tooltip = '';
-
-            foreach ($threads as $thread) {
-                $tooltip .= '<b>'.$thread->user->user_name.' ('.$thread->poster.')</b></br>'
-                    .$thread->purify().'<br><hr>';
-            }
-
-            $tooltip .= 'This ticket has '.$numThreads.' threads.';
-
-            return $tooltip;
+        // The tooltip renders every thread of the ticket, so it is subject to the
+        // same department/assignment rule as thread() and ticket_print().
+        $ticket = $this->authorizeTicketAccess($request->input('ticketid'));
+        if (!$ticket) {
+            return response('Unauthorized', 403);
         }
+        $threads = $ticket->thread()->select('user_id', 'poster', 'body')->get();
+        $numThreads = $threads->count();
+        $tooltip = '';
+
+        foreach ($threads as $thread) {
+            // System notes have no poster (and may have no user): show "name" rather than "name ()".
+            $author = e($thread->user->user_name ?? '');
+            if ($thread->poster) {
+                $author .= ' <span class="ticket-preview-poster">('.e($thread->poster).')</span>';
+            }
+            // Message HTML is purified as before; .ticket-preview CSS keeps wide images/tables inside the box.
+            $tooltip .= '<div class="ticket-preview-item"><div class="ticket-preview-author">'.$author.'</div>'
+                .'<div class="ticket-preview-body">'.$thread->purify().'</div></div>';
+        }
+
+        $tooltip .= '<div class="ticket-preview-footer">This ticket has '.$numThreads.' threads.</div>';
+
+        return $tooltip;
     }
 
     //Auto-close tickets
@@ -2581,6 +2826,9 @@ class TicketController extends Controller
             $ticket = Tickets::where('id', $thread->ticket_id)->first();
             $html = view('themes.default1.agent.helpdesk.ticket.thread-pdf', compact('thread', 'system', 'company', 'ticket'))->render();
             $html1 = mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8');
+            // Same table-row repair as ticket_print(): mail bodies with <tr> outside a
+            // <table> make dompdf throw "Min/max width is undefined for table rows".
+            $html1 = $this->repairTableRowsForPdf($html1);
 
             /**
              * This statement throws error with php7.1.
@@ -2902,13 +3150,13 @@ class TicketController extends Controller
                                     $due = '&nbsp;<span style="" title="'.Lang::get('lang.is_overdue').'" class="badge text-bg-danger text-xs">'.Lang::get('lang.overdue').'</span>';
                                 } else {
                                     if (date('Ymd', $duedate) == date('Ymd', $now)) {
-                                        $due = '&nbsp;<span style="background-color: rgba(240, 173, 78, 0.67) !important" title="'.Lang::get('lang.going-overdue-today').'" class="label label-warning">'.Lang::get('lang.duetoday').'</span>';
+                                        $due = '&nbsp;<span title="'.langText('lang.going-overdue-today').'" class="badge text-bg-warning text-xs">'.langText('lang.duetoday').'</span>';
                                     }
                                 }
                             }
 
                             $thread_count = '('.$tickets->countthread.')';
-                            if (Lang::getLocale() == 'ar') {
+                            if (isRtl()) {
                                 $thread_count = '&rlm;('.$tickets->countthread.')';
                             }
 
@@ -2917,7 +3165,8 @@ class TicketController extends Controller
                             return "<div class='tooltip1' id='tool".$tickets->id."'>
                             <a href='".route('ticket.thread', [$tickets->id])."'>".$string."&nbsp;<span style='color:green'>".$thread_count."</span>
                             </a> <span><i style='color:green' title='".Lang::get('lang.ticket_created_source', ['source' => $source])."' class='".$css."'></i></span>".$collabString.$attachString.$due.$tooltip_script.
-                                    "<span class='tooltiptext' id='tooltip".$tickets->id."' style='height:auto;width:300px;height:200px;overflow:scroll;background-color:#fff;color:black;border-radius:3px;border:2px solid gainsboro;position:absolute;z-index:1;top:150%;left:50%;margin-left:-23px;word-wrap:break-word;padding:10px;'>".Lang::get('lang.loading').'</span></div>';
+                                    // Hover preview box; styled by .ticket-preview in ticket/tickets.blade.php
+                                    "<span class='tooltiptext ticket-preview' id='tooltip".$tickets->id."'>".Lang::get('lang.loading').'</span></div>';
                         })
                         ->editColumn('ticket_number', function ($tickets) {
                             return "<a href='".route('ticket.thread', [$tickets->id])."' class='$".ucfirst($tickets->priority)."*' title='".Lang::get('lang.click-here-to-see-more-details')."'>#".$tickets->ticket_number.'</a>';

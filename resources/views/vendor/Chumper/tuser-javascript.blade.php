@@ -14,11 +14,11 @@ foreach($segments as $seg){
         var status = "Open";
         oTable = myFunction();
         $("select[name=label]").change(function () {
-            $("#chumper").dataTable().fnDestroy();
+            $("#chumper").DataTable().destroy();
             myFunction();
         });
         $("select[name=tag]").change(function () {
-            $("#chumper").dataTable().fnDestroy();
+            $("#chumper").DataTable().destroy();
             myFunction();
         });
 
@@ -27,7 +27,7 @@ foreach($segments as $seg){
             return jQuery('#chumper').dataTable({
                 "sDom": "<'row'<'col-sm-6'l><'col-sm-6'f>r>"+
                         "t"+
-                        "<'row'<'col-sm-6'i><'col-sm-6'p>>",
+                        "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7 d-flex justify-content-end'p>>",
                 "sPaginationType": "full_numbers",
                 "bProcessing": true,
                 "lengthMenu": [[10, 25, 50, 100, 500], [10, 25, 50, 100, 500]],
@@ -45,6 +45,14 @@ foreach($segments as $seg){
                         "targets": "_all"},
                     { "visible": last, "targets": 6 },
                     {"visible": create, "targets":7},
+                    // Priority / From / Assigned to hidden below 768px: this ticket
+                    // sub-table on a user's detail page overflowed to a right edge
+                    // of 642 on a 375px viewport. Ticket number and Subject stay
+                    // visible at every width (the existing last/create toggles
+                    // above are untouched); desktop is unchanged. Computed fresh
+                    // each time this runs, which covers every redraw path already
+                    // in this file (filter change, toggle-vis, tab switch).
+                    {"visible": window.innerWidth >= 768, "targets": [3, 4, 5]},
                 ],
                 "columns":[
                     {data: "id"},
@@ -92,7 +100,7 @@ foreach($segments as $seg){
                 $('a.toggle-vis').html('<i class="fa-solid fa-plus" style="color:green;"> </i> {!!Lang::get("lang.created-at")!!}');
 
             }
-            $("#chumper").dataTable().fnDestroy();
+            $("#chumper").DataTable().destroy();
             myFunction();
         });
 
@@ -110,7 +118,7 @@ foreach($segments as $seg){
 
         function redrawTable(showTicket) {
             status = showTicket;
-            $("#chumper").dataTable().fnDestroy();
+            $("#chumper").DataTable().destroy();
             myFunction();
         }
     });

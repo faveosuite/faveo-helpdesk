@@ -121,7 +121,11 @@ $path = public_path();
                     var str = aData['id'];
                     var length = aData['ticket_number'].indexOf('*') - aData['ticket_number'].indexOf('$');
                     var p = aData['ticket_number'].substr(aData['ticket_number'].indexOf('$')+1, length-1);
-                    $("td", nRow).attr('title', "{!! Lang::get('lang.ticket-has-x-priority', ['priority' => '"+p+"']) !!}");
+                    // Priority hint on every cell except the subject: that cell opens the
+                    // message preview on hover, and the native title tooltip drew on top of it.
+                    $("td", nRow).filter(function () {
+                        return $(this).find('.tooltip1').length === 0;
+                    }).attr('title', "{!! Lang::get('lang.ticket-has-x-priority', ['priority' => '"+p+"']) !!}");
                     if (str.search("#000") == -1) {
                         $("td", nRow).css({"background-color": "#F3F3F3", "font-weight": "600", "border-bottom": "solid 0.5px #ddd", "border-right": "solid 0.5px #F3F3F3"});
                         $("td", nRow).mouseenter(function () {

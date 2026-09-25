@@ -88,6 +88,11 @@ class = "nav-item active"
         @endforeach
     </div>
 
+    {{-- global pager (vendor/pagination/datatables), same as the article list --}}
+    <div class="mt-3">
+        {{ $categorys->links() }}
+    </div>
+
 </div>
 <!-- end of page content -->
 @stop

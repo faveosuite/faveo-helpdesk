@@ -89,14 +89,16 @@ class="nav-link active"
             <div class="row">
                 <div class="mb-3 col-sm-6 {!! $errors->has('name') ? 'has-error' : '' !!}">
                     <label for="inputName">{!! Lang::get('lang.name') !!} <span class="text-red"> *</span></label>
-                    {!! html()->text('name', null)->class('form-control')->placeholder(Lang::get('lang.name'))->id('name') !!}
+                    {!! html()->text('name', null)->class('form-control')->placeholder(Lang::get('lang.name'))->id('name')->required() !!}
                 </div>
 
                 <div class="mb-3 col-sm-6 {!! $errors->has('status') ? 'has-error' : '' !!}">
                     <label> {!! Lang::get('lang.status') !!}</label>
                     <div>
-                        <input type="radio" id="inputEmail2" name="status" value="1" >&nbsp;&nbsp;{!! Lang::get('lang.active') !!}&nbsp;&nbsp;
-                        <input type="radio" id="inputEmail1" name="status" value="0" checked>&nbsp;&nbsp;{!! Lang::get('lang.inactive') !!}&nbsp;&nbsp;
+                        {{-- a new workflow is active unless the admin says otherwise; keep the choice after a validation error --}}
+                        <?php $active = old('status', 1) == 1; ?>
+                        <input type="radio" id="inputEmail2" name="status" value="1" {{ $active ? 'checked' : '' }}>&nbsp;&nbsp;{!! Lang::get('lang.active') !!}&nbsp;&nbsp;
+                        <input type="radio" id="inputEmail1" name="status" value="0" {{ $active ? '' : 'checked' }}>&nbsp;&nbsp;{!! Lang::get('lang.inactive') !!}&nbsp;&nbsp;
                     </div>
                 </div>
             </div>
@@ -104,12 +106,12 @@ class="nav-link active"
             <div class="row">
                 <div class="mb-3 col-sm-6 {!! $errors->has('execution_order') ? 'has-error' : '' !!}">
                     <label for="Exceution">{!! Lang::get('lang.execution_order') !!} <span class="text-red"> *</span></label>
-                    {!! html()->number('execution_order', null)->class('form-control')->placeholder(Lang::get('lang.execution_order'))->id('execution_order')->attributes(['min' => '0']) !!}
+                    {!! html()->number('execution_order', null)->class('form-control')->placeholder(Lang::get('lang.execution_order'))->id('execution_order')->attributes(['min' => '0'])->required() !!}
                 </div>
 
                 <div class="mb-3 col-sm-6 {!! $errors->has('target_channel') ? 'has-error' : '' !!}">
                     <label>{!! Lang::get('lang.target_channel') !!} <span class="text-red"> *</span></label>
-                    {!! html()->select('target_channel', [''=> '-- '.Lang::get('lang.select_a_channel').' --', 'A-0' => 'Any', 'A-1' => 'Web Forms', 'A-4' => 'API Calls', 'A-2' => 'Emails'], null)->class('form-control')->id('execution_order') !!}
+                    {!! html()->select('target_channel', [''=> '-- '.Lang::get('lang.select_a_channel').' --', 'A-0' => 'Any', 'A-1' => 'Web Forms', 'A-3' => 'Agent Panel', 'A-4' => 'API Calls', 'A-2' => 'Emails'], null)->class('form-control')->id('target_channel')->required() !!}
                 </div>
             </div>
 

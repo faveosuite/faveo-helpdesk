@@ -13,6 +13,9 @@ class Notification extends BaseModel
         'model_id', 'userid_created', 'type_id',
     ];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<NotificationType, $this>
+     */
     public function type()
     {
         $related = \App\Model\helpdesk\Notification\NotificationType::class;
@@ -21,6 +24,9 @@ class Notification extends BaseModel
         return $this->belongsTo($related, $id);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Model\helpdesk\Ticket\Tickets, $this>
+     */
     public function model()
     {
         $related = \App\Model\helpdesk\Ticket\Tickets::class;

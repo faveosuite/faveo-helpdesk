@@ -116,6 +116,15 @@ csrf_body=$(probe_body "${base}/login" -X POST -H 'Accept: application/json' \
 
 if [[ "$csrf_code" == "419" || "$csrf_code" == "403" ]]; then
   probe_pass SEC-10 "$D" high true "POST without a CSRF token is rejected" "HTTP ${csrf_code}"
+elif [[ "$csrf_code" == "402" ]] && grep -qiE 'session expired|token|csrf' <<<"$csrf_body"; then
+  # Community answers a missing CSRF token with 402, not 419: app/Exceptions/Handler.php
+  # catches TokenMismatchException and returns
+  #   response()->json(['result' => ['fails' => lang.session-expired]], 402)
+  # The token IS rejected — only the status code is non-standard — so this is a pass,
+  # not the high/blocking failure it was reported as on PR #8364. The body is still
+  # required to prove it was a token rejection and not some unrelated 402.
+  probe_pass SEC-10 "$D" high true "POST without a CSRF token is rejected" \
+    "HTTP 402 (Community maps TokenMismatchException to 402, not 419)"
 elif [[ "$csrf_code" == "422" ]] && grep -qiE 'token|csrf|refresh the page' <<<"$csrf_body"; then
   probe_pass SEC-10 "$D" high true "POST without a CSRF token is rejected" \
     "HTTP 422 — $(jq -r '.message // empty' <<<"$csrf_body" 2>/dev/null || head -c 80 <<<"$csrf_body")"

@@ -58,7 +58,7 @@
                                             <div class="modal-content">
                                                 {!! html()->modelForm($song, 'PATCH', route('songs.update', [$song->slug]))->open() !!}
                                                 <div class="modal-header">
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                     <h5 class="modal-title">Edit Song</h4>
                                                 </div>
                                                 <div class="modal-body">
@@ -80,7 +80,7 @@
                                         <div class="modal-dialog">
                                             <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                     <h5 class="modal-title">Delete</h4>
                                                 </div>
                                                 <div class="modal-body">

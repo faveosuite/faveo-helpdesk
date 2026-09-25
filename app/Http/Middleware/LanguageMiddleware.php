@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware;
 
-use Cache;
 use Closure;
 use Illuminate\Support\Facades\App;
 // use Illuminate\Contracts\Routing\Middleware;
@@ -26,8 +25,11 @@ class LanguageMiddleware
 
         if ($lang != '' and array_key_exists($lang, Config::get('languages'))) {
             App::setLocale($lang);
-        } else { // This is optional as Laravel will automatically set the fallback language if there is none specified
-            App::setLocale(Config::get('app.fallback_locale'));
+        } else {
+            // No user/session/system language resolved: rest on the configured
+            // default locale (app.locale), matching the enterprise edition.
+            // Laravel still uses fallback_locale for any missing translation keys.
+            App::setLocale(Config::get('app.locale'));
         }
 
         return $next($request);
@@ -38,8 +40,9 @@ class LanguageMiddleware
         $lang = '';
         if (Session::has('language')) {
             $lang = Session::get('language');
-        } elseif (Cache::has('language')) {
-            $lang = Cache::get('language');
+        } else {
+            // cache, falling back to settings_system.content when the cache was cleared
+            $lang = systemLanguage();
         }
 
         return $lang;

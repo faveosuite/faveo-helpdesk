@@ -29,6 +29,16 @@ class UserController extends Controller
     }
 
     /**
+     * Guests and customers only see published, public knowledge base content.
+     */
+    private function viewerIsGuestOrCustomer(): bool
+    {
+        $viewer = Auth::user();
+
+        return !$viewer instanceof \App\User || $viewer->role == 'user';
+    }
+
+    /**
      * @param
      *
      * @return response
@@ -37,7 +47,7 @@ class UserController extends Controller
     {
         $setting = $settings->first();
         $pagination = $setting->pagination;
-        if (!Auth::check() || \Auth::user()->role == 'user') {
+        if ($this->viewerIsGuestOrCustomer()) {
             $article = $article->where('status', '1');
         }
         $article = $article->where('type', '1');
@@ -88,11 +98,17 @@ class UserController extends Controller
         $settings = $settings->first();
         $pagination = $settings->pagination;
         $search = $request->input('s');
-        $result = $article->where('name', 'LIKE', '%'.$search.'%')
-            ->orWhere('slug', 'LIKE', '%'.$search.'%')
-            ->orWhere('description', 'LIKE', '%'.$search.'%')
-            ->paginate($pagination);
-        $result->setPath('search?s='.$search);
+        $result = $article->where(function ($query) use ($search) {
+            $query->where('name', 'LIKE', '%'.$search.'%')
+                ->orWhere('slug', 'LIKE', '%'.$search.'%')
+                ->orWhere('description', 'LIKE', '%'.$search.'%');
+        })->where('type', '1');
+        // same visibility as the article list: guests and users only see public articles
+        if ($this->viewerIsGuestOrCustomer()) {
+            $result = $result->where('status', '1');
+        }
+        $result = $result->orderBy('publish_time', 'desc')->paginate($pagination);
+        $result->setPath('search')->appends(['s' => $search]);
         $categorys = $category->get();
 
         return view('themes.default1.client.kb.article-list.search', compact('categorys', 'result'));
@@ -112,7 +128,7 @@ class UserController extends Controller
         $date = \Carbon\Carbon::now()->toDateTimeString();
         $arti = $article->where('slug', $slug);
 
-        if (!Auth::check() || \Auth::user()->role == 'user') {
+        if ($this->viewerIsGuestOrCustomer()) {
             $arti = $arti->where('status', '1');
             $arti = $arti->where('publish_time', '<', $date);
         }
@@ -149,7 +165,7 @@ class UserController extends Controller
     public function home(Article $article, Category $category, Relationship $relation)
     {
         if (Config::get('database.install') == '%0%') {
-            return redirect('step1');
+            return redirect('/probe.php');
         } else {
             $categorys = $category->get();
             // $categorys->setPath('home');
@@ -242,20 +258,25 @@ class UserController extends Controller
             return response()->json(['success' => false, 'message' => Lang::get('lang.sorry_not_processed')]);
         }
 
-        $comment->article_id = $article->id;
-
-        if (Auth::check()) {
-            // Associate the comment with the authenticated user
-            $comment->article_id = Auth::id();
-            $comment->name = Auth::user()->first_name.' '.Auth::user()->last_name;
+        $user = Auth::user();
+        if ($user instanceof \App\User) {
+            // Commenter details come from the logged-in user, not the form
+            $comment->name = $user->first_name.' '.$user->last_name;
+            $comment->email = $user->email;
+            $comment->website = '';
         } else {
-            // Set default values for non-authenticated user
             $comment->name = $request->input('name');
             $comment->email = $request->input('email');
-            $comment->website = $request->input('website');
+            $comment->website = $request->input('website', '');
         }
 
-        if ($comment->fill($request->input())->save()) {
+        // Only the comment text is taken from the request; article and
+        // moderation status are set server-side (status 0 = awaiting approval).
+        $comment->comment = $request->input('comment');
+        $comment->article_id = $article->id;
+        $comment->status = false;
+
+        if ($comment->save()) {
             return Redirect::back()->with('success', Lang::get('lang.your_comment_posted'));
         } else {
             return Redirect::back()->with('fails', Lang::get('lang.sorry_not_processed'));
@@ -266,7 +287,7 @@ class UserController extends Controller
     {
         $page = $page->where('slug', $name);
 
-        if (!Auth::check() || \Auth::user()->role == 'user') {
+        if ($this->viewerIsGuestOrCustomer()) {
             $page = $page
                     ->where(['status' => 1, 'visibility'=>1])
                     ->first();
@@ -312,11 +333,12 @@ class UserController extends Controller
         Config::set(['mail.password' => $setting->password, 'mail.sendmail' => $setting->email]);
     }
 
-    public function getCategoryList(Article $article, Category $category, Relationship $relation)
+    public function getCategoryList(Article $article, Category $category, Relationship $relation, Settings $settings)
     {
-        //$categorys = $category->get();
-        $categorys = $category->get();
-        // $categorys->setPath('home');
+        // Paginated like the article list, using the same KB "number of elements to display"
+        // setting; ordered by id so every category appears on exactly one page.
+        $perPage = (int) optional($settings->first())->pagination;
+        $categorys = $category->orderBy('id')->paginate($perPage > 0 ? $perPage : 10);
         /* direct to view with $article_id */
         $page = Relationship::where('category_id', '=', $category->id)->get();
         /* from whole attribute pick the article_id */

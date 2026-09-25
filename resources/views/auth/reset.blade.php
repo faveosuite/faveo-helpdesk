@@ -26,7 +26,7 @@
         
         @if(Auth::user())
         @else
-        <span onclick="javascript: window.location.href='{{url('auth/register')}}';">
+        <span>
             <a href="{{url('auth/register')}}" class="widgetrowitem defaultwidget widget-bg-register">
                 <span class="widgetitemtitle">{!! Lang::get('lang.register') !!}</span>
             </a>
@@ -37,7 +37,7 @@
         @if($system != null) 
             @if($system->status) 
                 @if($system->status == 1)
-                    <span onclick="javascript: window.location.href='{!! URL::route('form') !!}';">
+                    <span>
                         <a href="{!! URL::route('form') !!}" class="widgetrowitem defaultwidget widget-bg-submit-ticket">
                             <span class="widgetitemtitle">{!! Lang::get('lang.submit_a_ticket') !!}</span>
                         </a>
@@ -45,12 +45,12 @@
                 @endif
             @endif
         @endif
-        <span onclick="javascript: window.location.href='{{url('mytickets')}}';">
+        <span>
             <a href="{{url('mytickets')}}" class="widgetrowitem defaultwidget widget-bg-my-tickets">
                 <span class="widgetitemtitle">{!! Lang::get('lang.my_tickets') !!}</span>
             </a>
         </span>
-        <span onclick="javascript: window.location.href='{{url('/knowledgebase')}}';">
+        <span>
             <a href="{{url('/knowledgebase')}}" class="widgetrowitem defaultwidget widget-bg-knowledge-base">
                 <span class="widgetitemtitle">{!! Lang::get('lang.knowledge_base') !!}</span>
             </a>

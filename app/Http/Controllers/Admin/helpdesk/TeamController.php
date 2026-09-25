@@ -163,29 +163,30 @@ class TeamController extends Controller
 
             ->addColumn('active', function ($model) {
                 if ($model->active == '1') {
-                    $role = "<a class='btn btn-success btn-xs'>".'Active'.'</a>';
-                } elseif ($model->active == 'agent') {
-                    $role = "<a class='btn btn-primary btn-xs'>".'Inactive'.'</a>';
+                    return "<a class='btn btn-success btn-xs'>".'Active'.'</a>';
                 }
 
-                return $role;
+                return "<a class='btn btn-primary btn-xs'>".'Inactive'.'</a>';
             })
 
             ->addColumn('assign_group', function ($model) {
                 $group = Groups::whereId($model->assign_group)->first();
 
-                return $group->name;
+                return $group->name ?? '-';
             })
             ->addColumn('primary_dpt', function ($model) {
                 $dept = Department::whereId($model->primary_dpt)->first();
 
-                return $dept->name;
+                return $dept->name ?? '-';
             })
             ->addColumn('role', function ($model) {
+                $role = '';
+                // Show the translated label ("Agent"), not the raw stored value ("agent").
+                // langText(): Lang::get() is typed string|array; a single line is always a string.
                 if ($model->role == 'admin') {
-                    $role = "<a class='btn btn-success btn-xs'>".$model->role.'</a>';
+                    $role = "<a class='btn btn-success btn-xs'>".e(langText('lang.admin')).'</a>';
                 } elseif ($model->role == 'agent') {
-                    $role = "<a class='btn btn-primary btn-xs'>".$model->role.'</a>';
+                    $role = "<a class='btn btn-primary btn-xs'>".e(langText('lang.agent')).'</a>';
                 }
 
                 return $role;

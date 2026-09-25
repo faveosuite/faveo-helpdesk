@@ -1,4 +1,9 @@
 @extends('themes.default1.client.layout.client')
+
+@section('title')
+    {!! Lang::get('lang.search_result') !!} -
+@stop
+
 @section('breadcrumb')
     <ol class="breadcrumb float-sm-right">
         <style>
@@ -20,70 +25,93 @@
 @stop
 
 @section('content')
-    <div id="content" class="site-content col-md-9">
-        @if ($result->isEmpty() || $result->every(function($arti) { return $arti->type == 0; }))
-            <p>
-            <h3><b>Sorry!</b></h3> No results found.
-            </p>
-        @else
-            @foreach($result as $arti)
-                @if ($arti->type != 0)
-                    <article class="format-standard type-post hentry clearfix">
-                        <header class="clearfix">
-                            <h3 class="post-title">
-                                <small><i class="fa-solid fa-list-alt fa-2x fa-fw pull-left text-muted"></i></small>
-                                <a href="{{url('show/'.$arti->slug)}}">{{$arti->name}}</a>
-                            </h3>
-                        </header>
-                            <?php $str = $arti->description ?>
-                            <?php $excerpt = App\Http\Controllers\Client\kb\UserController::getExcerpt($str, $startPos = 0, $maxLength = 200) ?>
-                        <blockquote class="archive-description">
-                            <p>{!! strip_tags($excerpt) !!} </p>
-                            <a class="readmore-link" href="{{url('show/'.$arti->slug)}}">Read more</a>
-                        </blockquote>
-                        <div class="post-meta clearfix">
-                            <span class="date"><i class="fa-solid fa-clock-o fa-fw"></i> {{$arti->created_at->format('l, d-m-Y')}}</span>
-                        </div><!-- end of post meta -->
-                        <hr>
-                    </article>
-                @endif
-            @endforeach
+<div id="content" class="site-content col-md-9">
+
+    <div class="archive-list archive-article">
+
+        @if ($result->isEmpty())
+            <h3><b>{!! Lang::get('lang.sorry') !!}!</b></h3>
+            <p>{!! Lang::get('lang.no_results_found') !!}</p>
         @endif
 
-        <div class="pagination">
+        @foreach($result as $arti)
+        <article class="hentry">
+
+            <header class="entry-header">
+
+                <i class="fa-solid fa-list-alt fa-2x fa-fw float-start text-muted"></i>
+
+                <h2 class="entry-title h4">
+
+                    <a href="{{url('show/'.$arti->slug)}}">{{$arti->name}}</a>
+                </h2>
+            </header>
+
+            <?php $excerpt = App\Http\Controllers\Client\kb\UserController::getExcerpt($arti->description, $startPos = 0, $maxLength = 200); ?>
+
+            <blockquote class="blockquote archive-description" style="margin-bottom: 10px; margin-top: 10px;">
+
+                <?php $content = trim(preg_replace("/<img[^>]+\>/i", "", $excerpt), " \t.") ?>
+                {!! strip_tags($content) !!}
+
+                <p><a href="{{url('show/'.$arti->slug)}}">{!! Lang::get('lang.read_more') !!}</a></p>
+            </blockquote>
+
+            <footer class="entry-footer">
+
+                <div class="entry-meta text-muted">
+
+                    <span><i class="fa-regular fa-clock fa-fw"></i>
+
+                        <span>{{$arti->created_at->format('l, d-m-Y')}}</span>
+                    </span>
+                </div>
+            </footer>
+        </article>
+        @endforeach
+
+        <div class="mt-3">
             <?php echo $result->render(); ?>
         </div>
     </div>
-    @stop
 </div>
-    {{--@section('category')--}}
-    {{--<h2 class="section-title h4 clearfix">{!! Lang::get('lang.categories') !!}<small class="pull-right"><i class="fa-solid fa-hdd-o fa-fw"></i></small></h2>--}}
-    {{--<ul class="nav nav-pills nav-stacked nav-categories">--}}
+@stop
 
-    {{--    @foreach($categorys as $category)--}}
-    {{--<?php--}}
-    {{--$num = \App\Model\kb\Relationship::where('category_id','=', $category->id)->get();--}}
-    {{--$article_id = $num->pluck('article_id');--}}
-    {{--$numcount = count($article_id);--}}
-    {{--?>--}}
-    {{--    <li><a href="{{url('category-list/'.$category->slug)}}"><span class="badge pull-right">{{$numcount}}</span>{{$category->name}}</a></li>--}}
-    {{--    @endforeach--}}
-    {{--</ul>--}}
-    {{--@stop--}}
-</div>
+@section('category')
 
+    <div id="sidebar" class="site-sidebar col-md-3">
 
-{{--@section('category')--}}
-{{--<h2 class="section-title h4 clearfix">{!! Lang::get('lang.categories') !!}<small class="pull-right"><i class="fa-solid fa-hdd-o fa-fw"></i></small></h2>--}}
-{{--<ul class="nav nav-pills nav-stacked nav-categories">--}}
+        <div class="col-sm-12">
 
-{{--    @foreach($categorys as $category)--}}
-{{--<?php--}}
-{{--$num = \App\Model\kb\Relationship::where('category_id','=', $category->id)->get();--}}
-{{--$article_id = $num->pluck('article_id');--}}
-{{--$numcount = count($article_id);--}}
-{{--?>--}}
-{{--    <li><a href="{{url('category-list/'.$category->slug)}}"><span class="badge pull-right">{{$numcount}}</span>{{$category->name}}</a></li>--}}
-{{--    @endforeach--}}
-{{--</ul>--}}
-{{--@stop--}}
+            <div class="widget-area">
+
+                <section id="section-categories" class="section">
+
+                    <h2 class="section-title h4 clearfix">
+
+                        <b>   <i class="line" style="border-color: rgb(0, 154, 186);"></i>{!! Lang::get('lang.categories') !!}</b>
+
+                        <small class="float-end"><i class="fa-regular fa-hdd fa-fw"></i></small>
+                    </h2>
+
+                    <ul class="nav nav-pills nav-stacked nav-categories">
+
+                        @foreach($categorys as $category)
+                        <?php $numcount = \App\Model\kb\Relationship::where('category_id', '=', $category->id)->count(); ?>
+
+                        <li class="d-flex justify-content-between align-items-center">
+
+                            <a href="{{url('category-list/'.$category->slug)}}" class="list-group-item list-group-item-action" style="padding: 5px;">
+
+                                <span class="badge bg-pill float-end" style="margin-top: 2px;">{{$numcount}}</span>
+
+                                {{$category->name}}
+                            </a>
+                        </li>
+                        @endforeach
+                    </ul>
+                </section>
+            </div>
+        </div>
+    </div>
+@stop

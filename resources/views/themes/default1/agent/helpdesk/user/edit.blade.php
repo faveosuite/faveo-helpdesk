@@ -123,7 +123,7 @@ class="nav-link active"
             <!-- mobile Number : Text :  -->
             <div class="col-md-3 mb-3 {{ $errors->has('mobile') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.mobile'), 'mobile') !!}
-                {!! html()->number('mobile', null)->class('form-control') !!}
+                {!! html()->input('tel', 'mobile', null)->class('form-control')->attributes(['inputmode' => 'numeric', 'pattern' => '[0-9]*']) !!}
             </div>           
             <div class="col-sm-1 mb-3 {{ $errors->has('ext') ? 'has-error' : '' }}">
                 <label for="ext">{!! Lang::get('lang.ext') !!}</label>  
@@ -137,10 +137,10 @@ class="nav-link active"
                 {!! html()->label(Lang::get('lang.status'), 'active') !!}
                 <div class="row">
                     <div class="col-sm-12">
-                        {!! html()->radio('active', true, '1') !!} {{Lang::get('lang.active')}}
+                        {!! html()->radio('active', (string) old('active', $users->active) === '1', '1') !!} {{Lang::get('lang.active')}}
                     </div>
                     <div class="col-sm-12">
-                        {!! html()->radio('active', null, '0') !!} {{Lang::get('lang.inactive')}}
+                        {!! html()->radio('active', (string) old('active', $users->active) === '0', '0') !!} {{Lang::get('lang.inactive')}}
                     </div>
                 </div>
             </div>
@@ -148,10 +148,10 @@ class="nav-link active"
                 {!! html()->label(Lang::get('lang.ban'), 'ban') !!}
                 <div class="row">
                     <div class="col-sm-12">
-                        {!! html()->radio('ban', true, '1') !!} {{Lang::get('lang.enable')}}
+                        {!! html()->radio('ban', (string) old('ban', $users->ban) === '1', '1') !!} {{Lang::get('lang.enable')}}
                     </div>
                     <div class="col-sm-12">
-                        {!! html()->radio('ban', null, '0') !!} {{Lang::get('lang.disable')}}
+                        {!! html()->radio('ban', (string) old('ban', $users->ban) === '0', '0') !!} {{Lang::get('lang.disable')}}
                     </div>
                 </div>
             </div>

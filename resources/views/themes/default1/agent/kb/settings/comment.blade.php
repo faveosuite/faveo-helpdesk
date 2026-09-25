@@ -44,19 +44,18 @@ class="nav-link active"
         <h3 class="card-title">{{Lang::get('lang.comments-list')}}</h3>
     </div>
     <div class="card-body">
-        <div class="row">
-            <div class="col-sm-12">
-                <table id="comments-table" class="table table-bordered table-striped">
-                    <thead>
-                        <tr>
-                            <th>{!! Lang::get('lang.details') !!}</th>
-                            <th>{!! Lang::get('lang.comment') !!}</th>
-                            <th>{!! Lang::get('lang.status') !!}</th>
-                            <th>{!! Lang::get('lang.action') !!}</th>
-                        </tr>
-                    </thead>
-                </table>
-            </div>
+        <div class="table-responsive">
+            <table id="comments-table" class="table table-bordered table-striped align-middle w-100">
+                <thead>
+                    <tr>
+                        <th style="width:22%">{!! Lang::get('lang.author') !!}</th>
+                        <th style="width:18%">{!! Lang::get('lang.article') !!}</th>
+                        <th>{!! Lang::get('lang.comment') !!}</th>
+                        <th style="width:10%">{!! Lang::get('lang.status') !!}</th>
+                        <th style="width:1%">{!! Lang::get('lang.action') !!}</th>
+                    </tr>
+                </thead>
+            </table>
         </div>
     </div>
 </div>
@@ -65,12 +64,17 @@ $(function() {
     $('#comments-table').DataTable({
         processing: true,
         serverSide: true,
+        autoWidth: false,
         ajax: '{{ route("api.comment") }}',
+        // Newest comments first (sorted on the hidden created_at column)
+        order: [[5, 'desc']],
         columns: [
-            {data: 'details',  name: 'details'},
-            {data: 'comment',  name: 'comment'},
-            {data: 'status',   name: 'status'},
-            {data: 'Actions',  name: 'Actions', orderable: false, searchable: false},
+            {data: 'details',    name: 'kb_comment.name'},
+            {data: 'article',    name: 'kb_article.name'},
+            {data: 'comment',    name: 'kb_comment.comment'},
+            {data: 'status',     name: 'kb_comment.status', searchable: false},
+            {data: 'Actions',    name: 'Actions', orderable: false, searchable: false},
+            {data: 'created_at', name: 'kb_comment.created_at', visible: false, searchable: false},
         ]
     });
 });

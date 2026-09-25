@@ -101,7 +101,6 @@ class InstallerApiController extends Controller
                 $ENV['CACHE_DRIVER'] = 'file';
                 $ENV['SESSION_DRIVER'] = 'file';
                 $ENV['QUEUE_CONNECTION'] = 'sync';
-                $ENV['JWT_TTL'] = 4;
                 $ENV['FCM_SERVER_KEY'] = 'AIzaSyCyx5OFnsRFUmDLTMbPV50ZMDUGSG-bLw4';
                 $ENV['FCM_SENDER_ID'] = '661051343223';
                 $ENV['REDIS_DATABASE'] = '0';
@@ -173,7 +172,9 @@ class InstallerApiController extends Controller
             // Migrate database
             (new \App\Http\Controllers\Update\SyncFaveoToLatestVersion())->sync();
             Artisan::call('key:generate', ['--force' => true]);
-            Artisan::call('jwt:secret');
+            // Passport (which replaces JWT) is provisioned by the
+            // 2026_11_16_000001_install_passport_personal_access_client migration
+            // run by sync() above, so nothing is needed here.
             // checking requested timezone for the admin and system
             $timezones = Timezones::where('name', '=', $timezone)->first();
             if ($timezones == null) {

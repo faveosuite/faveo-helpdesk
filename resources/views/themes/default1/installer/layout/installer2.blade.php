@@ -9,7 +9,6 @@
         <link rel="stylesheet" href="{{asset("lb-faveo/css/load-styles.css")}}" type="text/css" media="all">
         <link rel="stylesheet" href="{{asset("lb-faveo/css/css.css")}}" type="text/css" media="all">
         <link rel="stylesheet" href="{{asset("lb-faveo/css/admin.css")}}" type="text/css" media="all">
-        <link rel="stylesheet" href="{{asset("lb-faveo/css/wc-setup.css")}}" type="text/css" media="all">
         <link rel="stylesheet" href="{{asset("lb-faveo/css/activation.css")}}" type="text/css" media="all">
         <link rel="stylesheet" href="{{asset("lb-faveo/css/style.css")}}" type="text/css" media="all">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">

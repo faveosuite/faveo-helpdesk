@@ -52,6 +52,8 @@ class CreateTicketRequest extends Request
             'subject'  => 'required|min:5',
             'body'     => 'required|min:10',
             'priority' => 'required',
+            'phone'    => 'nullable|digits_between:4,15',
+            'mobile'   => 'nullable|digits_between:4,15',
         ];
     }
 
@@ -79,8 +81,9 @@ class CreateTicketRequest extends Request
                 'subject'  => 'required|min:5',
                 'body'     => 'required|min:10',
                 'priority' => 'required',
+                'phone'    => 'nullable|digits_between:4,15',
                 'code'     => 'required',
-                'mobile'   => 'required',
+                'mobile'   => 'required|digits_between:4,15',
             ];
         } elseif (($settings->status == '0' || $settings->status == 0) && ($email_mandatory->status == '1' || $email_mandatory->status == 1)) {
             return 0;
@@ -115,8 +118,9 @@ class CreateTicketRequest extends Request
             'subject'  => 'required|min:5',
             'body'     => 'required|min:10',
             'priority' => 'required',
+            'phone'    => 'nullable|digits_between:4,15',
             'code'     => 'required',
-            'mobile'   => 'required',
+            'mobile'   => 'required|digits_between:4,15',
         ];
     }
 }

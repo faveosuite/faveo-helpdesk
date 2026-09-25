@@ -3,20 +3,17 @@
         <meta charset="UTF-8">
         <title>Faveo HELPDESK | Insatller</title>
         <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
-        <!-- bootstrap 3.0.2 -->
-        <link href="{{asset("lb-faveo/downloads/bootstrap.min.css")}}" rel="stylesheet" type="text/css" />
+        {{-- lb-faveo/downloads/bootstrap.min.css, lb-faveo/downloads/ionicons.min.css and
+             lb-faveo/dist/css/AdminLTE.min.css were linked here but are not shipped: each
+             one was a 404 on every render, so the links were removed. --}}
         {{-- {{ HTML::style('ep-content/themes/ep-admin/default1/css/bootstrap.min.css'); }} --}}
 
         <!-- font Awesome -->
         {{-- <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" /> --}}
         {{-- {{ HTML::style('ep-content/themes/ep-admin/default1/css/font-awesome.min.css'); }} --}}
 
-        <!-- Ionicons -->
-        <link href="{{asset("lb-faveo/downloads/ionicons.min.css")}}" rel="stylesheet" type="text/css" />
         {{-- {{ HTML::style('ep-content/themes/ep-admin/default1/admin/css/ionicons.min.css'); }} --}}
 
-        <!-- Theme style -->
-        <link href="{{asset("lb-faveo/dist/css/AdminLTE.min.css")}}" rel="stylesheet" type="text/css" />
         {{-- {{ HTML::style('ep-content/themes/ep-admin/default1/admin/css/AdminLTE.css'); }} --}}
 
         <!-- Bootstrap time Picker -->

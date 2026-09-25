@@ -3,7 +3,7 @@
 @extends('themes.default1.agent.layout.sidebar')    
 
 @section('PageHeader')
-<h1>{{Lang::get('lang.category')}}</h1>
+<h3>{{Lang::get('lang.category')}}</h3>
 @stop
 
 @section('category-menu-open')

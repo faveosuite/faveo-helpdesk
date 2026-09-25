@@ -90,7 +90,7 @@ class="active"
 			{!! html()->form('DELETE', route('template.destroy', [$template->id]))->open() !!}
 			<a href="{{route('template.edit',$template->id)}}" class="btn btn-info btn-xs "><i class="fa-solid fa-pen-to-square" style="color:black;"> </i> Edit</a>
 			<!-- To pop up a confirm Message -->
-				{!! html()->button('<i class="fa-solid fa-trash" style="color:black;"> </i> Delete')->class('btn btn-warning btn-xs ')->attributes(['type' => 'submit', 'onclick' => 'return confirm("Are you sure?")']) !!}
+				{!! html()->button('<i class="fa-solid fa-trash" style="color:black;"> </i> Delete')->class('btn btn-warning btn-xs ')->attributes(['type' => 'submit', 'data-confirm' => Lang::get('lang.confirm')]) !!}
 			{!! html()->closeModelForm() !!}
 		</td>
 		@endforeach
