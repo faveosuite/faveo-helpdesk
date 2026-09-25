@@ -163,25 +163,24 @@ class TeamController extends Controller
 
             ->addColumn('active', function ($model) {
                 if ($model->active == '1') {
-                    $role = "<a class='btn btn-success btn-xs'>".'Active'.'</a>';
-                } elseif ($model->active == 'agent') {
-                    $role = "<a class='btn btn-primary btn-xs'>".'Inactive'.'</a>';
+                    return "<a class='btn btn-success btn-xs'>".'Active'.'</a>';
                 }
 
-                return $role;
+                return "<a class='btn btn-primary btn-xs'>".'Inactive'.'</a>';
             })
 
             ->addColumn('assign_group', function ($model) {
                 $group = Groups::whereId($model->assign_group)->first();
 
-                return $group->name;
+                return $group->name ?? '-';
             })
             ->addColumn('primary_dpt', function ($model) {
                 $dept = Department::whereId($model->primary_dpt)->first();
 
-                return $dept->name;
+                return $dept->name ?? '-';
             })
             ->addColumn('role', function ($model) {
+                $role = '';
                 if ($model->role == 'admin') {
                     $role = "<a class='btn btn-success btn-xs'>".$model->role.'</a>';
                 } elseif ($model->role == 'agent') {

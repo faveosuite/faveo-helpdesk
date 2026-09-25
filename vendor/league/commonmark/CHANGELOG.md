@@ -6,6 +6,31 @@ Updates should follow the [Keep a CHANGELOG](https://keepachangelog.com/) princi
 
 ## [Unreleased][unreleased]
 
+## [2.10.7] - 2026-10-31
+
+### Fixed
+- Fixed `AutolinkExtension` keeping trailing punctuation inside very long URLs containing long runs of punctuation, and removed the excessive regex backtracking that caused it (#1170)
+
+## [2.10.6] - 2026-10-30
+
+### Fixed
+- Fixed `ExternalLinkExtension` not treating some links as external when browsers would navigate to an external host, such as `https:///example.com`, `http:example.com`, or `///example.com`; hosts are now determined the way browsers do (#1169)
+
+## [2.10.5] - 2026-10-30
+
+### Fixed
+- Fixed link reference definitions keeping a partially parsed title when the title on the following line is never closed or is followed by other text; the definition now has no title, as the spec requires (#1162)
+- Fixed task list items being recognized when the `[ ]` or `[x]` marker is directly followed by other content (`- [x]done`); the GFM spec requires whitespace after the marker (#1164)
+- Fixed the content indentation of a list item whose content is a single character after two to four spaces (`-  a`): it was computed as if one space followed the marker, so the next line could be read as part of the item, nesting a following item inside it (#1163)
+- Fixed a table inside a block quote or list item absorbing the lines that follow it as table rows when those lines are lazy continuation lines (not prefixed with `>` or indented); they now end the container as in GitHub's `cmark-gfm` (#1165)
+- Fixed link reference definitions accepting an unescaped `(` inside a parenthesized title (#1168)
+
+## [2.10.4] - 2026-10-17
+
+### Fixed
+- Fixed `HeadingPermalinkExtension` overwriting an `id` set on a heading by the `AttributesExtension` when `heading_permalink/apply_id_to_heading` is enabled; the existing `id` is now used (with the configured prefix) for both the heading and its permalink (#1159, #1160)
+- Fixed Symfony `DebugClassLoader` deprecation notice about `ArrayCollection::offsetGet()` by adding an explicit `@return` annotation (#1158)
+
 ## [2.10.3] - 2026-09-21
 
 ### Fixed
@@ -859,7 +884,11 @@ No changes were introduced since the previous release.
     - Alternative 1: Use `CommonMarkConverter` or `GithubFlavoredMarkdownConverter` if you don't need to customize the environment
     - Alternative 2: Instantiate a new `Environment` and add the necessary extensions yourself
 
-[unreleased]: https://github.com/thephpleague/commonmark/compare/2.10.3...HEAD
+[unreleased]: https://github.com/thephpleague/commonmark/compare/2.10.7...HEAD
+[2.10.7]: https://github.com/thephpleague/commonmark/compare/2.10.6...2.10.7
+[2.10.6]: https://github.com/thephpleague/commonmark/compare/2.10.5...2.10.6
+[2.10.5]: https://github.com/thephpleague/commonmark/compare/2.10.4...2.10.5
+[2.10.4]: https://github.com/thephpleague/commonmark/compare/2.10.3...2.10.4
 [2.10.3]: https://github.com/thephpleague/commonmark/compare/2.10.2...2.10.3
 [2.10.2]: https://github.com/thephpleague/commonmark/compare/2.10.1...2.10.2
 [2.10.1]: https://github.com/thephpleague/commonmark/compare/2.10.0...2.10.1

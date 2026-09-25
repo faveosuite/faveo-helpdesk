@@ -128,8 +128,10 @@ class UnAuthController extends Controller
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $charactersLength = strlen($characters);
         $randomString = '';
+        // This token is the only credential for guest access to a ticket, so it must
+        // come from a CSPRNG; rand() (Mt19937) is predictable from its output.
         for ($i = 0; $i < $length; $i++) {
-            $randomString .= $characters[rand(0, $charactersLength - 1)];
+            $randomString .= $characters[random_int(0, $charactersLength - 1)];
         }
 
         return $randomString;
@@ -174,8 +176,7 @@ class UnAuthController extends Controller
      */
     public function rating($id, Request $request, \App\Model\helpdesk\Ratings\RatingRef $rating_ref)
     {
-        $check_token = TicketToken::where('ticket_id', '=', $id)->first();
-        if (!$check_token || !Hash::check($request->input('tid_token', ''), $check_token->token)) {
+        if (!TicketToken::isValidFor($id, $request->input('tid_token'))) {
             return redirect()->route('form')->with('fails', Lang::get('lang.sorry_you_are_not_allowed_token_expired'));
         }
 
@@ -214,8 +215,7 @@ class UnAuthController extends Controller
      */
     public function ratingReply($id, Request $request, \App\Model\helpdesk\Ratings\RatingRef $rating_ref)
     {
-        $check_token = TicketToken::where('ticket_id', '=', $id)->first();
-        if (!$check_token || !Hash::check($request->input('tid_token', ''), $check_token->token)) {
+        if (!TicketToken::isValidFor($id, $request->input('tid_token'))) {
             return redirect()->route('form')->with('fails', Lang::get('lang.sorry_you_are_not_allowed_token_expired'));
         }
         foreach ($request->except(['_token', 'tid_token']) as $key => $value) {
@@ -255,8 +255,7 @@ class UnAuthController extends Controller
      */
     public function changeStatus($status, $id, Request $request)
     {
-        $check_token = TicketToken::where('ticket_id', '=', $id)->first();
-        if (!$check_token || !Hash::check($request->input('tid_token', ''), $check_token->token)) {
+        if (!TicketToken::isValidFor($id, $request->input('tid_token'))) {
             return redirect()->route('form')->with('fails', Lang::get('lang.sorry_you_are_not_allowed_token_expired'));
         }
         $tickets = Tickets::where('id', '=', $id)->first();
@@ -347,38 +346,15 @@ class UnAuthController extends Controller
      */
     public static function changeLanguage($lang)
     {
-//        if(Cache::has('language'))
-//         {
-//           return Cache::get('language');
-//         } else return 'false';
-//          Cache::put('language',$);
-        $path = base_path('lang');  // Path to check available language packages
-        if (array_key_exists($lang, \Config::get('languages')) && in_array($lang, scandir($path))) {
-            // dd(array_key_exists($lang, Config::get('languages')));
-            // app()->setLocale($lang);
-
-            \Cache::forever('language', $lang);
-            // dd(Cache::get('language'));
-            // dd()
-        } else {
+        if (!isValidLanguage($lang)) {
             return false;
         }
+        // Database first: it is the source of truth that survives a cache clear.
+        // The cache is only a fast copy (see systemLanguage()).
+        \DB::table('settings_system')->where('id', 1)->update(['content' => $lang]);
+        \Cache::forever('language', $lang);
 
         return true;
-
-        /*  $path = base_path('lang');  // Path to check available language packages
-          if (array_key_exists($lang, \Config::get('languages')) && in_array($lang, scandir($path))) {
-              if (Auth::check()) {
-                  $id = Auth::user()->id;
-                  $user = User::find($id);
-                  $user->user_language = $lang;
-                  $user->save();
-              } else {
-                  Session::put('language', $lang);
-              }
-          }
-
-          return redirect()->back();*/
     }
 
     // Follow up tickets
@@ -477,8 +453,7 @@ class UnAuthController extends Controller
 
     public function close($id, Tickets $ticket, Request $request)
     {
-        $check_token = TicketToken::where('ticket_id', '=', $id)->first();
-        if (!$check_token || !Hash::check($request->input('tid_token', ''), $check_token->token)) {
+        if (!TicketToken::isValidFor($id, $request->input('tid_token'))) {
             return redirect()->route('form')->with('fails', Lang::get('lang.sorry_you_are_not_allowed_token_expired'));
         }
 
@@ -524,8 +499,7 @@ class UnAuthController extends Controller
 
     public function open($id, Tickets $ticket, Request $request)
     {
-        $check_token = TicketToken::where('ticket_id', '=', $id)->first();
-        if (!$check_token || !Hash::check($request->input('tid_token', ''), $check_token->token)) {
+        if (!TicketToken::isValidFor($id, $request->input('tid_token'))) {
             return redirect()->route('form')->with('fails', Lang::get('lang.sorry_you_are_not_allowed_token_expired'));
         }
 
@@ -547,8 +521,7 @@ class UnAuthController extends Controller
 
     public function resolve($id, Tickets $ticket, Request $request)
     {
-        $check_token = TicketToken::where('ticket_id', '=', $id)->first();
-        if (!$check_token || !Hash::check($request->input('tid_token', ''), $check_token->token)) {
+        if (!TicketToken::isValidFor($id, $request->input('tid_token'))) {
             return redirect()->route('form')->with('fails', Lang::get('lang.sorry_you_are_not_allowed_token_expired'));
         }
 

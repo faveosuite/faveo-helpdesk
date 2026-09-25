@@ -10,11 +10,11 @@ myApp.controller('MainController', ['$http', '$scope',
         $scope.Databasetitle = 'Database Type';
         $scope.Databasecontent = 'Choose the type of your database';
 
-        $scope.Hosttitle = 'Database Host';
-        $scope.Hostcontent = 'You should be able to get this info from your web host, if localhost doesn’t work';
+        $scope.Hosttitle = 'MySQL Host';
+        $scope.Hostcontent = 'If your MySQL is installed on the same server as Helpdesk, let it be localhost';
 
         $scope.Porttitle = 'Database Port number';
-        $scope.Portcontent = 'This is an optional field, by default port no wil be default port no of the database choosen, enter this field only if your database is not running on default port no';
+        $scope.Portcontent = 'Port number on which your MySQL server is listening. By default, it is 3306';
 
         $scope.Databasenametitle = 'Database Name';
         $scope.Databasenamecontent = 'The name of the database you want to run Faveo in';

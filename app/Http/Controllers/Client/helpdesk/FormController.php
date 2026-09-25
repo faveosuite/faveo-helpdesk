@@ -167,7 +167,13 @@ class FormController extends Controller
             } else {
                 $email = null;
             }
-            $subject = $request->input('Subject');
+            // This form only ever opens a NEW ticket. The workflow treats a "[#<ticket number>]"
+            // in a subject as "reply to that ticket" (that is how e-mail replies are threaded),
+            // and the subject here is entirely user-supplied, so leaving the marker in let anyone,
+            // logged in or not, post into any ticket whose number they knew, as whatever e-mail
+            // address they typed. Neutralise the marker so it is kept as text only, and so it
+            // cannot survive into the stored title and hijack later e-mail replies either.
+            $subject = str_replace('[#', '[', (string) $request->input('Subject'));
             $details = $request->input('Details');
             $phonecode = $request->input('Code');
             if ($request->input('mobile')) {
@@ -230,9 +236,16 @@ class FormController extends Controller
                     }
                 }
             }
+            $authUser = \Auth::user();
+            if (User::isBannedEmail($email) || ($authUser instanceof User && $authUser->isBanned())) {
+                return Redirect::back()->withInput($request->except('password'))->with('fails', Lang::get('lang.email-is-banned'));
+            }
             event(new \App\Events\ClientTicketFormPost($form_extras, $email, $source));
             $result = $this->TicketWorkflowController->workflow($email, $name, $subject, $details, $phone, $phonecode, $mobile_number, $helptopic, $sla, $priority, $source, $collaborator, $department, $assignto, $team_assign, $status, $form_extras, $auto_response);
             // dd($result);
+            if (!empty($result['banned'])) {
+                return Redirect::back()->withInput($request->except('password'))->with('fails', Lang::get('lang.email-is-banned'));
+            }
             if ($result[1] == 1) {
                 $ticketId = Tickets::where('ticket_number', '=', $result[0])->first();
                 $thread = Ticket_Thread::where('ticket_id', '=', $ticketId->id)->first();
@@ -265,9 +278,9 @@ class FormController extends Controller
     /**
      * reply.
      *
-     * @param type $value
+     * @param int|string $id
      *
-     * @return type view
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function post_ticket_reply($id, Request $request)
     {
@@ -277,8 +290,7 @@ class FormController extends Controller
         }
         $authed = \Auth::check() && \Auth::user()->id === $tickets->user_id;
         if (!$authed) {
-            $check_token = TicketToken::where('ticket_id', '=', $id)->first();
-            if (!$check_token || !\Hash::check($request->input('tid_token', ''), $check_token->token)) {
+            if (!TicketToken::isValidFor($id, $request->input('tid_token'))) {
                 return \Redirect::back()->with('fails1', Lang::get('lang.sorry_you_are_not_allowed_token_expired'));
             }
         }
@@ -292,6 +304,9 @@ class FormController extends Controller
                 $body = $comment;
 
                 $user_cred = User::where('id', '=', $tickets->user_id)->first();
+                if ($user_cred && $user_cred->isBanned()) {
+                    return \Redirect::back()->with('fails1', Lang::get('lang.email-is-banned'));
+                }
 
                 $fromaddress = $user_cred->email;
                 $fromname = $user_cred->user_name;

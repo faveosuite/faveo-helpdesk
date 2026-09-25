@@ -142,7 +142,7 @@ class="nav-link active"
             <!-- Mobile -->
             <div class="col-sm-3 mb-3 {{ $errors->has('mobile') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.mobile_number'), 'mobile') !!}@if($send_otp->status ==1)<span class="text-red"> *</span>@endif
-                {!! html()->number('mobile', null)->class('form-control') !!}
+                {!! html()->input('tel', 'mobile', null)->class('form-control')->attributes(['inputmode' => 'numeric', 'pattern' => '[0-9]*']) !!}
             </div>
         </div>
       

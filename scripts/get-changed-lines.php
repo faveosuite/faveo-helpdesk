@@ -96,4 +96,6 @@ $result = array_filter($result, static function (string $path): bool {
         && !preg_match('#(^|/)tests?/#', $lower);
 }, ARRAY_FILTER_USE_KEY);
 
-echo json_encode($result, JSON_UNESCAPED_SLASHES);
+// An empty PHP array encodes as `[]` (a JSON list), and the Jenkins pipeline then
+// fails on changedLines.containsKey(...) / changedLines[path]. Always emit an object.
+echo $result === [] ? '{}' : json_encode($result, JSON_UNESCAPED_SLASHES);

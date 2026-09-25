@@ -133,6 +133,50 @@ function isInstall()
     return $check;
 }
 
+/**
+ * Whether $lang is a language the system can actually serve: listed in
+ * config/languages.php and shipped as a folder under lang/.
+ *
+ * @param mixed $lang
+ *
+ * @return bool
+ */
+function isValidLanguage($lang)
+{
+    return is_string($lang) && $lang !== ''
+        && array_key_exists($lang, \Config::get('languages', []))
+        && is_dir(base_path('lang'.DIRECTORY_SEPARATOR.$lang));
+}
+
+/**
+ * The system (admin chosen) language.
+ *
+ * settings_system.content is the source of truth; the 'language' cache key is
+ * only a fast copy of it. When the cache is empty (cache:clear, driver switch,
+ * redis restart) the value is read back from the database and re-cached, so
+ * the system language is never silently lost. Safe to call outside a web
+ * request (queues, cron), where no middleware has warmed the cache.
+ *
+ * @return string '' when nothing valid is configured (caller falls back)
+ */
+function systemLanguage()
+{
+    $lang = \Cache::get('language');
+    if (isValidLanguage($lang)) {
+        return $lang;
+    }
+    if (!isInstall()) {
+        return '';
+    }
+    $lang = \App\Model\helpdesk\Settings\System::where('id', 1)->value('content');
+    if (!isValidLanguage($lang)) {
+        return '';
+    }
+    \Cache::forever('language', $lang);
+
+    return $lang;
+}
+
 function faveotime($date, $hour = 0, $min = 0, $sec = 0)
 {
     if (is_bool($hour) && $hour == true) {
@@ -316,6 +360,96 @@ function assetLink(string $type, string $key)
     // dd(asset(\Config::get('link.'.$type.'.'.$key)));
     // if request if language, it should append & language to it
     return asset(\Config::get('link.'.$type.'.'.$key));
+}
+
+/**
+ * Checks whether the current (or given) locale is written right-to-left.
+ *
+ * @param string|null $locale
+ *
+ * @return bool
+ */
+function isRtl($locale = null)
+{
+    return in_array($locale ?? \App::getLocale(), \Config::get('app.rtl_locales', ['ar']));
+}
+
+/**
+ * Translates a single language line for building HTML strings.
+ *
+ * Lang::get() is typed string|array because a key may name a whole group; a
+ * single line always comes back as a string, and if a group key is ever passed
+ * by mistake the key itself is shown instead of the word "Array".
+ *
+ * @param string               $key
+ * @param array<string, mixed> $replace
+ *
+ * @return string
+ */
+function langText(string $key, array $replace = []): string
+{
+    $line = \Lang::get($key, $replace);
+
+    return is_string($line) ? $line : $key;
+}
+
+/**
+ * Returns the flag image url of a language, using the flag mapped in config/languages.php.
+ * Falls back to a globe icon when the language has no flag or the image is missing.
+ *
+ * @param string $locale
+ *
+ * @return string
+ */
+function languageFlag($locale)
+{
+    $flag = \Config::get('languages.'.$locale)[2] ?? null;
+    $path = 'lb-faveo/flags/'.$flag.'.png';
+    if (!$flag || !file_exists(public_path($path))) {
+        $path = 'lb-faveo/flags/globe.svg';
+    }
+
+    return asset($path);
+}
+
+/**
+ * Hands every raster image the editor embedded as a data: URI
+ * (`<img src="data:image/png;base64,...">`, which is what Summernote does on
+ * paste/drop) to $replace and puts whatever it returns in place of the src.
+ *
+ * $replace gets the decoded bytes and the image's real mime type, and returns
+ * the new src, or null to leave that image untouched. Payloads that do not
+ * decode to a png/jpeg/gif/webp image are never handed over (svg is not a
+ * raster type and can carry script).
+ *
+ * @param string|null $html
+ * @param callable    $replace function (string $binary, string $mime): ?string
+ *
+ * @return string|null
+ */
+function replaceDataUriImages(?string $html, callable $replace): ?string
+{
+    if (!$html || stripos($html, 'data:image/') === false) {
+        return $html;
+    }
+
+    $allowed = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
+
+    return preg_replace_callback(
+        '/(<img\b[^>]*?\bsrc\s*=\s*)(["\'])\s*data:image\/[a-z0-9.+-]+;base64,([A-Za-z0-9+\/=\s]+)\2/i',
+        function ($m) use ($replace, $allowed) {
+            $base64 = preg_replace('/\s+/', '', $m[3]);
+            $binary = $base64 === null ? false : base64_decode($base64, true);
+            $info = $binary === false ? false : @getimagesizefromstring($binary);
+            if (!$info || !in_array($info['mime'], $allowed, true)) {
+                return $m[0];
+            }
+            $src = $replace($binary, $info['mime']);
+
+            return $src === null ? $m[0] : $m[1].$m[2].$src.$m[2];
+        },
+        $html
+    ) ?? $html;
 }
 
 /**

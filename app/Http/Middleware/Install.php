@@ -20,7 +20,7 @@ class Install
         if (\File::exists($env)) {
             return $next($request);
         } else {
-            return redirect('step1');
+            return redirect('/probe.php');
         }
     }
 }

@@ -78,10 +78,13 @@ class="nav-link active"
                     {!! html()->label(Lang::get('lang.status'), 'status') !!}
                     <div class="row">
                         <div class="col-sm-6">
-                            {!! html()->radio('status', true, '1') !!} {{Lang::get('lang.active')}}
+                            {{-- Checked state comes from the team's saved status (or the submitted value after a
+                                 validation error). It used to be hard-coded `true` for Active, so every team's edit
+                                 form showed Active whatever it was stored as. --}}
+                            {!! html()->radio('status', (string) old('status', $teams->status) === '1', '1') !!} {{Lang::get('lang.active')}}
                         </div>
                         <div class="col-sm-6">
-                            {!! html()->radio('status', null, '0') !!} {{Lang::get('lang.inactive')}}
+                            {!! html()->radio('status', (string) old('status', $teams->status) === '0', '0') !!} {{Lang::get('lang.inactive')}}
                         </div>
                     </div>
                 </div>

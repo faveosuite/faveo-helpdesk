@@ -10,7 +10,16 @@ return [
 
     'temp_directory' => 'UPDATES',
 
+    // Never overwritten by an update. A trailing "/" excludes a whole directory;
+    // a bare file name (no "/") matches that name in any directory.
     'excluded_paths' => [
+        '.env',
+        'storage/app/private.key',
+        'storage/app/public.key',
+        'storage/backups/',
+        'storage/logs/',
+        'storage/framework/',
+        'UPDATES/',
     ],
 
 ];

@@ -16,11 +16,11 @@ $status = $segments[2];
         oTable = myFunction();
         
         $("select[name=label]").change(function () {
-            $("#chumper").dataTable().fnDestroy();
+            $("#chumper").DataTable().destroy();
             myFunction();
         });
         $("select[name=tag]").change(function () {
-            $("#chumper").dataTable().fnDestroy();
+            $("#chumper").DataTable().destroy();
             myFunction();
         });
 
@@ -84,7 +84,7 @@ $status = $segments[2];
                 $('a.toggle-vis').html('<i class="fa-solid fa-plus-square-o" style="color:green;"> </i>{!!Lang::get("lang.created-at")!!}');
 
             }
-            $("#chumper").dataTable().fnDestroy();
+            $("#chumper").DataTable().destroy();
             myFunction();
         });
     });

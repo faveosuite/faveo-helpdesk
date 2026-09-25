@@ -7,7 +7,7 @@ class="nav-link active"
 @stop
 <!-- header -->
 @section('PageHeader')
-<h1>{{Lang::get('log::lang.logs')}}</h1>
+<h3>{{Lang::get('log::lang.logs')}}</h3>
 @stop
 <!-- /header -->
 <!-- breadcrumbs -->
@@ -42,12 +42,22 @@ class="nav-link active"
     <div class="card card-light">
         <div class="card-header">
             <h3 class="card-title">{{Lang::get('log::lang.system_logs')}}</h3>
+            {{-- nothing to download or delete when the logs folder is empty --}}
+            @if($current_file)
             <div class="card-tools">
                 <a href="?dl={{ base64_encode($current_file) }}" class="btn btn-primary btn-sm text-white"><span class="fas fa-download"></span>{{trans('lang.download_file')}}</a>
-                <a id="delete-log" href="?del={{ base64_encode($current_file) }}" class="btn btn-danger btn-sm text-white"><span class="fas fa-trash"></span>{{trans('lang.delete_file')}}</a>
+                <a id="delete-log" data-confirm="{{ Lang::get('lang.confirm') }}" href="?del={{ base64_encode($current_file) }}" class="btn btn-danger btn-sm text-white"><span class="fas fa-trash"></span>{{trans('lang.delete_file')}}</a>
             </div>
+            @endif
         </div>
         <div class="card-body">
+            {{-- the logs folder is empty (files deleted on the server, or nothing logged yet) --}}
+            @if(!count($files))
+            <div class="text-center text-muted py-4">
+                <i class="fas fa-file-alt fa-2x mb-2"></i>
+                <p class="mb-0">{{ Lang::get('log::lang.no_log_files') }}</p>
+            </div>
+            @else
             <div class="row">
                 <div class="col-md-2">
                     <div class="list-group">
@@ -94,6 +104,7 @@ class="nav-link active"
                     @endif
                 </div>
             </div>
+            @endif
         </div>
     </div>
 </div>
@@ -118,9 +129,6 @@ $(document).ready(function () {
     });
     $('.table-container').on('click', '.expand', function () {
         $('#' + $(this).data('display')).toggle();
-    });
-    $('#delete-log').click(function () {
-        return confirm('Are you sure?');
     });
 });
 </script>

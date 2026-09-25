@@ -74,3 +74,10 @@ qa-health-*.log
 /backend-test-results.xml
 /pr-comment.json
 /storage/sonarqube/
+
+storage/oauth-private.key
+storage/oauth-public.key
+
+# Auto-update: backups and the update scratch directory
+/storage/backups/
+/UPDATES/

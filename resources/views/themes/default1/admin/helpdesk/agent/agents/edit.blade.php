@@ -169,7 +169,7 @@ class="nav-link active"
 
                 {!! html()->label(Lang::get('lang.mobile_number'), 'mobile') !!}
 
-                {!! html()->number('mobile', null)->class('form-control') !!}
+                {!! html()->input('tel', 'mobile', null)->class('form-control')->attributes(['inputmode' => 'numeric', 'pattern' => '[0-9]*']) !!}
 
             </div>
 
@@ -207,10 +207,10 @@ class="nav-link active"
 
                     <div class="row">
                         <div class="col-sm-3">
-                            {!! html()->radio('active', true, '1') !!} {{ Lang::get('lang.active') }}
+                            {!! html()->radio('active', (string) old('active', $user->active) === '1', '1') !!} {{ Lang::get('lang.active') }}
                         </div>
                         <div class="col-sm-3">
-                            {!! html()->radio('active', null, '0') !!} {{Lang::get('lang.inactive')}}
+                            {!! html()->radio('active', (string) old('active', $user->active) === '0', '0') !!} {{Lang::get('lang.inactive')}}
                         </div>
                     </div>
 

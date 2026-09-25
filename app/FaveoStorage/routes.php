@@ -1,8 +1,9 @@
 <?php
 
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
 
-\Event::listen('settings.system', function () {
+Event::listen('settings.system', function () {
     $controller = new \App\FaveoStorage\Controllers\SettingsController();
     echo $controller->settingsIcon();
 });

@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Model\Update\BarNotification;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -39,6 +40,14 @@ class AppServiceProvider extends ServiceProvider
             loging('Failed Job - '.$event->connectionName, json_encode([$event->job->payload(), 'error' => $event->exception->getMessage().' file=>'.$event->exception->getFile().' line=>'.$event->exception->getLine()]));
         });
         Route::singularResourceParameters(false);
+        // One pagination look across the whole app: every server-side paginated
+        // list (->links()/->render()) renders through the DataTables-styled view,
+        // matching the jQuery DataTables tables. The view still emits the standard
+        // Bootstrap 5 .pagination markup, and is defensive (handles simplePaginate
+        // and single-page cases), so this does not change pagination behaviour.
+        // Revert to Paginator::useBootstrapFive(); to restore Laravel's default.
+        Paginator::defaultView('vendor.pagination.datatables');
+        Paginator::defaultSimpleView('vendor.pagination.datatables');
         $this->composer();
         URL::forceScheme('https');
 

@@ -1,7 +1,7 @@
 @extends('themes.default1.admin.layout.admin')
 
 @section('PageHeader')
-Application Updates
+<h3>Application Updates</h3>
 @stop
 
 @section('content')
@@ -50,7 +50,7 @@ Application Updates
         border-bottom: 1px solid #adb5bd;
         color: #666;
         margin-bottom: 15px;
-        padding-bottom: 15px;
+        padding-bottom: 15px;./
     }
     .post .user-block {
         margin-bottom: 15px;
@@ -200,7 +200,7 @@ Application Updates
                         <i class="fas fa-exclamation-triangle me-1"></i>
                         <strong>You are about to perform an update/restore.</strong>
                         Once started, the update cannot be stopped. The backup and update may take several
-                        minutes to complete. Make sure you have at least 40 MB of disk space available or
+                        minutes to complete. Make sure there is enough free disk space for a full copy of the application and database, or
                         it may lead to Backup/Update failure.
                     </div>
                     <div class="form-check">
@@ -216,7 +216,7 @@ Application Updates
                     <div class="spinner-border text-primary mb-3" role="status" style="width:3rem;height:3rem;">
                         <span class="visually-hidden">Working...</span>
                     </div>
-                    <p class="mb-0" id="updating-text">Maintenance Mode Enabled... File system Updating.. Do not close the window.</p>
+                    <p class="mb-0" id="updating-text">Starting the update... Do not close the window.</p>
                 </div>
             </div>
             <div class="modal-footer justify-content-between">
@@ -299,101 +299,113 @@ function startUpdate() {
     }
 }
 
+function postJson(url) {
+    return fetch(url, { method: 'POST', headers: headers, credentials: 'same-origin' })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (!data.success) throw new Error(data.message || 'Request failed.');
+            return data;
+        });
+}
+
+function setStatus(text) {
+    document.getElementById('updating-text').textContent = text;
+}
+
+// Step 1 (optional): start the backup and wait until it has really finished.
+// Files must not be replaced while the backup is still reading them.
 function doBackup() {
-    document.getElementById('updating-text').textContent = 'Taking system backup... Please wait.';
+    setStatus('Taking system backup... This can take several minutes. Do not close the window.');
 
-    fetch('{{ route("upgrade.backup") }}', {
-        method: 'POST',
-        headers: headers,
-        body: JSON.stringify({ path: '{{ $backupPath }}', autoUpdate: true }),
-    })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-        if (data.success) {
-            showResult('success', data.message || 'Backup and update started.');
-        } else {
-            throw new Error(data.message);
-        }
-    })
-    .catch(function(err) {
-        showResult('error', 'Backup failed: ' + err.message);
+    postJson('{{ route("upgrade.backup") }}')
+        .then(function(data) { return waitForBackup(data.data.backup_id); })
+        .then(function() { doDownload(); })
+        .catch(function(err) {
+            showResult('error', 'Backup failed, nothing was updated: ' + err.message, true);
+        });
+}
+
+function waitForBackup(id) {
+    var url = '{{ url("upgrade/backup") }}/' + id + '/status';
+    var started = Date.now();
+
+    return new Promise(function(resolve, reject) {
+        (function poll() {
+            fetch(url, { headers: headers, credentials: 'same-origin' })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    var status = data.data && data.data.status;
+                    if (status === 'success') {
+                        var skipped = data.data.skipped_count || 0;
+                        if (skipped && !confirm(data.message + '\n\n' + data.data.skipped.join('\n')
+                                + (skipped > data.data.skipped.length ? '\n...' : '')
+                                + '\n\nContinue with the update anyway?')) {
+                            return reject(new Error('Update cancelled: the backup is incomplete.'));
+                        }
+                        return resolve();
+                    }
+                    if (status === 'failed' || !data.success) return reject(new Error(data.message));
+                    if (Date.now() - started > 3 * 60 * 60 * 1000) {
+                        return reject(new Error('The backup did not finish within 3 hours.'));
+                    }
+                    var minutes = Math.floor((Date.now() - started) / 60000);
+                    setStatus('Taking system backup... (' + minutes + ' min) Do not close the window.');
+                    setTimeout(poll, 5000);
+                })
+                .catch(function() { setTimeout(poll, 5000); });
+        })();
     });
 }
 
+// Step 2: download the release. The site is still fully up.
 function doDownload() {
-    document.getElementById('updating-text').textContent = 'Maintenance Mode Enabled... File system Updating.. Do not close the window.';
+    setStatus('Downloading the update... Do not close the window.');
 
-    fetch('{{ route("upgrade.download") }}', {
-        method: 'POST',
-        headers: headers,
-    })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-        if (data.success) {
-            return installUpdate();
-        } else {
-            throw new Error(data.message);
-        }
-    })
-    .catch(function(err) {
-        showResult('error', err.message);
-    });
+    postJson('{{ route("upgrade.download") }}')
+        .then(function() { installUpdate(); })
+        .catch(function(err) { showResult('error', 'Download failed, nothing was updated: ' + err.message, true); });
 }
 
+// Step 3: maintenance mode on, replace files. The site stays down until step 4.
 function installUpdate() {
-    fetch('{{ route("upgrade.apply") }}', {
-        method: 'POST',
-        headers: headers,
-    })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-        if (data.success) {
-            return syncDatabase(data.data.version);
-        } else {
-            throw new Error(data.message);
-        }
-    })
-    .catch(function(err) {
-        showResult('error', err.message);
-    });
+    setStatus('Maintenance mode enabled... Updating files. Do not close the window.');
+
+    postJson('{{ route("upgrade.apply") }}')
+        .then(function(data) { syncDatabase(data.data.version); })
+        .catch(function(err) { showResult('error', 'Updating files failed: ' + err.message, true); });
 }
 
+// Step 4: migrate/seed with the new code, then maintenance mode off.
 function syncDatabase(version) {
-    document.getElementById('updating-text').textContent = 'Maintenance Mode Enabled... Database Updating.. Do not close the window.';
+    setStatus('Maintenance mode enabled... Updating the database. Do not close the window.');
 
-    fetch('{{ route("upgrade.database") }}', {
-        method: 'POST',
-        headers: headers,
-    })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-        if (data.success) {
-            showResult('success', 'Update complete! New version: v' + version);
-        } else {
-            showResult('warning', 'Files updated to v' + version + ' but database sync failed: ' + data.message);
-        }
-    })
-    .catch(function(err) {
-        showResult('warning', 'Files updated to v' + version + ' but database sync failed: ' + err.message);
-    });
+    postJson('{{ route("upgrade.database") }}')
+        .then(function() { showResult('success', 'Update complete! New version: v' + version); })
+        .catch(function(err) {
+            showResult('warning', 'Files updated to v' + version + ' but the database update failed: ' + err.message
+                + ' Open "Database Update" to retry.', true);
+        });
 }
 
-function showResult(type, msg) {
+function showResult(type, msg, stay) {
     document.getElementById('modal-updating-content').classList.add('d-none');
     document.getElementById('modal-confirm-content').classList.add('d-none');
 
     var alertArea = document.getElementById('update-alert-area');
     var alertClass = type === 'success' ? 'alert-success' : (type === 'warning' ? 'alert-warning' : 'alert-danger');
     var icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
-    alertArea.innerHTML = '<div class="alert ' + alertClass + ' mb-3"><i class="fas ' + icon + ' me-1"></i> ' + msg + '</div>';
+    alertArea.innerHTML = '<div class="alert ' + alertClass + ' mb-3"><i class="fas ' + icon + ' me-1"></i> <span></span></div>';
+    alertArea.querySelector('span').textContent = msg;
     alertArea.classList.remove('d-none');
 
     document.getElementById('modalCloseBtn').classList.remove('d-none');
     document.getElementById('modalCloseX').classList.remove('d-none');
 
-    setTimeout(function() {
-        window.location.href = '{{ url("file-update") }}';
-    }, 3000);
+    if (!stay) {
+        setTimeout(function() {
+            window.location.href = '{{ url("file-update") }}';
+        }, 3000);
+    }
 }
 </script>
 

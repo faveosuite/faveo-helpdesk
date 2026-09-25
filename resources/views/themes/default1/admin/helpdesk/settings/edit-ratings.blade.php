@@ -97,10 +97,10 @@ class="nav-link active"
             <div class="callout callout-default font-oblique">{!! Lang::get('lang.rating-msg3') !!}</div>
             <div class="row">
                 <div class="col-sm-2">
-                    {!! html()->radio('allow_modification', null, '1') !!} {{Lang::get('lang.yes')}}
+                    {!! html()->radio('allow_modification', (string) old('allow_modification', $rating->allow_modification) === '1', '1') !!} {{Lang::get('lang.yes')}}
                 </div>
                 <div class="col-sm-2">
-                    {!! html()->radio('allow_modification', null, '0') !!} {{Lang::get('lang.no')}}
+                    {!! html()->radio('allow_modification', (string) old('allow_modification', $rating->allow_modification) === '0', '0') !!} {{Lang::get('lang.no')}}
                 </div>
             </div>        
         </div>

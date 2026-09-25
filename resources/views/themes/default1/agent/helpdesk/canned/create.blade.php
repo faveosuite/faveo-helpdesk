@@ -17,7 +17,7 @@ class="nav-link active"
 @stop
 
 @section('PageHeader')
-<h1>{{Lang::get('lang.canned_response')}}</h1>
+<h3>{{Lang::get('lang.canned_response')}}</h3>
 @stop
 
 <!-- content -->

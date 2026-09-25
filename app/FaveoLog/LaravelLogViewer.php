@@ -46,29 +46,34 @@ class LaravelLogViewer
      */
     public static function setFile($file)
     {
-        $file = self::pathToLogFile($file);
-
-        if (File::exists($file)) {
-            self::$file = $file;
+        // The selected file comes from the page URL (?l=...). A bookmarked or
+        // still-open Logs page keeps pointing at a file after it was rotated,
+        // deleted or archived; that is not an error, so fall back to the newest
+        // log instead of failing the whole page with "No such log file".
+        try {
+            self::$file = self::pathToLogFile($file);
+        } catch (\Exception $e) {
+            self::$file = '';
         }
     }
 
     public static function pathToLogFile($file)
     {
-        $logsPath = storage_path('logs');
+        $logsPath = realpath(storage_path('logs'));
 
-        if (File::exists($file)) { // try the absolute path
-            return $file;
-        }
-
-        $file = $logsPath.'/'.$file;
-
-        // check if requested file is really in the logs directory
-        if (dirname($file) !== $logsPath) {
+        if ($logsPath === false || !is_string($file) || $file === '' || str_contains($file, "\0")) {
             throw new \Exception('No such log file');
         }
 
-        return $file;
+        // Always resolve the name relative to the logs directory; absolute paths are not accepted.
+        $filePath = realpath($logsPath.DIRECTORY_SEPARATOR.$file);
+
+        // realpath() resolves "../" and symlinks, so the check below cannot be bypassed by either.
+        if ($filePath === false || !is_file($filePath) || dirname($filePath) !== $logsPath) {
+            throw new \Exception('No such log file');
+        }
+
+        return $filePath;
     }
 
     /**
@@ -76,7 +81,7 @@ class LaravelLogViewer
      */
     public static function getFileName()
     {
-        return basename(self::$file);
+        return self::$file ? basename(self::$file) : '';
     }
 
     /**
@@ -91,7 +96,9 @@ class LaravelLogViewer
         $pattern = '/\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\].*/';
 
         if (!self::$file) {
-            $log_file = self::getFiles();
+            // array_values(): getFiles() filters out directories and keeps the
+            // original keys, so index 0 is not guaranteed to exist.
+            $log_file = array_values(self::getFiles());
             if (!count($log_file)) {
                 return [];
             }

@@ -65,7 +65,7 @@
         </article>
         @endforeach
 
-        <div class="pagination">
+        <div class="mt-3">
             <?php echo $article->render(); ?>
         </div>
     </div>

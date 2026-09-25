@@ -139,5 +139,6 @@
         document.getElementById('active_breadcrumb').innerText = 'License';
       }
     </script>
+  @include('themes.default1.common.submit-guard')
   </body>
 </html>

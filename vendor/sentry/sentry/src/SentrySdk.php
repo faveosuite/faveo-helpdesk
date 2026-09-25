@@ -1,0 +1,210 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Sentry;
+
+use Sentry\Logs\Logs;
+use Sentry\Metrics\TraceMetrics;
+use Sentry\State\Hub;
+use Sentry\State\HubInterface;
+use Sentry\State\RuntimeContext;
+use Sentry\State\RuntimeContextManager;
+use Sentry\State\RuntimeContextStorageInterface;
+
+/**
+ * This class is the main entry point for all the most common SDK features.
+ *
+ * @author Stefano Arlandini <sarlandini@alice.it>
+ */
+final class SentrySdk
+{
+    /**
+     * @var HubInterface|null The baseline hub
+     */
+    private static $currentHub;
+
+    /**
+     * @var RuntimeContextManager|null
+     */
+    private static $runtimeContextManager;
+
+    /**
+     * @var RuntimeContextStorageInterface|null
+     */
+    private static $runtimeContextStorage;
+
+    /**
+     * Constructor.
+     */
+    private function __construct()
+    {
+    }
+
+    /**
+     * Initializes the SDK by creating a new hub instance each time this method
+     * gets called.
+     */
+    public static function init(): HubInterface
+    {
+        if (self::$runtimeContextManager !== null) {
+            self::$runtimeContextManager->discardActiveContext();
+        }
+
+        self::$currentHub = new Hub();
+        self::$runtimeContextManager = null;
+
+        return self::getCurrentHub();
+    }
+
+    /**
+     * Registers storage for isolating runtime contexts across overlapping logical executions.
+     *
+     * The registration persists across SDK initialization. Changing it discards the active
+     * context for the current logical execution without flushing it. Concurrent runtimes
+     * should register storage before logical executions begin and must not replace it while
+     * other logical executions are active.
+     */
+    public static function setRuntimeContextStorage(?RuntimeContextStorageInterface $runtimeContextStorage): void
+    {
+        if (self::$runtimeContextManager !== null) {
+            self::$runtimeContextManager->discardActiveContext();
+        }
+
+        self::$runtimeContextStorage = $runtimeContextStorage;
+        self::$runtimeContextManager = null;
+    }
+
+    /**
+     * Gets the current hub. If it's not initialized then creates a new instance
+     * and sets it as current hub.
+     */
+    public static function getCurrentHub(): HubInterface
+    {
+        return self::getRuntimeContextManager()->getCurrentHub();
+    }
+
+    /**
+     * Sets the current hub.
+     *
+     * If called while an explicit runtime context is active, the hub update is
+     * scoped to that active context only. Otherwise, it updates the baseline
+     * hub used by the global fallback context and future contexts.
+     *
+     * @param HubInterface $hub The hub to set
+     */
+    public static function setCurrentHub(HubInterface $hub): HubInterface
+    {
+        $wasSetOnActiveRuntimeContext = self::getRuntimeContextManager()->setCurrentHub($hub);
+
+        if (!$wasSetOnActiveRuntimeContext) {
+            self::$currentHub = $hub;
+        }
+
+        return $hub;
+    }
+
+    /**
+     * Starts an isolated context for the current logical execution.
+     *
+     * A provided hub is used as-is, allowing runtimes with their own HubInterface
+     * implementation to manage hub isolation. When no hub is provided, the SDK
+     * creates an isolated hub from the baseline.
+     *
+     * If a context is already active, this method is a no-op and the provided hub
+     * is ignored. Use setCurrentHub() to replace the active context's hub.
+     *
+     * @param HubInterface|null $hub The hub to use for the new context
+     */
+    public static function startContext(?HubInterface $hub = null): void
+    {
+        self::getRuntimeContextManager()->startContext($hub);
+    }
+
+    /**
+     * Ends and flushes the active context for the current logical execution.
+     *
+     * When no context is active this is a no-op.
+     *
+     * @param int|null $timeout The maximum number of seconds to wait while flushing the client transport
+     */
+    public static function endContext(?int $timeout = null): void
+    {
+        self::getRuntimeContextManager()->endContext($timeout);
+    }
+
+    /**
+     * Executes the given callback within an isolated context.
+     *
+     * If a context is already active for the current logical execution, this method
+     * reuses it and only executes the callback.
+     *
+     * @param callable $callback The callback to execute
+     *
+     * @phpstan-template T
+     *
+     * @phpstan-param callable(): T $callback
+     *
+     * @return mixed
+     *
+     * @phpstan-return T
+     */
+    public static function withContext(callable $callback, ?int $timeout = null)
+    {
+        $runtimeContextManager = self::getRuntimeContextManager();
+        $startedNewContext = $runtimeContextManager->startContext();
+
+        try {
+            return $callback();
+        } finally {
+            if ($startedNewContext) {
+                $runtimeContextManager->endContext($timeout);
+            }
+        }
+    }
+
+    /**
+     * Gets the current runtime-local context.
+     *
+     * @internal
+     */
+    public static function getCurrentRuntimeContext(): RuntimeContext
+    {
+        return self::getRuntimeContextManager()->getCurrentContext();
+    }
+
+    /**
+     * Flushes all buffered telemetry data.
+     *
+     * This is a convenience facade that forwards the flush operation to all
+     * internally managed components.
+     *
+     * Calling this method is equivalent to invoking `flush()` on each component
+     * individually. It does not change flushing behavior, improve performance,
+     * or reduce the number of network requests.
+     */
+    public static function flush(): void
+    {
+        Logs::getInstance()->flush();
+        TraceMetrics::getInstance()->flush();
+
+        $client = self::getCurrentHub()->getClient();
+
+        if ($client !== null) {
+            $client->flush();
+        }
+    }
+
+    private static function getRuntimeContextManager(): RuntimeContextManager
+    {
+        if (self::$currentHub === null) {
+            self::$currentHub = new Hub();
+        }
+
+        if (self::$runtimeContextManager === null) {
+            self::$runtimeContextManager = new RuntimeContextManager(self::$currentHub, self::$runtimeContextStorage);
+        }
+
+        return self::$runtimeContextManager;
+    }
+}

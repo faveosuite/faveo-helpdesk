@@ -91,7 +91,12 @@ class HttpCache implements HttpKernelInterface, TerminableInterface
         array $options = [],
     ) {
         // needed in case there is a fatal error because the backend is too slow to respond
-        register_shutdown_function($this->store->cleanup(...));
+        $pid = getmypid();
+        register_shutdown_function(static function () use ($store, $pid) {
+            if ($pid === getmypid()) {
+                $store->cleanup();
+            }
+        });
 
         $this->options = array_merge([
             'debug' => false,
@@ -589,7 +594,9 @@ class HttpCache implements HttpKernelInterface, TerminableInterface
         }
         // backend is slow as hell, send a 503 response (to avoid the dog pile effect)
         $entry->setStatusCode(503);
-        $entry->setContent('503 Service Unavailable');
+        if (!$entry->headers->has('X-Body-File') && !$entry->headers->has('X-Body-Eval')) {
+            $entry->setContent('503 Service Unavailable');
+        }
         $entry->headers->set('Retry-After', 10);
 
         return true;
@@ -614,9 +621,13 @@ class HttpCache implements HttpKernelInterface, TerminableInterface
             }
 
             $this->store->write($request, $response);
-            $this->record($request, 'store');
 
-            $response->headers->set('Age', $response->getAge());
+            // A response that cannot provide its content, like StreamedResponse, is stored only if the store gave it a content digest
+            if (false !== $response->getContent() || $response->headers->has('X-Content-Digest')) {
+                $this->record($request, 'store');
+
+                $response->headers->set('Age', $response->getAge());
+            }
         } catch (\Exception $e) {
             $this->record($request, 'store-failed');
 
@@ -641,20 +652,27 @@ class HttpCache implements HttpKernelInterface, TerminableInterface
         if ($response->headers->has('X-Body-Eval')) {
             \assert(self::BODY_EVAL_BOUNDARY_LENGTH === 24);
 
+            $level = ob_get_level();
             ob_start();
 
-            $content = $response->getContent();
-            $boundary = substr($content, 0, 24);
-            $j = strpos($content, $boundary, 24);
-            echo substr($content, 24, $j - 24);
-            $i = $j + 24;
-
-            while (false !== $j = strpos($content, $boundary, $i)) {
-                [$uri, $alt, $ignoreErrors, $part] = explode("\n", substr($content, $i, $j - $i), 4);
+            try {
+                $content = $response->getContent();
+                $boundary = substr($content, 0, 24);
+                $j = strpos($content, $boundary, 24);
+                echo substr($content, 24, $j - 24);
                 $i = $j + 24;
 
-                echo $this->surrogate->handle($this, $uri, $alt, $ignoreErrors);
-                echo $part;
+                while (false !== $j = strpos($content, $boundary, $i)) {
+                    [$uri, $alt, $ignoreErrors, $part] = explode("\n", substr($content, $i, $j - $i), 4);
+                    $i = $j + 24;
+
+                    echo $this->surrogate->handle($this, $uri, $alt, $ignoreErrors);
+                    echo $part;
+                }
+            } catch (\Throwable $e) {
+                Response::closeOutputBuffers($level, false);
+
+                throw $e;
             }
 
             $response->setContent(ob_get_clean());
