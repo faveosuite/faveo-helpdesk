@@ -1,7 +1,7 @@
 @extends('themes.default1.admin.layout.admin')
 
 @section('PageHeader')
-Updating Application
+<h3>Updating Application</h3>
 @stop
 
 @section('content')
@@ -80,63 +80,78 @@ Updating Application
         }
     }
 
-    function startUpdate() {
-        setProgress(10, 'Downloading update from GitHub...');
-        log('Starting download...', 'info');
-
-        fetch('{{ route("upgrade.download") }}', {
+    function postStep(url) {
+        return fetch(url, {
             method: 'POST',
+            credentials: 'same-origin',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
         })
         .then(function(r) { return r.json(); })
         .then(function(data) {
-            if (data.status === 'success') {
-                log(data.message, 'success');
-                setProgress(40, 'Installing update...');
-                log('Extracting and applying files...', 'info');
-                return installUpdate();
-            } else {
-                throw new Error(data.message);
-            }
+            if (!data.success) throw new Error(data.message || 'Request failed.');
+            return data;
+        });
+    }
+
+    function startUpdate() {
+        setProgress(10, 'Downloading update from GitHub...');
+        log('Starting download...', 'info');
+
+        postStep('{{ route("upgrade.download") }}')
+        .then(function(data) {
+            log(data.message, 'success');
+            installUpdate();
         })
         .catch(function(err) {
-            log('Download failed: ' + err.message, 'error');
+            log('Download failed, nothing was changed: ' + err.message, 'error');
             setProgress(10, 'Update failed');
             setDone(false);
         });
     }
 
     function installUpdate() {
-        fetch('{{ route("upgrade.apply") }}', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
-        })
-        .then(function(r) { return r.json(); })
+        setProgress(40, 'Installing update (maintenance mode on)...');
+        log('Extracting and applying files...', 'info');
+
+        postStep('{{ route("upgrade.apply") }}')
         .then(function(data) {
-            if (data.status === 'success') {
-                if (data.log) {
-                    var total = data.log.length;
-                    data.log.forEach(function(entry, idx) {
-                        var type = entry.status === 'updated' ? 'success'
-                                 : entry.status === 'skipped' ? 'warn'
-                                 : entry.status === 'failed'  ? 'error' : 'muted';
-                        log(entry.file + ' ... ' + entry.status.toUpperCase(), type);
-                        setProgress(40 + Math.round((idx / total) * 55));
-                    });
-                }
-                log('', 'info');
-                log('Update complete! New version: v' + data.version, 'success');
-                setProgress(100, 'Update complete!');
-                setDone(true);
-            } else {
-                throw new Error(data.message);
-            }
+            var entries = (data.data && data.data.log) || [];
+            entries.forEach(function(entry) {
+                var type = entry.status === 'updated' ? 'success'
+                         : entry.status === 'skipped' ? 'warn'
+                         : entry.status === 'failed'  ? 'error' : 'muted';
+                log(escapeHtml(entry.file + ' ... ' + entry.status.toUpperCase()), type);
+            });
+            syncDatabase(data.data.version);
         })
         .catch(function(err) {
-            log('Install failed: ' + err.message, 'error');
+            log('Install failed: ' + escapeHtml(err.message), 'error');
             setProgress(40, 'Update failed');
             setDone(false);
         });
+    }
+
+    function syncDatabase(version) {
+        setProgress(80, 'Updating database...');
+        log('Running database migrations...', 'info');
+
+        postStep('{{ route("upgrade.database") }}')
+        .then(function() {
+            log('Update complete! New version: v' + escapeHtml(version), 'success');
+            setProgress(100, 'Update complete!');
+            setDone(true);
+        })
+        .catch(function(err) {
+            log('Files updated but the database update failed: ' + escapeHtml(err.message), 'error');
+            setProgress(80, 'Database update failed');
+            setDone(false);
+        });
+    }
+
+    function escapeHtml(text) {
+        var div = document.createElement('div');
+        div.textContent = String(text);
+        return div.innerHTML;
     }
 
     // Auto-start on page load

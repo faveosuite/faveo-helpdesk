@@ -41,7 +41,7 @@
         <div id="wbox" class="widgetrow text-center">
         @if(Auth::user())
         @else
-            <span onclick="javascript: window.location.href='{{url('auth/register')}}';">
+            <span>
                 <a href="{{url('auth/register')}}" class="widgetrowitem defaultwidget" style="background-image: URL('lb-faveo/media/images/register.png');">
                     <span class="widgetitemtitle" style="color: rgb(0, 154, 186)">{!! Lang::get('lang.register') !!}</span>
                 </a>
@@ -52,7 +52,7 @@
         @if($system != null) 
             @if($system->status) 
                 @if($system->status == 1)
-                    <span onclick="javascript: window.location.href='{!! URL::route('form') !!}';">
+                    <span>
                         <a href="{!! URL::route('form') !!}" class="widgetrowitem defaultwidget" style="background-image: URL('lb-faveo/media/images/submitticket.png');">
                             <span class="widgetitemtitle" style="color: rgb(0, 154, 186)">{!! Lang::get('lang.submit_a_ticket') !!}</span>
                         </a>
@@ -60,12 +60,12 @@
                 @endif
             @endif
         @endif
-            <span onclick="javascript: window.location.href='{{url('mytickets')}}';">
+            <span>
                 <a href="{{url('mytickets')}}" class="widgetrowitem defaultwidget" style="background-image: URL('lb-faveo/media/images/news.png');">
                     <span class="widgetitemtitle" style="color: rgb(0, 154, 186)">{!! Lang::get('lang.my_tickets') !!}</span>
                 </a>
             </span>
-            <span onclick="javascript: window.location.href='{{url('/knowledgebase')}}';">
+            <span>
                 <a href="{{url('/knowledgebase')}}" class="widgetrowitem defaultwidget" style="background-image: URL('lb-faveo/media/images/knowledgebase.png');">
                     <span class="widgetitemtitle" style="color: rgb(0, 154, 186)">{!! Lang::get('lang.knowledge_base') !!}</span>
                 </a>

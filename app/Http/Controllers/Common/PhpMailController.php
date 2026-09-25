@@ -264,7 +264,8 @@ class PhpMailController extends Controller
                         $name = $attach[$i]['file_name'];
                         $mime = $attach[$i]['mime'];
                         $this->attachmentMode($m, $file, $name, $mime, $mode);
-                        break;
+                        // A `break;` here used to stop after the first file, so a reply
+                        // with several attachments emailed only one of them.
                     }
                 }
             }
@@ -305,10 +306,40 @@ class PhpMailController extends Controller
 
     public function attachmentMode($message, $file, $name, $mime, $mode)
     {
+        $mime = $this->attachmentMimeType($mime, $name);
+
         if ($mode == 'data') {
             return $message->attachData(base64_decode($file, true), $name, ['mime' => $mime]);
         }
 
         return $message->attach($file, ['as' => $name, 'mime' => $mime]);
+    }
+
+    /**
+     * A real "type/subtype" MIME type for an attachment.
+     *
+     * ticket_attachment.type holds either a MIME type ("image/png", from fetched mail)
+     * or just the file extension ("png", from the agent reply form, which the ticket
+     * page's mime() helper also understands). Symfony Mime splits the value on "/",
+     * so an extension made every reply with an attachment fail to send with
+     * "Undefined array key 1" (vendor/symfony/mime/Part/DataPart.php).
+     *
+     * @param string|null $mime
+     * @param string|null $name
+     *
+     * @return string
+     */
+    public function attachmentMimeType($mime, $name)
+    {
+        // Anything with a "/" already worked before this method existed: pass it
+        // through untouched. Only values without one (which always crashed) change.
+        $mime = trim((string) $mime);
+        if (str_contains($mime, '/')) {
+            return $mime;
+        }
+
+        $extension = strtolower($mime !== '' ? ltrim($mime, '.') : pathinfo((string) $name, PATHINFO_EXTENSION));
+
+        return \Symfony\Component\Mime\MimeTypes::getDefault()->getMimeTypes($extension)[0] ?? 'application/octet-stream';
     }
 }

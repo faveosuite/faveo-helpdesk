@@ -350,12 +350,25 @@ class GuestController extends Controller
     /**
      * get ticket email.
      *
-     * @param type $id
+     * @param string $id encrypted ticket id from the URL
      *
      * @return type
      */
     public function get_ticket_email($id, CommonSettings $common_settings)
     {
+        // $id is an encrypted ticket id taken from the URL. The view decrypts it, so a
+        // mistyped, truncated or stale link used to throw "The payload is invalid." from
+        // inside the template: an HTTP 500 and an error-log entry for what is simply a
+        // link that leads nowhere.
+        try {
+            $ticketId = \Crypt::decrypt($id);
+        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+            abort(404);
+        }
+        if (!Tickets::where('id', '=', $ticketId)->exists()) {
+            abort(404);
+        }
+
         $common_setting = $common_settings->select('status')
                 ->where('option_name', '=', 'user_set_ticket_status')
                 ->first();

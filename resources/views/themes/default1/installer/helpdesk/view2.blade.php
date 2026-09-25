@@ -7,15 +7,25 @@ active
 
 
 @section('content')
+<style type="text/css">
+    #form-content table.t01 { width: 100%; border: 1px solid #000; border-collapse: collapse; margin: 0 0 24px; }
+    #form-content table.t01 th, #form-content table.t01 td { border: 1px solid #000; padding: 5px; text-align: left; }
+    #form-content table.t01 th { background-color: #71bee3; color: #fff; }
+    #form-content table.t01 tr:nth-child(even) { background-color: #eee; }
+    #form-content table.t01 tr:nth-child(odd) { background-color: #fff; }
+    #form-content .ok { color: green; }
+    #form-content .warning { color: #F89C0D; }
+    #form-content .error { color: red; }
+</style>
 <div id="no-js">
    <noscript>
         <meta http-equiv="refresh" content="0; URL=JavaScript-disabled">
         <style type="text/css">#form-content {display: none;}</style>
     </noscript>
 </div>
-    
+
 <div id="form-content">
-<center><h1>Environment Test</h1></center>
+<center><h1>Server Requirements</h1></center>
          @if (Session::has('fail_to_change'))
            <div class="woocommerce-message woocommerce-tracker" >
                 <p id="fail">{!!Session::get('fail_to_change')!!}</p>
@@ -28,10 +38,12 @@ define('STATUS_OK', 'Ok');
 define('STATUS_WARNING', 'Warning');
 define('STATUS_ERROR', 'Error');
 class TestResult {
+    var $label;
     var $message;
     var $status;
 
-    function __construct($message, $status = STATUS_OK) {
+    function __construct($label, $message, $status = STATUS_OK) {
+        $this->label = $label;
         $this->message = $message;
         $this->status = $status;
     }
@@ -56,10 +68,10 @@ class TestResult {
 
 function validate_php(&$results) {
     if (version_compare(PHP_VERSION, '8.2') != 1) {
-        $results[] = new TestResult('PHP version required in order to run Faveo HELPDESK is PHP 8.2.* PHP version greater or lesser than 7.1 are not supported yet. Your PHP version: ' . PHP_VERSION, STATUS_ERROR);
+        $results[] = new TestResult('PHP Version', 'PHP version required in order to run Faveo HELPDESK is PHP 8.2.* PHP version greater or lesser than 7.1 are not supported yet. Your PHP version: ' . PHP_VERSION, STATUS_ERROR);
         return false;
     } else {
-        $results[] = new TestResult('Your PHP version is ' . PHP_VERSION, STATUS_OK);
+        $results[] = new TestResult('PHP Version', 'Your PHP version is ' . PHP_VERSION, STATUS_OK);
         return true;
     } // if
 } // validate_php
@@ -105,13 +117,13 @@ function checkFilePermission(&$results)
         $f1 = '644';
     }
     if( $f1 >= '644' && $f2 >= '755') {
-        $results[] = new TestResult('File permission looks fine', STATUS_OK);
+        $results[] = new TestResult('File Permissions', 'File permission looks fine', STATUS_OK);
         return true;
     } else {
         if(isset($path1)){
-        $results[] = new TestResult('File permissions needed.<ul><b>Change file permission for following files</b><li>'.$path1.'%nbsp: \'644\'</li><li>'.$path2.'%nbsp: \'755\'</li></ul></br>Change the permission manually on your server or <a href="change-file-permission">click here.</a>', STATUS_ERROR);
+        $results[] = new TestResult('File Permissions', 'File permissions needed.<ul><b>Change file permission for following files</b><li>'.$path1.'%nbsp: \'644\'</li><li>'.$path2.'%nbsp: \'755\'</li></ul></br>Change the permission manually on your server or <a href="change-file-permission">click here.</a>', STATUS_ERROR);
         } else {
-            $results[] = new TestResult('File permissions needed.<ul><b>Change file permission to "755" for following files</b><li>'.$path2.'</li></ul></br>Change the permission manually on your server or <a href="change-file-permission">click here.</a>', STATUS_ERROR);
+            $results[] = new TestResult('File Permissions', 'File permissions needed.<ul><b>Change file permission to "755" for following files</b><li>'.$path2.'</li></ul></br>Change the permission manually on your server or <a href="change-file-permission">click here.</a>', STATUS_ERROR);
         }
         return false;
     }
@@ -128,10 +140,10 @@ function validate_memory_limit(&$results) {
     $formatted_memory_limit = $memory_limit === -1 ? 'unlimited' : format_file_size($memory_limit);
 
     if ($memory_limit === -1 || $memory_limit >= 67108864) {
-        $results[] = new TestResult('Your memory limit is: ' . $formatted_memory_limit, STATUS_OK);
+        $results[] = new TestResult('Memory Limit', 'Your memory limit is: ' . $formatted_memory_limit, STATUS_OK);
         return true;
     } else {
-        $results[] = new TestResult('Your memory is too low to complete the installation. Minimal value is 64MB, and you have it set to ' . $formatted_memory_limit, STATUS_ERROR);
+        $results[] = new TestResult('Memory Limit', 'Your memory is too low to complete the installation. Minimal value is 64MB, and you have it set to ' . $formatted_memory_limit, STATUS_ERROR);
         return false;
     } // if
 } // validate_memory_limit
@@ -168,10 +180,10 @@ function validate_zend_compatibility_mode(&$results) {
 
     if (version_compare(PHP_VERSION, '5.0') >= 0) {
         if (ini_get('zend.ze1_compatibility_mode')) {
-            $results[] = new TestResult('zend.ze1_compatibility_mode is set to On. This can cause some strange problems. It is strongly suggested to turn this value to Off (in your php.ini file)', STATUS_WARNING);
+            $results[] = new TestResult('Zend Compatibility Mode', 'zend.ze1_compatibility_mode is set to On. This can cause some strange problems. It is strongly suggested to turn this value to Off (in your php.ini file)', STATUS_WARNING);
             $ok = false;
         } else {
-            $results[] = new TestResult('zend.ze1_compatibility_mode is turned Off', STATUS_OK);
+            $results[] = new TestResult('Zend Compatibility Mode', 'zend.ze1_compatibility_mode is turned Off', STATUS_OK);
         } // if
     } // if
 
@@ -187,22 +199,22 @@ function validate_extensions(&$results) {
 
     foreach ($required_extensions as $required_extension) {
         if (extension_loaded($required_extension)) {
-            $results[] = new TestResult("Required extension '$required_extension' found", STATUS_OK);
+            $results[] = new TestResult("Extension '$required_extension'", "Required extension '$required_extension' found", STATUS_OK);
         } else {
-            $results[] = new TestResult("Extension '$required_extension' is required in order to run Faveo Helpdesk ", STATUS_ERROR);
+            $results[] = new TestResult("Extension '$required_extension'", "Extension '$required_extension' is required in order to run Faveo Helpdesk ", STATUS_ERROR);
             $ok = false;
         } // if
     } // foreach
 
     // Check for eAccelerator
     if (extension_loaded('eAccelerator') && ini_get('eaccelerator.enable')) {
-        $results[] = new TestResult("eAccelerator opcode cache enabled. <span class=\"details\">eAccelerator opcode cache causes Faveo Helpdesk to crash. <a href=\"https://eaccelerator.net/wiki/Settings\">Disable it</a> for folder where Faveo Helpdesk is installed, or use APC instead: <a href=\"http://www.php.net/apc\">http://www.php.net/apc</a>.</span>", STATUS_ERROR);
+        $results[] = new TestResult('Opcode Cache (eAccelerator)', "eAccelerator opcode cache enabled. <span class=\"details\">eAccelerator opcode cache causes Faveo Helpdesk to crash. <a href=\"https://eaccelerator.net/wiki/Settings\">Disable it</a> for folder where Faveo Helpdesk is installed, or use APC instead: <a href=\"http://www.php.net/apc\">http://www.php.net/apc</a>.</span>", STATUS_ERROR);
         $ok = false;
     } // if
 
     // Check for XCache
     if (extension_loaded('XCache') && ini_get('xcache.cacher')) {
-        $results[] = new TestResult("XCache opcode cache enabled. <span class=\"details\">XCache opcode cache causes Faveo Helpdesk to crash. <a href=\"http://xcache.lighttpd.net/wiki/XcacheIni\">Disable it</a> for folder where Faveo Helpdesk is installed, or use APC instead: <a href=\"http://www.php.net/apc\">http://www.php.net/apc</a>.</span>", STATUS_ERROR);
+        $results[] = new TestResult('Opcode Cache (XCache)', "XCache opcode cache enabled. <span class=\"details\">XCache opcode cache causes Faveo Helpdesk to crash. <a href=\"http://xcache.lighttpd.net/wiki/XcacheIni\">Disable it</a> for folder where Faveo Helpdesk is installed, or use APC instead: <a href=\"http://www.php.net/apc\">http://www.php.net/apc</a>.</span>", STATUS_ERROR);
         $ok = false;
     } // if
 
@@ -220,9 +232,9 @@ function validate_extensions(&$results) {
 
     foreach ($recommended_extensions as $recommended_extension => $recommended_extension_desc) {
         if (extension_loaded($recommended_extension)) {
-            $results[] = new TestResult("Recommended extension '$recommended_extension' found", STATUS_OK);
+            $results[] = new TestResult("Extension '$recommended_extension'", "Recommended extension '$recommended_extension' found", STATUS_OK);
         } else {
-            $results[] = new TestResult("Extension '$recommended_extension' was not found. <span class=\"details\">$recommended_extension_desc</span>", STATUS_WARNING);
+            $results[] = new TestResult("Extension '$recommended_extension'", "Extension '$recommended_extension' was not found. <span class=\"details\">$recommended_extension_desc</span>", STATUS_WARNING);
         } // if
     } // foreach
 
@@ -242,10 +254,10 @@ function checkDisabledFunctions(&$results) {
         foreach ($required_functions as $value) {
             if($key == $value) {
                 if (strpos(ini_get('disable_functions'), $key) !== false) {
-                    $results[] = new TestResult("Function '$value' is required in order to run Faveo Helpdesk. Please check php.ini to enable this function or contact your server administrator", STATUS_ERROR);
+                    $results[] = new TestResult("Function '$value'", "Function '$value' is required in order to run Faveo Helpdesk. Please check php.ini to enable this function or contact your server administrator", STATUS_ERROR);
                     $ok = false;
                 } else {
-                    $results[] = new TestResult("All required functions found", STATUS_OK);
+                    $results[] = new TestResult('Disabled Functions', 'All required functions found', STATUS_OK);
                 }
             }
         }
@@ -257,9 +269,9 @@ function checkMaxExecutiontime(&$results)
 {
     $ok = true;
     if ((int)ini_get('max_execution_time') >=  120) {
-        $results[] = new TestResult("Maximum execution time is as per requirement.", STATUS_OK);
+        $results[] = new TestResult('Max Execution Time', 'Maximum execution time is as per requirement.', STATUS_OK);
     } else {
-        $results[] = new TestResult("Maximum execution time is too low. Recommneded execution time is 120 seconds ", STATUS_WARNING);
+        $results[] = new TestResult('Max Execution Time', 'Maximum execution time is too low. Recommneded execution time is 120 seconds ', STATUS_WARNING);
     }
     return $ok;
 }
@@ -277,13 +289,17 @@ $file_permission = checkFilePermission($results);
 $required_functions = checkDisabledFunctions($results);
 $check_execution_time = checkMaxExecutiontime($results);
 ?>
-<p class="setup-actions step">
-<?php 
+<table class="t01">
+    <tr>
+        <th style="width: 40%;">Requisites</th>
+        <th>Status</th>
+    </tr>
+<?php
 foreach ($results as $result) {
-    print '<span class="' . strtolower($result->status) . '">' . $result->status . '</span> &mdash; ' . $result->message . '<br/>';
+    echo '<tr><td>'.$result->label.'</td><td class="'.strtolower($result->status).'"><span>'.$result->status.'</span> &mdash; '.$result->message.'</td></tr>';
 } // foreach
 ?>
-</p>
+</table>
 <?php
 if ($php_ok && $memory_ok && $extensions_ok && $file_permission && $required_functions && $check_execution_time) {
     ?>
@@ -297,8 +313,11 @@ if ($php_ok && $memory_ok && $extensions_ok && $file_permission && $required_fun
     <form action="{{URL::route('postprerequisites')}}" method="post"  class="border-line">
         {{ csrf_field() }}
         <p class="setup-actions step">
+            <span style="float: left; font-size: .8em;">
+                <b>App Name:</b> {{ Config::get('app.name') }}<br/>
+                <b>App Version:</b> {{ Config::get('app.version') }}
+            </span>
             <input type="submit" id="submitme" class="button-primary button button-large button-next" value="Continue">
-            <a href="{!! route('licence') !!}" class="button button-large button-next" style="float: left">Previous</a>
         </p>
     </form>
 </br>
@@ -306,12 +325,15 @@ if ($php_ok && $memory_ok && $extensions_ok && $file_permission && $required_fun
 } else {
 
     ?></div><br>
-            
+
             <div class="woocommerce-message woocommerce-tracker" >
                 <p id="fail">This system does not meet Faveo system requirements</p>
             </div>
 <p class="setup-actions step">
-    <a href="{{URL::route('licence')}}" style="float: left"><button value="prev" class="button-primary button button-large">Previous</button></a>
+    <span style="float: left; font-size: .8em;">
+        <b>App Name:</b> {{ Config::get('app.name') }}<br/>
+        <b>App Version:</b> {{ Config::get('app.version') }}
+    </span>
     <button disabled="" class="button-primary button button-large button-next" style="float: right">Continue</button>
 </p> <?php
 }

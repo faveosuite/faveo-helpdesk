@@ -74,11 +74,11 @@ abstract class Kernel implements KernelInterface, RebootableInterface, Terminabl
      */
     private static array $freshCache = [];
 
-    public const VERSION = '7.4.19';
-    public const VERSION_ID = 70419;
+    public const VERSION = '7.4.23';
+    public const VERSION_ID = 70423;
     public const MAJOR_VERSION = 7;
     public const MINOR_VERSION = 4;
-    public const RELEASE_VERSION = 19;
+    public const RELEASE_VERSION = 23;
     public const EXTRA_VERSION = '';
 
     public const END_OF_MAINTENANCE = '11/2028';
@@ -140,6 +140,18 @@ abstract class Kernel implements KernelInterface, RebootableInterface, Terminabl
     public function terminate(Request $request, Response $response): void
     {
         if (!$this->booted) {
+            return;
+        }
+
+        if (!$this->handlingHttpCache && $this->container->has('http_cache') && ($httpCache = $this->container->get('http_cache')) instanceof TerminableInterface) {
+            $this->handlingHttpCache = true;
+
+            try {
+                $httpCache->terminate($request, $response);
+            } finally {
+                $this->handlingHttpCache = false;
+            }
+
             return;
         }
 
@@ -458,78 +470,82 @@ abstract class Kernel implements KernelInterface, RebootableInterface, Terminabl
             error_reporting($errorLevel);
         }
 
-        if ($collectDeprecations = $this->debug && !\defined('PHPUNIT_COMPOSER_INSTALL')) {
-            $collectedLogs = [];
-            $previousHandler = set_error_handler(static function ($type, $message, $file, $line) use (&$collectedLogs, &$previousHandler) {
-                if (\E_USER_DEPRECATED !== $type && \E_DEPRECATED !== $type) {
-                    return $previousHandler ? $previousHandler($type, $message, $file, $line) : false;
-                }
-
-                if (isset($collectedLogs[$message])) {
-                    ++$collectedLogs[$message]['count'];
-
-                    return null;
-                }
-
-                $backtrace = debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 5);
-                // Clean the trace by removing first frames added by the error handler itself.
-                for ($i = 0; isset($backtrace[$i]); ++$i) {
-                    if (isset($backtrace[$i]['file'], $backtrace[$i]['line']) && $backtrace[$i]['line'] === $line && $backtrace[$i]['file'] === $file) {
-                        $backtrace = \array_slice($backtrace, 1 + $i);
-                        break;
-                    }
-                }
-                for ($i = 0; isset($backtrace[$i]); ++$i) {
-                    if (!isset($backtrace[$i]['file'], $backtrace[$i]['line'], $backtrace[$i]['function'])) {
-                        continue;
-                    }
-                    if (!isset($backtrace[$i]['class']) && 'trigger_deprecation' === $backtrace[$i]['function']) {
-                        $file = $backtrace[$i]['file'];
-                        $line = $backtrace[$i]['line'];
-                        $backtrace = \array_slice($backtrace, 1 + $i);
-                        break;
-                    }
-                }
-
-                // Remove frames added by DebugClassLoader.
-                for ($i = \count($backtrace) - 2; 0 < $i; --$i) {
-                    if (DebugClassLoader::class === ($backtrace[$i]['class'] ?? null)) {
-                        $backtrace = [$backtrace[$i + 1]];
-                        break;
-                    }
-                }
-
-                $collectedLogs[$message] = [
-                    'type' => $type,
-                    'message' => $message,
-                    'file' => $file,
-                    'line' => $line,
-                    'trace' => [$backtrace[0]],
-                    'count' => 1,
-                ];
-
-                return null;
-            });
-        }
+        $this->container = null;
 
         try {
-            $container = null;
-            $container = $this->buildContainer();
-            $container->compile();
-        } finally {
-            if ($collectDeprecations) {
-                restore_error_handler();
+            if ($collectDeprecations = $this->debug && !\defined('PHPUNIT_COMPOSER_INSTALL')) {
+                $collectedLogs = [];
+                $previousHandler = set_error_handler(static function ($type, $message, $file, $line) use (&$collectedLogs, &$previousHandler) {
+                    if (\E_USER_DEPRECATED !== $type && \E_DEPRECATED !== $type) {
+                        return $previousHandler ? $previousHandler($type, $message, $file, $line) : false;
+                    }
 
-                @file_put_contents($buildDir.'/'.$class.'Deprecations.log', serialize(array_values($collectedLogs)));
-                @file_put_contents($buildDir.'/'.$class.'Compiler.log', null !== $container ? implode("\n", $container->getCompiler()->getLog()) : '');
+                    if (isset($collectedLogs[$message])) {
+                        ++$collectedLogs[$message]['count'];
+
+                        return null;
+                    }
+
+                    $backtrace = debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 5);
+                    // Clean the trace by removing first frames added by the error handler itself.
+                    for ($i = 0; isset($backtrace[$i]); ++$i) {
+                        if (isset($backtrace[$i]['file'], $backtrace[$i]['line']) && $backtrace[$i]['line'] === $line && $backtrace[$i]['file'] === $file) {
+                            $backtrace = \array_slice($backtrace, 1 + $i);
+                            break;
+                        }
+                    }
+                    for ($i = 0; isset($backtrace[$i]); ++$i) {
+                        if (!isset($backtrace[$i]['file'], $backtrace[$i]['line'], $backtrace[$i]['function'])) {
+                            continue;
+                        }
+                        if (!isset($backtrace[$i]['class']) && 'trigger_deprecation' === $backtrace[$i]['function']) {
+                            $file = $backtrace[$i]['file'];
+                            $line = $backtrace[$i]['line'];
+                            $backtrace = \array_slice($backtrace, 1 + $i);
+                            break;
+                        }
+                    }
+
+                    // Remove frames added by DebugClassLoader.
+                    for ($i = \count($backtrace) - 2; 0 < $i; --$i) {
+                        if (DebugClassLoader::class === ($backtrace[$i]['class'] ?? null)) {
+                            $backtrace = [$backtrace[$i + 1]];
+                            break;
+                        }
+                    }
+
+                    $collectedLogs[$message] = [
+                        'type' => $type,
+                        'message' => $message,
+                        'file' => $file,
+                        'line' => $line,
+                        'trace' => [$backtrace[0]],
+                        'count' => 1,
+                    ];
+
+                    return null;
+                });
             }
-        }
 
-        $this->dumpContainer($cache, $container, $class, $this->getContainerBaseClass());
+            try {
+                $container = null;
+                $container = $this->buildContainer();
+                $container->compile();
+            } finally {
+                if ($collectDeprecations) {
+                    restore_error_handler();
 
-        if ($lock) {
-            flock($lock, \LOCK_UN);
-            fclose($lock);
+                    @file_put_contents($buildDir.'/'.$class.'Deprecations.log', serialize(array_values($collectedLogs)));
+                    @file_put_contents($buildDir.'/'.$class.'Compiler.log', null !== $container ? implode("\n", $container->getCompiler()->getLog()) : '');
+                }
+            }
+
+            $this->dumpContainer($cache, $container, $class, $this->getContainerBaseClass());
+        } finally {
+            if ($lock) {
+                flock($lock, \LOCK_UN);
+                fclose($lock);
+            }
         }
 
         $this->container = require $cachePath;

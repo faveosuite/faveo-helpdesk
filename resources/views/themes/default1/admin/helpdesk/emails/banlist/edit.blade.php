@@ -60,10 +60,10 @@ class="nav-link active"
                 {!! html()->label(Lang::get('lang.ban_status'), 'ban') !!} <span class="text-red"> *</span>
                 <div class="row">
                     <div class="col-sm-2">
-                        {!! html()->radio('ban', null, 1) !!} {{Lang::get('lang.active')}}
+                        {!! html()->radio('ban', (string) old('ban', $bans->ban) === '1', '1') !!} {{Lang::get('lang.active')}}
                     </div>
                     <div class="col-sm-2">
-                        {!! html()->radio('ban', null, 0) !!} {{Lang::get('lang.inactive')}}
+                        {!! html()->radio('ban', (string) old('ban', $bans->ban) === '0', '0') !!} {{Lang::get('lang.inactive')}}
                     </div>
                 </div>
             </div>

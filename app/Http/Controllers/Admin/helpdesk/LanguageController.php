@@ -84,7 +84,7 @@ class LanguageController extends Controller
         $path = base_path('lang');
         $values = scandir($path);  //Extracts names of directories present in lang directory
         $values = array_slice($values, 2); // skips array element $value[0] = '.' & $value[1] = '..'
-        $sysLanguage = \Cache::get('language');
+        $sysLanguage = systemLanguage();
 
         $collection = collect($values)->map(function ($val) {
             return ['locale' => $val];
@@ -93,11 +93,11 @@ class LanguageController extends Controller
         return DataTables::of($collection)
                         ->addColumn('language', function ($model) {
                             $locale = $model['locale'];
-                            $img_src = 'lb-faveo/flags/'.$locale.'.png';
+                            $img_src = languageFlag($locale);
                             if ($locale == Config::get('app.fallback_locale')) {
-                                return '<img src="'.asset($img_src).'"/>&nbsp;'.Config::get('languages.'.$locale)[0].' ('.Lang::get('lang.default-fallback').')';
+                                return '<img src="'.$img_src.'"/>&nbsp;'.Config::get('languages.'.$locale)[0].' ('.Lang::get('lang.default-fallback').')';
                             } else {
-                                return '<img src="'.asset($img_src).'"/>&nbsp;'.Config::get('languages.'.$locale)[0];
+                                return '<img src="'.$img_src.'"/>&nbsp;'.Config::get('languages.'.$locale)[0];
                             }
                         })
                         ->addColumn('name', function ($model) {
@@ -123,7 +123,7 @@ class LanguageController extends Controller
                 <button disabled class='btn btn-danger btn-xs'><i class='fas fa-trash'> </i> ".Lang::get('lang.delete').'</button>';
                             } else {
                                 return "<a href='change-language/".$locale."'><input type='button' class='btn btn-primary btn-xs' value='".Lang::get('lang.set_as_sys_lang')."'/></a>
-                <a href='delete-language/".$locale."' class='btn btn-danger btn-xs'><i class='fas fa-trash'> </i> ".Lang::get('lang.delete').'</a>';
+                <a href='delete-language/".$locale."' class='btn btn-danger btn-xs' data-confirm='".e(langText('lang.confirm'))."'><i class='fas fa-trash'> </i> ".Lang::get('lang.delete').'</a>';
                             }
                         })
                         ->rawColumns(['language', 'status', 'Action'])
@@ -133,7 +133,7 @@ class LanguageController extends Controller
     /**
      * handle language file uploading.
      *
-     * @return response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function postForm()
     {
@@ -172,34 +172,44 @@ class LanguageController extends Controller
                     return Redirect::back()->withInput();
                 } else {
                     // checking file is valid.
-                    if (Request::file('File')->isValid()) {
-                        $name = Request::file('File')->getClientOriginalName(); //uploaded file's original name
-                        $destinationPath = base_path('public/uploads/'); // defining uploading path
+                    $upload = Request::file('File');
+                    if ($upload instanceof \Illuminate\Http\UploadedFile && $upload->isValid()) {
                         $extractpath = base_path('lang').'/'.strtolower(Request::get('iso-code')); //defining extracting path
-                        mkdir($extractpath); //creating directroy for extracting uploadd file
-                        //mkdir($destinationPath);
-                        Request::file('File')->move($destinationPath, $name); // uploading file to given path
-                        \Zipper::make($destinationPath.'/'.$name)->extractTo($extractpath); //extracting file to give path
-                        //check if Zip extract foldercontains any subfolder
-                        $directories = File::directories($extractpath);
-                        //$directories = glob($extractpath. '/*' , GLOB_ONLYDIR);
-                        if (!empty($directories)) { //if extract folder contains subfolder
-                            $success = File::deleteDirectory($extractpath); //remove extracted folder and it's subfolder from lang
-                            //$success2 = File::delete($destinationPath.'/'.$name);
-                            if ($success) {
+                        // reading the zip straight from the temporary upload, so nothing is left behind in public/uploads
+                        $zip = new \ZipArchive();
+                        $uploadPath = $upload->getRealPath();
+                        if ($uploadPath === false || $zip->open($uploadPath) !== true) {
+                            Session::flash('fails', Lang::get('lang.file-error'));
+
+                            return Redirect::back()->withInput();
+                        }
+                        //check if Zip contains any subfolder before extracting (this also rejects "../" paths)
+                        for ($i = 0; $i < $zip->numFiles; $i++) {
+                            $entry = $zip->getNameIndex($i);
+                            // an unreadable entry name means a corrupt archive: reject it too
+                            if ($entry === false || str_contains($entry, '/') || str_contains($entry, '\\')) {
+                                $zip->close();
                                 //sending back with error message
                                 Session::flash('fails', Lang::get('lang.zipp-error'));
                                 Session::flash('link2', 'http://www.ladybirdweb.com/support/show/how-to-translate-faveo-into-multiple-languages');
 
                                 return Redirect::back()->withInput();
                             }
-                        } else {
-                            // sending back with success message
-                            Session::flash('success', Lang::get('lang.upload-success'));
-                            Session::flash('link', 'change-language/'.strtolower(Request::get('iso-code')));
-
-                            return Redirect::route('LanguageController');
                         }
+                        mkdir($extractpath); //creating directroy for extracting uploadd file
+                        $extracted = $zip->extractTo($extractpath); //extracting file to give path
+                        $zip->close();
+                        if (!$extracted) {
+                            File::deleteDirectory($extractpath); //remove partially extracted folder so the upload can be retried
+                            Session::flash('fails', Lang::get('lang.file-error'));
+
+                            return Redirect::back()->withInput();
+                        }
+                        // sending back with success message
+                        Session::flash('success', Lang::get('lang.upload-success'));
+                        Session::flash('link', 'change-language/'.strtolower(Request::get('iso-code')));
+
+                        return Redirect::route('LanguageController');
                     } else {
                         // sending back with error message.
                         Session::flash('fails', Lang::get('lang.file-error'));
@@ -208,9 +218,10 @@ class LanguageController extends Controller
                     }
                 }
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Session::flash('fails', $e->getMessage());
-            Redirect::back()->withInput();
+
+            return Redirect::back()->withInput();
         }
     }
 

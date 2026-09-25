@@ -345,15 +345,10 @@ class UserController extends Controller
     public function randomPassword()
     {
         try {
-            $alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890~!@#$%^&*(){}[]';
-            $pass = []; //remember to declare $pass as an array
-            $alphaLength = strlen($alphabet) - 1; //put the length -1 in cache
-            for ($i = 0; $i < 10; $i++) {
-                $n = rand(0, $alphaLength);
-                $pass[] = $alphabet[$n];
-            }
-
-            return implode($pass);
+            // Was 10 random characters: not guaranteed to contain each character
+            // class, and "{}[]" are not accepted as special characters, so a generated
+            // password could fail the password policy it is meant to satisfy.
+            return \App\Rules\StrongPassword::generate(12);
         } catch (Exception $e) {
             /* redirect to Index page with Fails Message */
             return redirect('user')->with('fails', $e->getMessage());

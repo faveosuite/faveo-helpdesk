@@ -91,39 +91,44 @@ class="nav-link active"
             </div>
 
              <div class="card-body" id="welcomeDiv">
-                <table id="example2" class="table table-bordered">
-                    <thead>
-                    <th>{!! Lang::get('lang.label') !!} </th>
-                    <th>{!! Lang::get('lang.name') !!} </th>
-                    <th>{!! Lang::get('lang.type') !!} </th>
-                    <th>{!! Lang::get('lang.values(selected_fields)') !!} </th>
-                    <th>{!! Lang::get('lang.required') !!} </th>
-                    <th>{!! Lang::get('lang.action') !!} </th>
-                    </thead>
-                    <tbody class="inputField">
-                        
-                        <tr>
-                            <td><input type="text" class="form-control" name="label[]"></td>
-                            <td><input type="text" class="form-control" name="name[]"></td>
-                            <td>
-                                <select name="type[]" class="form-control">
-                                    <option>text</option>
-                                    <option>email</option>
-                                    <option>password</option>
-                                    <option>textarea</option>
-                                    <option>select</option>
-                                    <option>radio</option>
-                                    <option>checkbox</option>
-                                    <option>hidden</option>
-                                </select>
-                            </td>
-                            <td><input type="text" name="value[]" class="form-control"></td>
-                            <td><input type=radio name="required[0]" value=1 checked>&nbsp;&nbsp;{!! Lang::get("lang.yes") !!}&nbsp;&nbsp;<input type=radio name="required[0]" value=0>&nbsp;&nbsp;{!! Lang::get("lang.no") !!}</td>
-                            <td><button type="button" class="remove_field btn btn-danger"><i class="fa-solid fa-trash"></i></button></td>
-                        </tr>
-                        
-                    </tbody>
-                </table>
+                {{-- Wrapped for small screens: this table overflowed the 375px viewport.
+                 table-responsive is the theme's own convention (see
+                 client/helpdesk/mytickets.blade.php). Desktop layout is unchanged. --}}
+                <div class="table-responsive">
+                    <table id="example2" class="table table-bordered">
+                        <thead>
+                        <th>{!! Lang::get('lang.label') !!} </th>
+                        <th>{!! Lang::get('lang.name') !!} </th>
+                        <th>{!! Lang::get('lang.type') !!} </th>
+                        <th>{!! Lang::get('lang.values(selected_fields)') !!} </th>
+                        <th>{!! Lang::get('lang.required') !!} </th>
+                        <th>{!! Lang::get('lang.action') !!} </th>
+                        </thead>
+                        <tbody class="inputField">
+                            
+                            <tr>
+                                <td><input type="text" class="form-control" name="label[]"></td>
+                                <td><input type="text" class="form-control" name="name[]"></td>
+                                <td>
+                                    <select name="type[]" class="form-control">
+                                        <option>text</option>
+                                        <option>email</option>
+                                        <option>password</option>
+                                        <option>textarea</option>
+                                        <option>select</option>
+                                        <option>radio</option>
+                                        <option>checkbox</option>
+                                        <option>hidden</option>
+                                    </select>
+                                </td>
+                                <td><input type="text" name="value[]" class="form-control"></td>
+                                <td><input type=radio name="required[0]" value=1 checked>&nbsp;&nbsp;{!! Lang::get("lang.yes") !!}&nbsp;&nbsp;<input type=radio name="required[0]" value=0>&nbsp;&nbsp;{!! Lang::get("lang.no") !!}</td>
+                                <td><button type="button" class="remove_field btn btn-danger"><i class="fa-solid fa-trash"></i></button></td>
+                            </tr>
+                            
+                        </tbody>
+                    </table>
+                </div>
             </div> 
         </div> 
     </div>

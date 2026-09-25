@@ -1,15 +1,19 @@
 @extends('themes.default1.agent.layout.agent')
 
 @section('Users')
-class="active"
+class="nav-link active"
 @stop
 
 @section('user-bar')
-active
+class="nav-link active"
 @stop
 
 @section('user')
 class="active"
+@stop
+
+@section('user-directory')
+class="nav-link active"
 @stop
 
 <!-- header -->
@@ -20,50 +24,53 @@ class="active"
 <!-- content -->
 @section('content')
 <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
-{!! html()->form('POST', url('user-export'))->open() !!}
-<div class="box box-primary">
-    @if (count($errors) > 0)
-    <div class="alert alert-danger">
-        <strong>Whoops!</strong> There were some problems with your input.<br><br>
-        <ul>
-            @foreach ($errors->all() as $error)
-            <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-    @endif
+{{-- Response is a file download, so the page stays: release the submit guard after a few seconds. --}}
+{!! html()->form('POST', url('user-export'))->attribute('data-submit-guard-timeout', '4000')->open() !!}
+@if (count($errors) > 0)
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
+    <b>{!! Lang::get('lang.alert') !!} !</b>
+    <ul class="mb-0">
+        @foreach ($errors->all() as $error)
+        <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+</div>
+@endif
 
-    @if(Session::has('success'))
-    <div class="alert alert-success alert-dismissible">
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
-        {{Session::get('success')}}
+@if(Session::has('success'))
+<div class="alert alert-success alert-dismissible">
+    <i class="fa-solid fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
+    {{Session::get('success')}}
+</div>
+@endif
+<!-- fail message -->
+@if(Session::has('fails'))
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i><button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
+    <b>{!! Lang::get('lang.alert') !!} !</b>
+    {{Session::get('fails')}}
+</div>
+@endif
+<div class="card card-light">
+    <div class="card-header">
+        <h3 class="card-title">{{Lang::get('lang.user')}}</h3>
     </div>
-    @endif
-    <!-- fail message -->
-    @if(Session::has('fails'))
-    <div class="alert alert-danger alert-dismissible">
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
-        {{Session::get('fails')}}
-    </div>
-    @endif
-    <div class="box-header with-border">
-        <h3 class="box-title">
-            Users
-        </h3>
-    </div>
-    <div class="box-body">
+    <div class="card-body">
         <div class="row">
             <div class="col-md-6">
-                <div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
-                    <i class="glyphicon glyphicon-calendar fa-solid fa-calendar"></i>&nbsp;
-                    <span id="date"></span> <b class="caret"></b>
+                <div id="reportrange" class="form-control" style="cursor: pointer;">
+                    <i class="fa-solid fa-calendar"></i>&nbsp;
+                    <span id="date"></span>
                 </div>
             </div>
-            <div class="col-md-6">
-                {!! html()->hidden('date', null)->id('hidden') !!}
-                {!! html()->submit('Export')->class('btn btn-success')->id('submit') !!}
-            </div>
         </div>
+    </div>
+    <div class="card-footer">
+        {!! html()->hidden('date', null)->id('hidden') !!}
+        {!! html()->submit('Export')->class('btn btn-primary')->id('submit') !!}
     </div>
 </div>
 {!! html()->closeModelForm() !!}

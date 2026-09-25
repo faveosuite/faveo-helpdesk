@@ -48,8 +48,30 @@ class InstallController extends Controller
         if (Cache::get('step1') == 'step1') {
             return View::make('themes/default1/installer/helpdesk/view1');
         } else {
-            return Redirect::route('prerequisites');
+            return redirect('/probe.php');
         }
+    }
+
+    /**
+     * Receives the server requirements check result from the standalone
+     * public/probe.php page and, if it passed with no errors, lets the
+     * installer wizard continue to the License Agreement step.
+     *
+     * @return mixed
+     */
+    public function licAgreement(Request $request)
+    {
+        $errorCount = $request->input('count');
+
+        if ($errorCount == '0' && $errorCount == 0) {
+            Cache::flush();
+            Artisan::call('config:clear');
+            Cache::forever('step1', 'step1');
+
+            return Redirect::route('licence');
+        }
+
+        return redirect('/probe.php');
     }
 
     /**
@@ -75,7 +97,7 @@ class InstallController extends Controller
      * Checking the extensions enabled required for installing the faveo
      * without which the project cannot be executed properly
      *
-     * @return type view
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function prerequisites(Request $request)
     {
@@ -83,25 +105,27 @@ class InstallController extends Controller
         $directory = base_path();
         if (file_exists($directory.DIRECTORY_SEPARATOR.'.env')) {
             return redirect('/auth/login');
-        } else {
-            Cache::flush();
-            Artisan::call('config:clear');
-
-            return view('themes/default1/installer/helpdesk/view2');
         }
+
+        // The server requirements check now lives in the standalone public/probe.php
+        // (it must run before Laravel's own requirements are known to be met). This
+        // legacy route used to render the old in-app copy (view2) and flush the
+        // installer cache, so the License page's "Previous" button landed on a
+        // different, outdated requirements page. Send everyone to the real probe.
+        return redirect('/probe.php');
     }
 
     /**
      * Post Prerequisitescheck
      * checking prerequisites.
      *
-     * @return type view
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function prerequisitescheck(Request $request)
     {
-        Cache::forever('step1', 'step1');
-
-        return Redirect::route('licence');
+        // Only probe.php -> pre-license (licAgreement) may unlock the License step,
+        // after the requirements check passed; this legacy POST must not skip it.
+        return redirect('/probe.php');
     }
 
     /**
@@ -163,6 +187,15 @@ class InstallController extends Controller
      */
     public function configurationcheck(Request $request)
     {
+        $request->validate([
+            'default'      => 'required',
+            'host'         => 'required',
+            'port'         => 'nullable|numeric',
+            'databasename' => 'required',
+            'username'     => 'required',
+            'password'     => 'required',
+        ]);
+
         Cache::forever('step4', 'step4');
 
         Session::put('default', $request->input('default'));
@@ -229,8 +262,10 @@ class InstallController extends Controller
             'Lastname'        => 'required|max:20',
             'email'           => 'required|max:50|email',
             'username'        => 'required|max:50|min:3',
-            'password'        => 'required|min:6',
+            'password'        => ['required', 'min:9', 'max:16', 'regex:/[a-z]/', 'regex:/[A-Z]/', 'regex:/[0-9]/', 'regex:/[~!@#$%^&*()_+|;:,.<>?]/'],
             'confirmpassword' => 'required|same:password',
+        ], [
+            'password.regex' => 'Password must contain at least one lowercase letter, one uppercase letter, one number and one special character.',
         ]);
 
         if ($validator->fails()) {
@@ -277,10 +312,9 @@ class InstallController extends Controller
         $system->department = 1;
         $system->date_time_format = $date_time_format->id;
         $system->time_zone = $timezones->id;
-        $version = \Config::get('app.tags');
-        // $version = explode(' ', $version);
-        // $version = $version[1];
-        $system->version = $version;
+        // 'app.version' (not 'app.tags', which only exists in favMer): a null here is
+        // saved as '' and makes the first database:sync re-run every seeder.
+        $system->version = \Config::get('app.version');
         $system->save();
 
         $admin_tzone = $timezones->id;
@@ -373,7 +407,7 @@ class InstallController extends Controller
 
     public function jsDisabled()
     {
-        return view('themes/default1/installer/helpdesk/check-js')->with('url', 'step1');
+        return view('themes/default1/installer/helpdesk/check-js')->with('url', '/probe.php');
     }
 
     public function createEnv($api = true)
@@ -445,7 +479,6 @@ class InstallController extends Controller
         $ENV['SESSION_DRIVER'] = 'file';
         $ENV['SESSION_COOKIE_NAME'] = 'faveo_'.rand(0, 10000);
         $ENV['QUEUE_CONNECTION'] = 'sync';
-        $ENV['JWT_TTL'] = 4;
         $ENV['FCM_SERVER_KEY'] = 'AIzaSyCyx5OFnsRFUmDLTMbPV50ZMDUGSG-bLw4';
         $ENV['FCM_SENDER_ID'] = '661051343223';
         $ENV['REDIS_DATABASE'] = '0';
@@ -569,6 +602,8 @@ class InstallController extends Controller
         } else {
             throw new Exception('.env not found');
         }
-        Artisan::call('jwt:secret');
+        // Passport (which replaces JWT) is provisioned by the
+        // 2026_11_16_000001_install_passport_personal_access_client migration that
+        // runs during the migrate step, so nothing is needed here.
     }
 }

@@ -45,7 +45,10 @@ class SendEmail extends Job implements ShouldQueue
 
             return $p;
         } catch (\Exception $e) {
-            logger()->warning($e->getMessage());
+            // Pass the exception itself so the log gets the class, file:line and stack
+            // trace; the bare message ("Undefined array key 1") said nothing about
+            // where the mail failed.
+            logger()->warning('Sending email failed: '.$e->getMessage(), ['exception' => $e]);
             session()->flash('fails', $e->getMessage());
         }
     }

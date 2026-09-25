@@ -59,8 +59,12 @@ class ClientTicketController extends Controller
     {
         $tickets = Tickets::where('id', '=', $id)->first();
 
+        // Customer-portal reply: only the ticket owner may reply here (agents use
+        // the agent panel). Refuse with 403 rather than a redirect so a rejected
+        // request is unambiguous; a missing ticket gets the same answer so ticket
+        // ids cannot be probed.
         if (!$tickets || !$this->canAuthenticatedUserProceedToReply($tickets)) {
-            return \Redirect::back()->with('fails', Lang::get('lang.unauthorized_access'));
+            abort(403, langText('lang.unauthorized_access'));
         }
 
         $thread = Ticket_Thread::where('ticket_id', '=', $tickets->id)->first();
@@ -68,7 +72,16 @@ class ClientTicketController extends Controller
         $subject = $thread->title.'[#'.$tickets->ticket_number.']';
         $body = $request->input('comment');
 
-        $user_cred = User::where('id', '=', $tickets->user_id)->first();
+        // Attribute the reply to the authenticated requester, never to whoever
+        // owns the ticket id in the URL. (Equal after the check above, but the
+        // identity must come from the session, not from the target object.)
+        $user_cred = Auth::user();
+        if (!$user_cred instanceof User) {
+            abort(403, langText('lang.unauthorized_access'));
+        }
+        if ($user_cred->isBanned()) {
+            return \Redirect::back()->with('fails1', Lang::get('lang.email-is-banned'));
+        }
 
         $fromaddress = $user_cred->email;
         $fromname = $user_cred->user_name;
@@ -102,9 +115,6 @@ class ClientTicketController extends Controller
      */
     private function canAuthenticatedUserProceedToReply($ticket)
     {
-        return Tickets::where(function ($query) use ($ticket) {
-            $query->where('id', '=', $ticket->id)
-                  ->where('user_id', '=', Auth::id());
-        })->exists();
+        return Auth::check() && (int) $ticket->user_id === (int) Auth::id();
     }
 }

@@ -158,7 +158,7 @@
                         <div class="modal-content">
                         {!! html()->form('POST', action('Admin\kb\CategoryController@store'))->open() !!}
                             <div class="modal-header">
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 <h5 class="modal-title">{{Lang::get('lang.addcategory')}}</h4>
                             </div>
                             <div class="modal-body">

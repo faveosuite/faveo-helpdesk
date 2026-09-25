@@ -76,18 +76,47 @@ class="nav-link active"
     <input type="hidden" name="show_id" value={{$id}}>
     <!-- /.box-header -->
     <div class="card-body">             
-        {!! Datatable::table()
-                ->addColumn(
-                    Lang::get('lang.user_name'),
-                    Lang::get('lang.name'),
-                    Lang::get('lang.status'),
-                    Lang::get('lang.group'),
-                    Lang::get('lang.depertment'),
-                    Lang::get('lang.role')
-                )
-                ->setUrl(route('teams.getshow.list', $id))  // this is the route where data will be retrieved
-                ->render() 
-        !!}
+        {{-- Was Datatable::table()->render(), the helper of the removed bllim/datatables
+             package ('Class "Datatable" not found'). Same server-side DataTables pattern
+             as the other lists, e.g. common/template/inbox.blade.php. --}}
+        <div class="table-responsive">
+            <table id="teamMembersTable" class="table table-bordered w-100 d-table">
+                <thead>
+                    <tr>
+                        <th>{{Lang::get('lang.user_name')}}</th>
+                        <th>{{Lang::get('lang.name')}}</th>
+                        <th>{{Lang::get('lang.status')}}</th>
+                        <th>{{Lang::get('lang.group')}}</th>
+                        <th>{{Lang::get('lang.depertment')}}</th>
+                        <th>{{Lang::get('lang.role')}}</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
     </div>
 </div>
+@stop
+
+@section('FooterInclude')
+<script type="text/javascript">
+    jQuery(document).ready(function () {
+        jQuery('#teamMembersTable').dataTable({
+            "sPaginationType": "full_numbers",
+            "bProcessing": true,
+            "bServerSide": true,
+            "ajax": {
+                url: "{{ route('teams.getshow.list', $id) }}"
+            },
+            "columns": [
+                {data: "user_name", name: "users.user_name"},
+                {data: "first_name", name: "users.first_name"},
+                {data: "active", name: "users.active", searchable: false},
+                {data: "assign_group", name: "users.assign_group", searchable: false},
+                {data: "primary_dpt", name: "users.primary_dpt", searchable: false},
+                {data: "role", name: "users.role"}
+            ]
+        });
+    });
+</script>
 @stop

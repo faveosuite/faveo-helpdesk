@@ -8,7 +8,7 @@
 namespace Nette\Utils;
 
 use Nette;
-use function array_key_exists, class_exists, explode, gettype, interface_exists, is_callable, is_float, is_int, is_iterable, is_numeric, is_object, is_string, preg_match, str_ends_with, str_replace, str_starts_with, strlen, strtolower, substr, trait_exists, var_export;
+use function array_key_exists, gettype, is_float, is_int, is_object, is_string, strlen;
 
 
 /**
@@ -144,6 +144,7 @@ class Validators
 				}
 
 				continue;
+
 			} elseif (str_starts_with($item, '?')) {
 				$item = substr($item, 1);
 				if ($value === null) {
@@ -166,6 +167,7 @@ class Validators
 				}
 
 				continue;
+
 			} elseif (!$value instanceof $type) {
 				continue;
 			}

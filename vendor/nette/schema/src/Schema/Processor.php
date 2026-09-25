@@ -22,7 +22,7 @@ final class Processor
 
 
 	/**
-	 * When enabled, properties with default values are omitted from the output.
+	 * When enabled, missing properties are not filled with their default values.
 	 */
 	public function skipDefaults(bool $value = true): void
 	{
@@ -36,12 +36,16 @@ final class Processor
 	 */
 	public function process(Schema $schema, mixed $data): mixed
 	{
-		$this->createContext();
-		$data = $schema->normalize($data, $this->context);
-		$this->throwErrors();
-		$data = $schema->complete($data, $this->context);
-		$this->throwErrors();
-		return $data;
+		$context = $this->createContext();
+		try {
+			$data = $schema->normalize($data, $context);
+			$this->throwErrors($context);
+			$data = $schema->complete($data, $context);
+			$this->throwErrors($context);
+			return $data;
+		} finally {
+			$this->context = $context;
+		}
 	}
 
 
@@ -52,19 +56,23 @@ final class Processor
 	 */
 	public function processMultiple(Schema $schema, array $dataset): mixed
 	{
-		$this->createContext();
-		$flatten = null;
-		$first = true;
-		foreach ($dataset as $data) {
-			$data = $schema->normalize($data, $this->context);
-			$this->throwErrors();
-			$flatten = $first ? $data : $schema->merge($data, $flatten);
-			$first = false;
-		}
+		$context = $this->createContext();
+		try {
+			$flatten = null;
+			$first = true;
+			foreach ($dataset as $data) {
+				$data = $schema->normalize($data, $context);
+				$this->throwErrors($context);
+				$flatten = $first ? $data : $schema->merge($data, $flatten);
+				$first = false;
+			}
 
-		$data = $schema->complete($flatten, $this->context);
-		$this->throwErrors();
-		return $data;
+			$data = $schema->complete($flatten, $context);
+			$this->throwErrors($context);
+			return $data;
+		} finally {
+			$this->context = $context;
+		}
 	}
 
 
@@ -85,18 +93,19 @@ final class Processor
 	}
 
 
-	private function throwErrors(): void
+	private function throwErrors(Context $context): void
 	{
-		if ($this->context->errors) {
-			throw new ValidationException(null, $this->context->errors);
+		if ($context->errors) {
+			throw new ValidationException(null, $context->errors);
 		}
 	}
 
 
-	private function createContext(): void
+	private function createContext(): Context
 	{
-		$this->context = new Context;
-		$this->context->skipDefaults = $this->skipDefaults;
-		Nette\Utils\Arrays::invoke($this->onNewContext, $this->context);
+		$context = new Context;
+		$context->skipDefaults = $this->skipDefaults;
+		Nette\Utils\Arrays::invoke($this->onNewContext, $context);
+		return $context;
 	}
 }

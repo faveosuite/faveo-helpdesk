@@ -15,7 +15,7 @@
                                 
     <a href="#" @yield('category') class="nav-link">
         <i class="nav-icon fa-solid fa-list-ul"></i>
-        <p>{{Lang::get('lang.category')}}<i class="right fa-solid fa-angle-left"></i></p>
+        <p>{{Lang::get('lang.category')}}<i class="nav-arrow fa-solid fa-angle-left"></i></p>
     </a>
 
     <ul @yield('category-menu-open') class="nav nav-treeview">
@@ -40,7 +40,7 @@
                                 
     <a href="#" @yield('article') class="nav-link">
         <i class="nav-icon fa-solid fa-pen-to-square"></i>
-        <p>{{Lang::get('lang.article')}}<i class="right fa-solid fa-angle-left"></i></p>
+        <p>{{Lang::get('lang.article')}}<i class="nav-arrow fa-solid fa-angle-left"></i></p>
     </a>
 
     <ul @yield('article-menu-open') class="nav nav-treeview">
@@ -65,7 +65,7 @@
                                 
     <a href="#" @yield('pages') class="nav-link">
         <i class="nav-icon fa-regular fa-file-code"></i>
-        <p>{{Lang::get('lang.pages')}}<i class="right fa-solid fa-angle-left"></i></p>
+        <p>{{Lang::get('lang.pages')}}<i class="nav-arrow fa-solid fa-angle-left"></i></p>
     </a>
 
     <ul @yield('page-menu-open') class="nav nav-treeview">
@@ -88,14 +88,14 @@
 
 <li class="nav-item">
     <a href="{{url('comment')}}" @yield('comment')  class="nav-link">
-        <i class="fa-solid fa-comment"></i>
+        <i class="nav-icon fa-solid fa-comment"></i>
         <p>{{Lang::get('lang.comments')}}</p>
     </a>
 </li>
 
 <li class="nav-item">
     <a href="{{url('kb/settings')}}" @yield('settings') class="nav-link">
-         <i class="fa-solid fa-gear"></i>
+        <i class="nav-icon fa-solid fa-gear"></i>
         <p>{{Lang::get('lang.settings')}}</p>
     </a>
 </li>

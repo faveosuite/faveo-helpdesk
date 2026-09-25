@@ -24,7 +24,10 @@
         <p>{{ucfirst(Config::get('app.name'))}} has been updated! Before we send you on your own way,
             we have to update your database to the newest version.</p>
         <p>The update process may take a little while, so please be patient.</p>
-        <p><a href="{{$url}}" class="btn btn-secondary">Update {{ucfirst(Config::get('app.name'))}} Database</a></p>
+        <form method="POST" action="{{ $url }}">
+            @csrf
+            <button type="submit" class="btn btn-secondary">Update {{ucfirst(Config::get('app.name'))}} Database</button>
+        </form>
     </div>
 </div>
 

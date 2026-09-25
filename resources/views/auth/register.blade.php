@@ -39,7 +39,7 @@
 
         @if(Auth::user())
         @else
-            <span onclick="javascript: window.location.href='{{url('auth/login')}}';">
+            <span>
                 <a href="{{url('auth/login')}}" class="widgetrowitem defaultwidget"  style="background-image:url({{ URL::asset('lb-faveo/media/images/register.png') }})">
                     <span class="widgetitemtitle" style="color: rgb(0, 154, 186)">{!! Lang::get('lang.login') !!}</span>
                 </a>
@@ -50,7 +50,7 @@
         @if($system != null)
             @if($system->status)
                 @if($system->status == 1)
-                    <span onclick="javascript: window.location.href='{!! URL::route('form') !!}';">
+                    <span>
                         <a href="{!! URL::route('form') !!}" class="widgetrowitem defaultwidget" style="background-image:url({{ URL::asset('lb-faveo/media/images/submitticket.png') }})">
                             <span class="widgetitemtitle" style="color: rgb(0, 154, 186)">{!! Lang::get('lang.submit_a_ticket') !!}</span>
                         </a>
@@ -58,12 +58,12 @@
                 @endif
             @endif
         @endif
-{{--            <span onclick="javascript: window.location.href='{{url('mytickets')}}';">--}}
+{{--            <span>--}}
 {{--                <a href="{{url('mytickets')}}" class="widgetrowitem defaultwidget" style="background-image:url({{ URL::asset('lb-faveo/media/images/news.png') }})">--}}
 {{--                    <span class="widgetitemtitle" style="color: rgb(0, 154, 186)">{!! Lang::get('lang.my_tickets') !!}</span>--}}
 {{--                </a>--}}
 {{--            </span>--}}
-            <span onclick="javascript: window.location.href='{{url('/knowledgebase')}}';">
+            <span>
                 <a href="{{url('/knowledgebase')}}" class="widgetrowitem defaultwidget" style="background-image:url({{ URL::asset('lb-faveo/media/images/knowledgebase.png') }})">
                     <span class="widgetitemtitle" style="color: rgb(0, 154, 186)">{!! Lang::get('lang.knowledge_base') !!}</span>
                 </a>
@@ -111,7 +111,7 @@
                 @if (($email_mandatory->status == 1 || $email_mandatory->status == '1'))
                 <div class="mb-3">
                     <div class="input-group">
-                        {!! html()->text('email', null)->placeholder(Lang::get('lang.email'))->class('form-control' . ($errors->has('email') ? ' is-invalid' : '')) !!}
+                        {!! html()->text('email', null)->placeholder(Lang::get('lang.email'))->class('form-control' . ($errors->has('email') ? ' is-invalid' : ''))->attribute('autocomplete', 'email') !!}
                         <span class="input-group-text"><i class="fa-regular fa-envelope input-icon-muted"></i></span>
                     </div>
                     @if($errors->has('email'))
@@ -121,7 +121,7 @@
                 @elseif (($settings->status == 0 || $settings->status == '0') && ($email_mandatory->status == 0 || $email_mandatory->status == '0'))
                 <div class="mb-3">
                     <div class="input-group">
-                        {!! html()->text('email', null)->placeholder(Lang::get('lang.email'))->class('form-control' . ($errors->has('email') ? ' is-invalid' : '')) !!}
+                        {!! html()->text('email', null)->placeholder(Lang::get('lang.email'))->class('form-control' . ($errors->has('email') ? ' is-invalid' : ''))->attribute('autocomplete', 'email') !!}
                         <span class="input-group-text"><i class="fa-regular fa-envelope input-icon-muted"></i></span>
                     </div>
                     @if($errors->has('email'))
@@ -162,11 +162,12 @@
                 <!-- Password -->
                 <div class="mb-3">
                     <div class="input-group">
-                        {!! html()->password('password')->placeholder(Lang::get('lang.password'))->class('form-control' . ($errors->has('password') ? ' is-invalid' : ''))->id('reg-password') !!}
+                        {!! html()->password('password')->placeholder(Lang::get('lang.password'))->class('form-control' . ($errors->has('password') ? ' is-invalid' : ''))->id('reg-password')->attribute('autocomplete', 'new-password') !!}
                         <button class="input-group-text" type="button" onclick="togglePwd('reg-password', this)" tabindex="-1">
                             <i class="fa-solid fa-eye-slash"></i>
                         </button>
                     </div>
+                    @include('partials.password-rules', ['input' => 'reg-password'])
                     @if($errors->has('password'))
                         <div class="invalid-feedback d-block">{{ $errors->first('password') }}</div>
                     @endif
@@ -174,7 +175,7 @@
                 <!-- Confirm password -->
                 <div class="mb-3">
                     <div class="input-group">
-                        {!! html()->password('password_confirmation')->placeholder(Lang::get('lang.retype_password'))->class('form-control' . ($errors->has('password_confirmation') ? ' is-invalid' : ''))->id('reg-password-confirm') !!}
+                        {!! html()->password('password_confirmation')->placeholder(Lang::get('lang.retype_password'))->class('form-control' . ($errors->has('password_confirmation') ? ' is-invalid' : ''))->id('reg-password-confirm')->attribute('autocomplete', 'new-password') !!}
                         <button class="input-group-text" type="button" onclick="togglePwd('reg-password-confirm', this)" tabindex="-1">
                             <i class="fa-solid fa-eye-slash"></i>
                         </button>
@@ -186,7 +187,7 @@
 
                 <div >
 
-                    <button type="submit" class="btn btn-primary w-100">{!! Lang::get('lang.register') !!}</button>
+                    <button type="submit" class="btn btn-primary w-100" id="reg-submit">{!! Lang::get('lang.register') !!}</button>
                 </div>
 
                 <div>
@@ -208,6 +209,43 @@
 </div>
 {!! html()->closeModelForm() !!}
 <script>
+// A browser keeps an email and password typed into a form that is left without submitting it and
+// fills them into the next login form; clear the typed passwords when the page is left by a link
+document.addEventListener('click', function (e) {
+    if (e.target.closest('a[href], [onclick*="location"]')) {
+        ['reg-password', 'reg-password-confirm'].forEach(function (id) {
+            var input = document.getElementById(id);
+            if (input) {
+                input.value = '';
+            }
+        });
+    }
+}, true);
+
+// Check the password policy before sending, then block a second click.
+(function () {
+    var password = document.getElementById('reg-password');
+    var submit = document.getElementById('reg-submit');
+    if (!password || !password.form || !submit) {
+        return;
+    }
+    var label = submit.innerHTML;
+    password.form.addEventListener('submit', function (e) {
+        if (!FaveoPasswordRules.check('reg-password')) {
+            e.preventDefault();
+            password.focus();
+            return;
+        }
+        submit.disabled = true;
+        submit.textContent = @json(Lang::get('lang.please_wait'));
+    });
+    // Back button can restore the page from cache with the button still disabled.
+    window.addEventListener('pageshow', function () {
+        submit.disabled = false;
+        submit.innerHTML = label;
+    });
+})();
+
 function togglePwd(id, btn) {
     var input = document.getElementById(id);
     var icon = btn.querySelector('i');

@@ -599,16 +599,25 @@ rule; the table above is how it is enforced. Beyond attachments:
   competitor's help page — "compare with Freshdesk" plus a link is a real
   requirement);
 - the **description itself** is measured: strip the URLs and image tags, and if
-  under 80 characters of prose remain, that is recorded as unreadable. #13814's
+  under 30 characters of prose remain, that is recorded as unreadable. #13814's
   entire body was a Google Docs link — 0 characters of prose — and the agent wrote
   usable cases only because the feature already existed in the code to read. On a
   new feature it would have had nothing;
 - the **agent declares its own gaps** in an `unanalysed` array: an attachment it
-  could not open, a requirement too vague to test. The fetcher reports what could
+  could not open, a link that answered with nothing. The fetcher reports what could
   not be *retrieved*; only the model can report what could not be *understood*.
 
 Any of those sets `needs_more_info`, and the publish step then applies
-`Need more info about issues by QA team` and quotes every unread item on the issue.
+`Need issuer's Feedback` and quotes every unread item on the issue.
+
+**`unanalysed` is only for content a human can supply.** It used to read "anything
+you could not use", and the agent answered it honestly — that the issue named no
+PR, that it carried no attachments, that OTP needs a plugin the test instance does
+not have. All true, none of it fixable by a reply, and the label fired on every
+issue until it meant nothing. Those now go in a separate `notCovered` array, which
+is published on the issue under its own heading and labels nothing. An issue
+written as plain prose with no attachments is normal input, not a defect in the
+issue.
 
 **Google Docs, Sheets, Slides and Drive files are attempted, not dismissed.** Each
 has a real export endpoint, and a doc shared as *anyone with the link* exports its

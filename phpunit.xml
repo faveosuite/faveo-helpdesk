@@ -1,26 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit backupGlobals="false"
-         backupStaticAttributes="false"
+         backupStaticProperties="false"
          bootstrap="bootstrap/autoload.php"
          colors="true"
-         convertErrorsToExceptions="true"
-         convertNoticesToExceptions="true"
-         convertWarningsToExceptions="true"
          processIsolation="false"
          stopOnFailure="false">
   <testsuites>
+    <!--
+      tests/Unit is excluded here because the "unit" suite below already owns it.
+      PHPUnit 10+ refuses to put one file in two suites: it warned "Cannot add file
+      ... as it was already added to test suite all" for every Unit test and exited
+      non-zero. Running with no suite still runs every test exactly once;
+      Jenkins runs `testsuite unit`, which is unchanged.
+    -->
     <testsuite name="all">
       <directory>./tests/</directory>
+      <exclude>./tests/Unit</exclude>
     </testsuite>
     <testsuite name="unit">
       <directory>./tests/Unit</directory>
     </testsuite>
   </testsuites>
-  <filter>
-    <whitelist addUncoveredFilesFromWhitelist="true">
+  <!--
+    PHPUnit 10+ format. The old <filter><whitelist> block is ignored by PHPUnit 12,
+    which then warns "No filter is configured, code coverage will not be processed"
+    and exits 1 even when every test passes; it also meant no clover.xml for Sonar.
+  -->
+  <source>
+    <include>
       <directory suffix=".php">app/</directory>
-    </whitelist>
-  </filter>
+    </include>
+  </source>
   <php>
     <env name="APP_ENV" value="testing"/>
     <env name="DB_CONNECTION" value="testing"/>
@@ -28,9 +38,26 @@
     <env name="CACHE_DRIVER" value="array"/>
     <env name="SESSION_DRIVER" value="array"/>
     <env name="QUEUE_CONNECTION" value="sync"/>
-    <env name="MAIL_MAILER" value="mail"/>
+    <env name="MAIL_MAILER" value="array"/>
     <env name="APP_URL" value="http://localhost:8000"/>
     <env name="DB_INSTALL" value="1"/>
+    <!--
+      A FIXED, TEST-ONLY JWT signing key. Not a credential: it signs tokens that
+      only ever exist inside APP_ENV=testing against testing_db, and it is not the
+      key any deployed instance uses.
+
+      It is declared here, not left to .env, because the suite must not depend on
+      the developer's own environment. Tests\Unit\TicketController's "V2 tickets
+      api ..." cases call JWTAuth::fromUser(), which needs jwt.secret. A developer
+      who has run `php artisan jwt:secret` has one in .env and the suite passes; a
+      freshly provisioned CI workspace does not, and the same four tests died with
+
+          Tymon\JWTAuth\Exceptions\JWTException: Secret is not set.
+
+      — green locally, red on Jenkins, for a reason nothing in the diff pointed at.
+      Every other value in this block is pinned for the same reason.
+    -->
+    <env name="JWT_SECRET" value="phpunit-testing-only-do-not-use-elsewhere-ySt4vQ2mKpL9"/>
   </php>
 </phpunit>
 

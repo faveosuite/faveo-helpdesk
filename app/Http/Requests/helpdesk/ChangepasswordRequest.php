@@ -3,6 +3,7 @@
 namespace App\Http\Requests\helpdesk;
 
 use App\Http\Requests\Request;
+use App\Rules\StrongPassword;
 
 /**
  * DiagnoRequest.
@@ -30,7 +31,7 @@ class ChangepasswordRequest extends Request
     {
         return [
 
-            'change_password' => 'required',
+            'change_password' => ['required', new StrongPassword()],
             // 'message' => 'required',
         ];
     }

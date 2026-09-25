@@ -97,11 +97,11 @@
 						{!! $errors->first('status', '<spam class="help-block">:message</spam>') !!}
 						<div class="row">
 							<div class="col-3">
-								{!! html()->radio('status', true, '1') !!}{{Lang::get('lang.public')}}
+								{!! html()->radio('status', (string) old('status', $article->status) !== '0', '1') !!}{{Lang::get('lang.public')}}
 								</div>
 								<div class="row">
 							<div class="col-3">
-								{!! html()->radio('status', null, '0') !!}{{Lang::get('lang.private')}}
+								{!! html()->radio('status', (string) old('status', $article->status) === '0', '0') !!}{{Lang::get('lang.private')}}
 								</div>
 					</div>
 
@@ -156,7 +156,7 @@
                         <div class="modal-content">
                         {!! html()->form('POST', action('Admin\kb\CategoryController@store'))->open() !!}
                             <div class="modal-header">
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 <h5 class="modal-title">{{Lang::get('lang.addcategory')}}</h4>
                             </div>
                             <div class="modal-body">

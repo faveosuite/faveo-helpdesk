@@ -76,6 +76,7 @@ return [
         'app'                   => 'lb-faveo/js/app.js',
         'jquery-mobilemenu'     => 'lb-faveo/js/jquery.mobilemenu.js',
         'language-changer'      => 'lb-faveo/js/languagechanger.js',
+        'submit-guard'          => 'lb-faveo/js/submit-guard.js',
         'custom'                => 'lb-faveo/js/custom.js',
         'html5shiv'             => 'lb-faveo/js/html5shiv.min.js',
         'respond'               => 'lb-faveo/js/respond.min.js',

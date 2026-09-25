@@ -1,5 +1,48 @@
 # Changelog
 
+## [7.1.1](https://github.com/googleapis/php-jwt/compare/v7.1.0...v7.1.1) (2026-09-02)
+
+
+### Bug Fixes
+
+* Limit the number of segments a JWT can be exploded into ([#639](https://github.com/googleapis/php-jwt/issues/639)) ([93d248c](https://github.com/googleapis/php-jwt/commit/93d248c650aea615d74a5ffa20c91c7a818e9b8d))
+
+## [7.1.0](https://github.com/googleapis/php-jwt/compare/v7.0.5...v7.1.0) (2026-06-11)
+
+
+### Features
+
+* Add support for PS256 ([#637](https://github.com/googleapis/php-jwt/issues/637)) ([aa0b447](https://github.com/googleapis/php-jwt/commit/aa0b4472c137255545b177a1840891304eac55f1))
+
+
+### Bug Fixes
+
+* Skip parsing valid unsupported curves ([#638](https://github.com/googleapis/php-jwt/issues/638)) ([8a6c2a7](https://github.com/googleapis/php-jwt/commit/8a6c2a75d7f45e781c93d618939f8a045fe69f53))
+* Update homepage URL in composer.json ([#635](https://github.com/googleapis/php-jwt/issues/635)) ([f7ae571](https://github.com/googleapis/php-jwt/commit/f7ae571efe255aed89c8f8d0f2cb7f71c5835664))
+* Validate numeric type of iat, nbf and exp claims in encode ([#634](https://github.com/googleapis/php-jwt/issues/634)) ([958e422](https://github.com/googleapis/php-jwt/commit/958e422961e874843a7fcc339e55a0101a66201d))
+
+## [7.0.5](https://github.com/firebase/php-jwt/compare/v7.0.4...v7.0.5) (2026-03-31)
+
+
+### Bug Fixes
+
+* RSA from JWK sometimes returns empty Instance ([#628](https://github.com/firebase/php-jwt/issues/628)) ([b4c78aa](https://github.com/firebase/php-jwt/commit/b4c78aa731664122198ad36c0033aa29e807397a))
+
+## [7.0.4](https://github.com/firebase/php-jwt/compare/v7.0.3...v7.0.4) (2026-03-27)
+
+
+### Bug Fixes
+
+* readme examples, add tests for all examples ([#626](https://github.com/firebase/php-jwt/issues/626)) ([510a00c](https://github.com/firebase/php-jwt/commit/510a00c0e6353bc7d68412fab67e57a13954cb46))
+* use urlsafeB64Decode everywhere ([#627](https://github.com/firebase/php-jwt/issues/627)) ([b889495](https://github.com/firebase/php-jwt/commit/b889495c83ddc3f3885ca3f0b65b41b1cb37a3b1))
+
+## [7.0.3](https://github.com/firebase/php-jwt/compare/v7.0.2...v7.0.3) (2026-02-18)
+
+
+### Miscellaneous Chores
+
+* add environment for Release Please job ([#619](https://github.com/firebase/php-jwt/issues/619)) ([300fd02](https://github.com/firebase/php-jwt/commit/300fd02c883f096c9067df652dbd23f62cb5e2a7))
+
 ## [7.0.2](https://github.com/firebase/php-jwt/compare/v7.0.1...v7.0.2) (2025-12-16)
 
 

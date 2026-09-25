@@ -83,7 +83,7 @@ class="nav-link active"
                     {!! html()->form('DELETE', route('groups.destroy', [$group->id]))->open() !!}
                     <a href="{{route('groups.edit', $group->id)}}" class="btn btn-primary btn-xs"><i class="fa-solid fa-pen-to-square"> </i> {{trans('lang.edit')}}</a>
                     <!-- To pop up a confirm Message -->
-                    {!! html()->button('<i class="fa-solid fa-trash"> </i>'.trans('lang.delete'))->class('btn btn-danger btn-xs')->attributes(['type' => 'submit', 'onclick' => 'return confirm("Are you sure?")']) !!}
+                    {!! html()->button('<i class="fa-solid fa-trash"> </i>'.trans('lang.delete'))->class('btn btn-danger btn-xs')->attributes(['type' => 'submit', 'data-confirm' => Lang::get('lang.confirm')]) !!}
                     {!! html()->closeModelForm() !!}
                 </td>
             </tr>

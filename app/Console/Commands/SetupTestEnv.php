@@ -175,7 +175,12 @@ class SetupTestEnv extends Command
         $system = System::latest()->first();
 
         if ($system) {
-            $system->update(['url' => 'http://localhost:8000']);
+            // Record the installed version, exactly as the installers do
+            // (InstallController / InstallerApiController). Without it
+            // settings_system.version stays blank, CheckUpdate treats the database
+            // as older than the code, and every admin page redirects to
+            // database-update — failing every test that opens an admin page.
+            $system->update(['url' => 'http://localhost:8000', 'version' => Config::get('app.version')]);
         } else {
             echo "\nData doesn't exists";
         }
