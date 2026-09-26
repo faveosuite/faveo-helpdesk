@@ -181,6 +181,16 @@ class Request
 
     private static int $trustedHeaderSet = -1;
 
+    /**
+     * @var array<string, true>
+     */
+    private static array $trustedHostsLiterals = [];
+
+    /**
+     * @var string[]
+     */
+    private static array $trustedHostsRegexps = [];
+
     private const FORWARDED_PARAMS = [
         self::HEADER_X_FORWARDED_FOR => 'for',
         self::HEADER_X_FORWARDED_HOST => 'host',
@@ -401,8 +411,16 @@ class Request
             $server['PHP_AUTH_PW'] = $components['pass'];
         }
 
-        if (!isset($components['path'])) {
+        if ('' === $path = $components['path'] ?? '') {
             $components['path'] = '/';
+        } elseif (!isset($components['scheme']) && !isset($components['host']) && '/' !== $path[0]) {
+            if (false !== $pos = strpos($path, '/')) {
+                $path = substr($path, 0, $pos);
+            }
+
+            if (str_contains($path, ':')) {
+                throw new BadRequestException('Invalid URI: Path is malformed.');
+            }
         }
 
         switch (strtoupper($method)) {
@@ -645,9 +663,20 @@ class Request
      */
     public static function setTrustedHosts(array $hostPatterns): void
     {
-        self::$trustedHostPatterns = array_map(fn ($hostPattern) => \sprintf('{%s}i', $hostPattern), $hostPatterns);
-        // we need to reset trusted hosts on trusted host patterns change
-        self::$trustedHosts = [];
+        self::$trustedHostPatterns = array_map(static fn ($hostPattern) => \sprintf('{%s}i', $hostPattern), $hostPatterns);
+        self::$trustedHostsLiterals = [];
+        $regexpPatterns = [];
+
+        foreach ($hostPatterns as $hostPattern) {
+            // constant patterns are matched by a hash lookup in getHost(), where the host is lowercase and free of newlines
+            if (preg_match('{^\^((?:[a-z0-9_:-]|\\\\[^a-z0-9])++)\$$}Di', $hostPattern, $m)) {
+                self::$trustedHostsLiterals[strtolower(preg_replace('{\\\\(.)}s', '$1', $m[1]))] = true;
+            } else {
+                $regexpPatterns[] = $hostPattern;
+            }
+        }
+
+        self::$trustedHostsRegexps = self::compileHostPatterns($regexpPatterns);
     }
 
     /**
@@ -848,10 +877,6 @@ class Request
      * header value is a comma+space separated list of IP addresses, the left-most
      * being the original client, and each successive proxy that passed the request
      * adding the IP address where it received the request from.
-     *
-     * If your reverse proxy uses a different header name than "X-Forwarded-For",
-     * ("Client-Ip" for instance), configure it via the $trustedHeaderSet
-     * argument of the Request::setTrustedProxies() method instead.
      *
      * @see getClientIps()
      * @see https://wikipedia.org/wiki/X-Forwarded-For
@@ -1189,17 +1214,15 @@ class Request
             throw new SuspiciousOperationException(\sprintf('Invalid Host "%s".', $host));
         }
 
-        if (\count(self::$trustedHostPatterns) > 0) {
+        if (self::$trustedHostsLiterals || self::$trustedHostsRegexps) {
             // to avoid host header injection attacks, you should provide a list of trusted host patterns
 
-            if (\in_array($host, self::$trustedHosts, true)) {
+            if (isset(self::$trustedHostsLiterals[$host])) {
                 return $host;
             }
 
-            foreach (self::$trustedHostPatterns as $pattern) {
-                if (preg_match($pattern, $host)) {
-                    self::$trustedHosts[] = $host;
-
+            foreach (self::$trustedHostsRegexps as $regexp) {
+                if (preg_match($regexp, $host)) {
                     return $host;
                 }
             }
@@ -2259,5 +2282,32 @@ class Request
 
         // use preg_replace() instead of preg_match() to prevent DoS attacks with long host names
         return '' === preg_replace('/[-a-zA-Z0-9_]++\.?/', '', $host);
+    }
+
+    /**
+     * Combines host patterns into as few regexps as PCRE can compile.
+     *
+     * @return string[]
+     */
+    private static function compileHostPatterns(array $hostPatterns): array
+    {
+        if (!$hostPatterns) {
+            return [];
+        }
+
+        // the branch reset group keeps capturing groups, back references and inline modifiers local to each pattern
+        $regexp = \sprintf('{(?|(?:%s))}i', implode(')|(?:', $hostPatterns));
+
+        if (1 === \count($hostPatterns) || false !== @preg_match($regexp, '')) {
+            return [$regexp];
+        }
+
+        // the combined pattern exceeds the maximum size PCRE accepts, split it in half
+        $half = intdiv(\count($hostPatterns), 2);
+
+        return array_merge(
+            self::compileHostPatterns(\array_slice($hostPatterns, 0, $half)),
+            self::compileHostPatterns(\array_slice($hostPatterns, $half))
+        );
     }
 }

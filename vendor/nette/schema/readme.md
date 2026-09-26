@@ -126,7 +126,7 @@ Expect::null()
 Expect::array($default = [])
 ```
 
-And then all types [supported by the Validators](https://doc.nette.org/validators#toc-validation-rules) via `Expect::type('scalar')` or abbreviated `Expect::scalar()`. Also class or interface names are accepted, e.g. `Expect::type('AddressEntity')`.
+And then all types [supported by the Validators](https://doc.nette.org/validators#toc-expected-types) via `Expect::type('scalar')` or abbreviated `Expect::scalar()`. Also class or interface names are accepted, e.g. `Expect::type('AddressEntity')`.
 
 You can also use union notation:
 

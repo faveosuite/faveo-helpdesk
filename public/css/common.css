@@ -75,8 +75,43 @@ label{
     background-color: transparent;
     color: #adb5bd;
     font-size: .875rem;
-    margin: -.75rem 0;
+    /*
+     * AdminLTE 4 sizes the card header off the .card-title line box, so the
+     * button must not contribute more height than the title does - hence the
+     * negative vertical margin (AdminLTE's own value is -1rem). Kept symmetric
+     * so the centring below lands the button on the title's centre line
+     * instead of pulling it above the header, as -.75rem 0 used to.
+     */
+    margin: -.25rem 0;
     padding: .25rem .5rem;
+}
+
+/*
+ * The title (h3) and the tools (div) are floats in AdminLTE 4, so nothing
+ * aligns them to each other. Flexing the header centres the two against one
+ * another without changing its height: both items' outer boxes stay within the
+ * title's line box, which is what the header measured before.
+ *
+ * Scoped to headers that actually have tools, and away from the tabbed cards
+ * whose headers carry a nav instead of a plain title.
+ */
+.card:not(.card-tabs):not(.card-outline-tabs) > .card-header:has(> .card-tools) {
+    display: flex;
+    align-items: center;
+}
+
+.card:not(.card-tabs):not(.card-outline-tabs) > .card-header:has(> .card-tools) > .card-title {
+    float: none;
+}
+
+.card:not(.card-tabs):not(.card-outline-tabs) > .card-header > .card-tools {
+    display: flex;
+    align-items: center;
+    float: none;
+    gap: .5rem;
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: auto;
 }
 
 .form-control{
@@ -91,6 +126,53 @@ label{
 
 .btn-tool{
     color: rgba(31, 45, 61, .8) !important;
+}
+
+/*
+ * Card-header tool buttons: hover state.
+ *
+ * AdminLTE 4 styles .btn-tool with Bootstrap 5 CSS variables:
+ *
+ *   .btn-tool:not(.btn-tool-custom){
+ *       --bs-btn-bg: transparent;
+ *       --bs-btn-hover-color: var(--bs-secondary-color);
+ *   }
+ *
+ * It blanks the RESTING background but never sets --bs-btn-hover-bg, so a
+ * button written as `btn btn-secondary btn-tool` keeps btn-secondary's own
+ * --bs-btn-hover-bg (#5c636a, dark grey) and pairs it with btn-tool's muted
+ * grey hover text - dark on dark, and unreadable. AdminLTE 3 set explicit
+ * colours with no variables to leak through, which is why this appeared only
+ * after the upgrade.
+ *
+ * Setting the variables on .btn-tool itself, not on :hover, is what makes this
+ * work: Bootstrap's own `.btn:hover{background-color:var(--bs-btn-hover-bg)}`
+ * reads them at hover time. Overriding background-color directly would need
+ * !important and would still miss :focus and :active.
+ *
+ * 20 views use `btn-secondary btn-tool`, so this is fixed here once rather
+ * than edited into each Blade template.
+ */
+.btn-tool:not(.btn-tool-custom) {
+    --bs-btn-hover-bg: rgba(0, 0, 0, .05);
+    --bs-btn-hover-color: #1f2d3d;
+    --bs-btn-hover-border-color: transparent;
+    --bs-btn-active-bg: rgba(0, 0, 0, .08);
+    --bs-btn-active-color: #1f2d3d;
+    --bs-btn-active-border-color: transparent;
+    transition: background-color .15s ease-in-out, color .15s ease-in-out;
+}
+
+/*
+ * A coloured card header (card-primary, .text-bg-*) still needs its own light
+ * tool colours - AdminLTE sets those separately, and the rule above would make
+ * the button illegible against a dark header.
+ */
+.card[class*="text-bg-"]:not(.card-outline) > .card-header .btn-tool:not(.btn-tool-custom) {
+    --bs-btn-hover-bg: rgba(255, 255, 255, .15);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-active-bg: rgba(255, 255, 255, .2);
+    --bs-btn-active-color: #fff;
 }
 
 .btn-info ,.bg-info{
@@ -734,4 +816,95 @@ div.dt-container div.dt-info {
 
 .profile-container{
     border-bottom: 1px solid #495057;
+}
+/*
+ * AdminLTE 3 shipped `.btn.btn-file`, which overlaid an invisible file input on
+ * top of a button so only the button's own label showed. AdminLTE 4 dropped the
+ * component but the markup is still in place (company logo, plugin upload,
+ * language file, KB profile picture), so the native input was rendering below
+ * the label - the stray "Choose file / No file chosen" row.
+ *
+ * Restoring the rule here fixes every one of those views at once, without
+ * touching their Blade markup.
+ */
+.btn.btn-file {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn.btn-file > input[type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    font-size: 100px;
+    text-align: right;
+    cursor: inherit;
+    outline: 0;
+    opacity: 0;
+}
+
+/*
+ * The upload control on the company logo: a full-width light-grey bar with the
+ * file icon, matching the "Choose file" control used elsewhere in the product.
+ * Replaces the old `bg-olive` + inline blue text, which after the AdminLTE 4
+ * upgrade read as a plain blue link rather than a button.
+ */
+.btn.btn-file-upload {
+    display: block;
+    width: 100%;
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+    color: #212529;
+    font-weight: 400;
+}
+
+.btn.btn-file-upload:hover,
+.btn.btn-file-upload:focus {
+    background-color: #d3d4d5;
+    border-color: #d3d4d5;
+    color: #212529;
+}
+
+/*
+ * Sidebar counts (inbox, my tickets, unassigned, overdue, trash) in the
+ * collapsed sidebar.
+ *
+ * AdminLTE 4 hides them outright:
+ *
+ *   .sidebar-mini.sidebar-collapse .sidebar-menu .nav-badge{display:none}
+ *
+ * and the surrounding <p> is visibility:hidden as well, so the numbers vanish
+ * the moment the sidebar is shortened - they used to sit on the icon. Bringing
+ * them back onto the icon's corner keeps the counts readable while collapsed;
+ * on hover the sidebar expands and AdminLTE's own rules put them back on the
+ * right of the row, so this is scoped to :not(:hover).
+ */
+/*
+ * The <p> around the label is faded out by AdminLTE (`animation-name:fadeOut`
+ * with `animation-fill-mode:both`), which leaves it at opacity 0 - and opacity
+ * on a parent cannot be undone by a child, so the badge faded away with it a
+ * moment after the sidebar closed. Keeping the <p> opaque is safe: it stays
+ * visibility:hidden and width:0 with overflow hidden, so its text is still
+ * clipped, while the badge below can turn its own visibility back on.
+ */
+.sidebar-mini.sidebar-collapse .app-sidebar:not(:hover) .sidebar-menu .nav-link > p {
+    opacity: 1 !important;
+    animation: none !important;
+}
+
+.sidebar-mini.sidebar-collapse .app-sidebar:not(:hover) .sidebar-menu .nav-link > .nav-badge,
+.sidebar-mini.sidebar-collapse .app-sidebar:not(:hover) .sidebar-menu .nav-link > p > .nav-badge {
+    display: inline-block !important;
+    visibility: visible !important;
+    animation: none !important;
+    top: auto !important;
+    bottom: .3rem;
+    right: .45rem !important;
+    left: auto !important;
+    transform: none;
+    padding: .15rem .3rem;
+    font-size: .625rem;
+    line-height: 1;
 }

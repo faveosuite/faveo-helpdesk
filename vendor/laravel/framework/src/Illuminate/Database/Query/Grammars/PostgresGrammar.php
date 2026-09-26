@@ -111,7 +111,7 @@ class PostgresGrammar extends Grammar
         $column = $this->wrap($where['column']);
         $value = $this->parameter($where['value']);
 
-        if ($this->isJsonSelector($where['column'])) {
+        if ($this->isJsonSelector($column)) {
             $column = '('.$column.')';
         }
 
@@ -130,7 +130,7 @@ class PostgresGrammar extends Grammar
         $column = $this->wrap($where['column']);
         $value = $this->parameter($where['value']);
 
-        if ($this->isJsonSelector($where['column'])) {
+        if ($this->isJsonSelector($column)) {
             $column = '('.$column.')';
         }
 
@@ -167,8 +167,12 @@ class PostgresGrammar extends Grammar
             $language = 'english';
         }
 
+        $isVector = $where['options']['vector'] ?? false;
+
         $columns = (new Collection($where['columns']))
-            ->map(fn ($column) => "to_tsvector('{$language}', {$this->wrap($column)})")
+            ->map(fn ($column) => $isVector
+                ? $this->wrap($column)
+                : "to_tsvector('{$language}', {$this->wrap($column)})")
             ->implode(' || ');
 
         $mode = 'plainto_tsquery';
@@ -757,9 +761,17 @@ class PostgresGrammar extends Grammar
             ->map(fn ($attribute) => $this->parseJsonPathArrayKeys($attribute))
             ->collapse()
             ->map(function ($attribute) use ($quote) {
-                return filter_var($attribute, FILTER_VALIDATE_INT) !== false
-                    ? $attribute
-                    : $quote.$attribute.$quote;
+                if (filter_var($attribute, FILTER_VALIDATE_INT) !== false) {
+                    return $attribute;
+                }
+
+                $attribute = str_replace("'", "''", $attribute);
+
+                if ($quote !== "'") {
+                    $attribute = str_replace($quote, $quote.$quote, $attribute);
+                }
+
+                return $quote.$attribute.$quote;
             })
             ->all();
     }

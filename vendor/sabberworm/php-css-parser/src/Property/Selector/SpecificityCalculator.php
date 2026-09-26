@@ -13,8 +13,6 @@ final class SpecificityCalculator
 {
     /**
      * regexp for specificity calculations
-     *
-     * @var non-empty-string
      */
     private const NON_ID_ATTRIBUTES_AND_PSEUDO_CLASSES_RX = '/
         (\\.[\\w]+)                   # classes
@@ -37,8 +35,6 @@ final class SpecificityCalculator
 
     /**
      * regexp for specificity calculations
-     *
-     * @var non-empty-string
      */
     private const ELEMENTS_AND_PSEUDO_ELEMENTS_RX = '/
         ((^|[\\s\\+\\>\\~]+)[\\w]+   # elements
@@ -68,7 +64,9 @@ final class SpecificityCalculator
             $matches = null;
             $b = \substr_count($selector, '#');
             $c = \preg_match_all(self::NON_ID_ATTRIBUTES_AND_PSEUDO_CLASSES_RX, $selector, $matches);
+            \assert(\is_int($c));
             $d = \preg_match_all(self::ELEMENTS_AND_PSEUDO_ELEMENTS_RX, $selector, $matches);
+            \assert(\is_int($d));
             self::$cache[$selector] = ($a * 1000) + ($b * 100) + ($c * 10) + $d;
         }
 

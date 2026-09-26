@@ -8,6 +8,7 @@ use Sabberworm\CSS\Comment\CommentContainer;
 use Sabberworm\CSS\OutputFormat;
 use Sabberworm\CSS\Position\Position;
 use Sabberworm\CSS\Position\Positionable;
+use Sabberworm\CSS\ShortClassNameProvider;
 use Sabberworm\CSS\Value\URL;
 
 /**
@@ -17,6 +18,7 @@ class Import implements AtRule, Positionable
 {
     use CommentContainer;
     use Position;
+    use ShortClassNameProvider;
 
     /**
      * @var URL
@@ -81,5 +83,20 @@ class Import implements AtRule, Positionable
     public function getMediaQuery(): ?string
     {
         return $this->mediaQuery;
+    }
+
+    /**
+     * @return array<string, bool|int|float|string|array<mixed>|null>
+     *
+     * @internal
+     */
+    public function getArrayRepresentation(): array
+    {
+        return [
+            'class' => $this->getShortClassName(),
+            // We're using the term "uri" here to match the wording used in the specs:
+            // https://www.w3.org/TR/CSS22/cascade.html#at-import
+            'uri' => $this->location->getArrayRepresentation(),
+        ];
     }
 }

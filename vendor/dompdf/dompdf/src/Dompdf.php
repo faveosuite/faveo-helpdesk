@@ -772,6 +772,8 @@ class Dompdf
 
         $canvas = $this->canvas;
 
+        LineBox::reset_float_reflow_limit(); // FIXME smelly hack
+
         $root_frame = $this->tree->get_root();
         $root = Factory::decorate_root($root_frame, $this);
         foreach ($this->tree as $frame) {
@@ -1402,7 +1404,7 @@ class Dompdf
         if (isset($this->canvas)) {
             $this->canvas = CanvasFactory::get_instance($this, $this->paperSize, $this->paperOrientation);
             if (isset($fontMetrics)) {
-                $this->fontMetrics = new FontMetrics($this->canvas, $this->options);
+                $this->fontMetrics->setCanvas($this->canvas)->setOptions($options);
             }
         }
 

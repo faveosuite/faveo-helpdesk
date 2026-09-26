@@ -1,11 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Nette Framework (https://nette.org)
  * Copyright (c) 2004 David Grudl (https://davidgrudl.com)
  */
-
-declare(strict_types=1);
 
 namespace Nette\Utils;
 
@@ -222,7 +220,7 @@ final class ObjectHelpers
 				if ($rp->isPublic() && !$rp->isStatic()) {
 					$prop = $name >= 'onA' && $name < 'on_' ? 'event' : true;
 				}
-			} catch (\ReflectionException $e) {
+			} catch (\ReflectionException) {
 			}
 		}
 

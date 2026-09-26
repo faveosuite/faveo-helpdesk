@@ -105,14 +105,15 @@ class="nav-link active"
         </div>
 
         <div class="row">
-            <div class="col-md-2">
+            <div class="col-12">
                 <!-- logo -->
                 {!! html()->label(Lang::get('lang.logo'), 'logo') !!}
-                <div class="btn bg-olive btn-file" style="color:blue"> {{Lang::get('lang.upload_file')}}
+                <div class="btn btn-file btn-file-upload">
+                    <i class="fa-regular fa-file"></i> {{Lang::get('lang.upload_file')}}
                     {!! html()->file('logo') !!}
                 </div>
             </div>
-            <div class="col-sm-10">
+            <div class="col-12">
                 <div id="logo-display" style="display: block;">
                     <div class="row">
                         @if($companys->logo != null)

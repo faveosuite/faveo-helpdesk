@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace League\Uri;
 
 use BackedEnum;
+use DateTimeInterface;
 use League\Uri\Contracts\UriComponentInterface;
 use Stringable;
 use TypeError;
@@ -42,8 +43,7 @@ enum StringCoercionMode
      * PHP conversion mode.
      *
      * Guarantees that only scalar values, BackedEnum, and null are accepted.
-     * Any object, UnitEnum, resource, or recursive structure
-     * results in an error.
+     * Any object, Non-backed enums, resource, or recursive structure results in an error.
      *
      * - null: is not converted and stays the `null` value
      * - string: used as-is
@@ -67,7 +67,8 @@ enum StringCoercionMode
      * - float: converted to decimal string (3.14 -> “3.14”), "NaN", "-Infinity" or "Infinity"
      * - Backed Enum: converted to their backing value and then stringify see int and string
      * - Array as list are flatten into a string list using the "," character as separator
-     * - Associative array, Unit Enum, any object without stringification semantics is coerced to "[object Object]".
+     * - Associative array, Non-backed enums, any object without stringification semantics is coerced to "[object Object]".
+     * - DateTimeInterface implementing object are coerce to their string representation using DateTimeInterface::RFC2822 format
      */
     case Ecmascript;
 
@@ -79,11 +80,11 @@ enum StringCoercionMode
             ? !is_resource($value)
             : match (true) {
                 $value instanceof Rfc3986Uri,
-                    $value instanceof WhatWgUrl,
-                    $value instanceof BackedEnum,
-                    $value instanceof Stringable,
+                $value instanceof WhatWgUrl,
+                $value instanceof BackedEnum,
+                $value instanceof Stringable,
                 is_scalar($value),
-                    null === $value => true,
+                null === $value => true,
                 default => false,
             };
     }
@@ -98,6 +99,7 @@ enum StringCoercionMode
             self::Ecmascript => match (true) {
                 $value instanceof Rfc3986Uri => $value->toString(),
                 $value instanceof WhatWgUrl => $value->toAsciiString(),
+                $value instanceof DateTimeInterface => $value->format(DateTimeInterface::RFC2822),
                 $value instanceof BackedEnum => (string) $value->value,
                 $value instanceof Stringable => $value->__toString(),
                 is_object($value) => '[object Object]',

@@ -80,9 +80,11 @@ final class Generator
      * @param ?list<non-empty-string> $methods
      * @param array<mixed>            $arguments
      *
+     * @throws ClassIsAnonymousException
      * @throws ClassIsEnumerationException
      * @throws ClassIsFinalException
      * @throws DuplicateMethodException
+     * @throws InvalidClassNameException
      * @throws InvalidMethodNameException
      * @throws NameAlreadyInUseException
      * @throws ReflectionException
@@ -97,6 +99,7 @@ final class Generator
 
         $this->ensureKnownType($type);
         $this->ensureValidMethods($methods);
+        $this->ensureValidNameForTestDoubleClass($mockClassName);
         $this->ensureNameForTestDoubleClassIsAvailable($mockClassName);
 
         $mock = $this->generate(
@@ -197,6 +200,7 @@ final class Generator
      * @param class-string            $type
      * @param ?list<non-empty-string> $methods
      *
+     * @throws ClassIsAnonymousException
      * @throws ClassIsEnumerationException
      * @throws ClassIsFinalException
      * @throws ReflectionException
@@ -335,6 +339,7 @@ final class Generator
      * @param class-string            $type
      * @param ?list<non-empty-string> $explicitMethods
      *
+     * @throws ClassIsAnonymousException
      * @throws ClassIsEnumerationException
      * @throws ClassIsFinalException
      * @throws MethodNamedMethodException
@@ -366,6 +371,10 @@ final class Generator
         }
 
         $class = $this->reflectClass($_mockClassName['fullClassName']);
+
+        if ($class->isAnonymous()) {
+            throw new ClassIsAnonymousException($_mockClassName['fullClassName']);
+        }
 
         if ($class->isEnum()) {
             throw new ClassIsEnumerationException($_mockClassName['fullClassName']);
@@ -687,13 +696,27 @@ final class Generator
         }
 
         foreach ($methods as $method) {
-            if (!preg_match('~[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*~', (string) $method)) {
+            if (!preg_match('~\A[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*\z~', (string) $method)) {
                 throw new InvalidMethodNameException((string) $method);
             }
         }
 
         if ($methods !== array_unique($methods)) {
             throw new DuplicateMethodException($methods);
+        }
+    }
+
+    /**
+     * @throws InvalidClassNameException
+     */
+    private function ensureValidNameForTestDoubleClass(string $className): void
+    {
+        if ($className === '') {
+            return;
+        }
+
+        if (!preg_match('~\A[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*\z~', $className)) {
+            throw new InvalidClassNameException($className);
         }
     }
 
@@ -803,7 +826,7 @@ final class Generator
         }
 
         foreach ($propertiesWithHooks as $property) {
-            if ($property->hasGetHook()) {
+            if ($property->shouldGenerateGetHook()) {
                 $configurable[] = new ConfigurableMethod(
                     sprintf(
                         '$%s::get',
@@ -815,7 +838,7 @@ final class Generator
                 );
             }
 
-            if ($property->hasSetHook()) {
+            if ($property->shouldGenerateSetHook()) {
                 $configurable[] = new ConfigurableMethod(
                     sprintf(
                         '$%s::set',
@@ -888,6 +911,7 @@ final class Generator
                 $mapper->fromPropertyType($property),
                 $hasGetHook,
                 $hasSetHook,
+                $property->isVirtual(),
                 $setHookMethodParameterType,
             );
         }

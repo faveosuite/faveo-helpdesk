@@ -120,7 +120,8 @@ class String_ extends Scalar {
                     return chr(hexdec(substr($str, 1)));
                 }
                 if ('u' === $str[0]) {
-                    $dec = hexdec($matches[2]);
+                    // PHP 8.6 warns when hexdec() produces a float.
+                    $dec = @hexdec($matches[2]);
                     // If it overflowed to float, treat as INT_MAX, it will throw an error anyway.
                     return self::codePointToUtf8(\is_int($dec) ? $dec : \PHP_INT_MAX);
                 } else {
@@ -148,7 +149,7 @@ class String_ extends Scalar {
         if ($num <= 0xFFFF) {
             return chr(($num >> 12) + 0xE0) . chr((($num >> 6) & 0x3F) + 0x80) . chr(($num & 0x3F) + 0x80);
         }
-        if ($num <= 0x1FFFFF) {
+        if ($num <= 0x10FFFF) {
             return chr(($num >> 18) + 0xF0) . chr((($num >> 12) & 0x3F) + 0x80)
                  . chr((($num >> 6) & 0x3F) + 0x80) . chr(($num & 0x3F) + 0x80);
         }

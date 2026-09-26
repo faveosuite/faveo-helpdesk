@@ -349,6 +349,7 @@ trait ValidatesAttributes
      *
      * @param  string  $attribute
      * @param  mixed  $value
+     * @param  array<int, int|string>  $parameters
      * @return bool
      */
     public function validateAlpha($attribute, $value, $parameters)
@@ -367,6 +368,7 @@ trait ValidatesAttributes
      *
      * @param  string  $attribute
      * @param  mixed  $value
+     * @param  array<int, int|string>  $parameters
      * @return bool
      */
     public function validateAlphaDash($attribute, $value, $parameters)
@@ -388,6 +390,7 @@ trait ValidatesAttributes
      *
      * @param  string  $attribute
      * @param  mixed  $value
+     * @param  array<int, int|string>  $parameters
      * @return bool
      */
     public function validateAlphaNum($attribute, $value, $parameters)
@@ -937,6 +940,10 @@ trait ValidatesAttributes
     public function validateEmail($attribute, $value, $parameters)
     {
         if (! is_string($value) && ! (is_object($value) && method_exists($value, '__toString'))) {
+            return false;
+        }
+
+        if (preg_match('/[\r\n]/', (string) $value) > 0) {
             return false;
         }
 
@@ -1515,7 +1522,7 @@ trait ValidatesAttributes
             return count(array_diff($value, $parameters)) === 0;
         }
 
-        return ! is_array($value) && in_array((string) $value, $parameters);
+        return ! is_array($value) && in_array((string) $value, $parameters, true);
     }
 
     /**
@@ -2449,14 +2456,10 @@ trait ValidatesAttributes
      */
     protected function convertValuesToBoolean($values)
     {
-        return array_map(function ($value) {
-            if ($value === 'true') {
-                return true;
-            } elseif ($value === 'false') {
-                return false;
-            }
-
-            return $value;
+        return array_map(fn ($value) => match ($value) {
+            'true' => true,
+            'false' => false,
+            default => $value,
         }, $values);
     }
 

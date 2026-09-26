@@ -3,8 +3,11 @@
 namespace Laravel\Prompts\Concerns;
 
 use InvalidArgumentException;
+use Laravel\Prompts\AutoCompletePrompt;
+use Laravel\Prompts\Callout;
 use Laravel\Prompts\Clear;
 use Laravel\Prompts\ConfirmPrompt;
+use Laravel\Prompts\DataTablePrompt;
 use Laravel\Prompts\Grid;
 use Laravel\Prompts\MultiSearchPrompt;
 use Laravel\Prompts\MultiSelectPrompt;
@@ -13,15 +16,21 @@ use Laravel\Prompts\NumberPrompt;
 use Laravel\Prompts\PasswordPrompt;
 use Laravel\Prompts\PausePrompt;
 use Laravel\Prompts\Progress;
+use Laravel\Prompts\Prompt;
 use Laravel\Prompts\SearchPrompt;
 use Laravel\Prompts\SelectPrompt;
 use Laravel\Prompts\Spinner;
+use Laravel\Prompts\Stream;
 use Laravel\Prompts\SuggestPrompt;
 use Laravel\Prompts\Table;
+use Laravel\Prompts\Task;
 use Laravel\Prompts\TextareaPrompt;
 use Laravel\Prompts\TextPrompt;
+use Laravel\Prompts\Themes\Default\AutoCompletePromptRenderer;
+use Laravel\Prompts\Themes\Default\CalloutRenderer;
 use Laravel\Prompts\Themes\Default\ClearRenderer;
 use Laravel\Prompts\Themes\Default\ConfirmPromptRenderer;
+use Laravel\Prompts\Themes\Default\DataTableRenderer;
 use Laravel\Prompts\Themes\Default\GridRenderer;
 use Laravel\Prompts\Themes\Default\MultiSearchPromptRenderer;
 use Laravel\Prompts\Themes\Default\MultiSelectPromptRenderer;
@@ -33,10 +42,14 @@ use Laravel\Prompts\Themes\Default\ProgressRenderer;
 use Laravel\Prompts\Themes\Default\SearchPromptRenderer;
 use Laravel\Prompts\Themes\Default\SelectPromptRenderer;
 use Laravel\Prompts\Themes\Default\SpinnerRenderer;
+use Laravel\Prompts\Themes\Default\StreamRenderer;
 use Laravel\Prompts\Themes\Default\SuggestPromptRenderer;
 use Laravel\Prompts\Themes\Default\TableRenderer;
+use Laravel\Prompts\Themes\Default\TaskRenderer;
 use Laravel\Prompts\Themes\Default\TextareaPromptRenderer;
 use Laravel\Prompts\Themes\Default\TextPromptRenderer;
+use Laravel\Prompts\Themes\Default\TitleRenderer;
+use Laravel\Prompts\Title;
 
 trait Themes
 {
@@ -48,7 +61,7 @@ trait Themes
     /**
      * The available themes.
      *
-     * @var array<string, array<class-string<\Laravel\Prompts\Prompt>, class-string<object&callable>>>
+     * @var array<string, array<class-string<Prompt>, class-string<object&callable>>>
      */
     protected static array $themes = [
         'default' => [
@@ -69,13 +82,19 @@ trait Themes
             Progress::class => ProgressRenderer::class,
             Clear::class => ClearRenderer::class,
             Grid::class => GridRenderer::class,
+            AutoCompletePrompt::class => AutoCompletePromptRenderer::class,
+            Title::class => TitleRenderer::class,
+            Stream::class => StreamRenderer::class,
+            Task::class => TaskRenderer::class,
+            DataTablePrompt::class => DataTableRenderer::class,
+            Callout::class => CalloutRenderer::class,
         ],
     ];
 
     /**
      * Get or set the active theme.
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public static function theme(?string $name = null): string
     {
@@ -93,7 +112,7 @@ trait Themes
     /**
      * Add a new theme.
      *
-     * @param  array<class-string<\Laravel\Prompts\Prompt>, class-string<object&callable>>  $renderers
+     * @param  array<class-string<Prompt>, class-string<object&callable>>  $renderers
      */
     public static function addTheme(string $name, array $renderers): void
     {

@@ -152,8 +152,17 @@ final class EnglishInflector implements InflectorInterface
         // drives (drive)
         ['sevird', 6, false, true, 'drive'],
 
-        // lives (life), wives (wife)
-        ['sevi', 4, false, true, 'ife'],
+        // knives (knife), jackknives (jackknife)
+        ['sevink', 6, true, true, 'knife'],
+
+        // wives (wife), midwives (midwife)
+        ['seviw', 5, true, true, 'wife'],
+
+        // lives (life)
+        ['sevil', 5, false, true, 'life'],
+
+        // archives (archive), explosives (explosive), hives (hive), olives (olive)
+        ['sevi', 4, true, true, 'ive'],
 
         // moves (move)
         ['sevom', 5, true, true, 'move'],
@@ -181,6 +190,9 @@ final class EnglishInflector implements InflectorInterface
 
         // outages (outage) - specific fix to avoid 'outag'
         ['segatuo', 7, true, true, 'outage'],
+
+        // traces (trace), faces (face), places (place), pieces (piece)
+        ['sec', 3, true, true, 'ce'],
 
         // roses (rose), garages (garage), cassettes (cassette),
         // waltzes (waltz), heroes (hero), bushes (bush), arches (arch),

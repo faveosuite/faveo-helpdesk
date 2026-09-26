@@ -280,6 +280,10 @@ final class Collector
             assert($test instanceof TestMethod);
 
             foreach ($this->testFailedEvents as $testFailedEvent) {
+                if ($testFailedEvent instanceof AfterLastTestMethodFailed || $testFailedEvent instanceof BeforeFirstTestMethodFailed) {
+                    continue;
+                }
+
                 if ($testFailedEvent->test()->isTestMethod() && $testFailedEvent->test()->methodName() === $test->methodName()) {
                     return;
                 }
@@ -355,6 +359,10 @@ final class Collector
     public function testMarkedIncomplete(MarkedIncomplete $event): void
     {
         $this->testMarkedIncompleteEvents[] = $event;
+
+        if (!$this->prepared) {
+            $this->numberOfTestsRun++;
+        }
     }
 
     public function testSkipped(TestSkipped $event): void

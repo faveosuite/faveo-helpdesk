@@ -123,7 +123,7 @@ class XliffLintCommand extends Command
         $internal = libxml_use_internal_errors(true);
 
         $document = new \DOMDocument();
-        $document->loadXML($content);
+        $document->loadXML($content, \LIBXML_NONET);
 
         if (null !== $targetLanguage = $this->getTargetLanguageFromFile($document)) {
             $normalizedLocalePattern = \sprintf('(%s|%s)', preg_quote($targetLanguage, '/'), preg_quote(str_replace('-', '_', $targetLanguage), '/'));
@@ -153,7 +153,7 @@ class XliffLintCommand extends Command
         libxml_clear_errors();
         libxml_use_internal_errors($internal);
 
-        return ['file' => $file, 'valid' => 0 === \count($errors), 'messages' => $errors];
+        return ['file' => $file, 'valid' => !$errors, 'messages' => $errors];
     }
 
     private function display(SymfonyStyle $io, array $files): int
@@ -178,7 +178,7 @@ class XliffLintCommand extends Command
             } elseif (!$info['valid']) {
                 ++$erroredFiles;
                 $io->text('<error> ERROR </error>'.($info['file'] ? \sprintf(' in %s', $info['file']) : ''));
-                $io->listing(array_map(function ($error) use ($info, $githubReporter) {
+                $io->listing(array_map(static function ($error) use ($info, $githubReporter) {
                     // general document errors have a '-1' line number
                     $line = -1 === $error['line'] ? null : $error['line'];
 
@@ -202,7 +202,7 @@ class XliffLintCommand extends Command
     {
         $errors = 0;
 
-        array_walk($filesInfo, function (&$v) use (&$errors) {
+        array_walk($filesInfo, static function (&$v) use (&$errors) {
             $v['file'] = (string) $v['file'];
             if (!$v['valid']) {
                 ++$errors;
@@ -239,7 +239,7 @@ class XliffLintCommand extends Command
      */
     private function getDirectoryIterator(string $directory): iterable
     {
-        $default = fn ($directory) => new \RecursiveIteratorIterator(
+        $default = static fn ($directory) => new \RecursiveIteratorIterator(
             new \RecursiveDirectoryIterator($directory, \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::FOLLOW_SYMLINKS),
             \RecursiveIteratorIterator::LEAVES_ONLY
         );
@@ -253,7 +253,7 @@ class XliffLintCommand extends Command
 
     private function isReadable(string $fileOrDirectory): bool
     {
-        $default = fn ($fileOrDirectory) => is_readable($fileOrDirectory);
+        $default = static fn ($fileOrDirectory) => is_readable($fileOrDirectory);
 
         if (null !== $this->isReadableProvider) {
             return ($this->isReadableProvider)($fileOrDirectory, $default);

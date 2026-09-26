@@ -30,11 +30,12 @@ final class JobRunnerRegistry
     }
 
     /**
-     * @param non-empty-string $processResultFile
+     * @param non-empty-string  $processResultFile
+     * @param ?non-empty-string $processResultNonce
      */
-    public static function runTestJob(Job $job, string $processResultFile, Test $test): void
+    public static function runTestJob(Job $job, string $processResultFile, Test $test, ?string $processResultNonce = null): void
     {
-        self::runner()->runTestJob($job, $processResultFile, $test);
+        self::runner()->runTestJob($job, $processResultFile, $test, $processResultNonce);
     }
 
     public static function set(JobRunner $runner): void
@@ -45,7 +46,7 @@ final class JobRunnerRegistry
     private static function runner(): JobRunner
     {
         if (self::$runner === null) {
-            self::$runner = new DefaultJobRunner(
+            self::$runner = new JobRunner(
                 new ChildProcessResultProcessor(
                     Facade::instance(),
                     Facade::emitter(),

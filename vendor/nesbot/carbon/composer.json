@@ -109,8 +109,8 @@
         "phpdoc": "php phpdoc.php",
         "phpmd": "phpmd src text /phpmd.xml",
         "phpmd-test": "phpmd tests text /tests/phpmd-test.xml",
-        "phpstan": "phpstan analyse --configuration phpstan.neon",
-        "phpunit": "phpunit --verbose",
+        "phpstan": "phpstan analyse --configuration phpstan.neon --memory-limit 1024M",
+        "phpunit": "phpunit",
         "style-check": [
             "@phpcs",
             "@phpstan",

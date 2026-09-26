@@ -92,6 +92,18 @@ class LineBox
     public $inline = false;
 
     /**
+     * @var int
+     */
+    public static $max_float_reflows = 10000;
+
+    /**
+     * FIXME smelly hack, used by the get_float_offsets method.
+     *
+     * @var int
+     */
+    private static $float_offset_anti_infinite_loop = 10000;
+
+    /**
      * @param Block $frame the Block containing this line
      * @param float $y
      */
@@ -152,10 +164,16 @@ class LineBox
         return $childs;
     }
 
+    /**
+     * Resets the anti-infinite-loop counter for the get_float_offsets method.
+     */
+    public static function reset_float_reflow_limit(): void
+    {
+        self::$float_offset_anti_infinite_loop = self::$max_float_reflows;
+    }
+
     public function get_float_offsets(): void
     {
-        static $anti_infinite_loop = 10000; // FIXME smelly hack
-
         $reflower = $this->_block_frame->get_reflower();
 
         if (!$reflower) {
@@ -201,7 +219,7 @@ class LineBox
             }
 
             // If the child is still shifted by the floating element
-            if ($anti_infinite_loop-- > 0 &&
+            if (self::$float_offset_anti_infinite_loop-- > 0 &&
                 $floating_frame->get_position("y") + $floating_frame->get_margin_height() >= $this->y &&
                 $block->get_position("x") + $block->get_margin_width() >= $floating_frame->get_position("x")
             ) {

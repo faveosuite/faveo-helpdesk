@@ -40,18 +40,19 @@ class Spinner extends Prompt
      *
      * @template TReturn of mixed
      *
-     * @param  \Closure(): TReturn  $callback
+     * @param  Closure(): TReturn  $callback
      * @return TReturn
      */
     public function spin(Closure $callback): mixed
     {
         $this->capturePreviousNewLines();
 
-        if (! function_exists('pcntl_fork')) {
+        if (! static::output()->isDecorated() || ! (function_exists('pcntl_fork') && function_exists('posix_kill'))) {
             return $this->renderStatically($callback);
         }
 
         $originalAsync = pcntl_async_signals(true);
+        $originalSignalHandler = pcntl_signal_get_handler(SIGINT);
 
         pcntl_signal(SIGINT, fn () => exit());
 
@@ -72,12 +73,12 @@ class Spinner extends Prompt
             } else {
                 $result = $callback();
 
-                $this->resetTerminal($originalAsync);
+                $this->resetTerminal($originalAsync, $originalSignalHandler);
 
                 return $result;
             }
         } catch (\Throwable $e) {
-            $this->resetTerminal($originalAsync);
+            $this->resetTerminal($originalAsync, $originalSignalHandler);
 
             throw $e;
         }
@@ -86,10 +87,10 @@ class Spinner extends Prompt
     /**
      * Reset the terminal.
      */
-    protected function resetTerminal(bool $originalAsync): void
+    protected function resetTerminal(bool $originalAsync, callable|int $originalSignalHandler = SIG_DFL): void
     {
         pcntl_async_signals($originalAsync);
-        pcntl_signal(SIGINT, SIG_DFL);
+        pcntl_signal(SIGINT, $originalSignalHandler);
 
         $this->eraseRenderedLines();
     }
@@ -99,7 +100,7 @@ class Spinner extends Prompt
      *
      * @template TReturn of mixed
      *
-     * @param  \Closure(): TReturn  $callback
+     * @param  Closure(): TReturn  $callback
      * @return TReturn
      */
     protected function renderStatically(Closure $callback): mixed
@@ -121,7 +122,7 @@ class Spinner extends Prompt
     /**
      * Disable prompting for input.
      *
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function prompt(): never
     {

@@ -151,7 +151,7 @@ if (!function_exists('PHPUnit\Framework\assertArrayHasKey')) {
     /**
      * Asserts that an array has a specified key.
      *
-     * @param array<mixed>|ArrayAccess<array-key, mixed> $array
+     * @param array<mixed>|ArrayAccess<array-key, covariant mixed> $array
      *
      * @throws Exception
      * @throws ExpectationFailedException
@@ -170,7 +170,7 @@ if (!function_exists('PHPUnit\Framework\assertArrayNotHasKey')) {
     /**
      * Asserts that an array does not have a specified key.
      *
-     * @param array<mixed>|ArrayAccess<array-key, mixed> $array
+     * @param array<mixed>|ArrayAccess<array-key, covariant mixed> $array
      *
      * @throws Exception
      * @throws ExpectationFailedException
@@ -897,6 +897,8 @@ if (!function_exists('PHPUnit\Framework\assertEquals')) {
     /**
      * Asserts that two variables are equal.
      *
+     * Comparison is performed using the == operator (loose comparison) and may be performed by a type-specific comparator which may apply type coercion.
+     *
      * @throws ExpectationFailedException
      *
      * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -912,6 +914,8 @@ if (!function_exists('PHPUnit\Framework\assertEquals')) {
 if (!function_exists('PHPUnit\Framework\assertEqualsCanonicalizing')) {
     /**
      * Asserts that two variables are equal (canonicalizing).
+     *
+     * Comparison is performed using the == operator (loose comparison) and may be performed by a type-specific comparator which may apply type coercion.
      *
      * @throws ExpectationFailedException
      *
@@ -929,6 +933,8 @@ if (!function_exists('PHPUnit\Framework\assertEqualsIgnoringCase')) {
     /**
      * Asserts that two variables are equal (ignoring case).
      *
+     * Comparison is performed using the == operator (loose comparison) and may be performed by a type-specific comparator which may apply type coercion.
+     *
      * @throws ExpectationFailedException
      *
      * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -944,6 +950,8 @@ if (!function_exists('PHPUnit\Framework\assertEqualsIgnoringCase')) {
 if (!function_exists('PHPUnit\Framework\assertEqualsWithDelta')) {
     /**
      * Asserts that two variables are equal (with delta).
+     *
+     * Comparison is performed using the == operator (loose comparison) and may be performed by a type-specific comparator which may apply type coercion.
      *
      * @throws ExpectationFailedException
      *
@@ -961,6 +969,8 @@ if (!function_exists('PHPUnit\Framework\assertNotEquals')) {
     /**
      * Asserts that two variables are not equal.
      *
+     * Comparison is performed using the == operator (loose comparison) and may be performed by a type-specific comparator which may apply type coercion.
+     *
      * @throws ExpectationFailedException
      *
      * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -976,6 +986,8 @@ if (!function_exists('PHPUnit\Framework\assertNotEquals')) {
 if (!function_exists('PHPUnit\Framework\assertNotEqualsCanonicalizing')) {
     /**
      * Asserts that two variables are not equal (canonicalizing).
+     *
+     * Comparison is performed using the == operator (loose comparison) and may be performed by a type-specific comparator which may apply type coercion.
      *
      * @throws ExpectationFailedException
      *
@@ -993,6 +1005,8 @@ if (!function_exists('PHPUnit\Framework\assertNotEqualsIgnoringCase')) {
     /**
      * Asserts that two variables are not equal (ignoring case).
      *
+     * Comparison is performed using the == operator (loose comparison) and may be performed by a type-specific comparator which may apply type coercion.
+     *
      * @throws ExpectationFailedException
      *
      * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -1008,6 +1022,8 @@ if (!function_exists('PHPUnit\Framework\assertNotEqualsIgnoringCase')) {
 if (!function_exists('PHPUnit\Framework\assertNotEqualsWithDelta')) {
     /**
      * Asserts that two variables are not equal (with delta).
+     *
+     * Comparison is performed using the == operator (loose comparison) and may be performed by a type-specific comparator which may apply type coercion.
      *
      * @throws ExpectationFailedException
      *
@@ -1801,6 +1817,8 @@ if (!function_exists('PHPUnit\Framework\assertSame')) {
      * Used on objects, it asserts that two variables reference
      * the same object.
      *
+     * Comparison is performed using the === operator.
+     *
      * @template ExpectedType
      *
      * @param ExpectedType $expected
@@ -1824,6 +1842,8 @@ if (!function_exists('PHPUnit\Framework\assertNotSame')) {
      * Asserts that two variables do not have the same type and value.
      * Used on objects, it asserts that two variables do not reference
      * the same object.
+     *
+     * Comparison is performed using the === operator.
      *
      * @throws ExpectationFailedException
      *
@@ -2644,7 +2664,7 @@ if (!function_exists('PHPUnit\Framework\assertStringEndsNotWith')) {
 
 if (!function_exists('PHPUnit\Framework\assertXmlFileEqualsXmlFile')) {
     /**
-     * Asserts that two XML files are equal.
+     * Asserts that two XML files are equal, ignoring comments.
      *
      * @throws Exception
      * @throws ExpectationFailedException
@@ -2662,7 +2682,7 @@ if (!function_exists('PHPUnit\Framework\assertXmlFileEqualsXmlFile')) {
 
 if (!function_exists('PHPUnit\Framework\assertXmlFileNotEqualsXmlFile')) {
     /**
-     * Asserts that two XML files are not equal.
+     * Asserts that two XML files are not equal, ignoring comments.
      *
      * @throws \PHPUnit\Util\Exception
      * @throws ExpectationFailedException
@@ -2679,7 +2699,7 @@ if (!function_exists('PHPUnit\Framework\assertXmlFileNotEqualsXmlFile')) {
 
 if (!function_exists('PHPUnit\Framework\assertXmlStringEqualsXmlFile')) {
     /**
-     * Asserts that two XML documents are equal.
+     * Asserts that two XML documents are equal, ignoring comments.
      *
      * @throws ExpectationFailedException
      * @throws XmlException
@@ -2696,7 +2716,7 @@ if (!function_exists('PHPUnit\Framework\assertXmlStringEqualsXmlFile')) {
 
 if (!function_exists('PHPUnit\Framework\assertXmlStringNotEqualsXmlFile')) {
     /**
-     * Asserts that two XML documents are not equal.
+     * Asserts that two XML documents are not equal, ignoring comments.
      *
      * @throws ExpectationFailedException
      * @throws XmlException
@@ -2713,7 +2733,7 @@ if (!function_exists('PHPUnit\Framework\assertXmlStringNotEqualsXmlFile')) {
 
 if (!function_exists('PHPUnit\Framework\assertXmlStringEqualsXmlString')) {
     /**
-     * Asserts that two XML documents are equal.
+     * Asserts that two XML documents are equal, ignoring comments.
      *
      * @throws ExpectationFailedException
      * @throws XmlException
@@ -2730,7 +2750,7 @@ if (!function_exists('PHPUnit\Framework\assertXmlStringEqualsXmlString')) {
 
 if (!function_exists('PHPUnit\Framework\assertXmlStringNotEqualsXmlString')) {
     /**
-     * Asserts that two XML documents are not equal.
+     * Asserts that two XML documents are not equal, ignoring comments.
      *
      * @throws ExpectationFailedException
      * @throws XmlException

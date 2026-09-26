@@ -30,6 +30,7 @@ use function str_starts_with;
 use function strtr;
 use function var_export;
 use Closure;
+use Throwable;
 
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -49,6 +50,24 @@ final readonly class GlobalState
         '_SERVER',
         '_FILES',
         '_REQUEST',
+    ];
+
+    /**
+     * Keys in $_SERVER that are populated by the SAPI in the child process
+     * and must therefore not be preserved from the parent process.
+     *
+     * @var non-empty-list<non-empty-string>
+     */
+    private const array SAPI_SERVER_KEYS = [
+        'PHP_SELF',
+        'SCRIPT_NAME',
+        'SCRIPT_FILENAME',
+        'PATH_TRANSLATED',
+        'DOCUMENT_ROOT',
+        'REQUEST_TIME',
+        'REQUEST_TIME_FLOAT',
+        'argv',
+        'argc',
     ];
 
     /**
@@ -213,7 +232,7 @@ final readonly class GlobalState
             }
 
             if (!$excludeList->isExcluded($file) && is_file($file)) {
-                $result = 'require_once \'' . $file . "';\n" . $result;
+                $result = 'require_once ' . var_export($file, true) . ";\n" . $result;
             }
         }
 
@@ -262,23 +281,36 @@ final readonly class GlobalState
         return $result;
     }
 
-    public static function getGlobalsAsString(): string
+    public static function exportGlobals(): GlobalStateResult
     {
-        $result = '';
+        $result         = '';
+        $skippedGlobals = [];
 
         foreach (self::SUPER_GLOBAL_ARRAYS as $superGlobalArray) {
             if (isset($GLOBALS[$superGlobalArray]) && is_array($GLOBALS[$superGlobalArray])) {
                 foreach ($GLOBALS[$superGlobalArray] as $key => $value) {
-                    if ($value instanceof Closure) {
+                    if ($superGlobalArray === '_SERVER' && in_array($key, self::SAPI_SERVER_KEYS, true)) {
                         continue;
                     }
 
-                    $result .= sprintf(
-                        '$GLOBALS[\'%s\'][\'%s\'] = %s;' . "\n",
-                        $superGlobalArray,
-                        $key,
-                        self::exportVariable($GLOBALS[$superGlobalArray][$key]),
-                    );
+                    $name = sprintf('$GLOBALS[\'%s\'][\'%s\']', $superGlobalArray, $key);
+
+                    if ($value instanceof Closure) {
+                        $skippedGlobals[] = ['name' => $name, 'reason' => 'is a Closure'];
+
+                        continue;
+                    }
+
+                    try {
+                        $result .= sprintf(
+                            '$GLOBALS[\'%s\'][\'%s\'] = %s;' . "\n",
+                            $superGlobalArray,
+                            $key,
+                            self::exportVariable($GLOBALS[$superGlobalArray][$key]),
+                        );
+                    } catch (Throwable) {
+                        $skippedGlobals[] = ['name' => $name, 'reason' => 'is not serializable'];
+                    }
                 }
             }
         }
@@ -287,16 +319,30 @@ final readonly class GlobalState
         $excludeList[] = 'GLOBALS';
 
         foreach ($GLOBALS as $key => $value) {
-            if (!$value instanceof Closure && !in_array($key, $excludeList, true)) {
+            if (in_array($key, $excludeList, true)) {
+                continue;
+            }
+
+            $name = sprintf('$GLOBALS[\'%s\']', $key);
+
+            if ($value instanceof Closure) {
+                $skippedGlobals[] = ['name' => $name, 'reason' => 'is a Closure'];
+
+                continue;
+            }
+
+            try {
                 $result .= sprintf(
                     '$GLOBALS[\'%s\'] = %s;' . "\n",
                     $key,
                     self::exportVariable($value),
                 );
+            } catch (Throwable) {
+                $skippedGlobals[] = ['name' => $name, 'reason' => 'is not serializable'];
             }
         }
 
-        return $result;
+        return new GlobalStateResult($result, $skippedGlobals);
     }
 
     private static function exportVariable(mixed $variable): string

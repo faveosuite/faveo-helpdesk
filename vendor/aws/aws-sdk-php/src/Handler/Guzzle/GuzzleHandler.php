@@ -1,9 +1,8 @@
 <?php
 namespace Aws\Handler\Guzzle;
 
-use Exception;
-use GuzzleHttp\Exception\ConnectException;
-use GuzzleHttp\Exception\RequestException;
+use Aws\Handler\HttpHandlerError;
+use Aws\Handler\HttpTransportSharing;
 use GuzzleHttp\Utils;
 use GuzzleHttp\Promise;
 use GuzzleHttp\Client;
@@ -20,18 +19,30 @@ class GuzzleHandler
     private $client;
 
     /**
-     * @param ClientInterface $client
+     * @param ClientInterface|null $client
+     * @param string|null          $transportSharing
      */
-    public function __construct(?ClientInterface $client = null)
-    {
-        $this->client = $client ?: new Client();
+    public function __construct(
+        ?ClientInterface $client = null,
+        ?string $transportSharing = null
+    ) {
+        if ($client !== null && HttpTransportSharing::isRequired($transportSharing)) {
+            throw new \InvalidArgumentException('The provided transport'
+                . ' sharing mode cannot require sharing when a client is'
+                . ' provided. Configure the "transport_sharing" option on'
+                . ' the provided client instead.');
+        }
+
+        $this->client = $client ?: new Client(
+            HttpTransportSharing::toClientConfig($transportSharing)
+        );
     }
 
     /**
      * @param Psr7Request $request
      * @param array       $options
      *
-     * @return Promise\Promise
+     * @return Promise\PromiseInterface
      */
     public function __invoke(Psr7Request $request, array $options = [])
     {
@@ -43,21 +54,12 @@ class GuzzleHandler
 
         return $this->client->sendAsync($request, $this->parseOptions($options))
             ->otherwise(
-                static function ($e) {
-                    $error = [
+                static function (\Throwable $e) {
+                    return new Promise\RejectedPromise([
                         'exception'        => $e,
-                        'connection_error' => $e instanceof ConnectException,
-                        'response'         => null,
-                    ];
-
-                    if (
-                        ($e instanceof RequestException)
-                        && $e->getResponse()
-                    ) {
-                        $error['response'] = $e->getResponse();
-                    }
-
-                    return new Promise\RejectedPromise($error);
+                        'connection_error' => HttpHandlerError::isConnectionError($e),
+                        'response'         => HttpHandlerError::getResponse($e),
+                    ]);
                 }
             );
     }

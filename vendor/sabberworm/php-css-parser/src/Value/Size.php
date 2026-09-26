@@ -8,16 +8,17 @@ use Sabberworm\CSS\OutputFormat;
 use Sabberworm\CSS\Parsing\ParserState;
 use Sabberworm\CSS\Parsing\UnexpectedEOFException;
 use Sabberworm\CSS\Parsing\UnexpectedTokenException;
+use Sabberworm\CSS\ShortClassNameProvider;
 
 /**
  * A `Size` consists of a numeric `size` value and a unit.
  */
 class Size extends PrimitiveValue
 {
+    use ShortClassNameProvider;
+
     /**
      * vh/vw/vm(ax)/vmin/rem are absolute insofar as they don’t scale to the immediate parent (only the viewport)
-     *
-     * @var list<non-empty-string>
      */
     private const ABSOLUTE_SIZE_UNITS = [
         'px',
@@ -37,14 +38,8 @@ class Size extends PrimitiveValue
         'rem',
     ];
 
-    /**
-     * @var list<non-empty-string>
-     */
     private const RELATIVE_SIZE_UNITS = ['%', 'em', 'ex', 'ch', 'fr'];
 
-    /**
-     * @var list<non-empty-string>
-     */
     private const NON_SIZE_UNITS = ['deg', 'grad', 'rad', 's', 'ms', 'turn', 'Hz', 'kHz'];
 
     /**
@@ -202,9 +197,33 @@ class Size extends PrimitiveValue
     {
         $locale = \localeconv();
         $decimalPoint = \preg_quote($locale['decimal_point'], '/');
-        $size = \preg_match('/[\\d\\.]+e[+-]?\\d+/i', (string) $this->size)
-            ? \preg_replace("/$decimalPoint?0+$/", '', \sprintf('%f', $this->size)) : (string) $this->size;
+        $matchResult = \preg_match('/[\\d\\.]+e[+-]?\\d+/i', (string) $this->size);
+        \assert(\is_int($matchResult));
+        if ($matchResult === 1) {
+            $size = \preg_replace("/$decimalPoint?0+$/", '', \sprintf('%f', $this->size));
+            \assert(\is_string($size));
+        } else {
+            $size = (string) $this->size;
+        }
 
-        return \preg_replace(["/$decimalPoint/", '/^(-?)0\\./'], ['.', '$1.'], $size) . ($this->unit ?? '');
+        $renderedSize = \preg_replace(["/$decimalPoint/", '/^(-?)0\\./'], ['.', '$1.'], $size);
+        \assert(\is_string($renderedSize));
+
+        return $renderedSize . ($this->unit ?? '');
+    }
+
+    /**
+     * @return array<string, bool|int|float|string|array<mixed>|null>
+     *
+     * @internal
+     */
+    public function getArrayRepresentation(): array
+    {
+        return [
+            'class' => $this->getShortClassName(),
+            // 'number' is the official W3C terminology (not 'size')
+            'number' => $this->size,
+            'unit' => $this->unit,
+        ];
     }
 }

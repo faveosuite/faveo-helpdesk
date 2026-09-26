@@ -19,7 +19,6 @@ use function fstat;
 use function function_exists;
 use function getenv;
 use function in_array;
-use function is_array;
 use function is_int;
 use function is_resource;
 use function is_string;
@@ -128,7 +127,7 @@ final class Console
             }
 
             if (function_exists('fstat')) {
-                $stat = @fstat(STDOUT);
+                $stat = @fstat($fileDescriptor);
 
                 return $stat !== false && 0o020000 === ($stat['mode'] & 0o170000);
             }
@@ -150,7 +149,7 @@ final class Console
     private function getNumberOfColumnsInteractive(): int
     {
         if (function_exists('shell_exec')) {
-            $stty = shell_exec('stty size');
+            $stty = shell_exec('stty size 2>/dev/null');
 
             if ($stty === false || $stty === null) {
                 $stty = '';
@@ -162,7 +161,7 @@ final class Console
                 }
             }
 
-            $stty = shell_exec('stty');
+            $stty = shell_exec('stty 2>/dev/null');
 
             if ($stty === false || $stty === null) {
                 $stty = '';
@@ -202,7 +201,6 @@ final class Console
                 ['suppress_errors' => true],
             );
 
-            assert(is_array($pipes));
             assert(isset($pipes[1]) && is_resource($pipes[1]));
             assert(isset($pipes[2]) && is_resource($pipes[2]));
 

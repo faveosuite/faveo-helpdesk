@@ -33,7 +33,7 @@ use function strstr;
 use function substr;
 use function usort;
 
-final class Parser
+final readonly class Parser
 {
     /**
      * @param list<string> $argv
@@ -167,22 +167,20 @@ final class Parser
         $count          = count($longOptions);
         $list           = explode('=', $argument);
         $option         = $list[0];
+        $optionLength   = strlen($option);
+        $similarOptions = [];
         $optionArgument = null;
 
         if (count($list) > 1) {
-            /** @phpstan-ignore offsetAccess.notFound */
             $optionArgument = $list[1];
         }
-
-        $optionLength = strlen($option);
-
-        $similarOptions = [];
 
         foreach ($longOptions as $i => $longOption) {
             $similarOptions[] = [
                 levenshtein($longOption, $option),
                 '--' . rtrim($longOption, '='),
             ];
+
             $opt_start = substr($longOption, 0, $optionLength);
 
             if ($opt_start !== $option) {
@@ -195,8 +193,7 @@ final class Parser
                 $i + 1 < $count &&
                 $option[0] !== '=' &&
                 /** @phpstan-ignore offsetAccess.notFound */
-                str_starts_with($longOptions[$i + 1], $option)
-            ) {
+                str_starts_with($longOptions[$i + 1], $option)) {
                 $candidates = [];
 
                 foreach ($longOptions as $aLongOption) {
@@ -236,10 +233,13 @@ final class Parser
      */
     private function formatSimilarOptions(array $similarOptions): array
     {
-        usort($similarOptions, static function (array $a, array $b)
-        {
-            return $a[0] <=> $b[0];
-        });
+        usort(
+            $similarOptions,
+            static function (array $a, array $b): int
+            {
+                return $a[0] <=> $b[0];
+            },
+        );
 
         $similarFormatted = [];
 

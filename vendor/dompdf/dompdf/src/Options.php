@@ -164,6 +164,13 @@ class Options
     private $fontHeightRatio = 1.1;
 
     /**
+     * The maximum estimated in-memory size of an image allowed to be rendered, in bytes.
+     *
+     * @var int
+     */
+    private $imageByteSizeLimit = -1;
+
+    /**
      * Enable embedded PHP
      *
      * If this setting is set to true then DOMPDF will automatically evaluate
@@ -356,7 +363,7 @@ class Options
 
         $ver = "";
         $versionFile = realpath(__DIR__ . '/../VERSION');
-        if (($version = file_get_contents($versionFile)) !== false) {
+        if (file_exists($versionFile) && ($version = file_get_contents($versionFile)) !== false) {
             $version = trim($version);
             if ($version !== '$Format:<%h>$') {
                 $ver = "/$version";
@@ -372,6 +379,10 @@ class Options
         $this->setAllowedProtocols(["data://", "file://", "http://", "https://"]);
 
         $this->setArtifactPathValidation([$this, "validateArtifactPath"]);
+
+        // Get the memory limit
+        $memory_limit = ini_get('memory_limit');
+        $this->setImageByteSizeLimit($memory_limit);
 
         if (null !== $attributes) {
             $this->set($attributes);
@@ -888,6 +899,36 @@ class Options
     }
 
     /**
+     * @param int $imageMemoryLimit
+     * @return $this
+     */
+    public function setImageByteSizeLimit($imageByteSizeLimit)
+    {
+        // Convert shorthand notation to bytes
+        if (preg_match('/^(\\d+)([KMG])$/i', $imageByteSizeLimit, $matches)) {
+            if (strtoupper($matches[2]) == 'K') {
+                $imageByteSizeLimit = (int)$matches[1] * 1024;
+            } elseif (strtoupper($matches[2]) == 'M') {
+                $imageByteSizeLimit = (int)$matches[1] * 1024 * 1024;
+            } elseif (strtoupper($matches[2]) == 'G') {
+                $imageByteSizeLimit = (int)$matches[1] * 1024 * 1024 * 1024;
+            }
+        }
+        if (is_numeric($imageByteSizeLimit)) {
+            $this->imageByteSizeLimit = $imageByteSizeLimit > 0 ? $imageByteSizeLimit : -1;
+        }
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getImageByteSizeLimit()
+    {
+        return $this->imageByteSizeLimit;
+    }
+
+    /**
      * @param boolean $isFontSubsettingEnabled
      * @return $this
      */
@@ -1175,23 +1216,27 @@ class Options
         }
 
         $realfile = realpath(str_replace("file://", "", $uri));
+        if ($realfile === false) {
+            return [false, "File not found."];
+        }
 
         $dirs = $this->chroot;
         $dirs[] = $this->rootDir;
         $chrootValid = false;
         foreach ($dirs as $chrootPath) {
             $chrootPath = realpath($chrootPath);
-            if ($chrootPath !== false && strpos($realfile, $chrootPath) === 0) {
+            if ($chrootPath === false) {
+                continue;
+            }
+
+            $normalizedChrootPath = rtrim($chrootPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+            if ($realfile === $chrootPath || strncmp($realfile, $normalizedChrootPath, strlen($normalizedChrootPath)) === 0) {
                 $chrootValid = true;
                 break;
             }
         }
         if ($chrootValid !== true) {
             return [false, "Permission denied. The file could not be found under the paths specified by Options::chroot."];
-        }
-
-        if (!$realfile) {
-            return [false, "File not found."];
         }
 
         return [true, null];

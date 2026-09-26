@@ -7,9 +7,7 @@ namespace Sabberworm\CSS;
 final class OutputFormat
 {
     /**
-     * Value format: `"` means double-quote, `'` means single-quote
-     *
-     * @var non-empty-string
+     * @var '"'|"'"
      */
     private $stringQuotingType = '"';
 
@@ -93,6 +91,11 @@ final class OutputFormat
      * @var string
      */
     private $spaceAfterSelectorSeparator = ' ';
+
+    /**
+     * @var string
+     */
+    private $spaceAroundSelectorCombinator = ' ';
 
     /**
      * This is what’s inserted before the separator in value lists, by default.
@@ -181,7 +184,7 @@ final class OutputFormat
     private $indentationLevel = 0;
 
     /**
-     * @return non-empty-string
+     * @return '"'|"'"
      *
      * @internal
      */
@@ -191,7 +194,7 @@ final class OutputFormat
     }
 
     /**
-     * @param non-empty-string $quotingType
+     * @param '"'|"'" $quotingType
      *
      * @return $this fluent interface
      */
@@ -432,6 +435,27 @@ final class OutputFormat
     public function setSpaceAfterSelectorSeparator(string $whitespace): self
     {
         $this->spaceAfterSelectorSeparator = $whitespace;
+
+        return $this;
+    }
+
+    /**
+     * @internal
+     */
+    public function getSpaceAroundSelectorCombinator(): string
+    {
+        return $this->spaceAroundSelectorCombinator;
+    }
+
+    /**
+     * The spacing set is also used for the descendent combinator, which is whitespace only,
+     * unless an empty string is set, in which case a space will be used.
+     *
+     * @return $this fluent interface
+     */
+    public function setSpaceAroundSelectorCombinator(string $whitespace): self
+    {
+        $this->spaceAroundSelectorCombinator = $whitespace;
 
         return $this;
     }
@@ -726,6 +750,7 @@ final class OutputFormat
             ->setSpaceAfterRuleName('')
             ->setSpaceBeforeOpeningBrace('')
             ->setSpaceAfterSelectorSeparator('')
+            ->setSpaceAroundSelectorCombinator('')
             ->setSemicolonAfterLastRule(false)
             ->setRenderComments(false);
 

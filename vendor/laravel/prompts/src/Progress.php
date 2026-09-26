@@ -181,7 +181,7 @@ class Progress extends Prompt
     /**
      * Disable prompting for input.
      *
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function prompt(): never
     {

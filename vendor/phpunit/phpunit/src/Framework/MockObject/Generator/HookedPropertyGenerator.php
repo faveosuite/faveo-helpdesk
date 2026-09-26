@@ -36,7 +36,7 @@ EOT,
                 $property->name(),
             );
 
-            if ($property->hasGetHook()) {
+            if ($property->shouldGenerateGetHook()) {
                 $code .= sprintf(
                     <<<'EOT'
 
@@ -55,7 +55,7 @@ EOT,
                 );
             }
 
-            if ($property->hasSetHook()) {
+            if ($property->shouldGenerateSetHook()) {
                 $code .= sprintf(
                     <<<'EOT'
 
@@ -68,7 +68,7 @@ EOT,
         }
 
 EOT,
-                    $property->setterType()->asString(),
+                    ($property->setterType() ?? $property->type())->asString(),
                     $className,
                     $property->name(),
                 );

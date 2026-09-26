@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Carbon;
 
 use Closure;
+use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
@@ -70,7 +71,7 @@ use Throwable;
  *                                                                                                                                                                  the types of objects that can be built, for instance:
  * @method array               getAvailableLocales()                                                                                                                Returns the list of internally available locales and already loaded custom locales.
  *                                                                                                                                                                  (It will ignore custom translator dynamic loading.)
- * @method Language[]          getAvailableLocalesInfo()                                                                                                            Returns list of Language object for each available locale. This object allow you to get the ISO name, native
+ * @method array               getAvailableLocalesInfo()                                                                                                            Returns list of Language object for each available locale. This object allow you to get the ISO name, native
  *                                                                                                                                                                  name, region and variant of the locale.
  * @method array               getDays()                                                                                                                            Get the days of the week.
  * @method ?string             getFallbackLocale()                                                                                                                  Get the fallback locale.
@@ -553,15 +554,12 @@ class Factory
 
     /**
      * Set a Carbon instance (real or mock) to be returned when a "now"
-     * instance is created.  The provided instance will be returned
+     * instance is created. The provided instance will be returned
      * specifically under the following conditions:
      *   - A call to the static now() method, ex. Carbon::now()
      *   - When a null (or blank string) is passed to the constructor or parse(), ex. new Carbon(null)
      *   - When the string "now" is passed to the constructor or parse(), ex. new Carbon('now')
      *   - When a string containing the desired time is passed to Carbon::parse().
-     *
-     * Note the timezone parameter was left out of the examples above and
-     * has no affect as the mock value will be returned regardless of its value.
      *
      * Only the moment is mocked with setTestNow(), the timezone will still be the one passed
      * as parameter of date_default_timezone_get() as a fallback (see setTestNowAndTimezone()).
@@ -576,14 +574,14 @@ class Factory
     public function setTestNow(mixed $testNow = null): void
     {
         $this->useTimezoneFromTestNow = false;
-        $this->testNow = $testNow instanceof self || $testNow instanceof Closure
+        $this->testNow = $testNow instanceof Closure
             ? $testNow
             : $this->make($testNow);
     }
 
     /**
      * Set a Carbon instance (real or mock) to be returned when a "now"
-     * instance is created.  The provided instance will be returned
+     * instance is created. The provided instance will be returned
      * specifically under the following conditions:
      *   - A call to the static now() method, ex. Carbon::now()
      *   - When a null (or blank string) is passed to the constructor or parse(), ex. new Carbon(null)
@@ -696,9 +694,19 @@ class Factory
             }
 
             if (!($testNow instanceof CarbonInterface)) {
-                $timezone ??= $this->useTimezoneFromTestNow ? $testNow->getTimezone() : null;
+                $timezone ??= $this->useTimezoneFromTestNow
+                    ? $testNow->getTimezone()
+                    : new CarbonTimeZone(date_default_timezone_get());
                 $testNow = $this->__call('instance', [$testNow, $timezone]);
             }
+        }
+
+        if ($testNow !== null && $timezone === null) {
+            if ($testNow instanceof DateTime) {
+                $testNow = clone $testNow;
+            }
+
+            $testNow = $testNow->setTimezone(date_default_timezone_get());
         }
 
         return $testNow;
@@ -807,20 +815,41 @@ class Factory
      */
     private function matchFormatPattern(string $date, string $format, array $replacements): bool
     {
+        // Null bytes would collide with the fragment sentinels used below.
+        $format = str_replace("\0", '', $format);
         // Preg quote, but remove escaped backslashes since we'll deal with escaped characters in the format string.
         $regex = str_replace('\\\\', '\\', $format);
-        // Replace not-escaped letters
+        // Replace not-escaped letters, wrapping each generated fragment between
+        // null-byte sentinels so the generic quoting below leaves them intact.
         $regex = preg_replace_callback(
             '/(?<!\\\\)((?:\\\\{2})*)(['.implode('', array_keys($replacements)).'])/',
-            static fn ($match) => $match[1].strtr($match[2], $replacements),
+            static fn ($match) => "\0".$match[1].strtr($match[2], $replacements)."\0",
             $regex,
         );
         // Replace escaped letters by the letter itself
         $regex = preg_replace('/(?<!\\\\)((?:\\\\{2})*)\\\\(\w)/', '$1$2', $regex);
-        // Escape not escaped slashes
-        $regex = preg_replace('#(?<!\\\\)((?:\\\\{2})*)/#', '$1\\/', $regex);
 
-        return (bool) @preg_match('/^'.$regex.'$/', $date);
+        $chunks = explode("\0", $regex);
+
+        foreach ($chunks as $index => $chunk) {
+            if ($index % 2) {
+                continue;
+            }
+
+            // Quote every character that did not come from a format token:
+            // backslash escapes resolve to their quoted literal target, any
+            // other byte (including dangling backslashes) is quoted as-is.
+            $chunks[$index] = preg_replace_callback(
+                '/\\\\.|./s',
+                static fn ($match) => preg_quote(
+                    $match[0][0] === '\\' && isset($match[0][1]) ? $match[0][1] : $match[0],
+                    '/',
+                ),
+                $chunk,
+            );
+        }
+
+        return (bool) @preg_match('/^'.implode('', $chunks).'$/', $date);
     }
 
     private function setDefaultTimezone(string $timezone, ?DateTimeInterface $date = null): void

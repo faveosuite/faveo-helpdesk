@@ -83,7 +83,9 @@ final class ExecutableLinesFindingVisitor extends NodeVisitorAbstract
             return null;
         }
 
-        if ($node instanceof Node\Stmt\Interface_) {
+        if ($node instanceof Node\Stmt\Interface_ ||
+            $node instanceof Node\Attribute
+        ) {
             foreach (range($node->getStartLine(), $node->getEndLine()) as $line) {
                 $this->unsets[$line] = true;
             }
@@ -140,6 +142,10 @@ final class ExecutableLinesFindingVisitor extends NodeVisitorAbstract
             $node instanceof Node\Stmt\ClassMethod ||
             $node instanceof Node\Expr\Closure ||
             $node instanceof Node\Stmt\Trait_) {
+            if ($node instanceof Node\Stmt\ClassMethod && $node->isAbstract()) {
+                return null;
+            }
+
             if ($node instanceof Node\Stmt\Function_ || $node instanceof Node\Stmt\ClassMethod) {
                 $unsets = [];
 

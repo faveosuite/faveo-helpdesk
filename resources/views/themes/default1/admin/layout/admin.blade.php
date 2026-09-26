@@ -364,7 +364,7 @@
                         <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
                             @if($replaceside==0)
 
-                            <li class="nav-header">{!! Lang::get('lang.settings-2') !!}</li>
+                            <li class="nav-header">{!! Lang::get('lang.home') !!}</li>
 
                             <li @yield('staff-menu-parent') class="nav-item">
 
@@ -537,7 +537,7 @@
                                     <li class="nav-item">
                                         <a href="{{url('getalert')}}" @yield('alert') class="nav-link">
                                             <i class="nav-icon fa-solid fa-bell"></i>
-                                            {!! Lang::get('lang.alert_notices') !!}
+                                            <p>{!! Lang::get('lang.alert_notices') !!}</p>
                                         </a>
                                     </li>
 

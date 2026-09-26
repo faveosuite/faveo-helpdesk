@@ -127,8 +127,10 @@ final class StrictUnifiedDiffOutputBuilder implements DiffOutputBuilderInterface
             : $diff;
     }
 
-    private function writeDiffHunks($output, array $diff): void
+    private function writeDiffHunks(mixed $output, array $diff): void
     {
+        assert(is_resource($output));
+
         // detect "No newline at end of file" and insert into `$diff` if needed
 
         $upperLimit = count($diff);
@@ -153,7 +155,7 @@ final class StrictUnifiedDiffOutputBuilder implements DiffOutputBuilderInterface
                         array_splice($diff, $i + 1, 0, [["\n\\ No newline at end of file\n", Differ::NO_LINE_END_EOF_WARNING]]);
                     }
 
-                    if (!count($toFind)) {
+                    if ($toFind === []) {
                         break;
                     }
                 }
@@ -166,9 +168,7 @@ final class StrictUnifiedDiffOutputBuilder implements DiffOutputBuilderInterface
         $hunkCapture = false;
         $sameCount   = $toRange = $fromRange = 0;
         $toStart     = $fromStart = 1;
-        $i           = 0;
 
-        /** @var int $i */
         foreach ($diff as $i => $entry) {
             if (0 === $entry[1]) { // same
                 if (false === $hunkCapture) {
@@ -258,6 +258,8 @@ final class StrictUnifiedDiffOutputBuilder implements DiffOutputBuilderInterface
         $fromRange -= $sameCount;
         $toRange   -= $sameCount;
 
+        assert(isset($i) && is_int($i));
+
         $this->writeHunk(
             $diff,
             $hunkCapture - $contextStartOffset,
@@ -278,8 +280,10 @@ final class StrictUnifiedDiffOutputBuilder implements DiffOutputBuilderInterface
         int $fromRange,
         int $toStart,
         int $toRange,
-        $output
+        mixed $output
     ): void {
+        assert(is_resource($output));
+
         fwrite($output, '@@ -' . $fromStart);
 
         if (!$this->collapseRanges || 1 !== $fromRange) {

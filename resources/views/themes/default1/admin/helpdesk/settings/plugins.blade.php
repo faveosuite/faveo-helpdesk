@@ -67,9 +67,9 @@ class="nav-link active"
                         </div>
                         <div class="modal-body">
                             {!! html()->form('POST', url('post-plugin'))->acceptsFiles()->open() !!}
-                            <label>{!! Lang::get('lang.plugin') !!} :</label> 
-                            <div class="btn bg-olive btn-file" style="color:blue">
-                                {!! Lang::get('lang.upload_file') !!}<input type="file" name="plugin">
+                            <label>{!! Lang::get('lang.plugin') !!} :</label>
+                            <div class="btn btn-file btn-file-upload">
+                                <i class="fa-regular fa-file"></i> {!! Lang::get('lang.upload_file') !!}<input type="file" name="plugin">
                             </div>
                         </div><!-- /.modal-content -->   
                         <div class="modal-footer justify-content-between">

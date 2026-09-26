@@ -49,6 +49,7 @@ use PHPUnit\Metadata\TestDoxFormatter;
 use PHPUnit\Util\Color;
 use PHPUnit\Util\Exporter;
 use PHPUnit\Util\Filter;
+use PHPUnit\Util\Sanitizer;
 use ReflectionEnum;
 use ReflectionMethod;
 use ReflectionObject;
@@ -98,12 +99,6 @@ final class NamePrettifier
 
         if (str_ends_with($className, 'Test')) {
             $className = substr($className, 0, strlen($className) - strlen('Test'));
-        }
-
-        if (str_starts_with($className, 'Tests')) {
-            $className = substr($className, strlen('Tests'));
-        } elseif (str_starts_with($className, 'Test')) {
-            $className = substr($className, strlen('Test'));
         }
 
         if ($className === '') {
@@ -226,7 +221,12 @@ final class NamePrettifier
             return Color::dim(' with data set ') . Color::colorize('fg-cyan', (string) $test->dataName());
         }
 
-        return Color::dim(' with ') . Color::colorize('fg-cyan', Color::visualizeWhitespace($test->dataName()));
+        return Color::dim(' with ') . Color::colorize(
+            'fg-cyan',
+            Color::visualizeWhitespace(
+                Sanitizer::sanitizeBidirectionalControlCharacters($test->dataName()),
+            ),
+        );
     }
 
     /**
@@ -243,7 +243,13 @@ final class NamePrettifier
         $providedDataValues = $test->providedData();
         $i                  = 0;
 
-        $providedData['$_dataName'] = $test->dataName();
+        $dataName = $test->dataName();
+
+        if (is_int($dataName)) {
+            $providedData['$_dataName'] = $dataName;
+        } else {
+            $providedData['$_dataName'] = Sanitizer::sanitizeBidirectionalControlCharacters($dataName);
+        }
 
         foreach ($reflector->getParameters() as $parameter) {
             if (array_key_exists($parameter->getName(), $providedDataValues)) {
@@ -282,7 +288,11 @@ final class NamePrettifier
                 }
             }
 
-            $providedData['$' . $parameter->getName()] = str_replace('$', '\\$', $value);
+            $providedData['$' . $parameter->getName()] = str_replace(
+                '$',
+                '\\$',
+                Sanitizer::sanitizeBidirectionalControlCharacters($value),
+            );
         }
 
         if ($colorize) {

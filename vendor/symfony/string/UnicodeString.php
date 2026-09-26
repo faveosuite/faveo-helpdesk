@@ -184,7 +184,11 @@ class UnicodeString extends AbstractUnicodeString
             $offset = 0;
         }
 
-        $i = $this->ignoreCase ? grapheme_strripos($string, $needle, $offset) : grapheme_strrpos($string, $needle, $offset);
+        try {
+            $i = $this->ignoreCase ? grapheme_strripos($string, $needle, $offset) : grapheme_strrpos($string, $needle, $offset);
+        } catch (\ValueError) {
+            return null;
+        }
 
         return false === $i ? null : $i;
     }
@@ -268,6 +272,9 @@ class UnicodeString extends AbstractUnicodeString
         return $str;
     }
 
+    /**
+     * @param-immediately-invoked-callable $to
+     */
     public function replaceMatches(string $fromRegexp, string|callable $to): static
     {
         $str = parent::replaceMatches($fromRegexp, $to);
@@ -290,7 +297,7 @@ class UnicodeString extends AbstractUnicodeString
         $str = clone $this;
 
         $start = $start ? \strlen(grapheme_substr($this->string, 0, $start)) : 0;
-        $length = $length ? \strlen(grapheme_substr($this->string, $start, $length)) : $length;
+        $length = $length ? \strlen(grapheme_substr(substr($this->string, $start), 0, $length)) : $length;
         $str->string = substr_replace($this->string, $replacement, $start, $length ?? 2147483647);
 
         if (normalizer_is_normalized($str->string)) {
@@ -410,6 +417,10 @@ class UnicodeString extends AbstractUnicodeString
 
     public function __unserialize(array $data): void
     {
+        if (($data['string'] ?? null) instanceof \Stringable || ($data["\0*\0string"] ?? null) instanceof \Stringable) {
+            throw new \BadMethodCallException('Cannot unserialize '.__CLASS__);
+        }
+
         $this->string = $data['string'] ?? $data["\0*\0string"];
 
         if (!\is_string($this->string)) {

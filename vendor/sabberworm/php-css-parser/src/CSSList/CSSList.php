@@ -14,6 +14,7 @@ use Sabberworm\CSS\Parsing\UnexpectedTokenException;
 use Sabberworm\CSS\Position\Position;
 use Sabberworm\CSS\Position\Positionable;
 use Sabberworm\CSS\Property\AtRule;
+use Sabberworm\CSS\Property\AtRuleStatement;
 use Sabberworm\CSS\Property\Charset;
 use Sabberworm\CSS\Property\CSSNamespace;
 use Sabberworm\CSS\Property\Import;
@@ -24,8 +25,6 @@ use Sabberworm\CSS\RuleSet\RuleSet;
 use Sabberworm\CSS\Value\CSSString;
 use Sabberworm\CSS\Value\URL;
 use Sabberworm\CSS\Value\Value;
-
-use function Safe\preg_match;
 
 /**
  * This is the most generic container available. It can contain `DeclarationBlock`s (rule sets with a selector),
@@ -67,14 +66,20 @@ abstract class CSSList implements CSSElement, CSSListItem, Positionable
         $isRoot = $list instanceof Document;
         $usesLenientParsing = $parserState->getSettings()->usesLenientParsing();
         $comments = [];
+        $parserState->consumeWhiteSpace($comments);
         while (!$parserState->isEnd()) {
-            $comments = \array_merge($comments, $parserState->consumeWhiteSpace());
             $listItem = null;
             if ($usesLenientParsing) {
                 try {
+                    $positionBeforeParse = $parserState->currentColumn();
                     $listItem = self::parseListItem($parserState, $list);
                 } catch (UnexpectedTokenException $e) {
                     $listItem = false;
+                    // If the failed parsing did not consume anything that was to come ...
+                    if ($parserState->currentColumn() === $positionBeforeParse) {
+                        // ... the unexpected token needs to be skipped, otherwise there'll be an infinite loop.
+                        $parserState->consume(1);
+                    }
                 }
             } else {
                 $listItem = self::parseListItem($parserState, $list);
@@ -87,7 +92,8 @@ abstract class CSSList implements CSSElement, CSSListItem, Positionable
                 $listItem->addComments($comments);
                 $list->append($listItem);
             }
-            $comments = $parserState->consumeWhiteSpace();
+            $comments = [];
+            $parserState->consumeWhiteSpace($comments);
         }
         $list->addComments($comments);
         if (!$isRoot && !$usesLenientParsing) {
@@ -133,7 +139,8 @@ abstract class CSSList implements CSSElement, CSSListItem, Positionable
         } elseif ($parserState->comes('}')) {
             if ($isRoot) {
                 if ($parserState->getSettings()->usesLenientParsing()) {
-                    return DeclarationBlock::parse($parserState) ?? false;
+                    $parserState->consume(1);
+                    return self::parseListItem($parserState, $list);
                 } else {
                     throw new SourceException('Unopened {', $parserState->currentLine());
                 }
@@ -204,8 +211,13 @@ abstract class CSSList implements CSSElement, CSSListItem, Positionable
             }
             return new CSSNamespace($url, $prefix, $identifierLineNumber);
         } else {
-            // Unknown other at rule (font-face or such)
-            $arguments = \trim($parserState->consumeUntil('{', false, true));
+            // Unknown other at rule (font-face, @layer, or such)
+            $arguments = \trim($parserState->consumeUntil(['{', ';'], false, false));
+            if ($parserState->comes(';')) {
+                $parserState->consume(';');
+                return new AtRuleStatement($identifier, $arguments, $identifierLineNumber);
+            }
+            $parserState->consume('{');
             if (\substr_count($arguments, '(') !== \substr_count($arguments, ')')) {
                 if ($parserState->getSettings()->usesLenientParsing()) {
                     return null;
@@ -214,7 +226,7 @@ abstract class CSSList implements CSSElement, CSSListItem, Positionable
                 }
             }
             $useRuleSet = true;
-            foreach (\explode('/', AtRule::BLOCK_RULES) as $blockRuleName) {
+            foreach (AtRule::BLOCK_RULES as $blockRuleName) {
                 if (self::identifierIs($identifier, $blockRuleName)) {
                     $useRuleSet = false;
                     break;
@@ -244,7 +256,9 @@ abstract class CSSList implements CSSElement, CSSListItem, Positionable
             return true;
         }
 
-        return preg_match("/^(-\\w+-)?$match$/i", $identifier) === 1;
+        $matchResult = \preg_match("/^(-\\w+-)?$match$/i", $identifier);
+        \assert(\is_int($matchResult));
+        return $matchResult === 1;
     }
 
     /**
@@ -354,7 +368,7 @@ abstract class CSSList implements CSSElement, CSSListItem, Positionable
         if (!\is_array($selectors)) {
             $selectors = \explode(',', $selectors);
         }
-        foreach ($selectors as $key => &$selector) {
+        foreach ($selectors as &$selector) {
             if (!($selector instanceof Selector)) {
                 if (!Selector::isValid($selector)) {
                     throw new UnexpectedTokenException(
@@ -370,7 +384,7 @@ abstract class CSSList implements CSSElement, CSSListItem, Positionable
             if (!($item instanceof DeclarationBlock)) {
                 continue;
             }
-            if ($item->getSelectors() == $selectors) {
+            if (self::selectorsMatch($item->getSelectors(), $selectors)) {
                 unset($this->contents[$key]);
                 if (!$removeAll) {
                     return;
@@ -426,5 +440,45 @@ abstract class CSSList implements CSSElement, CSSListItem, Positionable
     public function getContents(): array
     {
         return $this->contents;
+    }
+
+    /**
+     * @return array<string, bool|int|float|string|array<mixed>|null>
+     *
+     * @internal
+     */
+    public function getArrayRepresentation(): array
+    {
+        throw new \BadMethodCallException('`getArrayRepresentation` is not yet implemented for `' . self::class . '`');
+    }
+
+    /**
+     * @param list<Selector> $selectors1
+     * @param list<Selector> $selectors2
+     */
+    private static function selectorsMatch(array $selectors1, array $selectors2): bool
+    {
+        $selectorStrings1 = self::getSelectorStrings($selectors1);
+        $selectorStrings2 = self::getSelectorStrings($selectors2);
+
+        \sort($selectorStrings1);
+        \sort($selectorStrings2);
+
+        return $selectorStrings1 === $selectorStrings2;
+    }
+
+    /**
+     * @param list<Selector> $selectors
+     *
+     * @return list<string>
+     */
+    private static function getSelectorStrings(array $selectors): array
+    {
+        return \array_map(
+            static function (Selector $selector): string {
+                return $selector->getSelector();
+            },
+            $selectors
+        );
     }
 }

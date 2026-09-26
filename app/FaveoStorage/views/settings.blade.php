@@ -17,7 +17,7 @@ class="nav-link active"
 @stop
 
 @section('PageHeader')
-<h1>{{ Lang::get('storage::lang.storage')}}</h1>
+<h3>{{ Lang::get('storage::lang.storage')}}</h3>
 @stop
 
 @section('HeadInclude')

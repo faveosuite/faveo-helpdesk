@@ -69,6 +69,10 @@ class Ask implements InteractiveAttributeInterface
             throw new LogicException(\sprintf('The %s "$%s" of "%s" must have a named type. Untyped, Union or Intersection types are not supported for interactive questions.', $reflection->getMemberName(), $name, $reflection->getSourceName()));
         }
 
+        if ('array' === $type->getName() && null !== $self->default) {
+            throw new LogicException(\sprintf('The "%s::$default" value is not supported for the array "$%s" of "%s", because an empty answer ends the collection.', self::class, $name, $reflection->getSourceName()));
+        }
+
         $self->closure = function (SymfonyStyle $io, InputInterface $input) use ($self, $reflection, $name, $type) {
             if ($reflection->isProperty() && isset($this->{$reflection->getName()})) {
                 return;
@@ -95,9 +99,7 @@ class Ask implements InteractiveAttributeInterface
             $question->setTimeout($self->timeout);
 
             if (!$self->validator && $reflection->isProperty() && 'array' !== $type->getName()) {
-                $self->validator = function (mixed $value) use ($reflection): mixed {
-                    return $this->{$reflection->getName()} = $value;
-                };
+                $self->validator = fn (mixed $value): mixed => $this->{$reflection->getName()} = $value;
             }
 
             $question->setValidator($self->validator);
@@ -108,13 +110,16 @@ class Ask implements InteractiveAttributeInterface
             } elseif (is_subclass_of($type->getName(), \BackedEnum::class)) {
                 /** @var class-string<\BackedEnum> $backedType */
                 $backedType = $reflection->getType()->getName();
-                $question->setNormalizer(fn (string|int $value) => $backedType::tryFrom($value) ?? throw InvalidArgumentException::fromEnumValue($reflection->getName(), $value, array_column($backedType::cases(), 'value')));
+                $question->setNormalizer(static fn (string|int $value) => $backedType::tryFrom($value) ?? throw InvalidArgumentException::fromEnumValue($reflection->getName(), $value, array_column($backedType::cases(), 'value')));
             }
 
             if ('array' === $type->getName()) {
                 $value = [];
-                while ($v = $io->askQuestion($question)) {
-                    if ("\x4" === $v || \PHP_EOL === $v || ($question->isTrimmable() && '' === $v = trim($v))) {
+                while (null !== $v = $io->askQuestion($question)) {
+                    if ($question->isTrimmable()) {
+                        $v = trim($v);
+                    }
+                    if ("\x4" === $v || \PHP_EOL === $v || '' === $v) {
                         break;
                     }
                     $value[] = $v;

@@ -69,8 +69,8 @@ class Filesystem
             }
 
             if ($originIsLocal) {
-                // Like `cp`, preserve executable permission bits
-                self::box('chmod', $targetFile, fileperms($targetFile) | (fileperms($originFile) & 0o111));
+                // Like `cp`, preserve the source mode masked by the umask
+                self::box('chmod', $targetFile, fileperms($originFile) & 0o777 & ~umask());
 
                 // Like `cp`, preserve the file modification time
                 self::box('touch', $targetFile, filemtime($originFile));
@@ -443,17 +443,19 @@ class Filesystem
             throw new InvalidArgumentException(\sprintf('The end path "%s" is not absolute.', $endPath));
         }
 
+        $originalEndPath = $endPath;
+
         // Normalize separators on Windows
         if ('\\' === \DIRECTORY_SEPARATOR) {
             $endPath = str_replace('\\', '/', $endPath);
             $startPath = str_replace('\\', '/', $startPath);
         }
 
-        $splitDriveLetter = fn ($path) => (\strlen($path) > 2 && ':' === $path[1] && '/' === $path[2] && ctype_alpha($path[0]))
+        $splitDriveLetter = static fn ($path) => (\strlen($path) > 2 && ':' === $path[1] && '/' === $path[2] && ctype_alpha($path[0]))
             ? [substr($path, 2), strtoupper($path[0])]
             : [$path, null];
 
-        $splitPath = function ($path) {
+        $splitPath = static function ($path) {
             $result = [];
 
             foreach (explode('/', trim($path, '/')) as $segment) {
@@ -499,6 +501,11 @@ class Filesystem
         // Construct $endPath from traversing to the common path, then to the remaining $endPath
         $relativePath = $traverser.('' !== $endPathRemainder ? $endPathRemainder.'/' : '');
 
+        // Remove ending "/" if $endPath points to an existing file
+        if (str_ends_with($relativePath, '/') && is_file($originalEndPath)) {
+            $relativePath = substr($relativePath, 0, -1);
+        }
+
         return '' === $relativePath ? './' : $relativePath;
     }
 
@@ -514,13 +521,18 @@ class Filesystem
      * @param array             $options  An array of boolean options
      *                                    Valid options are:
      *                                    - $options['override'] If true, target files newer than origin files are overwritten (see copy(), defaults to false)
-     *                                    - $options['copy_on_windows'] Whether to copy files instead of links on Windows (see symlink(), defaults to false)
+     *                                    - $options['follow_symlinks'] Whether to copy files instead of links, esp. useful on Windows (see symlink(), defaults to false)
+     *                                    - $options['copy_on_windows'] @deprecated since Symfony 8.1, use $options['follow_symlinks'] instead
      *                                    - $options['delete'] Whether to delete files that are not in the source directory (defaults to false)
      *
      * @throws IOException When file type is unknown
      */
     public function mirror(string $originDir, string $targetDir, ?\Traversable $iterator = null, array $options = []): void
     {
+        if (isset($options['copy_on_windows'])) {
+            trigger_deprecation('symfony/filesystem', '8.1', 'Calling "%s()" with option "copy_on_windows" is deprecated, use option "follow_symlinks" instead.', __METHOD__);
+        }
+
         $targetDir = rtrim($targetDir, '/\\');
         $originDir = rtrim($originDir, '/\\');
         $originDirLen = \strlen($originDir);
@@ -531,11 +543,7 @@ class Filesystem
 
         // Iterate in destination folder to remove obsolete entries
         if ($this->exists($targetDir) && isset($options['delete']) && $options['delete']) {
-            $deleteIterator = $iterator;
-            if (null === $deleteIterator) {
-                $flags = \FilesystemIterator::SKIP_DOTS;
-                $deleteIterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($targetDir, $flags), \RecursiveIteratorIterator::CHILD_FIRST);
-            }
+            $deleteIterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($targetDir, \FilesystemIterator::SKIP_DOTS), \RecursiveIteratorIterator::CHILD_FIRST);
             $targetDirLen = \strlen($targetDir);
             foreach ($deleteIterator as $file) {
                 $origin = $originDir.substr($file->getPathname(), $targetDirLen);
@@ -545,10 +553,10 @@ class Filesystem
             }
         }
 
-        $copyOnWindows = $options['copy_on_windows'] ?? false;
+        $followSymlinks = $options['follow_symlinks'] ?? $options['copy_on_windows'] ?? false;
 
         if (null === $iterator) {
-            $flags = $copyOnWindows ? \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::FOLLOW_SYMLINKS : \FilesystemIterator::SKIP_DOTS;
+            $flags = $followSymlinks ? \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::FOLLOW_SYMLINKS : \FilesystemIterator::SKIP_DOTS;
             $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($originDir, $flags), \RecursiveIteratorIterator::SELF_FIRST);
         }
 
@@ -563,7 +571,7 @@ class Filesystem
             $target = $targetDir.substr($file->getPathname(), $originDirLen);
             $filesCreatedWhileMirroring[$target] = true;
 
-            if (!$copyOnWindows && is_link($file)) {
+            if (!$followSymlinks && is_link($file)) {
                 $this->symlink($file->getLinkTarget(), $target);
             } elseif (is_dir($file)) {
                 $this->mkdir($target);
@@ -598,8 +606,10 @@ class Filesystem
 
         // If no scheme or scheme is "file" or "gs" (Google Cloud) create temp file in local filesystem
         if ((null === $scheme || 'file' === $scheme || 'gs' === $scheme) && '' === $suffix) {
+            // PHP's tempnam() truncates the prefix to 63 characters; trim trailing whitespace
+            // from the truncated value, as a trailing space makes the file creation fail on Windows
             // If tempnam failed or no scheme return the filename otherwise prepend the scheme
-            if ($tmpFile = self::box('tempnam', $hierarchy, $prefix)) {
+            if ($tmpFile = self::box('tempnam', $hierarchy, rtrim(substr($prefix, 0, 63)))) {
                 if (null !== $scheme && 'gs' !== $scheme) {
                     return $scheme.'://'.$tmpFile;
                 }
@@ -617,7 +627,15 @@ class Filesystem
 
             // Use fopen instead of file_exists as some streams do not support stat
             // Use mode 'x+' to atomically check existence and create to avoid a TOCTOU vulnerability
-            if (!$handle = self::box('fopen', $tmpFile, 'x+')) {
+            // Force the umask so that the file is created private, as PHP's tempnam() does
+            $umask = umask(0o077);
+            try {
+                $handle = self::box('fopen', $tmpFile, 'x+');
+            } finally {
+                umask($umask);
+            }
+
+            if (!$handle) {
                 continue;
             }
 

@@ -145,7 +145,7 @@ final class PseudoLocalizationTranslator implements TranslatorInterface, Transla
         $useInternalErrors = libxml_use_internal_errors(true);
 
         $dom = new \DOMDocument();
-        $dom->loadHTML('<trans>'.$html.'</trans>');
+        $dom->loadHTML('<trans>'.$html.'</trans>', \LIBXML_NONET);
 
         libxml_clear_errors();
         libxml_use_internal_errors($useInternalErrors);
@@ -382,3 +382,5 @@ final class PseudoLocalizationTranslator implements TranslatorInterface, Transla
         return false === ($encoding = mb_detect_encoding($s, null, true)) ? \strlen($s) : mb_strlen($s, $encoding);
     }
 }
+
+// @php-cs-fixer-ignore random_api_migration As logic is coupled with mt_srand() in tests

@@ -1,11 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
 /**
  * This file is part of the Nette Framework (https://nette.org)
  * Copyright (c) 2004 David Grudl (https://davidgrudl.com)
  */
-
-declare(strict_types=1);
 
 namespace Nette\Schema\Elements;
 
@@ -16,6 +14,9 @@ use Nette\Schema\Schema;
 use function array_merge, array_unique, implode, is_array;
 
 
+/**
+ * Schema that accepts any of a fixed set of values or sub-schemas (union type / enumeration).
+ */
 final class AnyOf implements Schema
 {
 	use Base;
@@ -34,6 +35,9 @@ final class AnyOf implements Schema
 	}
 
 
+	/**
+	 * Sets the first variant as the default value (instead of null).
+	 */
 	public function firstIsDefault(): self
 	{
 		$this->default = $this->set[0];
@@ -41,6 +45,9 @@ final class AnyOf implements Schema
 	}
 
 
+	/**
+	 * Allows null as an accepted value in addition to the defined variants.
+	 */
 	public function nullable(): self
 	{
 		$this->set[] = null;
@@ -48,6 +55,9 @@ final class AnyOf implements Schema
 	}
 
 
+	/**
+	 * Allows the value to be a DynamicParameter as an accepted variant.
+	 */
 	public function dynamic(): self
 	{
 		$this->set[] = new Type(Nette\Schema\DynamicParameter::class);
@@ -90,10 +100,13 @@ final class AnyOf implements Schema
 		foreach ($this->set as $item) {
 			if ($item instanceof Schema) {
 				$dolly = new Context;
+				$dolly->skipDefaults = $context->skipDefaults;
+				$dolly->isKey = $context->isKey;
 				$dolly->path = $context->path;
 				$res = $item->complete($item->normalize($value, $dolly), $dolly);
 				if (!$dolly->errors) {
 					$context->warnings = array_merge($context->warnings, $dolly->warnings);
+					$context->dynamics = array_merge($context->dynamics, $dolly->dynamics);
 					return $res;
 				}
 

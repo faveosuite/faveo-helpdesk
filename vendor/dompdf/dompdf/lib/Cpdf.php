@@ -1185,10 +1185,10 @@ class Cpdf
             }
 
             // also need to adjust the widths for the differences array
-            if (isset($object['differences'])) {
-                foreach ($object['differences'] as $charNum => $charName) {
+            if (isset($object_info['differences'])) {
+                foreach ($object_info['differences'] as $charNum => $charName) {
                     if ($charNum > $lastChar) {
-                        if (!$object['isUnicode']) {
+                        if (!$object_info['isUnicode']) {
                             // With Unicode, widths array isn't used
                             for ($i = $lastChar + 1; $i <= $charNum; $i++) {
                                 $widths[] = 0;
@@ -3758,7 +3758,7 @@ EOT;
 
                             $c = (int)$dtmp['U'];
                             $n = $dtmp['N'];
-                            $glyph = $dtmp['G'];
+                            $glyph = (int)$dtmp['G'];
                             $width = floatval($dtmp['WX']);
 
                             if ($c >= 0) {
@@ -3810,7 +3810,7 @@ EOT;
         }
 
         if (!isset($this->fonts[$font])) {
-            $this->addMessage("openFont: no font file found for $font. Do you need to run load_font.php?");
+            $this->addMessage("openFont: no font file found for $font.");
         }
     }
 
@@ -4829,6 +4829,25 @@ EOT;
         }
 
         $this->addContent("W n");
+    }
+
+    /**
+     * saves the graphics state prior to manually drawing shapes to be used for clipping
+     *
+     * after drawing a shape use the clip() function to use the shape for clipping,
+     * and then use clippingEnd() to end the clipping region and restore the graphics state
+     */
+    function clippingStart()
+    {
+        $this->save();
+    }
+
+    /**
+     * uses the previously drawn path for clipping, all the elements added after this will be clipped
+     */
+    function clip()
+    {
+        $this->addContent("\nW n");
     }
 
     /**
@@ -6294,6 +6313,9 @@ EOT;
     function addSvgFromFile($file, $x, $y, $w = 0, $h = 0)
     {
         $doc = new \Svg\Document();
+        if (property_exists($doc, 'allowExternalReferences')) {
+            $doc->allowExternalReferences = true;
+        }
         $doc->loadFile($file);
         $dimensions = $doc->getDimensions();
 
@@ -6375,7 +6397,6 @@ EOT;
                             $info['filterMethod'] = ord($data[$p + 19]);
                             $info['interlaceMethod'] = ord($data[$p + 20]);
 
-                            //print_r($info);
                             $haveHeader = 1;
                             if ($info['compressionMethod'] != 0) {
                                 $error = 1;
@@ -6549,14 +6570,12 @@ EOT;
                 return;
             }
 
-            //print_r($info);
             // so this image is ok... add it in.
             $this->numImages++;
             $im = $this->numImages;
             $label = "I$im";
             $this->numObj++;
 
-            //  $this->o_image($this->numObj,'new',array('label' => $label,'data' => $idata,'iw' => $w,'ih' => $h,'type' => 'png','ic' => $info['width']));
             $options = [
                 'label'            => $label,
                 'data'             => $idata,

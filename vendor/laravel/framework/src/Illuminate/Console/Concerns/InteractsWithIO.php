@@ -169,7 +169,7 @@ trait InteractsWithIO
      * Prompt the user for input with auto completion.
      *
      * @param  string  $question
-     * @param  iterable|(callable(string): string[])  $choices
+     * @param  iterable|(callable(string): list<string>)  $choices
      * @param  string|null  $default
      * @return mixed
      */
@@ -250,10 +250,11 @@ trait InteractsWithIO
      *
      * @template TKey of array-key
      * @template TValue
+     * @template TIterable of iterable<TKey, TValue>
      *
-     * @param  iterable<TKey, TValue>|int  $totalSteps
-     * @param  \Closure(\Symfony\Component\Console\Helper\ProgressBar|TValue, \Symfony\Component\Console\Helper\ProgressBar|null, TKey|null): void  $callback
-     * @return mixed|void
+     * @param  TIterable|int  $totalSteps
+     * @param  \Closure(\Symfony\Component\Console\Helper\ProgressBar): mixed|\Closure(TValue, \Symfony\Component\Console\Helper\ProgressBar, TKey): mixed  $callback
+     * @return ($totalSteps is iterable ? TIterable : void)
      */
     public function withProgressBar($totalSteps, Closure $callback)
     {

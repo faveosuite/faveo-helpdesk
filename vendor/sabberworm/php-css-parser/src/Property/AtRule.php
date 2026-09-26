@@ -16,11 +16,19 @@ interface AtRule extends CSSListItem
      * Since there are more set rules than block rules,
      * we’re whitelisting the block rules and have anything else be treated as a set rule.
      *
-     * @var non-empty-string
-     *
      * @internal since 8.5.2
      */
-    public const BLOCK_RULES = 'media/document/supports/region-style/font-feature-values';
+    public const BLOCK_RULES = [
+        'media',
+        'document',
+        'supports',
+        'region-style',
+        'font-feature-values',
+        'container',
+        'layer',
+        'scope',
+        'starting-style',
+    ];
 
     /**
      * @return non-empty-string

@@ -269,7 +269,17 @@ trait Localization
                 );
             }
 
+            $processList = static fn (array $list): array => $list;
+
             if ($key === 'from') {
+                $processList = static fn (array $list): array => array_map(
+                    static fn (string $words): string => implode('|', array_map(
+                        static fn (string $word): string => preg_quote($word, '/'),
+                        explode('|', $words),
+                    )),
+                    $list,
+                );
+
                 foreach (['months', 'weekdays'] as $variable) {
                     $list = $messages[$variable.'_standalone'] ?? null;
 
@@ -281,11 +291,23 @@ trait Localization
                 }
             }
 
+            $monthTranslations = array_merge(
+                $mode & CarbonInterface::TRANSLATE_MONTHS
+                    ? $processList(self::getTranslationArray($months, static::MONTHS_PER_YEAR, $timeString))
+                    : [],
+                $mode & CarbonInterface::TRANSLATE_MONTHS
+                    ? $processList(self::getTranslationArray($messages['months_short'] ?? [], static::MONTHS_PER_YEAR, $timeString))
+                    : [],
+            );
+
             $$translationKey = array_merge(
-                $mode & CarbonInterface::TRANSLATE_MONTHS ? self::getTranslationArray($months, static::MONTHS_PER_YEAR, $timeString) : [],
-                $mode & CarbonInterface::TRANSLATE_MONTHS ? self::getTranslationArray($messages['months_short'] ?? [], static::MONTHS_PER_YEAR, $timeString) : [],
-                $mode & CarbonInterface::TRANSLATE_DAYS ? self::getTranslationArray($weekdays, static::DAYS_PER_WEEK, $timeString) : [],
-                $mode & CarbonInterface::TRANSLATE_DAYS ? self::getTranslationArray($messages['weekdays_short'] ?? [], static::DAYS_PER_WEEK, $timeString) : [],
+                $monthTranslations,
+                $mode & CarbonInterface::TRANSLATE_DAYS
+                    ? $processList(self::getTranslationArray($weekdays, static::DAYS_PER_WEEK, $timeString))
+                    : [],
+                $mode & CarbonInterface::TRANSLATE_DAYS
+                    ? $processList(self::getTranslationArray($messages['weekdays_short'] ?? [], static::DAYS_PER_WEEK, $timeString))
+                    : [],
                 $mode & CarbonInterface::TRANSLATE_DIFF ? self::translateWordsByKeys([
                     'diff_now',
                     'diff_today',
@@ -303,27 +325,67 @@ trait Localization
                     'minute',
                     'second',
                 ], $messages, $key) : [],
-                $mode & CarbonInterface::TRANSLATE_MERIDIEM ? array_map(function ($hour) use ($meridiem) {
+                $mode & CarbonInterface::TRANSLATE_MERIDIEM ? $processList(array_map(function ($hour) use ($meridiem) {
                     if (\is_array($meridiem)) {
                         return $meridiem[$hour < static::HOURS_PER_DAY / 2 ? 0 : 1];
                     }
 
                     return $meridiem($hour, 0, false);
-                }, range(0, 23)) : [],
+                }, range(0, 23))) : [],
             );
         }
 
-        return substr(preg_replace_callback('/(?<=[\d\s+.\/,_-])('.implode('|', $fromTranslations).')(?=[\d\s+.\/,_-])/iu', function ($match) use ($fromTranslations, $toTranslations) {
-            [$chunk] = $match;
+        // Make all dots optional
+        $fromTranslations = array_map(
+            static fn (string $word): string => strtr($word, [
+                '\\.' => '\\.?',
+            ]),
+            $fromTranslations,
+        );
+        $monthNameCount = \count($monthTranslations);
+        $firstNumberOffset = preg_match('/^\D+\d/', $timeString, $match)
+            ? \strlen($match[0]) // -1 to remove the first digit, +1 to add the extra wrapping spaced added just below
+            : INF;
 
-            foreach ($fromTranslations as $index => $word) {
-                if (preg_match("/^$word\$/iu", $chunk)) {
+        return substr(preg_replace_callback(
+            '/(?<=[\d\s+.\/,_-])('.implode('|', $fromTranslations).')(?=[\d\s+.\/,_-])/iu',
+            function ($match) use ($fromTranslations, $toTranslations, $monthNameCount, $firstNumberOffset) {
+                [[$chunk, $offset]] = $match;
+
+                $indexes = self::getMatchingWordIndexes($fromTranslations, $chunk);
+
+                if ($indexes !== []) {
+                    // Before the first number in the string, prefer day names over month names
+                    $bestIndexes = \count($indexes) > 1 && $offset < $firstNumberOffset
+                        ? array_values(array_filter($indexes, static fn ($index) => $index > $monthNameCount))
+                        : [];
+                    $index = $bestIndexes[0] ?? $indexes[0];
+
                     return $toTranslations[$index] ?? '';
                 }
-            }
 
-            return $chunk; // @codeCoverageIgnore
-        }, " $timeString "), 1, -1);
+                return $chunk; // @codeCoverageIgnore
+            },
+            " $timeString ",
+            flags: PREG_OFFSET_CAPTURE,
+        ), 1, -1);
+    }
+
+    private static function getMatchingWordIndexes(array $fromTranslations, string $search): array
+    {
+        $indexes = array_keys($fromTranslations, $search, true);
+
+        if ($indexes !== []) {
+            return $indexes;
+        }
+
+        foreach ($fromTranslations as $index => $word) {
+            if (preg_match("/^$word\$/iu", $search)) {
+                $indexes[] = $index;
+            }
+        }
+
+        return $indexes;
     }
 
     /**
@@ -345,7 +407,7 @@ trait Localization
      * @param string|null $locale
      * @param string      ...$fallbackLocales
      *
-     * @return $this|string
+     * @return ($locale is null ? string : static)
      */
     public function locale(?string $locale = null, string ...$fallbackLocales): static|string
     {
@@ -407,7 +469,16 @@ trait Localization
         $translator = static::getTranslator();
 
         if (method_exists($translator, 'setFallbackLocales')) {
-            $translator->setFallbackLocales([$locale]);
+            $fallbackLocales = [$locale];
+
+            if (
+                method_exists($translator, 'getFallbackLocales')
+                && $fallbackLocales === $translator->getFallbackLocales()
+            ) {
+                return;
+            }
+
+            $translator->setFallbackLocales($fallbackLocales);
 
             if ($translator instanceof Translator) {
                 $preferredLocale = $translator->getLocale();
@@ -465,7 +536,7 @@ trait Localization
         static::setLocale($locale);
         $newLocale = static::getLocale();
         $result = $func(
-            $newLocale === 'en' && strtolower(substr((string) $locale, 0, 2)) !== 'en'
+            $newLocale === 'en' && strtolower(substr($locale, 0, 2)) !== 'en'
                 ? false
                 : $newLocale,
             static::getTranslator(),
@@ -694,7 +765,7 @@ trait Localization
      */
     private static function translateWordsByKeys($keys, $messages, $key): array
     {
-        return array_map(function ($wordKey) use ($messages, $key) {
+        return array_map(static function ($wordKey) use ($messages, $key) {
             $message = $key === 'from' && isset($messages[$wordKey.'_regexp'])
                 ? $messages[$wordKey.'_regexp']
                 : ($messages[$wordKey] ?? null);
@@ -705,7 +776,7 @@ trait Localization
 
             $parts = explode('|', $message);
 
-            return $key === 'to'
+            return $key === 'to' || \count($parts) === 1
                 ? self::cleanWordFromTranslationString(end($parts))
                 : '(?:'.implode('|', array_map(static::cleanWordFromTranslationString(...), $parts)).')';
         }, $keys);

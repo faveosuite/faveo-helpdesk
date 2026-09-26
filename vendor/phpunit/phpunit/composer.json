@@ -16,6 +16,12 @@
             "role": "lead"
         }
     ],
+    "funding": [
+        {
+            "type": "other",
+            "url": "https://phpunit.de/sponsoring.html"
+        }
+    ],
     "support": {
         "issues": "https://github.com/sebastianbergmann/phpunit/issues",
         "security": "https://github.com/sebastianbergmann/phpunit/security/policy"
@@ -24,34 +30,45 @@
     "require": {
         "php": ">=8.3",
         "ext-dom": "*",
+        "ext-filter": "*",
         "ext-json": "*",
         "ext-libxml": "*",
         "ext-mbstring": "*",
-        "ext-xml": "*",
         "ext-xmlwriter": "*",
-        "myclabs/deep-copy": "^1.13.4",
+        "myclabs/deep-copy": "^1.14.0",
         "phar-io/manifest": "^2.0.4",
         "phar-io/version": "^3.2.1",
-        "phpunit/php-code-coverage": "^12.5.3",
-        "phpunit/php-file-iterator": "^6.0.1",
+        "phpunit/php-code-coverage": "^12.5.7",
+        "phpunit/php-file-iterator": "^6.0.2",
         "phpunit/php-invoker": "^6.0.0",
         "phpunit/php-text-template": "^5.0.0",
         "phpunit/php-timer": "^8.0.0",
-        "sebastian/cli-parser": "^4.2.0",
-        "sebastian/comparator": "^7.1.4",
-        "sebastian/diff": "^7.0.0",
-        "sebastian/environment": "^8.0.3",
-        "sebastian/exporter": "^7.0.2",
-        "sebastian/global-state": "^8.0.2",
+        "sebastian/cli-parser": "^4.2.1",
+        "sebastian/comparator": "^7.1.8",
+        "sebastian/diff": "^7.0.1",
+        "sebastian/environment": "^8.1.2",
+        "sebastian/exporter": "^7.0.3",
+        "sebastian/global-state": "^8.0.3",
         "sebastian/object-enumerator": "^7.0.0",
         "sebastian/recursion-context": "^7.0.1",
-        "sebastian/type": "^6.0.3",
+        "sebastian/type": "^6.0.4",
         "sebastian/version": "^6.0.0",
         "staabm/side-effects-detector": "^1.0.5"
     },
     "config": {
         "platform": {
             "php": "8.3.0"
+        },
+        "policy": {
+            "malware": {
+                "audit": "fail"
+            },
+            "security-advisory": {
+                "audit": "fail"
+            },
+            "abandoned": {
+                "audit": "fail"
+            }
         },
         "classmap-authoritative": true,
         "optimize-autoloader": true,
@@ -75,7 +92,7 @@
         "files": [
             "tests/_files/deprecation-trigger/trigger_deprecation.php",
             "tests/unit/Event/AbstractEventTestCase.php",
-            "tests/unit/TextUI/AbstractSouceFilterTestCase.php",
+            "tests/unit/TextUI/AbstractSourceFilterTestCase.php",
             "tests/unit/Framework/MockObject/TestDoubleTestCase.php",
             "tests/unit/Metadata/Parser/AttributeParserTestCase.php",
             "tests/unit/Framework/Assert/assertContainsOnlyArrayTest.php",

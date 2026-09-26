@@ -33,6 +33,7 @@ use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocTextNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\PropertyTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\PureUnlessCallableIsImpureTagValueNode;
+use PHPStan\PhpDocParser\Ast\PhpDoc\PureUnlessParameterIsPassedTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\RequireExtendsTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\RequireImplementsTagValueNode;
 use PHPStan\PhpDocParser\Ast\PhpDoc\ReturnTagValueNode;
@@ -145,6 +146,16 @@ final class Printer
 		],
 		OffsetAccessTypeNode::class . '->type' => [
 			CallableTypeNode::class,
+			UnionTypeNode::class,
+			IntersectionTypeNode::class,
+			NullableTypeNode::class,
+		],
+		NullableTypeNode::class . '->type' => [
+			UnionTypeNode::class,
+			IntersectionTypeNode::class,
+			NullableTypeNode::class,
+		],
+		ConditionalTypeNode::class . '->subjectType' => [
 			UnionTypeNode::class,
 			IntersectionTypeNode::class,
 			NullableTypeNode::class,
@@ -354,6 +365,9 @@ final class Printer
 		if ($node instanceof PureUnlessCallableIsImpureTagValueNode) {
 			return trim("{$node->parameterName} {$node->description}");
 		}
+		if ($node instanceof PureUnlessParameterIsPassedTagValueNode) {
+			return trim("{$node->parameterName} {$node->description}");
+		}
 		if ($node instanceof PropertyTagValueNode) {
 			$type = $this->printType($node->type);
 			return trim("{$type} {$node->propertyName} {$node->description}");
@@ -437,7 +451,7 @@ final class Printer
 		if ($node instanceof ConditionalTypeNode) {
 			return sprintf(
 				'(%s %s %s ? %s : %s)',
-				$this->printType($node->subjectType),
+				$this->printConditionalSubjectType($node->subjectType),
 				$node->negated ? 'is not' : 'is',
 				$this->printType($node->targetType),
 				$this->printType($node->if),
@@ -487,7 +501,11 @@ final class Printer
 			return (string) $node;
 		}
 		if ($node instanceof NullableTypeNode) {
-			if ($node->type instanceof IntersectionTypeNode || $node->type instanceof UnionTypeNode) {
+			if (
+				$node->type instanceof IntersectionTypeNode
+				|| $node->type instanceof UnionTypeNode
+				|| $node->type instanceof NullableTypeNode
+			) {
 				return '?(' . $this->printType($node->type) . ')';
 			}
 
@@ -511,6 +529,27 @@ final class Printer
 	private function wrapInParentheses(TypeNode $node): string
 	{
 		return '(' . $this->printType($node) . ')';
+	}
+
+	/**
+	 * What a conditional type asks about, written so that it is read back as
+	 * the very same type.
+	 *
+	 * "?Foo is Bar ? ... : ..." and "Foo|Bar is Baz ? ... : ..." both read as a
+	 * type followed by something the type says nothing about, so a subject of
+	 * either kind keeps its parentheses.
+	 */
+	private function printConditionalSubjectType(TypeNode $type): string
+	{
+		if (
+			$type instanceof UnionTypeNode
+			|| $type instanceof IntersectionTypeNode
+			|| $type instanceof NullableTypeNode
+		) {
+			return $this->wrapInParentheses($type);
+		}
+
+		return $this->printType($type);
 	}
 
 	private function printOffsetAccessType(TypeNode $type): string

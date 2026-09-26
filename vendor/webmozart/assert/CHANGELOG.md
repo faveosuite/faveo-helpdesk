@@ -1,6 +1,40 @@
 Changelog
 =========
 
+## 2.4.1
+
+### Fixed
+
+- Corrected `uuid` assertion to prevent braces and prefixes being _inside_ the value.
+
+## 2.4.0
+
+### Changed
+
+- Updated docblocks for many methods, improving psalm support and type hints.
+
+## 2.3.0
+
+### Changed
+
+- Clarified documentation and testing of `uniqueValues`.
+
+### Added
+
+- All assertions now support `string|callable` for the message.
+
+## 2.2.0
+
+### Added
+
+- Added `isNotInstanceOfAny` assertion.
+
+## 2.1.6
+
+### Fixed
+
+- Corrected docblocks for `list*` methods.
+
 ## 2.1.5
 
 ### Fixed
@@ -11,14 +45,14 @@ Changelog
 
 ### Fixed
 
-- Use custom message for more internal calls
+- Use custom message for more internal calls.
 
 ## 2.1.3
 
 ### Fixed
 
-- Corrected `isList` type documentation
-- Corrected `isAOf`, `isInstanceOf`, etc type documentation
+- Corrected `isList` type documentation.
+- Corrected `isAOf`, `isInstanceOf`, etc type documentation.
 
 ## 2.1.2
 

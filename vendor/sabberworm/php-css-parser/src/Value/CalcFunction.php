@@ -10,14 +10,7 @@ use Sabberworm\CSS\Parsing\UnexpectedTokenException;
 
 class CalcFunction extends CSSFunction
 {
-    /**
-     * @var int
-     */
     private const T_OPERAND = 1;
-
-    /**
-     * @var int
-     */
     private const T_OPERATOR = 2;
 
     /**
@@ -66,11 +59,11 @@ class CalcFunction extends CSSFunction
             } else {
                 if (\in_array($parserState->peek(), $operators, true)) {
                     if (($parserState->comes('-') || $parserState->comes('+'))) {
-                        if (
-                            $parserState->peek(1, -1) !== ' '
-                            || !($parserState->comes('- ')
-                                || $parserState->comes('+ '))
-                        ) {
+                        $matchResultBefore = \preg_match('/\\s/', $parserState->peek(1, -1));
+                        \assert(\is_int($matchResultBefore));
+                        $matchResultAfter = \preg_match('/\\s/', $parserState->peek(1, 1));
+                        \assert(\is_int($matchResultAfter));
+                        if ($matchResultBefore !== 1 || $matchResultAfter !== 1) {
                             throw new UnexpectedTokenException(
                                 " {$parserState->peek()} ",
                                 $parserState->peek(1, -1) . $parserState->peek(2),
@@ -101,5 +94,15 @@ class CalcFunction extends CSSFunction
             $parserState->consume(')');
         }
         return new CalcFunction($function, $list, ',', $parserState->currentLine());
+    }
+
+    /**
+     * @return array<string, bool|int|float|string|array<mixed>|null>
+     *
+     * @internal
+     */
+    public function getArrayRepresentation(): array
+    {
+        throw new \BadMethodCallException('`getArrayRepresentation` is not yet implemented for `' . self::class . '`');
     }
 }

@@ -28,6 +28,7 @@ use AppendIterator;
 use FilesystemIterator;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use UnexpectedValueException;
 
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-file-iterator
@@ -70,24 +71,55 @@ final class Factory
         $iterator = new AppendIterator;
 
         foreach ($paths as $path) {
-            if (is_dir($path)) {
-                $iterator->append(
-                    new Iterator(
-                        $path,
-                        new RecursiveIteratorIterator(
-                            new ExcludeIterator(
-                                new RecursiveDirectoryIterator($path, FilesystemIterator::FOLLOW_SYMLINKS | FilesystemIterator::SKIP_DOTS),
-                                $exclude,
-                            ),
-                        ),
-                        $suffixes,
-                        $prefixes,
-                    ),
-                );
+            if (!is_dir($path)) {
+                continue;
             }
+
+            $directoryIterator = $this->directoryIterator($path);
+
+            if ($directoryIterator === null) {
+                continue;
+            }
+
+            $iterator->append(
+                new Iterator(
+                    $path,
+                    new RecursiveIteratorIterator(
+                        new ExcludeIterator(
+                            $directoryIterator,
+                            $exclude,
+                        ),
+                        RecursiveIteratorIterator::LEAVES_ONLY,
+                        RecursiveIteratorIterator::CATCH_GET_CHILD,
+                    ),
+                    $suffixes,
+                    $prefixes,
+                ),
+            );
         }
 
         return $iterator;
+    }
+
+    /**
+     * A directory that cannot be opened is skipped instead of aborting the
+     * traversal it is part of.
+     *
+     * This happens when the directory cannot be read by the current user, and
+     * it happens when the directory is removed by another process after it was
+     * read from its parent directory and before it is opened here.
+     *
+     * RecursiveIteratorIterator::CATCH_GET_CHILD does this for the directories
+     * that are descended into; this method does it for the root of a traversal,
+     * which is opened here and not by RecursiveIteratorIterator.
+     */
+    private function directoryIterator(string $path): ?RecursiveDirectoryIterator
+    {
+        try {
+            return new RecursiveDirectoryIterator($path, FilesystemIterator::FOLLOW_SYMLINKS | FilesystemIterator::SKIP_DOTS);
+        } catch (UnexpectedValueException) {
+            return null;
+        }
     }
 
     /**
@@ -101,8 +133,9 @@ final class Factory
 
         foreach ($paths as $path) {
             $pathEndsWithDirectorySeparator = str_ends_with($path, '/') || str_ends_with($path, DIRECTORY_SEPARATOR);
+            $locals                         = $this->globstar($path);
 
-            if ($locals = $this->globstar($path)) {
+            if ($locals !== []) {
                 $_paths[] = array_map(
                     static function (string $local) use ($pathEndsWithDirectorySeparator): string|false
                     {
@@ -117,7 +150,6 @@ final class Factory
                     $locals,
                 );
             } else {
-                // @codeCoverageIgnoreStart
                 $realPath = realpath($path);
 
                 if ($realPath !== false && $pathEndsWithDirectorySeparator && is_dir($realPath)) {
@@ -125,7 +157,6 @@ final class Factory
                 } else {
                     $_paths[] = [$realPath];
                 }
-                // @codeCoverageIgnoreEnd
             }
         }
 

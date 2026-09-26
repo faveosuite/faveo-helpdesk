@@ -59,7 +59,7 @@ class Helpers
     public static function build_url($protocol, $host, $base_path, $url, $chrootDirs = [])
     {
         $protocol = mb_strtolower($protocol, "UTF-8");
-        if (empty($protocol)) {
+        if (empty($protocol) || $protocol === "data://") {
             $protocol = "file://";
         }
         if ($url === "") {
@@ -792,12 +792,20 @@ class Helpers
     }
 
     /**
-     * getimagesize doesn't give a good size for 32bit BMP image v5
+     * Shim for PHP's getimagesize to handle formats that the function
+     * does not handle natively.
      *
      * @param string $filename
      * @param resource $context
-     * @return array An array of three elements: width and height as
-     *         `float|int`, and image type as `string|null`.
+     * @return array An array of 8 elements, by index:
+     *               - `float|int` width
+     *               - `float|int` height
+     *               - `string|null` image type
+     *               - `int|null` type constant
+     *               - `string|null` mime type
+     *               - `int|null` channels
+     *               - `int|null` bits
+     *               - `int|null` estimated memory size in bytes
      */
     public static function dompdf_getimagesize($filename, $context = null)
     {
@@ -820,10 +828,13 @@ class Helpers
         }
 
         $parse_result = @getimagesize($filename);
-        $width = $height = $type = null;
+        $width = $height = $type = $typeconst = $mime = $channels = $bits = $bytes = null;
         if ($parse_result !== false) {
-            [$width, $height, $type] = $parse_result;
-            $type = $types[$type] ?? null;
+            [$width, $height, $typeconst] = $parse_result;
+            $type = $types[$typeconst] ?? null;
+            $mime = $parse_result['mime'] ?? null;
+            $channels = $parse_result['channels'] ?? null;
+            $bits = $parse_result['bits'] ?? null;
         }
 
         if ($width == null || $height == null) {
@@ -831,23 +842,57 @@ class Helpers
 
             if ($data !== null) {
                 if (substr($data, 0, 2) === "BM") {
-                    $meta = unpack("vtype/Vfilesize/Vreserved/Voffset/Vheadersize/Vwidth/Vheight", $data);
+                    $meta = unpack("vtype/Vfilesize/Vreserved/Voffset/Vheadersize/Vwidth/Vheight/vplanes/vbits/Vcompression/Vimagesize/Vxres/Vyres/Vcolors", $data);
                     $width = (int) $meta["width"];
                     $height = (int) $meta["height"];
                     $type = "bmp";
+                    $typeconst = IMAGETYPE_BMP;
+                    $mime = "image/bmp";
+                    $bits = (int) $meta["bits"];
+                    $channels = $bits > 24 ? 4 : 3;
                 } elseif (strpos($data, "<svg") !== false) {
                     $doc = new \Svg\Document();
+                    if (property_exists($doc, 'allowExternalReferences')) {
+                        $doc->allowExternalReferences = true;
+                    }
                     $doc->loadFile($filename);
 
                     [$width, $height] = $doc->getDimensions();
                     $width = (float) $width;
                     $height = (float) $height;
                     $type = "svg";
+                    if (defined('IMAGETYPE_SVG')) {
+                        $typeconst = IMAGETYPE_SVG;
+                    }
+                    $mime = "image/svg+xml";
+                    $bits = 32;
+                    $channels = 4;
+                    $bytes = strlen($data);
                 }
             }
         }
 
-        return $cache[$filename] = [$width ?? 0, $height ?? 0, $type];
+        if ($width !== null && $height !== null) {
+            switch ($type) {
+                case IMAGETYPE_BMP:
+                    $channels = $channels > 0 ? $channels : 4;
+                    $bits = $bits > 0 ? $bits : 24;
+                case IMAGETYPE_PNG:
+                case IMAGETYPE_WEBP:
+                    $channels = $channels > 0 ? $channels : 4;
+                    $bits = $bits > 0 ? $bits : 8;
+                    break;
+                default:
+                    $channels = $channels > 0 ? $channels : 3;
+                    $bits = $bits > 0 ? $bits : 8;
+                    break;
+            }
+
+            // Memory in bytes
+            $bytes = $width * $height * $channels * ($bits / 8);
+        }
+
+        return $cache[$filename] = [$width ?? 0, $height ?? 0, $type, $typeconst, $mime, $channels ?? 4, $bits ?? 8, $bytes];
     }
 
     /**
@@ -862,7 +907,7 @@ class Helpers
             return false;
         }
 
-        if (function_exists("imagecreatefrombmp") && ($im = imagecreatefrombmp($filename)) !== false) {
+        if (function_exists("imagecreatefrombmp") && ($im = @imagecreatefrombmp($filename)) !== false) {
             return $im;
         }
 

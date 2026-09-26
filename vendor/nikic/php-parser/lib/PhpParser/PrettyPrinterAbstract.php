@@ -1006,9 +1006,25 @@ abstract class PrettyPrinterAbstract implements PrettyPrinter {
 
             list($findToken, $extraLeft, $extraRight) = $this->emptyListInsertionMap[$mapKey];
             if (null !== $findToken) {
-                $insertPos = $this->origTokens->findRight($pos, $findToken) + 1;
-                $result .= $this->origTokens->getTokenCode($pos, $insertPos, $indentAdjustment);
-                $pos = $insertPos;
+                // For anon classes skip to the class keyword.
+                $isAnonClassArgs = $mapKey === PrintableNewAnonClassNode::class . '->args';
+                if ($isAnonClassArgs) {
+                    $insertPos = $this->origTokens->findRight($pos, \T_CLASS) + 1;
+                    $result .= $this->origTokens->getTokenCode($pos, $insertPos, $indentAdjustment);
+                    $pos = $insertPos;
+                }
+
+                // If "new Foo" was used without arguments, we need to convert to "new Foo()".
+                if (($mapKey === Expr\New_::class . '->args' || $isAnonClassArgs) &&
+                    !$this->origTokens->haveTokenImmediatelyAfter($pos - 1, '(')
+                ) {
+                    $extraLeft = '(';
+                    $extraRight = ')';
+                } else {
+                    $insertPos = $this->origTokens->findRight($pos, $findToken) + 1;
+                    $result .= $this->origTokens->getTokenCode($pos, $insertPos, $indentAdjustment);
+                    $pos = $insertPos;
+                }
             }
 
             $first = true;
@@ -1208,18 +1224,22 @@ abstract class PrettyPrinterAbstract implements PrettyPrinter {
      * @return bool Whether parentheses are required
      */
     protected function newOperandRequiresParens(Node $node): bool {
-        if ($node instanceof Node\Name || $node instanceof Expr\Variable) {
-            return false;
+        while (true) {
+            if ($node instanceof Node\Name || $node instanceof Expr\Variable) {
+                return false;
+            }
+            if ($node instanceof Expr\ArrayDimFetch || $node instanceof Expr\PropertyFetch ||
+                $node instanceof Expr\NullsafePropertyFetch
+            ) {
+                $node = $node->var;
+                continue;
+            }
+            if ($node instanceof Expr\StaticPropertyFetch) {
+                $node = $node->class;
+                continue;
+            }
+            return true;
         }
-        if ($node instanceof Expr\ArrayDimFetch || $node instanceof Expr\PropertyFetch ||
-            $node instanceof Expr\NullsafePropertyFetch
-        ) {
-            return $this->newOperandRequiresParens($node->var);
-        }
-        if ($node instanceof Expr\StaticPropertyFetch) {
-            return $this->newOperandRequiresParens($node->class);
-        }
-        return true;
     }
 
     /**
@@ -1293,7 +1313,7 @@ abstract class PrettyPrinterAbstract implements PrettyPrinter {
         $this->labelCharMap = [];
         for ($i = 0; $i < 256; $i++) {
             $chr = chr($i);
-            $this->labelCharMap[$chr] = $i >= 0x80 || ctype_alnum($chr);
+            $this->labelCharMap[$chr] = (bool) preg_match('/^[a-zA-Z0-9_\x80-\xff]$/', $chr);
         }
 
         if ($this->phpVersion->allowsDelInIdentifiers()) {
@@ -1639,6 +1659,8 @@ abstract class PrettyPrinterAbstract implements PrettyPrinter {
             Stmt\Function_::class . '->params' => ['(', '', ''],
             Stmt\Interface_::class . '->attrGroups' => [null, '', "\n"],
             Stmt\Class_::class . '->attrGroups' => [null, '', "\n"],
+            Stmt\Enum_::class . '->attrGroups' => [null, '', "\n"],
+            Stmt\EnumCase::class . '->attrGroups' => [null, '', "\n"],
             Stmt\ClassConst::class . '->attrGroups' => [null, '', "\n"],
             Stmt\ClassMethod::class . '->attrGroups' => [null, '', "\n"],
             Stmt\Function_::class . '->attrGroups' => [null, '', "\n"],

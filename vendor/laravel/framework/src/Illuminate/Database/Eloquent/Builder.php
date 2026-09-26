@@ -1109,7 +1109,7 @@ class Builder implements BuilderContract
      * @param  string  $pageName
      * @param  int|null  $page
      * @param  \Closure|int|null  $total
-     * @return \Illuminate\Pagination\LengthAwarePaginator
+     * @return \Illuminate\Pagination\LengthAwarePaginator<int, TModel>
      *
      * @throws \InvalidArgumentException
      */
@@ -1138,7 +1138,7 @@ class Builder implements BuilderContract
      * @param  array|string  $columns
      * @param  string  $pageName
      * @param  int|null  $page
-     * @return \Illuminate\Contracts\Pagination\Paginator
+     * @return \Illuminate\Pagination\Paginator<int, TModel>
      */
     public function simplePaginate($perPage = null, $columns = ['*'], $pageName = 'page', $page = null)
     {
@@ -1164,7 +1164,7 @@ class Builder implements BuilderContract
      * @param  array|string  $columns
      * @param  string  $cursorName
      * @param  \Illuminate\Pagination\Cursor|string|null  $cursor
-     * @return \Illuminate\Contracts\Pagination\CursorPaginator
+     * @return \Illuminate\Pagination\CursorPaginator<int, TModel>
      */
     public function cursorPaginate($perPage = null, $columns = ['*'], $cursorName = 'cursor', $cursor = null)
     {
@@ -1298,7 +1298,7 @@ class Builder implements BuilderContract
     /**
      * Update the column's update timestamp.
      *
-     * @param  string|null  $column
+     * @param  array|string|null  $column
      * @return int|false
      */
     public function touch($column = null)
@@ -1306,7 +1306,9 @@ class Builder implements BuilderContract
         $time = $this->model->freshTimestamp();
 
         if ($column) {
-            return $this->toBase()->update([$column => $time]);
+            $columns = (new BaseCollection(Arr::wrap($column)))->mapWithKeys(fn ($column) => [$column => $time])->all();
+
+            return $this->toBase()->update($columns);
         }
 
         $column = $this->model->getUpdatedAtColumn();
