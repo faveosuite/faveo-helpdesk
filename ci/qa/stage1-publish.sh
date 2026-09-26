@@ -31,8 +31,17 @@ QA_APPROVED_LABELS="${QA_APPROVED_LABELS:-QA: Test case Approved}"
 # Applied when the issue carries content the authoring step could not open — an
 # Office document, a video, a Google Doc behind a login. The cases still get
 # published (what the issue does support is worth having), but a human is told that
-# part of the specification was never read. Verified to exist in the repo.
-NEEDS_INFO_LABEL="${QA_NEEDS_INFO_LABEL:-Need more info about issues by QA team}"
+# part of the specification was never read.
+#
+# "Need more info about issues by QA team" was the previous default and DOES NOT
+# EXIST on faveosuite/faveo-helpdesk — gh_add_label refuses to create a label it
+# cannot resolve, which used to kill this script (set -e) AFTER every case had
+# already been published. Checked against the repo's label list, 2026-09-26.
+# Two lines, not one: bash quote-processes the word in ${VAR:-word} even inside
+# double quotes, so the apostrophe in "issuer's" opens a quote that never closes
+# and the whole file stops parsing.
+needs_info_default="Need issuer's Feedback"
+NEEDS_INFO_LABEL="${QA_NEEDS_INFO_LABEL:-$needs_info_default}"
 
 SKIP=3
 STOP=4
@@ -415,7 +424,17 @@ if ! gh_issue_upsert_ids_block "$issue" "${work}/ids-block.md"; then
 fi
 
 gh_add_label "$issue" "$DONE_LABEL"
-[[ -n "$unopened" ]] && gh_add_label "$issue" "$NEEDS_INFO_LABEL"
+
+# NOT `[[ -n "$unopened" ]] && gh_add_label ...`. In an && list set -e exempts
+# every command EXCEPT the one after the final &&, so a label that could not be
+# resolved took the whole script down here — with the cases, the comment and the
+# marker all already published, and the progress/trigger labels below never
+# cleared. A label is the least load-bearing thing this script writes; it must
+# not be able to fail a run whose real work has landed.
+if [[ -n "$unopened" ]] && ! gh_add_label "$issue" "$NEEDS_INFO_LABEL"; then
+  printf 'stage1: could not apply "%s" — the cases, the comment and the marker ARE published\n' \
+    "$NEEDS_INFO_LABEL" >&2
+fi
 gh_remove_label "$issue" "$PROGRESS_LABEL"
 gh_remove_label "$issue" "$TRIGGER_LABEL"
 
