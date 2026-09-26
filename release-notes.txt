@@ -6,7 +6,32 @@
 | | | (_| |\ V /  __/ (_) | | |  | |  __/ | |_) | (_| |  __/\__ \   < 
 |_|  \__,_| \_/ \___|\___/  |_|  |_|\___|_| .__/ \__,_|\___||___/_|\_\
                                           | |                         
-                                          |_|                         
+                                          |_|
+|=====================================================
+| v2.0.4.RC.1
+|=====================================================
+### Platform Upgrade
+- Updated Laravel to v12 and PHP to v8.4 (#8277)
+- Updated the frontend libraries to AdminLTE v4.0.0 and Bootstrap v5.3.8 (#8277)
+
+### Updates
+- Added pagination support (#8301)
+- Updated the default `public/.htaccess` so a www-prefixed domain is no longer
+  redirected to the naked domain (#8290, fixes #8289)
+
+### Bug Fixes
+- Fixed workflow management not working when a language other than English is
+  selected (#8351, fixes #799)
+- Fixed email configuration using the address instead of the username in cases
+  where both are set (#8352, fixes #696)
+- Fixed a JavaScript error when inserting an image into the editor (#8353,
+  fixes #726)
+- Fixed tickets that could not be edited or assigned from the Agent panel by
+  adding the missing modal trigger logic for the assign and edit buttons
+  (#8283, fixes #8282)
+- Fixed the "Overdue" red flag showing on closed tickets (#8296, fixes #8295)
+- Fixed an empty breadcrumb link on the Agent and Admin panels (#8297)
+
 |=====================================================
 | v2.0.3 Added Unit Test cases
 |=====================================================

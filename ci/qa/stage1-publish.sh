@@ -31,8 +31,17 @@ QA_APPROVED_LABELS="${QA_APPROVED_LABELS:-QA: Test case Approved}"
 # Applied when the issue carries content the authoring step could not open — an
 # Office document, a video, a Google Doc behind a login. The cases still get
 # published (what the issue does support is worth having), but a human is told that
-# part of the specification was never read. Verified to exist in the repo.
-NEEDS_INFO_LABEL="${QA_NEEDS_INFO_LABEL:-Need more info about issues by QA team}"
+# part of the specification was never read.
+#
+# "Need more info about issues by QA team" was the previous default and DOES NOT
+# EXIST on faveosuite/faveo-helpdesk — gh_add_label refuses to create a label it
+# cannot resolve, which used to kill this script (set -e) AFTER every case had
+# already been published. Checked against the repo's label list, 2026-09-26.
+# Two lines, not one: bash quote-processes the word in ${VAR:-word} even inside
+# double quotes, so the apostrophe in "issuer's" opens a quote that never closes
+# and the whole file stops parsing.
+needs_info_default="Need issuer's Feedback"
+NEEDS_INFO_LABEL="${QA_NEEDS_INFO_LABEL:-$needs_info_default}"
 
 SKIP=3
 STOP=4
@@ -182,6 +191,13 @@ unopened=''
 # of, which is a different gap and only it can report.
 declared=$(jq -r '(.unanalysed // [])[] | "- `unanalysed` " + .' "$cases_file" 2>/dev/null)
 [[ -n "$declared" ]] && unopened="$declared"
+
+# Deliberate coverage gaps are NOT a reason to ask the issuer for anything: that an
+# issue names no PR, that it carries no attachments, that OTP needs a plugin the
+# test instance does not have — no reply changes any of them. They were landing in
+# `unanalysed`, so the label fired on every issue and stopped meaning anything.
+# They are published for QA to read and they label nothing.
+not_covered=$(jq -r '(.notCovered // [])[] | "- " + .' "$cases_file" 2>/dev/null)
 
 manifest="${QA_ATTACHMENTS_DIR:-}/manifest.json"
 if [[ -n "${QA_ATTACHMENTS_DIR:-}" && -s "$manifest" ]]; then
@@ -363,6 +379,9 @@ heading=$([[ -n "$previous" ]] && printf 'Additional test cases for review' || p
   [[ -n "$unopened" ]] && printf '> [!IMPORTANT]\n> **Some content on this issue could not be opened, so these cases do not cover it.**\n>\n%s\n>\n> Paste the relevant detail into the issue (or attach it as an image or PDF) and re-apply `%s` to add the missing cases.\n\n' \
     "$(sed 's/^/> /' <<<"$unopened")" "$TRIGGER_LABEL"
 
+  [[ -n "$not_covered" ]] && printf '> [!NOTE]\n> **Deliberately not covered by these cases:**\n>\n%s\n\n' \
+    "$(sed 's/^/> /' <<<"$not_covered")"
+
   (( unresolved > 0 )) && printf '> [!WARNING]\n> %d case(s) were created but their codes could not be resolved, so they are **not** in the marker and will not be executed. Check the module in QA Touch.\n\n' "$unresolved"
 
   printf '| Code | Discipline | Title | Steps |\n|---|---|---|---|\n'
@@ -415,7 +434,24 @@ if ! gh_issue_upsert_ids_block "$issue" "${work}/ids-block.md"; then
 fi
 
 gh_add_label "$issue" "$DONE_LABEL"
-[[ -n "$unopened" ]] && gh_add_label "$issue" "$NEEDS_INFO_LABEL"
+
+# NOT `[[ -n "$unopened" ]] && gh_add_label ...`. In an && list set -e exempts
+# every command EXCEPT the one after the final &&, so a label that could not be
+# resolved took the whole script down here — with the cases, the comment and the
+# marker all already published, and the progress/trigger labels below never
+# cleared. A label is the least load-bearing thing this script writes; it must
+# not be able to fail a run whose real work has landed.
+if [[ -n "$unopened" ]]; then
+  if ! gh_add_label "$issue" "$NEEDS_INFO_LABEL"; then
+    printf 'stage1: could not apply "%s" — the cases, the comment and the marker ARE published\n' \
+      "$NEEDS_INFO_LABEL" >&2
+  fi
+else
+  # The label says "we are waiting on you". Once a run reads everything on the
+  # issue, that is no longer true, so a label left over from an earlier run is
+  # cleared here — otherwise it stays on for good and a person has to notice.
+  gh_remove_label "$issue" "$NEEDS_INFO_LABEL"
+fi
 gh_remove_label "$issue" "$PROGRESS_LABEL"
 gh_remove_label "$issue" "$TRIGGER_LABEL"
 
