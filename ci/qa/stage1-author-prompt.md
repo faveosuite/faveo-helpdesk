@@ -230,7 +230,8 @@ there isn't one to assume.
 {
   "module": "<existing QA Touch module name, or a new one if none fits>",
   "kind": "bug" | "enhancement",
-  "unanalysed": ["anything in the issue you could not use, one short line each"],
+  "unanalysed": ["content on the issue you could not READ, one short line each"],
+  "notCovered": ["behaviour you chose not to cover and why, one short line each"],
   "cases": [
     {
       "caseTitle": "Short, specific, no ticket number",
@@ -253,12 +254,25 @@ one is simply lost:
 - **Every step's `expectedResult` non-empty.**
 - `module` must be a single name. Reuse an existing QA Touch module where one
   fits; the existing library is organised by feature area, not by release.
-- `unanalysed` is your own account of what you could not read or could not make
-  sense of — an attachment you could not open, a link that answered with nothing, a
-  requirement stated too vaguely to test. Leave it as `[]` when the issue was fully
-  covered. The pipeline labels the issue and quotes these lines back on it, so a
-  person can supply what is missing; an empty array when something was in fact
-  unreadable is the one answer that costs the team a round of testing.
+- `unanalysed` is **content on the issue you could not read**: an attachment that
+  would not open, a link that answered with nothing, a body with no prose in it.
+  Nothing else. It is the one field that labels the issue and asks a human to come
+  back and supply something, so it must name only things a human CAN supply.
+  Leave it as `[]` whenever everything on the issue was legible — which is the
+  normal answer. An empty array when something was in fact unreadable is the one
+  answer that costs the team a round of testing.
+
+  These do NOT belong in `unanalysed`, because no reply from the issuer changes
+  them: that the issue names no PR, commit or diff; that it carries no
+  attachments; that a behaviour needs a plugin, a setting or seed data the test
+  environment does not have; that an area was out of scope. An issue written as
+  plain prose with no attachments is normal, valid input — it is not a defect in
+  the issue and must not be reported as one.
+
+- `notCovered` is where those go: behaviour you deliberately did not cover, one
+  short line each with the reason. It is published on the issue for QA to read and
+  labels nothing. Use it freely — an honest account of the edges you left alone is
+  worth more than silence — and leave it `[]` when there is nothing to say.
 - `discipline` must be one of the five above. It is prefixed onto the case
   description in QA Touch (`[security] …`) because the API accepts no type or
   priority field, and the executor reads it to know whether it is driving a

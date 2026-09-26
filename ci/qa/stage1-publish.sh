@@ -192,6 +192,13 @@ unopened=''
 declared=$(jq -r '(.unanalysed // [])[] | "- `unanalysed` " + .' "$cases_file" 2>/dev/null)
 [[ -n "$declared" ]] && unopened="$declared"
 
+# Deliberate coverage gaps are NOT a reason to ask the issuer for anything: that an
+# issue names no PR, that it carries no attachments, that OTP needs a plugin the
+# test instance does not have — no reply changes any of them. They were landing in
+# `unanalysed`, so the label fired on every issue and stopped meaning anything.
+# They are published for QA to read and they label nothing.
+not_covered=$(jq -r '(.notCovered // [])[] | "- " + .' "$cases_file" 2>/dev/null)
+
 manifest="${QA_ATTACHMENTS_DIR:-}/manifest.json"
 if [[ -n "${QA_ATTACHMENTS_DIR:-}" && -s "$manifest" ]]; then
   from_manifest=$(jq -r '.items[] | select(.status == "unreadable" or .status == "unfetchable")
@@ -372,6 +379,9 @@ heading=$([[ -n "$previous" ]] && printf 'Additional test cases for review' || p
   [[ -n "$unopened" ]] && printf '> [!IMPORTANT]\n> **Some content on this issue could not be opened, so these cases do not cover it.**\n>\n%s\n>\n> Paste the relevant detail into the issue (or attach it as an image or PDF) and re-apply `%s` to add the missing cases.\n\n' \
     "$(sed 's/^/> /' <<<"$unopened")" "$TRIGGER_LABEL"
 
+  [[ -n "$not_covered" ]] && printf '> [!NOTE]\n> **Deliberately not covered by these cases:**\n>\n%s\n\n' \
+    "$(sed 's/^/> /' <<<"$not_covered")"
+
   (( unresolved > 0 )) && printf '> [!WARNING]\n> %d case(s) were created but their codes could not be resolved, so they are **not** in the marker and will not be executed. Check the module in QA Touch.\n\n' "$unresolved"
 
   printf '| Code | Discipline | Title | Steps |\n|---|---|---|---|\n'
@@ -431,9 +441,16 @@ gh_add_label "$issue" "$DONE_LABEL"
 # marker all already published, and the progress/trigger labels below never
 # cleared. A label is the least load-bearing thing this script writes; it must
 # not be able to fail a run whose real work has landed.
-if [[ -n "$unopened" ]] && ! gh_add_label "$issue" "$NEEDS_INFO_LABEL"; then
-  printf 'stage1: could not apply "%s" — the cases, the comment and the marker ARE published\n' \
-    "$NEEDS_INFO_LABEL" >&2
+if [[ -n "$unopened" ]]; then
+  if ! gh_add_label "$issue" "$NEEDS_INFO_LABEL"; then
+    printf 'stage1: could not apply "%s" — the cases, the comment and the marker ARE published\n' \
+      "$NEEDS_INFO_LABEL" >&2
+  fi
+else
+  # The label says "we are waiting on you". Once a run reads everything on the
+  # issue, that is no longer true, so a label left over from an earlier run is
+  # cleared here — otherwise it stays on for good and a person has to notice.
+  gh_remove_label "$issue" "$NEEDS_INFO_LABEL"
 fi
 gh_remove_label "$issue" "$PROGRESS_LABEL"
 gh_remove_label "$issue" "$TRIGGER_LABEL"
