@@ -41,7 +41,7 @@ Requirements
 To run Faveo your host just needs a couple of things:
 
   * PHP Version: 8.4+
-  * Database: MySQL 8.0.x or MariaDB 10.6.x
+  * Database: MySQL 8.4+ (LTS) or MariaDB 11.8+ (LTS)
   * Web Server: Apache / IIS / Nginx
   * PHP Extensions: Imap, Mbstring, Mcrypt, OpenSSL, PDO, Tokenizer, XML, Zip
   * Web Server Extension: Pretty URLs or Search Engine Friendly URLs have to be enabled in your web server configuration
@@ -65,7 +65,7 @@ Visit our website for more information on services offered by us <a href="http:/
 
 YouTube Channel
 --------------------------
-Find demo, installation, configuration, tutorial videos on our channel <a href="https://www.youtube.com/channel/UC-eqh-h241b1janp6sU7Iiw" target="_blank" rel="noopener noreferrer">here</a>
+Find demo, installation, configuration, tutorial videos on our channel <a href="https://www.youtube.com/@faveohelpdesk" target="_blank" rel="noopener noreferrer">here</a>
 
 Road Map for Community Edition
 --------------------------
@@ -74,7 +74,7 @@ See what all features are going to be part of upcoming releases <a href="https:/
 Faveo Community
 --------------------------
 Join Faveo discussion group and stay tuned to latest updates.<br/>
-  * Join us on <a href="https://www.linkedin.com/company/faveo" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+  * Join us on <a href="https://www.linkedin.com/groups/8429668/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
 
 Support the community edition
 --------------------------
