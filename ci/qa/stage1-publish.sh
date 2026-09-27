@@ -231,7 +231,28 @@ if [[ -n "$previous" ]]; then
   fi
 fi
 
-module_key=$(qt_module_key_by_name "$module" || true)
+# An amend already knows where its cases live: the marker from the previous run
+# carries the module_key. Prefer it over resolving the name again, because a KEY
+# survives what a NAME does not — QA Touch drops a module from `getAllModules` the
+# moment someone drags it under a parent in the UI, and every successful create on
+# this pipeline tells them to do exactly that ("drag it where it belongs"). #8356
+# lost three modules to that in a fortnight, each one minutes-to-days after the
+# pipeline created it, while the key kept working the whole time.
+#
+# Only when the marker's module is the one being written to: an explicit
+# "Module:" line naming somewhere else must still resolve by name.
+module_key=''
+if [[ -n "$previous" ]]; then
+  marker_module=$(jq -r '.module // ""' <<<"$previous")
+  marker_key=$(jq -r '.module_key // ""' <<<"$previous")
+  if [[ -n "$marker_key" && "$marker_module" == "$module" ]]; then
+    module_key="$marker_key"
+    printf 'stage1: module "%s" -> %s (from the previous run marker; no name lookup)\n' \
+      "$module" "$module_key"
+  fi
+fi
+
+[[ -n "$module_key" ]] || module_key=$(qt_module_key_by_name "$module" || true)
 if [[ -z "$module_key" ]]; then
   # qt_create_module also re-looks-up on a keyless response — see its comment.
   # Its stderr carries QA Touch's own account of a refusal, so it goes to a file
@@ -367,7 +388,7 @@ heading=$([[ -n "$previous" ]] && printf 'Additional test cases for review' || p
   printf '**%d case(s)** authored for this %s and created in QA Touch module **%s** (project `%s`).\n\n' \
     "$created" "$kind" "$module" "$(qt_project)"
 
-  [[ -n "${module_was_created:-}" ]] && printf '> [!NOTE]\n> **%s** did not exist, so it was created. `POST /module` takes no parent, so it landed at the **top level** of the module tree — drag it where it belongs in QA Touch if it should sit under an existing folder.\n\n' \
+  [[ -n "${module_was_created:-}" ]] && printf '> [!NOTE]\n> **%s** did not exist, so it was created. `POST /module` takes no parent, so it landed at the **top level** of the module tree — drag it where it belongs in QA Touch if it should sit under an existing folder.\n>\n> Moving it is safe for **this** issue: the marker records the module key and later runs write to it wherever it ends up. It is not safe for other issues — `getAllModules` stops returning a nested module, so a different issue asking for it **by name** cannot publish and fails with \"could not use the module\".\n\n' \
     "$module"
 
   [[ -n "${fallback_used:-}" ]] && printf '> [!NOTE]\n> These were meant for **%s**, but a folder of that name already exists in QA Touch and the API cannot write into it, so they went to **%s** instead. Move them in the UI if you want them under the original.\n\n' \
