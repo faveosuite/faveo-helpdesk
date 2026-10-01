@@ -10,7 +10,7 @@
 #
 #   1. It checks the PIPELINE SCRIPT, which is pasted into the Jenkins job and
 #      deliberately not committed. Set QA_PIPELINE_SCRIPT_PATH to your local copy
-#      to run those three:
+#      to run those four:
 #        QA_PIPELINE_SCRIPT_PATH=~/Documents/JENKINS-PIPELINE-SCRIPT.groovy \
 #          bash ci/qa/tests/run.sh
 #
@@ -21,7 +21,7 @@
 set -uo pipefail
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 rc=0
-for suite in pipeline-contracts build-timeout jenkinsfile-parse gate-scenarios \
+for suite in pipeline-contracts pipeline-shell-compat build-timeout jenkinsfile-parse gate-scenarios \
              qatouch-run-resolution marker-resume case-lookup fixture-cast; do
   printf '\n=== %s\n' "$suite"
   bash "$here/${suite}.sh" || rc=1
