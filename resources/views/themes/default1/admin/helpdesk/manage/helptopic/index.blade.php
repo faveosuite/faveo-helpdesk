@@ -60,88 +60,94 @@ class="nav-link active"
     </div>
     <div class="card-body">
         
-        <table class="table table-bordered dataTable">
-            <tr>
-                <th width="100px">{{Lang::get('lang.topic')}}</th>
-                <th width="100px">{{Lang::get('lang.status')}}</th>
-                <th width="100px">{{Lang::get('lang.type')}}</th>
-                <th width="100px">{{Lang::get('lang.priority')}}</th>
-                <th width="100px">{{Lang::get('lang.department')}}</th>
-                <th width="100px">{{Lang::get('lang.last_updated')}}</th>
-                <th width="100px">{{Lang::get('lang.action')}}</th>
-            </tr>
-            <?php
-            $default_helptopic = App\Model\helpdesk\Settings\Ticket::where('id', '=', '1')->first();
-            $default_helptopic = $default_helptopic->help_topic;
-            ?>
-            <!-- Foreach @var$topics as @var topic -->
-            @foreach($topics as $topic)
-            <tr style="padding-bottom:-30px">
-                <!-- topic Name with Link to Edit page along Id -->
-                <td><a href="{{route('helptopic.edit',$topic->id)}}">{!! $topic->topic !!}
-                        @if($topic->id == $default_helptopic)
-                        ( Default )
-                        <?php
-                        $disable = 'disabled';
-                        ?>
-                        @else
-                        <?php
-                        $disable = '';
-                        ?>
-                        @endif
-                    </a></td>
-
-                <!-- topic Status : if status==1 active -->
-                <td>
-                    @if($topic->status=='1')
-                    <span style="color:green">{!! Lang::get('lang.active') !!}</span>
-                    @else
-                    <span style="color:red">{!! Lang::get('lang.disable') !!}</span>
-                    @endif
-                </td>
-
-                <!-- Type -->
-
-                <td>
-                    @if($topic->type=='1')
-                    <span style="color:green">{!! Lang::get('lang.public') !!}</span>
-                    @else
-                    <span style="color:red">{!! Lang::get('lang.private') !!}</span>
-                    @endif
-                </td>
-                <!-- Priority -->
-                <?php $priority = App\Model\helpdesk\Ticket\Ticket_Priority::where('priority_id', '=', $topic->priority)->first(); ?>
-                <td>{!! $priority->priority_desc !!}</td>
-                <!-- Department -->
-                @if($topic->department != null)
+        {{-- Wrapped for small screens: the bare table overflowed the viewport at 375px
+                 (the inline overflow:scroll on a <table> does nothing — the element has no
+                 scroll box). table-responsive is the theme's own convention, already used in
+                 client/helpdesk/mytickets.blade.php. Desktop layout is unchanged. --}}
+        <div class="table-responsive">
+            <table class="table table-bordered dataTable">
+                <tr>
+                    <th width="100px">{{Lang::get('lang.topic')}}</th>
+                    <th width="100px">{{Lang::get('lang.status')}}</th>
+                    <th width="100px">{{Lang::get('lang.type')}}</th>
+                    <th width="100px">{{Lang::get('lang.priority')}}</th>
+                    <th width="100px">{{Lang::get('lang.department')}}</th>
+                    <th width="100px">{{Lang::get('lang.last_updated')}}</th>
+                    <th width="100px">{{Lang::get('lang.action')}}</th>
+                </tr>
                 <?php
-                $dept = App\Model\helpdesk\Agent\Department::where('id', '=', $topic->department)->first();
-                $dept = $dept->name;
+                $default_helptopic = App\Model\helpdesk\Settings\Ticket::where('id', '=', '1')->first();
+                $default_helptopic = $default_helptopic->help_topic;
                 ?>
-                @elseif($topic->department == null)
-                <?php $dept = ""; ?>
-                @endif
-                <td> {!! $dept !!} </td>
-                <!-- Last Updated -->
-                <td> {!! UTC::usertimezone($topic->updated_at) !!} </td>
-                <!-- Deleting Fields -->
-                <td>
-                    {!! html()->form('DELETE', route('helptopic.destroy', [$topic->id]))->open() !!}
-                    <a href="{{route('helptopic.edit',$topic->id)}}" class="btn btn-primary btn-xs"><i class="fa-solid fa-pen-to-square"> </i> {!! Lang::get('lang.edit') !!}</a>
-                    <!-- To pop up a confirm Message -->
-                    @if($topic->id == $default_helptopic)
-                        {!! html()->button('<i class="fa-solid fa-trash"> </i> '.Lang::get('lang.delete'))->class('btn btn-danger btn-xs '.$disable) !!}
-                    @else
-                        {!! html()->button('<i class="fa-solid fa-trash"> </i> '.Lang::get('lang.delete'))->class('btn btn-danger btn-xs')->attributes(['type' => 'submit', 'onclick' => 'return confirm("Are you sure?")']) !!}
+                <!-- Foreach @var$topics as @var topic -->
+                @foreach($topics as $topic)
+                <tr style="padding-bottom:-30px">
+                    <!-- topic Name with Link to Edit page along Id -->
+                    <td><a href="{{route('helptopic.edit',$topic->id)}}">{!! $topic->topic !!}
+                            @if($topic->id == $default_helptopic)
+                            ( Default )
+                            <?php
+                            $disable = 'disabled';
+                            ?>
+                            @else
+                            <?php
+                            $disable = '';
+                            ?>
+                            @endif
+                        </a></td>
+    
+                    <!-- topic Status : if status==1 active -->
+                    <td>
+                        @if($topic->status=='1')
+                        <span style="color:green">{!! Lang::get('lang.active') !!}</span>
+                        @else
+                        <span style="color:red">{!! Lang::get('lang.disable') !!}</span>
+                        @endif
+                    </td>
+    
+                    <!-- Type -->
+    
+                    <td>
+                        @if($topic->type=='1')
+                        <span style="color:green">{!! Lang::get('lang.public') !!}</span>
+                        @else
+                        <span style="color:red">{!! Lang::get('lang.private') !!}</span>
+                        @endif
+                    </td>
+                    <!-- Priority -->
+                    <?php $priority = App\Model\helpdesk\Ticket\Ticket_Priority::where('priority_id', '=', $topic->priority)->first(); ?>
+                    <td>{!! $priority->priority_desc !!}</td>
+                    <!-- Department -->
+                    @if($topic->department != null)
+                    <?php
+                    $dept = App\Model\helpdesk\Agent\Department::where('id', '=', $topic->department)->first();
+                    $dept = $dept->name;
+                    ?>
+                    @elseif($topic->department == null)
+                    <?php $dept = ""; ?>
                     @endif
-                    </div>
-                    {!! html()->closeModelForm() !!}
-                </td>
-                @endforeach
-            </tr>
-            <!-- Set a link to Create Page -->
-
-        </table>
+                    <td> {!! $dept !!} </td>
+                    <!-- Last Updated -->
+                    <td> {!! UTC::usertimezone($topic->updated_at) !!} </td>
+                    <!-- Deleting Fields -->
+                    <td>
+                        {!! html()->form('DELETE', route('helptopic.destroy', [$topic->id]))->open() !!}
+                        <a href="{{route('helptopic.edit',$topic->id)}}" class="btn btn-primary btn-xs"><i class="fa-solid fa-pen-to-square"> </i> {!! Lang::get('lang.edit') !!}</a>
+                        <!-- To pop up a confirm Message -->
+                        @if($topic->id == $default_helptopic)
+                            {!! html()->button('<i class="fa-solid fa-trash"> </i> '.Lang::get('lang.delete'))->class('btn btn-danger btn-xs '.$disable) !!}
+                        @else
+                            {!! html()->button('<i class="fa-solid fa-trash"> </i> '.Lang::get('lang.delete'))->class('btn btn-danger btn-xs')->attributes(['type' => 'submit', 'onclick' => 'return confirm("Are you sure?")']) !!}
+                        @endif
+                        </div>
+                        {!! html()->closeModelForm() !!}
+                    </td>
+                    @endforeach
+                </tr>
+                <!-- Set a link to Create Page -->
+    
+            </table>
+        </div>
     </div>
 </div>
 @stop

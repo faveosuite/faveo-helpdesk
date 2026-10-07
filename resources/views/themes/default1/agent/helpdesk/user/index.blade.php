@@ -104,20 +104,25 @@ class="nav-link active"
     
     <div class="card-body">
 
-        <table id="chumper" class="table table-bordered w-100 d-table">
-            <thead>
-                <tr>
-                    <th>{{Lang::get('lang.name')}}</th>
-                    <th>{{Lang::get('lang.email')}}</th>
-                    <th>{{Lang::get('lang.phone')}}</th>
-                    <th>{{Lang::get('lang.status')}}</th>
-                    <th>{{Lang::get('lang.last_login')}}</th>
-                    <th>{{Lang::get('lang.role')}}</th>
-                    <th>{{Lang::get('lang.action')}}</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+        {{-- Wrapped for small screens: this table overflowed the 375px viewport.
+                 table-responsive is the theme's own convention (see
+                 client/helpdesk/mytickets.blade.php). Desktop layout is unchanged. --}}
+        <div class="table-responsive">
+            <table id="chumper" class="table table-bordered w-100 d-table">
+                <thead>
+                    <tr>
+                        <th>{{Lang::get('lang.name')}}</th>
+                        <th>{{Lang::get('lang.email')}}</th>
+                        <th>{{Lang::get('lang.phone')}}</th>
+                        <th>{{Lang::get('lang.status')}}</th>
+                        <th>{{Lang::get('lang.last_login')}}</th>
+                        <th>{{Lang::get('lang.role')}}</th>
+                        <th>{{Lang::get('lang.action')}}</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
 
         @include('vendor.Chumper.user-javascript')
     </div>

@@ -66,19 +66,25 @@ class="nav-link active"
 	</div>
 
 	<div class="card-body">
-		<table id="emailsTable" class="table table-bordered w-100 d-table">
-			<thead>
-				<tr>
-					<th>{{Lang::get('lang.email')}}</th>
-					<th>{{Lang::get('lang.priority')}}</th>
-					<th>{{Lang::get('lang.department')}}</th>
-					<th>{{Lang::get('lang.created')}}</th>
-					<th>{{Lang::get('lang.last_updated')}}</th>
-					<th>{{Lang::get('lang.action')}}</th>
-				</tr>
-			</thead>
-			<tbody></tbody>
-		</table>
+		{{-- Wrapped for small screens: the bare table overflowed the viewport at 375px
+                 (the inline overflow:scroll on a <table> does nothing — the element has no
+                 scroll box). table-responsive is the theme's own convention, already used in
+                 client/helpdesk/mytickets.blade.php. Desktop layout is unchanged. --}}
+		<div class="table-responsive">
+		    <table id="emailsTable" class="table table-bordered w-100 d-table">
+    			<thead>
+    				<tr>
+    					<th>{{Lang::get('lang.email')}}</th>
+    					<th>{{Lang::get('lang.priority')}}</th>
+    					<th>{{Lang::get('lang.department')}}</th>
+    					<th>{{Lang::get('lang.created')}}</th>
+    					<th>{{Lang::get('lang.last_updated')}}</th>
+    					<th>{{Lang::get('lang.action')}}</th>
+    				</tr>
+    			</thead>
+    			<tbody></tbody>
+    		</table>
+		</div>
 	</div>
 </div>
 @stop
