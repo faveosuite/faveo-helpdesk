@@ -85,7 +85,7 @@ class TemplateController extends Controller
         // everything. Filter only when a set was actually named.
         $query = $this->template->select('id', 'name', 'type');
 
-        if (! is_null($id) && $id !== '') {
+        if (!is_null($id) && $id !== '') {
             $query = $query->where('set_id', '=', $id);
         }
 

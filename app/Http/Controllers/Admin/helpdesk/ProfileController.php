@@ -13,8 +13,8 @@ use App\Model\helpdesk\Utility\CountryCode;
 use App\User;
 // classes
 use Auth;
-use GeoIP;
 use Exception;
+use GeoIP;
 use Hash;
 use Illuminate\Support\Facades\Request;
 
