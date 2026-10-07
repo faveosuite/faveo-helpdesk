@@ -29,7 +29,7 @@ class CheckRole
         // every admin URL instead of a redirect to the login page. That ordering is
         // fixed, and this guard keeps a future group that gets it wrong again
         // degrading to a login redirect rather than a crash.
-        if (! $request->user()) {
+        if (!$request->user()) {
             if ($request->ajax()) {
                 $result = ['fails' => 'Unauthorized! Please login again'];
 
