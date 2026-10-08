@@ -17,6 +17,22 @@ class TicketController extends Controller
     {
         try {
             $user = \JWTAuth::parseToken()->authenticate();
+
+            // Route-level authorization. This endpoint lists tickets across the
+            // whole installation and, without this check, was reachable by ANY
+            // authenticated JWT holder: 'jwt.authOveride' (the only middleware
+            // this controller declares) just validates the token, and
+            // FilterController's own 'role.agent' middleware never runs here —
+            // it is instantiated with `new FilterController($request)` below
+            // rather than dispatched through the router, so its constructor
+            // middleware is skipped. A plain `role = 'user'` account could get
+            // every other customer's tickets just by asking for
+            // ?departments=all. See userIsAgent() in FilterController for the
+            // matching fix on the query side.
+            if (! $user || ! in_array($user->role, ['agent', 'admin'], true)) {
+                return errorResponse(Lang::get('lang.unauthorized_access'), 403);
+            }
+
             $input = [];
             if ($request->has('api') && $request->has('show') && $request->has('departments')) {
                 if ($request->get('api') != '' || $request->get('show') != '' || $request->get('departments') != '') {
@@ -85,16 +101,18 @@ class TicketController extends Controller
             return errorResponse($error, $responseCode = 400);
             // return response()->json(compact('error'));
         } catch (\Exception $ex) {
+            // $e (undefined) and dd() (dumps and exit()s the process, skipping the
+            // return below entirely) were both bugs: any exception here — from a
+            // legitimate agent/admin request, not just a blocked one — used to
+            // crash with "Undefined variable $e" instead of the structured error
+            // response the code right below was clearly written to send back.
             $error = $ex->getMessage();
             $line = $ex->getLine();
             $file = $ex->getFile();
-            dd($e);
 
             return errorResponse(compact('error', 'file', 'line'), $responseCode = 400);
-        } catch (\TokenExpiredException $e) {
-            dd($e);
-
-            return errorResponse($e->getMessage(), $responseCode = 400);
+        } catch (\TokenExpiredException $ex) {
+            return errorResponse($ex->getMessage(), $responseCode = 400);
         }
     }
 }
