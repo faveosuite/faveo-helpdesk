@@ -92,7 +92,15 @@ class="nav-link active"
 @section('FooterInclude')
 <script>
     jQuery(document).ready(function () {
-        jQuery('#emailsTable').dataTable({
+        // Priority / Department / Created / Last updated hidden below 768px.
+        // This table has no table-responsive-aware column collapsing of its own
+        // (the Responsive DataTables extension isn't loaded in this project, only
+        // core DataTables), so at 375px all 6 columns rendered and Created / Last
+        // updated / Action were clipped past the right edge (measured to 636).
+        // DataTables' own column().visible() (core API, no extra plugin needed)
+        // toggles them on load and on resize; Email and Action stay visible at
+        // every width, and nothing changes above 768px.
+        var emailsTable = jQuery('#emailsTable').dataTable({
             "sPaginationType": "full_numbers",
             "bProcessing": true,
             "bServerSide": true,
@@ -108,6 +116,15 @@ class="nav-link active"
                 { data: "action", orderable: false, searchable: false }
             ]
         });
+
+        function applyEmailsTableResponsiveColumns() {
+            var isMobile = window.innerWidth < 768;
+            [1, 2, 3, 4].forEach(function (colIdx) {
+                emailsTable.api().column(colIdx).visible(!isMobile);
+            });
+        }
+        applyEmailsTableResponsiveColumns();
+        jQuery(window).on('resize', applyEmailsTableResponsiveColumns);
     });
 </script>
 @stop

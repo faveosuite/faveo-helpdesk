@@ -80,7 +80,14 @@ class="nav-link active"
         </div>
         <script type="text/javascript">
             jQuery(document).ready(function () {
-                jQuery('#workflowTable').dataTable({
+                // Rules / Target channel / Created / Updated hidden below 768px —
+                // these 4 were specifically the columns measured past the right
+                // edge at 375px (to 690). Name / Status / Order / Action stay
+                // visible at every width; desktop is unchanged. No Responsive
+                // DataTables extension is loaded in this project, so this uses
+                // core DataTables' column().visible() directly, the same
+                // approach as the Emails table.
+                var workflowTable = jQuery('#workflowTable').dataTable({
                     "sPaginationType": "full_numbers",
                     "bProcessing": true,
                     "bServerSide": true,
@@ -98,6 +105,15 @@ class="nav-link active"
                         {data: "Actions"}
                     ]
                 });
+
+                function applyWorkflowTableResponsiveColumns() {
+                    var isMobile = window.innerWidth < 768;
+                    [3, 4, 5, 6].forEach(function (colIdx) {
+                        workflowTable.api().column(colIdx).visible(!isMobile);
+                    });
+                }
+                applyWorkflowTableResponsiveColumns();
+                jQuery(window).on('resize', applyWorkflowTableResponsiveColumns);
             });
         </script>
     </div>

@@ -29,7 +29,13 @@ class TicketController extends Controller
             // every other customer's tickets just by asking for
             // ?departments=all. See userIsAgent() in FilterController for the
             // matching fix on the query side.
-            if (!$user || !in_array($user->role, ['agent', 'admin'], true)) {
+            //
+            // The instanceof is a genuine narrowing, not a cast to silence
+            // Larastan: authenticate() is typed to return
+            // Tymon\JWTAuth\Contracts\JWTSubject, an interface with no $role, so
+            // the check below needs App\User specifically — and if it were ever
+            // anything else, denying is the correct (fail-closed) outcome anyway.
+            if (!$user instanceof \App\User || !in_array($user->role, ['agent', 'admin'], true)) {
                 return errorResponse(Lang::get('lang.unauthorized_access'), 403);
             }
 
@@ -111,8 +117,17 @@ class TicketController extends Controller
             $file = $ex->getFile();
 
             return errorResponse(compact('error', 'file', 'line'), $responseCode = 400);
-        } catch (\TokenExpiredException $ex) {
-            return errorResponse($ex->getMessage(), $responseCode = 400);
         }
+        // A prior `catch (\TokenExpiredException $ex)` block stood here, below the
+        // catch (\Exception $ex) above. Tymon's TokenExpiredException extends its own
+        // JWTException, which extends \Exception, so that block could never run —
+        // the catch above it already intercepts every exception, including a real
+        // token expiry, first. It also named the wrong class: \TokenExpiredException
+        // (root namespace) isn't the real
+        // \Tymon\JWTAuth\Exceptions\TokenExpiredException, which is how Larastan
+        // caught it ("Call to method getMessage() on an unknown class"). Removed
+        // rather than corrected: dead code that happens to typecheck is still dead
+        // code, and the \Exception catch above already returns the same shape of
+        // response for a real token-expiry error.
     }
 }

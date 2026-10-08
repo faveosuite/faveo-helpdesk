@@ -63,7 +63,12 @@ class="nav-link active"
 
         <h3 class="card-title">{{ Lang::get('lang.user') }}</h3>
 
-        <div class="card-tools d-flex align-items-center gap-2">
+        {{-- flex-wrap added: search box + view-option dropdown + Export + Create user
+             are 4 unwrapped flex items, which pushed Create user past the right edge
+             at 375px (measured right=385 vs a 375px viewport). Wrapping them onto a
+             second row keeps every control reachable without horizontal scroll.
+             Desktop is unaffected — they already fit on one row above ~576px. --}}
+        <div class="card-tools d-flex flex-wrap align-items-center gap-2">
 
             <div class="has-feedback">
                 <input type="text"

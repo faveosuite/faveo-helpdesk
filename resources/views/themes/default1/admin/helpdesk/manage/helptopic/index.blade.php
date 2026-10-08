@@ -66,13 +66,17 @@ class="nav-link active"
                  client/helpdesk/mytickets.blade.php. Desktop layout is unchanged. --}}
         <div class="table-responsive">
             <table class="table table-bordered dataTable">
+                {{-- Status / Type / Priority / Department / Last updated hidden below
+                     md (768px): 7 columns at 100px each add to ~700px, so 18 cells
+                     were clipped at 375px (right edge to 580). Topic and Action stay
+                     visible at every width; desktop is unchanged. --}}
                 <tr>
                     <th width="100px">{{Lang::get('lang.topic')}}</th>
-                    <th width="100px">{{Lang::get('lang.status')}}</th>
-                    <th width="100px">{{Lang::get('lang.type')}}</th>
-                    <th width="100px">{{Lang::get('lang.priority')}}</th>
-                    <th width="100px">{{Lang::get('lang.department')}}</th>
-                    <th width="100px">{{Lang::get('lang.last_updated')}}</th>
+                    <th width="100px" class="d-none d-md-table-cell">{{Lang::get('lang.status')}}</th>
+                    <th width="100px" class="d-none d-md-table-cell">{{Lang::get('lang.type')}}</th>
+                    <th width="100px" class="d-none d-md-table-cell">{{Lang::get('lang.priority')}}</th>
+                    <th width="100px" class="d-none d-md-table-cell">{{Lang::get('lang.department')}}</th>
+                    <th width="100px" class="d-none d-md-table-cell">{{Lang::get('lang.last_updated')}}</th>
                     <th width="100px">{{Lang::get('lang.action')}}</th>
                 </tr>
                 <?php
@@ -97,17 +101,17 @@ class="nav-link active"
                         </a></td>
     
                     <!-- topic Status : if status==1 active -->
-                    <td>
+                    <td class="d-none d-md-table-cell">
                         @if($topic->status=='1')
                         <span style="color:green">{!! Lang::get('lang.active') !!}</span>
                         @else
                         <span style="color:red">{!! Lang::get('lang.disable') !!}</span>
                         @endif
                     </td>
-    
+
                     <!-- Type -->
-    
-                    <td>
+
+                    <td class="d-none d-md-table-cell">
                         @if($topic->type=='1')
                         <span style="color:green">{!! Lang::get('lang.public') !!}</span>
                         @else
@@ -116,7 +120,7 @@ class="nav-link active"
                     </td>
                     <!-- Priority -->
                     <?php $priority = App\Model\helpdesk\Ticket\Ticket_Priority::where('priority_id', '=', $topic->priority)->first(); ?>
-                    <td>{!! $priority->priority_desc !!}</td>
+                    <td class="d-none d-md-table-cell">{!! $priority->priority_desc !!}</td>
                     <!-- Department -->
                     @if($topic->department != null)
                     <?php
@@ -126,9 +130,9 @@ class="nav-link active"
                     @elseif($topic->department == null)
                     <?php $dept = ""; ?>
                     @endif
-                    <td> {!! $dept !!} </td>
+                    <td class="d-none d-md-table-cell"> {!! $dept !!} </td>
                     <!-- Last Updated -->
-                    <td> {!! UTC::usertimezone($topic->updated_at) !!} </td>
+                    <td class="d-none d-md-table-cell"> {!! UTC::usertimezone($topic->updated_at) !!} </td>
                     <!-- Deleting Fields -->
                     <td>
                         {!! html()->form('DELETE', route('helptopic.destroy', [$topic->id]))->open() !!}

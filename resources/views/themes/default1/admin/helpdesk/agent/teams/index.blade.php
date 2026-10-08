@@ -70,17 +70,21 @@ class="nav-link active"
                  client/helpdesk/mytickets.blade.php. Desktop layout is unchanged. --}}
         <div class="table-responsive">
             <table class="table table-bordered dataTable" style="overflow:scroll;">
+                {{-- Status / Members / Team Lead hidden below md (768px): with all 5
+                     columns, 13 controls were clipped and Actions sat at right edge
+                     405 on a 375px viewport, past the wrapper's own scroll. Name and
+                     Action stay visible at every width; desktop is unchanged. --}}
                 <tr>
                     <th>{{Lang::get('lang.name')}}</th>
-                    <th>{{Lang::get('lang.status')}}</th>
-                    <th>{{Lang::get('lang.team_members')}}</th>
-                    <th>{{Lang::get('lang.team_lead')}}</th>
+                    <th class="d-none d-md-table-cell">{{Lang::get('lang.status')}}</th>
+                    <th class="d-none d-md-table-cell">{{Lang::get('lang.team_members')}}</th>
+                    <th class="d-none d-md-table-cell">{{Lang::get('lang.team_lead')}}</th>
                     <th>{{Lang::get('lang.action')}}</th>
                 </tr>
                 @foreach($teams as $team)
                 <tr>
                     <td><a href="{{route('teams.show', $team->id)}}"> {{$team->name }}</a></td>
-                    <td>
+                    <td class="d-none d-md-table-cell">
                         @if($team->status=='1')
                         <span style="color:green">{{Lang::get('lang.active')}}</span>
                         @else
@@ -95,8 +99,8 @@ class="nav-link active"
                         }
                         ?>
                     </td>
-                    <td>{{count($assign_team_agent->where('team_id',$team->id))}}</td>
-                    <td>{{ $team_lead }}</td>
+                    <td class="d-none d-md-table-cell">{{count($assign_team_agent->where('team_id',$team->id))}}</td>
+                    <td class="d-none d-md-table-cell">{{ $team_lead }}</td>
                     <td>
                         {!! html()->form('DELETE', route('teams.destroy', [$team->id]))->open() !!}
     
