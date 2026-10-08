@@ -91,9 +91,13 @@ class TemplateController extends Controller
 
         return DataTables::of($query->get())
                         ->editColumn('type', function ($model) {
-                            // Null-safe: a template whose type row has been deleted must
-                            // not take the whole listing down with it.
-                            return $this->type->where('id', $model->type)->first()?->name ?? '-';
+                            // A template whose type row has been deleted must not take the
+                            // whole listing down with it: first() already returns null in
+                            // that case, and -> on a null property read in PHP 8 is a
+                            // (non-fatal) warning that still evaluates to null, so ?? still
+                            // catches it — no ?-> needed (Larastan: nullsafe before ?? is
+                            // redundant for a property read).
+                            return $this->type->where('id', $model->type)->first()->name ?? '-';
                         })
                         ->addColumn('action', function ($model) {
                             return '<a href='.url('templates/'.$model->id.'/edit')." class='btn btn-sm btn-primary'>Edit</a>";

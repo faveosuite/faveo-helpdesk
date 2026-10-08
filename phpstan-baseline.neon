@@ -27058,5 +27058,5 @@ parameters:
 		-
 			message: '#^Static method Illuminate\\Routing\\RouteRegistrar\:\:middleware\(\) invoked with 4 parameters, 1 required\.$#'
 			identifier: arguments.count
-			count: 2
+			count: 3
 			path: routes/web.php

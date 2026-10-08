@@ -87,8 +87,8 @@ class ProfileController extends Controller
                     ->first();
 
                 return view('themes.default1.agent.helpdesk.user.profile-edit', compact('user'))
-                                ->with(['phonecode' => $phonecode?->phonecode ?? '',
-                                    'verify'        => $settings?->status ?? 0, ]);
+                                ->with(['phonecode' => $phonecode->phonecode ?? '',
+                                    'verify'        => $settings->status ?? 0, ]);
             } else {
                 return redirect('404');
             }
