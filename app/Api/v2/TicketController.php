@@ -29,7 +29,7 @@ class TicketController extends Controller
             // every other customer's tickets just by asking for
             // ?departments=all. See userIsAgent() in FilterController for the
             // matching fix on the query side.
-            if (! $user || ! in_array($user->role, ['agent', 'admin'], true)) {
+            if (!$user || !in_array($user->role, ['agent', 'admin'], true)) {
                 return errorResponse(Lang::get('lang.unauthorized_access'), 403);
             }
 
