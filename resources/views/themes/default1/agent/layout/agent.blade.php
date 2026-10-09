@@ -66,6 +66,16 @@
 
             .notification-list { max-height: 350px; overflow-y: auto; }
 
+            /* jQuery-UI appends .ui-autocomplete to <body> and sizes it from the input it
+               is attached to, so on a 375px screen the requester-email suggestions were
+               drawn past the right edge (x 50-397) and the entries were clipped. Capping
+               it to the viewport keeps the list on screen and lets long addresses wrap
+               instead of being cut off. calc() only binds on a narrow screen — on desktop
+               the viewport is far wider than the menu, so nothing changes there. */
+            .ui-autocomplete { max-width: calc(100vw - 32px); box-sizing: border-box; }
+            .ui-autocomplete .ui-menu-item-wrapper,
+            .ui-autocomplete .ui-menu-item a { white-space: normal; word-break: break-word; }
+
             .noti_User { color: #6c757d !important; }
 
             .brand-image{float: none !important; margin-left: 0 !important;}
