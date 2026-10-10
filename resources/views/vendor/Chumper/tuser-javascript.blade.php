@@ -45,6 +45,14 @@ foreach($segments as $seg){
                         "targets": "_all"},
                     { "visible": last, "targets": 6 },
                     {"visible": create, "targets":7},
+                    // Priority / From / Assigned to hidden below 768px: this ticket
+                    // sub-table on a user's detail page overflowed to a right edge
+                    // of 642 on a 375px viewport. Ticket number and Subject stay
+                    // visible at every width (the existing last/create toggles
+                    // above are untouched); desktop is unchanged. Computed fresh
+                    // each time this runs, which covers every redraw path already
+                    // in this file (filter change, toggle-vis, tab switch).
+                    {"visible": window.innerWidth >= 768, "targets": [3, 4, 5]},
                 ],
                 "columns":[
                     {data: "id"},

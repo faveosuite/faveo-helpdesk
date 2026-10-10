@@ -216,7 +216,121 @@ class TicketControllerTest extends TestCase
         $response->assertSessionHas('success', Lang::get('lang.tickets_have_been_closed'));
     }
 
+    // ── v2 ticket-listing API authorization ─────────────────────────────────
+    // Regression coverage for the broken-access-control report: the endpoint had
+    // no role check of its own (FilterController's 'role.agent' middleware never
+    // runs — it's instantiated with `new`, not dispatched through the router),
+    // and userIsAgent() returned the UNRESTRICTED query for any role that was not
+    // literally 'agent'. A plain end-user's JWT was enough to list every
+    // customer's tickets via ?departments=all.
+
+    public function test_v2_tickets_api_denies_a_plain_end_user()
+    {
+        $victimAgent = $this->actingAsAgent();
+        $this->makeTicket($victimAgent);
+
+        $endUser = $this->makeEndUser();
+
+        $response = $this->getJson(
+            '/api/v2/helpdesk/tickets?api=1&show=inbox&departments=all',
+            ['Authorization' => 'Bearer '.$this->jwtFor($endUser)]
+        );
+
+        $response->assertStatus(403);
+        $response->assertJsonMissing(['success' => true]);
+    }
+
+    /**
+     * The report's exact reproduction: departments=all combined with each show
+     * value. Every one of them used to fall through userIsAgent() unrestricted
+     * for a 'user' role; each must now be refused before any query runs.
+     */
+    public function test_v2_tickets_api_denies_end_user_across_show_values()
+    {
+        $endUser = $this->makeEndUser();
+        $token = $this->jwtFor($endUser);
+
+        foreach (['inbox', 'closed', 'trash'] as $show) {
+            $response = $this->getJson(
+                "/api/v2/helpdesk/tickets?api=1&show={$show}&departments=all&records_per_page=100",
+                ['Authorization' => 'Bearer '.$token]
+            );
+
+            $response->assertStatus(403);
+        }
+    }
+
+    /** Non-regression: an agent must keep using this endpoint exactly as before. */
+    public function test_v2_tickets_api_still_allows_an_agent()
+    {
+        $agent = $this->actingAsAgent();
+        $this->makeTicket($agent);
+
+        $response = $this->getJson(
+            '/api/v2/helpdesk/tickets?api=1&show=inbox&departments=all',
+            ['Authorization' => 'Bearer '.$this->jwtFor($agent)]
+        );
+
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+    }
+
+    /** Non-regression: an admin must keep seeing every department's tickets. */
+    public function test_v2_tickets_api_still_allows_an_admin_to_see_all_departments()
+    {
+        $agent = $this->actingAsAgent(['primary_dpt' => 1]);
+        $this->makeTicket($agent, ['dept_id' => 1]);
+
+        $otherAgent = $this->actingAsAgent(['primary_dpt' => 2]);
+        $this->makeTicket($otherAgent, ['dept_id' => 2]);
+
+        $admin = new User([
+            'first_name'  => 'QA',
+            'last_name'   => 'Admin',
+            'email'       => FakerFactory::create()->unique()->email(),
+            'user_name'   => FakerFactory::create()->unique()->userName(),
+            'password'    => Hash::make(Str::random(10)),
+            'active'      => 1,
+            'role'        => 'admin',
+            'agent_tzone' => 81,
+        ]);
+        $admin->save();
+
+        $response = $this->getJson(
+            '/api/v2/helpdesk/tickets?api=1&show=inbox&departments=all&records_per_page=100',
+            ['Authorization' => 'Bearer '.$this->jwtFor($admin)]
+        );
+
+        $response->assertStatus(200);
+        $body = $response->json();
+        $this->assertGreaterThanOrEqual(2, $body['data']['total'] ?? 0);
+    }
+
     // ── Helpers ──────────────────────────────────────────────────────────────
+
+    /** Create a plain end-user (role = 'user'), the role the report's attacker used. */
+    private function makeEndUser(array $overrides = []): User
+    {
+        $faker = FakerFactory::create();
+        $user = new User(array_merge([
+            'first_name' => $faker->firstName(),
+            'last_name'  => $faker->lastName(),
+            'email'      => $faker->unique()->email(),
+            'user_name'  => $faker->unique()->userName(),
+            'password'   => Hash::make(Str::random(10)),
+            'active'     => 1,
+            'role'       => 'user',
+        ], $overrides));
+        $user->save();
+
+        return $user;
+    }
+
+    /** Mint a JWT the way POST /api/v1/authenticate does, for use in an Authorization header. */
+    private function jwtFor(User $user): string
+    {
+        return \JWTAuth::fromUser($user);
+    }
 
     /** Create and authenticate an agent. */
     private function actingAsAgent(array $overrides = []): User

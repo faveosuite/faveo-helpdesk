@@ -45,36 +45,40 @@
         <div class="row">
             
             <div class="col-md-12">
-                {!! Datatable::table()
-                ->addColumn('Name','Type','Action')
-                ->setUrl('get-templates')
-                ->setOptions([
-
-                "dom" => "Bfrtip",
-                "buttons" => [
-                [
-                "text" => "Delete",
-                "action" => "function ( e, dt, node, config ) {
-                    $.ajax({
-                        url: 'templates-delete',
-                        type: 'GET',
-                        data: $('#check:checked').serialize(),
-                        beforeSend: function () {
-                                $('#gif').show();
+                {{-- This used to call Datatable::table()->render(), the helper from
+                     bllim/datatables. That package is long gone — the project moved to
+                     yajra/laravel-datatables (config/app.php aliases 'DataTables', and
+                     TemplateController already imports it) — so the facade resolved to
+                     nothing and the page died with 'Class "Datatable" not found'.
+                     Rebuilt with the same server-side pattern every other list in this
+                     theme uses, e.g. admin/helpdesk/manage/workflow/index.blade.php. --}}
+                <table id="templateTable" class="table table-bordered w-100 d-table">
+                    <thead>
+                        <tr>
+                            <th>{{Lang::get('lang.name')}}</th>
+                            <th>{{Lang::get('lang.type')}}</th>
+                            <th>{{Lang::get('lang.action')}}</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <script type="text/javascript">
+                    jQuery(document).ready(function () {
+                        jQuery('#templateTable').dataTable({
+                            "sPaginationType": "full_numbers",
+                            "bProcessing": true,
+                            "bServerSide": true,
+                            "ajax": {
+                                url: "{{url('get-templates')}}"
                             },
-                        success: function (data) {
-                                $('#gif').hide();
-                                $('#response').html(data);
-                                location.reload();
-                            }
-                        
+                            "columns": [
+                                {data: "name"},
+                                {data: "type"},
+                                {data: "action", orderable: false, searchable: false}
+                            ]
+                        });
                     });
-                }"
-                ]
-                ],
-
-                ])
-                ->render() !!}
+                </script>
                 <script>
                     $('#delete').click(function () {
                         $.ajax({

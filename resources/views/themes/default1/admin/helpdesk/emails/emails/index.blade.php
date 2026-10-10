@@ -66,19 +66,25 @@ class="nav-link active"
 	</div>
 
 	<div class="card-body">
-		<table id="emailsTable" class="table table-bordered w-100 d-table">
-			<thead>
-				<tr>
-					<th>{{Lang::get('lang.email')}}</th>
-					<th>{{Lang::get('lang.priority')}}</th>
-					<th>{{Lang::get('lang.department')}}</th>
-					<th>{{Lang::get('lang.created')}}</th>
-					<th>{{Lang::get('lang.last_updated')}}</th>
-					<th>{{Lang::get('lang.action')}}</th>
-				</tr>
-			</thead>
-			<tbody></tbody>
-		</table>
+		{{-- Wrapped for small screens: the bare table overflowed the viewport at 375px
+                 (the inline overflow:scroll on a <table> does nothing — the element has no
+                 scroll box). table-responsive is the theme's own convention, already used in
+                 client/helpdesk/mytickets.blade.php. Desktop layout is unchanged. --}}
+		<div class="table-responsive">
+		    <table id="emailsTable" class="table table-bordered w-100 d-table">
+    			<thead>
+    				<tr>
+    					<th>{{Lang::get('lang.email')}}</th>
+    					<th>{{Lang::get('lang.priority')}}</th>
+    					<th>{{Lang::get('lang.department')}}</th>
+    					<th>{{Lang::get('lang.created')}}</th>
+    					<th>{{Lang::get('lang.last_updated')}}</th>
+    					<th>{{Lang::get('lang.action')}}</th>
+    				</tr>
+    			</thead>
+    			<tbody></tbody>
+    		</table>
+		</div>
 	</div>
 </div>
 @stop
@@ -86,7 +92,15 @@ class="nav-link active"
 @section('FooterInclude')
 <script>
     jQuery(document).ready(function () {
-        jQuery('#emailsTable').dataTable({
+        // Priority / Department / Created / Last updated hidden below 768px.
+        // This table has no table-responsive-aware column collapsing of its own
+        // (the Responsive DataTables extension isn't loaded in this project, only
+        // core DataTables), so at 375px all 6 columns rendered and Created / Last
+        // updated / Action were clipped past the right edge (measured to 636).
+        // DataTables' own column().visible() (core API, no extra plugin needed)
+        // toggles them on load and on resize; Email and Action stay visible at
+        // every width, and nothing changes above 768px.
+        var emailsTable = jQuery('#emailsTable').dataTable({
             "sPaginationType": "full_numbers",
             "bProcessing": true,
             "bServerSide": true,
@@ -102,6 +116,15 @@ class="nav-link active"
                 { data: "action", orderable: false, searchable: false }
             ]
         });
+
+        function applyEmailsTableResponsiveColumns() {
+            var isMobile = window.innerWidth < 768;
+            [1, 2, 3, 4].forEach(function (colIdx) {
+                emailsTable.api().column(colIdx).visible(!isMobile);
+            });
+        }
+        applyEmailsTableResponsiveColumns();
+        jQuery(window).on('resize', applyEmailsTableResponsiveColumns);
     });
 </script>
 @stop

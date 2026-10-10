@@ -6,9 +6,9 @@ Check mark versions are supported with security patches.
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 2.0.1   | :white_check_mark:                |
-| 2.0.0   | :x: |
-| < 1.0   | :x:                |
+| 2.0.4   | :white_check_mark: |
+| 2.0.3   | :x: |
+| < 2.0.3 | :x: |
 
 ## Supported Updates
 
@@ -21,6 +21,6 @@ Please report (suspected) security vulnerabilities to support@faveohelpdesk.com.
 
 # Reporting a Vulnerability
 
-If you discover a security vulnerability in faveo-helpdesk please disclose it via [our huntr page](https://huntr.dev/repos/ladybirdweb/faveo-helpdesk/). Information about bounties, CVEs, response times and past reports are all there..
+If you discover a security vulnerability in faveo-helpdesk please disclose it via <a href="https://huntr.dev/repos/faveosuite/faveo-helpdesk/" target="_blank" rel="noopener noreferrer">our huntr page</a>. Information about bounties, CVEs, response times and past reports are all there..
 
 Thank you for improving the security of faveo-helpdesk.

@@ -185,7 +185,12 @@ class="nav-item menu-open"
                         {!! html()->label(Lang::get('lang.publish_immediately'), 'month') !!}
                     </div>
                     <div class="col-md-12">
-                        <span class="d-flex">
+                        {{-- flex-wrap: the month/day/year/hour/minute controls are fixed-width and total
+                             ~353px plus separators, so on a 375px viewport this row ran past the
+                             right edge and the document scrolled sideways. Wrapping lets it fall
+                             onto a second line below ~360px; on desktop there is room for one
+                             row, so the layout there is unchanged. --}}
+                        <span class="d-flex flex-wrap">
                             {!! html()->select('month', array_combine(range(1, 12), array_map(function($m) { return date('F', mktime(0, 0, 0, $m, 1)); }, range(1, 12))), $month)->class('form-control me-1')->attributes(['style' => 'width: 120px;']) !!}
                             {!! html()->select('day', array_combine(range(1, 31), range(1, 31)), $day)->class('form-control me-1')->attributes(['style' => 'width: 65px;']) !!}
                             {!! html()->text('year', $year)->class('form-control me-1')->attributes(['style' => 'width: 58px;']) !!}@

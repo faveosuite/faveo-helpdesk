@@ -96,35 +96,41 @@ class="nav-link active"
             </div> 
      
             <div class="card-body" id="welcomeDiv">
-                <table id="example2" class="table table-bordered table-striped">
-                    <thead>
-                    <th>{!! Lang::get('lang.label') !!} </th>
-                    <th>{!! Lang::get('lang.name') !!} </th>
-                    <th>{!! Lang::get('lang.type') !!} </th>
-                    <th>{!! Lang::get('lang.values(selected_fields)') !!} </th>
-                    <th>{!! Lang::get('lang.required') !!} </th>
-                    <th>{!! Lang::get('lang.action') !!} </th>
-                    </thead>
-                    <tbody class="inputField">
-
-                        @forelse($fields as $key=>$field)
-
-                        <tr>
-                            <td><input type="text" name="label[]" value="{{$field->label}}" class="form-control"></td>
-                            <td><input type="text" name="name[]" value="{{$field->name}}" class="form-control"></td>
-                            
-                            <td>{!! html()->select('type[]', ['text'=>'text','email'=>'email','password'=>'password','textarea'=>'textarea','select'=>'select','radio'=>'radio','checkbox'=>'checkbox','hidden'=>'hidden'], $field->type)->class('form-control') !!}</td>
-                            <td><input type="text" name="value[]" value="{{$field->valuesAsString()}}" class="form-control"></td>
-                            
-                            <td>{!! html()->radio('required['.$key.']', true, 1) !!}&nbsp;&nbsp;{!! Lang::get("lang.yes") !!}&nbsp;&nbsp;{!! html()->radio('required['.$key.']', $field->nonRequiredFieldForCheck(), 0) !!}&nbsp;&nbsp;{!! Lang::get("lang.no") !!}</td>
-                            <td><button type="button" class="remove_field btn btn-danger"><i class="fa-solid fa-trash"></i></button></td>
-                        </tr> 
-                        @empty 
-
-                        @endforelse
-
-                    </tbody>
-                </table>
+                {{-- The field list overflowed a 375px viewport: its controls were drawn past the
+                     right edge and the document scrolled sideways (scrollWidth 502). The sibling
+                     screens in this panel (/agents, /organizations, /forms/create, the workflow
+                     list) already wrap their table this way; this one did not. --}}
+                <div class="table-responsive">
+                    <table id="example2" class="table table-bordered table-striped">
+                        <thead>
+                        <th>{!! Lang::get('lang.label') !!} </th>
+                        <th>{!! Lang::get('lang.name') !!} </th>
+                        <th>{!! Lang::get('lang.type') !!} </th>
+                        <th>{!! Lang::get('lang.values(selected_fields)') !!} </th>
+                        <th>{!! Lang::get('lang.required') !!} </th>
+                        <th>{!! Lang::get('lang.action') !!} </th>
+                        </thead>
+                        <tbody class="inputField">
+    
+                            @forelse($fields as $key=>$field)
+    
+                            <tr>
+                                <td><input type="text" name="label[]" value="{{$field->label}}" class="form-control"></td>
+                                <td><input type="text" name="name[]" value="{{$field->name}}" class="form-control"></td>
+                                
+                                <td>{!! html()->select('type[]', ['text'=>'text','email'=>'email','password'=>'password','textarea'=>'textarea','select'=>'select','radio'=>'radio','checkbox'=>'checkbox','hidden'=>'hidden'], $field->type)->class('form-control') !!}</td>
+                                <td><input type="text" name="value[]" value="{{$field->valuesAsString()}}" class="form-control"></td>
+                                
+                                <td>{!! html()->radio('required['.$key.']', true, 1) !!}&nbsp;&nbsp;{!! Lang::get("lang.yes") !!}&nbsp;&nbsp;{!! html()->radio('required['.$key.']', $field->nonRequiredFieldForCheck(), 0) !!}&nbsp;&nbsp;{!! Lang::get("lang.no") !!}</td>
+                                <td><button type="button" class="remove_field btn btn-danger"><i class="fa-solid fa-trash"></i></button></td>
+                            </tr> 
+                            @empty 
+    
+                            @endforelse
+    
+                        </tbody>
+                    </table>
+                </div>
             </div> 
         </div> 
     </div>

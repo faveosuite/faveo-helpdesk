@@ -24,15 +24,26 @@ out="${2:?usage: fetch-issue.sh <issue-number> <out.json>}"
 
 gh_require_env
 
-issue_json=$(gh_issue "$issue")
-comments_json=$(gh_comments "$issue")
+# The issue and its comments reach jq through FILES, never through argv.
+# `--argjson` puts every byte of the JSON on jq's command line, and an issue
+# accumulates comments without limit: #8356 reached 15, several of them 20KB
+# case tables, and the exec failed with "Argument list too long" (exit 126) —
+# killing the authoring stage before the agent was ever called, on the very
+# issues with the most context to work from. A file has no ARG_MAX.
+work=$(mktemp -d)
+trap 'rm -rf "$work"' EXIT
 
-jq -n --argjson i "$issue_json" --argjson c "$comments_json" --argjson n "$issue" '{
+gh_issue "$issue"    > "${work}/issue.json"
+gh_comments "$issue" > "${work}/comments.json"
+
+jq -n --argjson n "$issue" \
+      --slurpfile i "${work}/issue.json" \
+      --slurpfile c "${work}/comments.json" '{
   number: $n,
-  title: ($i.title // ""),
-  body: ($i.body // ""),
-  labels: [$i.labels[]?.name],
-  comments: [$c[]? | {user: (.user.login // "unknown"), body: (.body // "")}]
+  title: ($i[0].title // ""),
+  body: ($i[0].body // ""),
+  labels: [$i[0].labels[]?.name],
+  comments: [$c[0][]? | {user: (.user.login // "unknown"), body: (.body // "")}]
 }' > "$out"
 
 printf 'fetch-issue: #%s -> %s (%s comment(s))\n' \
