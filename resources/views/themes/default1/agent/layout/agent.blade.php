@@ -66,6 +66,16 @@
 
             .notification-list { max-height: 350px; overflow-y: auto; }
 
+            /* jQuery-UI appends .ui-autocomplete to <body> and sizes it from the input it
+               is attached to, so on a 375px screen the requester-email suggestions were
+               drawn past the right edge (x 50-397) and the entries were clipped. Capping
+               it to the viewport keeps the list on screen and lets long addresses wrap
+               instead of being cut off. calc() only binds on a narrow screen — on desktop
+               the viewport is far wider than the menu, so nothing changes there. */
+            .ui-autocomplete { max-width: calc(100vw - 32px); box-sizing: border-box; }
+            .ui-autocomplete .ui-menu-item-wrapper,
+            .ui-autocomplete .ui-menu-item a { white-space: normal; word-break: break-word; }
+
             .noti_User { color: #6c757d !important; }
 
             .brand-image{float: none !important; margin-left: 0 !important;}
@@ -105,10 +115,43 @@
             .sidebar-wrapper {
                 padding: 0.1px;
             }
+
+            /* .dropdown-menu-xl is 360-420px wide; dropdown-menu-end right-aligns
+               it to the bell icon near the right edge of the navbar. Below 576px
+               that anchor point has nowhere near 360px of room to its left, so
+               the notification dropdown opened hanging off the LEFT edge of the
+               screen (measured at x = -108 on a 375px viewport) even though its
+               right edge was correctly on-screen. Capping the width to the
+               viewport and re-anchoring to the left edge of the screen (not the
+               toggle) keeps the whole menu reachable without changing anything
+               above 576px, where the original width/anchor still applies. */
+            @media (max-width: 575.98px) {
+                .notifications-menu .dropdown-menu.dropdown-menu-xl {
+                    position: fixed !important;
+                    left: 0.5rem !important;
+                    right: 0.5rem !important;
+                    width: auto !important;
+                    min-width: 0 !important;
+                    max-width: none !important;
+                }
+            }
         </style>
     </head>
 
-    <body class="layout-fixed sidebar-expand-lg sidebar-mini bg-body-tertiary app-loaded fs-8 sidebar-open">
+    <?php
+    /*
+     * sidebar-open used to be hardcoded here — same bug and same fix as
+     * admin.blade.php (see the comment there): AdminLTE 4 pushes the sidebar
+     * off-canvas below the sidebar-expand-lg breakpoint unless this class is
+     * present, and when it is, a full-viewport .sidebar-overlay covers the
+     * content too. Every agent screen was opening on mobile with the drawer
+     * open and the overlay blocking taps on the form/table underneath.
+     * Desktop is unaffected (sidebar is sticky/always-visible above the
+     * breakpoint); the hamburger button (data-lte-toggle="sidebar") still
+     * opens/closes it via AdminLTE's own JS.
+     */
+    ?>
+    <body class="layout-fixed sidebar-expand-lg sidebar-mini bg-body-tertiary app-loaded fs-8">
 
         <div class="app-wrapper">
 
@@ -197,7 +240,14 @@
 
                     <li class="nav-item dropdown notifications-menu" id="myDropdown">
 
-                        <a href="#" class="nav-link" data-bs-toggle="dropdown" onclick="myFunction()">
+                        {{-- data-bs-display="static": without it, Bootstrap's Dropdown
+                             positions this menu with Popper via an inline transform,
+                             which would fight the viewport-width CSS override below
+                             (added for the mobile off-screen-left bug) instead of
+                             leaving it alone. Static display makes Bootstrap skip
+                             Popper and position the menu with plain CSS from
+                             dropdown-menu-end instead. --}}
+                        <a href="#" class="nav-link" data-bs-toggle="dropdown" data-bs-display="static" onclick="myFunction()">
 
                             <i class="nav-icon  fa-solid fa-bell"></i>
 

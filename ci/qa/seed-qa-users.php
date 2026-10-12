@@ -129,26 +129,57 @@ function default_group_id(): int
     return 1;
 }
 
+/*
+ * Every column written below must exist. app/User.php's $fillable is NOT a
+ * safe source for that list: it names `not_accept_ticket`, which no migration
+ * in this repo ever creates. Writing it cost PR #8364 a whole round — the
+ * insert died with
+ *
+ *   SQLSTATE[42S22]: Column not found: 1054 Unknown column 'not_accept_ticket'
+ *
+ * mid-provision, so the round ran with no QA users and the executor burned
+ * ~5 minutes of its budget hand-seeding them over raw PDO before it could
+ * start testing.
+ *
+ * This check turns the next such drift into one readable line naming the
+ * column, instead of a 22-frame Laravel stack trace in the middle of a round.
+ * It does not paper over the drift — it still exits non-zero.
+ */
+function assert_columns_exist(array $attributes): void
+{
+    $table = (new User())->getTable();
+    $missing = array_diff(array_keys($attributes), \Illuminate\Support\Facades\Schema::getColumnListing($table));
+
+    if ($missing) {
+        fwrite(STDERR, sprintf(
+            "seed-qa-users: %s.%s does not exist in this schema — the seed's column list has drifted from the migrations\n",
+            $table,
+            implode(", {$table}.", $missing)
+        ));
+        exit(1);
+    }
+}
+
 function ensure_user(string $email, string $password, string $roleKey, string $userName, ?int $groupId, ?int $primaryDept): int
 {
-    $user = User::updateOrCreate(
-        ['email' => $email],
-        [
-            'user_name'         => $userName,
-            'first_name'        => 'QA',
-            'last_name'         => ucfirst($roleKey),
-            'password'          => Hash::make($password),
-            'role'              => $roleKey,
-            'assign_group'      => $groupId,
-            'primary_dpt'       => $primaryDept,
-            'active'            => 1,
-            'is_delete'         => 0,
-            'agent_sign'        => '',
-            'agent_tzone'       => 0,
-            'vacation_mode'     => '0',
-            'not_accept_ticket' => 0,
-        ]
-    );
+    $attributes = [
+        'user_name'     => $userName,
+        'first_name'    => 'QA',
+        'last_name'     => ucfirst($roleKey),
+        'password'      => Hash::make($password),
+        'role'          => $roleKey,
+        'assign_group'  => $groupId,
+        'primary_dpt'   => $primaryDept,
+        'active'        => 1,
+        'is_delete'     => 0,
+        'agent_sign'    => '',
+        'agent_tzone'   => 0,
+        'vacation_mode' => '0',
+    ];
+
+    assert_columns_exist($attributes);
+
+    $user = User::updateOrCreate(['email' => $email], $attributes);
 
     printf(
         "seed-qa-users: %s ready as '%s' (id %d, group %s, dept %s)\n",

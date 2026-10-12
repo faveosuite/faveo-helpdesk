@@ -51,7 +51,23 @@ issue_number=$(jq -r '.number // 0' "$issue_file")
 
 # Every URL in the body and the comments, deduplicated, trailing punctuation
 # stripped — markdown puts links inside parentheses and sentences end in dots.
-urls=$(jq -r '[.body, (.comments[]?.body)] | join("\n")' "$issue_file" \
+#
+# The pipeline's OWN comments are excluded, and that exclusion is load-bearing.
+# When a link cannot be fetched, the publish step quotes the failing URL back on
+# the issue so a person can see which one it was. Read the comments indiscriminately
+# and the next run finds that URL inside the bot's own complaint, fetches it, fails
+# again and quotes it again — so an issue that once had a dead link can never come
+# back clean, however thoroughly the author fixes the description. #8282 is the
+# case: the description was corrected, and the count of dead links went 1 -> 2
+# because the pipeline was reading its own output as if the issuer had written it.
+bot_login="${QA_BOT_LOGIN:-faveobot}"
+urls=$(jq -r --arg bot "$bot_login" '
+         [ .body,
+           ( .comments[]?
+             | select((.user // "") != $bot)
+             | select((.body // "") | contains("<!-- qa-touch-cases") | not)
+             | .body )
+         ] | join("\n")' "$issue_file" \
        | grep -oE 'https?://[^][ )<>"'"'"'`]+' \
        | sed -E 's/[.,;:]+$//' \
        | sort -u || true)
@@ -229,7 +245,12 @@ while IFS= read -r url; do
       github_ref "$url"
       continue ;;
     # GitHub's attachment hosts — handled by the download path below.
-    *github.com/user-attachments/*|*user-images.githubusercontent.com/*|*github.com/*/files/*) ;;
+    # `/<owner>/<repo>/assets/<user-id>/<uuid>` is the OLDER upload form and was
+    # missing here, so every screenshot on an issue from that era fell through to
+    # web_page() and was fetched with no Authorization header at all — the token
+    # sitting unused ten lines below. Faveo's issues predate the current form in
+    # bulk, #8282 among them.
+    *github.com/user-attachments/*|*user-images.githubusercontent.com/*|*github.com/*/files/*|*github.com/*/assets/*) ;;
     # Anything else public: fetch it and reduce it to text. "Compare with
     # Freshdesk" plus a link is a real requirement, and refusing to open the link
     # leaves the agent guessing at the comparison it was asked to make.

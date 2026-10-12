@@ -432,20 +432,25 @@ class="nav-link active"
                                 <b>{!! Lang::get('lang.loading') !!}...</b>
                             </p>
                             
-                            <table id="chumper" class="table table-bordered w-100 d-table">
-                                <thead>
-                                    <tr>
-                                        <th></th>
-                                        <th>{{Lang::get('lang.subject')}}</th>
-                                        <th>{{Lang::get('lang.ticket_id')}}</th>
-                                        <th>{{Lang::get('lang.priority')}}</th>
-                                        <th>{{Lang::get('lang.from')}}</th>
-                                        <th>{{Lang::get('lang.assigned_to')}}</th>
-                                        <th>{{Lang::get('lang.last_activity')}}</th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
+                            {{-- Wrapped for small screens: this table overflowed the 375px viewport.
+                 table-responsive is the theme's own convention (see
+                 client/helpdesk/mytickets.blade.php). Desktop layout is unchanged. --}}
+                            <div class="table-responsive">
+                                <table id="chumper" class="table table-bordered w-100 d-table">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>{{Lang::get('lang.subject')}}</th>
+                                            <th>{{Lang::get('lang.ticket_id')}}</th>
+                                            <th>{{Lang::get('lang.priority')}}</th>
+                                            <th>{{Lang::get('lang.from')}}</th>
+                                            <th>{{Lang::get('lang.assigned_to')}}</th>
+                                            <th>{{Lang::get('lang.last_activity')}}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
 
                         </div><!-- /.mail-box-messages -->
                     </div><!-- /.col -->          
