@@ -1419,6 +1419,7 @@ return [
     'error-debug-settings'               => 'Impostazioni errori e debug',
     'debugging'                          => 'Modalità debug',
     'bugsnag-debugging'                  => 'Invia rapporti di crash per aiutare Ladybird a migliorare Faveo',
+    'sentry-performance'                 => 'Invia rapporti sulle prestazioni per aiutare Ladybird a migliorare Faveo',
     'error-debug-settings-saved-message' => 'Le tue impostazioni sono state salvate correttamente',
     'error-debug-settings-error-message' => 'Non hai effettuato modifiche nelle impostazioni.',
     'error-logs'                         => 'Log errori',

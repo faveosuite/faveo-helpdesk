@@ -116,13 +116,21 @@ return [
     'log' => 'daily',
     /*
       |---------------------------------------------------------------------------------
-      | Bugsnag error reporting
+      | Sentry error reporting
       |-----------------------------------------------------------------------------------
       |Accepts true or false as a value. It decides whether to send the error
       |to FAVEO team when any exception/error occurs or not. True value of this variable will
-      |allow application to send error reports to FAVEO team's bugsnag log.
+      |allow application to send error reports to FAVEO team's Sentry project.
      */
-    'bugsnag_reporting' => env('APP_BUGSNAG', true),
+    'sentry_reporting' => env('APP_BUGSNAG', true),
+    /*
+      |---------------------------------------------------------------------------------
+      | Sentry performance reports
+      |-----------------------------------------------------------------------------------
+      |Accepts true or false. Sends response-time (tracing) data to Sentry. Off unless
+      |an admin enables it, and only has an effect while error reporting above is on.
+     */
+    'sentry_performance' => env('APP_SENTRY_PERFORMANCE', false),
     /*
       |--------------------------------------------------------------------------
       | Autoloaded Service Providers
@@ -181,7 +189,6 @@ return [
         \Yajra\DataTables\DataTablesServiceProvider::class,
         \App\Api\ApiServiceProvider::class,
         Barryvdh\Debugbar\ServiceProvider::class,
-        \Bugsnag\BugsnagLaravel\BugsnagServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
         App\Providers\QueryListenProvider::class,
 
@@ -197,7 +204,6 @@ return [
       |
      */
     'aliases' => Facade::defaultAliases()->merge([
-        'Bugsnag'     => 'Bugsnag\BugsnagLaravel\BugsnagFacade',
         'DataTables'  => Yajra\DataTables\Facades\DataTables::class,
         'Debugbar'    => Barryvdh\Debugbar\Facades\Debugbar::class,
         'Excel'       => Maatwebsite\Excel\Facades\Excel::class,

@@ -980,6 +980,7 @@ return [
     'error-debug-settings'               => 'Error and debugging settings',
     'debugging'                          => 'Debugging-Modus',
     'bugsnag-debugging'                  => 'Sende App-Absturzberichte, um Ladybird dabei zu helfen, Faveo zu verbessern',
+    'sentry-performance'                 => 'Sende Leistungsberichte, um Ladybird dabei zu helfen, Faveo zu verbessern',
     'error-debug-settings-saved-message' => 'Ihre Fehler- und Debugging-Einstellungen wurden erfolgreich gespeichert',
     'error-debug-settings-error-message' => 'Sie haben die Einstellungen nicht geändert.',
     'error-logs'                         => 'Fehlerprotokolle',

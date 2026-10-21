@@ -1421,6 +1421,7 @@ return [
     'error-debug-settings'               => 'Настройки ошибок и отладки',
     'debugging'                          => 'Режим отладки',
     'bugsnag-debugging'                  => 'Отправляйте отчеты о сбоях приложений, чтобы помочь Ladybird улучшить Faveo',
+    'sentry-performance'                 => 'Отправляйте отчеты о производительности, чтобы помочь Ladybird улучшить Faveo',
     'error-debug-settings-saved-message' => 'Настройки отладки и ошибок были успешно сохранены',
     'error-debug-settings-error-message' => 'Вы не внесли никаких изменений в настройки.',
     'error-logs'                         => 'Журнал ошибок',
