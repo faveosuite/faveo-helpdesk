@@ -991,7 +991,8 @@ class TicketController extends Controller
             $find_number = Tickets::where('ticket_number', '=', $new_subject)->first();
             $thread_body = explode('---Reply above this line---', $body);
             $body = $thread_body[0];
-            if ($find_number->count() > 0) {
+            // the [#number] may belong to a deleted ticket or another helpdesk
+            if ($find_number) {
                 $id = $find_number->id;
                 $ticket_number = $find_number->ticket_number;
                 if ($find_number->status > 1) {
@@ -1840,7 +1841,11 @@ class TicketController extends Controller
         if (Input::has('select_all')) {
             $selectall = Input::get('select_all');
             $value = Input::get('submit');
-            foreach ($selectall as $delete) {
+            // Customers may only close/reopen their own tickets; never delete.
+            if (Auth::user()->role === 'user' && !in_array($value, ['Close', 'Open'], true)) {
+                return redirect()->back()->with('fails', 'Unauthorized');
+            }
+            foreach ((array) $selectall as $delete) {
                 $ticket = Tickets::whereId($delete)->first();
                 if (!$ticket) {
                     continue;

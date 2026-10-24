@@ -57,15 +57,21 @@ class="nav-item menu-open"
         <h3 class="card-title">{{Lang::get('lang.allarticle')}}</h3>
     </div>
     <div class="card-body">
-        <table id="articles-table" class="table table-bordered table-striped">
-            <thead>
-                <tr>
-                    <th>{!! Lang::get('lang.name') !!}</th>
-                    <th>{!! Lang::get('lang.publish_time') !!}</th>
-                    <th>{!! Lang::get('lang.action') !!}</th>
-                </tr>
-            </thead>
-        </table>
+        {{-- Wrapped for small screens: the bare table overflowed the viewport at 375px
+                 (the inline overflow:scroll on a <table> does nothing — the element has no
+                 scroll box). table-responsive is the theme's own convention, already used in
+                 client/helpdesk/mytickets.blade.php. Desktop layout is unchanged. --}}
+        <div class="table-responsive">
+            <table id="articles-table" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>{!! Lang::get('lang.name') !!}</th>
+                        <th>{!! Lang::get('lang.publish_time') !!}</th>
+                        <th>{!! Lang::get('lang.action') !!}</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
     </div>
 </div>
 <script>

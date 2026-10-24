@@ -1370,6 +1370,7 @@ return [
     'error-debug-settings'               => 'Configurações de erro e depuração',
     'debugging'                          => 'Modo de depuração',
     'bugsnag-debugging'                  => 'Enviar relatórios de falha de aplicativos para ajudar Ladybird melhorar Faveo',
+    'sentry-performance'                 => 'Enviar relatórios de desempenho para ajudar Ladybird melhorar Faveo',
     'error-debug-settings-saved-message' => 'Suas configurações de erro e depuração foram salvas com sucesso',
     'error-debug-settings-error-message' => 'Você ainda não fez qualquer mudança nas configurações.',
     'error-logs'                         => 'Logs de erros',

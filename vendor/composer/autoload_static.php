@@ -9,13 +9,13 @@ class ComposerStaticInit10c1836cea18dd9470bc2e97275d9d56
     public static $files = array (
         '6e3fae29631ef280660b3cdad06f25a8' => __DIR__ . '/..' . '/symfony/deprecation-contracts/function.php',
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
-        'a4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
         'e69f7f6ee287b969198c3c9d6777bd38' => __DIR__ . '/..' . '/symfony/polyfill-intl-normalizer/bootstrap.php',
+        'a4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
         '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
         '8825ede83f2f289127722d4e842cf7e8' => __DIR__ . '/..' . '/symfony/polyfill-intl-grapheme/bootstrap.php',
-        '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
         'b6b991a57620e2fb6b2f66f03fe9ddc2' => __DIR__ . '/..' . '/symfony/string/Resources/functions.php',
         '667aeda72477189d0494fecd327c3641' => __DIR__ . '/..' . '/symfony/var-dumper/Resources/functions/dump.php',
+        '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
         'f598d06aa772fa33d905e87be6398fb1' => __DIR__ . '/..' . '/symfony/polyfill-intl-idn/bootstrap.php',
         '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
         '606a39d89246991a373564698c2d8383' => __DIR__ . '/..' . '/symfony/polyfill-php85/bootstrap.php',
@@ -47,6 +47,7 @@ class ComposerStaticInit10c1836cea18dd9470bc2e97275d9d56
         'decc78cc4436b1292c6c0d151b19445c' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/bootstrap.php',
         '9b38cf48e83f5d8f60375221cd213eee' => __DIR__ . '/..' . '/phpstan/phpstan/bootstrap.php',
         '801c31d8ed748cfa537fa45402288c95' => __DIR__ . '/..' . '/psy/psysh/src/functions.php',
+        'fb4ca2d97fe7ba6af750497425204e70' => __DIR__ . '/..' . '/sentry/sentry/src/functions.php',
         '4a1f389d6ce373bda9e57857d3b61c84' => __DIR__ . '/..' . '/barryvdh/laravel-debugbar/src/helpers.php',
         'c72349b1fe8d0deeedd3a52e8aa814d8' => __DIR__ . '/..' . '/mockery/mockery/library/helpers.php',
         'ce9671a430e4846b44e1c68c7611f9f5' => __DIR__ . '/..' . '/mockery/mockery/library/Mockery.php',
@@ -132,6 +133,7 @@ class ComposerStaticInit10c1836cea18dd9470bc2e97275d9d56
             'Symfony\\Component\\String\\' => 25,
             'Symfony\\Component\\Routing\\' => 26,
             'Symfony\\Component\\Process\\' => 26,
+            'Symfony\\Component\\OptionsResolver\\' => 34,
             'Symfony\\Component\\Mime\\' => 23,
             'Symfony\\Component\\Mailer\\Bridge\\Mailgun\\' => 40,
             'Symfony\\Component\\Mailer\\' => 25,
@@ -146,6 +148,7 @@ class ComposerStaticInit10c1836cea18dd9470bc2e97275d9d56
             'Symfony\\Component\\CssSelector\\' => 30,
             'Symfony\\Component\\Console\\' => 26,
             'Symfony\\Component\\Clock\\' => 24,
+            'Symfony\\Bridge\\PsrHttpMessage\\' => 30,
             'Svg\\' => 4,
             'Spatie\\LaravelIgnition\\' => 23,
             'Spatie\\Ignition\\' => 16,
@@ -153,6 +156,7 @@ class ComposerStaticInit10c1836cea18dd9470bc2e97275d9d56
             'Spatie\\FlareClient\\' => 19,
             'Spatie\\ErrorSolutions\\' => 22,
             'Spatie\\Backtrace\\' => 17,
+            'Sentry\\' => 7,
             'Sabberworm\\CSS\\' => 15,
         ),
         'R' =>
@@ -182,6 +186,7 @@ class ComposerStaticInit10c1836cea18dd9470bc2e97275d9d56
         ),
         'N' =>
         array (
+            'Nyholm\\Psr7\\' => 12,
             'NunoMaduro\\Collision\\' => 21,
             'Nicolaslopezj\\Searchable\\' => 25,
             'Nette\\' => 6,
@@ -219,6 +224,7 @@ class ComposerStaticInit10c1836cea18dd9470bc2e97275d9d56
         'J' =>
         array (
             'JmesPath\\' => 9,
+            'Jean85\\' => 7,
         ),
         'I' =>
         array (
@@ -270,7 +276,6 @@ class ComposerStaticInit10c1836cea18dd9470bc2e97275d9d56
             'Cron\\' => 5,
             'Composer\\Semver\\' => 16,
             'Composer\\Pcre\\' => 14,
-            'Composer\\CaBundle\\' => 18,
             'Complex\\' => 8,
             'Clockwork\\' => 10,
             'Chumper\\Zipper\\' => 15,
@@ -279,9 +284,6 @@ class ComposerStaticInit10c1836cea18dd9470bc2e97275d9d56
         ),
         'B' =>
         array (
-            'Bugsnag\\PsrLogger\\' => 18,
-            'Bugsnag\\BugsnagLaravel\\' => 23,
-            'Bugsnag\\' => 8,
             'Brick\\Math\\' => 11,
             'BeyondCode\\QueryDetector\\' => 25,
             'Barryvdh\\Debugbar\\' => 18,
@@ -456,6 +458,10 @@ class ComposerStaticInit10c1836cea18dd9470bc2e97275d9d56
         array (
             0 => __DIR__ . '/..' . '/symfony/process',
         ),
+        'Symfony\\Component\\OptionsResolver\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/symfony/options-resolver',
+        ),
         'Symfony\\Component\\Mime\\' =>
         array (
             0 => __DIR__ . '/..' . '/symfony/mime',
@@ -512,6 +518,10 @@ class ComposerStaticInit10c1836cea18dd9470bc2e97275d9d56
         array (
             0 => __DIR__ . '/..' . '/symfony/clock',
         ),
+        'Symfony\\Bridge\\PsrHttpMessage\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/symfony/psr-http-message-bridge',
+        ),
         'Svg\\' =>
         array (
             0 => __DIR__ . '/..' . '/dompdf/php-svg-lib/src/Svg',
@@ -541,6 +551,10 @@ class ComposerStaticInit10c1836cea18dd9470bc2e97275d9d56
         'Spatie\\Backtrace\\' =>
         array (
             0 => __DIR__ . '/..' . '/spatie/backtrace/src',
+        ),
+        'Sentry\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/sentry/sentry/src',
         ),
         'Sabberworm\\CSS\\' =>
         array (
@@ -622,6 +636,10 @@ class ComposerStaticInit10c1836cea18dd9470bc2e97275d9d56
         'PHPStan\\PhpDocParser\\' =>
         array (
             0 => __DIR__ . '/..' . '/phpstan/phpdoc-parser/src',
+        ),
+        'Nyholm\\Psr7\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/nyholm/psr7/src',
         ),
         'NunoMaduro\\Collision\\' =>
         array (
@@ -736,6 +754,10 @@ class ComposerStaticInit10c1836cea18dd9470bc2e97275d9d56
         'JmesPath\\' =>
         array (
             0 => __DIR__ . '/..' . '/mtdowling/jmespath.php/src',
+        ),
+        'Jean85\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/jean85/pretty-package-versions/src',
         ),
         'Intervention\\Image\\' =>
         array (
@@ -874,10 +896,6 @@ class ComposerStaticInit10c1836cea18dd9470bc2e97275d9d56
         array (
             0 => __DIR__ . '/..' . '/composer/pcre/src',
         ),
-        'Composer\\CaBundle\\' =>
-        array (
-            0 => __DIR__ . '/..' . '/composer/ca-bundle/src',
-        ),
         'Complex\\' =>
         array (
             0 => __DIR__ . '/..' . '/markbaker/complex/classes/src',
@@ -897,18 +915,6 @@ class ComposerStaticInit10c1836cea18dd9470bc2e97275d9d56
         'Carbon\\' =>
         array (
             0 => __DIR__ . '/..' . '/nesbot/carbon/src/Carbon',
-        ),
-        'Bugsnag\\PsrLogger\\' =>
-        array (
-            0 => __DIR__ . '/..' . '/bugsnag/bugsnag-psr-logger/src',
-        ),
-        'Bugsnag\\BugsnagLaravel\\' =>
-        array (
-            0 => __DIR__ . '/..' . '/bugsnag/bugsnag-laravel/src',
-        ),
-        'Bugsnag\\' =>
-        array (
-            0 => __DIR__ . '/..' . '/bugsnag/bugsnag/src',
         ),
         'Brick\\Math\\' =>
         array (
@@ -939,6 +945,13 @@ class ComposerStaticInit10c1836cea18dd9470bc2e97275d9d56
             'thomaswelton\\GravatarLib\\' =>
             array (
                 0 => __DIR__ . '/..' . '/thomaswelton/gravatarlib',
+            ),
+        ),
+        'S' =>
+        array (
+            'Sentry\\Laravel\\' =>
+            array (
+                0 => __DIR__ . '/..' . '/sentry/sentry-laravel/src',
             ),
         ),
         'P' =>

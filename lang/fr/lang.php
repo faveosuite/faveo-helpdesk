@@ -1377,6 +1377,7 @@ return [
     'error-debug-settings'               => 'Paramètres erreurs et débug',
     'debugging'                          => 'Mode de débug',
     'bugsnag-debugging'                  => 'Envoyer les rapports de crash de l\'app pour aider à améliorer Faveo',
+    'sentry-performance'                 => 'Envoyer les rapports de performance pour aider à améliorer Faveo',
     'error-debug-settings-saved-message' => 'Vos paramètres erreurs et débugging ont été enregistrés avec succès',
     'error-debug-settings-error-message' => 'Vous n\'avez effectué aucun changement dans les paramètres.',
     'error-logs'                         => 'Logs d\'erreurs',

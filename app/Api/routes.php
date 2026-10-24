@@ -34,7 +34,14 @@ Route::prefix('api/v1')->group(function () {
         Route::get('customer', [\App\Api\v1\ApiController::class, 'getCustomer']);
         Route::get('ticket-search', [\App\Api\v1\ApiController::class, 'searchTicket']);
         Route::get('ticket-thread', [\App\Api\v1\ApiController::class, 'ticketThreads']);
-        Route::get('url', [\App\Api\v1\ApiExceptAuthController::class, 'checkUrl']);
+        // throttle: this makes an outbound request per call (see checkUrl()'s own
+        // SSRF hardening for why that request is restricted to public addresses
+        // in the first place) - rate-limiting it independently of auth keeps a
+        // compromised or malicious token from using it for rapid internal-network
+        // scanning.
+        Route::get('url', [\App\Api\v1\ApiExceptAuthController::class, 'checkUrl'])->middleware('throttle:20,1');
+        // urlResult() is the receiving side other installs call to confirm this
+        // one is a real Faveo instance - it stays open, same as before.
         Route::get('check-url', [\App\Api\v1\ApiExceptAuthController::class, 'urlResult']);
         Route::get('api_key', [\App\Api\v1\ApiController::class, 'generateApiKey']);
         Route::get('help-topic', [\App\Api\v1\ApiController::class, 'getHelpTopic']);

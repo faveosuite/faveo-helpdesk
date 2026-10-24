@@ -82,7 +82,24 @@ Route::middleware('web')->group(function () {
       | Here is defining entire routes for the Admin Panel
       |
      */
-    Route::middleware('install', 'roles', 'auth', 'update')->group(function () {
+    // 'auth' MUST precede 'roles'. Registered the other way round ('install',
+    // 'roles', 'auth', …) CheckRole ran first and dereferenced a null user on any
+    // anonymous request, so every admin URL answered HTTP 500 — "Attempt to read
+    // property "role" on null" — instead of redirecting to the login page. No
+    // admin data leaked, but a crash is not a refusal. Every other group in this
+    // file and in routes/update.php already orders it this way.
+    // A user's OWN notifications — agents included. These sat in the admin-only
+    // group below, so an agent following the "View all" link that
+    // agent/layout/agent.blade.php:301 renders for them landed on /404
+    // "You are not Authorised" — the bell told them they had notifications and
+    // the page refused to show them.
+    //
+    // Widening this is safe, not a new hole: Common\NotificationController's own
+    // constructor already applies 'auth' and 'role.agent', and getNotifications()
+    // scopes every query to `user_id = Auth::user()->id`. The group's 'roles' was
+    // a second, stricter gate on top of the controller's own correct one. The
+    // ADMIN notification SETTINGS routes stay admin-only, below.
+    Route::middleware('install', 'auth', 'role.agent', 'update')->group(function () {
         //Notification marking
         Route::post('mark-read/{id}', [Common\NotificationController::class, 'markRead']);
         Route::post('mark-all-read/{id}', [Common\NotificationController::class, 'markAllRead']);
@@ -90,7 +107,9 @@ Route::middleware('web')->group(function () {
         Route::get('notifications-list', [Common\NotificationController::class, 'show'])->name('notification.list');
         Route::post('notification-delete/{id}', [Common\NotificationController::class, 'delete'])->name('notification.delete');
         Route::get('notifications-list/delete', [Common\NotificationController::class, 'deleteAll'])->name('notification.delete.all');
+    });
 
+    Route::middleware('install', 'auth', 'roles', 'update')->group(function () {
         Route::get('settings-notification', [Admin\helpdesk\SettingsController::class, 'notificationSettings'])->name('notification.settings');
         Route::get('delete-read-notification', [Admin\helpdesk\SettingsController::class, 'deleteReadNoti']);
         Route::post('delete-notification-log', [Admin\helpdesk\SettingsController::class, 'deleteNotificationLog']);
@@ -537,7 +556,9 @@ Route::middleware('web')->group(function () {
     //===================================================================================
     Route::middleware('auth')->group(function () {
         Route::get('client-profile', [Client\helpdesk\GuestController::class, 'getProfile'])->name('client.profile'); /*  User profile get  */
-        //Route::post('select/all', [Agent\helpdesk\TicketController::class, 'select_all'])->name('select_all');
+        // Customer bulk Close/Open on "My tickets". Distinct name from the agent 'select_all' route;
+        // select_all() itself restricts the 'user' role to Close/Open on its own tickets.
+        Route::post('select/all', [Agent\helpdesk\TicketController::class, 'select_all'])->name('client.select_all');
 
         Route::get('mytickets', [Client\helpdesk\GuestController::class, 'getMyticket'])->name('ticket2');
         Route::get('myticket/{id}', [Client\helpdesk\GuestController::class, 'thread'])->name('ticket'); /* Get my tickets */
@@ -572,6 +593,7 @@ Route::middleware('web')->group(function () {
     Route::post('/post-serial', [Installer\helpdesk\InstallController::class, 'postSerialKeyToFaveo'])->name('post.serialkey');
     Route::post('/CheckSerial', [Installer\helpdesk\InstallController::class, 'PostSerialKey'])->name('CheckSerial');
     Route::get('/JavaScript-disabled', [Installer\helpdesk\InstallController::class, 'jsDisabled'])->name('js-disabled');
+    Route::post('/pre-license', [Installer\helpdesk\InstallController::class, 'licAgreement'])->name('licAgreement');
     Route::get('/step1', [Installer\helpdesk\InstallController::class, 'licence'])->name('licence');
     Route::post('/step1post', [Installer\helpdesk\InstallController::class, 'licencecheck'])->name('postlicence');
     Route::get('/step2', [Installer\helpdesk\InstallController::class, 'prerequisites'])->name('prerequisites');

@@ -70,14 +70,19 @@ class="nav-link active"
                 <button type="button"  class="btn {{$user_status->status == '1' ? 'btn-info' : 'btn-secondary'}} unlocked_inactive">{{Lang::get('lang.active')}}</button>
             </div>
         </div>
-        <div class="priority-table" style="padding-top: 10px">
+        {{-- Wrapped for small screens: no table-responsive wrapper meant this
+             table could overflow the document itself at 375px, the same class of
+             bug fixed elsewhere (/agents, /organizations, /sla). This page was
+             never reached in the TR0445 round (it stops at the first failing
+             step), so this is a pre-emptive fix, not a reproduction. --}}
+        <div class="priority-table table-responsive" style="padding-top: 10px">
             <table id="priorityTable" class="table table-bordered w-100 d-table">
                 <thead>
                     <tr>
                         <th>{{Lang::get('lang.priority')}}</th>
-                        <th>{{Lang::get('lang.priority_desc')}}</th>
-                        <th>{{Lang::get('lang.priority_color')}}</th>
-                        <th>{{Lang::get('lang.status')}}</th>
+                        <th class="d-none d-md-table-cell">{{Lang::get('lang.priority_desc')}}</th>
+                        <th class="d-none d-md-table-cell">{{Lang::get('lang.priority_color')}}</th>
+                        <th class="d-none d-md-table-cell">{{Lang::get('lang.status')}}</th>
                         <th>{{Lang::get('lang.action')}}</th>
                     </tr>
                 </thead>
@@ -85,7 +90,10 @@ class="nav-link active"
             </table>
             <script type="text/javascript">
                 jQuery(document).ready(function () {
-                    jQuery('#priorityTable').dataTable({
+                    // Priority desc / color / status hidden below 768px (see the
+                    // table-responsive comment above). Priority name and Action
+                    // stay visible at every width; desktop is unchanged.
+                    var priorityTable = jQuery('#priorityTable').dataTable({
                         "sPaginationType": "full_numbers",
                         "bProcessing": true,
                         "bServerSide": true,
@@ -100,6 +108,15 @@ class="nav-link active"
                             {data: "action"}
                         ]
                     });
+
+                    function applyPriorityTableResponsiveColumns() {
+                        var isMobile = window.innerWidth < 768;
+                        [1, 2, 3].forEach(function (colIdx) {
+                            priorityTable.api().column(colIdx).visible(!isMobile);
+                        });
+                    }
+                    applyPriorityTableResponsiveColumns();
+                    jQuery(window).on('resize', applyPriorityTableResponsiveColumns);
                 });
             </script>
         </div>

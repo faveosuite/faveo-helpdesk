@@ -2,7 +2,6 @@
 
 namespace App\Exceptions;
 
-use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Diglactic\Breadcrumbs\Breadcrumbs;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -42,7 +41,7 @@ class Handler extends ExceptionHandler
      */
     public function report(\Throwable $e)
     {
-        $this->reportToBugsNag($e);
+        $this->reportToSentry($e);
 
         return parent::report($e);
     }
@@ -227,14 +226,14 @@ class Handler extends ExceptionHandler
         return parent::render($request, $e);
     }
 
-    protected function reportToBugsNag(\Throwable $e)
+    protected function reportToSentry(\Throwable $e): void
     {
-        if (Config::get('app.bugsnag_reporting') && env('APP_ENV') == 'production' && $this->shouldReportBugsnag($e)) {
-            Bugsnag::notifyException($e);
+        if (Config::get('app.sentry_reporting') && app()->environment('production') && $this->shouldReportToSentry($e) && app()->bound('sentry')) {
+            \Sentry\Laravel\Integration::captureUnhandledException($e);
         }
     }
 
-    public function shouldReportBugsnag($e)
+    public function shouldReportToSentry(\Throwable $e): bool
     {
         foreach ($this->dontReport as $report) {
             if ($e instanceof $report) {

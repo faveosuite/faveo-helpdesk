@@ -1433,6 +1433,7 @@ return [
     'error-debug-settings'               => 'Foutopsporing instellingen',
     'debugging'                          => 'Foutopsporingsmodus',
     'bugsnag-debugging'                  => 'Stuur crashrapportages naar Ladybird om Faveo te helpen verbeteren',
+    'sentry-performance'                 => 'Stuur prestatierapportages naar Ladybird om Faveo te helpen verbeteren',
     'error-debug-settings-saved-message' => 'Je foutrapportage en foutopsporingsmodus instellingen zijn succesvol opgeslagen',
     'error-debug-settings-error-message' => 'Je hebt geen wijzigingen aangebracht in de instellingen.',
     'error-logs'                         => 'Foutrapportages',

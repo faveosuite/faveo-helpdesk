@@ -1433,6 +1433,7 @@ Puede ingresar el número de días de registros de base de datos que se eliminar
     'error-debug-settings'               => 'Configuración de errores y depuración',
     'debugging'                          => 'Modo de depuración',
     'bugsnag-debugging'                  => 'Enviar informes de falla de la aplicación para ayudar a Ladybird a mejorar Faveo',
+    'sentry-performance'                 => 'Enviar informes de rendimiento para ayudar a Ladybird a mejorar Faveo',
     'error-debug-settings-saved-message' => 'Su configuración de errores y depuración se han guardado correctamente',
     'error-debug-settings-error-message' => 'No ha realizado ningún cambio en la configuración.',
     'error-logs'                         => 'Registros de errores',

@@ -24,6 +24,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Request as Input;
 use Illuminate\Support\Str;
+use Lang;
 
 /**
  * -----------------------------------------------------------------------------
@@ -71,6 +72,16 @@ class ApiController extends Controller
     public $source;
 
     /**
+     * The only endpoints a customer ('user' role) token may call. Everything
+     * else in this controller is staff-only - see the gate in the constructor.
+     *
+     * Keep this list short: a method added to this controller is staff-only
+     * unless it is deliberately listed here, and a listed method must check
+     * object ownership itself (as getMyTicketsUser() does).
+     */
+    private const CUSTOMER_METHODS = ['getMyTicketsUser', 'getHelpTopic', 'getSlaPlan', 'getPriority', 'getDepartment'];
+
+    /**
      * @param Request $request
      */
     public function __construct(Request $request)
@@ -79,6 +90,18 @@ class ApiController extends Controller
 
         $this->middleware('jwt.authOveride');
         $this->middleware('api', ['except' => 'GenerateApiKey']);
+        // Staff-only by default. The v1 API is the agent API, but 'jwt.authOveride'
+        // and the shared api_key only prove the caller is *someone*: any customer
+        // token used to reach ticket lists, other customers' tickets and internal
+        // notes, the customer directory and so on. Registered after the JWT
+        // middleware, so the token has already been validated here.
+        $this->middleware(function ($request, $next) {
+            if ($deny = $this->denyUnlessStaff($this->authenticatedApiUser())) {
+                return $deny;
+            }
+
+            return $next($request);
+        })->except(self::CUSTOMER_METHODS);
 
         try {
             $user = \JWTAuth::parseToken()->authenticate();
@@ -128,6 +151,108 @@ class ApiController extends Controller
 
         $source = new Ticket_source();
         $this->source = $source;
+    }
+
+    /**
+     * Resolve the caller's identity from the JWT on this request.
+     *
+     * $this->user is unusable for this: the constructor above overwrites it
+     * with a blank `new User()` right after assigning the authenticated user,
+     * so every method that needs the caller re-parses the token itself. This
+     * centralises that, since several endpoints below now need the role too.
+     *
+     * @return \App\User|null
+     */
+    private function authenticatedApiUser()
+    {
+        try {
+            $user = \JWTAuth::parseToken()->authenticate();
+
+            return $user instanceof User ? $user : null;
+        } catch (\Exception $ex) {
+            return null;
+        }
+    }
+
+    /**
+     * Deny the request unless the caller is an agent or admin.
+     *
+     * Several v1 endpoints (the customer directory, internal notes, API-key
+     * rotation) are staff-only by intent but previously relied solely on
+     * 'jwt.authOveride' + the shared api_key, neither of which checks role:
+     * any customer-role JWT could reach them. This is the shared gate for
+     * those endpoints; it returns a 403 JSON response to short-circuit the
+     * caller's method, or null when the caller may proceed.
+     *
+     * @param \App\User|null $user
+     *
+     * @return \Illuminate\Http\JsonResponse|null
+     */
+    private function denyUnlessStaff($user)
+    {
+        if (!$user instanceof User || !in_array($user->role, ['agent', 'admin'], true)) {
+            return $this->forbidden();
+        }
+
+        return null;
+    }
+
+    /**
+     * @return \Illuminate\Http\JsonResponse
+     */
+    private function forbidden()
+    {
+        return response()->json(['error' => Lang::get('lang.unauthorized_access')], 403);
+    }
+
+    /**
+     * The ticket, if the caller may work on it; null otherwise (or if it doesn't exist).
+     *
+     * Mirrors Agent\helpdesk\TicketController::authorizeTicketAccess(): an admin
+     * may reach any ticket, an agent only one in their own department or
+     * assigned to them. A customer never may - the staff-only gate stops them
+     * before any ticket endpoint anyway.
+     *
+     * @param \App\User|null $user
+     * @param mixed          $ticketId
+     *
+     * @return Tickets|null
+     */
+    private function accessibleTicket($user, $ticketId)
+    {
+        $ticket = Tickets::where('id', '=', $ticketId)->first();
+        if (!$ticket || !$user instanceof User) {
+            return null;
+        }
+        if ($user->role == 'admin') {
+            return $ticket;
+        }
+        if ($user->role == 'agent' && ($ticket->dept_id == $user->primary_dpt || $ticket->assigned_to == $user->id)) {
+            return $ticket;
+        }
+
+        return null;
+    }
+
+    /**
+     * Narrow a query over `tickets` to what the caller may see: an agent gets
+     * their own department plus tickets assigned to them, an admin everything.
+     * Same rule the unassigned/closed/inbox/trash lists already apply. The
+     * builder is narrowed in place.
+     *
+     * @param mixed          $query an Eloquent or query builder over `tickets`
+     * @param \App\User|null $user
+     *
+     * @return void
+     */
+    private function scopeTicketsToCaller($query, $user)
+    {
+        if ($user instanceof User && $user->role == 'agent') {
+            $query->where(function ($q) use ($user) {
+                $q->where('tickets.dept_id', '=', $user->primary_dpt)
+                    ->orWhere('tickets.assigned_to', '=', $user->id);
+            });
+        }
     }
 
     /**
@@ -258,6 +383,10 @@ class ApiController extends Controller
                 return response()->json(compact('error'));
             }
             $ticket_id = $this->request->input('ticket_id');
+            // ticketEditPost() does no access check of its own
+            if (!$this->accessibleTicket($this->authenticatedApiUser(), $ticket_id)) {
+                return $this->forbidden();
+            }
 
             return $this->ticket->ticketEditPost($ticket_id, $this->thread, $this->model);
         } catch (\Exception $e) {
@@ -318,10 +447,12 @@ class ApiController extends Controller
             //            $result = $this->model->where('status', '=', 1)->where('isanswered', '=', 0)->where('assigned_to', '=', null)->orderBy('id', 'DESC')->get();
 //            return response()->json(compact('result'));
 
-            $result = $this->user->join('tickets', function ($join) {
+            $opened = $this->user->join('tickets', function ($join) {
                 $join->on('users.id', '=', 'tickets.user_id')
                         ->where('isanswered', '=', 0)->where('status', '=', 1)->whereNull('assigned_to');
-            })
+            });
+            $this->scopeTicketsToCaller($opened, $this->authenticatedApiUser());
+            $result = $opened
                     ->join('department', 'department.id', '=', 'tickets.dept_id')
                     ->join('ticket_priority', 'ticket_priority.priority_id', '=', 'tickets.priority_id')
                     ->join('sla_plan', 'sla_plan.id', '=', 'tickets.sla')
@@ -554,6 +685,10 @@ class ApiController extends Controller
     public function getCustomers()
     {
         try {
+            if ($deny = $this->denyUnlessStaff($this->authenticatedApiUser())) {
+                return $deny;
+            }
+
             $v = \Validator::make($this->request->all(), [
                 'search' => 'required',
             ]);
@@ -589,6 +724,10 @@ class ApiController extends Controller
     public function getCustomersWith()
     {
         try {
+            if ($deny = $this->denyUnlessStaff($this->authenticatedApiUser())) {
+                return $deny;
+            }
+
             $users = $this->user
                     ->leftJoin('user_assign_organization', 'user_assign_organization.user_id', '=', 'users.id')
                     ->leftJoin('organization', 'organization.id', '=', 'user_assign_organization.org_id')
@@ -621,6 +760,10 @@ class ApiController extends Controller
     public function getCustomer()
     {
         try {
+            if ($deny = $this->denyUnlessStaff($this->authenticatedApiUser())) {
+                return $deny;
+            }
+
             $v = \Validator::make($this->request->all(), [
                 'user_id' => 'required',
             ]);
@@ -663,7 +806,14 @@ class ApiController extends Controller
                 return response()->json(compact('error'));
             }
             $search = $this->request->input('search');
-            $result = $this->thread->select('ticket_id')->where('title', 'like', '%'.$search.'%')->orWhere('body', 'like', '%'.$search.'%')->get();
+            $matches = $this->thread->select('ticket_thread.ticket_id')
+                    ->join('tickets', 'tickets.id', '=', 'ticket_thread.ticket_id')
+                    ->where(function ($query) use ($search) {
+                        $query->where('ticket_thread.title', 'like', '%'.$search.'%')
+                                ->orWhere('ticket_thread.body', 'like', '%'.$search.'%');
+                    });
+            $this->scopeTicketsToCaller($matches, $this->authenticatedApiUser());
+            $result = $matches->get();
 
             return response()->json(compact('result'));
         } catch (Exception $e) {
@@ -696,6 +846,10 @@ class ApiController extends Controller
                 return response()->json(compact('error'));
             }
             $id = $this->request->input('id');
+            // the threads include internal notes
+            if (!$this->accessibleTicket($this->authenticatedApiUser(), $id)) {
+                return $this->forbidden();
+            }
             $result = $this->user
                     ->rightjoin('ticket_thread', 'ticket_thread.user_id', '=', 'users.id')
                     ->select('ticket_thread.id', 'ticket_id', 'user_id', 'poster', 'source', 'title', 'body', 'is_internal', 'format', 'ip_address', 'ticket_thread.created_at', 'ticket_thread.updated_at', 'users.first_name', 'users.last_name', 'users.user_name', 'users.email', 'users.profile_pic')
@@ -825,6 +979,15 @@ class ApiController extends Controller
     public function generateApiKey()
     {
         try {
+            // This rotates the one shared api_key that 'api_key_mandatory' checks
+            // on every other v1 request. Without a role check here, any
+            // customer-role JWT could mint a new one at will, defeating that
+            // setting for every other integration using the old key.
+            $user = $this->authenticatedApiUser();
+            if (!$user instanceof User || $user->role !== 'admin') {
+                return response()->json(['error' => Lang::get('lang.unauthorized_access')], 403);
+            }
+
             $set = $this->setting->where('id', '1')->first();
             //dd($set);
             if ($set->api_enable == 1) {
@@ -956,7 +1119,9 @@ class ApiController extends Controller
     public function getTickets()
     {
         try {
-            $tickets = $this->model->orderBy('created_at', 'desc')->paginate(10);
+            $query = $this->model->newQuery();
+            $this->scopeTicketsToCaller($query, $this->authenticatedApiUser());
+            $tickets = $query->orderBy('created_at', 'desc')->paginate(10);
             $tickets->toJson();
 
             return $tickets;
@@ -1033,8 +1198,24 @@ class ApiController extends Controller
     public function internalNote()
     {
         try {
+            $user = $this->authenticatedApiUser();
+            if ($deny = $this->denyUnlessStaff($user)) {
+                return $deny;
+            }
+            if (!$user instanceof User) {
+                // Unreachable: denyUnlessStaff() above already rejected a null or
+                // non-staff $user. Spelled out so static analysis can narrow $user
+                // from App\User|null to App\User for the role/department checks
+                // and the note's author below - denyUnlessStaff() returning null
+                // doesn't by itself prove that to a separate method call.
+                return response()->json(['error' => Lang::get('lang.unauthorized_access')], 403);
+            }
+
+            // 'user_id' is intentionally no longer accepted: it let any caller
+            // attribute the note to an arbitrary account (including an admin's)
+            // by just naming its id. The author is always the authenticated
+            // caller now; see $user->id below.
             $v = \Validator::make($this->request->all(), [
-                'user_id'   => 'required|exists:users,id',
                 'ticket_id' => 'required|exists:tickets,id',
                 'body'      => 'required',
             ]);
@@ -1043,17 +1224,20 @@ class ApiController extends Controller
 
                 return response()->json(compact('error'));
             }
-            $userid = $this->request->input('user_id');
             $ticketid = $this->request->input('ticket_id');
 
+            if (!$this->accessibleTicket($user, $ticketid)) {
+                return $this->forbidden();
+            }
+
             $body = preg_replace('/[ ](?=[^>]*(?:<|$))/', '&nbsp;', nl2br($this->request->input('body')));
-            $thread = $this->thread->create(['ticket_id' => $ticketid, 'user_id' => $userid, 'is_internal' => 1, 'body' => $body]);
+            $thread = $this->thread->create(['ticket_id' => $ticketid, 'user_id' => $user->id, 'is_internal' => 1, 'body' => $body]);
 
             return response()->json(compact('thread'));
         } catch (\Exception $ex) {
-            $error = $e->getMessage();
-            $line = $e->getLine();
-            $file = $e->getFile();
+            $error = $ex->getMessage();
+            $line = $ex->getLine();
+            $file = $ex->getFile();
 
             return response()->json(compact('error', 'file', 'line'));
         } catch (\TokenExpiredException $e) {
@@ -1121,6 +1305,11 @@ class ApiController extends Controller
                 return response()->json(compact('error'));
             }
             $id = $this->request->input('user_id');
+            // an agent sees their own assignments; only an admin may look at another agent's
+            $caller = $this->authenticatedApiUser();
+            if (!$caller instanceof User || ($caller->role != 'admin' && $caller->id != $id)) {
+                return $this->forbidden();
+            }
             if ($this->user->where('id', $id)->first()->role == 'user') {
                 $error = 'This user is not an Agent or Admin';
 
@@ -1195,6 +1384,12 @@ class ApiController extends Controller
                 return response()->json(compact('error'));
             }
             $id = $this->request->input('user_id');
+            // one of the few customer-reachable endpoints: a customer may only
+            // list their own tickets, whatever user_id they send
+            $caller = $this->authenticatedApiUser();
+            if (!$caller instanceof User || ($caller->role == 'user' && $caller->id != $id)) {
+                return $this->forbidden();
+            }
             if ($this->user->where('id', $id)->first()->role == 'admin' || $this->user->where('id', $id)->first()->role == 'agent') {
                 $error = 'This is not a client';
 
@@ -1219,10 +1414,12 @@ class ApiController extends Controller
                                                 'users.mobile',
                                                 'organization.name as company'
                                             )->first()->toArray();
-            $result = $this->user->join('tickets', function ($join) use ($id) {
+            $own = $this->user->join('tickets', function ($join) use ($id) {
                 $join->on('users.id', '=', 'tickets.user_id')
                         ->where('user_id', '=', $id);
-            })
+            });
+            $this->scopeTicketsToCaller($own, $caller);
+            $result = $own
                     ->join('department', 'department.id', '=', 'tickets.dept_id')
                     ->join('ticket_priority', 'ticket_priority.priority_id', '=', 'tickets.priority_id')
                     ->join('sla_plan', 'sla_plan.id', '=', 'tickets.sla')
@@ -1269,6 +1466,9 @@ class ApiController extends Controller
                 $error = 'There is no Ticket as ticket id: '.$id;
 
                 return response()->json(compact('error'));
+            }
+            if (!$this->accessibleTicket($this->authenticatedApiUser(), $id)) {
+                return $this->forbidden();
             }
             $query = $this->user->join('tickets', function ($join) use ($id) {
                 $join->on('users.id', '=', 'tickets.user_id')
@@ -1439,6 +1639,9 @@ class ApiController extends Controller
 
                 return response()->json(compact('error'));
             }
+            if (!$this->accessibleTicket($this->authenticatedApiUser(), Input::get('ticket_id'))) {
+                return $this->forbidden();
+            }
             $collaborator = $this->ticket->useradd();
 
             return response()->json(compact('collaborator'));
@@ -1470,6 +1673,9 @@ class ApiController extends Controller
                 $error = $v->messages();
 
                 return response()->json(compact('error'));
+            }
+            if (!$this->accessibleTicket($this->authenticatedApiUser(), Input::get('ticket_id'))) {
+                return $this->forbidden();
             }
             $collaborator = $this->ticket->getCollaboratorForTicket();
 
@@ -1503,6 +1709,16 @@ class ApiController extends Controller
                 $result = $v->messages();
 
                 return response()->json(compact('result'));
+            }
+            $ticketid = Input::get('ticketid');
+            if (!$this->accessibleTicket($this->authenticatedApiUser(), $ticketid)) {
+                return $this->forbidden();
+            }
+            // userremove() deletes the collaborator row named by 'data1' whatever
+            // ticket it is on, so make sure it belongs to the ticket just checked
+            $collaboratorId = Input::get('data1');
+            if ($collaboratorId !== null && !\App\Model\helpdesk\Ticket\Ticket_Collaborator::where('id', '=', $collaboratorId)->where('ticket_id', '=', $ticketid)->exists()) {
+                return $this->forbidden();
             }
             $collaborator = $this->ticket->userremove();
 

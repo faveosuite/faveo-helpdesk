@@ -17,6 +17,28 @@ class TicketController extends Controller
     {
         try {
             $user = \JWTAuth::parseToken()->authenticate();
+
+            // Route-level authorization. This endpoint lists tickets across the
+            // whole installation and, without this check, was reachable by ANY
+            // authenticated JWT holder: 'jwt.authOveride' (the only middleware
+            // this controller declares) just validates the token, and
+            // FilterController's own 'role.agent' middleware never runs here —
+            // it is instantiated with `new FilterController($request)` below
+            // rather than dispatched through the router, so its constructor
+            // middleware is skipped. A plain `role = 'user'` account could get
+            // every other customer's tickets just by asking for
+            // ?departments=all. See userIsAgent() in FilterController for the
+            // matching fix on the query side.
+            //
+            // The instanceof is a genuine narrowing, not a cast to silence
+            // Larastan: authenticate() is typed to return
+            // Tymon\JWTAuth\Contracts\JWTSubject, an interface with no $role, so
+            // the check below needs App\User specifically — and if it were ever
+            // anything else, denying is the correct (fail-closed) outcome anyway.
+            if (!$user instanceof \App\User || !in_array($user->role, ['agent', 'admin'], true)) {
+                return errorResponse(Lang::get('lang.unauthorized_access'), 403);
+            }
+
             $input = [];
             if ($request->has('api') && $request->has('show') && $request->has('departments')) {
                 if ($request->get('api') != '' || $request->get('show') != '' || $request->get('departments') != '') {
@@ -85,16 +107,27 @@ class TicketController extends Controller
             return errorResponse($error, $responseCode = 400);
             // return response()->json(compact('error'));
         } catch (\Exception $ex) {
+            // $e (undefined) and dd() (dumps and exit()s the process, skipping the
+            // return below entirely) were both bugs: any exception here — from a
+            // legitimate agent/admin request, not just a blocked one — used to
+            // crash with "Undefined variable $e" instead of the structured error
+            // response the code right below was clearly written to send back.
             $error = $ex->getMessage();
             $line = $ex->getLine();
             $file = $ex->getFile();
-            dd($e);
 
             return errorResponse(compact('error', 'file', 'line'), $responseCode = 400);
-        } catch (\TokenExpiredException $e) {
-            dd($e);
-
-            return errorResponse($e->getMessage(), $responseCode = 400);
         }
+        // A prior `catch (\TokenExpiredException $ex)` block stood here, below the
+        // catch (\Exception $ex) above. Tymon's TokenExpiredException extends its own
+        // JWTException, which extends \Exception, so that block could never run —
+        // the catch above it already intercepts every exception, including a real
+        // token expiry, first. It also named the wrong class: \TokenExpiredException
+        // (root namespace) isn't the real
+        // \Tymon\JWTAuth\Exceptions\TokenExpiredException, which is how Larastan
+        // caught it ("Call to method getMessage() on an unknown class"). Removed
+        // rather than corrected: dead code that happens to typecheck is still dead
+        // code, and the \Exception catch above already returns the same shape of
+        // response for a real token-expiry error.
     }
 }

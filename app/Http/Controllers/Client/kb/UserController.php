@@ -149,7 +149,7 @@ class UserController extends Controller
     public function home(Article $article, Category $category, Relationship $relation)
     {
         if (Config::get('database.install') == '%0%') {
-            return redirect('step1');
+            return redirect('/probe.php');
         } else {
             $categorys = $category->get();
             // $categorys->setPath('home');

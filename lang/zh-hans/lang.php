@@ -1409,6 +1409,7 @@ return [
     'error-debug-settings'               => '错误与debug设置',
     'debugging'                          => 'debug模式',
     'bugsnag-debugging'                  => '发送应用崩溃报告，帮助瓢虫改善Faveo',
+    'sentry-performance'                 => '发送性能报告，帮助瓢虫改善Faveo',
     'error-debug-settings-saved-message' => '错误与debug配置保存成功',
     'error-debug-settings-error-message' => '你没做任何改变.',
     'error-logs'                         => '错误日志',

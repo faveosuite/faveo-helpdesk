@@ -48,8 +48,30 @@ class InstallController extends Controller
         if (Cache::get('step1') == 'step1') {
             return View::make('themes/default1/installer/helpdesk/view1');
         } else {
-            return Redirect::route('prerequisites');
+            return redirect('/probe.php');
         }
+    }
+
+    /**
+     * Receives the server requirements check result from the standalone
+     * public/probe.php page and, if it passed with no errors, lets the
+     * installer wizard continue to the License Agreement step.
+     *
+     * @return mixed
+     */
+    public function licAgreement(Request $request)
+    {
+        $errorCount = $request->input('count');
+
+        if ($errorCount == '0' && $errorCount == 0) {
+            Cache::flush();
+            Artisan::call('config:clear');
+            Cache::forever('step1', 'step1');
+
+            return Redirect::route('licence');
+        }
+
+        return redirect('/probe.php');
     }
 
     /**
@@ -373,7 +395,7 @@ class InstallController extends Controller
 
     public function jsDisabled()
     {
-        return view('themes/default1/installer/helpdesk/check-js')->with('url', 'step1');
+        return view('themes/default1/installer/helpdesk/check-js')->with('url', '/probe.php');
     }
 
     public function createEnv($api = true)

@@ -151,7 +151,7 @@ class="nav-link active"
                                        
                                         <h4 class="modal-title">Remove user from Organization</h4>
 
-                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
                                         <span>Are you sure you want to Remove ?</span>
@@ -432,20 +432,25 @@ class="nav-link active"
                                 <b>{!! Lang::get('lang.loading') !!}...</b>
                             </p>
                             
-                            <table id="chumper" class="table table-bordered w-100 d-table">
-                                <thead>
-                                    <tr>
-                                        <th></th>
-                                        <th>{{Lang::get('lang.subject')}}</th>
-                                        <th>{{Lang::get('lang.ticket_id')}}</th>
-                                        <th>{{Lang::get('lang.priority')}}</th>
-                                        <th>{{Lang::get('lang.from')}}</th>
-                                        <th>{{Lang::get('lang.assigned_to')}}</th>
-                                        <th>{{Lang::get('lang.last_activity')}}</th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
+                            {{-- Wrapped for small screens: this table overflowed the 375px viewport.
+                 table-responsive is the theme's own convention (see
+                 client/helpdesk/mytickets.blade.php). Desktop layout is unchanged. --}}
+                            <div class="table-responsive">
+                                <table id="chumper" class="table table-bordered w-100 d-table">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>{{Lang::get('lang.subject')}}</th>
+                                            <th>{{Lang::get('lang.ticket_id')}}</th>
+                                            <th>{{Lang::get('lang.priority')}}</th>
+                                            <th>{{Lang::get('lang.from')}}</th>
+                                            <th>{{Lang::get('lang.assigned_to')}}</th>
+                                            <th>{{Lang::get('lang.last_activity')}}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
 
                         </div><!-- /.mail-box-messages -->
                     </div><!-- /.col -->          
@@ -561,7 +566,7 @@ class="nav-link active"
                     
                     <h5 class="modal-title">{!! Lang::get('lang.create_organization') !!}</h4>
 
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidd en="true">&times;</span></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <!-- failure message -->                                
@@ -685,7 +690,7 @@ class="nav-link active"
 
                     <h5 class="modal-title">{!! Lang::get('lang.assign') !!}</h4>
 
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" id="dismiss" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" id="dismiss" aria-label="Close"></button>
                     
                 </div>
         
@@ -747,7 +752,7 @@ class="nav-link active"
                     
                     <h5 class="modal-title">{!! Lang::get('lang.assign') !!}</h4>
 
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" id="dismiss" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" id="dismiss" aria-label="Close"></button>
                 </div>
                 <!--   <div id="assign_alert" class="alert alert-success alert-dismissible d-none">
                       <button id="assign_dismiss" type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
@@ -1298,9 +1303,7 @@ class="nav-link active"
                             <h4 class="modal-title" id="titleLabel">{{Lang::get('lang.delete_agent')}}</h4>
                             @endif
 
-                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span
-                                    aria-hidden="true">&times;</span>
-                            </button>
+                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 
                         </div>
 
@@ -1384,9 +1387,7 @@ class="nav-link active"
                     <div class="modal-header">
 
                         <h4 class="modal-title" id="titleLabel">{{Lang::get('lang.role_change')}}:</h4>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span
-                                aria-hidden="true">&times;</span>
-                        </button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                        
                     </div>
 
@@ -1426,9 +1427,7 @@ class="nav-link active"
 
                          <h4 class="modal-title" id="titleLabel">{{Lang::get('lang.role_change')}}:</h4>
 
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span
-                                aria-hidden="true">&times;</span>
-                        </button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                        
                     </div>
 
@@ -1456,9 +1455,7 @@ class="nav-link active"
                     <div class="modal-header">
 
                         <h4 class="modal-title" id="titleLabel">{{Lang::get('lang.role_change')}}:</h4>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span
-                                aria-hidden="true">&times;</span>
-                        </button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         
                     </div>
 
@@ -1496,9 +1493,7 @@ class="nav-link active"
                 <div class="modal-header">
 
                     <h4 class="modal-title" id="titleLabel">{{Lang::get('lang.change_password')}}:</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span
-                            aria-hidden="true">&times;</span>
-                    </button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     
                 </div>
 
@@ -1540,9 +1535,7 @@ class="nav-link active"
                     <div class="modal-header">
 
                           <h4 class="modal-title" id="titleLabel">{{Lang::get('lang.restore')}}:</h4>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span
-                                aria-hidden="true">&times;</span>
-                        </button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                       
                     </div>
 

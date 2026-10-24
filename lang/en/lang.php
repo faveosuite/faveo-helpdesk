@@ -1426,6 +1426,7 @@ return [
     'error-debug-settings'               => 'Error and debugging settings',
     'debugging'                          => 'Debugging mode',
     'bugsnag-debugging'                  => 'Send app crash reports to help Ladybird improve Faveo',
+    'sentry-performance'                 => 'Send performance reports to help Ladybird improve Faveo',
     'error-debug-settings-saved-message' => 'Your error and debugging settings have been saved successfully',
     'error-debug-settings-error-message' => 'You have not made any change in the settings.',
     'error-logs'                         => 'Error logs',
