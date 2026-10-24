@@ -130,7 +130,7 @@ class="nav-link active"
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">{!! Lang::get('lang.merge-ticket') !!} </h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" id="merge-close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" id="merge-close" aria-label="Close"></button>
             </div><!-- /.modal-header-->
             <div class ="modal-body">
                 <div class="row">
@@ -193,7 +193,7 @@ class="nav-link active"
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">{!! Lang::get('lang.assign-ticket') !!} </h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" id="assign-close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" id="assign-close" aria-label="Close"></button>
             </div><!-- /.modal-header-->
             <div class ="modal-body">
                 <div class="row">
@@ -228,7 +228,7 @@ class="nav-link active"
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title" id="myModalLabel"></h4>
-                <button type="button" class="btn-close closemodal" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                <button type="button" class="btn-close closemodal" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" id="custom-alert-body" >
             </div>

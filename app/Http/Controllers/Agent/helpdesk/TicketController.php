@@ -991,7 +991,8 @@ class TicketController extends Controller
             $find_number = Tickets::where('ticket_number', '=', $new_subject)->first();
             $thread_body = explode('---Reply above this line---', $body);
             $body = $thread_body[0];
-            if ($find_number->count() > 0) {
+            // the [#number] may belong to a deleted ticket or another helpdesk
+            if ($find_number) {
                 $id = $find_number->id;
                 $ticket_number = $find_number->ticket_number;
                 if ($find_number->status > 1) {

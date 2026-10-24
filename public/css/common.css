@@ -631,12 +631,26 @@ div.dt-container div.dt-info {
     text-decoration: none;
 }
 
+/* Give every widget card the same height and top-align them. widgetbox.css sizes the
+   cards with `.widgetrow a` (fixed 115px width, inline-block), so a longer label such
+   as "Knowledge base" wraps to two lines, making that one card taller and, being
+   baseline-aligned, push up above its neighbours. `.widgetrow .widgetrowitem` is used
+   (not just `.widgetrowitem`) so it outranks `.widgetrow a` regardless of load order. */
+.widgetrow .widgetrowitem {
+    box-sizing: border-box;
+    min-height: 96px;
+    vertical-align: top;
+}
+
 .widgetitemtitle {
     color: rgb(0, 154, 186);
 }
 
 .widget-bg-register {
-    background-image: url("/lb-faveo/media/images/register.png");
+    /* Relative to this file's own location (public/css/), not the site root -
+       root-relative paths break whenever the app is served from a subdirectory
+       (e.g. APP_URL=.../fc2/public), which is how this install is configured. */
+    background-image: url("../lb-faveo/media/images/register.png");
     background-size: 32px 32px;
     background-repeat: no-repeat;
     background-position: left center;
@@ -644,7 +658,7 @@ div.dt-container div.dt-info {
 }
 
 .widget-bg-submit-ticket {
-    background-image: url("/lb-faveo/media/images/submitticket.png");
+    background-image: url("../lb-faveo/media/images/submitticket.png");
     background-size: 32px 32px;
     background-repeat: no-repeat;
     background-position: left center;
@@ -652,7 +666,7 @@ div.dt-container div.dt-info {
 }
 
 .widget-bg-my-tickets {
-    background-image: url("/lb-faveo/media/images/news.png");
+    background-image: url("../lb-faveo/media/images/news.png");
     background-size: 32px 32px;
     background-repeat: no-repeat;
     background-position: left center;
@@ -660,7 +674,7 @@ div.dt-container div.dt-info {
 }
 
 .widget-bg-knowledge-base {
-    background-image: url("/lb-faveo/media/images/knowledgebase.png");
+    background-image: url("../lb-faveo/media/images/knowledgebase.png");
     background-size: 32px 32px;
     background-repeat: no-repeat;
     background-position: left center;

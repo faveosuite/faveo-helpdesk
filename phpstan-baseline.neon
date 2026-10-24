@@ -285,7 +285,7 @@ parameters:
 		-
 			message: '#^Method App\\Api\\v1\\ApiController\:\:editTicket\(\) should return App\\Api\\v1\\json but returns Illuminate\\Http\\JsonResponse\.$#'
 			identifier: return.type
-			count: 3
+			count: 4
 			path: app/Api/v1/ApiController.php
 
 		-
@@ -303,7 +303,7 @@ parameters:
 		-
 			message: '#^Method App\\Api\\v1\\ApiController\:\:generateApiKey\(\) should return App\\Api\\v1\\json\|App\\Api\\v1\\type but returns Illuminate\\Http\\JsonResponse\.$#'
 			identifier: return.type
-			count: 4
+			count: 5
 			path: app/Api/v1/ApiController.php
 
 		-
@@ -333,7 +333,7 @@ parameters:
 		-
 			message: '#^Method App\\Api\\v1\\ApiController\:\:getCustomer\(\) should return App\\Api\\v1\\json but returns Illuminate\\Http\\JsonResponse\.$#'
 			identifier: return.type
-			count: 4
+			count: 5
 			path: app/Api/v1/ApiController.php
 
 		-
@@ -345,7 +345,7 @@ parameters:
 		-
 			message: '#^Method App\\Api\\v1\\ApiController\:\:getCustomers\(\) should return App\\Api\\v1\\json but returns Illuminate\\Http\\JsonResponse\.$#'
 			identifier: return.type
-			count: 4
+			count: 5
 			path: app/Api/v1/ApiController.php
 
 		-
@@ -357,7 +357,7 @@ parameters:
 		-
 			message: '#^Method App\\Api\\v1\\ApiController\:\:getCustomersWith\(\) should return App\\Api\\v1\\json but returns Illuminate\\Http\\JsonResponse\.$#'
 			identifier: return.type
-			count: 2
+			count: 3
 			path: app/Api/v1/ApiController.php
 
 		-
@@ -501,7 +501,7 @@ parameters:
 		-
 			message: '#^Method App\\Api\\v1\\ApiController\:\:internalNote\(\) should return App\\Api\\v1\\type but returns Illuminate\\Http\\JsonResponse\.$#'
 			identifier: return.type
-			count: 4
+			count: 7
 			path: app/Api/v1/ApiController.php
 
 		-
@@ -567,7 +567,7 @@ parameters:
 		-
 			message: '#^Method App\\Api\\v1\\ApiController\:\:ticketThreads\(\) should return App\\Api\\v1\\json but returns Illuminate\\Http\\JsonResponse\.$#'
 			identifier: return.type
-			count: 3
+			count: 4
 			path: app/Api/v1/ApiController.php
 
 		-
@@ -759,7 +759,7 @@ parameters:
 		-
 			message: '#^Undefined variable\: \$e$#'
 			identifier: variable.undefined
-			count: 13
+			count: 10
 			path: app/Api/v1/ApiController.php
 
 		-
@@ -819,13 +819,7 @@ parameters:
 		-
 			message: '#^Method App\\Api\\v1\\ApiExceptAuthController\:\:checkUrl\(\) should return App\\Api\\v1\\json but returns Illuminate\\Http\\JsonResponse\.$#'
 			identifier: return.type
-			count: 2
-			path: app/Api/v1/ApiExceptAuthController.php
-
-		-
-			message: '#^Method App\\Api\\v1\\ApiExceptAuthController\:\:checkUrl\(\) should return App\\Api\\v1\\json but returns string\.$#'
-			identifier: return.type
-			count: 1
+			count: 4
 			path: app/Api/v1/ApiExceptAuthController.php
 
 		-
@@ -841,12 +835,6 @@ parameters:
 			path: app/Api/v1/ApiExceptAuthController.php
 
 		-
-			message: '#^Parameter \#1 \$url of method App\\Api\\v1\\ApiExceptAuthController\:\:callGetApi\(\) expects App\\Api\\v1\\type, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Api/v1/ApiExceptAuthController.php
-
-		-
 			message: '#^Parameter \#3 \$value of function curl_setopt expects array\|string, App\\Api\\v1\\type given\.$#'
 			identifier: argument.type
 			count: 1
@@ -855,7 +843,7 @@ parameters:
 		-
 			message: '#^Parameter \#3 \$value of function curl_setopt expects bool, int given\.$#'
 			identifier: argument.type
-			count: 2
+			count: 3
 			path: app/Api/v1/ApiExceptAuthController.php
 
 		-
@@ -1923,7 +1911,7 @@ parameters:
 		-
 			message: '#^Caught class App\\Api\\v1\\Exception not found\.$#'
 			identifier: class.notFound
-			count: 2
+			count: 1
 			path: app/Api/v1/TokenAuthController.php
 
 		-
@@ -2001,7 +1989,7 @@ parameters:
 		-
 			message: '#^Undefined variable\: \$e$#'
 			identifier: variable.undefined
-			count: 2
+			count: 1
 			path: app/Api/v1/TokenAuthController.php
 
 		-
@@ -13936,7 +13924,7 @@ parameters:
 		-
 			message: '#^Cannot access property \$id on App\\Model\\helpdesk\\Ticket\\Tickets\|null\.$#'
 			identifier: property.nonObject
-			count: 11
+			count: 10
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
 
 		-
@@ -14134,7 +14122,7 @@ parameters:
 		-
 			message: '#^Cannot access property \$status on App\\Model\\helpdesk\\Ticket\\Tickets\|null\.$#'
 			identifier: property.nonObject
-			count: 3
+			count: 1
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
 
 		-
@@ -14158,7 +14146,7 @@ parameters:
 		-
 			message: '#^Cannot access property \$ticket_number on App\\Model\\helpdesk\\Ticket\\Tickets\|null\.$#'
 			identifier: property.nonObject
-			count: 8
+			count: 7
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
 
 		-
@@ -14266,7 +14254,7 @@ parameters:
 		-
 			message: '#^Cannot call method save\(\) on App\\Model\\helpdesk\\Ticket\\Tickets\|null\.$#'
 			identifier: method.nonObject
-			count: 12
+			count: 11
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
 
 		-
@@ -19304,21 +19292,9 @@ parameters:
 			path: app/Http/Controllers/Auth/ForgotPasswordController.php
 
 		-
-			message: '#^Loose comparison using \!\= between non\-empty\-string and null will always evaluate to true\.$#'
-			identifier: notEqual.alwaysTrue
-			count: 1
-			path: app/Http/Controllers/Auth/ForgotPasswordController.php
-
-		-
 			message: '#^Access to an undefined property App\\Http\\Controllers\\Auth\\PasswordController\:\:\$PhpMailController\.$#'
 			identifier: property.notFound
 			count: 3
-			path: app/Http/Controllers/Auth/PasswordController.php
-
-		-
-			message: '#^Loose comparison using \!\= between non\-empty\-string and null will always evaluate to true\.$#'
-			identifier: notEqual.alwaysTrue
-			count: 1
 			path: app/Http/Controllers/Auth/PasswordController.php
 
 		-
@@ -19342,7 +19318,7 @@ parameters:
 		-
 			message: '#^Method App\\Http\\Controllers\\Auth\\PasswordController\:\:postEmail\(\) should return App\\Http\\Controllers\\Auth\\Response but returns Illuminate\\Http\\RedirectResponse\.$#'
 			identifier: return.type
-			count: 3
+			count: 4
 			path: app/Http/Controllers/Auth/PasswordController.php
 
 		-
