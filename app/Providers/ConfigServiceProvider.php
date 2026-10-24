@@ -61,7 +61,7 @@ class ConfigServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        if (! isInstall()) {
+        if (!isInstall()) {
             return;
         }
 

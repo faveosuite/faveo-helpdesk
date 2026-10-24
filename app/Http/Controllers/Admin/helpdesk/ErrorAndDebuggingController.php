@@ -76,7 +76,7 @@ class ErrorAndDebuggingController extends Controller
                 }
             }
 
-            if (! $changed) {
+            if (!$changed) {
                 return redirect()->back()->with(
                     'fails',
                     Lang::get('lang.error-debug-settings-error-message')
@@ -92,7 +92,7 @@ class ErrorAndDebuggingController extends Controller
             }
 
             // Next request reads the new values from the database.
-            if (! \Cache::forget(ConfigServiceProvider::DEBUGGING_CACHE_KEY) && \Cache::has(ConfigServiceProvider::DEBUGGING_CACHE_KEY)) {
+            if (!\Cache::forget(ConfigServiceProvider::DEBUGGING_CACHE_KEY) && \Cache::has(ConfigServiceProvider::DEBUGGING_CACHE_KEY)) {
                 \Log::warning('Error and debugging settings were saved, but the cached copy could not be cleared; it expires in '.ConfigServiceProvider::DEBUGGING_CACHE_TTL.'s. Check write access to storage/framework/cache.');
             }
 
