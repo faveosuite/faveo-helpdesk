@@ -188,7 +188,7 @@ class ApiExceptAuthController extends Controller
      * to resolve $target['host'] itself, which is what closes the
      * DNS-rebinding gap between that check and this request.
      *
-     * @param string                                                      $url
+     * @param string                                                     $url
      * @param array{host: string, port: int, scheme: string, ip: string} $target
      *
      * @return string|bool

@@ -20,8 +20,8 @@ class TeamEditStatusTest extends TestCase
         $suffix = Str::random(8);
         $admin = new User([
             'first_name' => 'T', 'last_name' => 'Admin', 'email' => $suffix.'@example.test',
-            'user_name' => 'u_'.$suffix, 'password' => Hash::make(Str::random(10)),
-            'active' => 1, 'role' => 'admin', 'agent_tzone' => 81, 'primary_dpt' => 1,
+            'user_name'  => 'u_'.$suffix, 'password' => Hash::make(Str::random(10)),
+            'active'     => 1, 'role' => 'admin', 'agent_tzone' => 81, 'primary_dpt' => 1,
         ]);
         $admin->save();
         $this->actingAs($admin);

@@ -18,7 +18,7 @@ class SentryGate
 {
     public static function beforeSend(Event $event, ?EventHint $hint): ?Event
     {
-        if (! app()->environment('production') || ! config('app.sentry_reporting')) {
+        if (!app()->environment('production') || !config('app.sentry_reporting')) {
             return null;
         }
 
