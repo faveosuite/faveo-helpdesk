@@ -180,7 +180,7 @@ class EditFormRoundTripTest extends TestCase
         $s = Str::random(8);
 
         return User::create(['first_name' => 'T', 'last_name' => ucfirst($role), 'email' => $s.'@example.test', 'user_name' => 'a_'.$s,
-            'password' => Hash::make(Str::random(10)), 'active' => 1, 'role' => $role, 'agent_tzone' => 81, 'primary_dpt' => 1, 'assign_group' => 1,
-            'phone_number' => '', 'mobile' => null]);
+            'password'                    => Hash::make(Str::random(10)), 'active' => 1, 'role' => $role, 'agent_tzone' => 81, 'primary_dpt' => 1, 'assign_group' => 1,
+            'phone_number'                => '', 'mobile' => null]);
     }
 }

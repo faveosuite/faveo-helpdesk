@@ -17,15 +17,15 @@ class NewTicketMobileMessageTest extends TestCase
     {
         $s = Str::random(8);
         $admin = User::create(['first_name' => 'T', 'last_name' => 'Admin', 'email' => $s.'@example.test', 'user_name' => 'a_'.$s,
-            'password' => Hash::make(Str::random(10)), 'active' => 1, 'role' => 'admin', 'agent_tzone' => 81, 'primary_dpt' => 1]);
+            'password'                      => Hash::make(Str::random(10)), 'active' => 1, 'role' => 'admin', 'agent_tzone' => 81, 'primary_dpt' => 1]);
         $mobile = (string) random_int(7000000000, 7999999999);
         $owner = User::create(['first_name' => 'Owner', 'last_name' => 'Person', 'email' => 'o'.$s.'@example.test', 'user_name' => 'o_'.$s,
-            'password' => Hash::make(Str::random(10)), 'active' => 1, 'role' => 'user', 'mobile' => $mobile, 'country_code' => 91, 'phone_number' => '']);
+            'password'                      => Hash::make(Str::random(10)), 'active' => 1, 'role' => 'user', 'mobile' => $mobile, 'country_code' => 91, 'phone_number' => '']);
         $_SERVER['REQUEST_URI'] = '/newticket';
 
         $response = $this->actingAs($admin)->post('newticket/post', [
-            'email' => 'different'.$s.'@example.test', 'first_name' => 'Someone', 'last_name' => 'Else',
-            'code' => '91', 'mobile' => $mobile, 'helptopic' => 1, 'sla' => 1, 'priority' => 1,
+            'email'   => 'different'.$s.'@example.test', 'first_name' => 'Someone', 'last_name' => 'Else',
+            'code'    => '91', 'mobile' => $mobile, 'helptopic' => 1, 'sla' => 1, 'priority' => 1,
             'subject' => 'Clash subject', 'body' => 'Clash body text here',
         ]);
 
@@ -40,11 +40,11 @@ class NewTicketMobileMessageTest extends TestCase
     {
         $s = Str::random(8);
         $admin = User::create(['first_name' => 'T', 'last_name' => 'Admin', 'email' => $s.'@example.test', 'user_name' => 'a_'.$s,
-            'password' => Hash::make(Str::random(10)), 'active' => 1, 'role' => 'admin', 'agent_tzone' => 81, 'primary_dpt' => 1]);
+            'password'                      => Hash::make(Str::random(10)), 'active' => 1, 'role' => 'admin', 'agent_tzone' => 81, 'primary_dpt' => 1]);
         $_SERVER['REQUEST_URI'] = '/newticket';
 
         return $this->actingAs($admin)->post('newticket/post', $override + [
-            'email' => 'n'.$s.'@example.test', 'first_name' => 'Someone', 'last_name' => 'Else',
+            'email'     => 'n'.$s.'@example.test', 'first_name' => 'Someone', 'last_name' => 'Else',
             'helptopic' => 1, 'sla' => 1, 'priority' => 1, 'subject' => 'A subject', 'body' => 'Some body text here',
         ]);
     }

@@ -53,7 +53,7 @@ class WorkflowEditStatusTest extends TestCase
         foreach (['1', '0'] as $status) {
             $name = 'wf new '.Str::random(6);
             $this->actingAs($admin)->post('workflow/store', [
-                'name' => $name, 'status' => $status, 'execution_order' => 1, 'target_channel' => 'A-3', 'internal_note' => '',
+                'name'   => $name, 'status' => $status, 'execution_order' => 1, 'target_channel' => 'A-3', 'internal_note' => '',
                 'rule'   => [['a' => 'subject', 'b' => 'equal', 'c' => 'x']],
                 'action' => [['a' => 'status', 'b' => '3']],
             ])->assertSessionHas('success');
@@ -70,7 +70,7 @@ class WorkflowEditStatusTest extends TestCase
     {
         $s = Str::random(6);
         $admin = User::create(['first_name' => 'T', 'last_name' => 'Admin', 'email' => $s.'@example.test', 'user_name' => 'a_'.$s,
-            'password' => Hash::make(Str::random(10)), 'active' => 1, 'role' => 'admin', 'agent_tzone' => 81, 'primary_dpt' => 1, 'assign_group' => 1]);
+            'password'                      => Hash::make(Str::random(10)), 'active' => 1, 'role' => 'admin', 'agent_tzone' => 81, 'primary_dpt' => 1, 'assign_group' => 1]);
         $workflow = WorkflowName::create(['name' => 'wf '.$s, 'status' => $status, 'order' => 1, 'target' => 'A-3', 'internal_note' => '']);
         WorkflowRules::create(['workflow_id' => $workflow->id, 'matching_criteria' => '', 'matching_scenario' => 'subject', 'matching_relation' => 'equal', 'matching_value' => 'x']);
         WorkflowAction::create(['workflow_id' => $workflow->id, 'condition' => 'status', 'action' => '3']);

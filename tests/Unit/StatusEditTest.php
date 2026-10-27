@@ -22,7 +22,7 @@ class StatusEditTest extends TestCase
         $status = $this->makeStatus('open', 1);
         $_SERVER['REQUEST_URI'] = '/status/edit/'.$status->id;
 
-        $html =$this->actingAs($this->makeAdmin())->get('status/edit/'.$status->id)->assertOk()->getContent();
+        $html = $this->actingAs($this->makeAdmin())->get('status/edit/'.$status->id)->assertOk()->getContent();
 
         $this->assertRadioChecked($html, 'state', 'open');
         $this->assertRadioNotChecked($html, 'state', 'closed');
@@ -93,7 +93,7 @@ class StatusEditTest extends TestCase
         $s = Str::random(8);
 
         return User::create(['first_name' => 'T', 'last_name' => 'Admin', 'email' => $s.'@example.test', 'user_name' => 'a_'.$s,
-            'password' => Hash::make(Str::random(10)), 'active' => 1, 'role' => 'admin', 'agent_tzone' => 81, 'primary_dpt' => 1, 'assign_group' => 1]);
+            'password'                    => Hash::make(Str::random(10)), 'active' => 1, 'role' => 'admin', 'agent_tzone' => 81, 'primary_dpt' => 1, 'assign_group' => 1]);
     }
 
     private function radioTag($html, $name, $value)
