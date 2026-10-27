@@ -92,11 +92,9 @@
                     </div>
                     <div class="mb-3 {{ $errors->has('profile_pic') ? 'has-error' : '' }}" >
                         <!-- profile pic -->
-                        <div class="btn btn-secondary btn-file">
-                            {!! html()->label(Lang::get('lang.profilepicture'), 'profile_pic') !!}
-                            {!! $errors->first('profile_pic', '<spam class="help-block">:message</spam>') !!}
-                            {!! html()->file('profile_pic') !!}
-                        </div>
+                        {!! $errors->first('profile_pic', '<spam class="help-block">:message</spam>') !!}
+                        {!! html()->file('profile_pic')->class('visually-hidden') !!}
+                        {!! html()->label(Lang::get('lang.profilepicture'), 'profile_pic')->class('btn btn-secondary') !!}
                     </div>
                     {!! html()->token() !!}
                     {!! html()->closeModelForm() !!}

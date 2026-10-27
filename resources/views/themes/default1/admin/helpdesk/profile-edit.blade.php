@@ -105,7 +105,7 @@
 
 				{!! html()->label(Lang::get('lang.mobile_number'), 'mobile') !!}
 				{!! $errors->first('mobile', '<spam class="help-block">:message</spam>') !!}
-				{!! html()->number('mobile', null)->class('form-control') !!}
+				{!! html()->input('tel', 'mobile', null)->class('form-control')->attributes(['inputmode' => 'numeric', 'pattern' => '[0-9]*']) !!}
 
 			</div>
 

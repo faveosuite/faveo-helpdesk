@@ -120,7 +120,7 @@ class="nav-link active"
                     </td>
                     <!-- Priority -->
                     <?php $priority = App\Model\helpdesk\Ticket\Ticket_Priority::where('priority_id', '=', $topic->priority)->first(); ?>
-                    <td class="d-none d-md-table-cell">{!! $priority->priority_desc !!}</td>
+                    <td class="d-none d-md-table-cell">{!! $priority->priority !!}</td>
                     <!-- Department -->
                     @if($topic->department != null)
                     <?php

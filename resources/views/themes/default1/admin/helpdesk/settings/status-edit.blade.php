@@ -154,16 +154,22 @@ class="nav-link active"
                 </div>
             </div>
         </div>
+        <?php
+        // pre-select the saved values (or the submitted ones after a validation error)
+        $resolved = old('state', $status->state) == 'closed';
+        $deleted = old('delete', $status->state == 'deleted' ? 'yes' : 'no') == 'yes';
+        $notify = old('email_user', (int) $status->email_user) == 1;
+        ?>
         <div class="mb-3">
             <!-- gender -->
             {!! html()->label(Lang::get('lang.resolved_status'), 'gender') !!}
             <div class="callout callout-default font-oblique">{!! Lang::get('lang.status_msg3') !!}</div>
             <div class="row">
                 <div class="col-sm-3">
-                    {!! html()->radio('state', true, 'closed') !!} {{Lang::get('lang.yes')}}
+                    {!! html()->radio('state', $resolved, 'closed') !!} {{Lang::get('lang.yes')}}
                 </div>
                 <div class="col-sm-3">
-                    {!! html()->radio('state', null, 'open') !!} {{Lang::get('lang.no')}}
+                    {!! html()->radio('state', !$resolved, 'open') !!} {{Lang::get('lang.no')}}
                 </div>
             </div>
         </div>
@@ -173,10 +179,10 @@ class="nav-link active"
             <div class="callout callout-default font-oblique">{!! Lang::get('lang.status_msg2') !!}</div>
             <div class="row">
                 <div class="col-sm-3">
-                    {!! html()->radio('delete', null, 'yes') !!} {{Lang::get('lang.yes')}}
+                    {!! html()->radio('delete', $deleted, 'yes') !!} {{Lang::get('lang.yes')}}
                 </div>
                 <div class="col-sm-3">
-                    {!! html()->radio('delete', null, 'no') !!} {{Lang::get('lang.no')}}
+                    {!! html()->radio('delete', !$deleted, 'no') !!} {{Lang::get('lang.no')}}
                 </div>
             </div>        
         </div>
@@ -186,10 +192,10 @@ class="nav-link active"
             <div class="callout callout-default font-oblique">{!! Lang::get('lang.status_msg1') !!}</div>
             <div class="row">
                 <div class="col-sm-3">
-                    {!! html()->radio('email_user', null, 'yes') !!} {{Lang::get('lang.yes')}}
+                    {!! html()->radio('email_user', $notify, '1') !!} {{Lang::get('lang.yes')}}
                 </div>
                 <div class="col-sm-3">
-                    {!! html()->radio('email_user', null, 'no') !!} {{Lang::get('lang.no')}}
+                    {!! html()->radio('email_user', !$notify, '0') !!} {{Lang::get('lang.no')}}
                 </div>
             </div>        
         </div>

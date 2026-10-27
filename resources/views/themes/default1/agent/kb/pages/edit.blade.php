@@ -107,10 +107,10 @@ class="nav-item menu-open"
 
                     <div class="row">
                         <div class="col-sm-5">
-                            {!! html()->radio('status', true, 1) !!} {{Lang::get('lang.published')}}
+                            {!! html()->radio('status', (string) old('status', $page->status) === '1', '1') !!} {{Lang::get('lang.published')}}
                         </div>
                         <div class="col-sm-5">
-                            {!! html()->radio('status', null, 0) !!} {{Lang::get('lang.draft')}}
+                            {!! html()->radio('status', (string) old('status', $page->status) === '0', '0') !!} {{Lang::get('lang.draft')}}
                         </div>
                     </div>
                 </div>
@@ -120,10 +120,10 @@ class="nav-item menu-open"
 
                     <div class="row">
                         <div class="col-sm-5">
-                            {!! html()->radio('visibility', true, '1') !!} {{Lang::get('lang.public')}}
+                            {!! html()->radio('visibility', (string) old('visibility', $page->visibility) === '1', '1') !!} {{Lang::get('lang.public')}}
                         </div>
                         <div class="col-sm-5">
-                            {!! html()->radio('visibility', null, '0') !!} {{Lang::get('lang.private')}}
+                            {!! html()->radio('visibility', (string) old('visibility', $page->visibility) === '0', '0') !!} {{Lang::get('lang.private')}}
                         </div>
                     </div>
                 </div>

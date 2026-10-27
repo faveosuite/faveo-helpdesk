@@ -86,7 +86,7 @@ class EmailsController extends Controller
                     }
                     $priority = Ticket_Priority::where('priority_id', '=', $model->priority)->first();
 
-                    return $priority ? ucfirst($priority->priority_desc) : '-';
+                    return $priority ? ucfirst($priority->priority) : '-';
                 })
                 ->addColumn('department', function ($model) {
                     if ($model->department === null) {

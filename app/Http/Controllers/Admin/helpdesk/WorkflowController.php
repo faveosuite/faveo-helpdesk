@@ -79,10 +79,10 @@ class WorkflowController extends Controller
                         /* add column status */
                         ->addColumn('status', function ($model) {
                             if ($model->status == 1) {
-                                return 'Active';
-                            } elseif ($model->status == 0) {
-                                return 'Disabled';
+                                return '<button class="btn btn-success btn-xs">'.Lang::get('lang.active').'</button>';
                             }
+
+                            return '<button class="btn btn-danger btn-xs">'.Lang::get('lang.inactive').'</button>';
                         })
                         /* add column order */
                         ->addColumn('order', function ($model) {
@@ -105,6 +105,8 @@ class WorkflowController extends Controller
                                     return 'Web Forms';
                                 } elseif ($target1[1] == 2) {
                                     return 'Email';
+                                } elseif ($target1[1] == 3) {
+                                    return 'Agent Panel';
                                 } elseif ($target1[1] == 4) {
                                     return 'API';
                                 }
@@ -126,7 +128,7 @@ class WorkflowController extends Controller
                         ->addColumn('Actions', function ($model) {
                             return "<a class='btn btn-primary btn-xs' href='".route('workflow.edit', $model->id)."'><i class='fas fa-edit'></i> Edit</a>  <a class='btn btn-danger btn-xs' href='".route('workflow.delete', $model->id)."'><i class='fas fa-trash'></i> Delete</a>";
                         })
-                        ->rawColumns(['Actions'])
+                        ->rawColumns(['status', 'Actions'])
                         ->make(true);
     }
 
@@ -353,7 +355,7 @@ class WorkflowController extends Controller
         $priorities = Ticket_Priority::where('status', '=', 1)->get();
         $var = "<select name='action[".$id."][b]' class='form-control' required>";
         foreach ($priorities as $priority) {
-            $var .= "<option value='".$priority->priority_id."'>".$priority->priority_desc.'</option>';
+            $var .= "<option value='".$priority->priority_id."'>".$priority->priority.'</option>';
         }
         $var .= '</select>';
 

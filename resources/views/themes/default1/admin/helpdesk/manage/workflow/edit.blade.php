@@ -35,7 +35,8 @@ class="nav-link active"
 <!-- /breadcrumbs -->
 <!-- content -->
 @section('content')
-<form class="form-horizontal" action="{!! URL::route('workflow.update', $id) !!}" method="POST">
+{{-- autocomplete off: otherwise the browser restores an unsaved radio choice on reload/back and the page contradicts what is saved --}}
+<form class="form-horizontal" action="{!! URL::route('workflow.update', $id) !!}" method="POST" autocomplete="off">
     {{ csrf_field() }}
     <!-- check whether success or not -->
     @if(Session::has('success'))
@@ -96,13 +97,14 @@ class="nav-link active"
                 <div class="mb-3 col-sm-6 {!! $errors->has('status') ? 'has-error' : '' !!}">
                     <label> {!! lang::get('lang.status') !!}</label>
                     <div>
+                        <?php $active = old('status', $workflow->status) == 1; ?>
                         <input type="radio" id="inputEmail2" name="status" value="1" <?php
-                        if ($workflow->status == 1) {
+                        if ($active) {
                             echo "checked";
                         }
                         ?> >&nbsp;&nbsp;{!! Lang::get('lang.active') !!}&nbsp;&nbsp;
                         <input type="radio" id="inputEmail1" name="status" value="0" <?php
-                        if ($workflow->status == 0) {
+                        if (!$active) {
                             echo "checked";
                         }
                         ?> >&nbsp;&nbsp;{!! Lang::get('lang.inactive') !!}&nbsp;&nbsp;
@@ -131,6 +133,11 @@ class="nav-link active"
                             echo "selected='selected'";
                         }
                         ?> >Web Forms</option>
+                        <option value="A-3" <?php
+                        if ($workflow->target == "A-3") {
+                            echo "selected='selected'";
+                        }
+                        ?> >Agent Panel</option>
                         <option value="A-4" <?php
                         if ($workflow->target == "A-4") {
                             echo "selected='selected'";
@@ -354,7 +361,7 @@ class="nav-link active"
                                             } else {
                                                 $priority1 = "";
                                             }
-                                            $var .= "<option value='" . $priority->priority_id . "' " . $priority1 . ">" . $priority->priority_desc . "</option>";
+                                            $var .= "<option value='" . $priority->priority_id . "' " . $priority1 . ">" . $priority->priority . "</option>";
                                         }
                                         $var .= "</select>";
                                         echo $var;

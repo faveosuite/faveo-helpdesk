@@ -125,7 +125,8 @@ class TicketController extends Controller
             } else {
                 $mobile_number = null;
             }
-            $source = Ticket_source::where('name', '=', 'agent')->first();
+            // API tickets get their own source so "API Calls" workflows can target them
+            $source = Ticket_source::where('name', '=', $api != false ? 'api' : 'agent')->first() ?: Ticket_source::where('name', '=', 'agent')->first();
             $headers = null;
             $help = Help_topic::where('id', '=', $helptopic)->first();
             $form_data = $request->except('name', 'phone', 'email', 'subject', 'body', 'helptopic', '_wysihtml5_mode', '_token', 'mobile', 'code', 'priority', 'attachment', 'first_name', 'last_name', 'sla', 'duedate', 'assignto', 'files'); //added "files" in exception list because some genius has added a new editor 'summernote' to impress his boss and screwed the functional code with his genius ability. Hence to make world capable of handling this genius's work I am adding a shitty workaround for it. After looking for solution everywhere and referring to https://stackoverflow.com/questions/59938588/summernote-adds-files-field-to-post
@@ -161,8 +162,16 @@ class TicketController extends Controller
                     }
                 }
             }
-            //create user
-            $result = $this->create_user($email, $fullname, $subject, $body, $phone, $phonecode, $mobile_number, $helptopic, $sla, $priority, $source->id, $headers, $help->department, $assignto, $form_data, $auto_response, $status, $duedate);
+            //create user, through the workflow engine so "Any", "Agent Panel" and "API Calls" workflows apply
+            $workflow = new TicketWorkflowController($this);
+            $result = $workflow->workflow($email, $fullname, $subject, $body, $phone, $phonecode, $mobile_number, $helptopic, $sla, $priority, $source->id, $headers, $help->department, $assignto, null, $status, $form_data, $auto_response, $duedate);
+            if ($result[0] === false) {
+                if ($api != false) {
+                    return response()->json(['error' => Lang::get('lang.ticket-rejected-by-workflow')], 422);
+                }
+
+                return Redirect('newticket')->with('fails', Lang::get('lang.ticket-rejected-by-workflow'))->withInput($request->except('password'));
+            }
             if ($result[1]) {
                 $status = $this->checkUserVerificationStatus();
                 if ($status == 1) {
@@ -181,11 +190,17 @@ class TicketController extends Controller
                     return Redirect('newticket')->with('success', Lang::get('lang.Ticket-created-successfully2'));
                 }
             } else {
+                // Tell the agent whose mobile it is, so they can use that user's email
+                // (or pick the user from the autocomplete) instead of guessing.
+                $owner = User::where('mobile', $mobile_number)->first();
+                $message = $owner
+                    ? Lang::get('lang.mobile-belongs-to-existing-user', ['name' => trim($owner->first_name.' '.$owner->last_name), 'email' => $owner->email ?: $owner->user_name])
+                    : Lang::get('lang.failed-to-create-user-tcket-as-mobile-has-been-taken');
                 if ($api != false) {
-                    return response()->json(['error' => Lang::get('lang.failed-to-create-user-tcket-as-mobile-has-been-taken')], 500);
+                    return response()->json(['error' => $message], 500);
                 }
 
-                return Redirect('newticket')->with('fails', Lang::get('lang.failed-to-create-user-tcket-as-mobile-has-been-taken'))->withInput($request->except('password'));
+                return Redirect('newticket')->with('fails', $message)->withInput($request->except('password'));
             }
         } catch (Exception $e) {
             if ($api != false) {
@@ -804,7 +819,8 @@ class TicketController extends Controller
                 }
                 $encoded_ticketid = Crypt::encrypt($ticketdata->id);
                 $link = url('check_ticket/'.$encoded_ticketid);
-                if ($source == 3) {
+                // tickets raised by an agent, from the agent panel or the API, get the "created by agent" mail
+                if ($source == 3 || $source == Ticket_source::where('name', '=', 'api')->value('id')) {
                     try {
                         if ($auto_response == 0) {
                             $encoded_ticketid = Crypt::encrypt($ticketdata->id);
@@ -2907,7 +2923,7 @@ class TicketController extends Controller
                                     $due = '&nbsp;<span style="" title="'.Lang::get('lang.is_overdue').'" class="badge text-bg-danger text-xs">'.Lang::get('lang.overdue').'</span>';
                                 } else {
                                     if (date('Ymd', $duedate) == date('Ymd', $now)) {
-                                        $due = '&nbsp;<span style="background-color: rgba(240, 173, 78, 0.67) !important" title="'.Lang::get('lang.going-overdue-today').'" class="label label-warning">'.Lang::get('lang.duetoday').'</span>';
+                                        $due = '&nbsp;<span title="'.Lang::get('lang.going-overdue-today').'" class="badge text-bg-warning text-xs">'.Lang::get('lang.duetoday').'</span>';
                                     }
                                 }
                             }

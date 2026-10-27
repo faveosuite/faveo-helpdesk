@@ -146,7 +146,7 @@ class="nav-item active"
                                     <!-- mobile -->
                                     {!! html()->label(Lang::get('lang.mobile_number'), 'mobile') !!}
 
-                                    {!! html()->number('mobile', null)->class('form-control')->id('mobile') !!}
+                                    {!! html()->input('tel', 'mobile', null)->class('form-control')->attributes(['inputmode' => 'numeric', 'pattern' => '[0-9]*'])->id('mobile') !!}
                                 </div>
                                 <div class="mb-3 {{ $errors->has('profile_pic') ? 'has-error' : '' }}">
                                     <!-- profile pic -->

@@ -97,10 +97,10 @@ class="nav-link active"
 
                 <div class="row">
                     <div class="col-sm-4">
-                        {!! html()->radio('status', true, '1') !!} {{Lang::get('lang.active')}}
+                        {!! html()->radio('status', (string) old('status', $category->status) === '1', '1') !!} {{Lang::get('lang.active')}}
                     </div>
                     <div class="col-sm-6">
-                        {!! html()->radio('status', null, '0') !!} {{Lang::get('lang.inactive')}}
+                        {!! html()->radio('status', (string) old('status', $category->status) === '0', '0') !!} {{Lang::get('lang.inactive')}}
                     </div>
                 </div>
             </div>

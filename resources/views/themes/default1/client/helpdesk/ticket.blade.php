@@ -110,7 +110,7 @@ echo UTC::usertimezone(date_format($time, 'd/m/Y H:i:s'));
                 <div class="col-md-6">
                     <table class="table table-hover"id="refresh">
                       <tr><td><b>Ticket Number: </b></td><div><td>{{$ticket->ticket_number}}</td></div></tr>
-                        <tr><td><b>Priority:</b></td>     <?php $priority = App\Model\Ticket\Ticket_Priority::where('priority_id', '=', $ticket->priority_id)->first();?><td title="{{$priority->priority_desc}}">{{$priority->priority_desc}}</td></tr>
+                        <tr><td><b>Priority:</b></td>     <?php $priority = App\Model\Ticket\Ticket_Priority::where('priority_id', '=', $ticket->priority_id)->first();?><td title="{{$priority->priority_desc}}">{{$priority->priority}}</td></tr>
                         <tr><td><b>Department:</b></td>   <?php $help_topic = App\Model\Manage\Help_topic::where('id', '=', $ticket->help_topic_id)->first();?><td title="{{$help_topic->topic}}">{{$help_topic->topic}}</td></tr>
                         <tr><td><b>Email:</b></td><td>{{$user->email}}</td></tr>
                     </table>

@@ -587,7 +587,7 @@ class="nav-link active"
                         <div class="col-md-4">
                             <div class="mb-3">
                                 <label>{!! Lang::get('lang.phone') !!}</label>
-                                <input type="number" name="phone" class="form-control">
+                                <input type="tel" inputmode="numeric" pattern="[0-9]*" name="phone" class="form-control">
                                 <br/>
                             </div>
                         </div>

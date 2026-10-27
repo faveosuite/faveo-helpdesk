@@ -122,7 +122,7 @@
 
                     <div class="mb-3 mb-3 {{ $errors->has('mobile') ? 'has-error' : '' }}">
                         {!! html()->label(Lang::get('lang.mobile_number'), 'mobile') !!}
-                        {!! html()->number('mobile', null)->class('form-control')->id('mobile') !!}
+                        {!! html()->input('tel', 'mobile', null)->class('form-control')->attributes(['inputmode' => 'numeric', 'pattern' => '[0-9]*'])->id('mobile') !!}
                     </div>
 
                     <div class="mb-3 mb-3 {{ $errors->has('agent_sign') ? 'has-error' : '' }}">

@@ -95,7 +95,7 @@ class="nav-link active"
                     <div class="col-sm-4 mb-3 {{ $errors->has('priority') ? 'has-error' : '' }}">
                         {!! html()->label(Lang::get('lang.priority'), 'priority') !!}
                         {!! $errors->first('priority', '<spam class="help-block">:message</spam>') !!}
-                        {!! html()->select('priority', [''=>'--System Default--','Priorities'=>$priority->pluck('priority_desc','priority_id')->toArray()], null)->class('form-control select') !!}
+                        {!! html()->select('priority', [''=>'--System Default--','Priorities'=>$priority->pluck('priority','priority_id')->toArray()], null)->class('form-control select') !!}
                     </div>
                     <!-- help topic -->
                     <div class="col-sm-4 mb-3 {{ $errors->has('help_topic') ? 'has-error' : '' }}">

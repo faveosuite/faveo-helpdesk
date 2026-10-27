@@ -58,15 +58,10 @@ class="nav-link active"
     <b>{!! Lang::get('lang.alert') !!}!</b>
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     <br/>
-    @if($errors->first('company_name'))
-    <li class="error-message-padding">{!! $errors->first('company_name', ':message') !!}</li>
-    @endif
-    @if($errors->first('website'))
-    <li class="error-message-padding">{!! $errors->first('website', ':message') !!}</li>
-    @endif
-    @if($errors->first('phone'))
-    <li class="error-message-padding">{!! $errors->first('phone', ':message') !!}</li>
-    @endif
+    {{-- every field, logo included: a rejected upload used to fail with no message --}}
+    @foreach($errors->all() as $error)
+    <li class="error-message-padding">{{ $error }}</li>
+    @endforeach
 </div>
 @endif
 <div class="card card-light">
@@ -104,31 +99,43 @@ class="nav-link active"
             {!! html()->textarea('address', $companys->address)->class('form-control')->attributes(['size' => '30x5']) !!}
         </div>
 
-        <div class="row">
+        <div class="row mt-3">
             <div class="col-12">
                 <!-- logo -->
-                {!! html()->label(Lang::get('lang.logo'), 'logo') !!}
-                <div class="btn btn-file btn-file-upload">
-                    <i class="fa-regular fa-file"></i> {{Lang::get('lang.upload_file')}}
-                    {!! html()->file('logo') !!}
-                </div>
-            </div>
-            <div class="col-12">
-                <div id="logo-display" style="display: block;">
-                    <div class="row">
-                        @if($companys->logo != null)
-                        <div class="col-sm-2">
-                            {!! html()->checkbox('use_logo') !!} <label> {!! Lang::get('lang.use_logo') !!}</label>
+                {!! html()->label(Lang::get('lang.logo'), 'logo')->class('d-block') !!}
+                {!! html()->file('logo')->attribute('accept', 'image/*')->class('visually-hidden') !!}
+                <label for="logo" class="btn btn-olive">{{ Lang::get('lang.upload_file') }}</label>
+
+                <!-- preview of the picked file, before it is submitted -->
+                {{-- the script shows/hides these boxes through inline display, so d-flex (which is !important) sits on an inner wrapper --}}
+                <div id="logo-preview" class="mt-2" style="display: none;">
+                    <div class="d-flex align-items-center gap-3">
+                        <img id="logo-preview-img" src="" alt="" class="img-thumbnail" style="max-width: 160px; max-height: 80px; object-fit: contain;" />
+                        <div>
+                            <div id="logo-preview-name" class="text-break"></div>
+                            <a href="#" id="logo-preview-remove" class="text-danger">{{ Lang::get('lang.remove') }}</a>
                         </div>
-                        @endif
-                        <?php $company = App\Model\helpdesk\Settings\Company::where('id', '=', '1')->first(); ?>
-                        @if($companys->logo != null)
-                        <div class="col-md-3 image" data-bs-content="{{Lang::get('lang.click-delete')}}">
-                            <img src="{{asset('uploads/company')}}{{'/'}}{{$company->logo}}" alt="User Image" id="company-logo" width="100px" style="border:1px solid #DCD1D1" />
-                        </div>
-                        @endif
                     </div>
                 </div>
+                <div id="logo-preview-error" class="text-danger mt-2" style="display: none;"></div>
+
+                <!-- the saved logo -->
+                @if($companys->logo != null)
+                <div id="logo-display" class="mt-2">
+                    <div class="d-flex align-items-center gap-3">
+                        <img src="{{ asset('uploads/company/'.$companys->logo) }}" alt="{{ Lang::get('lang.logo') }}" id="company-logo" class="img-thumbnail" style="max-width: 160px; max-height: 80px; object-fit: contain;" />
+                        <div>
+                            <div class="form-check mb-2">
+                                {!! html()->checkbox('use_logo')->class('form-check-input') !!}
+                                <label class="form-check-label" for="use_logo">{!! Lang::get('lang.use_logo') !!}</label>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-danger image">
+                                <i class="fa-solid fa-trash"></i> {{ Lang::get('lang.delete-logo') }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                @endif
             </div>
         </div>
     </div>
@@ -155,6 +162,44 @@ class="nav-link active"
 </div>
 <script type="text/javascript">
     $(document).ready(function() {
+        // PHP rejects anything over upload_max_filesize, so catch it here instead of after submit
+        var maxLogoBytes = {{ \Illuminate\Http\UploadedFile::getMaxFilesize() }};
+        var $logoInput = $('input[name="logo"]');
+
+        function clearLogoPreview() {
+            $logoInput.val('');
+            $('#logo-preview').hide();
+            $('#logo-preview-img').attr('src', '');
+        }
+
+        $logoInput.on('change', function() {
+            var file = this.files[0];
+            $('#logo-preview-error').hide();
+            if (!file) {
+                clearLogoPreview();
+                return;
+            }
+            var error = '';
+            if (!/^image\//.test(file.type)) {
+                error = "{{ Lang::get('validation.image', ['attribute' => Lang::get('lang.logo')]) }}";
+            } else if (file.size > maxLogoBytes) {
+                error = "{{ Lang::get('validation.max.file', ['attribute' => Lang::get('lang.logo'), 'max' => intdiv(\Illuminate\Http\UploadedFile::getMaxFilesize(), 1024)]) }}";
+            }
+            if (error) {
+                clearLogoPreview();
+                $('#logo-preview-error').text(error).show();
+                return;
+            }
+            $('#logo-preview-img').attr('src', URL.createObjectURL(file));
+            $('#logo-preview-name').text(file.name + ' (' + Math.ceil(file.size / 1024) + ' KB)');
+            $('#logo-preview').css('display', 'flex');
+        });
+
+        $('#logo-preview-remove').on('click', function(e) {
+            e.preventDefault();
+            clearLogoPreview();
+        });
+
         $(".image").on("click", function() {
             $('#myModal').modal('show');
             $("#myModalLabel").html("{!! Lang::get('lang.delete-logo') !!}");

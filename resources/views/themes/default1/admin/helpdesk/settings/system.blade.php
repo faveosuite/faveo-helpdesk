@@ -118,10 +118,10 @@ class="nav-link active"
                     {!! html()->label(Lang::get('lang.status'), 'status') !!}
                     <div class="row">
                         <div class="col-sm-5">
-                            {!! html()->radio('status', true, '1') !!} {{Lang::get('lang.online')}}
+                            {!! html()->radio('status', (string) old('status', $systems->status) !== '0', '1') !!} {{Lang::get('lang.online')}}
                         </div>
                         <div class="col-sm-6">
-                            {!! html()->radio('status', null, '0') !!} {{Lang::get('lang.offline')}}
+                            {!! html()->radio('status', (string) old('status', $systems->status) === '0', '0') !!} {{Lang::get('lang.offline')}}
                         </div>
                     </div>
                 </div>

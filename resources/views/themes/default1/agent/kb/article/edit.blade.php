@@ -134,13 +134,13 @@ class="nav-item menu-open"
                     {!! html()->label(Lang::get('lang.status'), 'type') !!}
                     <div class="row">
                         <div class="col-sm-1">
-                            {!! html()->radio('type', true, '1') !!}
+                            {!! html()->radio('type', (string) old('type', $article->type) === '1', '1') !!}
                         </div>
                         <div class="col-sm-4" style="margin: -5px;">
                             {{Lang::get('lang.published')}}
                         </div>
                         <div class="col-sm-1">
-                            {!! html()->radio('type', null, '0') !!}
+                            {!! html()->radio('type', (string) old('type', $article->type) === '0', '0') !!}
                         </div>
                         <div class="col-sm-4" style="margin: -5px;">
                             {{Lang::get('lang.draft')}}
@@ -152,13 +152,13 @@ class="nav-item menu-open"
                     {!! html()->label(Lang::get('lang.visibility'), 'status') !!}
                     <div class="row">
                         <div class="col-sm-1">
-                            {!! html()->radio('status', true, '1') !!}
+                            {!! html()->radio('status', (string) old('status', $article->status) === '1', '1') !!}
                         </div>
                         <div class="col-sm-4" style="margin: -5px;">  
                             {{Lang::get('lang.public')}}
                         </div>
                         <div class="col-sm-1">
-                            {!! html()->radio('status', null, '0') !!}
+                            {!! html()->radio('status', (string) old('status', $article->status) === '0', '0') !!}
                         </div>
                         <div class="col-sm-4" style="margin: -5px;"> 
                             {{Lang::get('lang.private')}}

@@ -90,10 +90,9 @@ class="nav-link active"
         </div>
         <div class="row">
             <div class="col-sm-4 mb-3 {{ $errors->has('File') ? 'has-error' : '' }}">
-                {!! html()->label(Lang::get('lang.file'), 'File') !!} <span class="text-red"> *</span>&nbsp
-                <div class="btn bg-olive btn-file" style="color:blue"> {!! Lang::get('lang.upload_file') !!}
-                    {!! html()->file('File') !!}
-                </div>
+                {!! html()->label(Lang::get('lang.file'), 'File') !!} <span class="text-red"> *</span>
+                {!! html()->file('File')->class('visually-hidden') !!}
+                <label for="File" class="btn btn-olive d-table">{!! Lang::get('lang.upload_file') !!}</label>
             </div>
         </div>
     </div>
