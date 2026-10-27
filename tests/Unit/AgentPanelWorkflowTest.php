@@ -6,9 +6,9 @@ use App\Http\Controllers\Agent\helpdesk\TicketController;
 use App\Http\Controllers\Agent\helpdesk\TicketWorkflowController;
 use App\Http\Requests\helpdesk\CreateTicketRequest;
 use App\Model\helpdesk\Ticket\Ticket_source;
-use App\Model\helpdesk\Utility\CountryCode;
 use App\Model\helpdesk\Ticket\Ticket_Thread;
 use App\Model\helpdesk\Ticket\Tickets;
+use App\Model\helpdesk\Utility\CountryCode;
 use App\Model\helpdesk\Workflow\WorkflowAction;
 use App\Model\helpdesk\Workflow\WorkflowName;
 use App\Model\helpdesk\Workflow\WorkflowRules;
@@ -42,7 +42,7 @@ class AgentPanelWorkflowTest extends TestCase
         $s = Str::random(8);
         $this->actingAs($this->makeAdmin($s));
         $response = app(TicketController::class)->post_newticket(new CreateTicketRequest([
-            'email' => 'c'.$s.'@example.test', 'first_name' => 'Customer', 'last_name' => 'Person',
+            'email'     => 'c'.$s.'@example.test', 'first_name' => 'Customer', 'last_name' => 'Person',
             'helptopic' => 1, 'sla' => 1, 'priority' => 1, 'subject' => $subject, 'body' => 'Workflow test body text',
         ]), new CountryCode(), true);
 
@@ -113,7 +113,7 @@ class AgentPanelWorkflowTest extends TestCase
     private function makeAdmin($s)
     {
         return User::create(['first_name' => 'T', 'last_name' => 'Admin', 'email' => $s.'@example.test', 'user_name' => 'a_'.$s,
-            'password' => Hash::make(Str::random(10)), 'active' => 1, 'role' => 'admin', 'agent_tzone' => 81, 'primary_dpt' => 1]);
+            'password'                    => Hash::make(Str::random(10)), 'active' => 1, 'role' => 'admin', 'agent_tzone' => 81, 'primary_dpt' => 1]);
     }
 
     private function postTicket($subject)
@@ -122,7 +122,7 @@ class AgentPanelWorkflowTest extends TestCase
         $_SERVER['REQUEST_URI'] = '/newticket';
 
         return $this->actingAs($this->makeAdmin($s))->post('newticket/post', [
-            'email' => 'c'.$s.'@example.test', 'first_name' => 'Customer', 'last_name' => 'Person',
+            'email'     => 'c'.$s.'@example.test', 'first_name' => 'Customer', 'last_name' => 'Person',
             'helptopic' => 1, 'sla' => 1, 'priority' => 1, 'subject' => $subject, 'body' => 'Workflow test body text',
         ]);
     }
