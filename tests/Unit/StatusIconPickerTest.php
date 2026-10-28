@@ -41,7 +41,7 @@ class StatusIconPickerTest extends TestCase
     {
         $s = Str::random(8);
         $admin = User::create(['first_name' => 'T', 'last_name' => 'Admin', 'email' => $s.'@example.test', 'user_name' => 'a_'.$s,
-            'password' => Hash::make(Str::random(10)), 'active' => 1, 'role' => 'admin', 'agent_tzone' => 81, 'primary_dpt' => 1, 'assign_group' => 1]);
+            'password'                      => Hash::make(Str::random(10)), 'active' => 1, 'role' => 'admin', 'agent_tzone' => 81, 'primary_dpt' => 1, 'assign_group' => 1]);
         $_SERVER['REQUEST_URI'] = '/status/edit/'.$id;
 
         return $this->actingAs($admin)->get('status/edit/'.$id)->assertOk()->getContent();

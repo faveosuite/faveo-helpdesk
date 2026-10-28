@@ -39,8 +39,8 @@ class OversizedUploadTest extends TestCase
         $_SERVER['REQUEST_URI'] = '/postedform';
 
         $this->post('postedform', [
-            'Name' => 'Upload Tester', 'Email' => 'u'.Str::random(8).'@example.test', 'helptopic' => 1, 'priority' => 1,
-            'Subject' => $subject, 'Details' => 'Ticket body with a small attachment',
+            'Name'       => 'Upload Tester', 'Email' => 'u'.Str::random(8).'@example.test', 'helptopic' => 1, 'priority' => 1,
+            'Subject'    => $subject, 'Details' => 'Ticket body with a small attachment',
             'attachment' => [UploadedFile::fake()->createWithContent('notes.txt', 'A small attachment')],
         ]);
 

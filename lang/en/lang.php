@@ -1608,11 +1608,11 @@ return [
     //update 21-12-2016
     'selected-user-is-already-the-owner' => 'Selected user is already the owner of this ticket.',
     //updated 15-5-2017
-    'session-expired' => 'Session expired or invalid, please try again.',
+    'session-expired'      => 'Session expired or invalid, please try again.',
     'attachment-too-large' => 'The attachment is too large. The maximum upload size is :size.',
-    'no_results_found' => 'No results found.',
-    'email-is-banned' => 'This email address has been banned. Please contact the helpdesk administrator.',
-    'outline' => 'outline',
+    'no_results_found'     => 'No results found.',
+    'email-is-banned'      => 'This email address has been banned. Please contact the helpdesk administrator.',
+    'outline'              => 'outline',
 
     //update since v1.10
     'your_helpdesk_is_ready'                               => 'Your Helpdesk is Ready!',
