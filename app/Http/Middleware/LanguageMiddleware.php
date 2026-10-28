@@ -24,6 +24,11 @@ class LanguageMiddleware
             $lang = $this->getLangFromSessionOrCache();
         }
 
+        if ($lang == '' || !array_key_exists($lang, Config::get('languages'))) {
+            // no user, session or system language: use the configured default (APP_LOCALE)
+            $lang = Config::get('app.locale');
+        }
+
         if ($lang != '' and array_key_exists($lang, Config::get('languages'))) {
             App::setLocale($lang);
         } else { // This is optional as Laravel will automatically set the fallback language if there is none specified
