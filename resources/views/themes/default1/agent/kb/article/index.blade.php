@@ -31,7 +31,7 @@ class="nav-item menu-open"
 @stop
 
 @section('PageHeader')
-<h1>{{Lang::get('lang.article')}}</h1>
+<h3>{{Lang::get('lang.article')}}</h3>
 @stop
 
 @section('content')

@@ -52,7 +52,7 @@ return [
     'login'                              => '登陆',
     'remember'                           => '登陆',
     'signmein'                           => '登陆标志',
-    'iforgot'                            => '忘记密码',
+    'iforgot'                            => '忘记密码？',
     'email_address'                      => '邮箱地址',
     'password'                           => '密码',
     'password_confirmation'              => '确认密码',
@@ -1716,4 +1716,12 @@ return [
     'create_new_ticket'                => '创建工单',
     //updated 10-10-2023
     'what_should_be_done_with_content_owned_by_this_user'  => '应如何处理该用户拥有的内容',
+    //updated 27-10-2026
+    'ticket-rejected-by-workflow'                           => '工单未创建，因为它被工作流规则拒绝。',
+    'mobile-belongs-to-existing-user'                       => '此手机号码已属于 :name (:email)。请使用该用户的电子邮件，或从电子邮件建议中选择该用户。',
+    'session-expired'                                       => '会话已过期或无效，请重试。',
+    'attachment-too-large'                                  => '附件过大。最大上传大小为 :size。',
+    'no_results_found'                                      => '未找到结果。',
+    'email-is-banned'                                       => '此电子邮件地址已被封禁。请联系服务台管理员。',
+    'outline'                                               => '线框',
 ];

@@ -60,7 +60,7 @@ return [
     'login'                              => 'Inloggen',
     'remember'                           => 'Onthoud mij',
     'signmein'                           => 'Inloggen',
-    'iforgot'                            => 'Ik ben mijn wachtwoord vergeten',
+    'iforgot'                            => 'Wachtwoord vergeten?',
     'email_address'                      => 'E-mailadres',
     'password'                           => 'Wachtwoord',
     'woops'                              => 'Oeps!!',
@@ -1616,4 +1616,11 @@ return [
     'session-expired' => 'Session expired or invalid, please try again.',
     //updated 10-10-2023
     'what_should_be_done_with_content_owned_by_this_user' => 'Wat moet er gebeuren met de inhoud die eigendom is van deze gebruiker',
+    //updated 27-10-2026
+    'ticket-rejected-by-workflow'                           => 'Het ticket is niet aangemaakt omdat het is afgewezen door een workflowregel.',
+    'mobile-belongs-to-existing-user'                       => 'Dit mobiele nummer hoort al bij :name (:email). Gebruik het e-mailadres van die gebruiker of selecteer de gebruiker uit de e-mailsuggesties.',
+    'attachment-too-large'                                  => 'De bijlage is te groot. De maximale uploadgrootte is :size.',
+    'no_results_found'                                      => 'Geen resultaten gevonden.',
+    'email-is-banned'                                       => 'Dit e-mailadres is geblokkeerd. Neem contact op met de helpdeskbeheerder.',
+    'outline'                                               => 'omlijning',
 ];

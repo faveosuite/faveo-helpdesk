@@ -14,11 +14,11 @@ foreach($segments as $seg){
         var status = "Open";
         oTable = myFunction();
         $("select[name=label]").change(function () {
-            $("#chumper").dataTable().fnDestroy();
+            $("#chumper").DataTable().destroy();
             myFunction();
         });
         $("select[name=tag]").change(function () {
-            $("#chumper").dataTable().fnDestroy();
+            $("#chumper").DataTable().destroy();
             myFunction();
         });
 
@@ -100,7 +100,7 @@ foreach($segments as $seg){
                 $('a.toggle-vis').html('<i class="fa-solid fa-plus" style="color:green;"> </i> {!!Lang::get("lang.created-at")!!}');
 
             }
-            $("#chumper").dataTable().fnDestroy();
+            $("#chumper").DataTable().destroy();
             myFunction();
         });
 
@@ -118,7 +118,7 @@ foreach($segments as $seg){
 
         function redrawTable(showTicket) {
             status = showTicket;
-            $("#chumper").dataTable().fnDestroy();
+            $("#chumper").DataTable().destroy();
             myFunction();
         }
     });

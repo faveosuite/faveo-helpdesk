@@ -66,8 +66,27 @@ class="nav-link active"
                         {data: "name"},
                         {data: "title"},
                         {data: "body"},
-                        {data: "Actions"}
+                        {data: "Actions", orderable: false, searchable: false}
                     ]
+                });
+                // create the editor when a row's edit modal first opens, not for every row on load
+                jQuery(document).on('shown.bs.modal', '#widgetsTable .modal', function () {
+                    var content = jQuery(this).find('textarea.widget-content');
+                    if (!content.next('.note-editor').length) {
+                        content.summernote({
+                            height: 300,
+                            tabsize: 2,
+                            dialogsInBody: true,
+                            toolbar: [
+                                ["style", ["bold", "italic", "underline", "clear"]],
+                                ["font", ["strikethrough", "superscript", "subscript"]],
+                                ["fontsize", ["fontsize"]],
+                                ["color", ["color"]],
+                                ["para", ["ul", "ol", "paragraph"]],
+                                ["height", ["height"]]
+                            ]
+                        });
+                    }
                 });
             });
         </script>

@@ -39,7 +39,7 @@ return [
     'login'                              => 'Connexion',
     'remember'                           => 'Se souvenir de moi',
     'signmein'                           => 'Se connecter',
-    'iforgot'                            => 'Mot de passe oublié',
+    'iforgot'                            => 'Mot de passe oublié ?',
     'email_address'                      => 'Adresse email',
     'password'                           => 'Mot de passe',
     'woops'                              => 'Oups!',
@@ -1569,5 +1569,11 @@ return [
     'session-expired' => 'Session expired or invalid, please try again.',
     //updated 10-10-2023
     'what_should_be_done_with_content_owned_by_this_user' => 'Que faire du contenu appartenant à cet utilisateur',
-
+    //updated 27-10-2026
+    'ticket-rejected-by-workflow'                           => 'Le ticket n\'a pas été créé car il a été rejeté par une règle de workflow.',
+    'mobile-belongs-to-existing-user'                       => 'Ce numéro de mobile appartient déjà à :name (:email). Utilisez l\'adresse e-mail de cet utilisateur ou sélectionnez l\'utilisateur dans les suggestions d\'e-mail.',
+    'attachment-too-large'                                  => 'La pièce jointe est trop volumineuse. La taille maximale de téléversement est de :size.',
+    'no_results_found'                                      => 'Aucun résultat trouvé.',
+    'email-is-banned'                                       => 'Cette adresse e-mail a été bannie. Veuillez contacter l\'administrateur du support.',
+    'outline'                                               => 'contour',
 ];

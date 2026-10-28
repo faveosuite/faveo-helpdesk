@@ -177,14 +177,14 @@ class="nav-link active"
                         <b>{{Lang::get('lang.status')}}</b> 
                         <a class="float-end">
                             @if($users->active == '1')
-                            <span style="color:green;"> 
-                                <span class="glyphicon glyphicon-ok-circle"></span>  
-                                <span class="glyphicon glyphicon-user"></span>
+                            <span class="text-success" title="{{Lang::get('lang.active')}}">
+                                <i class="fa-regular fa-circle-check"></i>
+                                <i class="fa-solid fa-user"></i>
                             </span>
                             @else
-                            <span style="color:red;">
-                                <span class="glyphicon glyphicon-ban-circle"></span>
-                                <span class="glyphicon glyphicon-user"></span>
+                            <span class="text-danger" title="{{Lang::get('lang.inactive')}}">
+                                <i class="fa-solid fa-ban"></i>
+                                <i class="fa-solid fa-user"></i>
                             </span>
                             @endif
                         </a>

@@ -60,7 +60,7 @@ return [
     'login'                              => 'Iniciar sesión',
     'remember'                           => 'Recuérdame',
     'signmein'                           => 'Regístrame',
-    'iforgot'                            => 'Olvidé mi contraseña',
+    'iforgot'                            => '¿Olvidó su contraseña?',
     'email_address'                      => 'Dirección de correo electrónico',
     'password'                           => 'Contraseña',
     'password_confirmation'              => 'confirmación de contraseña',
@@ -1671,4 +1671,12 @@ Puede ingresar el número de días de registros de base de datos que se eliminar
     'invalid-date-range' => 'Invalid date range',
     //updated 10-10-2023
     'what_should_be_done_with_content_owned_by_this_user' => '¿Qué se debe hacer con el contenido propiedad de este usuario',
+    //updated 27-10-2026
+    'ticket-rejected-by-workflow'                           => 'El ticket no se creó porque fue rechazado por una regla de flujo de trabajo.',
+    'mobile-belongs-to-existing-user'                       => 'Este número de móvil ya pertenece a :name (:email). Use el correo electrónico de ese usuario o seleccione el usuario en las sugerencias de correo electrónico.',
+    'session-expired'                                       => 'La sesión ha caducado o no es válida. Inténtelo de nuevo.',
+    'attachment-too-large'                                  => 'El archivo adjunto es demasiado grande. El tamaño máximo de carga es :size.',
+    'no_results_found'                                      => 'No se encontraron resultados.',
+    'email-is-banned'                                       => 'Esta dirección de correo electrónico ha sido bloqueada. Póngase en contacto con el administrador del servicio de asistencia.',
+    'outline'                                               => 'contorno',
 ];

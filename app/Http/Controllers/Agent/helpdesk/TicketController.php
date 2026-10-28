@@ -165,6 +165,14 @@ class TicketController extends Controller
             //create user, through the workflow engine so "Any", "Agent Panel" and "API Calls" workflows apply
             $workflow = new TicketWorkflowController($this);
             $result = $workflow->workflow($email, $fullname, $subject, $body, $phone, $phonecode, $mobile_number, $helptopic, $sla, $priority, $source->id, $headers, $help->department, $assignto, null, $status, $form_data, $auto_response, $duedate);
+            // only API calls are refused for a banned email; the agent panel may still raise the ticket
+            if (!empty($result['banned'])) {
+                if ($api != false) {
+                    return response()->json(['error' => Lang::get('lang.email-is-banned')], 403);
+                }
+
+                return Redirect('newticket')->with('fails', Lang::get('lang.email-is-banned'))->withInput($request->except('password'));
+            }
             if ($result[0] === false) {
                 if ($api != false) {
                     return response()->json(['error' => Lang::get('lang.ticket-rejected-by-workflow')], 422);

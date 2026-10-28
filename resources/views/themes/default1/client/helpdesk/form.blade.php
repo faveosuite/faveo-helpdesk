@@ -219,15 +219,17 @@ class = "nav-item active"
                             @endif
                         </div>
                         <div class="col-md-12 mb-3">
-                            <input type="file" name="attachment[]" multiple/><br/>
+                            <input type="file" name="attachment[]" id="attachment" multiple data-max-bytes="{{ $max_size_in_bytes }}"/><br/>
                             {!! Lang::get('lang.max') !!}. {!! $max_size_in_actual !!}
+                            {{-- shown by the size check below, so a too large upload is refused before it is sent --}}
+                            <div id="attachment-too-large" class="text-danger" style="display: none;">{{ Lang::get('lang.attachment-too-large', ['size' => $max_size_in_actual]) }}</div>
                         </div>
                         {{-- Event fire --}}
                         <?php \Illuminate\Support\Facades\Event::dispatch(new App\Events\ClientTicketForm()); ?>
                         <div class="col-md-12" id="response"> </div>
                         <div id="ss" class="xs-md-6 mb-3 {{ $errors->has('') ? 'has-error' : '' }}"> </div>
                                 <div class="col-md-12 mb-3">
-                                    {!! html()->button('<i class="fa-solid fa-floppy-disk"></i> ' . Lang::get('lang.submit'))->class('btn btn-primary float-end')->attribute('data-v-fce8d630')->attributes(['type' => 'submit', 'onclick' => 'this.disabled=true;this.innerHTML="Sending, please wait...";this.form.submit();']) !!}
+                                    {!! html()->button('<i class="fa-solid fa-floppy-disk"></i> ' . Lang::get('lang.submit'))->class('btn btn-primary float-end')->attribute('data-v-fce8d630')->attributes(['type' => 'submit', 'onclick' => 'if (!attachmentsFit()) { return false; } this.disabled=true;this.innerHTML="Sending, please wait...";this.form.submit();']) !!}
                                 </div>
                             <div class="col-md-12" id="response"> </div>
                         <div id="ss" class="xs-md-6 mb-3 {{ $errors->has('') ? 'has-error' : '' }}"> </div>
@@ -244,7 +246,21 @@ class = "nav-item active"
 |====================================================
 -->
 <script type="text/javascript">
+// files over PHP's upload limit are dropped by the server together with the whole form, check before sending
+function attachmentsFit() {
+    var input = document.getElementById('attachment');
+    var max = parseInt(input.getAttribute('data-max-bytes'), 10);
+    var total = 0;
+    for (var i = 0; i < input.files.length; i++) {
+        total += input.files[i].size;
+    }
+    var fits = !(max > 0) || total <= max;
+    document.getElementById('attachment-too-large').style.display = fits ? 'none' : 'block';
+
+    return fits;
+}
 $(document).ready(function(){
+   $('#attachment').on('change', attachmentsFit);
    var helpTopic = $("#selectid").val();
    send(helpTopic);
    $("#selectid").on("change",function(){

@@ -207,6 +207,34 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     }
 
     /**
+     * Whether this account is on the ban list. Only end users are banned: an agent or admin email
+     * on the list must not lock staff out of the helpdesk.
+     *
+     * @return bool
+     */
+    public function isBanned()
+    {
+        return (int) $this->ban === 1 && !in_array($this->role, ['agent', 'admin'], true);
+    }
+
+    /**
+     * Whether an email address is on the ban list (see isBanned()).
+     *
+     * @param string|null $email
+     *
+     * @return bool
+     */
+    public static function isBannedEmail($email)
+    {
+        if (!is_string($email) || trim($email) === '') {
+            return false;
+        }
+
+        return static::where('email', '=', trim($email))->where('ban', '=', 1)
+            ->whereNotIn('role', ['agent', 'admin'])->exists();
+    }
+
+    /**
      * Get the identifier that will be stored in the subject claim of the JWT.
      *
      * @return mixed

@@ -2,7 +2,6 @@
 
 namespace App\Providers;
 
-use App\Model\helpdesk\Settings\CommonSettings;
 use Illuminate\Support\ServiceProvider;
 use Sentry\State\HubInterface;
 
@@ -47,6 +46,12 @@ class ConfigServiceProvider extends ServiceProvider
             'lfm.files_url'  => url('uploads').'/',
             'lfm.files_dir'  => '/public/uploads/',
         ]);
+
+        // Before any provider boots: packages that read app.debug while booting (Clockwork registers its
+        // routes only when enabled) boot ahead of this provider and would otherwise see the .env value.
+        $this->app->booting(function () {
+            $this->applySavedSettings();
+        });
     }
 
     /**
@@ -59,7 +64,7 @@ class ConfigServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
+    public function applySavedSettings()
     {
         if (!isInstall()) {
             return;
@@ -69,7 +74,8 @@ class ConfigServiceProvider extends ServiceProvider
             $saved = \Cache::remember(self::DEBUGGING_CACHE_KEY, self::DEBUGGING_CACHE_TTL, function () {
                 $saved = [];
                 foreach (self::SETTINGS as $configKey => [$option, $field]) {
-                    $value = CommonSettings::where('option_name', $option)->where('optional_field', $field)->value('option_value');
+                    // query builder, not the model: this runs before Eloquent gets its connection on boot
+                    $value = \DB::table('common_settings')->where('option_name', $option)->where('optional_field', $field)->value('option_value');
                     if ($value !== null) {
                         $saved[$configKey] = (bool) $value;
                     }
@@ -85,6 +91,13 @@ class ConfigServiceProvider extends ServiceProvider
             }
         } catch (\Throwable $e) {
             // DB or cache not available yet (e.g. mid-upgrade): keep the config defaults.
+        }
+
+        // Clockwork, linked from Admin > Settings while debugging is on, otherwise only enables itself in
+        // debug mode on a *.localhost / *.test host. Unless CLOCKWORK_ENABLE says otherwise, follow the
+        // debugging setting on any host; its routes stay limited to admins (clockwork.middlewares).
+        if (config('clockwork.enable') === null) {
+            config(['clockwork.enable' => (bool) config('app.debug')]);
         }
     }
 

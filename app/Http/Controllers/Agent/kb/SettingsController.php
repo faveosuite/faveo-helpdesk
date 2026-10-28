@@ -151,14 +151,14 @@ class SettingsController extends Controller
                         ->addColumn('status', function ($model) {
                             $status = $model->status;
                             if ($status == 1) {
-                                return '<p style="color:blue"">'.\Lang::get('lang.published');
+                                return '<span class="text-primary">'.\Lang::get('lang.published').'</span>';
                             } else {
-                                return '<p style="color:red"">'.\Lang::get('lang.not_published');
+                                return '<span class="text-danger">'.\Lang::get('lang.not_published').'</span>';
                             }
                         })
 
                         ->addColumn('Actions', function ($model) {
-                            return '<div class="row"><a href=comment/delete/'.$model->id.' class="btn btn-danger btn-xs">'.\Lang::get('lang.delete').'</a>&nbsp;<a href=published/'.$model->id.' class="btn btn-warning btn-xs">'.\Lang::get('lang.publish').'</a></div>';
+                            return '<a href="'.url('comment/delete/'.$model->id).'" class="btn btn-danger btn-xs">'.\Lang::get('lang.delete').'</a>&nbsp;<a href="'.url('published/'.$model->id).'" class="btn btn-warning btn-xs">'.\Lang::get('lang.publish').'</a>';
                         })
                         ->rawColumns(['details', 'comment', 'status', 'Actions'])
                         ->make(true);

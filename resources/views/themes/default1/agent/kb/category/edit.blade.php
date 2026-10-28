@@ -31,7 +31,7 @@ class="nav-link active"
 @stop
 
 @section('PageHeader')
-<h1>{{Lang::get('lang.category')}}</h1>
+<h3>{{Lang::get('lang.category')}}</h3>
 @stop
 
 @section('content')
@@ -82,32 +82,32 @@ class="nav-link active"
     </div>
     <div class="card-body">
         <div class="row">
-            <div class="col-sm-3 {{ $errors->has('name') ? 'has-error' : '' }}">
+            <div class="col-sm-3 mb-3 {{ $errors->has('name') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.name'), 'name') !!}<span class="text-red"> *</span>
 
                 {!! html()->text('name', null)->class('form-control') !!}
             </div>
-            <div class="col-sm-3 {{ $errors->has('parent') ? 'has-error' : '' }}">
+            <div class="col-sm-3 mb-3 {{ $errors->has('parent') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.parent'), 'parent') !!}
 
-                {!! html()->select('parent', [''=>'Select a Group','Categorys'=>$categories], null)->class('form-control select') !!}
+                {!! html()->select('parent', [''=>'Select a Category','Categories'=>$categories], null)->class('form-control select') !!}
             </div>
-            <div class="col-sm-3 {{ $errors->has('status') ? 'has-error' : '' }}">
+            <div class="col-sm-3 mb-3 {{ $errors->has('status') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.status'), 'status') !!}
 
-                <div class="row">
-                    <div class="col-sm-4">
-                        {!! html()->radio('status', (string) old('status', $category->status) === '1', '1') !!} {{Lang::get('lang.active')}}
-                    </div>
-                    <div class="col-sm-6">
-                        {!! html()->radio('status', (string) old('status', $category->status) === '0', '0') !!} {{Lang::get('lang.inactive')}}
-                    </div>
+                <div>
+                    <label class="fw-normal me-3">
+                        {!! html()->radio('status', (string) old('status', $category->status) === '1', '1')->id('status-active') !!} {{ Lang::get('lang.active') }}
+                    </label>
+                    <label class="fw-normal me-3">
+                        {!! html()->radio('status', (string) old('status', $category->status) === '0', '0')->id('status-inactive') !!} {{ Lang::get('lang.inactive') }}
+                    </label>
                 </div>
             </div>
-            <div class="col-md-12 {{ $errors->has('description') ? 'has-error' : '' }}">
+            <div class="col-md-12 mb-3 {{ $errors->has('description') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.description'), 'description') !!}<span class="text-red"> *</span>
 
-                {!! html()->textarea('description', null)->class('form-control')->id('description')->placeholder('Enter the description')->attributes(['size' => '128x10']) !!}
+                {!! html()->textarea('description', null)->class('form-control')->id('description')->placeholder(Lang::get('lang.enter_the_description'))->attributes(['size' => '128x10']) !!}
             </div>
         </div>
     </div>

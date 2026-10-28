@@ -111,7 +111,7 @@
                 @if (($email_mandatory->status == 1 || $email_mandatory->status == '1'))
                 <div class="mb-3">
                     <div class="input-group">
-                        {!! html()->text('email', null)->placeholder(Lang::get('lang.email'))->class('form-control' . ($errors->has('email') ? ' is-invalid' : '')) !!}
+                        {!! html()->text('email', null)->placeholder(Lang::get('lang.email'))->class('form-control' . ($errors->has('email') ? ' is-invalid' : ''))->attribute('autocomplete', 'email') !!}
                         <span class="input-group-text"><i class="fa-regular fa-envelope input-icon-muted"></i></span>
                     </div>
                     @if($errors->has('email'))
@@ -121,7 +121,7 @@
                 @elseif (($settings->status == 0 || $settings->status == '0') && ($email_mandatory->status == 0 || $email_mandatory->status == '0'))
                 <div class="mb-3">
                     <div class="input-group">
-                        {!! html()->text('email', null)->placeholder(Lang::get('lang.email'))->class('form-control' . ($errors->has('email') ? ' is-invalid' : '')) !!}
+                        {!! html()->text('email', null)->placeholder(Lang::get('lang.email'))->class('form-control' . ($errors->has('email') ? ' is-invalid' : ''))->attribute('autocomplete', 'email') !!}
                         <span class="input-group-text"><i class="fa-regular fa-envelope input-icon-muted"></i></span>
                     </div>
                     @if($errors->has('email'))
@@ -162,7 +162,7 @@
                 <!-- Password -->
                 <div class="mb-3">
                     <div class="input-group">
-                        {!! html()->password('password')->placeholder(Lang::get('lang.password'))->class('form-control' . ($errors->has('password') ? ' is-invalid' : ''))->id('reg-password') !!}
+                        {!! html()->password('password')->placeholder(Lang::get('lang.password'))->class('form-control' . ($errors->has('password') ? ' is-invalid' : ''))->id('reg-password')->attribute('autocomplete', 'new-password') !!}
                         <button class="input-group-text" type="button" onclick="togglePwd('reg-password', this)" tabindex="-1">
                             <i class="fa-solid fa-eye-slash"></i>
                         </button>
@@ -174,7 +174,7 @@
                 <!-- Confirm password -->
                 <div class="mb-3">
                     <div class="input-group">
-                        {!! html()->password('password_confirmation')->placeholder(Lang::get('lang.retype_password'))->class('form-control' . ($errors->has('password_confirmation') ? ' is-invalid' : ''))->id('reg-password-confirm') !!}
+                        {!! html()->password('password_confirmation')->placeholder(Lang::get('lang.retype_password'))->class('form-control' . ($errors->has('password_confirmation') ? ' is-invalid' : ''))->id('reg-password-confirm')->attribute('autocomplete', 'new-password') !!}
                         <button class="input-group-text" type="button" onclick="togglePwd('reg-password-confirm', this)" tabindex="-1">
                             <i class="fa-solid fa-eye-slash"></i>
                         </button>
@@ -208,6 +208,19 @@
 </div>
 {!! html()->closeModelForm() !!}
 <script>
+// A browser keeps an email and password typed into a form that is left without submitting it and
+// fills them into the next login form; clear the typed passwords when the page is left by a link
+document.addEventListener('click', function (e) {
+    if (e.target.closest('a[href], [onclick*="location"]')) {
+        ['reg-password', 'reg-password-confirm'].forEach(function (id) {
+            var input = document.getElementById(id);
+            if (input) {
+                input.value = '';
+            }
+        });
+    }
+}, true);
+
 function togglePwd(id, btn) {
     var input = document.getElementById(id);
     var icon = btn.querySelector('i');

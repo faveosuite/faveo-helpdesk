@@ -69,6 +69,9 @@ class ClientTicketController extends Controller
         $body = $request->input('comment');
 
         $user_cred = User::where('id', '=', $tickets->user_id)->first();
+        if ($user_cred && $user_cred->isBanned()) {
+            return \Redirect::back()->with('fails1', Lang::get('lang.email-is-banned'));
+        }
 
         $fromaddress = $user_cred->email;
         $fromname = $user_cred->user_name;

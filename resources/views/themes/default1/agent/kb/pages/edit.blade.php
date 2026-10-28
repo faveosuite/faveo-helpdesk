@@ -30,7 +30,7 @@ class="nav-item menu-open"
 @stop
 
 @section('PageHeader')
-<h1>{{Lang::get('lang.pages')}}</h1>
+<h3>{{Lang::get('lang.pages')}}</h3>
 @stop
 
 @section('content')
@@ -81,10 +81,10 @@ class="nav-item menu-open"
                     </div>
                     
                     <div class="col-sm-12 mb-3 {{ $errors->has('description') ? 'has-error' : '' }}">
-                        {!! html()->label(Lang::get('lang.description'), 'description') !!}
+                        {!! html()->label(Lang::get('lang.description'), 'description') !!}<span class="text-red"> *</span>
 
                         <div class="mb-3" style="background-color:white">
-                            {!! html()->textarea('description', null)->class('form-control color')->id('myNicEditor')->placeholder('Enter the description')->attributes(['size' => '110x15']) !!}
+                            {!! html()->textarea('description', null)->class('form-control color')->id('myNicEditor')->placeholder(Lang::get('lang.enter_the_description'))->attributes(['size' => '110x15']) !!}
                         </div>
                     </div>
                 </div>
@@ -105,26 +105,26 @@ class="nav-item menu-open"
                 <div class="mb-3 {{ $errors->has('status') ? 'has-error' : '' }}">
                     {!! html()->label(Lang::get('lang.status'), 'status') !!}
 
-                    <div class="row">
-                        <div class="col-sm-5">
-                            {!! html()->radio('status', (string) old('status', $page->status) === '1', '1') !!} {{Lang::get('lang.published')}}
-                        </div>
-                        <div class="col-sm-5">
-                            {!! html()->radio('status', (string) old('status', $page->status) === '0', '0') !!} {{Lang::get('lang.draft')}}
-                        </div>
+                    <div>
+                        <label class="fw-normal me-3">
+                            {!! html()->radio('status', (string) old('status', $page->status) === '1', '1')->id('status-published') !!} {{ Lang::get('lang.published') }}
+                        </label>
+                        <label class="fw-normal me-3">
+                            {!! html()->radio('status', (string) old('status', $page->status) === '0', '0')->id('status-draft') !!} {{ Lang::get('lang.draft') }}
+                        </label>
                     </div>
                 </div>
 
                 <div class="mb-3 {{ $errors->has('visibility') ? 'has-error' : '' }}">
                     {!! html()->label(Lang::get('lang.visibility'), 'visibility') !!}
 
-                    <div class="row">
-                        <div class="col-sm-5">
-                            {!! html()->radio('visibility', (string) old('visibility', $page->visibility) === '1', '1') !!} {{Lang::get('lang.public')}}
-                        </div>
-                        <div class="col-sm-5">
-                            {!! html()->radio('visibility', (string) old('visibility', $page->visibility) === '0', '0') !!} {{Lang::get('lang.private')}}
-                        </div>
+                    <div>
+                        <label class="fw-normal me-3">
+                            {!! html()->radio('visibility', (string) old('visibility', $page->visibility) === '1', '1')->id('visibility-public') !!} {{ Lang::get('lang.public') }}
+                        </label>
+                        <label class="fw-normal me-3">
+                            {!! html()->radio('visibility', (string) old('visibility', $page->visibility) === '0', '0')->id('visibility-private') !!} {{ Lang::get('lang.private') }}
+                        </label>
                     </div>
                 </div>
             </div>

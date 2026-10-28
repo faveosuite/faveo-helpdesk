@@ -897,3 +897,43 @@ div.dt-container div.dt-info {
 input[type='file'].visually-hidden:focus-visible + label.btn {
     box-shadow: var(--bs-btn-focus-box-shadow);
 }
+
+/* DataTables sort arrows: drawn as CSS triangles instead of the "▲"/"▼" characters, which
+   render as broken glyphs when the system font lacks them. The "html" prefix outranks
+   dataTables.bootstrap.css, which loads after this file */
+html table.dataTable thead > tr > th.dt-orderable-asc span.dt-column-order:before,
+html table.dataTable thead > tr > th.dt-ordering-asc span.dt-column-order:before,
+html table.dataTable thead > tr > th.dt-orderable-desc span.dt-column-order:after,
+html table.dataTable thead > tr > th.dt-ordering-desc span.dt-column-order:after {
+    content: "";
+    width: 0;
+    height: 0;
+    left: 2px;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+}
+html table.dataTable thead > tr > th.dt-orderable-asc span.dt-column-order:before,
+html table.dataTable thead > tr > th.dt-ordering-asc span.dt-column-order:before {
+    margin-bottom: 1px;
+    border-bottom: 5px solid currentColor;
+}
+html table.dataTable thead > tr > th.dt-orderable-desc span.dt-column-order:after,
+html table.dataTable thead > tr > th.dt-ordering-desc span.dt-column-order:after {
+    margin-top: 1px;
+    border-top: 5px solid currentColor;
+}
+
+/* Bare radios and checkboxes (the forms that do not use .form-check-input) sit on the text
+   baseline by default, so they ride above their label; centre them on it instead */
+input[type="radio"]:not(.form-check-input),
+input[type="checkbox"]:not(.form-check-input) {
+    vertical-align: middle;
+    margin: -.125em .25rem 0 0;
+}
+
+/* AdminLTE focuses the first button of every opened modal (usually the close icon) for keyboard
+   users; keep its focus ring for keyboard focus only, not after a mouse click opened the modal */
+.btn-close:focus:not(:focus-visible) {
+    box-shadow: none;
+    opacity: var(--bs-btn-close-opacity);
+}

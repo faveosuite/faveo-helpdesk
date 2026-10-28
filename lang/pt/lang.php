@@ -52,7 +52,7 @@ return [
     'login'                              => 'Login',
     'remember'                           => 'Me lembrar',
     'signmein'                           => 'Inscreva-se',
-    'iforgot'                            => 'Esqueci a senha',
+    'iforgot'                            => 'Esqueceu a senha?',
     'email_address'                      => 'Endereço de E-Mail',
     'password'                           => 'Senha',
     'woops'                              => 'Whoops!',
@@ -1560,5 +1560,11 @@ return [
     'session-expired' => 'Session expired or invalid, please try again.',
     //updated 10-10-2023
     'what_should_be_done_with_content_owned_by_this_user' => 'O que deve ser feito com o conteúdo de propriedade deste usuário',
-
+    //updated 27-10-2026
+    'ticket-rejected-by-workflow'                           => 'O ticket não foi criado porque foi rejeitado por uma regra de fluxo de trabalho.',
+    'mobile-belongs-to-existing-user'                       => 'Este número de celular já pertence a :name (:email). Use o e-mail desse usuário ou selecione o usuário nas sugestões de e-mail.',
+    'attachment-too-large'                                  => 'O anexo é muito grande. O tamanho máximo de envio é :size.',
+    'no_results_found'                                      => 'Nenhum resultado encontrado.',
+    'email-is-banned'                                       => 'Este endereço de e-mail foi banido. Entre em contato com o administrador do suporte.',
+    'outline'                                               => 'contorno',
 ];

@@ -185,6 +185,15 @@ class InstallController extends Controller
      */
     public function configurationcheck(Request $request)
     {
+        $request->validate([
+            'default'      => 'required',
+            'host'         => 'required',
+            'port'         => 'nullable|numeric',
+            'databasename' => 'required',
+            'username'     => 'required',
+            'password'     => 'required',
+        ]);
+
         Cache::forever('step4', 'step4');
 
         Session::put('default', $request->input('default'));

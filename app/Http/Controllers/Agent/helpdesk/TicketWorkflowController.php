@@ -46,9 +46,17 @@ class TicketWorkflowController extends Controller
         // the agent panel joins first and last name with '%$%', match rules against the readable name
         $contact_details = ['email' => $fromaddress, 'email_name' => str_replace('%$%', ' ', $fromname), 'subject' => $subject, 'message' => $body];
         $ticket_settings_details = ['help_topic' => $helptopic, 'sla' => $sla, 'priority' => $priority, 'source' => $source, 'dept' => $dept, 'assign' => $assign, 'team' => $team_assign, 'status' => $ticket_status, 'reject' => false];
+        $channel = $this->channelForSource($source);
+        // a banned address cannot open or reply to tickets by email, web form or API; an agent creating
+        // a ticket for them from the agent panel is a deliberate staff action and is allowed
+        if ($channel !== 'A-3' && User::isBannedEmail($fromaddress)) {
+            \Log::info('Ticket from a banned email address was not created', ['email' => $fromaddress, 'source' => $source, 'subject' => $subject]);
+
+            return ['0' => false, '1' => false, 'banned' => true];
+        }
         // workflows targeted at "Any" run first, then the ones targeted at the channel the ticket came from, each in ascending execution order
         $targets = ['A-0'];
-        if ($channel = $this->channelForSource($source)) {
+        if ($channel) {
             $targets[] = $channel;
         }
         foreach ($targets as $target) {

@@ -116,26 +116,18 @@ class="nav-link active"
             <div class="col-md-4">
                 <div class="mb-3">
                     {!! html()->label(Lang::get('lang.status'), 'status') !!}
-                    <div class="row">
-                        <div class="col-sm-5">
-                            {!! html()->radio('status', (string) old('status', $systems->status) !== '0', '1') !!} {{Lang::get('lang.online')}}
-                        </div>
-                        <div class="col-sm-6">
-                            {!! html()->radio('status', (string) old('status', $systems->status) === '0', '0') !!} {{Lang::get('lang.offline')}}
-                        </div>
+                    <div>
+                        <label class="fw-normal me-4">{!! html()->radio('status', (string) old('status', $systems->status) !== '0', '1') !!} {{Lang::get('lang.online')}}</label>
+                        <label class="fw-normal">{!! html()->radio('status', (string) old('status', $systems->status) === '0', '0') !!} {{Lang::get('lang.offline')}}</label>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="mb-3">
                     {!! html()->label(Lang::get('lang.user_set_ticket_status'), 'user_set_ticket_status') !!}
-                    <div class="row">
-                        <div class="col-sm-5">
-                            <input type="radio" name="user_set_ticket_status" value="1" @if($common_setting->status == '1')checked="true" @endif>&nbsp;{{Lang::get('lang.yes')}}
-                        </div>
-                        <div class="col-sm-5">
-                            <input type="radio" name="user_set_ticket_status" value="0" @if($common_setting->status == '0')checked="true" @endif>&nbsp;{{Lang::get('lang.no')}}
-                        </div>
+                    <div>
+                        <label class="fw-normal me-4"><input type="radio" name="user_set_ticket_status" value="1" @if($common_setting->status == '1')checked="true" @endif> {{Lang::get('lang.yes')}}</label>
+                        <label class="fw-normal"><input type="radio" name="user_set_ticket_status" value="0" @if($common_setting->status == '0')checked="true" @endif> {{Lang::get('lang.no')}}</label>
                     </div>
                 </div>
             </div>
@@ -144,39 +136,29 @@ class="nav-link active"
             <div class="col-md-4" data-bs-toggle="tooltip" title="{!! Lang::get('lang.the_rtl_support_is_only_applicable_to_the_outgoing_mails') !!}">
                 <div class="mb-3">
                     {!! html()->label(Lang::get('lang.rtl'), 'status') !!}
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <?php
-                            $rtl = App\Model\helpdesk\Settings\CommonSettings::where('option_name', '=', 'enable_rtl')->first();
-                            ?>
-                            <input type="checkbox" name="enable_rtl" @if($rtl->option_value == 1) checked @endif> {{Lang::get('lang.enable')}}
-                        </div>
+                    <div>
+                        <?php
+                        $rtl = App\Model\helpdesk\Settings\CommonSettings::where('option_name', '=', 'enable_rtl')->first();
+                        ?>
+                        <label class="fw-normal"><input type="checkbox" name="enable_rtl" @if($rtl->option_value == 1) checked @endif> {{Lang::get('lang.enable')}}</label>
                     </div>
                 </div>
             </div>
             <div class="col-md-4" data-bs-toggle="tooltip" title="{!! Lang::get('lang.otp_usage_info') !!}">
                 <div class="mb-3">
                     {!! html()->label(Lang::get('lang.allow_unverified_users_to_create_ticket'), 'send_otp') !!}
-                    <div class="row">
-                        <div class="col-sm-5">
-                            <input type="radio" name="send_otp" value="0" @if($send_otp->status == '0')checked="true" @endif>&nbsp;{{Lang::get('lang.yes')}}
-                        </div>
-                        <div class="col-sm-6">
-                            <input type="radio" name="send_otp" value="1" @if($send_otp->status == '1')checked="true" @endif>&nbsp;{{Lang::get('lang.no')}}
-                        </div>
+                    <div>
+                        <label class="fw-normal me-4"><input type="radio" name="send_otp" value="0" @if($send_otp->status == '0')checked="true" @endif> {{Lang::get('lang.yes')}}</label>
+                        <label class="fw-normal"><input type="radio" name="send_otp" value="1" @if($send_otp->status == '1')checked="true" @endif> {{Lang::get('lang.no')}}</label>
                     </div>
                 </div>
             </div>
             <div class="col-md-4" data-bs-toggle="tooltip" title="{!! Lang::get('lang.email_man_info') !!}">
                 <div class="mb-3">
                     {!! html()->label(Lang::get('lang.make-email-mandatroy'), 'email_mandatory') !!}
-                    <div class="row">
-                        <div class="col-sm-5">
-                            <input type="radio" name="email_mandatory" value="1" @if($email_mandatory->status == '1')checked="true" @endif>&nbsp;{{Lang::get('lang.yes')}}
-                        </div>
-                        <div class="col-sm-6">
-                            <input type="radio" name="email_mandatory" value="0" @if($email_mandatory->status == '0')checked="true" @endif>&nbsp;{{Lang::get('lang.no')}}
-                        </div>
+                    <div>
+                        <label class="fw-normal me-4"><input type="radio" name="email_mandatory" value="1" @if($email_mandatory->status == '1')checked="true" @endif> {{Lang::get('lang.yes')}}</label>
+                        <label class="fw-normal"><input type="radio" name="email_mandatory" value="0" @if($email_mandatory->status == '0')checked="true" @endif> {{Lang::get('lang.no')}}</label>
                     </div>
                 </div>
             </div>
