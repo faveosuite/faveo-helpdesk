@@ -28,11 +28,11 @@ class UserProfileTicketTabsTest extends TestCase
     {
         $s = Str::random(8);
         $admin = User::create(['first_name' => 'T', 'last_name' => 'Admin', 'email' => $s.'@example.test', 'user_name' => 'a_'.$s,
-            'password' => Hash::make(Str::random(10)), 'active' => 1, 'role' => 'admin', 'agent_tzone' => 81, 'primary_dpt' => 1, 'assign_group' => 1]);
+            'password'                      => Hash::make(Str::random(10)), 'active' => 1, 'role' => 'admin', 'agent_tzone' => 81, 'primary_dpt' => 1, 'assign_group' => 1]);
 
         foreach ([1 => ['text-success', 'fa-circle-check'], 0 => ['text-danger', 'fa-ban']] as $active => [$colour, $icon]) {
             $user = User::create(['first_name' => 'U', 'last_name' => 'Ser', 'email' => Str::random(8).'@example.test', 'user_name' => 'u_'.Str::random(8),
-                'password' => Hash::make(Str::random(10)), 'active' => $active, 'role' => 'user']);
+                'password'                     => Hash::make(Str::random(10)), 'active' => $active, 'role' => 'user']);
             $_SERVER['REQUEST_URI'] = '/user/'.$user->id;
 
             $html = $this->actingAs($admin)->get('user/'.$user->id)->assertOk()->getContent();

@@ -54,8 +54,26 @@ class BannedEmailTest extends TestCase
 
         foreach (['web' => true, 'email' => true, 'api' => true, 'agent' => false] as $source => $refused) {
             $subject = "Banned $source ".Str::random(8);
-            $result = $workflow->workflow($banned->email, 'Banned Person', $subject, 'Body text', '', '', '', 1, 1, 1,
-                Ticket_source::where('name', '=', $source)->value('id'), [], 1, null, null, null, [], 0);
+            $result = $workflow->workflow(
+                $banned->email,
+                'Banned Person',
+                $subject,
+                'Body text',
+                '',
+                '',
+                '',
+                1,
+                1,
+                1,
+                Ticket_source::where('name', '=', $source)->value('id'),
+                [],
+                1,
+                null,
+                null,
+                null,
+                [],
+                0
+            );
 
             $this->assertSame($refused, !empty($result['banned']), $source);
             $this->assertSame(!$refused, $this->ticketWithSubject($subject) !== null, $source);
@@ -65,8 +83,26 @@ class BannedEmailTest extends TestCase
     public function test_workflow_still_creates_tickets_for_other_senders()
     {
         $subject = 'Not banned '.Str::random(8);
-        $result = app(TicketWorkflowController::class)->workflow($this->user(0)->email, 'Normal Person', $subject, 'Body text', '', '', '', 1, 1, 1,
-            Ticket_source::where('name', '=', 'email')->value('id'), [], 1, null, null, null, [], 0);
+        $result = app(TicketWorkflowController::class)->workflow(
+            $this->user(0)->email,
+            'Normal Person',
+            $subject,
+            'Body text',
+            '',
+            '',
+            '',
+            1,
+            1,
+            1,
+            Ticket_source::where('name', '=', 'email')->value('id'),
+            [],
+            1,
+            null,
+            null,
+            null,
+            [],
+            0
+        );
 
         $this->assertTrue((bool) $result[1]);
         $this->assertNotNull($this->ticketWithSubject($subject));
@@ -78,7 +114,7 @@ class BannedEmailTest extends TestCase
         $_SERVER['REQUEST_URI'] = '/postedform';
 
         $this->from('create-ticket')->post('postedform', [
-            'Name' => 'Banned Person', 'Email' => $this->user(1)->email, 'helptopic' => 1, 'priority' => 1,
+            'Name'    => 'Banned Person', 'Email' => $this->user(1)->email, 'helptopic' => 1, 'priority' => 1,
             'Subject' => $subject, 'Details' => 'Ticket body from a banned email',
         ])->assertRedirect('create-ticket');
 
@@ -126,8 +162,26 @@ class BannedEmailTest extends TestCase
     {
         $owner = $this->user(0);
         $subject = 'Reply banned '.Str::random(8);
-        app(TicketWorkflowController::class)->workflow($owner->email, 'Ticket Owner', $subject, 'First message', '', '', '', 1, 1, 1,
-            Ticket_source::where('name', '=', 'web')->value('id'), [], 1, null, null, null, [], 0);
+        app(TicketWorkflowController::class)->workflow(
+            $owner->email,
+            'Ticket Owner',
+            $subject,
+            'First message',
+            '',
+            '',
+            '',
+            1,
+            1,
+            1,
+            Ticket_source::where('name', '=', 'web')->value('id'),
+            [],
+            1,
+            null,
+            null,
+            null,
+            [],
+            0
+        );
         $ticket = $this->ticketWithSubject($subject);
         $threads = Ticket_Thread::where('ticket_id', '=', $ticket->id)->count();
 
@@ -145,8 +199,8 @@ class BannedEmailTest extends TestCase
         $s = Str::random(8);
 
         return User::create(['first_name' => 'U', 'last_name' => 'Ser', 'email' => 'u'.$s.'@example.test', 'user_name' => 'u_'.$s,
-            'password' => Hash::make($password ?: Str::random(12)), 'active' => 1, 'role' => $role, 'ban' => $ban,
-            'agent_tzone' => 81, 'primary_dpt' => 1, 'assign_group' => 1]);
+            'password'                    => Hash::make($password ?: Str::random(12)), 'active' => 1, 'role' => $role, 'ban' => $ban,
+            'agent_tzone'                 => 81, 'primary_dpt' => 1, 'assign_group' => 1]);
     }
 
     private function ticketWithSubject($subject)

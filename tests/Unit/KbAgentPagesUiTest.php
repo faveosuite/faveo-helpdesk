@@ -29,7 +29,7 @@ class KbAgentPagesUiTest extends TestCase
         parent::setUp();
         $s = Str::random(8);
         $this->admin = User::create(['first_name' => 'T', 'last_name' => 'Admin', 'email' => $s.'@example.test', 'user_name' => 'a_'.$s,
-            'password' => Hash::make(Str::random(10)), 'active' => 1, 'role' => 'admin', 'agent_tzone' => 81, 'primary_dpt' => 1, 'assign_group' => 1]);
+            'password'                            => Hash::make(Str::random(10)), 'active' => 1, 'role' => 'admin', 'agent_tzone' => 81, 'primary_dpt' => 1, 'assign_group' => 1]);
     }
 
     public static function pages()
@@ -99,7 +99,7 @@ class KbAgentPagesUiTest extends TestCase
     private function article($name)
     {
         return Article::forceCreate(['name' => $name, 'slug' => 'art-'.Str::lower(Str::random(10)), 'description' => '<p>d</p>',
-            'status' => 1, 'type' => 1, 'publish_time' => now()->subDay()]);
+            'status'                        => 1, 'type' => 1, 'publish_time' => now()->subDay()]);
     }
 
     private function page($url)
