@@ -707,7 +707,7 @@ if ($thread->title != "") {
                                             <span class="timeline-meta-time"><i class="fa-regular fa-clock"></i> {{UTC::usertimezone($conversation->created_at)}}</span>
                                             
                                         </h3>
-                                        @if(\Lang::getLocale()=='ar')
+                                        @if(isRtl())
                                         <div class="timeline-body{{$conversation -> id}} arindam timeline-body-rtl">
                                         @else
                                         <div class="timeline-body{{$conversation -> id}} arindam timeline-body-ltr">
@@ -719,7 +719,7 @@ if ($thread->title != "") {
 
 
                                             <script>
-                                                                if ('{{Lang::getLocale()}}' != 'ar'){
+                                                                if ({{ isRtl() ? 'false' : 'true' }}){
                                                         $('body').css('display', 'block');
                                                                 setTimeout(function(){
                                                                 var $iframe = "Id{{$conversation->id}}";

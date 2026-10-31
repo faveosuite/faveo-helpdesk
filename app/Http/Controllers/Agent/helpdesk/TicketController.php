@@ -2937,7 +2937,7 @@ class TicketController extends Controller
                             }
 
                             $thread_count = '('.$tickets->countthread.')';
-                            if (Lang::getLocale() == 'ar') {
+                            if (isRtl()) {
                                 $thread_count = '&rlm;('.$tickets->countthread.')';
                             }
 

@@ -91,6 +91,16 @@ return [
     'fallback_locale' => 'en',
     /*
       |--------------------------------------------------------------------------
+      | Right-To-Left Locales
+      |--------------------------------------------------------------------------
+      |
+      | Languages in this list are rendered with dir="rtl" and the RTL
+      | stylesheets. Add the ISO code here when uploading a new RTL language.
+      |
+     */
+    'rtl_locales' => ['ar', 'fa', 'he', 'ur'],
+    /*
+      |--------------------------------------------------------------------------
       | Encryption Key
       |--------------------------------------------------------------------------
       |

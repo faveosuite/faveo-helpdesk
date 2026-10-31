@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html dir="{{ app()->getLocale() == 'ar' ? 'rtl' : 'ltr' }}">
+<html dir="{{ isRtl() ? 'rtl' : 'ltr' }}">
 <head>
         <meta charset="UTF-8">
         <title>Faveo | HELP DESK</title>
@@ -8,7 +8,7 @@
         <!-- Favicon -->
         <link href="{{ assetLink('css', 'favicon') }}" rel="shortcut icon">
 
-        @if(Lang::getLocale() == 'ar')
+        @if(isRtl())
         <!-- Bootstrap + AdminLTE + Common (RTL) -->
         <link href="{{ assetLink('css', 'bootstrap-rtl') }}" rel="stylesheet" type="text/css" />
         <link href="{{ assetLink('css', 'adminte-rtl') }}" rel="stylesheet" type="text/css" />
@@ -330,20 +330,18 @@
 
                     <li class="nav-item dropdown">
 
-                        <?php $src = Lang::getLocale().'.png'; ?>
 
                         <a href="#" class="nav-link" data-bs-toggle="dropdown" aria-expanded="true">
-                            <img class="mb-1" src="{{asset("lb-faveo/flags/$src")}}" style="height: 12px; width: 20px">
+                            <img class="mb-1" src="{{ languageFlag(Lang::getLocale()) }}" style="height: 12px; width: 20px">
                         </a>
 
                        <div class="dropdown-menu dropdown-menu-sm dropdown-menu-end p-0" style="width: 290px;">
 
                            @foreach($langs as $key => $value)
-                            <?php $src = $key.".png"; ?>
                             <a href="#" class="dropdown-item d-flex align-items-center gap-2" id="{{$key}}" onclick="changeLang(this.id)">
-                                <img src="{{asset("lb-faveo/flags/$src")}}" width="20" height="13" class="me-2">
+                                <img src="{{ languageFlag($key) }}" width="20" height="13" class="me-2">
                                 <span>{{$value[0]}}
-                                @if(Lang::getLocale() == "ar")
+                                @if(isRtl())
                                 &rlm;
                                 @endif
                                 ({{$value[1]}})</span>
