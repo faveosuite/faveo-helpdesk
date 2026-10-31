@@ -71,7 +71,7 @@ class="nav-link active"
                     </div>
                 </div> 
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <div class="mb-3">
                     {!! html()->label(Lang::get('lang.bugsnag-debugging'), 'bugsnag') !!}
                     <div class="row">
@@ -83,6 +83,19 @@ class="nav-link active"
                         </div>
                     </div>
                 </div> 
+            </div>
+            <div class="col-md-4">
+                <div class="mb-3">
+                    {!! html()->label(Lang::get('lang.sentry-performance'), 'sentry_performance') !!}
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <input type="radio" name="sentry_performance" value="true" @if($sentryPerformance == true) checked="true" @endif> {{Lang::get('lang.yes')}}
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="radio" name="sentry_performance" value="false" @if($sentryPerformance == false) checked="true" @endif> {{Lang::get('lang.no')}}
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

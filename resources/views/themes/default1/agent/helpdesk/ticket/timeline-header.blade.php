@@ -1,7 +1,7 @@
 <?php
     $array = [
         Lang::get('lang.status')=>$status->name,
-        Lang::get('lang.priority')=>$priority->priority_desc,
+        Lang::get('lang.priority')=>$priority->priority,
         Lang::get('lang.department')=>$dept123->name,
         Lang::get('lang.email')=>Str::limit($user->email,30),
         Lang::get('lang.source')=>$ticket_source,

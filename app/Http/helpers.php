@@ -319,6 +319,37 @@ function assetLink(string $type, string $key)
 }
 
 /**
+ * Checks whether the current (or given) locale is written right-to-left.
+ *
+ * @param string|null $locale
+ *
+ * @return bool
+ */
+function isRtl($locale = null)
+{
+    return in_array($locale ?? \App::getLocale(), \Config::get('app.rtl_locales', ['ar']));
+}
+
+/**
+ * Returns the flag image url of a language, using the flag mapped in config/languages.php.
+ * Falls back to a globe icon when the language has no flag or the image is missing.
+ *
+ * @param string $locale
+ *
+ * @return string
+ */
+function languageFlag($locale)
+{
+    $flag = \Config::get('languages.'.$locale)[2] ?? null;
+    $path = 'lb-faveo/flags/'.$flag.'.png';
+    if (!$flag || !file_exists(public_path($path))) {
+        $path = 'lb-faveo/flags/globe.svg';
+    }
+
+    return asset($path);
+}
+
+/**
  * Sanitize rich-text HTML (ticket/reply bodies, descriptions, etc.) before it
  * is persisted, so stored content can never carry executable script or
  * event-handler payloads (stored XSS), while keeping the formatting produced

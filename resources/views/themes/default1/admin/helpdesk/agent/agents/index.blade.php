@@ -75,6 +75,13 @@ class="nav-link active"
         $user = App\User::where('role', '!=', 'user')->orderBy('id', 'ASC')->simplePaginate(10);
         ?>
         <!-- Agent table -->
+        {{-- Wrapped for small screens: 8 columns at width="100px" each add up to
+             ~800px, so the bare table overflowed the document itself at 375px
+             (no table-responsive wrapper meant the horizontal scrollbar showed
+             up on the whole page, not just the table). table-responsive is the
+             theme's own convention, already used in departments/index.blade.php
+             and agent/helpdesk/user/index.blade.php. Desktop layout is unchanged. --}}
+        <div class="table-responsive">
         <table class="table table-bordered dataTable overflow-hidden">
             <tr>
                 <th width="100px">{{Lang::get('lang.name')}}</th>
@@ -109,8 +116,12 @@ class="nav-link active"
                     $group = App\Model\helpdesk\Agent\Groups::whereId($use->assign_group)->first();
                     $department = App\Model\helpdesk\Agent\Department::whereId($use->primary_dpt)->first();
                     ?>
-                <td>{{ $group->name }}</td>
-                <td>{{ $department->name }}</td>
+                {{-- Both lookups above are ->first() and return null for an agent whose
+                     group or department is unset or has since been deleted. Dereferencing
+                     that null raised 'Attempt to read property name on null' and took
+                     the whole listing to a 500, so one unassigned agent hid every other. --}}
+                <td>{{ $group?->name ?? '-' }}</td>
+                <td>{{ $department?->name ?? '-' }}</td>
                 <td>{{ UTC::usertimezone($use->created_at) }}</td>
                 {{-- <td>{{$use->Lastlogin_at}}</td> --}}
                 <td>
@@ -124,6 +135,7 @@ class="nav-link active"
             @endif
             @endforeach
         </table>
+        </div>
         <div class="float-end">
             {!! $user->links() !!}
         </div>

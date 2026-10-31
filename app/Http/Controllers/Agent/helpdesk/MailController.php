@@ -205,6 +205,9 @@ class MailController extends Controller
         $attachments = (!$message->getAttachments()) ? [] : $message->getAttachments();
         //dd(['body' => $body, 'subject' => $subject, 'address' => $address, 'cc' => $collaborator, 'attachments' => $attachments]);
         $this->workflow($address, $subject, $body, $collaborators, $attachments, $email);
+        // bodies are read with FT_PEEK, so without this the message stays
+        // UNSEEN and every later fetch turns it into another ticket
+        $message->setFlag(\Fetch\Message::FLAG_SEEN);
     }
 
     public function workflow($address, $subject, $body, $collaborator, $attachments, $email)

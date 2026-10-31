@@ -97,7 +97,7 @@
 
                         <div class="mb-3">
                             <div class="input-group {{ $errors->has('email') ? 'is-invalid' : '' }}">
-                                {!! html()->text('email', null)->placeholder(Lang::get("lang.email"))->class('form-control' . ($errors->has('email') ? ' is-invalid' : '')) !!}
+                                {!! html()->text('email', null)->placeholder(Lang::get("lang.email"))->class('form-control' . ($errors->has('email') ? ' is-invalid' : ''))->attribute('autocomplete', 'username') !!}
                                 <span class="input-group-text"><i class="fa-regular fa-envelope input-icon-muted"></i></span>
                             </div>
                             @if($errors->has('email'))
@@ -107,7 +107,7 @@
 
                         <div class="mb-3">
                             <div class="input-group {{ $errors->has('password') ? 'is-invalid' : '' }}">
-                                {!! html()->password('password')->placeholder(Lang::get("lang.password"))->class('form-control' . ($errors->has('password') ? ' is-invalid' : ''))->id('login-password') !!}
+                                {!! html()->password('password')->placeholder(Lang::get("lang.password"))->class('form-control' . ($errors->has('password') ? ' is-invalid' : ''))->id('login-password')->attribute('autocomplete', 'current-password') !!}
                                 <button class="input-group-text" type="button" onclick="togglePwd('login-password', this)" tabindex="-1">
                                     <i class="fa-solid fa-eye-slash"></i>
                                 </button>
@@ -117,31 +117,26 @@
                             @endif
                         </div>
 
+                        <div class="mb-3">
+                            <label>
+                                <input type="checkbox" name="remember"> {!! Lang::get("lang.remember") !!}
+                            </label>
+                        </div>
+
                         <div>
                             <button type="submit" class="btn btn-primary w-100">{!! Lang::get("lang.login") !!}</button>
                         </div>
 
                         <div class="row mt-2">
 
-                            <div class="col-sm-5">
+                            <div class="col-12">
 
-                                <div>
-
-                                    <label>
-
-                                        <input type="checkbox" name="remember"> {!! Lang::get("lang.remember") !!}
-                                    </label>
-                                </div>
+                                <a href="{{url('password/email')}}">{!! Lang::get("lang.iforgot") !!}</a>
                             </div>
 
-                            <div class="col-sm-5">
+                            <div class="col-12 mt-2">
 
-                                <a href="{{url('password/email')}}">{!! Lang::get("lang.iforgot") !!}</a><br>
-                            </div>
-
-                            <div class="col-sm-2">
-
-                                <a href="{{url('auth/register')}}" class="text-center">{!! Lang::get("lang.register") !!}</a>
+                                <a href="{{url('auth/register')}}" class="btn btn-primary w-100">{!! Lang::get("lang.register") !!}</a>
                             </div>
                         </div>
 

@@ -68,47 +68,30 @@ class SettingsController extends Controller
                             return $model->value;
                         })
                         ->addColumn('Actions', function ($model) {
-                            return '<span data-toggle="modal" data-target="#edit_widget'.$model->id.'"><a class="btn btn-warning btn-xs">'.\Lang::get('lang.edit').'</a></span>
-                <div class="modal fade" id="edit_widget'.$model->id.'">
-                    <div class="modal-dialog">
+                            return '<button type="button" class="btn btn-warning btn-xs" data-bs-toggle="modal" data-bs-target="#edit_widget'.$model->id.'">'.\Lang::get('lang.edit').'</button>
+                <div class="modal fade" id="edit_widget'.$model->id.'" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
                         <div class="modal-content">
                             <form action="'.url('edit-widget/'.$model->id).'" method="POST">
                             '.csrf_field().'
                                 <div class="modal-header">
-                                    <h4 class="modal-title">'.strtoupper($model->name).' </h4>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                    <h5 class="modal-title">'.e(strtoupper($model->name)).'</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <div class="form-group" style="width:100%">
-                                        <label>'.\Lang::get('lang.title').'</label><br/>
-                                        <input type="text" name="title" value="'.$model->title.'" class="form-control" style="width:100%">
+                                    <div class="mb-3">
+                                        <label class="form-label">'.\Lang::get('lang.title').'</label>
+                                        <input type="text" name="title" value="'.e($model->title).'" class="form-control">
                                     </div>
-                                    <br/>
-                                    <div class="form-group" style="width:100%">
-                                        <label>'.\Lang::get('lang.content').'</label><br/>
-                                        <textarea name="content" class="form-control" style="width:100%" id="Content'.$model->id.'">'.$model->value.'</textarea>
+                                    <div class="mb-3">
+                                        <label class="form-label">'.\Lang::get('lang.content').'</label>
+                                        <textarea name="content" class="form-control widget-content" id="Content'.$model->id.'">'.e($model->value).'</textarea>
                                     </div>
                                 </div>
                                 <div class="modal-footer justify-content-between">
-                                    <button type="button" class="btn btn-default" data-dismiss="modal" id="dismis2">'.\Lang::get('lang.close').'</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">'.\Lang::get('lang.close').'</button>
                                     <input type="submit" class="btn btn-primary" value="'.\Lang::get('lang.update').'">
                                 </div>
-                                <script>
-                                    $(function () {
-                                        $("#Content'.$model->id.'").summernote({
-                                        height: 300,
-                                        tabsize: 2,
-                                        toolbar: [
-                                        ["style", ["bold", "italic", "underline", "clear"]],
-                                        ["font", ["strikethrough", "superscript", "subscript"]],
-                                        ["fontsize", ["fontsize"]],
-                                        ["color", ["color"]],
-                                        ["para", ["ul", "ol", "paragraph"]],
-                                        ["height", ["height"]]
-                                      ]
-                                      });
-                                    });
-                                </script>
                             </form>
                         </div>
                     </div>
@@ -166,24 +149,24 @@ class SettingsController extends Controller
                             return $model->value;
                         })
                         ->addColumn('Actions', function ($model) {
-                            return '<span data-toggle="modal" data-target="#edit_widget'.$model->id.'"><a class="btn btn-warning btn-xs">'.\Lang::get('lang.edit').'</a></span>
-                <div class="modal fade" id="edit_widget'.$model->id.'">
+                            return '<button type="button" class="btn btn-warning btn-xs" data-bs-toggle="modal" data-bs-target="#edit_widget'.$model->id.'">'.\Lang::get('lang.edit').'</button>
+                <div class="modal fade" id="edit_widget'.$model->id.'" tabindex="-1">
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <form action="'.url('edit-widget/'.$model->id).'" method="POST">
                             '.csrf_field().'
                                 <div class="modal-header">
-                                    <h4 class="modal-title">'.strtoupper($model->name).' </h4>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                    <h5 class="modal-title">'.e(strtoupper($model->name)).'</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <div class="form-group" style="width:100%">
-                                        <label>'.\Lang::get('lang.link').'</label><br/>
-                                        <input type="url" name="content" class="form-control" style="width:100%" value="'.$model->value.'">
+                                    <div class="mb-3">
+                                        <label class="form-label">'.\Lang::get('lang.link').'</label>
+                                        <input type="url" name="content" class="form-control" value="'.e($model->value).'">
                                     </div>
                                 </div>
                                 <div class="modal-footer justify-content-between">
-                                    <button type="button" class="btn btn-default" data-dismiss="modal" id="dismis2">'.\Lang::get('lang.close').'</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">'.\Lang::get('lang.close').'</button>
                                     <input type="submit" class="btn btn-primary" value="'.\Lang::get('lang.update').'">
                                 </div>
                             </form>

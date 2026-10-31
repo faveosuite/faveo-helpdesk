@@ -2,13 +2,13 @@
 
 namespace App\Exceptions;
 
-use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Diglactic\Breadcrumbs\Breadcrumbs;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Http\Exceptions\PostTooLargeException;
 use Illuminate\Session\TokenMismatchException;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Validation\ValidationException;
@@ -42,7 +42,7 @@ class Handler extends ExceptionHandler
      */
     public function report(\Throwable $e)
     {
-        $this->reportToBugsNag($e);
+        $this->reportToSentry($e);
 
         return parent::report($e);
     }
@@ -85,6 +85,15 @@ class Handler extends ExceptionHandler
                 }
 
                 return redirect()->back()->with('fails', \Lang::get('lang.session-expired'));
+            case $e instanceof PostTooLargeException:
+                $message = \Lang::get('lang.attachment-too-large', ['size' => (new \App\Http\Controllers\Common\FileuploadController())->file_upload_max_size()[1]]);
+                if ($request->ajax() || $request->wantsJson()) {
+                    $result = ['fails' => $message];
+
+                    return response()->json(compact('result'), 413);
+                }
+
+                return redirect()->back()->with('fails', $message);
             default:
                 return $this->common($request, $e);
         }
@@ -227,14 +236,14 @@ class Handler extends ExceptionHandler
         return parent::render($request, $e);
     }
 
-    protected function reportToBugsNag(\Throwable $e)
+    protected function reportToSentry(\Throwable $e): void
     {
-        if (Config::get('app.bugsnag_reporting') && env('APP_ENV') == 'production' && $this->shouldReportBugsnag($e)) {
-            Bugsnag::notifyException($e);
+        if (Config::get('app.sentry_reporting') && app()->environment('production') && $this->shouldReportToSentry($e) && app()->bound('sentry')) {
+            \Sentry\Laravel\Integration::captureUnhandledException($e);
         }
     }
 
-    public function shouldReportBugsnag($e)
+    public function shouldReportToSentry(\Throwable $e): bool
     {
         foreach ($this->dontReport as $report) {
             if ($e instanceof $report) {

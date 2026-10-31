@@ -82,25 +82,26 @@ class ArticleController extends Controller
                         })
                         /* add column action */
                         ->addColumn('Actions', function ($model) {
-                            /* here are all the action buttons and modal popup to delete articles with confirmations */
-                            return '<span  data-toggle="modal" data-target="#deletearticle'.$model->id.'"><a href="#" ><button class="btn btn-danger btn-xs"></a> '.\Lang::get('lang.delete').' </button></span>&nbsp;<a href='.url("article/$model->id/edit").' class="btn btn-warning btn-xs">'.\Lang::get('lang.edit').'</a>&nbsp;<a href='.url("show/$model->slug").' class="btn btn-primary btn-xs">'.\Lang::get('lang.view').'</a>
-				<div class="modal fade" id="deletearticle'.$model->id.'">
-        			<div class="modal-dialog">
-            			<div class="modal-content">
-                			<div class="modal-header">
-                                <h4 class="modal-title">'.Lang::get('lang.delete').'</h4>
-                    			<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                			</div>
-                			<div class="modal-body">
-                				<span>'.Lang::get('lang.are_you_sure_you_want_to_delete').'</span>&nbsp; <b> '.$model->name.' </b> ?
-                			</div>
-                			<div class="modal-footer justify-content-between">
-                    			<button type="button" class="btn btn-default" data-dismiss="modal" id="dismis2">'.Lang::get('lang.close').'</button>
-                    			<a href='.url("article/delete/$model->slug").'><button class="btn btn-danger">'.Lang::get('lang.delete').'</button></a>
-                			</div>
-            			</div>
-        			</div>
-    			</div>';
+                            $delete = Lang::get('lang.delete');
+
+                            return '<button type="button" class="btn btn-danger btn-xs" data-bs-toggle="modal" data-bs-target="#deletearticle'.$model->id.'">'.$delete.'</button>&nbsp;<a href="'.url("article/$model->id/edit").'" class="btn btn-warning btn-xs">'.Lang::get('lang.edit').'</a>&nbsp;<a href="'.url("show/$model->slug").'" class="btn btn-primary btn-xs">'.Lang::get('lang.view').'</a>
+                <div class="modal fade" id="deletearticle'.$model->id.'" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">'.$delete.'</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                '.Lang::get('lang.are_you_sure_you_want_to_delete').' <b>'.e($model->name).'</b> ?
+                            </div>
+                            <div class="modal-footer justify-content-between">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">'.Lang::get('lang.close').'</button>
+                                <a href="'.url("article/delete/$model->slug").'" class="btn btn-danger">'.$delete.'</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>';
                         })
                         ->rawColumns(['name', 'Actions'])
                         ->make(true);

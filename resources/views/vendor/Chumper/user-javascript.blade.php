@@ -13,7 +13,7 @@ foreach($segments as $seg){
         
         $("select[name=type_of_profile]").change(function () {
             //alert($('select[name=type_of_profile]').val());
-            $("#chumper").dataTable().fnDestroy();
+            $("#chumper").DataTable().destroy();
             myFunction();
         });
 
@@ -124,13 +124,13 @@ foreach($segments as $seg){
             var keyCode = e.keyCode || e.which;
             if (keyCode == '13'){ 
                 searchTerm = $('input[name=search]').val();
-                $("#chumper").dataTable().fnDestroy();
+                $("#chumper").DataTable().destroy();
                 myFunction(show, searchTerm);
             }
         }
 
         function filterTable(show) {
-            $("#chumper").dataTable().fnDestroy();
+            $("#chumper").DataTable().destroy();
             myFunction(show, searchTerm);
         }
 

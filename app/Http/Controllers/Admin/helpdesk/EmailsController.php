@@ -86,7 +86,7 @@ class EmailsController extends Controller
                     }
                     $priority = Ticket_Priority::where('priority_id', '=', $model->priority)->first();
 
-                    return $priority ? ucfirst($priority->priority_desc) : '-';
+                    return $priority ? ucfirst($priority->priority) : '-';
                 })
                 ->addColumn('department', function ($model) {
                     if ($model->department === null) {
@@ -189,15 +189,34 @@ class EmailsController extends Controller
 
             return $this->validateEmailError($send, $fetch);
         } catch (Exception $ex) {
-            dd($ex->getMessage());
-            $message = $ex->getMessage();
-            if ($request->input('fetching_status') && imap_last_error()) {
-                $message = imap_last_error();
-            }
+            $message = $this->imapErrorMessage($ex->getMessage());
             loging('mail-config', $message);
 
             return $this->jsonResponse('fails', $message);
         }
+    }
+
+    /**
+     * Drain the imap error/alert stacks and return the most useful message.
+     *
+     * The stacks must be emptied: anything left on them is re-raised by PHP at
+     * request shutdown as an E_NOTICE, which Laravel logs as an ErrorException.
+     * The first error is the real cause (e.g. "Can not authenticate to IMAP
+     * server: ..."); the last is usually just "[CLOSED] IMAP connection broken".
+     *
+     * @param string $fallback
+     *
+     * @return string
+     */
+    protected function imapErrorMessage($fallback)
+    {
+        if (!function_exists('imap_errors')) {
+            return $fallback;
+        }
+        $errors = imap_errors() ?: [];
+        imap_alerts();
+
+        return $errors ? reset($errors) : $fallback;
     }
 
     public function validateEmailError($out, $in)
@@ -288,9 +307,9 @@ class EmailsController extends Controller
         // inserting the encrypted value of password
         $email->password = Crypt::encrypt($request->input('password'));
         $email->save(); // run save
-        if ($request->input('fetching_status')) {
-            $this->fetch($email);
-        }
+        // mail is not fetched here: importing the mailbox (and sending the
+        // ticket notifications) inside the save request made it time out.
+        // The scheduled readmails() job picks up the mailbox instead.
         if ($id === '') {
             // Creating a default system email as the first email is inserted to the system
             $email_settings = Email::where('id', '=', '1')->first();
@@ -301,9 +320,6 @@ class EmailsController extends Controller
         }
         if (count($service_request) > 0) {
             $this->saveMailService($email->id, $service_request, $this->getDriver($request->sending_protocol));
-        }
-        if ($request->input('fetching_status')) {
-            $this->fetch($email);
         }
 
         return 1;
@@ -445,14 +461,9 @@ class EmailsController extends Controller
         try {
             return $this->validatingEmailSettings($request, $id);
         } catch (Exception $ex) {
-            $message = $ex->getMessage();
-            if (imap_last_error()) {
-                $message = imap_last_error();
-            }
-            //dd($ex->getMessage());
+            $message = $this->imapErrorMessage($ex->getMessage());
             loging('mail-config', $message);
 
-            //Log::error($ex->getMessage());
             return $this->jsonResponse('fails', $message);
         }
     }

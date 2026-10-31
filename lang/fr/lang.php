@@ -39,7 +39,7 @@ return [
     'login'                              => 'Connexion',
     'remember'                           => 'Se souvenir de moi',
     'signmein'                           => 'Se connecter',
-    'iforgot'                            => 'Mot de passe oublié',
+    'iforgot'                            => 'Mot de passe oublié ?',
     'email_address'                      => 'Adresse email',
     'password'                           => 'Mot de passe',
     'woops'                              => 'Oups!',
@@ -451,6 +451,12 @@ return [
     'zipp-error'         => 'Erreur dans le fichier zip. le zip ne doit contenir que des fichier de langue PHP.',
     'upload-success'     => 'Importé avec succès.',
     'file-error'         => 'Erreur dans le fichier ou fichier invalide.',
+    'lang-zip-help'      => 'Sélectionnez un fichier .zip contenant directement les fichiers PHP de langue (lang.php, auth.php, ...), pas dans un dossier.',
+    'lang-zip-template'  => 'Télécharger le modèle anglais',
+    'lang-zip-only'      => 'Veuillez sélectionner un fichier .zip.',
+    'lang-zip-required'  => 'Veuillez sélectionner le fichier .zip de la langue.',
+    'iso-code-help'      => 'Code de langue à deux lettres, par ex. fa pour le persan.',
+    'uploading'          => 'Téléversement...',
     'delete-success'     => 'Package de langue supprimé avec succès.',
     'lang-doesnot-exist' => 'Ce Package de langue n\'existe pas.',
     'active-lang-error'  => 'Ce Package de langue ne peut pas être supprimé tant qu\'il est actif.',
@@ -1377,6 +1383,7 @@ return [
     'error-debug-settings'               => 'Paramètres erreurs et débug',
     'debugging'                          => 'Mode de débug',
     'bugsnag-debugging'                  => 'Envoyer les rapports de crash de l\'app pour aider à améliorer Faveo',
+    'sentry-performance'                 => 'Envoyer les rapports de performance pour aider à améliorer Faveo',
     'error-debug-settings-saved-message' => 'Vos paramètres erreurs et débugging ont été enregistrés avec succès',
     'error-debug-settings-error-message' => 'Vous n\'avez effectué aucun changement dans les paramètres.',
     'error-logs'                         => 'Logs d\'erreurs',
@@ -1568,5 +1575,11 @@ return [
     'session-expired' => 'Session expired or invalid, please try again.',
     //updated 10-10-2023
     'what_should_be_done_with_content_owned_by_this_user' => 'Que faire du contenu appartenant à cet utilisateur',
-
+    //updated 27-10-2026
+    'ticket-rejected-by-workflow'                           => 'Le ticket n\'a pas été créé car il a été rejeté par une règle de workflow.',
+    'mobile-belongs-to-existing-user'                       => 'Ce numéro de mobile appartient déjà à :name (:email). Utilisez l\'adresse e-mail de cet utilisateur ou sélectionnez l\'utilisateur dans les suggestions d\'e-mail.',
+    'attachment-too-large'                                  => 'La pièce jointe est trop volumineuse. La taille maximale de téléversement est de :size.',
+    'no_results_found'                                      => 'Aucun résultat trouvé.',
+    'email-is-banned'                                       => 'Cette adresse e-mail a été bannie. Veuillez contacter l\'administrateur du support.',
+    'outline'                                               => 'contour',
 ];

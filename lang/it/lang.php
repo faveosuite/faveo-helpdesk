@@ -45,7 +45,7 @@ return [
     'login'                              => 'Accedi',
     'remember'                           => 'Ricordami',
     'signmein'                           => 'Iscrivimi',
-    'iforgot'                            => 'Ho dimenticato la password',
+    'iforgot'                            => 'Password dimenticata?',
     'email_address'                      => 'Indirizzo email',
     'password'                           => 'Password',
     'password_confirmation'              => 'Conferma password',
@@ -496,6 +496,12 @@ return [
     'zipp-error'         => 'Errore nel file zip, l\'archivio deve contenere solo files php.',
     'upload-success'     => 'Caricato con successo.',
     'file-error'         => 'Errore nel file, file non valido.',
+    'lang-zip-help'      => 'Seleziona un file .zip che contenga direttamente i file PHP della lingua (lang.php, auth.php, ...), non all\'interno di una cartella.',
+    'lang-zip-template'  => 'Scarica il modello inglese',
+    'lang-zip-only'      => 'Seleziona un file .zip.',
+    'lang-zip-required'  => 'Seleziona il file .zip della lingua.',
+    'iso-code-help'      => 'Codice lingua di due lettere, ad es. fa per il persiano.',
+    'uploading'          => 'Caricamento in corso...',
     'delete-success'     => 'Pacchetto lingua cancellato con successo.',
     'lang-doesnot-exist' => 'Pacchetto lingua non esistente.',
     'active-lang-error'  => 'Pacchetto lingua non cancellabile se attivo.',
@@ -1419,6 +1425,7 @@ return [
     'error-debug-settings'               => 'Impostazioni errori e debug',
     'debugging'                          => 'Modalità debug',
     'bugsnag-debugging'                  => 'Invia rapporti di crash per aiutare Ladybird a migliorare Faveo',
+    'sentry-performance'                 => 'Invia rapporti sulle prestazioni per aiutare Ladybird a migliorare Faveo',
     'error-debug-settings-saved-message' => 'Le tue impostazioni sono state salvate correttamente',
     'error-debug-settings-error-message' => 'Non hai effettuato modifiche nelle impostazioni.',
     'error-logs'                         => 'Log errori',
@@ -1599,5 +1606,12 @@ return [
     'selected-user-is-already-the-owner' => 'L\'utente selezionato è già il proprietario del ticket.',
     //updated 10-10-2023
     'what_should_be_done_with_content_owned_by_this_user' => 'Cosa si dovrebbe fare con i contenuti di proprietà di questo utente',
-
+    //updated 27-10-2026
+    'ticket-rejected-by-workflow'                           => 'Il ticket non è stato creato perché è stato rifiutato da una regola del flusso di lavoro.',
+    'mobile-belongs-to-existing-user'                       => 'Questo numero di cellulare appartiene già a :name (:email). Usa l\'email di quell\'utente oppure seleziona l\'utente dai suggerimenti email.',
+    'session-expired'                                       => 'Sessione scaduta o non valida, riprova.',
+    'attachment-too-large'                                  => 'L\'allegato è troppo grande. La dimensione massima di caricamento è :size.',
+    'no_results_found'                                      => 'Nessun risultato trovato.',
+    'email-is-banned'                                       => 'Questo indirizzo email è stato bloccato. Contatta l\'amministratore dell\'helpdesk.',
+    'outline'                                               => 'contorno',
 ];

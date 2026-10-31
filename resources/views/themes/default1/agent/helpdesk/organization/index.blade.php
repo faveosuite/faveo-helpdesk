@@ -53,6 +53,12 @@ class="nav-link active"
     </div>
 
     <div class="card-body">
+        {{-- Wrapped for small screens: no table-responsive wrapper meant this table
+             overflowed the document itself at 375px (Actions column right edge 385).
+             table-responsive is the theme's own convention, already used in
+             departments/index.blade.php and agent/helpdesk/user/index.blade.php.
+             Desktop layout is unchanged. --}}
+        <div class="table-responsive">
         <table id="organizations-table" class="table table-bordered table-striped">
             <thead>
                 <tr>
@@ -63,6 +69,7 @@ class="nav-link active"
                 </tr>
             </thead>
         </table>
+        </div>
     </div>
 </div>
 

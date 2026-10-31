@@ -88,11 +88,17 @@ class UserController extends Controller
         $settings = $settings->first();
         $pagination = $settings->pagination;
         $search = $request->input('s');
-        $result = $article->where('name', 'LIKE', '%'.$search.'%')
-            ->orWhere('slug', 'LIKE', '%'.$search.'%')
-            ->orWhere('description', 'LIKE', '%'.$search.'%')
-            ->paginate($pagination);
-        $result->setPath('search?s='.$search);
+        $result = $article->where(function ($query) use ($search) {
+            $query->where('name', 'LIKE', '%'.$search.'%')
+                ->orWhere('slug', 'LIKE', '%'.$search.'%')
+                ->orWhere('description', 'LIKE', '%'.$search.'%');
+        })->where('type', '1');
+        // same visibility as the article list: guests and users only see public articles
+        if (!Auth::check() || \Auth::user()->role == 'user') {
+            $result = $result->where('status', '1');
+        }
+        $result = $result->orderBy('publish_time', 'desc')->paginate($pagination);
+        $result->setPath('search')->appends(['s' => $search]);
         $categorys = $category->get();
 
         return view('themes.default1.client.kb.article-list.search', compact('categorys', 'result'));
@@ -149,7 +155,7 @@ class UserController extends Controller
     public function home(Article $article, Category $category, Relationship $relation)
     {
         if (Config::get('database.install') == '%0%') {
-            return redirect('step1');
+            return redirect('/probe.php');
         } else {
             $categorys = $category->get();
             // $categorys->setPath('home');

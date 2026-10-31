@@ -91,7 +91,7 @@ class="nav-link active"
                         <div class="col-sm-4 mb-3 {!! $errors->has('priority') ? 'has-error' : ''!!}" id="priority_error">
                             {!! html()->label(Lang::get('lang.priority'), 'priority') !!}
                             {!! $errors->first('priority', '<spam class="help-block">:message</spam>') !!}
-                            {!! html()->select('priority', [''=>'--System Default--','Priorities'=>$priority->pluck('priority_desc','priority_id')->toArray()], null)->class('form-control select')->id('priority') !!}
+                            {!! html()->select('priority', [''=>'--System Default--','Priorities'=>$priority->pluck('priority','priority_id')->toArray()], null)->class('form-control select')->id('priority') !!}
                         </div>
                         <!-- Help topic -->
                         <div class="col-sm-4 mb-3 {!! $errors->has('help_topic') ? 'has-error' : ''!!}" id="help_topic_error">
@@ -221,22 +221,15 @@ class="nav-link active"
     </div>
 </form>
 
-<div class="modal fade" id="loadingpopup">
-    <div class="modal-dialog">
+<div class="modal fade" id="loadingpopup" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="loadingpopup-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header">
-                <div id="head" class="text-center">
-                    <button type="button" class="btn-close" id="close" data-bs-dismiss="modal" aria-label="Close" ></button>
-                    <img src="{{asset("lb-faveo/media/images/gifloader.gif")}}" >
-                    <br/>
-                    <br/>
-                    <br/>
-                    <center><h3 style="color:#80DE02;">Testing incoming & outgoing mail server</h3></center>
-                    <br/>
-                    <center><h6>Please wait while testing is in progress ...</h6></center>
-                    <center><h6>(Please do not use "Refresh" or "Back" button)</h6></center>
-                    <br/>
-                </div>
+            <div class="modal-body text-center position-relative px-4 pt-4 pb-3">
+                <button type="button" class="btn-close position-absolute top-0 end-0 m-3" id="close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <img src="{{asset("lb-faveo/media/images/gifloader.gif")}}" alt="" class="mb-3">
+                <h4 id="loadingpopup-title" class="mb-3" style="color:#80DE02;">Testing incoming & outgoing mail server</h4>
+                <p class="mb-1">Please wait while testing is in progress ...</p>
+                <p class="mb-0">(Please do not use "Refresh" or "Back" button)</p>
             </div>
         </div>
     </div>
@@ -257,15 +250,12 @@ class="nav-link active"
             },
             beforeSend: function () {
                 $('#alert').empty();
-                $('#loadingpopup').addClass('show').css('display', 'block');
-                $('body').addClass('modal-open').append('<div class="modal-backdrop fade show"></div>');
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('loadingpopup')).show();
             },
             success: function (json) {
                 console.log(json);
                 setTimeout(function () {
-                    $('#loadingpopup').removeClass('show').css('display', 'none');
-                    $('body').removeClass('modal-open');
-                    $('.modal-backdrop').remove();
+                    bootstrap.Modal.getOrCreateInstance(document.getElementById('loadingpopup')).hide();
                     var res = "";
                     $.each(json.result, function (idx, topic) {
                         if (idx === "success") {
@@ -282,9 +272,7 @@ class="nav-link active"
             error: function (json) {
                 console.log(json);
                 setTimeout(function () {
-                    $('#loadingpopup').removeClass('show').css('display', 'none');
-                    $('body').removeClass('modal-open');
-                    $('.modal-backdrop').remove();
+                    bootstrap.Modal.getOrCreateInstance(document.getElementById('loadingpopup')).hide();
                     var res = "";
                     $.each(json.responseJSON.errors, function (idx, topic) {
                         res += "<li>" + topic + "</li>";

@@ -70,10 +70,10 @@
 			{!! $errors->first('status', '<spam class="help-block">:message</spam>') !!}
 			<div class="row">
 				<div class="col-3">
-					{!! html()->radio('status', true, '1') !!}{{Lang::get('lang.active')}}
+					{!! html()->radio('status', (string) old('status', $category->status) !== '0', '1') !!}{{Lang::get('lang.active')}}
 				</div>
 				<div class="col-3">
-					{!! html()->radio('status', null, '0') !!}{{Lang::get('lang.inactive')}}
+					{!! html()->radio('status', (string) old('status', $category->status) === '0', '0') !!}{{Lang::get('lang.inactive')}}
 				</div>
 			</div>
 		</div>

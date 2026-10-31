@@ -86,10 +86,10 @@ class="nav-link active"
                     <div class="callout callout-default font-oblique">{!! Lang::get('lang.close-msg4') !!}</div>
                     <div class="row">
                         <div class="col-sm-3">
-                            {!! html()->radio('send_email', null, '1') !!} {{Lang::get('lang.yes')}}
+                            {!! html()->radio('send_email', (string) old('send_email', $security->send_email) === '1', '1') !!} {{Lang::get('lang.yes')}}
                         </div>
                         <div class="col-sm-3">
-                            {!! html()->radio('send_email', null, '0') !!} {{Lang::get('lang.no')}}
+                            {!! html()->radio('send_email', (string) old('send_email', $security->send_email) === '0', '0') !!} {{Lang::get('lang.no')}}
                         </div>
                     </div>       
                 </div>

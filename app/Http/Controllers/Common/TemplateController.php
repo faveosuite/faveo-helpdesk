@@ -79,9 +79,25 @@ class TemplateController extends Controller
     {
         $id = $request->input('id');
 
-        return DataTables::of($this->template->where('set_id', '=', $id)->select('id', 'name', 'type')->get())
-                        ->addColumn('type', function ($model) {
-                            return $this->type->where('id', $model->type)->first()->name;
+        // The only caller (common/template/inbox.blade.php) sends no id, and
+        // `where('set_id', '=', null)` matches nothing — every template in the table
+        // carries a set_id — so this list was empty whenever it was asked for
+        // everything. Filter only when a set was actually named.
+        $query = $this->template->select('id', 'name', 'type');
+
+        if (!is_null($id) && $id !== '') {
+            $query = $query->where('set_id', '=', $id);
+        }
+
+        return DataTables::of($query->get())
+                        ->editColumn('type', function ($model) {
+                            // A template whose type row has been deleted must not take the
+                            // whole listing down with it: first() already returns null in
+                            // that case, and -> on a null property read in PHP 8 is a
+                            // (non-fatal) warning that still evaluates to null, so ?? still
+                            // catches it — no ?-> needed (Larastan: nullsafe before ?? is
+                            // redundant for a property read).
+                            return $this->type->where('id', $model->type)->first()->name ?? '-';
                         })
                         ->addColumn('action', function ($model) {
                             return '<a href='.url('templates/'.$model->id.'/edit')." class='btn btn-sm btn-primary'>Edit</a>";

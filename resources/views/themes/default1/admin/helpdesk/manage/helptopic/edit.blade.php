@@ -86,16 +86,16 @@ class="nav-link active"
             <div class="col-md-3">
                 <div class="mb-3 {{ $errors->has('ticket_status') ? 'has-error' : '' }}">
                     {!! html()->label(Lang::get('lang.status'), 'ticket_status') !!}&nbsp;&nbsp;<br/>
-                    {!! html()->radio('status', true, '1') !!} {{Lang::get('lang.active')}}&nbsp;&nbsp;&nbsp;
-                    {!! html()->radio('status', null, '0') !!} {{Lang::get('lang.inactive')}}
+                    {!! html()->radio('status', (string) old('status', $topics->status) !== '0', '1') !!} {{Lang::get('lang.active')}}&nbsp;&nbsp;&nbsp;
+                    {!! html()->radio('status', (string) old('status', $topics->status) === '0', '0') !!} {{Lang::get('lang.inactive')}}
                 </div>
             </div>
             <!-- Type : Radio : required : Public|private -->
             <div class="col-md-3">
                 <div class="mb-3 {{ $errors->has('type') ? 'has-error' : '' }}">
                     {!! html()->label(Lang::get('lang.type'), 'type') !!}&nbsp;&nbsp;<br/>
-                    {!! html()->radio('type', true, '1') !!} {{Lang::get('lang.public')}}&nbsp;&nbsp;&nbsp;
-                    {!! html()->radio('type', null, '0') !!} {{Lang::get('lang.private')}}
+                    {!! html()->radio('type', (string) old('type', $topics->type) === '1', '1') !!} {{Lang::get('lang.public')}}&nbsp;&nbsp;&nbsp;
+                    {!! html()->radio('type', (string) old('type', $topics->type) === '0', '0') !!} {{Lang::get('lang.private')}}
                 </div>
             </div>
         </div>
@@ -127,7 +127,7 @@ class="nav-link active"
             <div class="col-md-4">
                 <div class="mb-3 {{ $errors->has('priority') ? 'has-error' : '' }}">
                     {!! html()->label(Lang::get('lang.priority'), 'priority') !!} <span class="text-red"> *</span>
-                    {!! html()->select('priority', [''=>Lang::get('lang.select_a_priority'),Lang::get('lang.priorities')=>$priority->pluck('priority_desc','priority_id')->toArray()], null)->class('form-control') !!}
+                    {!! html()->select('priority', [''=>Lang::get('lang.select_a_priority'),Lang::get('lang.priorities')=>$priority->pluck('priority','priority_id')->toArray()], null)->class('form-control') !!}
                 </div>
             </div>
             <!-- SLA Plan:	 Drop down: value SLA Plan  table-->

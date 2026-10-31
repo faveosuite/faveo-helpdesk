@@ -31,7 +31,7 @@ class="nav-item menu-open"
 @stop
 
 @section('PageHeader')
-<h1>{{Lang::get('lang.article')}}</h1>
+<h3>{{Lang::get('lang.article')}}</h3>
 @stop
 
 @section('content')
@@ -40,7 +40,7 @@ class="nav-item menu-open"
 
 @if(Session::has('success'))
 <div class="alert alert-success alert-dismissible">
-    <i class="fa  fa-circle-check"></i>
+    <i class="fa-solid fa-circle-check"></i>
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('success')}}
 </div>
@@ -132,37 +132,25 @@ class="nav-item menu-open"
                 
                 <div class="mb-3 {{ $errors->has('type') ? 'has-error' : '' }}">
                     {!! html()->label(Lang::get('lang.status'), 'type') !!}
-                    <div class="row">
-                        <div class="col-sm-1">
-                            {!! html()->radio('type', true, '1') !!}
-                        </div>
-                        <div class="col-sm-4" style="margin: -5px;">
-                            {{Lang::get('lang.published')}}
-                        </div>
-                        <div class="col-sm-1">
-                            {!! html()->radio('type', null, '0') !!}
-                        </div>
-                        <div class="col-sm-4" style="margin: -5px;">
-                            {{Lang::get('lang.draft')}}
-                        </div>
+                    <div>
+                        <label class="fw-normal me-3">
+                            {!! html()->radio('type', (string) old('type', $article->type) === '1', '1')->id('type-published') !!} {{ Lang::get('lang.published') }}
+                        </label>
+                        <label class="fw-normal me-3">
+                            {!! html()->radio('type', (string) old('type', $article->type) === '0', '0')->id('type-draft') !!} {{ Lang::get('lang.draft') }}
+                        </label>
                     </div>
                 </div>
 
                 <div class="mb-3 {{ $errors->has('status') ? 'has-error' : '' }}">
                     {!! html()->label(Lang::get('lang.visibility'), 'status') !!}
-                    <div class="row">
-                        <div class="col-sm-1">
-                            {!! html()->radio('status', true, '1') !!}
-                        </div>
-                        <div class="col-sm-4" style="margin: -5px;">  
-                            {{Lang::get('lang.public')}}
-                        </div>
-                        <div class="col-sm-1">
-                            {!! html()->radio('status', null, '0') !!}
-                        </div>
-                        <div class="col-sm-4" style="margin: -5px;"> 
-                            {{Lang::get('lang.private')}}
-                        </div>
+                    <div>
+                        <label class="fw-normal me-3">
+                            {!! html()->radio('status', (string) old('status', $article->status) === '1', '1')->id('status-public') !!} {{ Lang::get('lang.public') }}
+                        </label>
+                        <label class="fw-normal me-3">
+                            {!! html()->radio('status', (string) old('status', $article->status) === '0', '0')->id('status-private') !!} {{ Lang::get('lang.private') }}
+                        </label>
                     </div>
                 </div>
 
@@ -185,16 +173,20 @@ class="nav-item menu-open"
                         {!! html()->label(Lang::get('lang.publish_immediately'), 'month') !!}
                     </div>
                     <div class="col-md-12">
-                        <span class="d-flex">
+                        {{-- flex-wrap: the month/day/year/hour/minute controls are fixed-width and total
+                             ~353px plus separators, so on a 375px viewport this row ran past the
+                             right edge and the document scrolled sideways. Wrapping lets it fall
+                             onto a second line below ~360px; on desktop there is room for one
+                             row, so the layout there is unchanged. --}}
+                        <span class="d-flex flex-wrap">
                             {!! html()->select('month', array_combine(range(1, 12), array_map(function($m) { return date('F', mktime(0, 0, 0, $m, 1)); }, range(1, 12))), $month)->class('form-control me-1')->attributes(['style' => 'width: 120px;']) !!}
                             {!! html()->select('day', array_combine(range(1, 31), range(1, 31)), $day)->class('form-control me-1')->attributes(['style' => 'width: 65px;']) !!}
-                            {!! html()->text('year', $year)->class('form-control me-1')->attributes(['style' => 'width: 58px;']) !!}@
+                            {!! html()->text('year', $year)->class('form-control me-1')->attributes(['style' => 'width: 72px;']) !!}@
                             &nbsp;<input type="text" name="hour" value="{{$hour}}" class="form-control" style="width: 50px;">&nbsp;:&nbsp;<input type="text" name="minute" value="{{$minute}}" class="form-control" style="width: 50px;" >
                         </span>
                     </div>
                 </div>
             </div>
-            {!! html()->closeModelForm() !!}
             <div class="card-footer">
 
                 {!! html()->submit(Lang::get('lang.publish'))->class('btn btn-primary') !!}
@@ -217,22 +209,17 @@ class="nav-item menu-open"
                 <div class="mb-3 {{ $errors->has('category_id') ? 'has-error' : '' }}">
                     {{-- {!! html()->label('Category', 'category_id') !!} --}}
                     @foreach($category->toArray() as $key=>$val)
-                    <div class="row">
-                        <div class="mb-3">
-                            <input type="radio" name="category_id[]" value="<?php echo $val; ?>" <?php
-                                if (in_array($val, $assign->all())) {
-                                    echo ('checked');
-                                }
-                                ?> >&nbsp;<?php echo $key; ?>
-                        </div>
+                    <div class="mb-1">
+                        <label class="fw-normal"><input type="radio" name="category_id[]" id="category-{{$val}}" value="{{$val}}" @if(in_array($val, $assign->all())) checked @endif> {{$key}}</label>
                     </div>
                     @endforeach
                 </div>
             </div>
+            {!! html()->closeModelForm() !!}
 
             <div class="card-footer">
                 
-                <span class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#j">{!! Lang::get('lang.addcategory') !!}</span>
+                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#j">{!! Lang::get('lang.addcategory') !!}</button>
                 
                 <div class="modal" id="j">
 
@@ -243,19 +230,17 @@ class="nav-item menu-open"
                             {!! html()->form('POST', route('category.store'))->open() !!}
                     
                             <div class="modal-header">
-                                <h5 class="modal-title">{{Lang::get('lang.addcategory')}}</h4>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h5 class="modal-title">{{Lang::get('lang.addcategory')}}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
 
                             <div class="modal-body">
                                 @include('themes.default1.agent.kb.category.form')
                             </div>
                             
-                            <div class="modal-footer justify-content-between" style="margin: -15px;">
+                            <div class="modal-footer justify-content-between">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{!! Lang::get('lang.close') !!}</button>
-                                <div class="mb-3">
-                                    {!! html()->submit(Lang::get('lang.add'))->class('btn btn-primary') !!}
-                                </div>      
+                                {!! html()->submit(Lang::get('lang.add'))->class('btn btn-primary') !!}
                             </div>
                             {!! html()->closeModelForm() !!}
                         </div>
@@ -274,22 +259,21 @@ class="nav-item menu-open"
           });
     });
 </script>
-@stop
-                    
 <div class="modal fade" id="deletearticle{{$article->id}}">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-                <h5 class="modal-title">Delete</h4>
-    			<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">{{Lang::get('lang.delete')}}</h5>
+    			<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
-				Are you sure you want to delete <b>{{$article->name}}</b> ?
+				{{Lang::get('lang.are_you_sure_you_want_to_delete')}} <b>{{$article->name}}</b> ?
 			</div>
 			<div class="modal-footer justify-content-between">
-    			<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="dismis2">Close</button>
-    			<a href='{{url("article/delete/$article->slug")}}'><button class="btn btn-danger">Delete</button></a>
+    			<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="dismis2">{{Lang::get('lang.close')}}</button>
+    			<a href="{{url('article/delete/'.$article->slug)}}" class="btn btn-danger">{{Lang::get('lang.delete')}}</a>
 			</div>
 		</div><!-- /.modal-content -->
 	</div><!-- /.modal-dialog -->
 </div>
+@stop

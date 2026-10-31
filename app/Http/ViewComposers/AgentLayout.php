@@ -55,7 +55,8 @@ class AgentLayout
     {
         $notifications = \App\Http\Controllers\Common\NotificationController::getNotifications();
         $view->with([
-            'company'            => $this->company,
+            // the saved settings row; the injected model is an empty instance, which left the footer name blank
+            'company'            => $this->company->find(1) ?? $this->company,
             'notifications'      => $notifications,
             'myticket'           => $this->myTicket(),
             'unassigned'         => $this->unassigned(),
@@ -105,12 +106,9 @@ class AgentLayout
     public function myTicket()
     {
         $ticket = $this->tickets();
-        if ($this->auth->role == 'admin') {
+        if ($this->auth->role == 'admin' || $this->auth->role == 'agent') {
             return $ticket->where('assigned_to', $this->auth->id)
-                    ->where('status', '1');
-        } elseif ($this->auth->role == 'agent') {
-            return $ticket->where('assigned_to', $this->auth->id)
-                    ->where('status', '1');
+                    ->whereIn('status', getStatusArray('open'));
         }
     }
 
@@ -118,12 +116,12 @@ class AgentLayout
     {
         $ticket = $this->tickets();
         if ($this->auth->role == 'admin') {
-            return $ticket->where('assigned_to', '=', null)
-                    ->where('status', '=', '1')
+            return $this->whereUnassigned($ticket)
+                    ->whereIn('status', getStatusArray('open'))
                     ->select('id');
         } elseif ($this->auth->role == 'agent') {
-            return $ticket->where('assigned_to', '=', null)
-                    ->where('status', '=', '1')
+            return $this->whereUnassigned($ticket)
+                    ->whereIn('status', getStatusArray('open'))
                     ->where('dept_id', '=', $this->auth->primary_dpt)
                     ->select('id');
         }
@@ -133,9 +131,9 @@ class AgentLayout
     {
         $ticket = $this->tickets();
         if ($this->auth->role == 'admin') {
-            return $ticket->where('status', '1')->where('follow_up', '1')->select('id');
+            return $ticket->whereIn('status', getStatusArray('open'))->where('follow_up', '1')->select('id');
         } elseif ($this->auth->role == 'agent') {
-            return $ticket->where('status', '1')->where('follow_up', '1')->select('id');
+            return $ticket->whereIn('status', getStatusArray('open'))->where('follow_up', '1')->select('id');
         }
     }
 
@@ -143,9 +141,9 @@ class AgentLayout
     {
         $ticket = $this->tickets();
         if ($this->auth->role == 'admin') {
-            return $ticket->where('status', '5')->select('id');
+            return $ticket->whereIn('status', getStatusArray('deleted'))->select('id');
         } elseif ($this->auth->role == 'agent') {
-            return $ticket->where('status', '5')->where('dept_id', '=', $this->auth->primary_dpt)
+            return $ticket->whereIn('status', getStatusArray('deleted'))->where('dept_id', '=', $this->auth->primary_dpt)
                     ->select('id');
         }
     }
@@ -155,12 +153,24 @@ class AgentLayout
         $table = $this->tickets();
         if (Auth::user()->role == 'agent') {
             $id = Auth::user()->primary_dpt;
-            $table = $table->where('tickets.dept_id', '=', $id)->orWhere('assigned_to', '=', Auth::user()->id);
+            $table = $table->where(function ($query) use ($id) {
+                $query->where('tickets.dept_id', '=', $id)->orWhere('assigned_to', '=', Auth::user()->id);
+            });
         }
 
-        return $table->Join('ticket_status', function ($join) {
-            $join->on('ticket_status.id', '=', 'tickets.status')
-                        ->whereIn('ticket_status.id', [1, 7]);
+        // same status set as the inbox table (FilterController::showPage)
+        return $table->whereIn('tickets.status', getStatusArray('open'));
+    }
+
+    /**
+     * Matches the "assigned = 0" filter of the ticket table: no team and no agent.
+     */
+    protected function whereUnassigned($ticket)
+    {
+        return $ticket->where(function ($query) {
+            $query->where('team_id', '=', 0)->orWhereNull('team_id');
+        })->where(function ($query) {
+            $query->where('assigned_to', '=', 0)->orWhereNull('assigned_to');
         });
     }
 
@@ -168,14 +178,14 @@ class AgentLayout
     {
         $ticket = $this->tickets();
         if ($this->auth->role == 'admin') {
-            return $ticket->where('status', '=', 1)
+            return $ticket->whereIn('status', getStatusArray('open'))
                             ->where('isanswered', '=', 0)
                             ->whereNotNull('tickets.duedate')
                             ->where('tickets.duedate', '!=', '00-00-00 00:00:00')
                             ->where('tickets.duedate', '<', \Carbon\Carbon::now())
                             ->select('tickets.id');
         } elseif ($this->auth->role == 'agent') {
-            return $ticket->where('status', '=', 1)
+            return $ticket->whereIn('status', getStatusArray('open'))
                             ->where('isanswered', '=', 0)
                             ->whereNotNull('tickets.duedate')
                             ->where('dept_id', '=', $this->auth->primary_dpt)
@@ -189,14 +199,12 @@ class AgentLayout
     {
         $ticket = $this->tickets();
         if ($this->auth->role == 'admin') {
-            return $ticket->where('status', '=', 1)
-                            ->where('status', '=', 1)
+            return $ticket->whereIn('status', getStatusArray('open'))
                             ->where('isanswered', '=', 0)
                             ->whereNotNull('duedate')
                             ->whereRaw('date(duedate) = ?', [date('Y-m-d')]);
         } elseif ($this->auth->role == 'agent') {
-            return $ticket->where('status', '=', 1)
-                            ->where('status', '=', 1)
+            return $ticket->whereIn('status', getStatusArray('open'))
                             ->where('isanswered', '=', 0)
                             ->whereNotNull('duedate')
                             ->where('dept_id', '=', $this->auth->primary_dpt)

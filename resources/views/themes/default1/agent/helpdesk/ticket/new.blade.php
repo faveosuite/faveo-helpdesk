@@ -114,7 +114,7 @@ class="active"
                             <div class="mb-3 {{ $errors->has('first_name') ? 'has-error' : '' }}">
                                 {!! html()->label(Lang::get('lang.first_name'), 'email') !!} <span class="text-red"> *</span>
                                <!--  {!! html()->text('email', null)->class('form-control') !!} -->
-                               <input type="text" name="first_name" id="first_name" class="form-control">
+                               <input type="text" name="first_name" id="first_name" class="form-control" value="{{ old('first_name') }}">
                             </div>
                         </div>
 
@@ -122,7 +122,7 @@ class="active"
                             <!-- full name -->
                             <div class="mb-3 {{ $errors->has('last_name') ? 'has-error' : '' }}">
                                 {!! html()->label(Lang::get('lang.last_name'), 'fullname') !!} <span class="text-red"></span>
-                                <input type="text" name="last_name" id="last_name" class="form-control">
+                                <input type="text" name="last_name" id="last_name" class="form-control" value="{{ old('last_name') }}">
                             </div>
                         </div>
                     </div>
@@ -144,14 +144,14 @@ class="active"
                                 @if ($email_mandatory->status == 0 || $settings->status == 1)
                                  <span class="text-red"> *</span>
                                 @endif
-                                {!! html()->number('mobile', null)->class('form-control')->id('mobile') !!}
+                                {!! html()->input('tel', 'mobile', null)->class('form-control')->attributes(['inputmode' => 'numeric', 'pattern' => '[0-9]*'])->id('mobile') !!}
                             </div>
                         </div>
                         <div class="col-md-6">
                             <!-- phone -->
                             <div class="mb-3 {{ $errors->has('phone') ? 'has-error' : '' }}">
                                 <label>{!! Lang::get('lang.phone') !!}:</label>
-                                {!! html()->number('phone', null)->class('form-control')->id('phone_number') !!}
+                                {!! html()->input('tel', 'phone', null)->class('form-control')->attributes(['inputmode' => 'numeric', 'pattern' => '[0-9]*'])->id('phone_number') !!}
                                 {!! $errors->first('phone', '<spam class="help-block text-red">:message</spam>') !!}
                             </div>
                         </div>
@@ -262,7 +262,7 @@ class="active"
                             </div>
                             <div class="col-md-5">
                                 <?php $Priority = App\Model\helpdesk\Ticket\Ticket_Priority::where('status','=',1)->get(); ?>
-                                {!! html()->select('priority', [Lang::get('lang.priorities')=>$Priority->pluck('priority_desc','priority_id')->toArray()], null)->class('form-control select') !!}
+                                {!! html()->select('priority', [Lang::get('lang.priorities')=>$Priority->pluck('priority','priority_id')->toArray()], null)->class('form-control select') !!}
                             </div>
                             
                         </div>
@@ -336,28 +336,34 @@ class="active"
             }
         });
     });
-                $(document).ready(function(){                   
+                var existingUserEmail = null;
+                $(document).ready(function(){
+                    // Editing the email away from the selected user means a different user: unlock the fields.
+                    $('#email').on('input', function () {
+                        if (existingUserEmail !== null && $(this).val() !== existingUserEmail) {
+                            existingUserEmail = null;
+                            // Clear too, so the previous user's name/mobile isn't carried onto a new user.
+                            $('#first_name, #last_name, #country_code, #phone_number, #mobile').val('').prop('readonly', false).removeClass('bg-light');
+                        }
+                    });
                     $("#email").autocomplete({
                         source:"{!!URL::route('post.newticket.autofill')!!}",
                         minLength:1,
                         select:function(evt, ui) {
-                            // this.form.phone_number.value = ui.item.phone_number;
-                            // this.form.user_name.value = ui.item.user_name;
-                            if(ui.item.first_name) {
-                                this.form.first_name.value = ui.item.first_name;
-                            }
-                            if(ui.item.last_name) {
-                                this.form.last_name.value = ui.item.last_name;
-                            }
-                            if(ui.item.country_code) {
-                                this.form.country_code.value = ui.item.country_code;
-                            }
-                            if(ui.item.phone_number) {
-                                this.form.phone_number.value = ui.item.phone_number;
-                            }
-                            if(ui.item.mobile) {
-                                this.form.mobile.value = ui.item.mobile;
-                            }
+                            // Existing user: their saved details are used for the ticket and the server
+                            // ignores edits to them, so show them read-only instead of editable-but-ignored.
+                            var f = this.form;
+                            var fill = function (name, value) {
+                                // Only lock what the user actually has; an empty field stays editable so
+                                // required-field validation (e.g. mobile) can still be satisfied.
+                                if (value) { f[name].value = value; $(f[name]).prop('readonly', true).addClass('bg-light'); }
+                            };
+                            fill('first_name', ui.item.first_name);
+                            fill('last_name', ui.item.last_name);
+                            fill('country_code', ui.item.country_code);
+                            fill('phone_number', ui.item.phone_number);
+                            fill('mobile', ui.item.mobile);
+                            existingUserEmail = ui.item.email;
                         }
                     });
                 });

@@ -75,8 +75,8 @@ class="nav-link active"
             <div class="col-md-4">
                 <div class="mb-3 {{ $errors->has('status') ? 'has-error' : '' }}">
                     {!! html()->label(Lang::get('lang.status'), 'status') !!}&nbsp;<br/>
-                    {!! html()->radio('status', true, '1') !!} &nbsp; {{Lang::get('lang.active')}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    {!! html()->radio('status', null, '0') !!} &nbsp; {{Lang::get('lang.inactive')}}
+                    {!! html()->radio('status', (string) old('status', $slas->status) !== '0', '1') !!} &nbsp; {{Lang::get('lang.active')}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    {!! html()->radio('status', (string) old('status', $slas->status) === '0', '0') !!} &nbsp; {{Lang::get('lang.inactive')}}
                 </div>
             </div>
         </div>

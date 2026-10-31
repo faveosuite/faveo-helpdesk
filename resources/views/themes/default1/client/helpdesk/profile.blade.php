@@ -146,7 +146,7 @@ class="nav-item active"
                                     <!-- mobile -->
                                     {!! html()->label(Lang::get('lang.mobile_number'), 'mobile') !!}
 
-                                    {!! html()->number('mobile', null)->class('form-control')->id('mobile') !!}
+                                    {!! html()->input('tel', 'mobile', null)->class('form-control')->attributes(['inputmode' => 'numeric', 'pattern' => '[0-9]*'])->id('mobile') !!}
                                 </div>
                                 <div class="mb-3 {{ $errors->has('profile_pic') ? 'has-error' : '' }}">
                                     <!-- profile pic -->
@@ -224,7 +224,7 @@ class="nav-item active"
             <div class="modal-content">
                 <div class="modal-header">
                     <span style="font-size:1.2em">{{Lang::get('lang.verify-number')}}</span>
-                    <button type="button" class="btn-close closemodal" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    <button type="button" class="btn-close closemodal" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div id="custom-alert-body2">

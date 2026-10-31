@@ -34,8 +34,24 @@ class FileuploadController extends Controller
             }
         }
 
-        return ['0' => $max_size_in_bytes, '1' => $max_size_in_actual];
+        return ['0' => $max_size_in_bytes, '1' => $this->readableSize($max_size_in_actual)];
 //        return $max_size_in_bytes;
+    }
+
+    /**
+     * PHP's shorthand size (8M, 512K, 1G) as shown to people (8MB, 512KB, 1GB).
+     *
+     * @param string $size
+     *
+     * @return string
+     */
+    public function readableSize($size)
+    {
+        if (preg_match('/^\s*(\d+(?:\.\d+)?)\s*([KMGT])B?\s*$/i', (string) $size, $matches)) {
+            return $matches[1].strtoupper($matches[2]).'B';
+        }
+
+        return $size;
     }
 
     public function parse_size($size)

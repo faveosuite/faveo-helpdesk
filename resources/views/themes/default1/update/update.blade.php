@@ -50,7 +50,7 @@ Application Updates
         border-bottom: 1px solid #adb5bd;
         color: #666;
         margin-bottom: 15px;
-        padding-bottom: 15px;
+        padding-bottom: 15px;./
     }
     .post .user-block {
         margin-bottom: 15px;

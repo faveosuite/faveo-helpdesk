@@ -283,7 +283,7 @@ if ($thread->title != "") {
                         <tr><td><b>{!! Lang::get('lang.priority') !!}:</b></td>     
                             <?php $priority = App\Model\helpdesk\Ticket\Ticket_Priority::where('priority_id', '=', $tickets->priority_id)->first(); ?>
                             @if($priority)
-                            <td title="{{$priority->priority_desc}}">{{$priority->priority_desc}}</td>
+                            <td title="{{$priority->priority_desc}}">{{$priority->priority}}</td>
                             @endif
                         </tr>
                         <tr><td><b>{!! Lang::get('lang.department') !!}:</b></td>   
@@ -707,7 +707,7 @@ if ($thread->title != "") {
                                             <span class="timeline-meta-time"><i class="fa-regular fa-clock"></i> {{UTC::usertimezone($conversation->created_at)}}</span>
                                             
                                         </h3>
-                                        @if(\Lang::getLocale()=='ar')
+                                        @if(isRtl())
                                         <div class="timeline-body{{$conversation -> id}} arindam timeline-body-rtl">
                                         @else
                                         <div class="timeline-body{{$conversation -> id}} arindam timeline-body-ltr">
@@ -719,7 +719,7 @@ if ($thread->title != "") {
 
 
                                             <script>
-                                                                if ('{{Lang::getLocale()}}' != 'ar'){
+                                                                if ({{ isRtl() ? 'false' : 'true' }}){
                                                         $('body').css('display', 'block');
                                                                 setTimeout(function(){
                                                                 var $iframe = "Id{{$conversation->id}}";
@@ -906,7 +906,7 @@ if ($thread->title != "") {
                                         if ($tickets->priority_id == $ticket_priority->priority_id) {
                                             echo "selected";
                                         }
-                                        ?> >{!! $ticket_priority->priority_desc !!}</option>
+                                        ?> >{!! $ticket_priority->priority !!}</option>
                                         @endforeach
                                     </select>
                                     <spam id="error-priority" class="help-block text-red d-none">This is a required field</spam>

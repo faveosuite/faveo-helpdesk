@@ -11,6 +11,7 @@ use Illuminate\Foundation\Auth\ResetsPasswords;
 // model
 // classes
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Lang;
 
@@ -52,41 +53,38 @@ class PasswordController extends Controller
     public function postEmail(Request $request)
     {
         try {
-            $date = date('Y-m-d H:i:s');
             $this->validate($request, ['email' => 'required']);
             event('reset.password', []);
-            $user = User::where('email', '=', $request->all('email'))->orWhere('mobile', '=', $request->all('email'))->first();
-            if (isset($user)) {
-                $user1 = $user->email;
-                //gen new code and pass
-                $code = Str::random(60);
-                $password_reset_table = \DB::table('password_resets')->where('email', '=', $user->email)->first();
-                if (isset($password_reset_table)) {
-                    $password_reset_table = \DB::table('password_resets')->where('email', '=', $user->email)->update(['token' => $code, 'created_at' => $date]);
-                    // $password_reset_table->token = $code;
-                    // $password_reset_table->update(['token' => $code]);
-                } else {
-                    $create_password_reset = \DB::table('password_resets')->insert(['email' => $user->email, 'token' => $code, 'created_at' => $date]);
-                }
-                $this->PhpMailController->sendmail($from = $this->PhpMailController->mailfrom('1', '0'), $to = ['name' => $user->user_name, 'email' => $user->email], $message = ['subject' => 'Your Password Reset Link', 'scenario' => 'reset-password'], $template_variables = ['user' => $user->first_name, 'email_address' => $user->email, 'password_reset_link' => url('password/reset/'.$code)], true);
-                if ($user->mobile != '' && $user->mobile != null) {
-                    if ($user->first_name) {
-                        $name = $user->first_name;
-                    } else {
-                        $name = $user->user_name;
-                    }
-                    $value = [
-                        'url'    => url('password/reset/'.$code),
-                        'name'   => $name,
-                        'mobile' => $user->mobile,
-                        'code'   => $user->country_code, ];
-                    event('reset.password2', [$value]);
-                }
-
-                return redirect()->back()->with('status', Lang::get('lang.we_have_e-mailed_your_password_reset_link'));
-            } else {
+            $user = User::where('email', '=', $request->input('email'))->orWhere('mobile', '=', $request->input('email'))->first();
+            if (!isset($user)) {
                 return redirect()->back()->with('fails', Lang::get("lang.we_can't_find_a_user_with_that_e-mail_address"));
             }
+
+            // See ForgotPasswordController::sendResetLinkEmail() for why this
+            // delegates to Laravel's PasswordBroker instead of writing
+            // password_resets directly - this method mirrors it, kept in sync
+            // since nothing routes to this one but it's reachable the same way.
+            $response = Password::broker()->sendResetLink(
+                ['email' => $user->email],
+                function ($user, $token) {
+                    $this->PhpMailController->sendmail($from = $this->PhpMailController->mailfrom('1', '0'), $to = ['name' => $user->user_name, 'email' => $user->email], $message = ['subject' => 'Your Password Reset Link', 'scenario' => 'reset-password'], $template_variables = ['user' => $user->first_name, 'email_address' => $user->email, 'password_reset_link' => url('password/reset/'.$token)], true);
+                    if ($user->mobile != '' && $user->mobile != null) {
+                        $name = $user->first_name ?: $user->user_name;
+                        $value = [
+                            'url'    => url('password/reset/'.$token),
+                            'name'   => $name,
+                            'mobile' => $user->mobile,
+                            'code'   => $user->country_code, ];
+                        event('reset.password2', [$value]);
+                    }
+                }
+            );
+
+            if ($response === Password::RESET_LINK_SENT) {
+                return redirect()->back()->with('status', Lang::get('lang.we_have_e-mailed_your_password_reset_link'));
+            }
+
+            return redirect()->back()->with('fails', Lang::get('lang.password-can-not-reset'));
         } catch (\Exception $e) {
             return redirect()->back()->with('fails', $e->getMessage());
         }
@@ -107,29 +105,23 @@ class PasswordController extends Controller
             $this->validationErrorMessages()
         );
         $credentials = $this->credentials($request);
-        // dd($credentials);
-        $email = $credentials['email'];
-        $password = $credentials['password'];
-        $token = $credentials['token'];
-        $response = 'fails';
-        $password_tokens = \DB::table('password_resets')->where('email', '=', $email)->first();
-        if ($password_tokens) {
-            if ($password_tokens->token == $token) {
-                $users = new User();
-                $user = $users->where('email', $email)->first();
-                if ($user) {
-                    $user->password = \Hash::make($password);
-                    $user->save();
-                    $response = 'success';
-                } else {
-                    $response = 'fails';
-                }
-            }
-        }
-        if ($response == 'success') {
+
+        // Password::broker()->reset() is what used to be the hand-rolled lookup
+        // against password_resets below: it hashes/compares the token, rejects
+        // one older than auth.passwords.users.expire, and - unlike the old
+        // code - deletes the token row itself once $callback returns, so it
+        // cannot be replayed. $callback only runs once that has all passed, and
+        // is just where the actual password gets set, same as before.
+        $response = Password::broker()->reset($credentials, function ($user, $password) {
+            $user->password = \Hash::make($password);
+            $user->setRememberToken(Str::random(60));
+            $user->save();
+        });
+
+        if ($response === Password::PASSWORD_RESET) {
             return redirect('/auth/login')->with('status', Lang::get('lang.password-reset-successfully'));
-        } else {
-            return redirect('/home')->with('fails', Lang::get('lang.password-can-not-reset'));
         }
+
+        return redirect('/home')->with('fails', Lang::get('lang.password-can-not-reset'));
     }
 }

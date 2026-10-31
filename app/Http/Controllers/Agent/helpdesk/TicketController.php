@@ -125,7 +125,8 @@ class TicketController extends Controller
             } else {
                 $mobile_number = null;
             }
-            $source = Ticket_source::where('name', '=', 'agent')->first();
+            // API tickets get their own source so "API Calls" workflows can target them
+            $source = Ticket_source::where('name', '=', $api != false ? 'api' : 'agent')->first() ?: Ticket_source::where('name', '=', 'agent')->first();
             $headers = null;
             $help = Help_topic::where('id', '=', $helptopic)->first();
             $form_data = $request->except('name', 'phone', 'email', 'subject', 'body', 'helptopic', '_wysihtml5_mode', '_token', 'mobile', 'code', 'priority', 'attachment', 'first_name', 'last_name', 'sla', 'duedate', 'assignto', 'files'); //added "files" in exception list because some genius has added a new editor 'summernote' to impress his boss and screwed the functional code with his genius ability. Hence to make world capable of handling this genius's work I am adding a shitty workaround for it. After looking for solution everywhere and referring to https://stackoverflow.com/questions/59938588/summernote-adds-files-field-to-post
@@ -161,8 +162,24 @@ class TicketController extends Controller
                     }
                 }
             }
-            //create user
-            $result = $this->create_user($email, $fullname, $subject, $body, $phone, $phonecode, $mobile_number, $helptopic, $sla, $priority, $source->id, $headers, $help->department, $assignto, $form_data, $auto_response, $status, $duedate);
+            //create user, through the workflow engine so "Any", "Agent Panel" and "API Calls" workflows apply
+            $workflow = new TicketWorkflowController($this);
+            $result = $workflow->workflow($email, $fullname, $subject, $body, $phone, $phonecode, $mobile_number, $helptopic, $sla, $priority, $source->id, $headers, $help->department, $assignto, null, $status, $form_data, $auto_response, $duedate);
+            // only API calls are refused for a banned email; the agent panel may still raise the ticket
+            if (!empty($result['banned'])) {
+                if ($api != false) {
+                    return response()->json(['error' => Lang::get('lang.email-is-banned')], 403);
+                }
+
+                return Redirect('newticket')->with('fails', Lang::get('lang.email-is-banned'))->withInput($request->except('password'));
+            }
+            if ($result[0] === false) {
+                if ($api != false) {
+                    return response()->json(['error' => Lang::get('lang.ticket-rejected-by-workflow')], 422);
+                }
+
+                return Redirect('newticket')->with('fails', Lang::get('lang.ticket-rejected-by-workflow'))->withInput($request->except('password'));
+            }
             if ($result[1]) {
                 $status = $this->checkUserVerificationStatus();
                 if ($status == 1) {
@@ -181,11 +198,17 @@ class TicketController extends Controller
                     return Redirect('newticket')->with('success', Lang::get('lang.Ticket-created-successfully2'));
                 }
             } else {
+                // Tell the agent whose mobile it is, so they can use that user's email
+                // (or pick the user from the autocomplete) instead of guessing.
+                $owner = User::where('mobile', $mobile_number)->first();
+                $message = $owner
+                    ? Lang::get('lang.mobile-belongs-to-existing-user', ['name' => trim($owner->first_name.' '.$owner->last_name), 'email' => $owner->email ?: $owner->user_name])
+                    : Lang::get('lang.failed-to-create-user-tcket-as-mobile-has-been-taken');
                 if ($api != false) {
-                    return response()->json(['error' => Lang::get('lang.failed-to-create-user-tcket-as-mobile-has-been-taken')], 500);
+                    return response()->json(['error' => $message], 500);
                 }
 
-                return Redirect('newticket')->with('fails', Lang::get('lang.failed-to-create-user-tcket-as-mobile-has-been-taken'))->withInput($request->except('password'));
+                return Redirect('newticket')->with('fails', $message)->withInput($request->except('password'));
             }
         } catch (Exception $e) {
             if ($api != false) {
@@ -804,7 +827,8 @@ class TicketController extends Controller
                 }
                 $encoded_ticketid = Crypt::encrypt($ticketdata->id);
                 $link = url('check_ticket/'.$encoded_ticketid);
-                if ($source == 3) {
+                // tickets raised by an agent, from the agent panel or the API, get the "created by agent" mail
+                if ($source == 3 || $source == Ticket_source::where('name', '=', 'api')->value('id')) {
                     try {
                         if ($auto_response == 0) {
                             $encoded_ticketid = Crypt::encrypt($ticketdata->id);
@@ -991,7 +1015,8 @@ class TicketController extends Controller
             $find_number = Tickets::where('ticket_number', '=', $new_subject)->first();
             $thread_body = explode('---Reply above this line---', $body);
             $body = $thread_body[0];
-            if ($find_number->count() > 0) {
+            // the [#number] may belong to a deleted ticket or another helpdesk
+            if ($find_number) {
                 $id = $find_number->id;
                 $ticket_number = $find_number->ticket_number;
                 if ($find_number->status > 1) {
@@ -1840,7 +1865,11 @@ class TicketController extends Controller
         if (Input::has('select_all')) {
             $selectall = Input::get('select_all');
             $value = Input::get('submit');
-            foreach ($selectall as $delete) {
+            // Customers may only close/reopen their own tickets; never delete.
+            if (Auth::user()->role === 'user' && !in_array($value, ['Close', 'Open'], true)) {
+                return redirect()->back()->with('fails', 'Unauthorized');
+            }
+            foreach ((array) $selectall as $delete) {
                 $ticket = Tickets::whereId($delete)->first();
                 if (!$ticket) {
                     continue;
@@ -2902,13 +2931,13 @@ class TicketController extends Controller
                                     $due = '&nbsp;<span style="" title="'.Lang::get('lang.is_overdue').'" class="badge text-bg-danger text-xs">'.Lang::get('lang.overdue').'</span>';
                                 } else {
                                     if (date('Ymd', $duedate) == date('Ymd', $now)) {
-                                        $due = '&nbsp;<span style="background-color: rgba(240, 173, 78, 0.67) !important" title="'.Lang::get('lang.going-overdue-today').'" class="label label-warning">'.Lang::get('lang.duetoday').'</span>';
+                                        $due = '&nbsp;<span title="'.Lang::get('lang.going-overdue-today').'" class="badge text-bg-warning text-xs">'.Lang::get('lang.duetoday').'</span>';
                                     }
                                 }
                             }
 
                             $thread_count = '('.$tickets->countthread.')';
-                            if (Lang::getLocale() == 'ar') {
+                            if (isRtl()) {
                                 $thread_count = '&rlm;('.$tickets->countthread.')';
                             }
 

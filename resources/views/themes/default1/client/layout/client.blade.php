@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html dir="{{ app()->getLocale() == 'ar' ? 'rtl' : 'ltr' }}">
+<html dir="{{ isRtl() ? 'rtl' : 'ltr' }}">
     <head>
         <meta charset="UTF-8">
         <?php
@@ -19,7 +19,7 @@
         <!-- Widget CSS -->
         <link href="{{ assetLink('css', 'widget') }}" rel="stylesheet" type="text/css" />
 
-        @if(Lang::getLocale() == 'ar')
+        @if(isRtl())
         <!-- Bootstrap + Client + Common (RTL) -->
         <link href="{{ assetLink('css', 'bootstrap-rtl') }}" rel="stylesheet" type="text/css" />
         <link href="{{ assetLink('css', 'client-rtl') }}" rel="stylesheet" type="text/css" />
@@ -253,17 +253,15 @@
                                         </li>
                                     @endif
                                     <li class="nav-item dropdown">
-                                    <?php $src = Lang::getLocale().'.png'; ?>
                                         <a href="#" class="nav-link" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true"
                                             aria-expanded="false">
-                                            <img src="{{asset("lb-faveo/flags/$src")}}" class="navbar-flag mb-1" alt="language flag" />
+                                            <img src="{{ languageFlag(Lang::getLocale()) }}" class="navbar-flag mb-1" alt="language flag" />
                                         </a>
                                         <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" id="lang_ul">
                                             @foreach($langs as $key => $value)
-                                                <?php $src = $key.".png"; ?>
                                                 <li><a href="#" id="{{$key}}" onclick="changeLang(this.id)" class="lang dropdown-item d-flex align-items-center gap-2">
-                                                    <img src="{{asset("lb-faveo/flags/$src")}}" width="20" height="13" alt="{{$key}} flag" />&nbsp;{{$value[0]}}&nbsp;
-                                            @if(Lang::getLocale() == "ar")
+                                                    <img src="{{ languageFlag($key) }}" width="20" height="13" alt="{{$key}} flag" />&nbsp;{{$value[0]}}&nbsp;
+                                            @if(isRtl())
                                                 &rlm;
                                             @endif
                                                 ({{$value[1]}})</a></li>

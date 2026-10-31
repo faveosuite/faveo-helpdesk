@@ -52,7 +52,7 @@ return [
     'login'                              => 'Login',
     'remember'                           => 'Me lembrar',
     'signmein'                           => 'Inscreva-se',
-    'iforgot'                            => 'Esqueci a senha',
+    'iforgot'                            => 'Esqueceu a senha?',
     'email_address'                      => 'Endereço de E-Mail',
     'password'                           => 'Senha',
     'woops'                              => 'Whoops!',
@@ -458,6 +458,12 @@ return [
     'zipp-error'         => 'Erro no arquivo Zip. Ele deve conter apenas arquivos php.',
     'upload-success'     => 'Carregado com sucesso.',
     'file-error'         => 'Erro no arquivo ou arquivo inválido.',
+    'lang-zip-help'      => 'Selecione um arquivo .zip que contenha os arquivos PHP de idioma (lang.php, auth.php, ...) diretamente, não dentro de uma pasta.',
+    'lang-zip-template'  => 'Baixar o modelo em inglês',
+    'lang-zip-only'      => 'Selecione um arquivo .zip.',
+    'lang-zip-required'  => 'Selecione o arquivo .zip do idioma.',
+    'iso-code-help'      => 'Código de idioma de duas letras, por ex. fa para persa.',
+    'uploading'          => 'Enviando...',
     'delete-success'     => 'Pacote de linguagem deletado com sucesso.',
     'lang-doesnot-exist' => 'Pacote de linguagem não existe.',
     'active-lang-error'  => 'Pacote de linguagem não pode ser excluído quando esta ativo.',
@@ -1370,6 +1376,7 @@ return [
     'error-debug-settings'               => 'Configurações de erro e depuração',
     'debugging'                          => 'Modo de depuração',
     'bugsnag-debugging'                  => 'Enviar relatórios de falha de aplicativos para ajudar Ladybird melhorar Faveo',
+    'sentry-performance'                 => 'Enviar relatórios de desempenho para ajudar Ladybird melhorar Faveo',
     'error-debug-settings-saved-message' => 'Suas configurações de erro e depuração foram salvas com sucesso',
     'error-debug-settings-error-message' => 'Você ainda não fez qualquer mudança nas configurações.',
     'error-logs'                         => 'Logs de erros',
@@ -1558,5 +1565,11 @@ return [
     'session-expired' => 'Sessão expirada ou inválida, tente novamente.',
     //updated 10-10-2023
     'what_should_be_done_with_content_owned_by_this_user' => 'O que deve ser feito com o conteúdo de propriedade deste usuário',
-
+    //updated 27-10-2026
+    'ticket-rejected-by-workflow'                           => 'O ticket não foi criado porque foi rejeitado por uma regra de fluxo de trabalho.',
+    'mobile-belongs-to-existing-user'                       => 'Este número de celular já pertence a :name (:email). Use o e-mail desse usuário ou selecione o usuário nas sugestões de e-mail.',
+    'attachment-too-large'                                  => 'O anexo é muito grande. O tamanho máximo de envio é :size.',
+    'no_results_found'                                      => 'Nenhum resultado encontrado.',
+    'email-is-banned'                                       => 'Este endereço de e-mail foi banido. Entre em contato com o administrador do suporte.',
+    'outline'                                               => 'contorno',
 ];

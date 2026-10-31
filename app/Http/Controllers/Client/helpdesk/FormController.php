@@ -230,9 +230,15 @@ class FormController extends Controller
                     }
                 }
             }
+            if (User::isBannedEmail($email) || (\Auth::check() && \Auth::user()->isBanned())) {
+                return Redirect::back()->withInput($request->except('password'))->with('fails', Lang::get('lang.email-is-banned'));
+            }
             event(new \App\Events\ClientTicketFormPost($form_extras, $email, $source));
             $result = $this->TicketWorkflowController->workflow($email, $name, $subject, $details, $phone, $phonecode, $mobile_number, $helptopic, $sla, $priority, $source, $collaborator, $department, $assignto, $team_assign, $status, $form_extras, $auto_response);
             // dd($result);
+            if (!empty($result['banned'])) {
+                return Redirect::back()->withInput($request->except('password'))->with('fails', Lang::get('lang.email-is-banned'));
+            }
             if ($result[1] == 1) {
                 $ticketId = Tickets::where('ticket_number', '=', $result[0])->first();
                 $thread = Ticket_Thread::where('ticket_id', '=', $ticketId->id)->first();
@@ -292,6 +298,9 @@ class FormController extends Controller
                 $body = $comment;
 
                 $user_cred = User::where('id', '=', $tickets->user_id)->first();
+                if ($user_cred && $user_cred->isBanned()) {
+                    return \Redirect::back()->with('fails1', Lang::get('lang.email-is-banned'));
+                }
 
                 $fromaddress = $user_cred->email;
                 $fromname = $user_cred->user_name;

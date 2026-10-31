@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html dir="{{ app()->getLocale() == 'ar' ? 'rtl' : 'ltr' }}">
+<html dir="{{ isRtl() ? 'rtl' : 'ltr' }}">
 <head>
         <meta charset="UTF-8">
         <title>Faveo | HELP DESK</title>
@@ -8,7 +8,7 @@
         <!-- Favicon -->
         <link href="{{ assetLink('css', 'favicon') }}" rel="shortcut icon">
 
-        @if(Lang::getLocale() == 'ar')
+        @if(isRtl())
         <!-- Bootstrap + AdminLTE + Common (RTL) -->
         <link href="{{ assetLink('css', 'bootstrap-rtl') }}" rel="stylesheet" type="text/css" />
         <link href="{{ assetLink('css', 'adminte-rtl') }}" rel="stylesheet" type="text/css" />
@@ -95,9 +95,46 @@
                 opacity: 0.65;
                 pointer-events: none;
             }
+
+            /* .dropdown-menu-xl is 360-420px wide; dropdown-menu-end right-aligns
+               it to the bell icon near the right edge of the navbar. Below 576px
+               that anchor point has nowhere near 360px of room to its left, so
+               the notification dropdown opened hanging off the LEFT edge of the
+               screen (measured at x = -108 on a 375px viewport) even though its
+               right edge was correctly on-screen. Capping the width to the
+               viewport and re-anchoring to the left edge of the screen (not the
+               toggle) keeps the whole menu reachable without changing anything
+               above 576px, where the original width/anchor still applies. */
+            @media (max-width: 575.98px) {
+                .notifications-menu .dropdown-menu.dropdown-menu-xl {
+                    position: fixed !important;
+                    left: 0.5rem !important;
+                    right: 0.5rem !important;
+                    width: auto !important;
+                    min-width: 0 !important;
+                    max-width: none !important;
+                }
+            }
         </style>
     </head>
-    <body class="layout-fixed sidebar-expand-lg sidebar-mini bg-body-tertiary app-loaded fs-8 sidebar-open">
+    <?php
+    /*
+     * sidebar-open used to be hardcoded here. AdminLTE 4's own CSS, for
+     * sidebar-expand-lg, pushes the sidebar off-canvas (negative margin-left)
+     * below the 991.98px breakpoint UNLESS sidebar-open is also present — and
+     * when it is, a full-viewport .sidebar-overlay (z-index 1037) is drawn on
+     * top of the content too. Baking the class into every server-rendered page
+     * meant every admin screen opened on mobile with the drawer open and the
+     * dim overlay covering the form/table underneath, blocking taps until the
+     * user dismissed it by hand (and the dismissal did not persist across
+     * page loads). Above the breakpoint the sidebar is `position: sticky` and
+     * always visible regardless of this class, so removing it here changes
+     * nothing at desktop width. The hamburger button
+     * (data-lte-toggle="sidebar") still opens/closes it via AdminLTE's own JS,
+     * which toggles the class rather than assuming an initial state.
+     */
+    ?>
+    <body class="layout-fixed sidebar-expand-lg sidebar-mini bg-body-tertiary app-loaded fs-8">
 
         <?php
         $replacetop = 0;
@@ -155,7 +192,16 @@
 
                     <li class="nav-item dropdown notifications-menu" id="myDropdown">
 
-                        <a href="#" class="nav-link" data-bs-toggle="dropdown" onclick="myFunction()">
+                        {{-- data-bs-display="static": without it, Bootstrap's Dropdown
+                             positions this menu with Popper via an inline transform,
+                             which would fight the viewport-width CSS override below
+                             (added for the mobile off-screen-left bug) instead of
+                             leaving it alone. Static display makes Bootstrap skip
+                             Popper and position the menu with plain CSS from
+                             dropdown-menu-end instead — this is the one dropdown on
+                             this page that needs the override, so it's the one that
+                             gets this attribute. --}}
+                        <a href="#" class="nav-link" data-bs-toggle="dropdown" data-bs-display="static" onclick="myFunction()">
 
                             <i class="nav-icon fa-solid fa-bell"></i>
 
@@ -284,20 +330,18 @@
 
                     <li class="nav-item dropdown">
 
-                        <?php $src = Lang::getLocale().'.png'; ?>
 
                         <a href="#" class="nav-link" data-bs-toggle="dropdown" aria-expanded="true">
-                            <img class="mb-1" src="{{asset("lb-faveo/flags/$src")}}" style="height: 12px; width: 20px">
+                            <img class="mb-1" src="{{ languageFlag(Lang::getLocale()) }}" style="height: 12px; width: 20px">
                         </a>
 
                        <div class="dropdown-menu dropdown-menu-sm dropdown-menu-end p-0" style="width: 290px;">
 
                            @foreach($langs as $key => $value)
-                            <?php $src = $key.".png"; ?>
                             <a href="#" class="dropdown-item d-flex align-items-center gap-2" id="{{$key}}" onclick="changeLang(this.id)">
-                                <img src="{{asset("lb-faveo/flags/$src")}}" width="20" height="13" class="me-2">
+                                <img src="{{ languageFlag($key) }}" width="20" height="13" class="me-2">
                                 <span>{{$value[0]}}
-                                @if(Lang::getLocale() == "ar")
+                                @if(isRtl())
                                 &rlm;
                                 @endif
                                 ({{$value[1]}})</span>

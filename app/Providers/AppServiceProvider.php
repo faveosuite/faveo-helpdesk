@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Model\Update\BarNotification;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -39,6 +40,8 @@ class AppServiceProvider extends ServiceProvider
             loging('Failed Job - '.$event->connectionName, json_encode([$event->job->payload(), 'error' => $event->exception->getMessage().' file=>'.$event->exception->getFile().' line=>'.$event->exception->getLine()]));
         });
         Route::singularResourceParameters(false);
+        // the app is styled with Bootstrap 5; Laravel's default Tailwind pagination renders unstyled
+        Paginator::useBootstrapFive();
         $this->composer();
         URL::forceScheme('https');
 

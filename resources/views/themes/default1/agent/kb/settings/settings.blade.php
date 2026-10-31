@@ -17,6 +17,10 @@ class="nav-link active"
 class="nav-link active"
 @stop
 
+@section('PageHeader')
+<h3>{{Lang::get('lang.settings')}}</h3>
+@stop
+
 @section('content')
 <!-- open a form -->
 {!! html()->modelForm($settings, 'PATCH', url('postsettings/'.$settings->id))->acceptsFiles()->open() !!}
@@ -24,7 +28,7 @@ class="nav-link active"
 <!-- check whether success or not -->
 @if(Session::has('success'))
 <div class="alert alert-success alert-dismissible">
-    <i class="fa  fa-circle-check"></i>
+    <i class="fa-solid fa-circle-check"></i>
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('success')}}
 </div>
@@ -33,7 +37,7 @@ class="nav-link active"
 @if(Session::has('fails'))
 <div class="alert alert-danger alert-dismissible">
     <i class="fa-solid fa-ban"></i>
-    <b>{!! lang::get('lang.alert') !!}!</b>
+    <b>{!! Lang::get('lang.alert') !!}!</b>
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {{Session::get('fails')}}
 </div>
@@ -69,4 +73,5 @@ class="nav-link active"
         {!! html()->submit(Lang::get('lang.submit'))->class('btn btn-primary') !!}
     </div>
 </div>
+{!! html()->closeModelForm() !!}
 @stop
