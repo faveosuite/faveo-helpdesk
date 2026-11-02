@@ -1577,4 +1577,8 @@ return [
     'no_results_found'                                      => 'Nenhum resultado encontrado.',
     'email-is-banned'                                       => 'Este endereço de e-mail foi banido. Entre em contato com o administrador do suporte.',
     'outline'                                               => 'contorno',
+    'choose_file'                                           => 'Escolher ficheiro',
+    'choose_files'                                          => 'Escolher ficheiros',
+    'no_file_chosen'                                        => 'Nenhum ficheiro selecionado',
+    'files_chosen'                                          => ':count ficheiros selecionados',
 ];

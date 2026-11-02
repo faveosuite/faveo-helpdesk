@@ -318,11 +318,12 @@ class UserController extends Controller
         Config::set(['mail.password' => $setting->password, 'mail.sendmail' => $setting->email]);
     }
 
-    public function getCategoryList(Article $article, Category $category, Relationship $relation)
+    public function getCategoryList(Article $article, Category $category, Relationship $relation, Settings $settings)
     {
-        //$categorys = $category->get();
-        $categorys = $category->get();
-        // $categorys->setPath('home');
+        // Paginated like the article list, using the same KB "number of elements to display"
+        // setting; ordered by id so every category appears on exactly one page.
+        $perPage = (int) optional($settings->first())->pagination;
+        $categorys = $category->orderBy('id')->paginate($perPage > 0 ? $perPage : 10);
         /* direct to view with $article_id */
         $page = Relationship::where('category_id', '=', $category->id)->get();
         /* from whole attribute pick the article_id */

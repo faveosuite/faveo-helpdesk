@@ -126,7 +126,7 @@ class WorkflowController extends Controller
                         })
                         /* add column action */
                         ->addColumn('Actions', function ($model) {
-                            return "<a class='btn btn-primary btn-xs' href='".route('workflow.edit', $model->id)."'><i class='fas fa-edit'></i> Edit</a>  <a class='btn btn-danger btn-xs' href='".route('workflow.delete', $model->id)."'><i class='fas fa-trash'></i> Delete</a>";
+                            return "<a class='btn btn-primary btn-xs' href='".route('workflow.edit', $model->id)."'><i class='fas fa-edit'></i> ".Lang::get('lang.edit')."</a>  <a class='btn btn-danger btn-xs' href='".route('workflow.delete', $model->id)."'><i class='fas fa-trash'></i> ".Lang::get('lang.delete').'</a>';
                         })
                         ->rawColumns(['status', 'Actions'])
                         ->make(true);

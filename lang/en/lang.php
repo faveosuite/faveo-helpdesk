@@ -1710,5 +1710,8 @@ return [
     'operation'                                            => ' Operation',
     'successfully_saved'                                   => 'Successfully saved',
     'due_date_updated_successfully'                        => 'Due date has been changed successfully.',
-
+    'choose_file'                                           => 'Choose file',
+    'choose_files'                                          => 'Choose files',
+    'no_file_chosen'                                        => 'No file chosen',
+    'files_chosen'                                          => ':count files chosen',
 ];

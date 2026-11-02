@@ -114,7 +114,10 @@
 
 		{!! html()->label(Lang::get('lang.profile_pic'), 'profile_pic') !!}
 		{!! $errors->first('profile_pic', '<spam class="help-block">:message</spam>') !!}
-		{!! html()->file('profile_pic') !!}
+		<div>
+		{!! html()->file('profile_pic')->id('profile_pic')->class('visually-hidden') !!}
+		@include('themes.default1.common.file-input-label', ['for' => 'profile_pic'])
+		</div>
 
 	</div>
 

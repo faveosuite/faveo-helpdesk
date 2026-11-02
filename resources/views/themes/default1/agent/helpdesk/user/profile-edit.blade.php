@@ -132,7 +132,10 @@
 
                     <div class="mb-3 mb-3 {{ $errors->has('profile_pic') ? 'has-error' : '' }}">
                         {!! html()->label(Lang::get('lang.profile_pic'), 'profile_pic') !!}
-                        {!! html()->file('profile_pic')->class('form-control')->id('profile_pic_input') !!}
+                        <div>
+                        {!! html()->file('profile_pic')->class('visually-hidden')->id('profile_pic_input') !!}
+                        @include('themes.default1.common.file-input-label', ['for' => 'profile_pic_input'])
+                        </div>
                         <small class="text-muted">JPG, PNG or GIF. Max 2MB.</small>
                     </div>
 

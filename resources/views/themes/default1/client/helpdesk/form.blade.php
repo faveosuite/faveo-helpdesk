@@ -219,7 +219,8 @@ class = "nav-item active"
                             @endif
                         </div>
                         <div class="col-md-12 mb-3">
-                            <input type="file" name="attachment[]" id="attachment" multiple data-max-bytes="{{ $max_size_in_bytes }}"/><br/>
+                            <input type="file" name="attachment[]" id="attachment" class="visually-hidden" multiple data-max-bytes="{{ $max_size_in_bytes }}"/>
+                            @include('themes.default1.common.file-input-label', ['for' => 'attachment', 'multiple' => true])<br/>
                             {!! Lang::get('lang.max') !!}. {!! $max_size_in_actual !!}
                             {{-- shown by the size check below, so a too large upload is refused before it is sent --}}
                             <div id="attachment-too-large" class="text-danger" style="display: none;">{{ Lang::get('lang.attachment-too-large', ['size' => $max_size_in_actual]) }}</div>

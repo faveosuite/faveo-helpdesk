@@ -692,6 +692,26 @@
         <script src="{{ assetLink('js', 'datatables') }}" type="text/javascript"></script>
 
         <script src="{{ assetLink('js', 'datatables-bootstrap') }}" type="text/javascript"></script>
+        {{-- Translate every DataTable once (info, search, length menu, empty/loading text). Most tables
+             set no language of their own and fell back to DataTables' built-in English; a table that
+             passes its own oLanguage still overrides these per key.
+             The pager keeps the global look (« ‹ 1 2 › », same as vendor/pagination/datatables and the
+             ticket list): the buttons stay symbols, and the translated First/Previous/Next/Last words
+             become their screen-reader labels instead of replacing the symbols. --}}
+        <script>
+            (function () {
+                if (!$.fn.dataTable) {
+                    return;
+                }
+                var lang = @json(Lang::get('datatables'));
+                var words = lang.oPaginate || {};
+                lang.oPaginate = { sFirst: '\u00AB', sPrevious: '\u2039', sNext: '\u203A', sLast: '\u00BB' };
+                lang.oAria = $.extend({}, lang.oAria, {
+                    paginate: { first: words.sFirst, previous: words.sPrevious, next: words.sNext, last: words.sLast }
+                });
+                $.extend(true, $.fn.dataTable.defaults, { oLanguage: lang });
+            })();
+        </script>
 
         <script src="{{ assetLink('js', 'jquery-rating') }}" type="text/javascript"></script>
 

@@ -1618,4 +1618,8 @@ return [
     'no_results_found'                                      => 'Nessun risultato trovato.',
     'email-is-banned'                                       => 'Questo indirizzo email è stato bloccato. Contatta l\'amministratore dell\'helpdesk.',
     'outline'                                               => 'contorno',
+    'choose_file'                                           => 'Scegli file',
+    'choose_files'                                          => 'Scegli file',
+    'no_file_chosen'                                        => 'Nessun file selezionato',
+    'files_chosen'                                          => ':count file selezionati',
 ];

@@ -1734,4 +1734,8 @@ return [
     'no_results_found'                                      => '未找到结果。',
     'email-is-banned'                                       => '此电子邮件地址已被封禁。请联系服务台管理员。',
     'outline'                                               => '线框',
+    'choose_file'                                           => '选择文件',
+    'choose_files'                                          => '选择文件',
+    'no_file_chosen'                                        => '未选择任何文件',
+    'files_chosen'                                          => '已选择 :count 个文件',
 ];

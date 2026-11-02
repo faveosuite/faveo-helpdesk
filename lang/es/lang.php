@@ -1689,4 +1689,8 @@ Puede ingresar el número de días de registros de base de datos que se eliminar
     'no_results_found'                                      => 'No se encontraron resultados.',
     'email-is-banned'                                       => 'Esta dirección de correo electrónico ha sido bloqueada. Póngase en contacto con el administrador del servicio de asistencia.',
     'outline'                                               => 'contorno',
+    'choose_file'                                           => 'Elegir archivo',
+    'choose_files'                                          => 'Elegir archivos',
+    'no_file_chosen'                                        => 'Ningún archivo seleccionado',
+    'files_chosen'                                          => ':count archivos seleccionados',
 ];

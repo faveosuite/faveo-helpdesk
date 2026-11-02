@@ -1181,4 +1181,8 @@ return [
     'delete_all_notifications'                              => 'Alle löschen',
     'delete_all_notifications_confirm'                      => 'Alle Benachrichtigungen löschen? Dies kann nicht rückgängig gemacht werden.',
     'all_notifications_deleted'                             => 'Alle Benachrichtigungen wurden gelöscht.',
+    'choose_file'                                           => 'Datei auswählen',
+    'choose_files'                                          => 'Dateien auswählen',
+    'no_file_chosen'                                        => 'Keine Datei ausgewählt',
+    'files_chosen'                                          => ':count Dateien ausgewählt',
 ];

@@ -1633,4 +1633,8 @@ return [
     'no_results_found'                                      => 'Geen resultaten gevonden.',
     'email-is-banned'                                       => 'Dit e-mailadres is geblokkeerd. Neem contact op met de helpdeskbeheerder.',
     'outline'                                               => 'omlijning',
+    'choose_file'                                           => 'Bestand kiezen',
+    'choose_files'                                          => 'Bestanden kiezen',
+    'no_file_chosen'                                        => 'Geen bestand gekozen',
+    'files_chosen'                                          => ':count bestanden gekozen',
 ];

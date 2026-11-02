@@ -152,7 +152,10 @@ class="nav-item active"
                                     <!-- profile pic -->
                                     {!! html()->label(Lang::get('lang.profile_pic'), 'profile_pic') !!}
 
-                                    {!! html()->file('profile_pic') !!}
+                                    <div>
+                                    {!! html()->file('profile_pic')->id('profile_pic')->class('visually-hidden') !!}
+                                    @include('themes.default1.common.file-input-label', ['for' => 'profile_pic'])
+                                    </div>
                                 </div>
 
                                 {!! html()->token() !!}
@@ -184,22 +187,44 @@ class="nav-item active"
 
                             <div>
                                  {!! html()->label(Lang::get('lang.old_password'), 'old_password') !!}<span class="text-red"> *</span>
-                                <div class="mb-3 has-feedback {{ $errors->has('old_password') ? 'has-error' : '' }}" style="display: -webkit-box;">
-                                    {!! html()->password('old_password')->class('form-control') !!}
-                                    <span class="fa-solid fa-lock form-control-feedback" style="top: 9px;left: -25px;color: #6c757d !important;"></span> <!--change the "glyphicon glyphicon-lock form-control-feedback" to "fa-solid fa-lock form-control-feedback" bcoz bs5 has removed the Glyphicons icon font that was included in earlier versions of Bootstrap-->
+                                <div class="mb-3 {{ $errors->has('old_password') ? 'has-error' : '' }}">
+                                    <div class="input-group">
+                                        {!! html()->password('old_password')->class('form-control')->id('old_password') !!}
+                                        <button class="input-group-text" type="button" onclick="togglePwd('old_password', this)" tabindex="-1">
+                                            <i class="fa-solid fa-eye-slash"></i>
+                                        </button>
+                                    </div>
                                 </div>
                                 <!-- new password -->
                                   {!! html()->label(Lang::get('lang.new_password'), 'new_password') !!}<span class="text-red"> *</span>
-                                <div class="mb-3 has-feedback {{ $errors->has('new_password') ? 'has-error' : '' }}" style="display: -webkit-box;">
-                                    {!! html()->password('new_password')->class('form-control') !!}
-                                    <span class="fa-solid fa-lock form-control-feedback" style="top: 9px;left: -25px;color: #6c757d !important;"></span>
+                                <div class="mb-3 {{ $errors->has('new_password') ? 'has-error' : '' }}">
+                                    <div class="input-group">
+                                        {!! html()->password('new_password')->class('form-control')->id('new_password') !!}
+                                        <button class="input-group-text" type="button" onclick="togglePwd('new_password', this)" tabindex="-1">
+                                            <i class="fa-solid fa-eye-slash"></i>
+                                        </button>
+                                    </div>
                                 </div>
                                 <!-- cofirm password -->
                                  {!! html()->label(Lang::get('lang.confirm_password'), 'confirm_password') !!}<span class="text-red"> *</span>
-                                <div class="mb-3 has-feedback {{ $errors->has('confirm_password') ? 'has-error' : '' }}" style="display: -webkit-box;">
-                                    {!! html()->password('confirm_password')->class('form-control') !!}
-                                    <span class="fa-solid fa-lock form-control-feedback" style="top: 9px;left: -25px;color: #6c757d !important;"></span>
+                                <div class="mb-3 {{ $errors->has('confirm_password') ? 'has-error' : '' }}">
+                                    <div class="input-group">
+                                        {!! html()->password('confirm_password')->class('form-control')->id('confirm_password') !!}
+                                        <button class="input-group-text" type="button" onclick="togglePwd('confirm_password', this)" tabindex="-1">
+                                            <i class="fa-solid fa-eye-slash"></i>
+                                        </button>
+                                    </div>
                                 </div>
+                                <script>
+                                    // show/hide the typed password; the eye icon tracks the current state
+                                    function togglePwd(id, btn) {
+                                        var input = document.getElementById(id);
+                                        var icon = btn.querySelector('i');
+                                        var show = input.type === 'password';
+                                        input.type = show ? 'text' : 'password';
+                                        icon.className = show ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
+                                    }
+                                </script>
 
                                 {!! html()->closeModelForm() !!}
 
