@@ -1288,6 +1288,10 @@ return [
     'del_all_read'                                => 'Удалить все прочитанное',
     'You_have_deleted_all_the_read_notifications' => 'Вы удалили все прочитанные уведомления',
     'view_all_notifications'                      => 'Посмотреть все уведомления',
+    'mark_all_as_read'                            => 'Отметить все как прочитанные',
+    'delete_all_notifications'                    => 'Удалить все',
+    'delete_all_notifications_confirm'            => 'Удалить все уведомления? Это действие нельзя отменить.',
+    'all_notifications_deleted'                   => 'Все уведомления удалены.',
     /*
       |------------------------------------------------
       |   Error Pages

@@ -251,7 +251,7 @@
 
                             <i class="nav-icon  fa-solid fa-bell"></i>
 
-                            <span class="badge bg-warning text-dark navbar-badge" id="count">{!! $notifications->count() !!}</span>
+                            <span class="badge bg-warning text-dark navbar-badge" id="noti-count">{!! $unread_notifications !!}</span>
                         </a>
 
                         <div class="dropdown-menu dropdown-menu-xl dropdown-menu-end">
@@ -274,6 +274,8 @@
 
                                 @if($notifications->count())
                                 @foreach($notifications->orderBy('created_at', 'desc')->get()->take(10) as $notification)
+                                {{-- skip notifications whose notification/type row is missing (prevents null property errors) --}}
+                                @if(!$notification->notification || !$notification->notification->type) @continue @endif
                                 @if($notification->notification->type->type == 'registration')
                                 @if($notification->is_read == 1)
 
@@ -306,7 +308,7 @@
                                 </li>
                                 @endif
                                 @else
-                                @if($notification->is_read == 1)
+                                @if($notification->notification->model && $notification->is_read == 1)
 
                                 <li class="item task d-flex align-items-center gap-2">
                                     <div class="product-img flex-shrink-0">
@@ -728,27 +730,35 @@
                     });
             });
             });
-                    $('#read-all').click(function () {
-
+                    $('#read-all').click(function (e) {
+                    e.preventDefault();
+                    var $link = $(this);
+                    if ($link.hasClass('disabled')) { return; }   // ignore repeat clicks while running
+                    $('#noti-count').text('0');   // clear the badge immediately on the user's intent; the request below persists it
+                    var originalText = $link.text();
             var id2 = <?php echo $auth_user_id ?>;
-                    var dataString = 'id=' + id2;
                     $.ajax
                     ({
                     type: "POST",
                             url: "{{url('mark-all-read')}}" + "/" + id2,
-                            data: dataString,
+                            data: { id: id2 },
                             cache: false,
                             beforeSend: function () {
-                            $('#myDropdown').on('hide.bs.dropdown', function () {
-                            return false;
-                            });
-                                    $("#refreshNote").hide();
+                                    // feedback at the top, next to the link, where the user is looking
+                                    $link.addClass('disabled').css('pointer-events', 'none').text('Marking...');
                                     $("#notification-loader").show();
                             },
-                            success: function (response) {
-                            $("#refreshNote").load("{{ request()->getRequestUri() }}  #refreshNote");
+                            complete: function (xhr) {
+                                    // update the unread badge whenever the server accepted the request
+                                    // (any 2xx), so it works regardless of how jQuery routed the response
+                                    if (xhr && xhr.status >= 200 && xhr.status < 300) {
+                                            var unread = (xhr.responseJSON && typeof xhr.responseJSON.unread !== 'undefined')
+                                                ? xhr.responseJSON.unread : 0;
+                                            $('#noti-count').text(unread);
+                                    }
+                                    // always restore the link and hide the loader, even on error
+                                    $link.removeClass('disabled').css('pointer-events', '').text(originalText);
                                     $("#notification-loader").hide();
-                                    $('#myDropdown').removeClass('show');
                             }
                     });
             });</script>

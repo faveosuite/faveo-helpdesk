@@ -1243,6 +1243,10 @@ return [
     'del_all_read'                                => 'Supprimer Lu',
     'You_have_deleted_all_the_read_notifications' => 'Vous avez supprimé toutes les notifications lues',
     'view_all_notifications'                      => 'Voir toutes les notifications',
+    'mark_all_as_read'                            => 'Tout marquer comme lu',
+    'delete_all_notifications'                    => 'Tout supprimer',
+    'delete_all_notifications_confirm'            => 'Supprimer toutes les notifications ? Cette action est irréversible.',
+    'all_notifications_deleted'                   => 'Toutes les notifications ont été supprimées.',
     /*
       |------------------------------------------------
       |   Error Pages

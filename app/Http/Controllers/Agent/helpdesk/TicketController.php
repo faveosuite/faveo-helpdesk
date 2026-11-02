@@ -1404,6 +1404,14 @@ class TicketController extends Controller
                     $ticket_attachment->delete();
                 }
             }
+            // remove the ticket's in-app notifications too, otherwise they are left
+            // pointing at a ticket that no longer exists and crash the notification
+            // widget with "Attempt to read property ticket_number on null".
+            $ticketNotifications = Notification::where('model_id', '=', $id)->pluck('id')->all();
+            if ($ticketNotifications) {
+                UserNotification::whereIn('notification_id', $ticketNotifications)->delete();
+                Notification::whereIn('id', $ticketNotifications)->delete();
+            }
             $data = [
                 'id'         => $ticket_delete->ticket_number,
                 'status'     => 'Deleted',

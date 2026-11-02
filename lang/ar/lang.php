@@ -1312,6 +1312,10 @@ ed'                                         => 'تعذر إدراج الفئة',
     'del_all_read'                                => 'حذف الكل المقروء',
     'You_have_deleted_all_the_read_notifications' => 'لقد حذفت جميع الإشعارات المقروءة',
     'view_all_notifications'                      => 'عرض جميع الإشعارات',
+    'mark_all_as_read'                            => 'تعيين الكل كمقروء',
+    'delete_all_notifications'                    => 'حذف الكل',
+    'delete_all_notifications_confirm'            => 'حذف جميع الإشعارات؟ لا يمكن التراجع عن هذا الإجراء.',
+    'all_notifications_deleted'                   => 'تم حذف جميع الإشعارات.',
 
     /*
   |------------------------------------------------

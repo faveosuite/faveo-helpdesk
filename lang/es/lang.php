@@ -1299,6 +1299,10 @@ Puede ingresar el número de días de registros de base de datos que se eliminar
     'del_all_read'                                => 'Borrar todo leído',
     'You_have_deleted_all_the_read_notifications' => 'Has eliminado todas las notificaciones de lectura',
     'view_all_notifications'                      => 'Ver todas las notificaciones',
+    'mark_all_as_read'                            => 'Marcar todo como leído',
+    'delete_all_notifications'                    => 'Eliminar todo',
+    'delete_all_notifications_confirm'            => '¿Eliminar todas las notificaciones? Esta acción no se puede deshacer.',
+    'all_notifications_deleted'                   => 'Todas las notificaciones han sido eliminadas.',
     /*
       |------------------------------------------------
       |   Páginas de error

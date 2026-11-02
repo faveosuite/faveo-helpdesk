@@ -1237,6 +1237,10 @@ return [
     'del_all_read'                                => 'Excluir todos lidos',
     'You_have_deleted_all_the_read_notifications' => 'Você excluiu todas as notificações lidas',
     'view_all_notifications'                      => 'Visualizar todas as notificações',
+    'mark_all_as_read'                            => 'Marcar tudo como lido',
+    'delete_all_notifications'                    => 'Excluir tudo',
+    'delete_all_notifications_confirm'            => 'Excluir todas as notificações? Esta ação não pode ser desfeita.',
+    'all_notifications_deleted'                   => 'Todas as notificações foram excluídas.',
     /*
       |------------------------------------------------
       |   Error Pages

@@ -58,6 +58,8 @@ class AgentLayout
             // the saved settings row; the injected model is an empty instance, which left the footer name blank
             'company'            => $this->company->find(1) ?? $this->company,
             'notifications'      => $notifications,
+            // unread-only count for the bell badge; the total never drops on "mark all as read"
+            'unread_notifications' => \App\Model\helpdesk\Notification\UserNotification::where('user_id', \Auth::id())->where('is_read', 0)->count(),
             'myticket'           => $this->myTicket(),
             'unassigned'         => $this->unassigned(),
             'followup_ticket'    => $this->followupTicket(),

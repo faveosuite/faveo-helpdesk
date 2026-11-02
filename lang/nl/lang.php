@@ -1300,6 +1300,10 @@ return [
     'del_all_read'                                => 'Verwijder alle gelezen',
     'You_have_deleted_all_the_read_notifications' => 'Je hebt alle gelezen meldingen verwijderd',
     'view_all_notifications'                      => 'Bekijk alle meldingen',
+    'mark_all_as_read'                            => 'Alles als gelezen markeren',
+    'delete_all_notifications'                    => 'Alles verwijderen',
+    'delete_all_notifications_confirm'            => 'Alle meldingen verwijderen? Dit kan niet ongedaan worden gemaakt.',
+    'all_notifications_deleted'                   => 'Alle meldingen zijn verwijderd.',
     /*
       |------------------------------------------------
       |   Error Pages

@@ -1286,6 +1286,10 @@ return [
     'del_all_read'                                => 'Cancella',
     'You_have_deleted_all_the_read_notifications' => 'Hai cancellato tutte le notifiche lette',
     'view_all_notifications'                      => 'Visualizza tutte le notifiche',
+    'mark_all_as_read'                            => 'Segna tutto come letto',
+    'delete_all_notifications'                    => 'Elimina tutto',
+    'delete_all_notifications_confirm'            => 'Eliminare tutte le notifiche? L\'operazione non può essere annullata.',
+    'all_notifications_deleted'                   => 'Tutte le notifiche sono state eliminate.',
     /*
       |------------------------------------------------
       |   Error Pages

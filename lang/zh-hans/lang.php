@@ -1276,6 +1276,10 @@ return [
     'del_all_read'                                => '删除所有已读的',
     'You_have_deleted_all_the_read_notifications' => '您已经删除了所有读取的通知',
     'view_all_notifications'                      => '查看所有通知',
+    'mark_all_as_read'                            => '全部标记为已读',
+    'delete_all_notifications'                    => '全部删除',
+    'delete_all_notifications_confirm'            => '删除所有通知？此操作无法撤销。',
+    'all_notifications_deleted'                   => '所有通知已删除。',
     /*
       |------------------------------------------------
       |   Error Pages
