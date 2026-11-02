@@ -60,16 +60,16 @@ class AgentLayout
             'notifications'      => $notifications,
             // unread-only count for the bell badge; the total never drops on "mark all as read"
             'unread_notifications' => \App\Model\helpdesk\Notification\UserNotification::where('user_id', \Auth::id())->where('is_read', 0)->count(),
-            'myticket'           => $this->myTicket(),
-            'unassigned'         => $this->unassigned(),
-            'followup_ticket'    => $this->followupTicket(),
-            'deleted'            => $this->deleted(),
-            'tickets'            => $this->inbox(),
-            'department'         => $this->departments(),
-            'overdues'           => $this->overdues(),
-            'due_today'          => $this->getDueToday(),
-            'is_mail_conigured'  => $this->getEmailConfig(),
-            'dummy_installation' => $this->getDummyDataInstallation(),
+            'myticket'             => $this->myTicket(),
+            'unassigned'           => $this->unassigned(),
+            'followup_ticket'      => $this->followupTicket(),
+            'deleted'              => $this->deleted(),
+            'tickets'              => $this->inbox(),
+            'department'           => $this->departments(),
+            'overdues'             => $this->overdues(),
+            'due_today'            => $this->getDueToday(),
+            'is_mail_conigured'    => $this->getEmailConfig(),
+            'dummy_installation'   => $this->getDummyDataInstallation(),
         ]);
     }
 
