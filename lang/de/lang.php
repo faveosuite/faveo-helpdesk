@@ -1177,8 +1177,8 @@ return [
     'no_results_found'                                      => 'Keine Ergebnisse gefunden.',
     'email-is-banned'                                       => 'Diese E-Mail-Adresse wurde gesperrt. Bitte wenden Sie sich an den Helpdesk-Administrator.',
     'outline'                                               => 'Kontur',
-    'mark_all_as_read'                            => 'Alle als gelesen markieren',
-    'delete_all_notifications'                    => 'Alle löschen',
-    'delete_all_notifications_confirm'            => 'Alle Benachrichtigungen löschen? Dies kann nicht rückgängig gemacht werden.',
-    'all_notifications_deleted'                   => 'Alle Benachrichtigungen wurden gelöscht.',
+    'mark_all_as_read'                                      => 'Alle als gelesen markieren',
+    'delete_all_notifications'                              => 'Alle löschen',
+    'delete_all_notifications_confirm'                      => 'Alle Benachrichtigungen löschen? Dies kann nicht rückgängig gemacht werden.',
+    'all_notifications_deleted'                             => 'Alle Benachrichtigungen wurden gelöscht.',
 ];
