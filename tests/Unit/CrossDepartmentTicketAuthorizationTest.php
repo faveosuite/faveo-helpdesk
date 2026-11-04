@@ -403,7 +403,7 @@ class CrossDepartmentTicketAuthorizationTest extends TestCase
     /**
      * One foreign id smuggled into an otherwise-allowed list must not delete
      * anything. (The 'exists' rule currently rejects a comma list before the
-     * access check is reached, so this asserts the outcome, not the status.)
+     * access check is reached, so this asserts the outcome, not the status.).
      */
     public function test_api_bulk_delete_containing_a_foreign_ticket_changes_nothing()
     {
