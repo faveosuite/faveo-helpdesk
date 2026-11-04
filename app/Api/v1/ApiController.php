@@ -340,6 +340,10 @@ class ApiController extends Controller
 
                 return response()->json(compact('error'));
             }
+            // TicketController::reply() does no access check of its own
+            if (!$this->accessibleTicket($this->authenticatedApiUser(), $this->request->input('ticket_id'))) {
+                return $this->forbidden();
+            }
             $attach = $this->request->input('attachments');
             $result = $this->ticket->reply($this->thread, $this->request, $this->attach, $attach);
             $result = $result->join('users', 'ticket_thread.user_id', '=', 'users.id')
@@ -419,8 +423,17 @@ class ApiController extends Controller
                 return response()->json(compact('error'));
             }
             $id = $this->request->input('ticket_id');
+            $ids = explode(',', $id);
+            // TicketController::delete() does no access check of its own. Refuse the
+            // whole request if any id is out of reach, rather than deleting the rest.
+            $user = $this->authenticatedApiUser();
+            foreach ($ids as $ticketId) {
+                if (!$this->accessibleTicket($user, $ticketId)) {
+                    return $this->forbidden();
+                }
+            }
 
-            $result = $this->ticket->delete(explode(',', $id), $this->model);
+            $result = $this->ticket->delete($ids, $this->model);
 
             return response()->json(compact('result'));
         } catch (\Exception $e) {
@@ -656,6 +669,10 @@ class ApiController extends Controller
                 return response()->json(compact('error'));
             }
             $id = $this->request->input('ticket_id');
+            // TicketController::assign() does no access check of its own
+            if (!$this->accessibleTicket($this->authenticatedApiUser(), $id)) {
+                return $this->forbidden();
+            }
             $response = $this->ticket->assign($id);
             if ($response == 1) {
                 $result = 'success';

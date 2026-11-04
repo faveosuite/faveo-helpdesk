@@ -333,8 +333,13 @@ class TicketController extends Controller
      */
     public function reply(Ticket_Thread $thread, Request $request, Ticket_attachments $ta, $mail = true, $system_reply = true, $user_id = '')
     {
-        $ticket_id = $request->input('ticket_id');
-        if ($ticket_id && !$this->authorizeTicketAccess($ticket_id)) {
+        // Authorize the id this method actually acts on. The agent reply form posts
+        // ticket_ID, and everything below reads ticket_ID; checking the lowercase
+        // ticket_id instead let a normal request skip the check entirely, and let a
+        // forged one pass it with one ticket while writing to another. Fail closed
+        // when the id is missing.
+        $ticket_id = $request->input('ticket_ID');
+        if (!$ticket_id || !$this->authorizeTicketAccess($ticket_id)) {
             return response('Unauthorized', 403);
         }
         event('reply.request', [$request]);
@@ -1234,11 +1239,10 @@ class TicketController extends Controller
      */
     public function close($id, Tickets $ticket)
     {
-        $ticket = Tickets::where('id', '=', $id)->first();
         if (Auth::user()->role == 'user') {
             $ticket_status = $ticket->where('id', '=', $id)->where('user_id', '=', Auth::user()->id)->first();
-        } else {
-            $ticket_status = $ticket->where('id', '=', $id)->first();
+        } elseif (!$ticket_status = $this->authorizeTicketAccess($id)) {
+            return response('Unauthorized', 403);
         }
         // checking for unautherised access attempt on other than owner ticket id
         if ($ticket_status == null) {
@@ -1300,8 +1304,8 @@ class TicketController extends Controller
     {
         if (Auth::user()->role == 'user') {
             $ticket_status = $ticket->where('id', '=', $id)->where('user_id', '=', Auth::user()->id)->first();
-        } else {
-            $ticket_status = $ticket->where('id', '=', $id)->first();
+        } elseif (!$ticket_status = $this->authorizeTicketAccess($id)) {
+            return response('Unauthorized', 403);
         }
         // checking for unautherised access attempt on other than owner ticket id
         if ($ticket_status == null) {
@@ -1346,8 +1350,8 @@ class TicketController extends Controller
     {
         if (Auth::user()->role == 'user') {
             $ticket_status = $ticket->where('id', '=', $id)->where('user_id', '=', Auth::user()->id)->first();
-        } else {
-            $ticket_status = $ticket->where('id', '=', $id)->first();
+        } elseif (!$ticket_status = $this->authorizeTicketAccess($id)) {
+            return response('Unauthorized', 403);
         }
         // checking for unautherised access attempt on other than owner ticket id
         if ($ticket_status == null) {
@@ -1584,7 +1588,10 @@ class TicketController extends Controller
      */
     public function surrender($id)
     {
-        $ticket = Tickets::where('id', '=', $id)->first();
+        $ticket = $this->authorizeTicketAccess($id);
+        if (!$ticket) {
+            return response('Unauthorized', 403);
+        }
         $InternalContent = Auth::user()->first_name.' '.Auth::user()->last_name.' has Surrendered the assigned Ticket';
         $thread = Ticket_Thread::where('ticket_id', '=', $id)->first();
         $NewThread = new Ticket_Thread();
@@ -1882,13 +1889,16 @@ class TicketController extends Controller
                 if (!$ticket) {
                     continue;
                 }
-                // Users may only act on their own tickets; admins and agents are
-                // unrestricted here.
+                // Users may only act on their own tickets. Agents only on tickets
+                // in their department or assigned to them - 'Delete forever' below
+                // runs inline, not through delete(), so it needs the check here.
                 $role = Auth::user()->role;
                 if ($role === 'user' && $ticket->user_id != Auth::user()->id) {
                     continue;
                 }
-                // admin role: no restriction
+                if ($role !== 'user' && !$this->authorizeTicketAccess($delete)) {
+                    continue;
+                }
                 if ($value == 'Delete') {
                     $this->delete($delete, new Tickets());
                 } elseif ($value == 'Close') {

@@ -158,6 +158,8 @@ class TicketControllerTest extends TestCase
             // (routes/web.php:302), so a 'user' role is redirected before the
             // controller runs and no 'success' flash is ever set.
             'role'         => 'agent',
+            // Bulk actions are department-scoped: the ticket below is in dept 1.
+            'primary_dpt'  => 1,
         ]);
         $user->save();
 
