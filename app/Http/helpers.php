@@ -133,6 +133,50 @@ function isInstall()
     return $check;
 }
 
+/**
+ * Whether $lang is a language the system can actually serve: listed in
+ * config/languages.php and shipped as a folder under lang/.
+ *
+ * @param mixed $lang
+ *
+ * @return bool
+ */
+function isValidLanguage($lang)
+{
+    return is_string($lang) && $lang !== ''
+        && array_key_exists($lang, \Config::get('languages', []))
+        && is_dir(base_path('lang'.DIRECTORY_SEPARATOR.$lang));
+}
+
+/**
+ * The system (admin chosen) language.
+ *
+ * settings_system.content is the source of truth; the 'language' cache key is
+ * only a fast copy of it. When the cache is empty (cache:clear, driver switch,
+ * redis restart) the value is read back from the database and re-cached, so
+ * the system language is never silently lost. Safe to call outside a web
+ * request (queues, cron), where no middleware has warmed the cache.
+ *
+ * @return string '' when nothing valid is configured (caller falls back)
+ */
+function systemLanguage()
+{
+    $lang = \Cache::get('language');
+    if (isValidLanguage($lang)) {
+        return $lang;
+    }
+    if (!isInstall()) {
+        return '';
+    }
+    $lang = \App\Model\helpdesk\Settings\System::where('id', 1)->value('content');
+    if (!isValidLanguage($lang)) {
+        return '';
+    }
+    \Cache::forever('language', $lang);
+
+    return $lang;
+}
+
 function faveotime($date, $hour = 0, $min = 0, $sec = 0)
 {
     if (is_bool($hour) && $hour == true) {

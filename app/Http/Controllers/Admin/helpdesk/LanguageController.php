@@ -84,7 +84,7 @@ class LanguageController extends Controller
         $path = base_path('lang');
         $values = scandir($path);  //Extracts names of directories present in lang directory
         $values = array_slice($values, 2); // skips array element $value[0] = '.' & $value[1] = '..'
-        $sysLanguage = \Cache::get('language');
+        $sysLanguage = systemLanguage();
 
         $collection = collect($values)->map(function ($val) {
             return ['locale' => $val];
