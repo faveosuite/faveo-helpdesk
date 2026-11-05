@@ -684,15 +684,17 @@ class SettingsController extends Controller
             $statuss = \App\Model\helpdesk\Ticket\Ticket_Status::whereId($id)->first();
             $statuss->name = $request->input('name');
             $statuss->icon_class = $request->input('icon_class');
-            $statuss->email_user = $request->input('email_user');
+            // email_user is an int column, the form posts 1 or 0
+            $statuss->email_user = $request->input('email_user') == 1 ? 1 : 0;
             $statuss->sort = $request->input('sort');
-            $delete = $request->input('deleted');
-            if ($delete == 'yes') {
-                $statuss->state = 'delete';
-            } else {
-                $statuss->state = $request->input('state');
+            if ($request->input('delete') == 'yes') {
+                $statuss->state = 'deleted';
+            } elseif ($request->input('state') == 'closed') {
+                $statuss->state = 'closed';
+            } elseif (in_array($statuss->state, ['closed', 'deleted'])) {
+                $statuss->state = 'open';
             }
-            $statuss->sort = $request->input('sort');
+            // any other state (open, archived, unverified) is kept as it is, the form cannot express it
             $statuss->save();
 
             /* Direct to Company Settings Page */

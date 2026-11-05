@@ -347,38 +347,15 @@ class UnAuthController extends Controller
      */
     public static function changeLanguage($lang)
     {
-//        if(Cache::has('language'))
-//         {
-//           return Cache::get('language');
-//         } else return 'false';
-//          Cache::put('language',$);
-        $path = base_path('lang');  // Path to check available language packages
-        if (array_key_exists($lang, \Config::get('languages')) && in_array($lang, scandir($path))) {
-            // dd(array_key_exists($lang, Config::get('languages')));
-            // app()->setLocale($lang);
-
-            \Cache::forever('language', $lang);
-            // dd(Cache::get('language'));
-            // dd()
-        } else {
+        if (!isValidLanguage($lang)) {
             return false;
         }
+        // Database first: it is the source of truth that survives a cache clear.
+        // The cache is only a fast copy (see systemLanguage()).
+        \DB::table('settings_system')->where('id', 1)->update(['content' => $lang]);
+        \Cache::forever('language', $lang);
 
         return true;
-
-        /*  $path = base_path('lang');  // Path to check available language packages
-          if (array_key_exists($lang, \Config::get('languages')) && in_array($lang, scandir($path))) {
-              if (Auth::check()) {
-                  $id = Auth::user()->id;
-                  $user = User::find($id);
-                  $user->user_language = $lang;
-                  $user->save();
-              } else {
-                  Session::put('language', $lang);
-              }
-          }
-
-          return redirect()->back();*/
     }
 
     // Follow up tickets

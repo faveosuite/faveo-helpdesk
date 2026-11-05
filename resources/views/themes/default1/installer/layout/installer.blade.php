@@ -21,7 +21,7 @@
         <center><a href="http://www.faveohelpdesk.com">
             <img src="{{asset("lb-faveo/media/installer/faveo.png")}}" alt="faveo" width="250px"></a></center>
     <ol class="setup-steps">
-        <li class="@yield('environment')">Environment Test</li>
+        <li class="@yield('environment')">Server Requirements</li>
         <li class="@yield('license')">License Agreement</li>
         <li class="@yield('database')">Database Setup</li>
         <li class="@yield('locale')">Locale Information</li>

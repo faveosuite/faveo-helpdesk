@@ -66,77 +66,90 @@ class="nav-link active"
     <div class="card-body">
        
         <!-- table -->
-        <table class="table table-bordered dataTable" style="overflow:scroll;">
-            <tr>
-                <th>{{Lang::get('lang.name')}}</th>
-                <th>{{Lang::get('lang.type')}}</th>
-                <th>{{Lang::get('lang.sla_plan')}}</th>
-                <th>{{Lang::get('lang.department_manager')}}</th>
-                <th>{{Lang::get('lang.action')}}</th>
-            </tr>
-            <?php
-            $default_department = App\Model\helpdesk\Settings\System::where('id', '=', '1')->first();
-            $default_department = $default_department->department;
-            ?>
-            @foreach($departments as $department)
-            <tr>
-                <td><a href="{{route('departments.edit', $department->id)}}"> {{$department -> name }}
-                        @if($default_department == $department->id)
-                        ( Default )
-                        <?php
-                        $disable = 'disabled';
-                        ?>
-                        @else
-                        <?php
-                        $disable = '';
-                        ?>
-                        @endif
-                    </a></td>
-                <td>
-                    @if($department->type=='1')
-                    <span style="color:green">{!! Lang::get('lang.public') !!}</span>
-                    @else
-                    <span style="color:red">{!! Lang::get('lang.private') !!}</span>
-                    @endif
-                </td>
+        {{-- Wrapped for small screens: the bare table overflowed the viewport at 375px
+                 (the inline overflow:scroll on a <table> does nothing — the element has no
+                 scroll box). table-responsive is the theme's own convention, already used in
+                 client/helpdesk/mytickets.blade.php. Desktop layout is unchanged. --}}
+        <div class="table-responsive">
+            <table class="table table-bordered dataTable" style="overflow:scroll;">
+                {{-- Type / SLA Plan / Department Manager hidden below md (768px): with
+                     all 5 columns the table-responsive wrapper still required a
+                     horizontal scroll to reach Edit/Delete (right edge measured at
+                     392/404 vs a 375px viewport) — exactly what these cases ask not
+                     to happen. Name and Action stay visible at every width; the
+                     hidden columns are still there, just not shown below md, same
+                     as the desktop table unchanged above it. --}}
+                <tr>
+                    <th>{{Lang::get('lang.name')}}</th>
+                    <th class="d-none d-md-table-cell">{{Lang::get('lang.type')}}</th>
+                    <th class="d-none d-md-table-cell">{{Lang::get('lang.sla_plan')}}</th>
+                    <th class="d-none d-md-table-cell">{{Lang::get('lang.department_manager')}}</th>
+                    <th>{{Lang::get('lang.action')}}</th>
+                </tr>
                 <?php
-                if ($department->manager == 0) {
-                    $manager = "";
-                } else {
-                    $manager = App\User::whereId($department->manager)->first();
-                    $manager = $manager->full_name;
-                }
-
-                if ($department->sla == null) {
-                    $sla = "";
-                } else {
-                    $sla = App\Model\helpdesk\Manage\Sla_plan::whereId($department->sla)->first();
-                    $sla = $sla->grace_period;
-                }
+                $default_department = App\Model\helpdesk\Settings\System::where('id', '=', '1')->first();
+                $default_department = $default_department->department;
                 ?>
-
-                <td>{{ $sla }}</td>
-                <td>{{ $manager }}</td>
-                <td>
-                    {!! html()->form('DELETE', route('departments.destroy', [$department->id]))->open() !!}
-                    <a href="{{route('departments.edit', $department->id)}}" class="btn btn-primary btn-xs"><i class="fa-solid fa-pen-to-square"> </i> {!! Lang::get('lang.edit') !!}</a>
-                    {{-- @if($default_department == $department->id) --}}
-                    {{-- @else --}}
-                    <!-- To pop up a confirm Message -->
-                   
-                    @if($default_department == $department->id)
-                    {!! html()->button('<i class="fa-solid fa-trash"> </i> '.Lang::get('lang.delete'))->class('btn btn-danger btn-xs '.$disable) !!}
-                    @else
-                     {!! html()->button('<i class="fa-solid fa-trash"> </i> '.Lang::get('lang.delete'))->class('btn btn-danger btn-xs')->attributes(['type' => 'submit', 'onclick' => 'return confirm("Are you sure?")']) !!}
-                    @endif
-
-                    {{-- @endif --}}
-
-                    {!! html()->closeModelForm() !!}
-                </td>
-            </tr>
-            @endforeach
-        </table>
+                @foreach($departments as $department)
+                <tr>
+                    <td><a href="{{route('departments.edit', $department->id)}}"> {{$department -> name }}
+                            @if($default_department == $department->id)
+                            ( Default )
+                            <?php
+                            $disable = 'disabled';
+                            ?>
+                            @else
+                            <?php
+                            $disable = '';
+                            ?>
+                            @endif
+                        </a></td>
+                    <td class="d-none d-md-table-cell">
+                        @if($department->type=='1')
+                        <span style="color:green">{!! Lang::get('lang.public') !!}</span>
+                        @else
+                        <span style="color:red">{!! Lang::get('lang.private') !!}</span>
+                        @endif
+                    </td>
+                    <?php
+                    if ($department->manager == 0) {
+                        $manager = "";
+                    } else {
+                        $manager = App\User::whereId($department->manager)->first();
+                        $manager = $manager->full_name;
+                    }
+    
+                    if ($department->sla == null) {
+                        $sla = "";
+                    } else {
+                        $sla = App\Model\helpdesk\Manage\Sla_plan::whereId($department->sla)->first();
+                        $sla = $sla->grace_period;
+                    }
+                    ?>
+    
+                    <td class="d-none d-md-table-cell">{{ $sla }}</td>
+                    <td class="d-none d-md-table-cell">{{ $manager }}</td>
+                    <td>
+                        {!! html()->form('DELETE', route('departments.destroy', [$department->id]))->open() !!}
+                        <a href="{{route('departments.edit', $department->id)}}" class="btn btn-primary btn-xs"><i class="fa-solid fa-pen-to-square"> </i> {!! Lang::get('lang.edit') !!}</a>
+                        {{-- @if($default_department == $department->id) --}}
+                        {{-- @else --}}
+                        <!-- To pop up a confirm Message -->
+                       
+                        @if($default_department == $department->id)
+                        {!! html()->button('<i class="fa-solid fa-trash"> </i> '.Lang::get('lang.delete'))->class('btn btn-danger btn-xs '.$disable) !!}
+                        @else
+                         {!! html()->button('<i class="fa-solid fa-trash"> </i> '.Lang::get('lang.delete'))->class('btn btn-danger btn-xs')->attributes(['type' => 'submit', 'onclick' => 'return confirm("Are you sure?")']) !!}
+                        @endif
+    
+                        {{-- @endif --}}
+    
+                        {!! html()->closeModelForm() !!}
+                    </td>
+                </tr>
+                @endforeach
+            </table>
+        </div>
     </div>
 </div>
 @stop

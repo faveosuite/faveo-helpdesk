@@ -60,7 +60,7 @@ return [
     'login'                              => 'Inloggen',
     'remember'                           => 'Onthoud mij',
     'signmein'                           => 'Inloggen',
-    'iforgot'                            => 'Ik ben mijn wachtwoord vergeten',
+    'iforgot'                            => 'Wachtwoord vergeten?',
     'email_address'                      => 'E-mailadres',
     'password'                           => 'Wachtwoord',
     'woops'                              => 'Oeps!!',
@@ -512,6 +512,12 @@ return [
     'zipp-error'         => 'Fout in .zip bestand. Zip moet alleen de PHP taalbestanden bevatten.',
     'upload-success'     => 'Uploaden gelukt',
     'file-error'         => 'Fout in bestand of verkeerd bestand.',
+    'lang-zip-help'      => 'Selecteer een .zip-bestand dat de PHP-taalbestanden (lang.php, auth.php, ...) rechtstreeks bevat, niet in een map.',
+    'lang-zip-template'  => 'Download het Engelse sjabloon',
+    'lang-zip-only'      => 'Selecteer een .zip-bestand.',
+    'lang-zip-required'  => 'Selecteer het .zip-bestand van de taal.',
+    'iso-code-help'      => 'Taalcode van twee letters, bijv. fa voor Perzisch.',
+    'uploading'          => 'Bezig met uploaden...',
     'delete-success'     => 'Taalpakket succesvol verwijderd.',
     'lang-doesnot-exist' => 'Taalpakket bestaat niet',
     'active-lang-error'  => 'Taalpakket kan niet verwijderd worden als deze actief is.',
@@ -1294,6 +1300,10 @@ return [
     'del_all_read'                                => 'Verwijder alle gelezen',
     'You_have_deleted_all_the_read_notifications' => 'Je hebt alle gelezen meldingen verwijderd',
     'view_all_notifications'                      => 'Bekijk alle meldingen',
+    'mark_all_as_read'                            => 'Alles als gelezen markeren',
+    'delete_all_notifications'                    => 'Alles verwijderen',
+    'delete_all_notifications_confirm'            => 'Alle meldingen verwijderen? Dit kan niet ongedaan worden gemaakt.',
+    'all_notifications_deleted'                   => 'Alle meldingen zijn verwijderd.',
     /*
       |------------------------------------------------
       |   Error Pages
@@ -1433,6 +1443,7 @@ return [
     'error-debug-settings'               => 'Foutopsporing instellingen',
     'debugging'                          => 'Foutopsporingsmodus',
     'bugsnag-debugging'                  => 'Stuur crashrapportages naar Ladybird om Faveo te helpen verbeteren',
+    'sentry-performance'                 => 'Stuur prestatierapportages naar Ladybird om Faveo te helpen verbeteren',
     'error-debug-settings-saved-message' => 'Je foutrapportage en foutopsporingsmodus instellingen zijn succesvol opgeslagen',
     'error-debug-settings-error-message' => 'Je hebt geen wijzigingen aangebracht in de instellingen.',
     'error-logs'                         => 'Foutrapportages',
@@ -1615,4 +1626,15 @@ return [
     'session-expired' => 'Session expired or invalid, please try again.',
     //updated 10-10-2023
     'what_should_be_done_with_content_owned_by_this_user' => 'Wat moet er gebeuren met de inhoud die eigendom is van deze gebruiker',
+    //updated 27-10-2026
+    'ticket-rejected-by-workflow'                           => 'Het ticket is niet aangemaakt omdat het is afgewezen door een workflowregel.',
+    'mobile-belongs-to-existing-user'                       => 'Dit mobiele nummer hoort al bij :name (:email). Gebruik het e-mailadres van die gebruiker of selecteer de gebruiker uit de e-mailsuggesties.',
+    'attachment-too-large'                                  => 'De bijlage is te groot. De maximale uploadgrootte is :size.',
+    'no_results_found'                                      => 'Geen resultaten gevonden.',
+    'email-is-banned'                                       => 'Dit e-mailadres is geblokkeerd. Neem contact op met de helpdeskbeheerder.',
+    'outline'                                               => 'omlijning',
+    'choose_file'                                           => 'Bestand kiezen',
+    'choose_files'                                          => 'Bestanden kiezen',
+    'no_file_chosen'                                        => 'Geen bestand gekozen',
+    'files_chosen'                                          => ':count bestanden gekozen',
 ];

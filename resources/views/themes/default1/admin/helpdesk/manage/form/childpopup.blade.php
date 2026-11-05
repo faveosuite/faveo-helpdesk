@@ -6,7 +6,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Add Child</h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 {!! html()->modelForm($field, 'POST', url('forms/field/'.$field->id.'/child'))->open() !!}
             </div>
             <div class="modal-body">

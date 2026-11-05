@@ -38,7 +38,7 @@ class="active"
                                           <div class="modal-content">
                                   {!! html()->form('POST', route('template.createnew'))->open() !!}
                     <div class="modal-header">
-                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             <h5 class="modal-title">{{Lang::get('lang.create_template')}}</h4>
         </div>
                      <div class="modal-body">
@@ -117,7 +117,7 @@ if($dir == 'default')  {
                                                                 <div class="modal-dialog">
                                                                     <div class="modal-content">
                                                                         <div class="modal-header">
-                           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                  <h5 class="modal-title">Delete</h4>
                                       </div>
                                          <div class="modal-body">

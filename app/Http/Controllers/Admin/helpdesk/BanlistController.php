@@ -114,7 +114,7 @@ class BanlistController extends Controller
             $use = $user->where('email', $adban)->first();
             if ($use != null) {
                 $use->ban = $request->input('ban');
-                $use->internal_note = $request->input('internal_note');
+                $use->internal_note = $request->input('internal_note') ?? '';
                 $use->save();
 
                 // $user->create($request->input())->save();
@@ -123,12 +123,14 @@ class BanlistController extends Controller
                 $user = new User();
                 $user->email = $adban;
                 $user->ban = $request->input('ban');
-                $user->internal_note = $request->input('internal_note');
+                $user->internal_note = $request->input('internal_note') ?? '';
                 $user->save();
 
                 return redirect('banlist')->with('success', Lang::get('lang.email_banned_sucessfully'));
             }
         } catch (Exception $e) {
+            \Log::error('Could not ban email: '.$e->getMessage());
+
             return redirect('banlist')->with('fails', Lang::get('lang.email_can_not_ban'));
         }
     }
@@ -165,7 +167,7 @@ class BanlistController extends Controller
     {
         try {
             $bans = $ban->whereId($id)->first();
-            $bans->internal_note = $request->input('internal_note');
+            $bans->internal_note = $request->input('internal_note') ?? '';
             $bans->ban = $request->input('ban');
             if ($bans->save()) {
                 return redirect('banlist')->with('success', Lang::get('lang.banned_email_updated_sucessfully'));

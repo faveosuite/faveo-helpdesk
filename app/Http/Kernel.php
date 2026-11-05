@@ -32,6 +32,9 @@ class Kernel extends HttpKernel
             \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
             \Illuminate\Session\Middleware\StartSession::class,
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+            // before the CSRF check: PHP drops the whole body (and _token) of a request over
+            // post_max_size, which otherwise surfaces as a misleading "session expired"
+            \Illuminate\Http\Middleware\ValidatePostSize::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \App\Http\Middleware\LanguageMiddleware::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,

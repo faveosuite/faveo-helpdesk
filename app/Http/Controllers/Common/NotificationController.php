@@ -76,13 +76,16 @@ class NotificationController extends Controller
      */
     public function markAllRead($id)
     {
-        $markasread = UserNotification::where('user_id', '=', \Auth::user()->id)->where('is_read', '=', '0')->get();
-        foreach ($markasread as $mark) {
-            $mark->is_read = '1';
-            $mark->save();
-        }
+        // Single bulk UPDATE instead of loading every row and saving it one by one
+        // (that was one query per notification — very slow with many unread). Eloquent
+        // still stamps updated_at automatically, so the result is identical.
+        UserNotification::where('user_id', '=', \Auth::user()->id)
+            ->where('is_read', '=', '0')
+            ->update(['is_read' => '1']);
 
-        return 1;
+        // explicit JSON so the client can update the unread badge from the response.
+        // everything is read now, so the unread count is 0.
+        return response()->json(['status' => 'success', 'unread' => 0]);
     }
 
     /**
@@ -110,9 +113,19 @@ class NotificationController extends Controller
      */
     public function show()
     {
-        $notifications = $this->getNotifications();
+        // skip notifications whose type or ticket was deleted, so every page is full and nothing renders half-empty
+        $notificationList = $this->getNotifications()
+            ->whereHas('notification', function ($query) {
+                $query->whereHas('type')->where(function ($query) {
+                    $query->whereHas('model')->orWhereHas('type', function ($query) {
+                        $query->where('type', 'registration');
+                    });
+                });
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
 
-        return view('notifications-all', compact('notifications'));
+        return view('notifications-all', compact('notificationList'));
     }
 
     /**
@@ -143,7 +156,7 @@ class NotificationController extends Controller
             }
             $notifications->dummyDelete();
 
-            return redirect()->back()->with('success', 'deleted');
+            return redirect()->back()->with('success', \Lang::get('lang.all_notifications_deleted'));
         } catch (\Exception $ex) {
             return redirect()->back()->with('fails', $ex->getMessage());
         }

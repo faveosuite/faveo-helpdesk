@@ -31,8 +31,17 @@ QA_APPROVED_LABELS="${QA_APPROVED_LABELS:-QA: Test case Approved}"
 # Applied when the issue carries content the authoring step could not open — an
 # Office document, a video, a Google Doc behind a login. The cases still get
 # published (what the issue does support is worth having), but a human is told that
-# part of the specification was never read. Verified to exist in the repo.
-NEEDS_INFO_LABEL="${QA_NEEDS_INFO_LABEL:-Need more info about issues by QA team}"
+# part of the specification was never read.
+#
+# "Need more info about issues by QA team" was the previous default and DOES NOT
+# EXIST on faveosuite/faveo-helpdesk — gh_add_label refuses to create a label it
+# cannot resolve, which used to kill this script (set -e) AFTER every case had
+# already been published. Checked against the repo's label list, 2026-09-26.
+# Two lines, not one: bash quote-processes the word in ${VAR:-word} even inside
+# double quotes, so the apostrophe in "issuer's" opens a quote that never closes
+# and the whole file stops parsing.
+needs_info_default="Need issuer's Feedback"
+NEEDS_INFO_LABEL="${QA_NEEDS_INFO_LABEL:-$needs_info_default}"
 
 SKIP=3
 STOP=4
@@ -183,6 +192,13 @@ unopened=''
 declared=$(jq -r '(.unanalysed // [])[] | "- `unanalysed` " + .' "$cases_file" 2>/dev/null)
 [[ -n "$declared" ]] && unopened="$declared"
 
+# Deliberate coverage gaps are NOT a reason to ask the issuer for anything: that an
+# issue names no PR, that it carries no attachments, that OTP needs a plugin the
+# test instance does not have — no reply changes any of them. They were landing in
+# `unanalysed`, so the label fired on every issue and stopped meaning anything.
+# They are published for QA to read and they label nothing.
+not_covered=$(jq -r '(.notCovered // [])[] | "- " + .' "$cases_file" 2>/dev/null)
+
 manifest="${QA_ATTACHMENTS_DIR:-}/manifest.json"
 if [[ -n "${QA_ATTACHMENTS_DIR:-}" && -s "$manifest" ]]; then
   from_manifest=$(jq -r '.items[] | select(.status == "unreadable" or .status == "unfetchable")
@@ -215,7 +231,28 @@ if [[ -n "$previous" ]]; then
   fi
 fi
 
-module_key=$(qt_module_key_by_name "$module" || true)
+# An amend already knows where its cases live: the marker from the previous run
+# carries the module_key. Prefer it over resolving the name again, because a KEY
+# survives what a NAME does not — QA Touch drops a module from `getAllModules` the
+# moment someone drags it under a parent in the UI, and every successful create on
+# this pipeline tells them to do exactly that ("drag it where it belongs"). #8356
+# lost three modules to that in a fortnight, each one minutes-to-days after the
+# pipeline created it, while the key kept working the whole time.
+#
+# Only when the marker's module is the one being written to: an explicit
+# "Module:" line naming somewhere else must still resolve by name.
+module_key=''
+if [[ -n "$previous" ]]; then
+  marker_module=$(jq -r '.module // ""' <<<"$previous")
+  marker_key=$(jq -r '.module_key // ""' <<<"$previous")
+  if [[ -n "$marker_key" && "$marker_module" == "$module" ]]; then
+    module_key="$marker_key"
+    printf 'stage1: module "%s" -> %s (from the previous run marker; no name lookup)\n' \
+      "$module" "$module_key"
+  fi
+fi
+
+[[ -n "$module_key" ]] || module_key=$(qt_module_key_by_name "$module" || true)
 if [[ -z "$module_key" ]]; then
   # qt_create_module also re-looks-up on a keyless response — see its comment.
   # Its stderr carries QA Touch's own account of a refusal, so it goes to a file
@@ -351,7 +388,7 @@ heading=$([[ -n "$previous" ]] && printf 'Additional test cases for review' || p
   printf '**%d case(s)** authored for this %s and created in QA Touch module **%s** (project `%s`).\n\n' \
     "$created" "$kind" "$module" "$(qt_project)"
 
-  [[ -n "${module_was_created:-}" ]] && printf '> [!NOTE]\n> **%s** did not exist, so it was created. `POST /module` takes no parent, so it landed at the **top level** of the module tree — drag it where it belongs in QA Touch if it should sit under an existing folder.\n\n' \
+  [[ -n "${module_was_created:-}" ]] && printf '> [!NOTE]\n> **%s** did not exist, so it was created. `POST /module` takes no parent, so it landed at the **top level** of the module tree — drag it where it belongs in QA Touch if it should sit under an existing folder.\n>\n> Moving it is safe for **this** issue: the marker records the module key and later runs write to it wherever it ends up. It is not safe for other issues — `getAllModules` stops returning a nested module, so a different issue asking for it **by name** cannot publish and fails with \"could not use the module\".\n\n' \
     "$module"
 
   [[ -n "${fallback_used:-}" ]] && printf '> [!NOTE]\n> These were meant for **%s**, but a folder of that name already exists in QA Touch and the API cannot write into it, so they went to **%s** instead. Move them in the UI if you want them under the original.\n\n' \
@@ -362,6 +399,9 @@ heading=$([[ -n "$previous" ]] && printf 'Additional test cases for review' || p
 
   [[ -n "$unopened" ]] && printf '> [!IMPORTANT]\n> **Some content on this issue could not be opened, so these cases do not cover it.**\n>\n%s\n>\n> Paste the relevant detail into the issue (or attach it as an image or PDF) and re-apply `%s` to add the missing cases.\n\n' \
     "$(sed 's/^/> /' <<<"$unopened")" "$TRIGGER_LABEL"
+
+  [[ -n "$not_covered" ]] && printf '> [!NOTE]\n> **Deliberately not covered by these cases:**\n>\n%s\n\n' \
+    "$(sed 's/^/> /' <<<"$not_covered")"
 
   (( unresolved > 0 )) && printf '> [!WARNING]\n> %d case(s) were created but their codes could not be resolved, so they are **not** in the marker and will not be executed. Check the module in QA Touch.\n\n' "$unresolved"
 
@@ -415,7 +455,24 @@ if ! gh_issue_upsert_ids_block "$issue" "${work}/ids-block.md"; then
 fi
 
 gh_add_label "$issue" "$DONE_LABEL"
-[[ -n "$unopened" ]] && gh_add_label "$issue" "$NEEDS_INFO_LABEL"
+
+# NOT `[[ -n "$unopened" ]] && gh_add_label ...`. In an && list set -e exempts
+# every command EXCEPT the one after the final &&, so a label that could not be
+# resolved took the whole script down here — with the cases, the comment and the
+# marker all already published, and the progress/trigger labels below never
+# cleared. A label is the least load-bearing thing this script writes; it must
+# not be able to fail a run whose real work has landed.
+if [[ -n "$unopened" ]]; then
+  if ! gh_add_label "$issue" "$NEEDS_INFO_LABEL"; then
+    printf 'stage1: could not apply "%s" — the cases, the comment and the marker ARE published\n' \
+      "$NEEDS_INFO_LABEL" >&2
+  fi
+else
+  # The label says "we are waiting on you". Once a run reads everything on the
+  # issue, that is no longer true, so a label left over from an earlier run is
+  # cleared here — otherwise it stays on for good and a person has to notice.
+  gh_remove_label "$issue" "$NEEDS_INFO_LABEL"
+fi
 gh_remove_label "$issue" "$PROGRESS_LABEL"
 gh_remove_label "$issue" "$TRIGGER_LABEL"
 

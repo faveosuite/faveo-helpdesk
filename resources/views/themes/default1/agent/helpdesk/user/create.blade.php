@@ -127,7 +127,7 @@ class="nav-link active"
                 @if ($email_mandatory->status == 0 || $settings->status == 1)
                      <span class="text-red"> *</span>
                 @endif
-                {!! html()->number('mobile', null)->class('form-control') !!}
+                {!! html()->input('tel', 'mobile', null)->class('form-control')->attributes(['inputmode' => 'numeric', 'pattern' => '[0-9]*']) !!}
             </div>
             <div class="col-sm-1 mb-3 {{ $errors->has('ext') ? 'has-error' : '' }}">
                 <label for="ext">{!! Lang::get('lang.ext') !!}</label>  

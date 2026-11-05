@@ -13,7 +13,7 @@ class="active"
 @stop
 
 @section('PageHeader')
-<h1>{{Lang::get('lang.tickets')}}</h1>
+<h3>{{Lang::get('lang.tickets')}}</h3>
 <style>
  .tooltip1 {
      position: relative;
@@ -116,7 +116,7 @@ if (Auth::user()->role == 'agent') {
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="btn-close" data-bs-dismiss="modal" id="merge-close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" id="merge-close" aria-label="Close"></button>
                 <h5 class="modal-title">{!! Lang::get('lang.merge-ticket') !!} </h4>
             </div><!-- /.modal-header-->
             <div class ="modal-body">
@@ -180,7 +180,7 @@ if (Auth::user()->role == 'agent') {
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="btn-close" data-bs-dismiss="modal" id="assign-close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" id="assign-close" aria-label="Close"></button>
                 <h5 class="modal-title">{!! Lang::get('lang.assign-ticket') !!} </h4>
             </div><!-- /.modal-header-->
             <div class ="modal-body">
@@ -217,7 +217,7 @@ if (Auth::user()->role == 'agent') {
         <div class="col-md-8">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="btn-close closemodal" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    <button type="button" class="btn-close closemodal" data-bs-dismiss="modal" aria-label="Close"></button>
                     <h4 class="modal-title" id="myModalLabel"></h4>
                 </div>
                 <div class="modal-body" id="custom-alert-body" >

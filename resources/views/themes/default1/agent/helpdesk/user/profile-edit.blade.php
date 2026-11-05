@@ -122,7 +122,7 @@
 
                     <div class="mb-3 mb-3 {{ $errors->has('mobile') ? 'has-error' : '' }}">
                         {!! html()->label(Lang::get('lang.mobile_number'), 'mobile') !!}
-                        {!! html()->number('mobile', null)->class('form-control')->id('mobile') !!}
+                        {!! html()->input('tel', 'mobile', null)->class('form-control')->attributes(['inputmode' => 'numeric', 'pattern' => '[0-9]*'])->id('mobile') !!}
                     </div>
 
                     <div class="mb-3 mb-3 {{ $errors->has('agent_sign') ? 'has-error' : '' }}">
@@ -132,7 +132,10 @@
 
                     <div class="mb-3 mb-3 {{ $errors->has('profile_pic') ? 'has-error' : '' }}">
                         {!! html()->label(Lang::get('lang.profile_pic'), 'profile_pic') !!}
-                        {!! html()->file('profile_pic')->class('form-control')->id('profile_pic_input') !!}
+                        <div>
+                        {!! html()->file('profile_pic')->class('visually-hidden')->id('profile_pic_input') !!}
+                        @include('themes.default1.common.file-input-label', ['for' => 'profile_pic_input'])
+                        </div>
                         <small class="text-muted">JPG, PNG or GIF. Max 2MB.</small>
                     </div>
 

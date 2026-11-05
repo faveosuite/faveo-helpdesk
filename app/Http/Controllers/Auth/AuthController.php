@@ -427,6 +427,17 @@ class AuthController extends Controller
                         // credentials were correct, drop the lock so past failures do not
                         // count against this user any more
                         clearAttemptLock('account_login', $usernameinput);
+                        // checked only after the password matched, so the message does not reveal to
+                        // others that an address is banned
+                        if (Auth::user()->isBanned()) {
+                            Auth::logout();
+                            $request->session()->invalidate();
+                            $request->session()->regenerateToken();
+
+                            return redirect()->back()
+                                            ->withInput($request->only('email', 'remember'))
+                                            ->with(['error' => Lang::get('lang.email-is-banned'), 'referer' => $referer]);
+                        }
                         if (Auth::user()->role == 'user') {
                             if ($request->input('referer')) {
                                 return \Redirect::route($request->input('referer'));

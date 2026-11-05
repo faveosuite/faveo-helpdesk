@@ -64,14 +64,21 @@ class="nav-link active"
 	
 	<div class="card-body ">
 
+		{{-- Wrapped for small screens, and Status / Grace period / Created / Last
+		     updated hidden below md (768px): 6 columns at 100px each (~600px) had
+		     no responsive wrapper at all, so this page was never reached in the
+		     TR0445 round but would overflow the document itself exactly like
+		     /agents did. Name and Action stay visible at every width; desktop is
+		     unchanged. --}}
+		<div class="table-responsive">
 		<table class="table table-bordered dataTable" style="overflow:scroll;">
 
 			<tr>
 				<th width="100px">{{Lang::get('lang.name')}}</th>
-				<th width="100px">{{Lang::get('lang.status')}}</th>
-				<th width="100px">{{Lang::get('lang.grace_period')}}</th>
-				<th width="100px">{{Lang::get('lang.created')}}</th>
-				<th width="100px">{{Lang::get('lang.last_updated')}}</th>
+				<th width="100px" class="d-none d-md-table-cell">{{Lang::get('lang.status')}}</th>
+				<th width="100px" class="d-none d-md-table-cell">{{Lang::get('lang.grace_period')}}</th>
+				<th width="100px" class="d-none d-md-table-cell">{{Lang::get('lang.created')}}</th>
+				<th width="100px" class="d-none d-md-table-cell">{{Lang::get('lang.last_updated')}}</th>
 				<th width="100px">{{Lang::get('lang.action')}}</th>
 			</tr>
 
@@ -97,7 +104,7 @@ class="nav-link active"
 		@endif
 		</a> </td>
 		<!-- sla Status : if status==1 active -->
-		<td>
+		<td class="d-none d-md-table-cell">
 			@if($sla->status=='1')
 				<span style="color:green">Active</span>
 			@else
@@ -105,11 +112,11 @@ class="nav-link active"
 			@endif
 		</td>
 		<!-- To show the sla's Time Period -->
-		<td>{!! $sla->grace_period !!}</td>
+		<td class="d-none d-md-table-cell">{!! $sla->grace_period !!}</td>
 		<!-- Created Date -->
-		<td>{!! UTC::usertimezone($sla->created_at) !!}</td>
+		<td class="d-none d-md-table-cell">{!! UTC::usertimezone($sla->created_at) !!}</td>
 		<!-- Last Updated -->
-		<td> {!! UTC::usertimezone($sla->updated_at) !!} </td>
+		<td class="d-none d-md-table-cell"> {!! UTC::usertimezone($sla->updated_at) !!} </td>
 		<!-- Deleting Fields -->
 		<td>
 			{!! html()->form('DELETE', route('sla.destroy', [$sla->id]))->open() !!}
@@ -128,6 +135,7 @@ class="nav-link active"
 	<!-- Set a link to Create Page -->
 
 </table>
+</div>
 
 </div>
 </div>

@@ -133,6 +133,50 @@ function isInstall()
     return $check;
 }
 
+/**
+ * Whether $lang is a language the system can actually serve: listed in
+ * config/languages.php and shipped as a folder under lang/.
+ *
+ * @param mixed $lang
+ *
+ * @return bool
+ */
+function isValidLanguage($lang)
+{
+    return is_string($lang) && $lang !== ''
+        && array_key_exists($lang, \Config::get('languages', []))
+        && is_dir(base_path('lang'.DIRECTORY_SEPARATOR.$lang));
+}
+
+/**
+ * The system (admin chosen) language.
+ *
+ * settings_system.content is the source of truth; the 'language' cache key is
+ * only a fast copy of it. When the cache is empty (cache:clear, driver switch,
+ * redis restart) the value is read back from the database and re-cached, so
+ * the system language is never silently lost. Safe to call outside a web
+ * request (queues, cron), where no middleware has warmed the cache.
+ *
+ * @return string '' when nothing valid is configured (caller falls back)
+ */
+function systemLanguage()
+{
+    $lang = \Cache::get('language');
+    if (isValidLanguage($lang)) {
+        return $lang;
+    }
+    if (!isInstall()) {
+        return '';
+    }
+    $lang = \App\Model\helpdesk\Settings\System::where('id', 1)->value('content');
+    if (!isValidLanguage($lang)) {
+        return '';
+    }
+    \Cache::forever('language', $lang);
+
+    return $lang;
+}
+
 function faveotime($date, $hour = 0, $min = 0, $sec = 0)
 {
     if (is_bool($hour) && $hour == true) {
@@ -316,6 +360,37 @@ function assetLink(string $type, string $key)
     // dd(asset(\Config::get('link.'.$type.'.'.$key)));
     // if request if language, it should append & language to it
     return asset(\Config::get('link.'.$type.'.'.$key));
+}
+
+/**
+ * Checks whether the current (or given) locale is written right-to-left.
+ *
+ * @param string|null $locale
+ *
+ * @return bool
+ */
+function isRtl($locale = null)
+{
+    return in_array($locale ?? \App::getLocale(), \Config::get('app.rtl_locales', ['ar']));
+}
+
+/**
+ * Returns the flag image url of a language, using the flag mapped in config/languages.php.
+ * Falls back to a globe icon when the language has no flag or the image is missing.
+ *
+ * @param string $locale
+ *
+ * @return string
+ */
+function languageFlag($locale)
+{
+    $flag = \Config::get('languages.'.$locale)[2] ?? null;
+    $path = 'lb-faveo/flags/'.$flag.'.png';
+    if (!$flag || !file_exists(public_path($path))) {
+        $path = 'lb-faveo/flags/globe.svg';
+    }
+
+    return asset($path);
 }
 
 /**

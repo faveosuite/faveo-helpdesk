@@ -492,14 +492,26 @@ qt_module_candidates() {
   local name="$1" limit="${2:-8}"
   qt_modules_all \
     | jq -r '(.section_name // .module_name // empty)' \
-    | awk -v want="$name" -v lim="$limit" '
-        BEGIN { n = split(tolower(want), w, /[^a-z0-9]+/) }
+    | awk '!seen[$0]++' \
+    | awk -v want="$name" '
+        # Stopwords are named, not inferred from length. "and" is three characters,
+        # so a bare `length > 2` filter counted it, and every module with "and" in
+        # its name scored: asked for "Login and Session Management" this suggested
+        # four Invoicing folders and left "Community Login" out of the list.
+        BEGIN {
+          split("and the for with from into that this not are its all any new old", s, / /)
+          for (i in s) stop[s[i]] = 1
+          n = split(tolower(want), w, /[^a-z0-9]+/)
+        }
+        # The name we could not use is not a suggestion for replacing itself.
+        tolower($0) == tolower(want) { next }
         {
           line = tolower($0); score = 0
-          for (i = 1; i <= n; i++) if (length(w[i]) > 2 && index(line, w[i])) score++
+          for (i = 1; i <= n; i++)
+            if (length(w[i]) > 2 && !stop[w[i]] && index(line, w[i])) score++
           if (score > 0) printf "%d\t%s\n", score, $0
         }' \
-    | sort -rn -k1,1 | head -n "$limit" | cut -f2-
+    | sort -t$'\t' -k1,1nr -k2,2 | head -n "$limit" | cut -f2-
 }
 
 # ---------------------------------------------------------------------------

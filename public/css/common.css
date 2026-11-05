@@ -631,12 +631,26 @@ div.dt-container div.dt-info {
     text-decoration: none;
 }
 
+/* Give every widget card the same height and top-align them. widgetbox.css sizes the
+   cards with `.widgetrow a` (fixed 115px width, inline-block), so a longer label such
+   as "Knowledge base" wraps to two lines, making that one card taller and, being
+   baseline-aligned, push up above its neighbours. `.widgetrow .widgetrowitem` is used
+   (not just `.widgetrowitem`) so it outranks `.widgetrow a` regardless of load order. */
+.widgetrow .widgetrowitem {
+    box-sizing: border-box;
+    min-height: 96px;
+    vertical-align: top;
+}
+
 .widgetitemtitle {
     color: rgb(0, 154, 186);
 }
 
 .widget-bg-register {
-    background-image: url("/lb-faveo/media/images/register.png");
+    /* Relative to this file's own location (public/css/), not the site root -
+       root-relative paths break whenever the app is served from a subdirectory
+       (e.g. APP_URL=.../fc2/public), which is how this install is configured. */
+    background-image: url("../lb-faveo/media/images/register.png");
     background-size: 32px 32px;
     background-repeat: no-repeat;
     background-position: left center;
@@ -644,7 +658,7 @@ div.dt-container div.dt-info {
 }
 
 .widget-bg-submit-ticket {
-    background-image: url("/lb-faveo/media/images/submitticket.png");
+    background-image: url("../lb-faveo/media/images/submitticket.png");
     background-size: 32px 32px;
     background-repeat: no-repeat;
     background-position: left center;
@@ -652,7 +666,7 @@ div.dt-container div.dt-info {
 }
 
 .widget-bg-my-tickets {
-    background-image: url("/lb-faveo/media/images/news.png");
+    background-image: url("../lb-faveo/media/images/news.png");
     background-size: 32px 32px;
     background-repeat: no-repeat;
     background-position: left center;
@@ -660,7 +674,7 @@ div.dt-container div.dt-info {
 }
 
 .widget-bg-knowledge-base {
-    background-image: url("/lb-faveo/media/images/knowledgebase.png");
+    background-image: url("../lb-faveo/media/images/knowledgebase.png");
     background-size: 32px 32px;
     background-repeat: no-repeat;
     background-position: left center;
@@ -818,56 +832,6 @@ div.dt-container div.dt-info {
     border-bottom: 1px solid #495057;
 }
 /*
- * AdminLTE 3 shipped `.btn.btn-file`, which overlaid an invisible file input on
- * top of a button so only the button's own label showed. AdminLTE 4 dropped the
- * component but the markup is still in place (company logo, plugin upload,
- * language file, KB profile picture), so the native input was rendering below
- * the label - the stray "Choose file / No file chosen" row.
- *
- * Restoring the rule here fixes every one of those views at once, without
- * touching their Blade markup.
- */
-.btn.btn-file {
-    position: relative;
-    overflow: hidden;
-}
-
-.btn.btn-file > input[type=file] {
-    position: absolute;
-    top: 0;
-    right: 0;
-    min-width: 100%;
-    min-height: 100%;
-    font-size: 100px;
-    text-align: right;
-    cursor: inherit;
-    outline: 0;
-    opacity: 0;
-}
-
-/*
- * The upload control on the company logo: a full-width light-grey bar with the
- * file icon, matching the "Choose file" control used elsewhere in the product.
- * Replaces the old `bg-olive` + inline blue text, which after the AdminLTE 4
- * upgrade read as a plain blue link rather than a button.
- */
-.btn.btn-file-upload {
-    display: block;
-    width: 100%;
-    background-color: #f8f9fa;
-    border-color: #dee2e6;
-    color: #212529;
-    font-weight: 400;
-}
-
-.btn.btn-file-upload:hover,
-.btn.btn-file-upload:focus {
-    background-color: #d3d4d5;
-    border-color: #d3d4d5;
-    color: #212529;
-}
-
-/*
  * Sidebar counts (inbox, my tickets, unassigned, overdue, trash) in the
  * collapsed sidebar.
  *
@@ -907,4 +871,69 @@ div.dt-container div.dt-info {
     padding: .15rem .3rem;
     font-size: .625rem;
     line-height: 1;
+}
+
+/*
+ * Olive button, the colour the upload buttons had before the AdminLTE 4 upgrade,
+ * as a Bootstrap 5 button variant (Bootstrap ships no olive).
+ */
+.btn-olive {
+    --bs-btn-color: #fff;
+    --bs-btn-bg: #3d9970;
+    --bs-btn-border-color: #3d9970;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #368763;
+    --bs-btn-hover-border-color: #368763;
+    --bs-btn-focus-shadow-rgb: 61, 153, 112;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #317a59;
+    --bs-btn-active-border-color: #317a59;
+}
+
+/*
+ * Upload buttons are a <label class="btn"> for a visually-hidden file input:
+ * show the input's keyboard focus on the button.
+ */
+input[type='file'].visually-hidden:focus-visible + label.btn {
+    box-shadow: var(--bs-btn-focus-box-shadow);
+}
+
+/* DataTables sort arrows: drawn as CSS triangles instead of the "▲"/"▼" characters, which
+   render as broken glyphs when the system font lacks them. The "html" prefix outranks
+   dataTables.bootstrap.css, which loads after this file */
+html table.dataTable thead > tr > th.dt-orderable-asc span.dt-column-order:before,
+html table.dataTable thead > tr > th.dt-ordering-asc span.dt-column-order:before,
+html table.dataTable thead > tr > th.dt-orderable-desc span.dt-column-order:after,
+html table.dataTable thead > tr > th.dt-ordering-desc span.dt-column-order:after {
+    content: "";
+    width: 0;
+    height: 0;
+    left: 2px;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+}
+html table.dataTable thead > tr > th.dt-orderable-asc span.dt-column-order:before,
+html table.dataTable thead > tr > th.dt-ordering-asc span.dt-column-order:before {
+    margin-bottom: 1px;
+    border-bottom: 5px solid currentColor;
+}
+html table.dataTable thead > tr > th.dt-orderable-desc span.dt-column-order:after,
+html table.dataTable thead > tr > th.dt-ordering-desc span.dt-column-order:after {
+    margin-top: 1px;
+    border-top: 5px solid currentColor;
+}
+
+/* Bare radios and checkboxes (the forms that do not use .form-check-input) sit on the text
+   baseline by default, so they ride above their label; centre them on it instead */
+input[type="radio"]:not(.form-check-input),
+input[type="checkbox"]:not(.form-check-input) {
+    vertical-align: middle;
+    margin: -.125em .25rem 0 0;
+}
+
+/* AdminLTE focuses the first button of every opened modal (usually the close icon) for keyboard
+   users; keep its focus ring for keyboard focus only, not after a mouse click opened the modal */
+.btn-close:focus:not(:focus-visible) {
+    box-shadow: none;
+    opacity: var(--bs-btn-close-opacity);
 }

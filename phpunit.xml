@@ -31,6 +31,23 @@
     <env name="MAIL_MAILER" value="mail"/>
     <env name="APP_URL" value="http://localhost:8000"/>
     <env name="DB_INSTALL" value="1"/>
+    <!--
+      A FIXED, TEST-ONLY JWT signing key. Not a credential: it signs tokens that
+      only ever exist inside APP_ENV=testing against testing_db, and it is not the
+      key any deployed instance uses.
+
+      It is declared here, not left to .env, because the suite must not depend on
+      the developer's own environment. Tests\Unit\TicketController's "V2 tickets
+      api ..." cases call JWTAuth::fromUser(), which needs jwt.secret. A developer
+      who has run `php artisan jwt:secret` has one in .env and the suite passes; a
+      freshly provisioned CI workspace does not, and the same four tests died with
+
+          Tymon\JWTAuth\Exceptions\JWTException: Secret is not set.
+
+      — green locally, red on Jenkins, for a reason nothing in the diff pointed at.
+      Every other value in this block is pinned for the same reason.
+    -->
+    <env name="JWT_SECRET" value="phpunit-testing-only-do-not-use-elsewhere-ySt4vQ2mKpL9"/>
   </php>
 </phpunit>
 

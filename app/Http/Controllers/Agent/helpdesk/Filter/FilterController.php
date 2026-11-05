@@ -422,13 +422,24 @@ class FilterController extends Controller
      */
     public function userIsAgent($table)
     {
-        if (Auth::user()->role == 'agent') {
+        $role = Auth::user()->role;
+
+        if ($role == 'agent') {
             $id = Auth::user()->id;
             $dept[] = Auth::user()->primary_dpt;
             $table = $table->where(function ($query) use ($dept) {
                 $query->whereIn('tickets.dept_id', $dept)
                         ->orWhere('assigned_to', '=', Auth::user()->id);
             });
+        } elseif ($role != 'admin') {
+            // Fail closed. This used to fall through to `return $table` unchanged
+            // for every role that was not literally 'agent' — including a plain
+            // end-user — handing back the FULL, unrestricted query. 'admin' is the
+            // one other role meant to see everything; every other role (chiefly
+            // 'user') gets nothing, the same deny-pattern already used elsewhere in
+            // this controller (checkRequestIsCorrect, departmentFilter) for
+            // "not authorized to see this" rather than "unfiltered".
+            $table = $table->where('tickets.id', '=', null);
         }
 
         return $table;

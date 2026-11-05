@@ -103,7 +103,7 @@ class="nav-link active"
                                     {!! html()->modelForm($set, 'PATCH', route('template-sets.update', [$set->id]))->acceptsFiles()->open() !!}
                                     <div class="modal-header">
                                         <h5 class="modal-title">{!! Lang::get('lang.edit_details') !!}</h4>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
                                         <div class="mb-3">
@@ -135,7 +135,7 @@ class="nav-link active"
                                 <div class="modal-content">
                                     <div class="modal-header">
                                         <h5 class="modal-title">{!! Lang::get('lang.delete') !!}</h4>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
                                         <span>{{Lang::get('lang.are_you_sure_you_want_to_delete')}}</span>&nbsp;
@@ -163,7 +163,7 @@ class="nav-link active"
             {!! html()->form('POST', route('template-sets.store'))->open() !!}
             <div class="modal-header">
                 <h5 class="modal-title">{!! Lang::get('lang.create') !!}</h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 @foreach ($errors->all() as $error)

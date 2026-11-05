@@ -18,7 +18,7 @@
 <div class="box box-primary">
 @if(Session::has('success'))
     <div class="alert alert-success alert-dismissible">
-        <i class="fa  fa-circle-check"></i>
+        <i class="fa-solid fa-circle-check"></i>
         <b>Success</b>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         {{Session::get('success')}}
