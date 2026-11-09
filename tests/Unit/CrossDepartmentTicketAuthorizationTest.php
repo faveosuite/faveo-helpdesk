@@ -534,6 +534,7 @@ class CrossDepartmentTicketAuthorizationTest extends TestCase
     private function echoedBy(callable $request): string
     {
         ob_start();
+
         try {
             $request();
         } finally {
