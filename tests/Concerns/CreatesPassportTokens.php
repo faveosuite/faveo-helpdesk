@@ -31,7 +31,7 @@ trait CreatesPassportTokens
             ->where('grant_types', 'like', '%personal_access%')
             ->exists();
 
-        if (! $hasClient) {
+        if (!$hasClient) {
             Artisan::call('passport:client', [
                 '--personal'       => true,
                 '--name'           => 'Test Personal Access Client',

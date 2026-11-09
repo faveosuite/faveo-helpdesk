@@ -234,5 +234,4 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
         return static::where('email', '=', trim($email))->where('ban', '=', 1)
             ->whereNotIn('role', ['agent', 'admin'])->exists();
     }
-
 }
