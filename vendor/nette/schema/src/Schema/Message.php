@@ -7,7 +7,7 @@
 
 namespace Nette\Schema;
 
-use function array_key_exists, implode, preg_replace_callback;
+use function array_key_exists;
 
 
 /**

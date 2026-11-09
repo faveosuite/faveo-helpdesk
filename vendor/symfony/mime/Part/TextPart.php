@@ -276,8 +276,10 @@ class TextPart extends AbstractPart
 
     public function __unserialize(array $data): void
     {
-        foreach (['charset', 'subtype', 'disposition', 'name', 'encoding'] as $prop) {
-            if (($data[$prop] ?? $data["\0".self::class."\0".$prop] ?? $data["\0*\0".$prop] ?? null) instanceof \Stringable) {
+        foreach (['charset' => true, 'subtype' => false, 'disposition' => true, 'name' => true, 'encoding' => false] as $prop => $nullable) {
+            $value = $data[$prop] ?? $data["\0".self::class."\0".$prop] ?? $data["\0*\0".$prop] ?? null;
+
+            if (!\is_string($value) && (!$nullable || null !== $value)) {
                 throw new \BadMethodCallException('Cannot unserialize '.__CLASS__);
             }
         }
@@ -329,15 +331,25 @@ class TextPart extends AbstractPart
 
         trigger_deprecation('symfony/mime', '7.4', 'Passing extra keys to "%s::__unserialize()" is deprecated, populate properties in "%s::__unserialize()" instead.', self::class, get_debug_type($this));
 
-        \Closure::bind(function ($data) use ($wakeup) {
-            foreach ($data as $key => $value) {
-                $this->{("\0" === $key[0] ?? '') ? substr($key, 1 + strrpos($key, "\0")) : $key} = $value;
-            }
+        $state = [];
+        foreach (['body', 'charset', 'subtype', 'disposition', 'name', 'encoding'] as $name) {
+            $key = \array_key_exists($name, $data) ? $name : "\0".self::class."\0".$name;
+            $state[$name] = $data[$key] ?? null;
+            unset($data[$key]);
+        }
 
-            if ($wakeup) {
-                $this->__wakeup();
-            }
-        }, $this, static::class)($data);
+        (new \ReflectionMethod(AbstractPart::class, 'setSubclassState'))->invoke($this, $data);
+
+        foreach ($state as $name => $value) {
+            $this->$name = $value;
+        }
+
+        if ($wakeup) {
+            $this->_headers = $headers;
+            $this->__wakeup();
+        } elseif (!\is_string($this->body) && !$this->body instanceof File) {
+            throw new \BadMethodCallException('Cannot unserialize '.__CLASS__);
+        }
     }
 
     /**

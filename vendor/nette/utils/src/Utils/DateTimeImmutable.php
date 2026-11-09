@@ -7,7 +7,7 @@
 
 namespace Nette\Utils;
 
-use function array_merge, checkdate, implode, is_int, is_string, preg_match, preg_replace_callback, sprintf, trim;
+use function is_int, is_string;
 
 
 /**
@@ -134,7 +134,7 @@ class DateTimeImmutable extends \DateTimeImmutable implements \JsonSerializable
 		);
 
 		if ($base === null) {
-			$result = new \DateTimeImmutable($absPart, $timezone);
+			$result = new \DateTimeImmutable(trim($absPart), $timezone);
 			self::handleErrors($input);
 		} else {
 			$result = \DateTimeImmutable::createFromInterface($base);
@@ -179,7 +179,7 @@ class DateTimeImmutable extends \DateTimeImmutable implements \JsonSerializable
 	private static function handleErrors(string $value): void
 	{
 		$errors = self::getLastErrors();
-		$errors = array_merge($errors['errors'] ?? [], $errors['warnings'] ?? []);
+		$errors = [...$errors['errors'] ?? [], ...$errors['warnings'] ?? []];
 		if ($errors) {
 			throw new \Exception(implode(', ', $errors) . " '$value'");
 		}

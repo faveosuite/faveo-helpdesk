@@ -7,12 +7,13 @@ use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Database\Eloquent\Model;
-use Tymon\JWTAuth\Contracts\JWTSubject as AuthenticatableUserContract;
+use Laravel\Passport\HasApiTokens;
 
-class User extends Model implements AuthenticatableContract, CanResetPasswordContract, AuthenticatableUserContract
+class User extends Model implements AuthenticatableContract, CanResetPasswordContract
 {
     use Authenticatable;
     use CanResetPassword;
+    use HasApiTokens;
 
     /**
      * The database table used by the model.
@@ -234,23 +235,4 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
             ->whereNotIn('role', ['agent', 'admin'])->exists();
     }
 
-    /**
-     * Get the identifier that will be stored in the subject claim of the JWT.
-     *
-     * @return mixed
-     */
-    public function getJWTIdentifier()
-    {
-        return $this->getKey();
-    }
-
-    /**
-     * Return a key value array, containing any custom claims to be added to the JWT.
-     *
-     * @return array
-     */
-    public function getJWTCustomClaims()
-    {
-        return [];
-    }
 }

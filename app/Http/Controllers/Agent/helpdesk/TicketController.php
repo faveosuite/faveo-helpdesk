@@ -228,20 +228,10 @@ class TicketController extends Controller
      */
     public function thread($id)
     {
-        if (Auth::user()->role == 'agent') {
-            $dept = Department::where('id', '=', Auth::user()->primary_dpt)->first();
-            $tickets = Tickets::where('id', '=', $id)->first();
-            if ($tickets->dept_id == $dept->id) {
-                $tickets = $tickets;
-            } elseif ($tickets->assigned_to == Auth::user()->id) {
-                $tickets = $tickets;
-            } else {
-                $tickets = null;
-            }
-//            $tickets = $tickets->where('dept_id', '=', $dept->id)->orWhere('assigned_to', Auth::user()->id)->first();
-//            dd($tickets);
-        } elseif (Auth::user()->role == 'admin') {
-            $tickets = Tickets::where('id', '=', $id)->first();
+        if (Auth::user()->role == 'agent' || Auth::user()->role == 'admin') {
+            // Same rule as every other per-ticket handler; also copes with a
+            // missing ticket or a missing primary department instead of erroring.
+            $tickets = $this->authorizeTicketAccess($id);
         } elseif (Auth::user()->role == 'user') {
             $thread = Ticket_Thread::where('ticket_id', '=', $id)->first();
             $ticket_id = \Crypt::encrypt($id);
@@ -271,6 +261,13 @@ class TicketController extends Controller
      */
     protected function authorizeTicketAccess($id)
     {
+        // Only a single positive integer id is accepted. MySQL casts a string such
+        // as '12,34' or '12abc' to 12 when comparing it with an integer column, so
+        // a list could pass the check on its first id while the caller went on to
+        // act on the rest.
+        if (!is_int($id) && !(is_string($id) && ctype_digit($id))) {
+            return null;
+        }
         $ticket = Tickets::where('id', '=', $id)->first();
         if (!$ticket) {
             return null;
@@ -292,6 +289,55 @@ class TicketController extends Controller
         }
 
         return $allowed ? $ticket : null;
+    }
+
+    /**
+     * True only when the list is non-empty and the current user may act on
+     * every ticket in it. A request that names one ticket out of reach is
+     * refused as a whole rather than partly applied.
+     *
+     * @param mixed $ids
+     */
+    protected function authorizeTicketIds($ids): bool
+    {
+        if (!is_array($ids) || count($ids) === 0) {
+            return false;
+        }
+        foreach ($ids as $id) {
+            if (!$this->authorizeTicketAccess($id)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Limit a Tickets query to the rows the current user may act on, using the
+     * same rule as authorizeTicketAccess(): admins see everything, agents see
+     * their primary department plus tickets assigned to them.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    protected function restrictToAccessibleTickets($query)
+    {
+        $user = Auth::user();
+        if ($user->role == 'admin') {
+            return $query;
+        }
+        if ($user->role != 'agent') {
+            return $query->whereRaw('1 = 0');
+        }
+        $deptId = Department::where('id', '=', $user->primary_dpt)->value('id');
+
+        return $query->where(function ($q) use ($user, $deptId) {
+            $q->where('assigned_to', '=', $user->id);
+            if ($deptId) {
+                $q->orWhere('dept_id', '=', $deptId);
+            }
+        });
     }
 
     public function size()
@@ -524,7 +570,10 @@ class TicketController extends Controller
         } elseif (Input::get('ticket_priority') == null) {
             return 5;
         } else {
-            $ticket = $ticket->where('id', '=', $ticket_id)->first();
+            $ticket = $this->authorizeTicketAccess($ticket_id);
+            if (!$ticket) {
+                return response('Unauthorized', 403);
+            }
             $ticket->sla = Input::get('sla_paln');
             $ticket->help_topic_id = Input::get('help_topic');
             $ticket->source = Input::get('ticket_source');
@@ -550,9 +599,12 @@ class TicketController extends Controller
      */
     public function updateDueDate($ticket_id, Request $request)
     {
-        $ticket = Tickets::where('id', $ticket_id)->first();
-        if (!$ticket) {
+        if (!Tickets::where('id', $ticket_id)->exists()) {
             return 1;
+        }
+        $ticket = $this->authorizeTicketAccess($ticket_id);
+        if (!$ticket) {
+            return response('Unauthorized', 403);
         }
 
         if ($request->duedate) {
@@ -2182,6 +2234,10 @@ class TicketController extends Controller
      */
     public function checkLock($id)
     {
+        // Taking or refreshing the lock writes to the ticket.
+        if (!$this->authorizeTicketAccess($id)) {
+            return response('Unauthorized', 403);
+        }
         $ticket = DB::table('tickets')->select('id', 'lock_at', 'lock_by')->where('id', '=', $id)->first();
         $cad = DB::table('settings_ticket')->select('collision_avoid')->where('id', '=', 1)->first();
         $cad = $cad->collision_avoid; //collision avoid duration defined in system
@@ -2337,21 +2393,49 @@ class TicketController extends Controller
         }
     }
 
+    /**
+     * One <option> per ticket for the merge pickers. Ids are cast and titles
+     * escaped: a ticket subject is customer-supplied text.
+     */
+    private function mergeTicketOption($ticketId): string
+    {
+        $title = Ticket_Thread::select('title')->where('ticket_id', '=', $ticketId)->first();
+
+        return "<option value='".(int) $ticketId."'>".e($title ? $title->title : '').'</option>';
+    }
+
+    /**
+     * The customer's other open tickets that the current user may act on.
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    private function mergeCandidates(Tickets $ticket)
+    {
+        return $this->restrictToAccessibleTickets(
+            Tickets::select('ticket_number', 'id')
+                ->where('user_id', '=', $ticket->user_id)
+                ->where('id', '!=', $ticket->id)
+                ->where('status', '=', 1)
+        )->get();
+    }
+
     public function getMergeTickets($id)
     {
         if ($id == 0) {
             $t_id = Input::get('data1');
+            if (!$this->authorizeTicketIds($t_id)) {
+                return response('Unauthorized', 403);
+            }
             foreach ($t_id as $value) {
-                $title = Ticket_Thread::select('title')->where('ticket_id', '=', $value)->first();
-                echo "<option value='$value'>".$title->title.'</option>';
+                echo $this->mergeTicketOption($value);
             }
         } else {
-            $ticket = Tickets::select('user_id')->where('id', '=', $id)->first();
-            $ticket_data = Tickets::select('ticket_number', 'id')
-                            ->where('user_id', '=', $ticket->user_id)->where('id', '!=', $id)->where('status', '=', 1)->get();
-            foreach ($ticket_data as $value) {
-                $title = Ticket_Thread::select('title')->where('ticket_id', '=', $value->id)->first();
-                echo "<option value='$value->id'>".$title->title.'</option>';
+            $ticket = $this->authorizeTicketAccess($id);
+            if (!$ticket) {
+                return response('Unauthorized', 403);
+            }
+            foreach ($this->mergeCandidates($ticket) as $value) {
+                echo $this->mergeTicketOption($value->id);
             }
         }
     }
@@ -2359,10 +2443,13 @@ class TicketController extends Controller
     public function checkMergeTickets($id)
     {
         if ($id == 0) {
-            if (Input::get('data1') == null || count(Input::get('data1')) == 1) {
+            if (Input::get('data1') == null || !is_array(Input::get('data1')) || count(Input::get('data1')) == 1) {
                 return 0;
             } else {
                 $t_id = Input::get('data1');
+                if (!$this->authorizeTicketIds($t_id)) {
+                    return response('Unauthorized', 403);
+                }
                 $previousValue = null;
                 $match = 1;
                 foreach ($t_id as $value) {
@@ -2379,27 +2466,24 @@ class TicketController extends Controller
                 return $match;
             }
         } else {
-            $ticket = Tickets::select('user_id')->where('id', '=', $id)->first();
-            $ticket_data = Tickets::select('ticket_number', 'id')
-                            ->where('user_id', '=', $ticket->user_id)
-                            ->where('id', '!=', $id)
-                            ->where('status', '=', 1)->get();
-            if (isset($ticket_data) && count($ticket_data) >= 1) {
-                return 1;
-            } else {
-                return 0;
+            $ticket = $this->authorizeTicketAccess($id);
+            if (!$ticket) {
+                return response('Unauthorized', 403);
             }
+
+            return count($this->mergeCandidates($ticket)) >= 1 ? 1 : 0;
         }
     }
 
     public function mergeTickets($id)
     {
-        if (!$this->authorizeTicketAccess($id)) {
-            return response('Unauthorized', 403);
-        }
         // split the phrase by any number of commas or space characters,
         // which include " ", \r, \t, \n and \f
-        $t_id = preg_split("/[\s,]+/", $id);
+        $url_ids = preg_split("/[\s,]+/", trim($id), -1, PREG_SPLIT_NO_EMPTY);
+        if (!$this->authorizeTicketIds($url_ids)) {
+            return response('Unauthorized', 403);
+        }
+        $t_id = $url_ids;
         if (count($t_id) > 1) {
             $p_id = Input::get('p_id'); //parent ticket id
             $t_id = array_diff($t_id, [$p_id]);
@@ -2407,6 +2491,8 @@ class TicketController extends Controller
             $t_id = Input::get('t_id'); //getting array of tickets to merge
             if ($t_id == null) {
                 return 2;
+            } elseif (!is_array($t_id)) {
+                return response('Unauthorized', 403);
             } else {
                 $temp_id = Input::get('p_id'); //getting parent ticket
                 if ($id == $temp_id) {
@@ -2417,6 +2503,13 @@ class TicketController extends Controller
                     $t_id = array_diff($t_id, [$temp_id]);
                 }
             }
+        }
+        // p_id and t_id[] come from the request body, not the URL: the parent
+        // receives the children's threads, and each child is closed, so every one
+        // of them must be within the user's reach - not just the id in the path.
+        $t_id = array_values($t_id);
+        if (count($t_id) === 0 || !$this->authorizeTicketIds(array_merge([$p_id], $t_id))) {
+            return response('Unauthorized', 403);
         }
         $parent_ticket = Tickets::select('ticket_number')->where('id', '=', $p_id)->first();
         $parent_thread = Ticket_Thread::where('ticket_id', '=', $p_id)->first();
@@ -2475,12 +2568,13 @@ class TicketController extends Controller
 
     public function getParentTickets($id)
     {
-        $title = Ticket_Thread::select('title')->where('ticket_id', '=', $id)->first();
-        echo "<option value='$id'>".$title->title.'</option>';
         $tickets = Input::get('data1');
+        if (!$this->authorizeTicketIds(array_merge([$id], is_array($tickets) ? $tickets : [$tickets]))) {
+            return response('Unauthorized', 403);
+        }
+        echo $this->mergeTicketOption($id);
         foreach ($tickets as $value) {
-            $title = Ticket_Thread::select('title')->where('ticket_id', '=', $value)->first();
-            echo "<option value='$value'>".$title->title.'</option>';
+            echo $this->mergeTicketOption($value);
         }
     }
 

@@ -11,10 +11,13 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Tests\Concerns\CreatesPassportTokens;
 use Tests\TestCase;
 
 class TicketControllerTest extends TestCase
 {
+    use CreatesPassportTokens;
+
     /**
      * A basic unit test example.
      *
@@ -328,10 +331,10 @@ class TicketControllerTest extends TestCase
         return $user;
     }
 
-    /** Mint a JWT the way POST /api/v1/authenticate does, for use in an Authorization header. */
+    /** Mint a bearer token the way POST /api/v1/authenticate does, for use in an Authorization header. */
     private function jwtFor(User $user): string
     {
-        return \JWTAuth::fromUser($user);
+        return $this->passportTokenFor($user);
     }
 
     /** Create and authenticate an agent. */

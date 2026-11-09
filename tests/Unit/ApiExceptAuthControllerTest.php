@@ -6,6 +6,7 @@ use App\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use ReflectionMethod;
+use Tests\Concerns\CreatesPassportTokens;
 use Tests\TestCase;
 
 /**
@@ -34,6 +35,8 @@ use Tests\TestCase;
  */
 class ApiExceptAuthControllerTest extends TestCase
 {
+    use CreatesPassportTokens;
+
     private function makeUser(string $role = 'admin'): User
     {
         $suffix = Str::random(8);
@@ -52,7 +55,7 @@ class ApiExceptAuthControllerTest extends TestCase
 
     private function authHeader(User $user): array
     {
-        return ['Authorization' => 'Bearer '.\JWTAuth::fromUser($user)];
+        return ['Authorization' => 'Bearer '.$this->passportTokenFor($user)];
     }
 
     /** resolvePublicTarget() is private; reflection lets the validation logic

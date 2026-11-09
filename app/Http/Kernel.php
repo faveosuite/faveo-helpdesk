@@ -60,7 +60,6 @@ class Kernel extends HttpKernel
         'role.agent'       => \App\Http\Middleware\CheckRoleAgent::class,
         'role.user'        => \App\Http\Middleware\CheckRoleUser::class,
         'api'              => \App\Http\Middleware\ApiKey::class,
-        'jwt.authOveride'  => \App\Http\Middleware\JwtAuthenticate::class,
         'update'           => \App\Http\Middleware\CheckUpdate::class,
         'board'            => \App\Http\Middleware\CheckBoard::class,
         'install'          => \App\Http\Middleware\Install::class,

@@ -10,18 +10,18 @@ class TicketController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('jwt.authOveride');
+        $this->middleware('auth:api');
     }
 
     protected function getTickets(Request $request)
     {
         try {
-            $user = \JWTAuth::parseToken()->authenticate();
+            $user = auth('api')->user();
 
             // Route-level authorization. This endpoint lists tickets across the
             // whole installation and, without this check, was reachable by ANY
-            // authenticated JWT holder: 'jwt.authOveride' (the only middleware
-            // this controller declares) just validates the token, and
+            // authenticated caller: 'auth:api' (the only middleware this
+            // controller declares) just validates the bearer token, and
             // FilterController's own 'role.agent' middleware never runs here —
             // it is instantiated with `new FilterController($request)` below
             // rather than dispatched through the router, so its constructor
@@ -31,10 +31,10 @@ class TicketController extends Controller
             // matching fix on the query side.
             //
             // The instanceof is a genuine narrowing, not a cast to silence
-            // Larastan: authenticate() is typed to return
-            // Tymon\JWTAuth\Contracts\JWTSubject, an interface with no $role, so
-            // the check below needs App\User specifically — and if it were ever
-            // anything else, denying is the correct (fail-closed) outcome anyway.
+            // Larastan: auth('api')->user() is typed to return the generic
+            // Authenticatable, which has no $role, so the check below needs
+            // App\User specifically — and if it were ever anything else, denying
+            // is the correct (fail-closed) outcome anyway.
             if (!$user instanceof \App\User || !in_array($user->role, ['agent', 'admin'], true)) {
                 return errorResponse(Lang::get('lang.unauthorized_access'), 403);
             }
@@ -118,16 +118,5 @@ class TicketController extends Controller
 
             return errorResponse(compact('error', 'file', 'line'), $responseCode = 400);
         }
-        // A prior `catch (\TokenExpiredException $ex)` block stood here, below the
-        // catch (\Exception $ex) above. Tymon's TokenExpiredException extends its own
-        // JWTException, which extends \Exception, so that block could never run —
-        // the catch above it already intercepts every exception, including a real
-        // token expiry, first. It also named the wrong class: \TokenExpiredException
-        // (root namespace) isn't the real
-        // \Tymon\JWTAuth\Exceptions\TokenExpiredException, which is how Larastan
-        // caught it ("Call to method getMessage() on an unknown class"). Removed
-        // rather than corrected: dead code that happens to typecheck is still dead
-        // code, and the \Exception catch above already returns the same shape of
-        // response for a real token-expiry error.
     }
 }

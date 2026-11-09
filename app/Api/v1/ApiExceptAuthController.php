@@ -20,9 +20,9 @@ class ApiExceptAuthController extends Controller
         // rely on anyway: App\Http\Middleware\ApiKey lets every request through
         // untouched whenever settings_system.api_key_mandatory is off (the
         // default), so a commented-out `$this->middleware('api')` was never a
-        // real gate. jwt.authOveride is the same bearer-token check every other
+        // real gate. auth:api is the same bearer-token check every other
         // /api/v1/helpdesk/* route behind ApiController requires.
-        $this->middleware('jwt.authOveride');
+        $this->middleware('auth:api');
     }
 
     /**

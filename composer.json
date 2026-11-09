@@ -40,7 +40,6 @@
         "propaganistas/laravel-phone": "^6.0",
         "neitanod/forceutf8": "dev-master",
         "nicolaslopezj/searchable": "^1.13",
-        "tymon/jwt-auth": "^2.0.0",
         "aws/aws-sdk-php": "^3.131",
         "predis/predis": "^3.0",
         "mremi/url-shortener": "^1.0",
@@ -65,7 +64,8 @@
         "itsgoingd/clockwork": "dev-master",
         "diglactic/laravel-breadcrumbs": "^10.0",
         "spatie/laravel-html": "^3.12",
-        "sentry/sentry-laravel": "^4.24"
+        "sentry/sentry-laravel": "^4.24",
+        "laravel/passport": "^13.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^12.0",
@@ -96,7 +96,10 @@
     "autoload-dev": {
         "classmap": [
             "tests/TestCase.php"
-        ]
+        ],
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
     },
     "extra": {
         "laravel": {

@@ -88,12 +88,12 @@ class ApiController extends Controller
     {
         $this->request = $request;
 
-        $this->middleware('jwt.authOveride');
+        $this->middleware('auth:api');
         $this->middleware('api', ['except' => 'GenerateApiKey']);
-        // Staff-only by default. The v1 API is the agent API, but 'jwt.authOveride'
+        // Staff-only by default. The v1 API is the agent API, but 'auth:api'
         // and the shared api_key only prove the caller is *someone*: any customer
         // token used to reach ticket lists, other customers' tickets and internal
-        // notes, the customer directory and so on. Registered after the JWT
+        // notes, the customer directory and so on. Registered after the Passport
         // middleware, so the token has already been validated here.
         $this->middleware(function ($request, $next) {
             if ($deny = $this->denyUnlessStaff($this->authenticatedApiUser())) {
@@ -103,12 +103,11 @@ class ApiController extends Controller
             return $next($request);
         })->except(self::CUSTOMER_METHODS);
 
-        try {
-            $user = \JWTAuth::parseToken()->authenticate();
-            $this->user = $user;
-        } catch (\Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
-        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
-        }
+        // Resolve the caller from the bearer token on this request. Passport's
+        // token guard reads and validates the token directly, so this works in
+        // the constructor (before the auth:api middleware runs) just as the old
+        // JWTAuth::parseToken() did; an absent or invalid token yields null.
+        $this->user = auth('api')->user();
 
         $ticket = new TicketController();
         $this->ticket = $ticket;
@@ -154,11 +153,11 @@ class ApiController extends Controller
     }
 
     /**
-     * Resolve the caller's identity from the JWT on this request.
+     * Resolve the caller's identity from the bearer token on this request.
      *
      * $this->user is unusable for this: the constructor above overwrites it
      * with a blank `new User()` right after assigning the authenticated user,
-     * so every method that needs the caller re-parses the token itself. This
+     * so every method that needs the caller re-resolves the token itself. This
      * centralises that, since several endpoints below now need the role too.
      *
      * @return \App\User|null
@@ -166,7 +165,7 @@ class ApiController extends Controller
     private function authenticatedApiUser()
     {
         try {
-            $user = \JWTAuth::parseToken()->authenticate();
+            $user = auth('api')->user();
 
             return $user instanceof User ? $user : null;
         } catch (\Exception $ex) {
@@ -179,8 +178,8 @@ class ApiController extends Controller
      *
      * Several v1 endpoints (the customer directory, internal notes, API-key
      * rotation) are staff-only by intent but previously relied solely on
-     * 'jwt.authOveride' + the shared api_key, neither of which checks role:
-     * any customer-role JWT could reach them. This is the shared gate for
+     * 'auth:api' + the shared api_key, neither of which checks role:
+     * any customer-role token could reach them. This is the shared gate for
      * those endpoints; it returns a 403 JSON response to short-circuit the
      * caller's method, or null when the caller may proceed.
      *
@@ -220,6 +219,10 @@ class ApiController extends Controller
      */
     private function accessibleTicket($user, $ticketId)
     {
+        // A single integer id only; MySQL would read '12,34' as 12.
+        if (!is_int($ticketId) && !(is_string($ticketId) && ctype_digit($ticketId))) {
+            return null;
+        }
         $ticket = Tickets::where('id', '=', $ticketId)->first();
         if (!$ticket || !$user instanceof User) {
             return null;
@@ -507,7 +510,7 @@ class ApiController extends Controller
             //dd('sdhjbc');
 //            $result = $this->model->where('assigned_to', '=', null)->where('status', '1')->orderBy('id', 'DESC')->get();
 //            return response()->json(compact('result'));
-            $user = \JWTAuth::parseToken()->authenticate();
+            $user = auth('api')->user();
             $unassigned = $this->user->join('tickets', function ($join) {
                 $join->on('users.id', '=', 'tickets.user_id')
                         ->whereNull('assigned_to')->where('status', '=', 1);
@@ -560,7 +563,7 @@ class ApiController extends Controller
         try {
             //            $result = $this->model->where('status', '>', 1)->where('status', '<', 4)->orderBy('id', 'DESC')->get();
 //            return response()->json(compact('result'));
-            $user = \JWTAuth::parseToken()->authenticate();
+            $user = auth('api')->user();
             $result = $this->user->join('tickets', function ($join) {
                 $join->on('users.id', '=', 'tickets.user_id')
                         ->where('status', '=', 3)->orWhere('status', '=', 2);
@@ -998,7 +1001,7 @@ class ApiController extends Controller
         try {
             // This rotates the one shared api_key that 'api_key_mandatory' checks
             // on every other v1 request. Without a role check here, any
-            // customer-role JWT could mint a new one at will, defeating that
+            // customer-role token could mint a new one at will, defeating that
             // setting for every other integration using the old key.
             $user = $this->authenticatedApiUser();
             if (!$user instanceof User || $user->role !== 'admin') {
@@ -1163,7 +1166,7 @@ class ApiController extends Controller
     public function inbox()
     {
         try {
-            $user = \JWTAuth::parseToken()->authenticate();
+            $user = auth('api')->user();
             $inbox = $this->user->join('tickets', function ($join) {
                 $join->on('users.id', '=', 'tickets.user_id')
                         ->where('status', '=', 1);
@@ -1267,7 +1270,7 @@ class ApiController extends Controller
     public function getTrash()
     {
         try {
-            $user = \JWTAuth::parseToken()->authenticate();
+            $user = auth('api')->user();
             $trash = $this->user->join('tickets', function ($join) {
                 $join->on('users.id', '=', 'tickets.user_id')
                         ->where('status', '=', 5);
@@ -1332,7 +1335,7 @@ class ApiController extends Controller
 
                 return response()->json(compact('error'));
             }
-            //$user = \JWTAuth::parseToken()->authenticate();
+            //$user = auth('api')->user();
             $result = $this->user->join('tickets', function ($join) {
                 $join->on('users.id', '=', 'tickets.assigned_to')
                         ->where('status', '=', 1);
@@ -1668,12 +1671,6 @@ class ApiController extends Controller
             $file = $e->getFile();
 
             return response()->json(compact('error', 'file', 'line'));
-        } catch (Tymon\JWTAuth\Exceptions\TokenExpiredException $ex) {
-            $error = $e->getMessage();
-            $line = $e->getLine();
-            $file = $e->getFile();
-
-            return response()->json(compact('error', 'file', 'line'));
         }
     }
 
@@ -1698,12 +1695,6 @@ class ApiController extends Controller
 
             return response()->json(compact('collaborator'));
         } catch (\Exception $e) {
-            $error = $e->getMessage();
-            $line = $e->getLine();
-            $file = $e->getFile();
-
-            return response()->json(compact('error', 'file', 'line'));
-        } catch (Tymon\JWTAuth\Exceptions\TokenExpiredException $ex) {
             $error = $e->getMessage();
             $line = $e->getLine();
             $file = $e->getFile();
@@ -1752,7 +1743,7 @@ class ApiController extends Controller
     public function dependency()
     {
         try {
-            $user = \JWTAuth::parseToken()->authenticate();
+            $user = auth('api')->user();
             $tickets = \DB::table('tickets');
             if ($user->role == 'agent') {
                 $id = $user->id;
@@ -1923,12 +1914,6 @@ class ApiController extends Controller
                 return response()->json(compact('register'));
             }
         } catch (\Exception $e) {
-            $error = $e->getMessage();
-            $line = $e->getLine();
-            $file = $e->getFile();
-
-            return response()->json(compact('error', 'file', 'line'));
-        } catch (Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
             $error = $e->getMessage();
             $line = $e->getLine();
             $file = $e->getFile();

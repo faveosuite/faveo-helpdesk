@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Tests\Concerns\CreatesPassportTokens;
 use Tests\TestCase;
 
 /**
@@ -26,6 +27,8 @@ use Tests\TestCase;
  */
 class CrossDepartmentTicketAuthorizationTest extends TestCase
 {
+    use CreatesPassportTokens;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -279,6 +282,40 @@ class CrossDepartmentTicketAuthorizationTest extends TestCase
         $this->assertSame(0, (int) User::find($victim->user_id)->ban, 'customer was banned through a foreign ticket');
     }
 
+    // ── read-only disclosure (PDF print) ─────────────────────────────────────
+
+    #[DataProvider('foreignTickets')]
+    public function test_print_of_another_departments_ticket_is_refused(?string $assignee, int $status)
+    {
+        $victim = $this->foreignTicket($assignee, $status);
+        $this->actingAs($this->agentA());
+
+        $this->get(route('ticket.print', ['id' => $victim->id]))->assertStatus(403);
+    }
+
+    public function test_print_of_a_missing_ticket_is_refused()
+    {
+        $this->actingAs($this->agentA());
+
+        $this->get(route('ticket.print', ['id' => 999999999]))->assertStatus(403);
+    }
+
+    #[DataProvider('foreignTickets')]
+    public function test_thread_pdf_of_another_departments_ticket_is_refused(?string $assignee, int $status)
+    {
+        $victim = $this->foreignTicket($assignee, $status);
+        $threadId = Ticket_Thread::where('ticket_id', $victim->id)->value('id');
+        $this->actingAs($this->agentA());
+
+        // pdfThread() catches the 403 abort in its try/catch and redirects back
+        // with a flash error, so the refusal shows up as a redirect, not a 403.
+        $response = $this->get(route('thread.pdf', ['threadid' => $threadId]));
+
+        $response->assertRedirect();
+        $response->assertSessionHas('fails', 'Unauthorized');
+        $this->assertStringNotContainsString('Authz body', (string) $response->getContent());
+    }
+
     public function test_surrender_of_another_departments_ticket_is_refused()
     {
         $victim = $this->foreignTicket('agentB', 1);
@@ -368,11 +405,193 @@ class CrossDepartmentTicketAuthorizationTest extends TestCase
         $this->assertNotSame($ownBefore, $this->snapshot($own), "bulk '$action' did nothing at all");
     }
 
+    // ── merge ────────────────────────────────────────────────────────────────
+
+    /** Merge state of a ticket: status plus where its threads live. */
+    private function mergeSnapshot(Tickets $ticket): array
+    {
+        return [$this->snapshot($ticket), $this->threadCount($ticket)];
+    }
+
+    /** Ticket page flow: a foreign ticket in the URL. */
+    public function test_merge_with_foreign_ticket_in_path_is_refused()
+    {
+        $own = $this->makeTicket(1);
+        $victim = $this->makeTicket(2);
+        $before = $this->mergeSnapshot($victim);
+        $this->actingAs($this->agentA());
+
+        $response = $this->patch(route('merge.tickets', ['id' => $victim->id]), ['p_id' => $own->id, 't_id' => [$own->id]]);
+
+        $this->assertSame(403, $response->status());
+        $this->assertSame($before, $this->mergeSnapshot($victim));
+    }
+
+    /** Own ticket in the URL, foreign ticket smuggled in as a child via t_id[]. */
+    public function test_merge_with_foreign_child_in_body_is_refused()
+    {
+        $own = $this->makeTicket(1);
+        $victim = $this->makeTicket(2);
+        $before = $this->mergeSnapshot($victim);
+        $ownBefore = $this->mergeSnapshot($own);
+        $this->actingAs($this->agentA());
+
+        $response = $this->patch(route('merge.tickets', ['id' => $own->id]), ['p_id' => $own->id, 't_id' => [$victim->id]]);
+
+        $this->assertSame(403, $response->status());
+        $this->assertSame($before, $this->mergeSnapshot($victim), 'foreign ticket was merged away');
+        $this->assertSame($ownBefore, $this->mergeSnapshot($own));
+    }
+
+    /** Own ticket as the child, foreign ticket as the parent via p_id. */
+    public function test_merge_into_foreign_parent_is_refused()
+    {
+        $own = $this->makeTicket(1);
+        $victim = $this->makeTicket(2);
+        $before = $this->mergeSnapshot($victim);
+        $ownBefore = $this->mergeSnapshot($own);
+        $this->actingAs($this->agentA());
+
+        $response = $this->patch(route('merge.tickets', ['id' => $own->id]), ['p_id' => $victim->id, 't_id' => [$own->id]]);
+
+        $this->assertSame(403, $response->status());
+        $this->assertSame($before, $this->mergeSnapshot($victim), 'threads were written into a foreign ticket');
+        $this->assertSame($ownBefore, $this->mergeSnapshot($own));
+    }
+
+    /** Ticket list flow: '<own>,<victim>' in the URL must not pass on the first id alone. */
+    public function test_merge_with_foreign_ticket_in_comma_list_is_refused()
+    {
+        $own = $this->makeTicket(1);
+        $victim = $this->makeTicket(2);
+        $before = $this->mergeSnapshot($victim);
+        $this->actingAs($this->agentA());
+
+        $response = $this->patch(route('merge.tickets', ['id' => $own->id.','.$victim->id]), ['p_id' => $own->id]);
+
+        $this->assertSame(403, $response->status());
+        $this->assertSame($before, $this->mergeSnapshot($victim));
+    }
+
+    public function test_merge_within_own_department_is_allowed()
+    {
+        $parent = $this->makeTicket(1);
+        $child = $this->makeTicket(1);
+        $this->actingAs($this->agentA());
+
+        $response = $this->patch(route('merge.tickets', ['id' => $parent->id]), ['p_id' => $parent->id, 't_id' => [$child->id]]);
+
+        $this->assertSame(200, $response->status());
+        $this->assertSame(3, (int) Tickets::find($child->id)->status, 'child ticket was not merged');
+    }
+
+    public function test_merge_candidate_lookups_for_foreign_ticket_are_refused()
+    {
+        $victim = $this->makeTicket(2);
+        $this->actingAs($this->agentA());
+
+        $this->get(route('get.merge.tickets', ['id' => $victim->id]))->assertStatus(403);
+        $this->get(route('check.merge.tickets', ['id' => $victim->id]))->assertStatus(403);
+        $this->get(route('get.merge.tickets', ['id' => 0, 'data1' => [$victim->id]]))->assertStatus(403);
+        $this->get(route('check.merge.tickets', ['id' => 0, 'data1' => [$victim->id, $victim->id]]))->assertStatus(403);
+        $this->get(route('get.parent.ticket', ['id' => $victim->id, 'data1' => [$victim->id]]))->assertStatus(403);
+    }
+
+    /** The same customer's ticket in another department must not be listed. */
+    public function test_merge_candidates_exclude_other_departments()
+    {
+        $own = $this->makeTicket(1);
+        $sameCustomerOwnDept = $this->makeTicket(1);
+        $sameCustomerOtherDept = $this->makeTicket(2);
+        foreach ([$sameCustomerOwnDept, $sameCustomerOtherDept] as $t) {
+            $t->user_id = $own->user_id;
+            $t->save();
+        }
+        $this->actingAs($this->agentA());
+
+        $html = $this->echoedBy(fn () => $this->get(route('get.merge.tickets', ['id' => $own->id]))->assertStatus(200));
+
+        $this->assertStringContainsString("value='{$sameCustomerOwnDept->id}'", $html);
+        $this->assertStringNotContainsString("value='{$sameCustomerOtherDept->id}'", $html);
+    }
+
+    public function test_merge_candidate_titles_are_escaped()
+    {
+        $own = $this->makeTicket(1);
+        $other = $this->makeTicket(1);
+        $other->user_id = $own->user_id;
+        $other->save();
+        Ticket_Thread::where('ticket_id', $other->id)->update(['title' => '<script>x</script>']);
+        $this->actingAs($this->agentA());
+
+        $html = $this->echoedBy(fn () => $this->get(route('get.merge.tickets', ['id' => $own->id])));
+
+        $this->assertStringContainsString("value='{$other->id}'", $html);
+        $this->assertStringNotContainsString('<script>', $html);
+    }
+
+    /** The merge pickers echo their <option> list instead of returning it. */
+    private function echoedBy(callable $request): string
+    {
+        ob_start();
+        try {
+            $request();
+        } finally {
+            $out = ob_get_clean();
+        }
+
+        return $out;
+    }
+
+    // ── edit / due date / lock ───────────────────────────────────────────────
+
+    public function test_edit_of_another_departments_ticket_is_refused()
+    {
+        $victim = $this->makeTicket(2);
+        $before = Tickets::find($victim->id)->only(['sla', 'help_topic_id', 'source', 'priority_id', 'dept_id']);
+        $this->actingAs($this->agentA());
+
+        $response = $this->patch(route('ticket.post.edit', ['id' => $victim->id]), [
+            'subject'         => 'hijacked',
+            'sla_paln'        => 1,
+            'help_topic'      => 1,
+            'ticket_source'   => 2,
+            'ticket_priority' => 1,
+        ]);
+
+        $this->assertSame(403, $response->status());
+        $this->assertSame($before, Tickets::find($victim->id)->only(['sla', 'help_topic_id', 'source', 'priority_id', 'dept_id']));
+        $this->assertSame('Authz subject', Ticket_Thread::where('ticket_id', $victim->id)->first()->title);
+    }
+
+    public function test_due_date_change_on_another_departments_ticket_is_refused()
+    {
+        $victim = $this->makeTicket(2);
+        $before = Tickets::find($victim->id)->duedate;
+        $this->actingAs($this->agentA());
+
+        $this->post(route('ticket.duedate', ['id' => $victim->id]), ['duedate' => '01/01/2030'])->assertStatus(403);
+
+        $this->assertSame($before, Tickets::find($victim->id)->duedate);
+    }
+
+    public function test_lock_of_another_departments_ticket_is_refused()
+    {
+        $victim = $this->makeTicket(2);
+        $before = Tickets::find($victim->id)->only(['lock_by', 'lock_at']);
+        $this->actingAs($this->agentA());
+
+        // Two routes share the name 'lock'; address check/lock/{id} by URL.
+        $this->get('check/lock/'.$victim->id)->assertStatus(403);
+
+        $this->assertSame($before, Tickets::find($victim->id)->only(['lock_by', 'lock_at']));
+    }
+
     // ── API v1 (one request per test: see ApiV1ControllerTest) ───────────────
 
     private function apiHeaders(User $user): array
     {
-        return ['Authorization' => 'Bearer '.\JWTAuth::fromUser($user)];
+        return ['Authorization' => 'Bearer '.$this->passportTokenFor($user)];
     }
 
     public function test_api_reply_to_another_departments_ticket_is_refused()

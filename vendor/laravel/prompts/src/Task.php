@@ -114,6 +114,7 @@ class Task extends Prompt
         }
 
         $originalAsync = pcntl_async_signals(true);
+        /** @var callable|int $originalSignalHandler */
         $originalSignalHandler = pcntl_signal_get_handler(SIGINT);
 
         pcntl_signal(SIGINT, fn () => exit());

@@ -73,10 +73,11 @@ class Handler extends ExceptionHandler
         switch ($e) {
             case $e instanceof HttpResponseException:
                 return parent::render($request, $e);
-            case $e instanceof \Tymon\JWTAuth\Exceptions\TokenExpiredException:
-                return response()->json(['message' => $e->getMessage(), 'code' => $e->getStatusCode()]);
-            case $e instanceof \Tymon\JWTAuth\Exceptions\TokenInvalidException:
-                return response()->json(['message' => $e->getMessage(), 'code' => $e->getStatusCode()]);
+            case $e instanceof \Illuminate\Auth\AuthenticationException:
+                // Raised by the 'auth:api' (Passport) middleware when the bearer
+                // token is missing, expired, revoked or otherwise invalid - the
+                // replacement for the old Tymon JWT token exceptions.
+                return response()->json(['message' => $e->getMessage(), 'code' => 401], 401);
             case $e instanceof TokenMismatchException:
                 if ($request->ajax() || $request->wantsJson()) {
                     $result = ['fails' => \Lang::get('lang.session-expired')];

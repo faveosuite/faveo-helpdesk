@@ -10,13 +10,14 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Tests\Concerns\CreatesPassportTokens;
 use Tests\TestCase;
 
 /**
  * Regression coverage for the v1 REST API broken-access-control report:
- * App\Api\v1\ApiController's constructor applies only 'jwt.authOveride' and the
+ * App\Api\v1\ApiController's constructor applies only 'auth:api' and the
  * shared api_key middleware, neither of which checks the caller's role. A plain
- * 'user' JWT could therefore reach the customer directory, forge the author of
+ * 'user' token could therefore reach the customer directory, forge the author of
  * an internal note on any ticket, and even mint a new shared api_key -
  * defeating 'api_key_mandatory' for every other integration.
  *
@@ -28,6 +29,8 @@ use Tests\TestCase;
  */
 class ApiV1ControllerTest extends TestCase
 {
+    use CreatesPassportTokens;
+
     private function makeUser(string $role, array $overrides = []): User
     {
         $faker = FakerFactory::create();
@@ -52,7 +55,7 @@ class ApiV1ControllerTest extends TestCase
 
     private function jwtFor(User $user): string
     {
-        return \JWTAuth::fromUser($user);
+        return $this->passportTokenFor($user);
     }
 
     private function authHeader(User $user): array
