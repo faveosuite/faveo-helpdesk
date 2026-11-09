@@ -129,7 +129,7 @@ class="nav-link active"
             <div class="col-md-4">
                 <div class="mb-3 {{ $errors->has('priority') ? 'has-error' : '' }}">
                     {!! html()->label(Lang::get('lang.priority'), 'priority') !!} <span class="text-red"> *</span>
-                    {!! html()->select('priority', [''=>Lang::get('lang.select_a_priority'),Lang::get('lang.priorities')=>$priority->pluck('priority_desc','priority_id')->toArray()], null)->class('form-control') !!}
+                    {!! html()->select('priority', [''=>Lang::get('lang.select_a_priority'),Lang::get('lang.priorities')=>$priority->pluck('priority','priority_id')->toArray()], null)->class('form-control') !!}
                 </div>
             </div>
             <!-- SLA Plan:	 Drop down: value SLA Plan  table-->

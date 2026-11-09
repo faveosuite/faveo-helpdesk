@@ -7,9 +7,8 @@ use App\Http\Controllers\Controller;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
-use JWTAuth;
-use Tymon\JWTAuth\Exceptions\JWTException;
+use Illuminate\Support\Facades\Password;
+use Lang;
 
 /**
  * -----------------------------------------------------------------------------
@@ -31,7 +30,7 @@ class TokenAuthController extends Controller
     public function __construct()
     {
         $this->middleware('api');
-        $this->middleware('jwt.authOveride')->only('getAuthenticatedUser');
+        $this->middleware('auth:api')->only('getAuthenticatedUser');
         $PhpMailController = new PhpMailController();
         $this->PhpMailController = $PhpMailController;
     }
@@ -52,20 +51,29 @@ class TokenAuthController extends Controller
         //$credentials = $request->only('email', 'password');
 
         try {
-            if (!$token = JWTAuth::attempt([$field => $usernameinput, 'password' => $password, 'active' => 1])) {
+            // Validate credentials for a single request (no session) against the
+            // same 'users' provider the old JWTAuth::attempt used; the non-password
+            // keys (active => 1) are applied as extra where-clauses, so banned or
+            // inactive accounts are rejected exactly as before.
+            if (!\Auth::once([$field => $usernameinput, 'password' => $password, 'active' => 1])) {
                 return response()->json(['error' => 'invalid_credentials', 'status_code' => 401]);
             }
-        } catch (JWTException $e) {
-            return response()->json(['error' => 'could_not_create_token', 500]);
+
+            $user = \Auth::user();
+            // Passport personal access token - preserves the pre-existing API
+            // contract: clients keep posting username/password here and keep
+            // sending the returned string as `Authorization: Bearer <token>`.
+            $token = $user->createToken('faveo')->accessToken;
         } catch (\Exception $e) {
             $error = $e->getMessage();
 
             return response()->json(compact('error'));
         }
 
-        $user_id = \Auth::user();
+        // Preserves the historical response shape: `user_id` carries the whole
+        // authenticated user object (not just its id), as it did under JWTAuth.
+        $user_id = $user;
 
-        // if no errors are encountered we can return a JWT
         return response()->json(compact('token', 'user_id'));
     }
 
@@ -76,24 +84,18 @@ class TokenAuthController extends Controller
      */
     public function getAuthenticatedUser()
     {
-        //dd(JWTAuth::parseToken()->authenticate());
+        // The 'auth:api' middleware on this method has already validated the
+        // bearer token (and returned 401 otherwise), so the user is present here.
         try {
-            if (!$user = JWTAuth::parseToken()->authenticate()) {
+            if (!$user = auth('api')->user()) {
                 return response()->json(['user_not_found', 404]);
             }
-        } catch (Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
-            return response()->json(['token_expired', $e->getStatusCode()]);
-        } catch (Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
-            return response()->json(['token_invalid', $e->getStatusCode()]);
-        } catch (Tymon\JWTAuth\Exceptions\JWTException $e) {
-            return response()->json(['token_absent', $e->getStatusCode()]);
         } catch (\Exception $e) {
             $error = $e->getMessage();
 
             return response()->json(compact('error'));
         }
 
-        //dd($user);
         return response()->json(compact('user'));
     }
 
@@ -167,28 +169,41 @@ class TokenAuthController extends Controller
                 return response()->json(compact('error'));
             }
 
-            $date = date('Y-m-d H:i:s');
-            $user = User::where('email', '=', $request->only('email'))->first();
-            if (isset($user)) {
-                $user1 = $user->email;
-                //gen new code and pass
-                $code = Str::random(60);
-                $password_reset_table = \DB::table('password_resets')->where('email', '=', $user->email)->first();
-                if (isset($password_reset_table)) {
-                    $password_reset_table = \DB::table('password_resets')->where('email', '=', $user->email)->update(['token' => $code, 'created_at' => $date]);
-                    // $password_reset_table->token = $code;
-                    // $password_reset_table->update(['token' => $code]);
-                } else {
-                    $create_password_reset = \DB::table('password_resets')->insert(['email' => $user->email, 'token' => $code, 'created_at' => $date]);
-                }
+            $user = User::where('email', '=', $request->input('email'))->first();
+            if (!isset($user)) {
+                $error = Lang::get("lang.we_can't_find_a_user_with_that_e-mail_address");
 
-                $this->PhpMailController->sendmail($from = $this->PhpMailController->mailfrom('1', '0'), $to = ['name' => $user->user_name, 'email' => $user->email], $message = ['subject' => 'Your Password Reset Link', 'scenario' => 'reset-password'], $template_variables = ['user' => $user->user_name, 'email_address' => $user->email, 'password_reset_link' => url('password/reset/'.$code)]);
+                return response()->json(compact('error'));
+            }
+
+            // Delegates to Laravel's own PasswordBroker for the same reason as
+            // ForgotPasswordController::sendResetLinkEmail(): hashed, expiring,
+            // single-use tokens instead of the plaintext/never-expiring
+            // password_resets row this used to write directly.
+            $response = Password::broker()->sendResetLink(
+                ['email' => $user->email],
+                function ($user, $token) {
+                    $this->PhpMailController->sendmail($from = $this->PhpMailController->mailfrom('1', '0'), $to = ['name' => $user->user_name, 'email' => $user->email], $message = ['subject' => 'Your Password Reset Link', 'scenario' => 'reset-password'], $template_variables = ['user' => $user->user_name, 'email_address' => $user->email, 'password_reset_link' => url('password/reset/'.$token)]);
+                }
+            );
+
+            if ($response === Password::RESET_LINK_SENT) {
                 $result = 'We have e-mailed your password reset link!';
 
                 return response()->json(compact('result'));
             }
-        } catch (Exception $ex) {
-            $error = $e->getMessage();
+
+            $error = Lang::get('lang.password-can-not-reset');
+
+            return response()->json(compact('error'));
+        } catch (\Exception $ex) {
+            // Unqualified `Exception` here resolves to the nonexistent
+            // App\Api\v1\Exception (this file has no `use Exception;` and no
+            // leading backslash), so this catch could never actually match
+            // anything thrown - PHP errors trying to resolve the catch type
+            // itself. The leading backslash is what makes it the real,
+            // global \Exception.
+            $error = $ex->getMessage();
 
             return response()->json(compact('error'));
         }

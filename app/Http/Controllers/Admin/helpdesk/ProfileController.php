@@ -8,10 +8,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ProfilePassword;
 use App\Http\Requests\ProfileRequest;
 // models
+use App\Model\helpdesk\Settings\CommonSettings;
+use App\Model\helpdesk\Utility\CountryCode;
 use App\User;
 // classes
 use Auth;
 use Exception;
+use GeoIP;
 use Hash;
 use Illuminate\Support\Facades\Request;
 
@@ -57,12 +60,35 @@ class ProfileController extends Controller
      *
      * @return type Response
      */
-    public function getProfileedit()
+    public function getProfileedit(CountryCode $code)
     {
         try {
             $user = Auth::user();
             if ($user) {
-                return view('themes.default1.agent.helpdesk.user.profile-edit', compact('user'));
+                // This renders the AGENT's profile-edit view, which reads $phonecode
+                // (the country-code placeholder) and $verify (whether to show the OTP
+                // modal). Neither was passed here, so the admin copy of the screen died
+                // with "Undefined variable $phonecode" while the agent's own
+                // /profile-edit — same view, Agent\helpdesk\UserController — rendered
+                // fine. Both are resolved the way that controller does it, but null-safe:
+                // an unmatched ISO or a missing send_otp row must not turn this page into
+                // a 500 the way the absent variables did.
+                $phonecode = null;
+
+                try {
+                    $location = GeoIP::getLocation();
+                    $phonecode = $code->where('iso', '=', $location->iso_code)->first();
+                } catch (Exception $e) {
+                    // Geo lookup is best-effort — the field stays blank, the page renders.
+                }
+
+                $settings = CommonSettings::select('status')
+                    ->where('option_name', '=', 'send_otp')
+                    ->first();
+
+                return view('themes.default1.agent.helpdesk.user.profile-edit', compact('user'))
+                                ->with(['phonecode' => $phonecode->phonecode ?? '',
+                                    'verify'        => $settings->status ?? 0, ]);
             } else {
                 return redirect('404');
             }

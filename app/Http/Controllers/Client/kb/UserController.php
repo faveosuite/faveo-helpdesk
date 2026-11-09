@@ -88,11 +88,17 @@ class UserController extends Controller
         $settings = $settings->first();
         $pagination = $settings->pagination;
         $search = $request->input('s');
-        $result = $article->where('name', 'LIKE', '%'.$search.'%')
-            ->orWhere('slug', 'LIKE', '%'.$search.'%')
-            ->orWhere('description', 'LIKE', '%'.$search.'%')
-            ->paginate($pagination);
-        $result->setPath('search?s='.$search);
+        $result = $article->where(function ($query) use ($search) {
+            $query->where('name', 'LIKE', '%'.$search.'%')
+                ->orWhere('slug', 'LIKE', '%'.$search.'%')
+                ->orWhere('description', 'LIKE', '%'.$search.'%');
+        })->where('type', '1');
+        // same visibility as the article list: guests and users only see public articles
+        if (!Auth::check() || \Auth::user()->role == 'user') {
+            $result = $result->where('status', '1');
+        }
+        $result = $result->orderBy('publish_time', 'desc')->paginate($pagination);
+        $result->setPath('search')->appends(['s' => $search]);
         $categorys = $category->get();
 
         return view('themes.default1.client.kb.article-list.search', compact('categorys', 'result'));
@@ -149,7 +155,7 @@ class UserController extends Controller
     public function home(Article $article, Category $category, Relationship $relation)
     {
         if (Config::get('database.install') == '%0%') {
-            return redirect('step1');
+            return redirect('/probe.php');
         } else {
             $categorys = $category->get();
             // $categorys->setPath('home');
@@ -312,11 +318,12 @@ class UserController extends Controller
         Config::set(['mail.password' => $setting->password, 'mail.sendmail' => $setting->email]);
     }
 
-    public function getCategoryList(Article $article, Category $category, Relationship $relation)
+    public function getCategoryList(Article $article, Category $category, Relationship $relation, Settings $settings)
     {
-        //$categorys = $category->get();
-        $categorys = $category->get();
-        // $categorys->setPath('home');
+        // Paginated like the article list, using the same KB "number of elements to display"
+        // setting; ordered by id so every category appears on exactly one page.
+        $perPage = (int) optional($settings->first())->pagination;
+        $categorys = $category->orderBy('id')->paginate($perPage > 0 ? $perPage : 10);
         /* direct to view with $article_id */
         $page = Relationship::where('category_id', '=', $category->id)->get();
         /* from whole attribute pick the article_id */

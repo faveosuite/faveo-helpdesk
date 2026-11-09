@@ -31,7 +31,7 @@ class="nav-item menu-open"
 @stop
 
 @section('PageHeader')
-<h1>{{Lang::get('lang.pages')}}</h1>
+<h3>{{Lang::get('lang.pages')}}</h3>
 @stop
 
 @section('content')
@@ -104,24 +104,24 @@ class="nav-item menu-open"
             <div class="card-body">
                 <div class="mb-3 {{ $errors->has('status') ? 'has-error' : '' }}">
                     {!! html()->label(Lang::get('lang.status'), 'status') !!}
-                    <div class="row">
-                        <div class="col-sm-5">
-                            {!! html()->radio('status', true, '1') !!} {{ Lang::get('lang.published') }}
-                        </div>
-                        <div class="col-sm-5">
-                            {!! html()->radio('status', null, '0') !!} {{ Lang::get('lang.draft') }}
-                        </div>
+                    <div>
+                        <label class="fw-normal me-3">
+                            {!! html()->radio('status', true, '1')->id('status-published') !!} {{ Lang::get('lang.published') }}
+                        </label>
+                        <label class="fw-normal me-3">
+                            {!! html()->radio('status', null, '0')->id('status-draft') !!} {{ Lang::get('lang.draft') }}
+                        </label>
                     </div>
                 </div>
                 <div class="mb-3 {{ $errors->has('visibility') ? 'has-error' : '' }}">
                     {!! html()->label(Lang::get('lang.visibility'), 'visibility') !!}
-                    <div class="row">
-                        <div class="col-sm-5">
-                            {!! html()->radio('visibility', true, '1') !!} {{Lang::get('lang.public')}}
-                        </div>
-                        <div class="col-sm-5">
-                            {!! html()->radio('visibility', null, '0') !!} {{Lang::get('lang.private')}}
-                        </div>
+                    <div>
+                        <label class="fw-normal me-3">
+                            {!! html()->radio('visibility', true, '1')->id('visibility-public') !!} {{ Lang::get('lang.public') }}
+                        </label>
+                        <label class="fw-normal me-3">
+                            {!! html()->radio('visibility', null, '0')->id('visibility-private') !!} {{ Lang::get('lang.private') }}
+                        </label>
                     </div>
                 </div>
             </div>

@@ -25,18 +25,20 @@ class="nav-link active"
 </ol>
 @stop
 
-<style type="text/css">
-    .select2-container--default .select2-selection--single {
-    border: 1px solid #ced4da !important;
-    border-radius: 0.25rem !important;
-    height: 35px !important;
-    }
-    .select2-selection__rendered{margin-top: 2px !important;}
-
-    .select2-selection__arrow { top: 5px !important; }
-</style>
 
 @section('content')
+<style>
+    /* Select2 sized and aligned like the Bootstrap 5 inputs next to it */
+    #ticket-status-icon-container .select2-container { width: 100% !important; }
+    #ticket-status-icon-container .select2-selection--single {
+        height: calc(2.25rem + 2px);
+        border: 1px solid var(--bs-border-color, #ced4da);
+        border-radius: var(--bs-border-radius, .375rem);
+    }
+    #ticket-status-icon-container .select2-selection__rendered { line-height: 2.25rem; padding-left: .75rem; padding-right: 2rem; }
+    #ticket-status-icon-container .select2-selection__arrow { height: 2.25rem; right: .5rem; }
+    .status-icon-option i { width: 1.5rem; text-align: center; margin-right: .5rem; }
+</style>
 {!! html()->modelForm($status, 'PATCH', route('statuss.update', [$status->id]))->acceptsFiles()->open() !!}
  @if(Session::has('errors'))
 <div class="alert alert-danger alert-dismissible">
@@ -83,114 +85,115 @@ class="nav-link active"
                     <input type="number" name="sort" min="1" class="form-control" value="{!! $status->sort !!}">
                 </div>  
             </div>
-            <div class="col-md-2" id="ticket-status-icon-container">
+            <div class="col-md-4" id="ticket-status-icon-container">
                 <div class="mb-3 {{ $errors->has('icon_class') ? 'has-error' : '' }}">
-                    <i class=></i>
-                    <label>{!! Lang::get('lang.icon_class') !!}: <span class="text-red"> *</span></label><br>
-                    <select class="form-control icons"  name="icon_class" style="font-family: 'FontAwesome', sans-serif;" required>
-                         <option <?php if ($status->icon_class == "fa-solid fa-pen-to-square") echo 'selected="selected"' ?> value="fa-solid fa-pen-to-square">&#xf044</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-folder-open") echo 'selected="selected"' ?> value="fa-solid fa-folder-open">&#xf07c</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-circle-minus") echo 'selected="selected"' ?> value="fa-solid fa-circle-minus">&#xf056</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-triangle-exclamation") echo 'selected="selected"' ?> value="fa-solid fa-triangle-exclamation">&#xf071</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-bars") echo 'selected="selected"' ?> value="fa-solid fa-bars">&#xf0c9</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-bell") echo 'selected="selected"' ?> value="fa-solid fa-bell">&#xf0f3</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-bookmark") echo 'selected="selected"' ?> value="fa-solid fa-bookmark">&#xf02e</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-bug") echo 'selected="selected"' ?> value="fa-solid fa-bug">&#xf188</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-bullhorn") echo 'selected="selected"' ?> value="fa-solid fa-bullhorn">&#xf0a1</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-calendar") echo 'selected="selected"' ?> value="fa-solid fa-calendar">&#xf133</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-cart-plus") echo 'selected="selected"' ?> value="fa-solid fa-cart-plus">&#xf217</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-check") echo 'selected="selected"' ?> value="fa-solid fa-check">&#xf00c</option>
-                        <option <?php if ($status->icon_class == "fa-regular fa-circle-check") echo 'selected="selected"' ?> value="fa-regular fa-circle-check">&#xf058</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-circle-check") echo 'selected="selected"' ?> value="fa-solid fa-circle-check">&#xf058</option>
-                        <option <?php if ($status->icon_class == "fa-regular fa-check-square") echo 'selected="selected"' ?> value="fa-regular fa-check-square">&#xf14a</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-check-square") echo 'selected="selected"' ?> value="fa-solid fa-check-square">&#xf14a</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-circle-notch") echo 'selected="selected"' ?> value="fa-solid fa-circle-notch">&#xf1ce</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-clock") echo 'selected="selected"' ?> value="fa-solid fa-clock">&#xf017</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-xmark") echo 'selected="selected"' ?> value="fa-solid fa-xmark">&#xf00d</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-code") echo 'selected="selected"' ?> value="fa-solid fa-code">&#xf121</option>
-                        <option <?php if ($status->icon_class == "fa-regular fa-hand-paper") echo 'selected="selected"' ?> value="fa-regular fa-hand-paper">&#xf256</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-hourglass-half") echo 'selected="selected"' ?> value="fa-solid fa-hourglass-half">&#xf252</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-gear") echo 'selected="selected"' ?> value="fa-solid fa-gear">&#xf013</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-gears") echo 'selected="selected"' ?> value="fa-solid fa-gears">&#xf085</option>
-                        <option <?php if ($status->icon_class == "fa-regular fa-comment") echo 'selected="selected"' ?> value="fa-regular fa-comment">&#xf075</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-comment") echo 'selected="selected"' ?> value="fa-solid fa-comment">&#xf075</option>
-                        <option <?php if ($status->icon_class == "fa-regular fa-comment-dots") echo 'selected="selected"' ?> value="fa-regular fa-comment-dots">&#xf4ad</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-comment-dots") echo 'selected="selected"' ?> value="fa-solid fa-comment-dots">&#xf4ad</option>
-                        <option <?php if ($status->icon_class == "fa-regular fa-comments") echo 'selected="selected"' ?> value="fa-regular fa-comments">&#xf086</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-comments") echo 'selected="selected"' ?> value="fa-solid fa-comments">&#xf086</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-pen-to-square") echo 'selected="selected"' ?> value="fa-solid fa-pen-to-square">&#xf044</option>
-                        <option <?php if ($status->icon_class == "fa-regular fa-envelope") echo 'selected="selected"' ?> value="fa-regular fa-envelope">&#xf0e0</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-right-left") echo 'selected="selected"' ?> value="fa-solid fa-right-left">&#xf362</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-exclamation") echo 'selected="selected"' ?> value="fa-solid fa-exclamation">&#xf12a</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-triangle-exclamation") echo 'selected="selected"' ?> value="fa-solid fa-triangle-exclamation">&#xf071</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-arrow-up-right-from-square") echo 'selected="selected"' ?> value="fa-solid fa-arrow-up-right-from-square">&#xf35d</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-eye") echo 'selected="selected"' ?> value="fa-solid fa-eye">&#xf06e</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-rss") echo 'selected="selected"' ?> value="fa-solid fa-rss">&#xf09e</option>
-                        <option <?php if ($status->icon_class == "fa-regular fa-flag") echo 'selected="selected"' ?> value="fa-regular fa-flag">&#xf024</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-bolt") echo 'selected="selected"' ?> value="fa-solid fa-bolt">&#xf0e7</option>
-                        <option <?php if ($status->icon_class == "fa-regular fa-folder") echo 'selected="selected"' ?> value="fa-regular fa-folder">&#xf07b</option>
-                        <option <?php if ($status->icon_class == "fa-regular fa-folder-open") echo 'selected="selected"' ?> value="fa-regular fa-folder-open">&#xf07c</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-users") echo 'selected="selected"' ?> value="fa-solid fa-users">&#xf0c0</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-info") echo 'selected="selected"' ?> value="fa-solid fa-info">&#xf129</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-life-ring") echo 'selected="selected"' ?> value="fa-solid fa-life-ring">&#xf1cd</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-chart-line") echo 'selected="selected"' ?> value="fa-solid fa-chart-line">&#xf201</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-location-arrow") echo 'selected="selected"' ?> value="fa-solid fa-location-arrow">&#xf124</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-lock") echo 'selected="selected"' ?> value="fa-solid fa-lock">&#xf023</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-share") echo 'selected="selected"' ?> value="fa-solid fa-share">&#xf064</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-reply") echo 'selected="selected"' ?> value="fa-solid fa-reply">&#xf3e5</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-reply-all") echo 'selected="selected"' ?> value="fa-solid fa-reply-all">&#xf122</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-xmark") echo 'selected="selected"' ?> value="fa-solid fa-xmark">&#xf00d</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-trash") echo 'selected="selected"' ?> value="fa-solid fa-trash">&#xf1f8</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-user") echo 'selected="selected"' ?> value="fa-solid fa-user">&#xf007</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-user-plus") echo 'selected="selected"' ?> value="fa-solid fa-user-plus">&#xf234</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-user-secret") echo 'selected="selected"' ?> value="fa-solid fa-user-secret">&#xf21b</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-user-xmark") echo 'selected="selected"' ?> value="fa-solid fa-user-xmark">&#xf235</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-users") echo 'selected="selected"' ?> value="fa-solid fa-users">&#xf0c0</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-wrench") echo 'selected="selected"' ?> value="fa-solid fa-wrench">&#xf0ad</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-circle-notch") echo 'selected="selected"' ?> value="fa-solid fa-circle-notch">&#xf1ce</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-arrows-rotate") echo 'selected="selected"' ?> value="fa-solid fa-arrows-rotate">&#xf021</option>
-                        <option <?php if ($status->icon_class == "fa-solid fa-spinner") echo 'selected="selected"' ?> value="fa-solid fa-spinner">&#xf110</option>
+                    <label for="icon_class">{!! Lang::get('lang.icon_class') !!}: <span class="text-red"> *</span></label>
+                    <?php
+                    $icons = [
+                        'fa-solid fa-pen-to-square',
+                        'fa-solid fa-folder-open',
+                        'fa-solid fa-circle-minus',
+                        'fa-solid fa-triangle-exclamation',
+                        'fa-solid fa-bars',
+                        'fa-solid fa-bell',
+                        'fa-solid fa-bookmark',
+                        'fa-solid fa-bug',
+                        'fa-solid fa-bullhorn',
+                        'fa-solid fa-calendar',
+                        'fa-solid fa-cart-plus',
+                        'fa-solid fa-check',
+                        'fa-regular fa-circle-check',
+                        'fa-solid fa-circle-check',
+                        'fa-regular fa-check-square',
+                        'fa-solid fa-check-square',
+                        'fa-solid fa-circle-notch',
+                        'fa-solid fa-clock',
+                        'fa-solid fa-xmark',
+                        'fa-solid fa-code',
+                        'fa-regular fa-hand-paper',
+                        'fa-solid fa-hourglass-half',
+                        'fa-solid fa-gear',
+                        'fa-solid fa-gears',
+                        'fa-regular fa-comment',
+                        'fa-solid fa-comment',
+                        'fa-regular fa-comment-dots',
+                        'fa-solid fa-comment-dots',
+                        'fa-regular fa-comments',
+                        'fa-solid fa-comments',
+                        'fa-regular fa-envelope',
+                        'fa-solid fa-right-left',
+                        'fa-solid fa-exclamation',
+                        'fa-solid fa-arrow-up-right-from-square',
+                        'fa-solid fa-eye',
+                        'fa-solid fa-rss',
+                        'fa-regular fa-flag',
+                        'fa-solid fa-bolt',
+                        'fa-regular fa-folder',
+                        'fa-regular fa-folder-open',
+                        'fa-solid fa-users',
+                        'fa-solid fa-info',
+                        'fa-solid fa-life-ring',
+                        'fa-solid fa-chart-line',
+                        'fa-solid fa-location-arrow',
+                        'fa-solid fa-lock',
+                        'fa-solid fa-share',
+                        'fa-solid fa-reply',
+                        'fa-solid fa-reply-all',
+                        'fa-solid fa-trash',
+                        'fa-solid fa-user',
+                        'fa-solid fa-user-plus',
+                        'fa-solid fa-user-secret',
+                        'fa-solid fa-user-xmark',
+                        'fa-solid fa-wrench',
+                        'fa-solid fa-arrows-rotate',
+                        'fa-solid fa-spinner',
+                    ];
+                    $selectedIcon = old('icon_class', $status->icon_class);
+                    // keep an icon saved before this list was trimmed selectable
+                    if ($selectedIcon && !in_array($selectedIcon, $icons, true)) {
+                        array_unshift($icons, $selectedIcon);
+                    }
+                    ?>
+                    <select class="form-control icons" id="icon_class" name="icon_class" required>
+                        @foreach($icons as $icon)
+                        {{-- the readable name is what the search box matches --}}
+                        <option value="{{ $icon }}" @if($icon === $selectedIcon) selected @endif>{{ ucfirst(str_replace('-', ' ', preg_replace('/^fa-(solid|regular) fa-/', '', $icon))) }}{{ str_starts_with($icon, 'fa-regular') ? ' ('.Lang::get('lang.outline').')' : '' }}</option>
+                        @endforeach
                     </select>
                 </div>
             </div>
         </div>
+        <?php
+        // pre-select the saved values (or the submitted ones after a validation error)
+        $resolved = old('state', $status->state) == 'closed';
+        $deleted = old('delete', $status->state == 'deleted' ? 'yes' : 'no') == 'yes';
+        $notify = old('email_user', (int) $status->email_user) == 1;
+        ?>
         <div class="mb-3">
             <!-- gender -->
             {!! html()->label(Lang::get('lang.resolved_status'), 'gender') !!}
             <div class="callout callout-default font-oblique">{!! Lang::get('lang.status_msg3') !!}</div>
-            <div class="row">
-                <div class="col-sm-3">
-                    {!! html()->radio('state', true, 'closed') !!} {{Lang::get('lang.yes')}}
-                </div>
-                <div class="col-sm-3">
-                    {!! html()->radio('state', null, 'open') !!} {{Lang::get('lang.no')}}
-                </div>
+            <div>
+                <label class="fw-normal me-4">{!! html()->radio('state', $resolved, 'closed')->id('state-yes') !!} {{Lang::get('lang.yes')}}</label>
+                <label class="fw-normal">{!! html()->radio('state', !$resolved, 'open')->id('state-no') !!} {{Lang::get('lang.no')}}</label>
             </div>
         </div>
         <div class="mb-3">
             <!-- Email user -->
             {!! html()->label(Lang::get('lang.deleted_status'), 'gender') !!}
             <div class="callout callout-default font-oblique">{!! Lang::get('lang.status_msg2') !!}</div>
-            <div class="row">
-                <div class="col-sm-3">
-                    {!! html()->radio('delete', null, 'yes') !!} {{Lang::get('lang.yes')}}
-                </div>
-                <div class="col-sm-3">
-                    {!! html()->radio('delete', null, 'no') !!} {{Lang::get('lang.no')}}
-                </div>
+            <div>
+                <label class="fw-normal me-4">{!! html()->radio('delete', $deleted, 'yes')->id('delete-yes') !!} {{Lang::get('lang.yes')}}</label>
+                <label class="fw-normal">{!! html()->radio('delete', !$deleted, 'no')->id('delete-no') !!} {{Lang::get('lang.no')}}</label>
             </div>        
         </div>
         <div class="mb-3">
             <!-- gender -->
             {!! html()->label(Lang::get('lang.notify_user'), 'gender') !!}
             <div class="callout callout-default font-oblique">{!! Lang::get('lang.status_msg1') !!}</div>
-            <div class="row">
-                <div class="col-sm-3">
-                    {!! html()->radio('email_user', null, 'yes') !!} {{Lang::get('lang.yes')}}
-                </div>
-                <div class="col-sm-3">
-                    {!! html()->radio('email_user', null, 'no') !!} {{Lang::get('lang.no')}}
-                </div>
+            <div>
+                <label class="fw-normal me-4">{!! html()->radio('email_user', $notify, '1')->id('email_user-yes') !!} {{Lang::get('lang.yes')}}</label>
+                <label class="fw-normal">{!! html()->radio('email_user', !$notify, '0')->id('email_user-no') !!} {{Lang::get('lang.no')}}</label>
             </div>        
         </div>
     </div>
@@ -202,15 +205,15 @@ class="nav-link active"
 <script src="{{asset("lb-faveo/plugins/select2/select2.full.min.js")}}" type="text/javascript"></script>
 <script type="text/javascript">
     function format(option){
-    var icon = $(option.element).attr('value');
-        return '<i class="'+icon+'" ></i> ';
+        if (!option.id) {
+            return option.text;
+        }
+        return $('<span class="status-icon-option"><i></i></span>').find('i').addClass(option.id).end().append(document.createTextNode(option.text));
     }
     $('.icons').select2({
             templateResult: format,
             templateSelection: format,
-            escapeMarkup: function (m) {
-                                        return m;
-                                        }
+            width: '100%'
     })
 </script>
 @stop

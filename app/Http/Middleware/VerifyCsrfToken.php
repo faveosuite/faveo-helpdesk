@@ -18,6 +18,7 @@ class VerifyCsrfToken extends BaseVerifier
         'chunk/upload/public',
         'media/files/public',
         'media/files',
+        'pre-license',
     ];
 
     /**

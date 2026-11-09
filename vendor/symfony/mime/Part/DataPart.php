@@ -163,6 +163,13 @@ class DataPart extends TextPart
 
     public function __unserialize(array $data): void
     {
+        if (!\is_string($data['filename'] ?? $data["\0".self::class."\0filename"] ?? '')
+            || !\is_string($data['mediaType'] ?? $data["\0".self::class."\0mediaType"] ?? null)
+            || !\is_string($data['cid'] ?? $data["\0".self::class."\0cid"] ?? '')
+        ) {
+            throw new \BadMethodCallException('Cannot unserialize '.self::class);
+        }
+
         if ($wakeup = self::class !== (new \ReflectionMethod($this, '__wakeup'))->class && self::class === (new \ReflectionMethod($this, '__unserialize'))->class) {
             trigger_deprecation('symfony/mime', '7.4', 'Implementing "%s::__wakeup()" is deprecated, use "__unserialize()" instead.', get_debug_type($this));
         }
@@ -180,10 +187,12 @@ class DataPart extends TextPart
             return;
         }
 
-        if (["\0*\0_headers", "\0*\0_parent", "\0".self::class."\0filename", "\0".self::class."\0mediaType"] === array_keys($data)) {
+        $p = "\0".self::class."\0";
+        if (["\0*\0_headers", "\0*\0_parent", $p.'filename', $p.'mediaType'] === array_keys($data) || ["\0*\0_headers", "\0*\0_parent", $p.'filename', $p.'mediaType', $p.'cid'] === array_keys($data)) {
             parent::__unserialize(['_headers' => $data["\0*\0_headers"], ...$data["\0*\0_parent"]]);
-            $this->filename = $data["\0".self::class."\0filename"];
-            $this->mediaType = $data["\0".self::class."\0mediaType"];
+            $this->filename = $data[$p.'filename'];
+            $this->mediaType = $data[$p.'mediaType'];
+            $this->cid = $data[$p.'cid'] ?? null;
 
             if ($wakeup) {
                 $this->__wakeup();
@@ -194,15 +203,37 @@ class DataPart extends TextPart
 
         trigger_deprecation('symfony/mime', '7.4', 'Passing extra keys to "%s::__unserialize()" is deprecated, populate properties in "%s::__unserialize()" instead.', self::class, get_debug_type($this));
 
-        \Closure::bind(function ($data) use ($wakeup) {
-            foreach ($data as $key => $value) {
-                $this->{("\0" === $key[0] ?? '') ? substr($key, 1 + strrpos($key, "\0")) : $key} = $value;
-            }
+        $headers = $data['_headers'] ?? $data["\0*\0_headers"] ?? null;
+        $parent = $data['_parent'] ?? $data["\0*\0_parent"] ?? null;
+        unset($data['_headers'], $data["\0*\0_headers"], $data['_parent'], $data["\0*\0_parent"]);
 
-            if ($wakeup) {
-                $this->__wakeup();
-            }
-        }, $this, static::class)($data);
+        $state = [];
+        foreach (['filename', 'mediaType', 'cid'] as $name) {
+            $key = \array_key_exists($name, $data) ? $name : "\0".self::class."\0".$name;
+            $state[$name] = $data[$key] ?? null;
+            unset($data[$key]);
+        }
+
+        if (!\is_array($parent)) {
+            throw new \BadMethodCallException('Cannot unserialize '.__CLASS__);
+        }
+
+        (new \ReflectionMethod(AbstractPart::class, 'setSubclassState'))->invoke($this, $data);
+
+        if ($wakeup) {
+            $this->_headers = $headers;
+            $this->_parent = $parent;
+        } else {
+            parent::__unserialize(['_headers' => $headers, ...$parent]);
+        }
+
+        foreach ($state as $name => $value) {
+            $this->$name = $value;
+        }
+
+        if ($wakeup) {
+            $this->__wakeup();
+        }
     }
 
     /**

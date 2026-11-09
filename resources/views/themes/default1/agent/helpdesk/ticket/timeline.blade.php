@@ -103,25 +103,25 @@ if ($thread->title != "") {
 ?>
 
 @section('content')
-    <div id="alert10" class="alert alert-success alert-dismissible fade d-none" role="alert">
+    <div id="alert10" class="alert alert-success alert-dismissible fade show d-none" role="alert">
         <button id="dismiss10" type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         <b><i class="bi bi-check-circle-fill me-2"></i>{!! Lang::get('lang.alert') !!}!</b>
         <div id="message-success0"></div>
     </div>
 
-    <div id="alert11" class="alert alert-success alert-dismissible fade d-none" role="alert">
+    <div id="alert11" class="alert alert-success alert-dismissible fade show d-none" role="alert">
         <button id="dismiss11" type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         <h4 class="alert-heading"><i class="bi bi-check-circle-fill me-2"></i>{!! Lang::get('lang.alert') !!}!</h4>
         <div id="message-success1"></div>
     </div>
 
-    <div id="alert12" class="alert alert-warning alert-dismissible fade d-none" role="alert">
+    <div id="alert12" class="alert alert-warning alert-dismissible fade show d-none" role="alert">
         <button id="dismiss12" type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         <h4 class="alert-heading"><i class="bi bi-exclamation-triangle-fill me-2"></i>{!! Lang::get('lang.alert') !!}!</h4>
         <div id="message-warning1"></div>
     </div>
 
-    <div id="alert13" class="alert alert-danger alert-dismissible fade d-none" role="alert">
+    <div id="alert13" class="alert alert-danger alert-dismissible fade show d-none" role="alert">
         <button id="dismiss13" type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         <h4 class="alert-heading"><i class="bi bi-ban-fill me-2"></i>{!! Lang::get('lang.alert') !!}!</h4>
         <div id="message-danger1"></div>
@@ -283,7 +283,7 @@ if ($thread->title != "") {
                         <tr><td><b>{!! Lang::get('lang.priority') !!}:</b></td>     
                             <?php $priority = App\Model\helpdesk\Ticket\Ticket_Priority::where('priority_id', '=', $tickets->priority_id)->first(); ?>
                             @if($priority)
-                            <td title="{{$priority->priority_desc}}">{{$priority->priority_desc}}</td>
+                            <td title="{{$priority->priority_desc}}">{{$priority->priority}}</td>
                             @endif
                         </tr>
                         <tr><td><b>{!! Lang::get('lang.department') !!}:</b></td>   
@@ -368,7 +368,7 @@ if ($thread->title != "") {
                     <h4><i class="icon fa-solid fa-warning"></i>{!! Lang::get('lang.alert') !!}!</h4>
                     <div id="message-warning2"></div>
                 </div>
-                <div id="alert23" class="alert alert-danger alert-dismissible fade d-none">
+                <div id="alert23" class="alert alert-danger alert-dismissible fade show d-none">
                     <button id="dismiss23" type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
                     <i class="icon fa-solid fa-ban"></i><b>{!! Lang::get('lang.alert') !!} !</b>
                     <div id="message-danger2"></div>
@@ -707,7 +707,7 @@ if ($thread->title != "") {
                                             <span class="timeline-meta-time"><i class="fa-regular fa-clock"></i> {{UTC::usertimezone($conversation->created_at)}}</span>
                                             
                                         </h3>
-                                        @if(\Lang::getLocale()=='ar')
+                                        @if(isRtl())
                                         <div class="timeline-body{{$conversation -> id}} arindam timeline-body-rtl">
                                         @else
                                         <div class="timeline-body{{$conversation -> id}} arindam timeline-body-ltr">
@@ -719,7 +719,7 @@ if ($thread->title != "") {
 
 
                                             <script>
-                                                                if ('{{Lang::getLocale()}}' != 'ar'){
+                                                                if ({{ isRtl() ? 'false' : 'true' }}){
                                                         $('body').css('display', 'block');
                                                                 setTimeout(function(){
                                                                 var $iframe = "Id{{$conversation->id}}";
@@ -906,7 +906,7 @@ if ($thread->title != "") {
                                         if ($tickets->priority_id == $ticket_priority->priority_id) {
                                             echo "selected";
                                         }
-                                        ?> >{!! $ticket_priority->priority_desc !!}</option>
+                                        ?> >{!! $ticket_priority->priority !!}</option>
                                         @endforeach
                                     </select>
                                     <spam id="error-priority" class="help-block text-red d-none">This is a required field</spam>
@@ -1012,7 +1012,7 @@ if ($thread->title != "") {
                     </ul>
                     <div class="tab-content mt-2">
                         <div class="tab-pane active" id="ahah1">
-                            <div id="change_alert" class="alert alert-danger alert-dismissible fade d-none">
+                            <div id="change_alert" class="alert alert-danger alert-dismissible fade show d-none">
                                 <button id="change_dismiss" type="button" class="btn-close" data-bs-dismiss="alert"  aria-hidden="true"></button>
                                 <b><i class="icon fa-solid fa-circle-exclamation"></i>Alert!</b>
                                 <div id="message-success42"></div>
@@ -1051,7 +1051,7 @@ if ($thread->title != "") {
                             {!! html()->closeModelForm() !!}
                         </div><!--tab-pane active-->
                         <div class="tab-pane" id="haha2">
-                            <div id="change_alert2" class="alert alert-danger alert-dismissible fade d-none">
+                            <div id="change_alert2" class="alert alert-danger alert-dismissible fade show d-none">
                                 <button id="change_dismiss" type="button" class="btn-close" data-bs-dismiss="alert"  aria-hidden="true"></button>
                                 <b><i class="icon fa-solid fa-check"></i>Alert!</b>
                                 <div id="message-success422"></div>
@@ -1090,7 +1090,7 @@ if ($thread->title != "") {
                         <h4 class="modal-title">{!! Lang::get('lang.assign') !!}</h4>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div id="assign_alert" class="alert alert-success alert-dismissible fade d-none">
+                    <div id="assign_alert" class="alert alert-success alert-dismissible fade show d-none">
                         <button id="assign_dismiss" type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
                         <h4><i class="icon fa-solid fa-check"></i>Alert!</h4>
                         <div id="message-success1"></div>
@@ -1260,12 +1260,12 @@ if ($thread->title != "") {
                     <div id="merge-body-alert">
                         <div class="row">
                             <div class="col-md-12">
-                                <div id="merge-succ-alert" class="alert alert-success alert-dismissible fade d-none" >
+                                <div id="merge-succ-alert" class="alert alert-success alert-dismissible fade show d-none" >
                                     <!-- <button id="dismiss-merge" type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button> -->
                                     <b><i class="icon fa-solid fa-check"></i>Alert!</b>
                                     <div id="message-merge-succ"></div>
                                 </div>
-                                <div id="merge-err-alert" class="alert alert-danger alert-dismissible fade d-none">
+                                <div id="merge-err-alert" class="alert alert-danger alert-dismissible fade show d-none">
                                     <!-- <button id="dismiss-merge2" type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button> -->
                                     <h4><i class="icon fa-solid fa-ban"></i>Alert!</h4>
                                     <div id="message-merge-err"></div>
@@ -1408,7 +1408,14 @@ if ($thread->title != "") {
             $(document).ready(function () {
 
     //Initialize Select2 Elements
-    $(".select2").select2();
+    $(".select2").not('#select-merge-tickts').select2();
+    // The merge picker lives in a modal that is hidden at page load: without an
+    // explicit width select2 measures 0px, and without dropdownParent its option
+    // list opens behind the modal.
+    $('#select-merge-tickts').select2({
+        width: '100%',
+        dropdownParent: $('#MergeTickets')
+    });
             setInterval(function(){
             $("#auto-submit").submit(function(){
             $.ajax({

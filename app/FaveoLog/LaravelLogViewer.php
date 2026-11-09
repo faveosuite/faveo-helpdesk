@@ -55,20 +55,21 @@ class LaravelLogViewer
 
     public static function pathToLogFile($file)
     {
-        $logsPath = storage_path('logs');
+        $logsPath = realpath(storage_path('logs'));
 
-        if (File::exists($file)) { // try the absolute path
-            return $file;
-        }
-
-        $file = $logsPath.'/'.$file;
-
-        // check if requested file is really in the logs directory
-        if (dirname($file) !== $logsPath) {
+        if ($logsPath === false || !is_string($file) || $file === '' || str_contains($file, "\0")) {
             throw new \Exception('No such log file');
         }
 
-        return $file;
+        // Always resolve the name relative to the logs directory; absolute paths are not accepted.
+        $filePath = realpath($logsPath.DIRECTORY_SEPARATOR.$file);
+
+        // realpath() resolves "../" and symlinks, so the check below cannot be bypassed by either.
+        if ($filePath === false || !is_file($filePath) || dirname($filePath) !== $logsPath) {
+            throw new \Exception('No such log file');
+        }
+
+        return $filePath;
     }
 
     /**

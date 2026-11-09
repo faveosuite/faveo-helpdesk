@@ -13,11 +13,11 @@ foreach($segments as $seg){
         var sort = [[6, "desc"]];
         oTable = myFunction();
         $("select[name=label]").change(function () {
-            $("#chumper").dataTable().fnDestroy();
+            $("#chumper").DataTable().destroy();
             myFunction();
         });
         $("select[name=tag]").change(function () {
-            $("#chumper").dataTable().fnDestroy();
+            $("#chumper").DataTable().destroy();
             myFunction();
         });
 
@@ -114,7 +114,7 @@ foreach($segments as $seg){
                 $('a.toggle-vis').html('<i class="fa-solid fa-plus-square-o" style="color:green;"> </i>{!!Lang::get("lang.created-at")!!}');
 
             }
-            $("#chumper").dataTable().fnDestroy();
+            $("#chumper").DataTable().destroy();
             myFunction();
         });
     });

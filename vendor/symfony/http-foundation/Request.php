@@ -302,7 +302,7 @@ class Request
         if (\PHP_VERSION_ID < 80400) {
             if (!isset($_SERVER['CONTENT_TYPE']) || str_starts_with($_SERVER['CONTENT_TYPE'], 'application/x-www-form-urlencoded')) {
                 $content = file_get_contents('php://input');
-                parse_str($content, $post);
+                @parse_str($content, $post);
             } else {
                 $content = null;
                 $post = $_POST;
@@ -312,7 +312,7 @@ class Request
         }
 
         try {
-            [$post, $files] = request_parse_body();
+            [$post, $files] = @request_parse_body();
         } catch (\RequestParseBodyException) {
             $post = $_POST;
             $files = $_FILES;
@@ -444,7 +444,7 @@ class Request
 
         $queryString = '';
         if (isset($components['query'])) {
-            parse_str(html_entity_decode($components['query']), $qs);
+            @parse_str(html_entity_decode($components['query']), $qs);
 
             if ($query) {
                 $query = array_replace($qs, $query);
@@ -611,7 +611,7 @@ class Request
      *
      * You should only list the reverse proxies that you manage directly.
      *
-     * @param array                          $proxies          A list of trusted proxies, the string 'REMOTE_ADDR' will be replaced with $_SERVER['REMOTE_ADDR'] and 'PRIVATE_SUBNETS' by IpUtils::PRIVATE_SUBNETS
+     * @param array                          $proxies          A list of trusted proxies, the string 'REMOTE_ADDR' will be replaced with $_SERVER['REMOTE_ADDR'], and 'private_ranges' or 'PRIVATE_SUBNETS' by IpUtils::PRIVATE_RANGES
      * @param int-mask-of<Request::HEADER_*> $trustedHeaderSet A bit field to set which headers to trust from your proxies
      */
     public static function setTrustedProxies(array $proxies, int $trustedHeaderSet): void
@@ -627,7 +627,7 @@ class Request
 
         if (false !== ($i = array_search('PRIVATE_SUBNETS', $proxies, true)) || false !== ($i = array_search('private_ranges', $proxies, true))) {
             unset($proxies[$i]);
-            $proxies = array_merge($proxies, IpUtils::PRIVATE_SUBNETS);
+            $proxies = array_merge($proxies, IpUtils::PRIVATE_RANGES);
         }
 
         self::$trustedProxies = $proxies;
@@ -1714,7 +1714,7 @@ class Request
         $combinations = array_merge(...array_map($this->getLanguageCombinations(...), $preferredLanguages));
         foreach ($combinations as $combination) {
             foreach ($locales as $locale) {
-                if (str_starts_with($locale, $combination)) {
+                if ($locale === $combination || str_starts_with($locale, $combination.'_')) {
                     return $locale;
                 }
             }
@@ -1973,8 +1973,13 @@ class Request
             $requestUri = '/'.$requestUri;
         }
 
-        if ($baseUrl && null !== $prefix = $this->getUrlencodedPrefix($requestUri, $baseUrl)) {
-            // full $baseUrl matches
+        if (str_starts_with($requestUri, '//') || str_starts_with($requestUri, '/\\')) {
+            // the URI starts with a host that the client chose: URLs built on it would point there
+            return '';
+        }
+
+        if ($baseUrl && (null !== $prefix = $this->getUrlencodedPrefix($requestUri, $baseUrl)) && \in_array($requestUri[\strlen($prefix)] ?? '', ['', '/', '?'], true)) {
+            // full $baseUrl matches, and is not only the start of a longer path segment
             return $prefix;
         }
 
@@ -1988,17 +1993,19 @@ class Request
             $truncatedRequestUri = substr($requestUri, 0, $pos);
         }
 
-        $basename = basename($baseUrl ?? '');
-        if (!$basename || !strpos(rawurldecode($truncatedRequestUri), $basename)) {
-            // no match whatsoever; set it blank
+        // With mod_rewrite or ISAPI_Rewrite, the script filename can come after
+        // a prefix in the path: the base URL then ends with the script filename
+        $decodedRequestUri = rawurldecode($truncatedRequestUri);
+        if (!$baseUrl || !$pos = ($this->isIisRewrite() ? stripos($decodedRequestUri, $baseUrl) : strpos($decodedRequestUri, $baseUrl))) {
+            // the script filename isn't in the path, or only at its start, which is handled above
             return '';
         }
 
-        // If using mod_rewrite or ISAPI_Rewrite strip the script filename
-        // out of baseUrl. $pos !== 0 makes sure it is not matching a value
-        // from PATH_INFO or QUERY_STRING
-        if (\strlen($requestUri) >= \strlen($baseUrl) && (false !== $pos = strpos($requestUri, $baseUrl)) && 0 !== $pos) {
-            $baseUrl = substr($requestUri, 0, $pos + \strlen($baseUrl));
+        $baseUrl = $this->getUrlencodedPrefix($truncatedRequestUri, substr($decodedRequestUri, 0, $pos + \strlen($baseUrl))) ?? '';
+
+        if (!\in_array($requestUri[\strlen($baseUrl)] ?? '', ['', '/', '?'], true)) {
+            // the script filename is only the start of a longer path segment
+            return '';
         }
 
         return rtrim($baseUrl, '/'.\DIRECTORY_SEPARATOR);
@@ -2114,13 +2121,12 @@ class Request
             return null;
         }
 
+        // Each byte of the prefix takes 1 or 3 characters in the string.
+        // A {n} quantifier would make PCRE fail to compile for a long prefix.
         $len = \strlen($prefix);
+        preg_match_all('#%[[:xdigit:]]{2}|.#s', substr($string, 0, 3 * $len), $match);
 
-        if (preg_match(\sprintf('#^(%%[[:xdigit:]]{2}|.){%d}#', $len), $string, $match)) {
-            return $match[0];
-        }
-
-        return null;
+        return implode('', \array_slice($match[0], 0, $len));
     }
 
     private static function createRequestFromFactory(array $query = [], array $request = [], array $attributes = [], array $cookies = [], array $files = [], array $server = [], $content = null): static
@@ -2220,17 +2226,15 @@ class Request
         $firstTrustedIp = null;
 
         foreach ($clientIps as $key => $clientIp) {
-            if (strpos($clientIp, '.')) {
-                // Strip :port from IPv4 addresses. This is allowed in Forwarded
-                // and may occur in X-Forwarded-For.
-                $i = strpos($clientIp, ':');
-                if ($i) {
-                    $clientIps[$key] = $clientIp = substr($clientIp, 0, $i);
-                }
-            } elseif (str_starts_with($clientIp, '[')) {
+            if (str_starts_with($clientIp, '[')) {
                 // Strip brackets and :port from IPv6 addresses.
                 $i = strpos($clientIp, ']', 1);
                 $clientIps[$key] = $clientIp = substr($clientIp, 1, $i - 1);
+            } elseif (strpos($clientIp, '.') && 1 === substr_count($clientIp, ':')) {
+                // Strip :port from IPv4 addresses. This is allowed in Forwarded
+                // and may occur in X-Forwarded-For. An IPv6 address with an
+                // embedded IPv4 address has at least two colons and is kept.
+                $clientIps[$key] = $clientIp = strstr($clientIp, ':', true);
             }
 
             if (!filter_var($clientIp, \FILTER_VALIDATE_IP)) {

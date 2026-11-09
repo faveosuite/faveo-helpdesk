@@ -133,13 +133,12 @@ class="nav-link active"
     {!! html()->closeModelForm() !!}   
 </div>
 
-<a href="#" id="clickGenerate" data-bs-toggle="modal" data-bs-target="#generateModal"></a>    
 <div class="modal fade" id="generateModal">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">{!! Lang::get('lang.api_key') !!}</h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h5 class="modal-title">{!! Lang::get('lang.api_key') !!}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" id="messageBody">
             </div>
@@ -151,6 +150,8 @@ class="nav-link active"
 </div><!-- /.modal -->
 <script type="text/javascript">
 jQuery(document).ready(function() {
+    // Attach to <body> so the modal isn't trapped in a content-wrapper stacking context
+    $('#generateModal').appendTo('body');
 // Close a ticket
     $('#generate').on('click', function(e) {
         $.ajax({
@@ -165,10 +166,11 @@ jQuery(document).ready(function() {
                 // alert(response);
 
                 $("#messageBody").empty();
-                var message = "<div class='alert alert-info mb-0'>Copy and paste in the api to set a different Api key</div> <br/><b>Api key</b> : " + response;
-                $('#messageBody').html(message);
+                var message = "<div class='alert alert-info mb-0'>Copy and paste in the api to set a different Api key</div> <br/><b>Api key</b> : ";
+                $('#messageBody').html(message).append($('<input type="text" readonly class="form-control mt-2" id="generatedApiKey">').val($.trim(response)));
+                $('#generatedApiKey').on('focus click', function() { this.select(); });
 
-                $('#clickGenerate').trigger("click");
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('generateModal')).show();
                 $("#generate").empty();
                 var message = "<i class='fas fa-arrows-rotate'> </i>  <?php echo Lang::get('lang.generate_key'); ?>";
                 $('#generate').html(message);

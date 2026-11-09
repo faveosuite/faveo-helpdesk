@@ -101,7 +101,6 @@ class InstallerApiController extends Controller
                 $ENV['CACHE_DRIVER'] = 'file';
                 $ENV['SESSION_DRIVER'] = 'file';
                 $ENV['QUEUE_CONNECTION'] = 'sync';
-                $ENV['JWT_TTL'] = 4;
                 $ENV['FCM_SERVER_KEY'] = 'AIzaSyCyx5OFnsRFUmDLTMbPV50ZMDUGSG-bLw4';
                 $ENV['FCM_SENDER_ID'] = '661051343223';
                 $ENV['REDIS_DATABASE'] = '0';
@@ -173,7 +172,10 @@ class InstallerApiController extends Controller
             // Migrate database
             (new \App\Http\Controllers\Update\SyncFaveoToLatestVersion())->sync();
             Artisan::call('key:generate', ['--force' => true]);
-            Artisan::call('jwt:secret');
+            // Passport replaces JWT: generate the OAuth signing keys and a personal
+            // access client so /api/v1/authenticate can mint bearer tokens.
+            Artisan::call('passport:keys', ['--force' => true]);
+            Artisan::call('passport:client', ['--personal' => true, '--name' => 'Faveo Helpdesk', '--no-interaction' => true]);
             // checking requested timezone for the admin and system
             $timezones = Timezones::where('name', '=', $timezone)->first();
             if ($timezones == null) {

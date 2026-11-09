@@ -240,15 +240,15 @@ $thread = App\Model\helpdesk\Ticket\Ticket_Thread::where('ticket_id', '=', \Cryp
 
                                 @if($priority->priority_id == 1)
 
-                                <td title="{{$priority->priority_desc}}" style="color:green">{{$priority->priority_desc}}</td>
+                                <td title="{{$priority->priority_desc}}" style="color:green">{{$priority->priority}}</td>
 
                                 @elseif($priority->priority_id == 2)
 
-                                <td title="{{$priority->priority_desc}}" style="color:orange">{{$priority->priority_desc}}</td>
+                                <td title="{{$priority->priority_desc}}" style="color:orange">{{$priority->priority}}</td>
 
                                 @elseif($priority->priority_id == 3)
 
-                                <td title="{{$priority->priority_desc}}" style="color:red">{{$priority->priority_desc}}</td>
+                                <td title="{{$priority->priority_desc}}" style="color:red">{{$priority->priority}}</td>
 
                                 @endif
                             </tr>

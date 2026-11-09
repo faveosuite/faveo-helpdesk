@@ -91,6 +91,16 @@ return [
     'fallback_locale' => 'en',
     /*
       |--------------------------------------------------------------------------
+      | Right-To-Left Locales
+      |--------------------------------------------------------------------------
+      |
+      | Languages in this list are rendered with dir="rtl" and the RTL
+      | stylesheets. Add the ISO code here when uploading a new RTL language.
+      |
+     */
+    'rtl_locales' => ['ar', 'fa', 'he', 'ur'],
+    /*
+      |--------------------------------------------------------------------------
       | Encryption Key
       |--------------------------------------------------------------------------
       |
@@ -116,13 +126,21 @@ return [
     'log' => 'daily',
     /*
       |---------------------------------------------------------------------------------
-      | Bugsnag error reporting
+      | Sentry error reporting
       |-----------------------------------------------------------------------------------
       |Accepts true or false as a value. It decides whether to send the error
       |to FAVEO team when any exception/error occurs or not. True value of this variable will
-      |allow application to send error reports to FAVEO team's bugsnag log.
+      |allow application to send error reports to FAVEO team's Sentry project.
      */
-    'bugsnag_reporting' => env('APP_BUGSNAG', true),
+    'sentry_reporting' => env('APP_BUGSNAG', true),
+    /*
+      |---------------------------------------------------------------------------------
+      | Sentry performance reports
+      |-----------------------------------------------------------------------------------
+      |Accepts true or false. Sends response-time (tracing) data to Sentry. Off unless
+      |an admin enables it, and only has an effect while error reporting above is on.
+     */
+    'sentry_performance' => env('APP_SENTRY_PERFORMANCE', false),
     /*
       |--------------------------------------------------------------------------
       | Autoloaded Service Providers
@@ -170,7 +188,6 @@ return [
         App\Providers\ConfigServiceProvider::class,
         App\Providers\ComposerServiceProvider::class,
         'Vsmoraes\Pdf\PdfServiceProvider',
-        Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
         \Torann\GeoIP\GeoIPServiceProvider::class,
         Unisharp\Laravelfilemanager\LaravelFilemanagerServiceProvider::class,
         //Collective\Bus\BusServiceProvider::class,
@@ -181,7 +198,6 @@ return [
         \Yajra\DataTables\DataTablesServiceProvider::class,
         \App\Api\ApiServiceProvider::class,
         Barryvdh\Debugbar\ServiceProvider::class,
-        \Bugsnag\BugsnagLaravel\BugsnagServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
         App\Providers\QueryListenProvider::class,
 
@@ -197,7 +213,6 @@ return [
       |
      */
     'aliases' => Facade::defaultAliases()->merge([
-        'Bugsnag'     => 'Bugsnag\BugsnagLaravel\BugsnagFacade',
         'DataTables'  => Yajra\DataTables\Facades\DataTables::class,
         'Debugbar'    => Barryvdh\Debugbar\Facades\Debugbar::class,
         'Excel'       => Maatwebsite\Excel\Facades\Excel::class,
@@ -207,8 +222,6 @@ return [
         'GeoIP'       => \Torann\GeoIP\Facades\GeoIP::class,
         'Gravatar'    => 'Thomaswelton\LaravelGravatar\Facades\Gravatar',
         'Inspiring'   => 'Illuminate\Foundation\Inspiring',
-        'JWTAuth'     => 'Tymon\JWTAuth\Facades\JWTAuth',
-        'JWTFactory'  => 'Tymon\JWTAuth\Facades\JWTFactory',
         'PDF'         => 'Vsmoraes\Pdf\PdfFacade',
         'Redis'       => 'Illuminate\Support\Facades\Redis',
         'SMTPS'       => App\Http\Controllers\HomeController::class,

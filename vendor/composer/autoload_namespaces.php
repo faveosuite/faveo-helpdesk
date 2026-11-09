@@ -7,6 +7,7 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'thomaswelton\\GravatarLib\\' => array($vendorDir . '/thomaswelton/gravatarlib'),
+    'Sentry\\Laravel\\' => array($vendorDir . '/sentry/sentry-laravel/src'),
     'PhpSpec' => array($vendorDir . '/phpspec/phpspec/src'),
     'Mremi\\UrlShortener' => array($vendorDir . '/mremi/url-shortener/src'),
     'HTMLPurifier' => array($vendorDir . '/ezyang/htmlpurifier/library'),

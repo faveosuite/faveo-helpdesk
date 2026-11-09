@@ -64,7 +64,7 @@ class="nav-link active"
                     "columns": [
                         {data: "name"},
                         {data: "link"},
-                        {data: "Actions"}
+                        {data: "Actions", orderable: false, searchable: false}
                     ]
                 });
             });

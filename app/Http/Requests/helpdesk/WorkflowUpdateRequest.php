@@ -32,7 +32,7 @@ class WorkflowUpdateRequest extends Request
         return [
             'name'            => 'required|max:50',
             'execution_order' => 'required',
-            'target_channel'  => 'required',
+            'target_channel'  => 'required|in:A-0,A-1,A-2,A-3,A-4',
             'rule'            => 'required|array',
             'rule.*.a'        => 'required',
             'rule.*.b'        => 'required',

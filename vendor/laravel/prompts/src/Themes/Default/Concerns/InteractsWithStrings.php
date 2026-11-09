@@ -43,7 +43,7 @@ trait InteractsWithStrings
 
         // Strip Symfony inline style tags.
         do {
-            $text = preg_replace("/<(?:(?:[fb]g|options)=[a-z,;]+)+>(.*?)<\/>/i", '$1', $text, -1, $count);
+            $text = preg_replace("/<(?:(?:[fb]g|options)=[a-z0-9#,;-]+)+>(.*?)<\/>/i", '$1', $text, -1, $count);
         } while ($count > 0);
 
         return $text;

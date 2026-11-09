@@ -1,0 +1,88 @@
+{
+    "name": "sentry/sentry-laravel",
+    "type": "library",
+    "description": "Laravel SDK for Sentry (https://sentry.io)",
+    "keywords": [
+        "sentry",
+        "laravel",
+        "log",
+        "logging",
+        "error-monitoring",
+        "error-handler",
+        "crash-reporting",
+        "crash-reports",
+        "profiling",
+        "tracing"
+    ],
+    "homepage": "https://sentry.io",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Sentry",
+            "email": "accounts@sentry.io"
+        }
+    ],
+    "require": {
+        "php": "^7.2 | ^8.0",
+        "illuminate/support": "^6.0 | ^7.0 | ^8.0 | ^9.0 | ^10.0 | ^11.0 | ^12.0 | ^13.0",
+        "sentry/sentry": "^4.34.0",
+        "symfony/psr-http-message-bridge": "^1.0 | ^2.0 | ^6.0 | ^7.0 | ^8.0",
+        "nyholm/psr7": "^1.0"
+    },
+    "autoload": {
+        "psr-0": {
+            "Sentry\\Laravel\\": "src/"
+        }
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.11",
+        "guzzlehttp/guzzle": "^7.2",
+        "laravel/ai": "^0.1.5 | ^1.0",
+        "laravel/folio": "^1.1",
+        "laravel/framework": "^6.0 | ^7.0 | ^8.0 | ^9.0 | ^10.0 | ^11.0 | ^12.0 | ^13.0",
+        "laravel/octane": "^2.15",
+        "laravel/pennant": "^1.0",
+        "livewire/livewire": "^2.0 | ^3.0 | ^4.0",
+        "mockery/mockery": "^1.3",
+        "orchestra/testbench": "^4.7 | ^5.1 | ^6.0 | ^7.0 | ^8.0 | ^9.0 | ^10.0 | ^11.0",
+        "phpstan/phpstan": "^1.10 | ^2.2",
+        "phpunit/phpunit": "^8.5 | ^9.6 | ^10.4 | ^11.5"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Sentry\\Laravel\\Tests\\": "test/Sentry/"
+        }
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@phpstan",
+            "@tests"
+        ],
+        "tests": "vendor/bin/phpunit",
+        "cs-check": "vendor/bin/php-cs-fixer fix --verbose --diff --dry-run",
+        "cs-fix": "vendor/bin/php-cs-fixer fix --verbose --diff",
+        "phpstan": "@php -d memory_limit=512M vendor/bin/phpstan analyse"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Sentry\\Laravel\\ServiceProvider",
+                "Sentry\\Laravel\\Tracing\\ServiceProvider"
+            ],
+            "aliases": {
+                "Sentry": "Sentry\\Laravel\\Facade"
+            }
+        }
+    },
+    "config": {
+        "policy": {
+            "advisories": {
+                "block": false
+            }
+        },
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

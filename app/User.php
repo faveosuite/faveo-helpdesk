@@ -7,12 +7,13 @@ use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Database\Eloquent\Model;
-use Tymon\JWTAuth\Contracts\JWTSubject as AuthenticatableUserContract;
+use Laravel\Passport\HasApiTokens;
 
-class User extends Model implements AuthenticatableContract, CanResetPasswordContract, AuthenticatableUserContract
+class User extends Model implements AuthenticatableContract, CanResetPasswordContract
 {
     use Authenticatable;
     use CanResetPassword;
+    use HasApiTokens;
 
     /**
      * The database table used by the model.
@@ -207,22 +208,30 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     }
 
     /**
-     * Get the identifier that will be stored in the subject claim of the JWT.
+     * Whether this account is on the ban list. Only end users are banned: an agent or admin email
+     * on the list must not lock staff out of the helpdesk.
      *
-     * @return mixed
+     * @return bool
      */
-    public function getJWTIdentifier()
+    public function isBanned()
     {
-        return $this->getKey();
+        return (int) $this->ban === 1 && !in_array($this->role, ['agent', 'admin'], true);
     }
 
     /**
-     * Return a key value array, containing any custom claims to be added to the JWT.
+     * Whether an email address is on the ban list (see isBanned()).
      *
-     * @return array
+     * @param string|null $email
+     *
+     * @return bool
      */
-    public function getJWTCustomClaims()
+    public static function isBannedEmail($email)
     {
-        return [];
+        if (!is_string($email) || trim($email) === '') {
+            return false;
+        }
+
+        return static::where('email', '=', trim($email))->where('ban', '=', 1)
+            ->whereNotIn('role', ['agent', 'admin'])->exists();
     }
 }

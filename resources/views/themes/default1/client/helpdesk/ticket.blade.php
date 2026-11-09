@@ -110,7 +110,7 @@ echo UTC::usertimezone(date_format($time, 'd/m/Y H:i:s'));
                 <div class="col-md-6">
                     <table class="table table-hover"id="refresh">
                       <tr><td><b>Ticket Number: </b></td><div><td>{{$ticket->ticket_number}}</td></div></tr>
-                        <tr><td><b>Priority:</b></td>     <?php $priority = App\Model\Ticket\Ticket_Priority::where('priority_id', '=', $ticket->priority_id)->first();?><td title="{{$priority->priority_desc}}">{{$priority->priority_desc}}</td></tr>
+                        <tr><td><b>Priority:</b></td>     <?php $priority = App\Model\Ticket\Ticket_Priority::where('priority_id', '=', $ticket->priority_id)->first();?><td title="{{$priority->priority_desc}}">{{$priority->priority}}</td></tr>
                         <tr><td><b>Department:</b></td>   <?php $help_topic = App\Model\Manage\Help_topic::where('id', '=', $ticket->help_topic_id)->first();?><td title="{{$help_topic->topic}}">{{$help_topic->topic}}</td></tr>
                         <tr><td><b>Email:</b></td><td>{{$user->email}}</td></tr>
                     </table>
@@ -578,7 +578,7 @@ $data = $ConvDate[0];
             <div class="modal-content">
                 {!! html()->modelForm($ticket->id, 'PATCH', url()->current())->attributes(['id' => 'form'])->open() !!}
                 <div class="modal-header">
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     <h5 class="modal-title">Edit <b>[#{!! $ticket->ticket_number !!}]</b>[{!! $user->user_name !!}]</h4>
                 </div>
                 <div class="modal-body" id="hide">
@@ -615,7 +615,7 @@ $data = $ConvDate[0];
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     <h5 class="modal-title">Ban Email</h4>
                 </div>
                 <div class="modal-body">
@@ -636,7 +636,7 @@ $data = $ConvDate[0];
             <div class="modal-content">
                 {!! html()->modelForm($ticket->id, 'PATCH', url()->current())->attributes(['id' => 'form4'])->open() !!}
                 <div class="modal-header">
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     <h5 class="modal-title">Change Owner for ticket <b>#{!! $ticket->ticket_number !!}</b></h4>
                 </div>
                 <div class="modal-body" >
@@ -682,7 +682,7 @@ $data = $ConvDate[0];
             <div class="modal-content">
                 {!! html()->form('PATCH', url()->current())->attributes(['id' => 'form1'])->open() !!}
                 <div class="modal-header">
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     <h5 class="modal-title">Assign</h4>
                 </div>
                 <div class="modal-body">
@@ -708,7 +708,7 @@ $data = $ConvDate[0];
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     <h5 class="modal-title">Surrender</h4>
                 </div>
                 <div class="modal-body">
@@ -727,7 +727,7 @@ $data = $ConvDate[0];
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     <h5 class="modal-title">Add Collaborator</h4>
                 </div>
                 <div class="modal-body">

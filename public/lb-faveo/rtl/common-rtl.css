@@ -549,12 +549,21 @@ div.dt-container div.dt-info {
     text-decoration: none;
 }
 
+/* See the matching rule in public/css/common.css: equal-height, top-aligned cards. */
+.widgetrow .widgetrowitem {
+    box-sizing: border-box;
+    min-height: 96px;
+    vertical-align: top;
+}
+
 .widgetitemtitle {
     color: rgb(0, 154, 186);
 }
 
 .widget-bg-register {
-    background-image: url("/lb-faveo/media/images/register.png");
+    /* Relative to this file's own location (lb-faveo/rtl/), not the site root -
+       see the matching fix in public/css/common.css for why. */
+    background-image: url("../media/images/register.png");
     background-size: 32px 32px;
     background-repeat: no-repeat;
     background-position: right center;
@@ -562,7 +571,7 @@ div.dt-container div.dt-info {
 }
 
 .widget-bg-submit-ticket {
-    background-image: url("/lb-faveo/media/images/submitticket.png");
+    background-image: url("../media/images/submitticket.png");
     background-size: 32px 32px;
     background-repeat: no-repeat;
     background-position: right center;
@@ -570,7 +579,7 @@ div.dt-container div.dt-info {
 }
 
 .widget-bg-my-tickets {
-    background-image: url("/lb-faveo/media/images/news.png");
+    background-image: url("../media/images/news.png");
     background-size: 32px 32px;
     background-repeat: no-repeat;
     background-position: right center;
@@ -578,7 +587,7 @@ div.dt-container div.dt-info {
 }
 
 .widget-bg-knowledge-base {
-    background-image: url("/lb-faveo/media/images/knowledgebase.png");
+    background-image: url("../media/images/knowledgebase.png");
     background-size: 32px 32px;
     background-repeat: no-repeat;
     background-position: right center;

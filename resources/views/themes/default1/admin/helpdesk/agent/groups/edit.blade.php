@@ -63,10 +63,10 @@ class="nav-link active"
                 {!! html()->label(Lang::get('lang.status'), 'group_status') !!}
                 <div class="row">
                     <div class="col-sm-2">
-                        {!! html()->radio('group_status', true, '1') !!} {{Lang::get('lang.active')}}
+                        {!! html()->radio('group_status', (string) old('group_status', $groups->group_status) === '1', '1') !!} {{Lang::get('lang.active')}}
                     </div>
                     <div class="col-sm-3">
-                        {!! html()->radio('group_status', null, '0') !!} {{Lang::get('lang.inactive')}}
+                        {!! html()->radio('group_status', (string) old('group_status', $groups->group_status) === '0', '0') !!} {{Lang::get('lang.inactive')}}
                     </div>
                 </div>
             </div>

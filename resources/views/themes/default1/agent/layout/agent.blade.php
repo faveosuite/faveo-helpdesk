@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html dir="{{ app()->getLocale() == 'ar' ? 'rtl' : 'ltr' }}">
+<html dir="{{ isRtl() ? 'rtl' : 'ltr' }}">
 <head>
 
         <meta charset="UTF-8" ng-app="myApp">
@@ -13,7 +13,7 @@
         <!-- Favicon -->
         <link href="{{ assetLink('css', 'favicon') }}" rel="shortcut icon">
 
-        @if(Lang::getLocale() == 'ar')
+        @if(isRtl())
         <!-- Bootstrap + AdminLTE + Common (RTL) -->
         <link href="{{ assetLink('css', 'bootstrap-rtl') }}" rel="stylesheet" type="text/css" />
         <link href="{{ assetLink('css', 'adminte-rtl') }}" rel="stylesheet" type="text/css" />
@@ -66,6 +66,16 @@
 
             .notification-list { max-height: 350px; overflow-y: auto; }
 
+            /* jQuery-UI appends .ui-autocomplete to <body> and sizes it from the input it
+               is attached to, so on a 375px screen the requester-email suggestions were
+               drawn past the right edge (x 50-397) and the entries were clipped. Capping
+               it to the viewport keeps the list on screen and lets long addresses wrap
+               instead of being cut off. calc() only binds on a narrow screen — on desktop
+               the viewport is far wider than the menu, so nothing changes there. */
+            .ui-autocomplete { max-width: calc(100vw - 32px); box-sizing: border-box; }
+            .ui-autocomplete .ui-menu-item-wrapper,
+            .ui-autocomplete .ui-menu-item a { white-space: normal; word-break: break-word; }
+
             .noti_User { color: #6c757d !important; }
 
             .brand-image{float: none !important; margin-left: 0 !important;}
@@ -105,10 +115,43 @@
             .sidebar-wrapper {
                 padding: 0.1px;
             }
+
+            /* .dropdown-menu-xl is 360-420px wide; dropdown-menu-end right-aligns
+               it to the bell icon near the right edge of the navbar. Below 576px
+               that anchor point has nowhere near 360px of room to its left, so
+               the notification dropdown opened hanging off the LEFT edge of the
+               screen (measured at x = -108 on a 375px viewport) even though its
+               right edge was correctly on-screen. Capping the width to the
+               viewport and re-anchoring to the left edge of the screen (not the
+               toggle) keeps the whole menu reachable without changing anything
+               above 576px, where the original width/anchor still applies. */
+            @media (max-width: 575.98px) {
+                .notifications-menu .dropdown-menu.dropdown-menu-xl {
+                    position: fixed !important;
+                    left: 0.5rem !important;
+                    right: 0.5rem !important;
+                    width: auto !important;
+                    min-width: 0 !important;
+                    max-width: none !important;
+                }
+            }
         </style>
     </head>
 
-    <body class="layout-fixed sidebar-expand-lg sidebar-mini bg-body-tertiary app-loaded fs-8 sidebar-open">
+    <?php
+    /*
+     * sidebar-open used to be hardcoded here — same bug and same fix as
+     * admin.blade.php (see the comment there): AdminLTE 4 pushes the sidebar
+     * off-canvas below the sidebar-expand-lg breakpoint unless this class is
+     * present, and when it is, a full-viewport .sidebar-overlay covers the
+     * content too. Every agent screen was opening on mobile with the drawer
+     * open and the overlay blocking taps on the form/table underneath.
+     * Desktop is unaffected (sidebar is sticky/always-visible above the
+     * breakpoint); the hamburger button (data-lte-toggle="sidebar") still
+     * opens/closes it via AdminLTE's own JS.
+     */
+    ?>
+    <body class="layout-fixed sidebar-expand-lg sidebar-mini bg-body-tertiary app-loaded fs-8">
 
         <div class="app-wrapper">
 
@@ -197,11 +240,18 @@
 
                     <li class="nav-item dropdown notifications-menu" id="myDropdown">
 
-                        <a href="#" class="nav-link" data-bs-toggle="dropdown" onclick="myFunction()">
+                        {{-- data-bs-display="static": without it, Bootstrap's Dropdown
+                             positions this menu with Popper via an inline transform,
+                             which would fight the viewport-width CSS override below
+                             (added for the mobile off-screen-left bug) instead of
+                             leaving it alone. Static display makes Bootstrap skip
+                             Popper and position the menu with plain CSS from
+                             dropdown-menu-end instead. --}}
+                        <a href="#" class="nav-link" data-bs-toggle="dropdown" data-bs-display="static" onclick="myFunction()">
 
                             <i class="nav-icon  fa-solid fa-bell"></i>
 
-                            <span class="badge bg-warning text-dark navbar-badge" id="count">{!! $notifications->count() !!}</span>
+                            <span class="badge bg-warning text-dark navbar-badge" id="noti-count">{!! $unread_notifications !!}</span>
                         </a>
 
                         <div class="dropdown-menu dropdown-menu-xl dropdown-menu-end">
@@ -224,6 +274,8 @@
 
                                 @if($notifications->count())
                                 @foreach($notifications->orderBy('created_at', 'desc')->get()->take(10) as $notification)
+                                {{-- skip notifications whose notification/type row is missing (prevents null property errors) --}}
+                                @if(!$notification->notification || !$notification->notification->type) @continue @endif
                                 @if($notification->notification->type->type == 'registration')
                                 @if($notification->is_read == 1)
 
@@ -256,7 +308,7 @@
                                 </li>
                                 @endif
                                 @else
-                                @if($notification->is_read == 1)
+                                @if($notification->notification->model && $notification->is_read == 1)
 
                                 <li class="item task d-flex align-items-center gap-2">
                                     <div class="product-img flex-shrink-0">
@@ -305,27 +357,25 @@
 
                     <li class="nav-item dropdown">
 
-                        <?php $src = Lang::getLocale().'.png'; ?>
 
                         <a href="#" class="nav-link" data-bs-toggle="dropdown" aria-expanded="true">
-                            <img class="mb-1" src="{{asset("lb-faveo/flags/$src")}}" style="height: 12px; width: 20px">
+                            <img class="mb-1" src="{{ languageFlag(Lang::getLocale()) }}" style="height: 12px; width: 20px">
                         </a>
 
                         <div class="dropdown-menu dropdown-menu-sm dropdown-menu-end p-0" style="width:290px;">
 
                             @foreach($langs as $key => $value)
-                                    <?php $src = $key . ".png"; ?>
 
                                 <a href="#"
                                    class="dropdown-item d-flex align-items-center gap-2"
                                    id="{{$key}}"
                                    onclick="changeLang(this.id)">
 
-                                    <img src="{{asset("lb-faveo/flags/$src")}}" width="20" height="13" class="me-2">
+                                    <img src="{{ languageFlag($key) }}" width="20" height="13" class="me-2">
 
                                     <span>
                                      {{$value[0]}}
-                                    @if(Lang::getLocale() == "ar")
+                                    @if(isRtl())
                                        &rlm;
                                     @endif
                                   ({{$value[1]}})
@@ -642,6 +692,26 @@
         <script src="{{ assetLink('js', 'datatables') }}" type="text/javascript"></script>
 
         <script src="{{ assetLink('js', 'datatables-bootstrap') }}" type="text/javascript"></script>
+        {{-- Translate every DataTable once (info, search, length menu, empty/loading text). Most tables
+             set no language of their own and fell back to DataTables' built-in English; a table that
+             passes its own oLanguage still overrides these per key.
+             The pager keeps the global look (« ‹ 1 2 › », same as vendor/pagination/datatables and the
+             ticket list): the buttons stay symbols, and the translated First/Previous/Next/Last words
+             become their screen-reader labels instead of replacing the symbols. --}}
+        <script>
+            (function () {
+                if (!$.fn.dataTable) {
+                    return;
+                }
+                var lang = @json(Lang::get('datatables'));
+                var words = lang.oPaginate || {};
+                lang.oPaginate = { sFirst: '\u00AB', sPrevious: '\u2039', sNext: '\u203A', sLast: '\u00BB' };
+                lang.oAria = $.extend({}, lang.oAria, {
+                    paginate: { first: words.sFirst, previous: words.sPrevious, next: words.sNext, last: words.sLast }
+                });
+                $.extend(true, $.fn.dataTable.defaults, { oLanguage: lang });
+            })();
+        </script>
 
         <script src="{{ assetLink('js', 'jquery-rating') }}" type="text/javascript"></script>
 
@@ -680,27 +750,35 @@
                     });
             });
             });
-                    $('#read-all').click(function () {
-
+                    $('#read-all').click(function (e) {
+                    e.preventDefault();
+                    var $link = $(this);
+                    if ($link.hasClass('disabled')) { return; }   // ignore repeat clicks while running
+                    $('#noti-count').text('0');   // clear the badge immediately on the user's intent; the request below persists it
+                    var originalText = $link.text();
             var id2 = <?php echo $auth_user_id ?>;
-                    var dataString = 'id=' + id2;
                     $.ajax
                     ({
                     type: "POST",
                             url: "{{url('mark-all-read')}}" + "/" + id2,
-                            data: dataString,
+                            data: { id: id2 },
                             cache: false,
                             beforeSend: function () {
-                            $('#myDropdown').on('hide.bs.dropdown', function () {
-                            return false;
-                            });
-                                    $("#refreshNote").hide();
+                                    // feedback at the top, next to the link, where the user is looking
+                                    $link.addClass('disabled').css('pointer-events', 'none').text('Marking...');
                                     $("#notification-loader").show();
                             },
-                            success: function (response) {
-                            $("#refreshNote").load("{{ request()->getRequestUri() }}  #refreshNote");
+                            complete: function (xhr) {
+                                    // update the unread badge whenever the server accepted the request
+                                    // (any 2xx), so it works regardless of how jQuery routed the response
+                                    if (xhr && xhr.status >= 200 && xhr.status < 300) {
+                                            var unread = (xhr.responseJSON && typeof xhr.responseJSON.unread !== 'undefined')
+                                                ? xhr.responseJSON.unread : 0;
+                                            $('#noti-count').text(unread);
+                                    }
+                                    // always restore the link and hide the loader, even on error
+                                    $link.removeClass('disabled').css('pointer-events', '').text(originalText);
                                     $("#notification-loader").hide();
-                                    $('#myDropdown').removeClass('show');
                             }
                     });
             });</script>

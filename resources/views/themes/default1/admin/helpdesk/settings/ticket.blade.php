@@ -90,7 +90,7 @@ class="nav-link active"
             <!-- Default Priority:	Required : manual : Dropdowm  -->
             <div class="mb-3 col-md-6 {{ $errors->has('priority') ? 'has-error' : '' }}">
                 {!! html()->label(Lang::get('lang.default_priority'), 'priority') !!}
-                {!! html()->select('priority', [''=>Lang::get('lang.select_a_priority'),Lang::get('lang.priorities')=>$priority->pluck('priority_desc','priority_id')->toArray()], null)->class('form-control') !!}
+                {!! html()->select('priority', [''=>Lang::get('lang.select_a_priority'),Lang::get('lang.priorities')=>$priority->pluck('priority','priority_id')->toArray()], null)->class('form-control') !!}
             </div>
         </div>
         <div class="row">

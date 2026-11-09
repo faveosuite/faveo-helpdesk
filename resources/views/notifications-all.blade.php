@@ -1,239 +1,167 @@
 @extends('themes.default1.agent.layout.agent')
-@section('Users')
-class="active"
-@stop
-@section('HeadInclude')
-<style>
-    h1 {
-        color: #f2f2f2;
-        font-family: Arial;
-        font-size: 14px;
-        margin: 0 0 20px;
-        padding: 0;
-        text-align: center;
-    }
-    input[type="checkbox"]:not(old) {
-        width   : 28px;
-        margin  : 0;
-        padding : 0;
-        opacity : 0;
-    }
-    input[type="checkbox"]:not(old) + label {
-        color: #f2f2f2;
-        font-family: Arial,sans-serif;
-        font-size: 14px;
-    }
-    input[type="checkbox"]:not(old) + label span {
-        background: rgba(0, 0, 0, 0) url("lb-faveo/media/images/check_radio_sheet.png") no-repeat scroll left top;
-        cursor: pointer;
-        display: inline-block;
-        height: 19px;
-        margin-left  : -28px;
-        vertical-align: middle;
-        width: 19px;
-    }
-    input[type="checkbox"]:checked + label span {
-        background: rgba(0, 0, 0, 0) url("lb-faveo/media/images/check_radio_sheet.png") no-repeat scroll -19px top;
-    }
-</style>
-@stop
-@section('user-bar')
-active
+
+@section('Dashboard')
+class="nav-link active"
 @stop
 
-@section('user')
-class="active"
+@section('dashboard-bar')
+class="nav-link active"
 @stop
+
+@section('HeadInclude')
+<style>
+    .notification-item.unread { background-color: var(--bs-tertiary-bg); border-left: 3px solid var(--bs-primary); }
+    .notification-item.unread .notification-message { font-weight: 600; }
+    .notification-icon { width: 36px; height: 36px; }
+</style>
+@stop
+
 @section('PageHeader')
 <h3>{!! Lang::get('lang.notifications') !!}</h3>
 @stop
 
-<!-- /breadcrumbs -->
-<!-- content -->
 @section('content')
-    @if(Session::has('success'))
-    <div class="alert alert-success alert-dismissible">
-        <i class="fa-solid fa-ban"></i>
-        <b>Alert!</b> Success.
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
-        {{Session::get('success')}}
+@if(Session::has('success'))
+<div class="alert alert-success alert-dismissible">
+    <i class="fa-solid fa-circle-check"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
+    {{ Session::get('success') }}
+</div>
+@endif
+@if(Session::has('fails'))
+<div class="alert alert-danger alert-dismissible">
+    <i class="fa-solid fa-ban"></i>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
+    {{ Session::get('fails') }}
+</div>
+@endif
+
+<div class="card card-light">
+    <div class="card-header d-flex flex-wrap align-items-center gap-2">
+        <h3 class="card-title mb-0 me-auto">{{ Lang::get('lang.view_all_notifications') }}</h3>
+        @if($notificationList->total())
+        <button type="button" id="notification-read-all" class="btn btn-sm btn-outline-secondary">
+            <i class="fa-solid fa-check-double"></i> {{ Lang::get('lang.mark_all_as_read') }}
+        </button>
+        <a href="{{ url('notifications-list/delete') }}" id="notification-delete-all" class="btn btn-sm btn-danger">
+            <i class="fa-solid fa-trash-can"></i> {{ Lang::get('lang.delete_all_notifications') }}
+        </a>
+        @endif
+    </div>
+
+    <div class="card-body p-0">
+        @if($notificationList->count())
+        <ul class="list-group list-group-flush" id="notification-list">
+            @foreach($notificationList as $notification)
+            <?php
+                $type = $notification->notification->type->type;
+                if ($type == 'registration') {
+                    $link = route('user.show', $notification->notification->model_id);
+                    $icon = 'fa-user-plus text-success';
+                } else {
+                    $link = route('ticket.thread', $notification->notification->model_id);
+                    $icon = $type == 'reply' ? 'fa-reply text-info' : 'fa-ticket text-primary';
+                }
+            ?>
+            <li class="list-group-item notification-item d-flex align-items-center gap-3 py-3 {{ $notification->is_read ? '' : 'unread' }}" data-id="{{ $notification->notification_id }}">
+                <span class="notification-icon flex-shrink-0 rounded-circle bg-body-secondary d-flex align-items-center justify-content-center">
+                    <i class="fa-solid {{ $icon }}"></i>
+                </span>
+                <div class="flex-grow-1 min-w-0">
+                    <a href="{{ $link }}" class="notification-link notification-message text-body text-decoration-none d-block text-break">
+                        {{ $notification->notification->type->message }}
+                        @if($type != 'registration')
+                        <span class="badge text-bg-light border ms-1">{{ $notification->notification->model->ticket_number }}</span>
+                        @endif
+                    </a>
+                    <small class="text-body-secondary" title="{{ UTC::usertimezone($notification->created_at) }}">
+                        <i class="fa-regular fa-clock"></i> {{ $notification->created_at->diffForHumans() }}
+                    </small>
+                </div>
+                <div class="flex-shrink-0 d-flex gap-1">
+                    <a href="{{ $link }}" class="notification-link btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" title="{{ Lang::get('lang.view') }}">
+                        <i class="fa-solid fa-eye"></i>
+                    </a>
+                    <button type="button" class="notification-delete btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" title="{{ Lang::get('lang.delete') }}">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </div>
+            </li>
+            @endforeach
+        </ul>
+        @else
+        <div class="text-center text-body-secondary py-5">
+            <i class="fa-solid fa-bell-slash fa-2x mb-2"></i>
+            <p class="mb-0">{{ Lang::get('lang.no_notification_available') }}</p>
+        </div>
+        @endif
+    </div>
+
+    @if($notificationList->total())
+    <div class="card-footer bg-transparent">
+        {{ $notificationList->links('vendor.pagination.datatables') }}
     </div>
     @endif
-    <!-- fail message -->
-    @if(Session::has('fails'))
-    <div class="alert alert-danger alert-dismissible">
-        <i class="fa-solid fa-ban"></i>
-        <b>Alert!</b> Failed.
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
-        {{Session::get('fails')}}
-    </div>
-    @endif
-    <div id="alert21" class="alert alert-success alert-dismissible" style="display:none;">
-        <button id="dismiss11" type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true">�</button>
-        <h4><i class="icon fa-solid fa-check"></i>Alert!</h4>
-        <div id="message-success2"></div>
-    </div>
-            <div class="box">
-                <div class="box-header">
-                    <h3 class="box-title">{!! Lang::get('lang.view_all_notifications')!!}</h3>
-                    <div class="pull-right">
-                        <a href="{{url('notifications-list/delete')}}" class="btn btn-danger">Delete all</a>
-                    </div>
-                </div>
-                <!-- /.box-header -->
-                <div class="row">
-                    <!-- Left col -->
-                    <section class="col-lg-12">
-                        <!-- Custom tabs (Charts with tabs)-->
-
-
-
-
-                        <!-- TO DO List -->
-                        <div class="box box-default">
-                            <!--
-<div class="box-header">
-<i class="ion ion-clipboard"></i>
-<h3 class="box-title">Task</h3>
-<div class="box-tools pull-right">
-<ul class="pagination pagination-sm inline">
-<li><a href="#">&laquo;</a>
-</li>
-<li><a href="#">1</a>
-</li>
-<li><a href="#">2</a>
-</li>
-<li><a href="#">3</a>
-</li>
-<li><a href="#">&raquo;</a>
-</li>
-</ul>
 </div>
-</div>
-                            -->
-                            
-                            <!-- /.box-header -->
-                            <div class="box-body">
-                                <ul class="todo-list">
-                                    @if($notifications)
-                           
-                                    @foreach($notifications->orderBy('created_at', 'desc')->simplePaginate() as $notification)
-                                    @if($notification->notification && $notification->notification->type && $notification->notification->type->type == 'registration')
-                                    @if($notification->is_read == 1)
-                                    <li class="task">
-                                        <!-- drag handle -->
 
-                                        <!-- checkbox -->
-                                        <input type="checkbox" value="" name="cc" class="noti_User clickfun" id="{{$notification -> notification_id}}">
-                                        <label for='cl'  data-bs-toggle="tooltip"  data-bs-placement="top" title="Mark Read"><span></span>&nbsp<img src="{{$notification->users-> profile_pic}}" class="img-circle" style="width:25px;height: 25px" alt="User Image" />
-                                            <!-- todo text -->
-                                            <h6 class="textcontent marginzero"><a href="{!! route('user.show', $notification -> notification_id) !!}" id="{{$notification -> notification_id}}" class='noti_User'>{!! $notification->notification->type->message !!}</a></h6>
-                                            <small class="label label-danger"><i class="fa-solid fa-clock-o"></i> {{ $notification -> created_at }}</small></label> <!-- Emphasis label -->
-
-                                        <!-- General tools such as edit or delete-->
-                                        <div class="tools">
-                                            <a href="{!! route('user.show', $notification -> notification_id) !!}"  data-bs-toggle="tooltip"  data-bs-placement="top" title="View" id="{{$notification -> notification_id}}" class='noti_User'><i class="fa-solid fa-eye"></i></a>
-                                            <a href="#" id='{{ $notification -> notification_id }}' data-bs-toggle="tooltip"  data-bs-placement="top" title="Delete" class='notification-delete clickfun'><i class="fa-solid fa-trash-o"></i></a>
-                                        </div>
-                                    </li>
-                                    @else
-                                    <li>
-                                        <!-- drag handle -->
-
-                                        <!-- checkbox -->
-                                        <input type="checkbox" value="" name="cc" class="noti_User clickfun" id="{{$notification -> notification_id}}">
-                                        <label for='cl'  data-bs-toggle="tooltip"  data-bs-placement="top" title="Mark Read"><span></span>&nbsp<img src="{{$notification->users-> profile_pic}}" class="img-circle"  style="width:25px;height: 25px"  alt="User Image" />
-                                            <!-- todo text -->
-                                            <h6 class="textcontent marginzero"><a href="{!! route('user.show', $notification -> notification_id) !!}" id="{{$notification -> notification_id}}" class='noti_User'>{!! $notification->notification->type->message !!}</a></h6>
-                                            <small class="label label-danger"><i class="fa-solid fa-clock-o"></i> {{ $notification123-> created_at }}</small></label> <!-- Emphasis label -->
-
-                                        <!-- General tools such as edit or delete-->
-                                        <div class="tools">
-                                            <a href="{!! route('user.show', $notification -> notification_id) !!}"  data-bs-toggle="tooltip"  data-bs-placement="top" title="View" id="{{$notification -> notification_id}}" class='noti_User'><i class="fa-solid fa-eye"></i></a>
-                                            <a href="#" id='{{ $notification -> notification_id }}' data-bs-toggle="tooltip"  data-bs-placement="top" title="Delete" class='notification-delete clickfun'><i class="fa-solid fa-trash-o"></i></a>
-                                        </div>
-                                    </li>
-                                    @endif
-                                    @else
-                                           @if($notification && $notification->notification && $notification->notification->type && $notification->is_read == 1)
-                                    <li class="task">
-                                        <input type="checkbox" value="" name="cc"  data-bs-toggle="tooltip"  data-bs-placement="top" title="Mark Read" class="noti_User clickfun" id="{{$notification -> notification_id}}">
-                                        <label for='cl'><span></span>&nbsp<img src="{{$notification->users-> profile_pic}}" class="img-circle"  style="width:25px;height: 25px" alt="User Image" />
-                                            <h6 class="textcontent marginzero"><a href="{!! route('ticket.thread', $notification->notification->model_id) !!}" id='{{ $notification -> notification_id }}' class='noti_User'>{!! $notification->notification->type->message !!} with id "{!!$notification->notification->model->ticket_number!!}"</a></h6>
-                                            <small class="label label-info"><i class="fa-solid fa-clock-o"></i> {{ $notification -> created_at }}</small>
-                                        </label><div class="tools">
-                                            <a href="{!! route('ticket.thread', $notification->notification->model_id) !!}" id='{{ $notification -> notification_id }}'  data-bs-toggle="tooltip"  data-bs-placement="top" title="View" class='noti_User'><i class="fa-solid fa-eye"></i></a>
-                                            <a href="#" id='{{ $notification -> notification_id }}' data-bs-toggle="tooltip"  data-bs-placement="top" title="Delete" class='notification-delete clickfun'><i class="fa-solid fa-trash-o"></i></a>
-                                        </div>
-                                    </li>
-                                    @elseif($notification->notification && $notification->notification->model)
-                                                                        <li>
-                                        <input type="checkbox" value="" name="cc"  data-bs-toggle="tooltip"  data-bs-placement="top" title="Mark Read" class="noti_User clickfun" id="{{$notification -> notification_id}}">
-                                        <label for='cl'><span></span>&nbsp<img src="{{$notification->users-> profile_pic}}" class="img-circle"  style="width:25px;height: 25px"  alt="User Image" />
-                                            <h6 class="textcontent marginzero"><a href="{!! route('ticket.thread', $notification->notification->model_id) !!}" id='{{ $notification -> notification_id }}' class='noti_User'>{!! $notification->notification->type->message !!} with id "{!!$notification->notification->model->ticket_number!!}"</a></h6>
-                                            <small class="label label-info"><i class="fa-solid fa-clock-o"></i> {{ $notification -> created_at }}</small>
-                                        </label><div class="tools">
-                                            <a href="{!! route('ticket.thread', $notification->notification->model_id) !!}" id='{{ $notification -> notification_id }}'  data-bs-toggle="tooltip"  data-bs-placement="top" title="View" class='noti_User'><i class="fa-solid fa-eye"></i></a>
-                                            <a href="#" id='{{ $notification -> notification_id }}' data-bs-toggle="tooltip"  data-bs-placement="top" title="Delete" class='notification-delete clickfun'><i class="fa-solid fa-trash-o"></i></a>
-                                        </div>
-                                    </li>
-                                    @endif
-                                    @endif
-                                    @endforeach
-
-                                    @else
-                                    <li>
-
-                                        <h6 class="textcontent marginzero">{!! Lang::get('lang.no_notification_available') !!}</h6>
-                                        <small class="label label-warning" ><i class="fa-solid fa-bell-slash-o"></i></small>
-
-                                    </li>
-                                    @endif
-{!!$notifications->Simplepaginate(10)!!}
-                                </ul>
-                            </div>
-
-                        </div>
-                        <!-- /.box -->
-
-
-                    </section>
-                </div>
-
-                <!-- /.box-body -->
-            </div>
-            <!-- /.box -->
-        
 <script>
     $(document).ready(function() {
-        $(".clickfun").click(function() {
-            $(this).closest("li").toggleClass("task");
+        var token = $('meta[name=_token]').attr('content');
+
+        // mark as read when a notification is opened; keepalive lets the request finish after the page navigates away
+        $('#notification-list').on('click', '.notification-link', function() {
+            var $item = $(this).closest('.notification-item');
+            if ($item.hasClass('unread')) {
+                fetch("{{ url('mark-read') }}/" + $item.data('id'), {method: 'POST', headers: {'X-CSRF-Token': token}, credentials: 'same-origin', keepalive: true});
+            }
         });
-    });
-</script>
-<script>
-    $(document).ready(function() {
 
-        $('.notification-delete').click(function() {
-            var id = this.id;
-            var dataString = 'id=' + id;
-            $.ajax
-                    ({
-                        type: "POST",
-                        url: "{{url('notification-delete')}}" + "/" + id,
-                        data: dataString,
-                        cache: false,
-                        success: function(response)
-                        {
-                            if (response == 1)
-                            {
-
-                                var message = "Success! You have deleted this notification successfully!";
-                                $("#alert21").show();
-                                $('#message-success2').html(message);
+        $('#notification-list').on('click', '.notification-delete', function() {
+            var $button = $(this);
+            var $item = $button.closest('.notification-item');
+            bootstrap.Tooltip.getInstance(this)?.dispose();
+            $button.prop('disabled', true);
+            $.ajax({
+                type: 'POST',
+                url: "{{ url('notification-delete') }}/" + $item.data('id'),
+                cache: false,
+                success: function(response) {
+                    if (response == 1) {
+                        $item.fadeOut(200, function() {
+                            $item.remove();
+                            // reload to pull in the next page, or show the empty state
+                            if (!$('#notification-list .notification-item').length) {
+                                window.location.reload();
                             }
-                        }
-                    });
+                        });
+                    } else {
+                        $button.prop('disabled', false);
+                    }
+                },
+                error: function() {
+                    $button.prop('disabled', false);
+                }
+            });
+        });
+
+        $('#notification-read-all').on('click', function() {
+            var $button = $(this).prop('disabled', true);
+            $.ajax({
+                type: 'POST',
+                url: "{{ url('mark-all-read') }}/{{ Auth::id() }}",
+                success: function() {
+                    $('#notification-list .notification-item').removeClass('unread');
+                },
+                complete: function() {
+                    $button.prop('disabled', false);
+                }
+            });
+        });
+
+        $('#notification-delete-all').on('click', function(e) {
+            if (!confirm("{{ Lang::get('lang.delete_all_notifications_confirm') }}")) {
+                e.preventDefault();
+            }
         });
     });
 </script>

@@ -114,10 +114,10 @@ active
         </tr>
         <tr>
             <td>
-                <label for="box5">Password</label>
+                <label for="box5">Password<span style="color: red; font-size: 12px;">*</span></label>
             </td>
             <td>
-                <input type="text" name="password"> 
+                {!! html()->password('password')->required() !!}
             </td>
             <td>
                 <button type="button" data-bs-toggle="popover" data-bs-placement="right" data-arrowcolor="#eeeeee" data-bordercolor="#bbbbbb" data-title-backcolor="#cccccc" data-title-bordercolor="#bbbbbb" data-title-textcolor="#444444" data-content-backcolor="#eeeeee" data-content-textcolor="#888888" title="@{{Passwordtitle}}" data-bs-content="@{{Passwordcontent}}" style="padding: 0px;border: 0px; border-radius: 5px;"><i class="fa-solid fa-circle-question" style="padding: 0px;"></i>
@@ -174,16 +174,16 @@ active
         addErrorClass('password');
     @endif
 
+    var requiredFields = ['host', 'databasename', 'username', 'password'];
+
     $('#databaseform').on('submit', function(e){
         var empty_field = 0;
-        $("#databaseform input[type=text]").each(function(){
-            if($(this).attr('name') == 'host' || $(this).attr('name') == 'databasename' || $(this).attr('name') == 'username'){
+        $("#databaseform input[type=text], #databaseform input[type=password]").each(function(){
+            if(requiredFields.indexOf($(this).attr('name')) !== -1){
                 if ($(this).val() == '') {
                     $(this).css('border-color','red')
                     $(this).css('border-width','1px');
                     empty_field = 1;
-                } else {
-                    empty_field = 0;
                 }
             }
         });
@@ -193,8 +193,8 @@ active
         }
     });
 
-    $('input[type=text]').on('blur', function(){
-        if($(this).attr('name') == 'host' || $(this).attr('name') == 'databasename' || $(this).attr('name') == 'username'){
+    $('input[type=text], input[type=password]').on('blur', function(){
+        if(requiredFields.indexOf($(this).attr('name')) !== -1){
             if ($(this).val() == '') {
                 addErrorClass($(this).attr('name'));
             }

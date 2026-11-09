@@ -64,7 +64,7 @@ class="nav-item active"
 
         <div class="tab-content">
             <div class="tab-pane active" id="tab_1">
-                {!! html()->form('POST', route('select_all'))->open() !!}
+                {!! html()->form('POST', route('client.select_all'))->open() !!}
                 <div class="mailbox-controls mt-3">
                     <!-- Check all button -->
                     <a class="btn btn-light btn-sm checkbox-toggle" style="background-color: whitesmoke"><i class="fa-regular fa-square"></i></a>
@@ -156,7 +156,7 @@ class="nav-item active"
             </div><!-- /.box-body -->
             {{-- /.tab_1 --}}
             <div class="tab-pane" id="tab_2">
-                {!! html()->form('POST', route('select_all'))->open() !!}
+                {!! html()->form('POST', route('client.select_all'))->open() !!}
                 <div class="mailbox-controls mt-3">
                     <!-- Check all button -->
                     <a class="btn btn-light btn-sm checkbox-toggle" style="background-color: whitesmoke"><i class="fa-regular fa-square" ></i></a>
