@@ -3,7 +3,7 @@
 <h3>Ticket Department : {!! $tickets->department !!}</h3><br>
 <h3>Ticket Helptopic : {!! $tickets->helptopic !!}</h3><br>
 @forelse($ticket->thread as $thread)
-{!! $thread->body !!}
+{!! $thread->inlineAttachment($thread->body) !!}
 <hr>
 @empty 
 

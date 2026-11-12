@@ -762,7 +762,7 @@ if ($thread->title != "") {
                                                         }
                                             </script>
                                             @else 
-                                            {!! $conversation->body !!}
+                                            {!! $conversation->inlineAttachment($conversation->body) !!}
                                             @endif
                                            
                    

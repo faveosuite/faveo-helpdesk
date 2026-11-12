@@ -14,6 +14,21 @@ class Ticket_Thread extends Model
         'id', 'ticket_id', 'staff_id', 'user_id', 'thread_type', 'poster', 'source', 'is_internal', 'title', 'body', 'format', 'ip_address', 'created_at', 'updated_at',
     ];
 
+    /**
+     * Images pasted into the editor, taken out of the body by setBodyAttribute()
+     * and saved as INLINE attachments once the thread has an id.
+     *
+     * @var array<int, array{name: string, type: string, data: string}>
+     */
+    protected $pendingInlineImages = [];
+
+    protected static function booted()
+    {
+        static::saved(function (Ticket_Thread $thread) {
+            $thread->storePendingInlineImages();
+        });
+    }
+
     public function attach()
     {
         return $this->hasMany(\App\Model\helpdesk\Ticket\Ticket_attachments::class, 'thread_id');
@@ -89,7 +104,41 @@ class Ticket_Thread extends Model
      */
     public function setBodyAttribute($value)
     {
-        $this->attributes['body'] = sanitizeHtmlDescription($value);
+        $this->attributes['body'] = sanitizeHtmlDescription($this->extractInlineImages($value));
+    }
+
+    /**
+     * The editor puts a pasted/dropped image in the body as a data: URI, which
+     * sanitizeHtmlDescription() rightly refuses (it would turn the src into "#"
+     * and the image would be lost). Swap each one for a file name here instead,
+     * the same way inline images of fetched emails are stored, so
+     * inlineAttachment() puts it back when the thread is shown.
+     */
+    protected function extractInlineImages($value)
+    {
+        if (!is_string($value)) {
+            return $value;
+        }
+
+        return replaceDataUriImages($value, function ($binary, $mime) {
+            $name = 'inline_'.\Illuminate\Support\Str::random(20).'.'.(explode('/', $mime)[1] === 'jpeg' ? 'jpg' : explode('/', $mime)[1]);
+            $this->pendingInlineImages[] = ['name' => $name, 'type' => $mime, 'data' => $binary];
+
+            return $name;
+        });
+    }
+
+    public function storePendingInlineImages()
+    {
+        if (!$this->pendingInlineImages) {
+            return;
+        }
+        $images = $this->pendingInlineImages;
+        $this->pendingInlineImages = [];
+        $storage = new \App\FaveoStorage\Controllers\StorageController();
+        foreach ($images as $image) {
+            $storage->upload($image['data'], $image['name'], $image['type'], strlen($image['data']), 'INLINE', $this->id);
+        }
     }
 
     public function removeScript($html)

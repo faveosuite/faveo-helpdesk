@@ -394,6 +394,45 @@ function languageFlag($locale)
 }
 
 /**
+ * Hands every raster image the editor embedded as a data: URI
+ * (`<img src="data:image/png;base64,...">`, which is what Summernote does on
+ * paste/drop) to $replace and puts whatever it returns in place of the src.
+ *
+ * $replace gets the decoded bytes and the image's real mime type, and returns
+ * the new src, or null to leave that image untouched. Payloads that do not
+ * decode to a png/jpeg/gif/webp image are never handed over (svg is not a
+ * raster type and can carry script).
+ *
+ * @param string|null $html
+ * @param callable    $replace function (string $binary, string $mime): ?string
+ *
+ * @return string|null
+ */
+function replaceDataUriImages(?string $html, callable $replace): ?string
+{
+    if (!$html || stripos($html, 'data:image/') === false) {
+        return $html;
+    }
+
+    $allowed = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
+
+    return preg_replace_callback(
+        '/(<img\b[^>]*?\bsrc\s*=\s*)(["\'])\s*data:image\/[a-z0-9.+-]+;base64,([A-Za-z0-9+\/=\s]+)\2/i',
+        function ($m) use ($replace, $allowed) {
+            $binary = base64_decode(preg_replace('/\s+/', '', $m[3]), true);
+            $info = $binary === false ? false : @getimagesizefromstring($binary);
+            if (!$info || !in_array($info['mime'], $allowed, true)) {
+                return $m[0];
+            }
+            $src = $replace($binary, $info['mime']);
+
+            return $src === null ? $m[0] : $m[1].$m[2].$src.$m[2];
+        },
+        $html
+    ) ?? $html;
+}
+
+/**
  * Sanitize rich-text HTML (ticket/reply bodies, descriptions, etc.) before it
  * is persisted, so stored content can never carry executable script or
  * event-handler payloads (stored XSS), while keeping the formatting produced

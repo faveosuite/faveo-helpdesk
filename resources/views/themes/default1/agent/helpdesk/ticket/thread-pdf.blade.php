@@ -70,7 +70,7 @@
             <h3>Issue</h3>
         </div>
         <div>
-            {!! $thread->body !!}
+            {!! $thread->inlineAttachment($thread->body) !!}
         </div>
         <hr>
 
