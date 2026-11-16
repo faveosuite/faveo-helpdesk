@@ -79,10 +79,10 @@ class WorkflowController extends Controller
                         /* add column status */
                         ->addColumn('status', function ($model) {
                             if ($model->status == 1) {
-                                return '<button class="btn btn-success btn-xs">'.Lang::get('lang.active').'</button>';
+                                return '<button class="btn btn-success btn-xs">'.langText('lang.active').'</button>';
                             }
 
-                            return '<button class="btn btn-danger btn-xs">'.Lang::get('lang.inactive').'</button>';
+                            return '<button class="btn btn-danger btn-xs">'.langText('lang.inactive').'</button>';
                         })
                         /* add column order */
                         ->addColumn('order', function ($model) {
@@ -126,7 +126,7 @@ class WorkflowController extends Controller
                         })
                         /* add column action */
                         ->addColumn('Actions', function ($model) {
-                            return "<a class='btn btn-primary btn-xs' href='".route('workflow.edit', $model->id)."'><i class='fas fa-edit'></i> ".Lang::get('lang.edit')."</a>  <a class='btn btn-danger btn-xs' href='".route('workflow.delete', $model->id)."'><i class='fas fa-trash'></i> ".Lang::get('lang.delete').'</a>';
+                            return "<a class='btn btn-primary btn-xs' href='".route('workflow.edit', $model->id)."'><i class='fas fa-edit'></i> ".langText('lang.edit')."</a>  <a class='btn btn-danger btn-xs' href='".route('workflow.delete', $model->id)."'><i class='fas fa-trash'></i> ".langText('lang.delete').'</a>';
                         })
                         ->rawColumns(['status', 'Actions'])
                         ->make(true);

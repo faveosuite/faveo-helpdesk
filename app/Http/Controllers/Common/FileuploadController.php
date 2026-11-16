@@ -41,13 +41,16 @@ class FileuploadController extends Controller
     /**
      * PHP's shorthand size (8M, 512K, 1G) as shown to people (8MB, 512KB, 1GB).
      *
-     * @param string $size
+     * @param string|false $size ini_get() result; false when the directive is unknown
      *
      * @return string
      */
     public function readableSize($size)
     {
-        if (preg_match('/^\s*(\d+(?:\.\d+)?)\s*([KMGT])B?\s*$/i', (string) $size, $matches)) {
+        if ($size === false) {
+            return '';
+        }
+        if (preg_match('/^\s*(\d+(?:\.\d+)?)\s*([KMGT])B?\s*$/i', $size, $matches)) {
             return $matches[1].strtoupper($matches[2]).'B';
         }
 

@@ -34,7 +34,7 @@ active
             <br>
             <p class="setup-actions step">
                 <input type="submit" id="submitme" class="button-primary button button-large button-next" value="Continue" name="accept1">
-                <a href="{!! route('prerequisites') !!}" class="button button-large button-next" style="float: left">Previous</a>
+                <a href="{{ url('probe.php') }}" class="button button-large button-next" style="float: left">Previous</a>
             </p>
             <br>
         </form>

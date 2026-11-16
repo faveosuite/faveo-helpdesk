@@ -39,7 +39,9 @@ class TicketWorkflowController extends Controller
     /**
      * This is the core function from where the workflow is applied.
      *
-     * @return type response
+     * @param string|null $duedate
+     *
+     * @return array<int|string, mixed> [0 => ticket number or false, 1 => user created flag, 'banned' => true when refused]
      */
     public function workflow($fromaddress, $fromname, $subject, $body, $phone, $phonecode, $mobile_number, $helptopic, $sla, $priority, $source, $collaborator, $dept, $assign, $team_assign, $ticket_status, $form_data, $auto_response, $duedate = null)
     {

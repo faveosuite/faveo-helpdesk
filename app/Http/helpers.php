@@ -375,6 +375,25 @@ function isRtl($locale = null)
 }
 
 /**
+ * Translates a single language line for building HTML strings.
+ *
+ * Lang::get() is typed string|array because a key may name a whole group; a
+ * single line always comes back as a string, and if a group key is ever passed
+ * by mistake the key itself is shown instead of the word "Array".
+ *
+ * @param string               $key
+ * @param array<string, mixed> $replace
+ *
+ * @return string
+ */
+function langText(string $key, array $replace = []): string
+{
+    $line = \Lang::get($key, $replace);
+
+    return is_string($line) ? $line : $key;
+}
+
+/**
  * Returns the flag image url of a language, using the flag mapped in config/languages.php.
  * Falls back to a globe icon when the language has no flag or the image is missing.
  *
@@ -419,7 +438,8 @@ function replaceDataUriImages(?string $html, callable $replace): ?string
     return preg_replace_callback(
         '/(<img\b[^>]*?\bsrc\s*=\s*)(["\'])\s*data:image\/[a-z0-9.+-]+;base64,([A-Za-z0-9+\/=\s]+)\2/i',
         function ($m) use ($replace, $allowed) {
-            $binary = base64_decode(preg_replace('/\s+/', '', $m[3]), true);
+            $base64 = preg_replace('/\s+/', '', $m[3]);
+            $binary = $base64 === null ? false : base64_decode($base64, true);
             $info = $binary === false ? false : @getimagesizefromstring($binary);
             if (!$info || !in_array($info['mime'], $allowed, true)) {
                 return $m[0];

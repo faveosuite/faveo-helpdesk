@@ -96,7 +96,7 @@ class TicketController extends Controller
      *
      * @param type CreateTicketRequest $request
      *
-     * @return type response
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|array<string, mixed>
      */
     public function post_newticket(CreateTicketRequest $request, CountryCode $code, $api = false)
     {
@@ -268,11 +268,15 @@ class TicketController extends Controller
         if (!is_int($id) && !(is_string($id) && ctype_digit($id))) {
             return null;
         }
+        $user = Auth::user();
+        if (!$user instanceof User) {
+            return null;
+        }
         $ticket = Tickets::where('id', '=', $id)->first();
         if (!$ticket) {
             return null;
         }
-        if (Auth::user()->role == 'admin') {
+        if ($user->role == 'admin') {
             return $ticket;
         }
         // An agent reaches a ticket through their own department, or because it is
@@ -282,10 +286,10 @@ class TicketController extends Controller
         // removed. Dereferencing the lookup without checking turned a simple
         // "not allowed" into a fatal error on every delete/ban/resolve.
         $allowed = false;
-        if (Auth::user()->role == 'agent') {
-            $dept = Department::where('id', '=', Auth::user()->primary_dpt)->first();
+        if ($user->role == 'agent') {
+            $dept = Department::where('id', '=', $user->primary_dpt)->first();
             $allowed = ($dept && $ticket->dept_id == $dept->id)
-                || $ticket->assigned_to == Auth::user()->id;
+                || $ticket->assigned_to == $user->id;
         }
 
         return $allowed ? $ticket : null;
@@ -317,13 +321,16 @@ class TicketController extends Controller
      * same rule as authorizeTicketAccess(): admins see everything, agents see
      * their primary department plus tickets assigned to them.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param \Illuminate\Database\Eloquent\Builder<Tickets> $query
      *
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return \Illuminate\Database\Eloquent\Builder<Tickets>
      */
     protected function restrictToAccessibleTickets($query)
     {
         $user = Auth::user();
+        if (!$user instanceof User) {
+            return $query->whereRaw('1 = 0');
+        }
         if ($user->role == 'admin') {
             return $query;
         }
@@ -555,7 +562,7 @@ class TicketController extends Controller
      * @param type $ticket_id
      * @param type Ticket_Thread $thread
      *
-     * @return type bool
+     * @return int|\Illuminate\Http\Response
      */
     public function ticketEditPost($ticket_id, Ticket_Thread $thread, Tickets $ticket)
     {
@@ -595,7 +602,7 @@ class TicketController extends Controller
      *
      * @param int $ticket_id
      *
-     * @return int 0 on success, 1 on error
+     * @return int|\Illuminate\Http\Response 0 on success, 1 on error, 403 when not permitted
      */
     public function updateDueDate($ticket_id, Request $request)
     {
@@ -1287,7 +1294,7 @@ class TicketController extends Controller
      * @param type $id
      * @param type Tickets $ticket
      *
-     * @return type string
+     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse|string|int
      */
     public function close($id, Tickets $ticket)
     {
@@ -1350,7 +1357,7 @@ class TicketController extends Controller
      * @param type $id
      * @param type Tickets $ticket
      *
-     * @return type string
+     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse|string
      */
     public function resolve($id, Tickets $ticket)
     {
@@ -1396,7 +1403,7 @@ class TicketController extends Controller
      * @param type $id
      * @param type Tickets $ticket
      *
-     * @return type
+     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse|string
      */
     public function open($id, Tickets $ticket)
     {
@@ -1636,7 +1643,7 @@ class TicketController extends Controller
      *
      * @param type $id
      *
-     * @return type bool
+     * @return int|\Illuminate\Http\Response
      */
     public function surrender($id)
     {
@@ -1831,7 +1838,7 @@ class TicketController extends Controller
      *
      * @param type Image $image
      *
-     * @return type json
+     * @return \Illuminate\Http\Response|string
      */
     public function usersearch()
     {
@@ -1871,7 +1878,7 @@ class TicketController extends Controller
      *
      * @param type Image $image
      *
-     * @return type json
+     * @return \Illuminate\Http\Response|string|array<int, string>
      */
     public function useradd()
     {
@@ -1922,7 +1929,7 @@ class TicketController extends Controller
     /**
      * user remove.
      *
-     * @return type
+     * @return int|\Illuminate\Http\Response
      */
     public function userremove()
     {
@@ -1941,7 +1948,7 @@ class TicketController extends Controller
     /**
      * select_all.
      *
-     * @return type
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function select_all()
     {
@@ -2246,7 +2253,7 @@ class TicketController extends Controller
      *
      * @param int $id
      *
-     * @return int
+     * @return int|string|\Illuminate\Http\Response
      */
     public function checkLock($id)
     {
@@ -2412,6 +2419,8 @@ class TicketController extends Controller
     /**
      * One <option> per ticket for the merge pickers. Ids are cast and titles
      * escaped: a ticket subject is customer-supplied text.
+     *
+     * @param int|string $ticketId
      */
     private function mergeTicketOption($ticketId): string
     {
@@ -2423,7 +2432,7 @@ class TicketController extends Controller
     /**
      * The customer's other open tickets that the current user may act on.
      *
-     * @return \Illuminate\Support\Collection
+     * @return \Illuminate\Database\Eloquent\Collection<int, Tickets>
      */
     private function mergeCandidates(Tickets $ticket)
     {
@@ -2639,20 +2648,18 @@ class TicketController extends Controller
         if (!$ticket) {
             return response('Unauthorized', 403);
         }
-        if ($ticket) {
-            $threads = $ticket->thread()->select('user_id', 'poster', 'body')->get();
-            $numThreads = $threads->count();
-            $tooltip = '';
+        $threads = $ticket->thread()->select('user_id', 'poster', 'body')->get();
+        $numThreads = $threads->count();
+        $tooltip = '';
 
-            foreach ($threads as $thread) {
-                $tooltip .= '<b>'.$thread->user->user_name.' ('.$thread->poster.')</b></br>'
-                    .$thread->purify().'<br><hr>';
-            }
-
-            $tooltip .= 'This ticket has '.$numThreads.' threads.';
-
-            return $tooltip;
+        foreach ($threads as $thread) {
+            $tooltip .= '<b>'.$thread->user->user_name.' ('.$thread->poster.')</b></br>'
+                .$thread->purify().'<br><hr>';
         }
+
+        $tooltip .= 'This ticket has '.$numThreads.' threads.';
+
+        return $tooltip;
     }
 
     //Auto-close tickets
@@ -3063,7 +3070,7 @@ class TicketController extends Controller
                                     $due = '&nbsp;<span style="" title="'.Lang::get('lang.is_overdue').'" class="badge text-bg-danger text-xs">'.Lang::get('lang.overdue').'</span>';
                                 } else {
                                     if (date('Ymd', $duedate) == date('Ymd', $now)) {
-                                        $due = '&nbsp;<span title="'.Lang::get('lang.going-overdue-today').'" class="badge text-bg-warning text-xs">'.Lang::get('lang.duetoday').'</span>';
+                                        $due = '&nbsp;<span title="'.langText('lang.going-overdue-today').'" class="badge text-bg-warning text-xs">'.langText('lang.duetoday').'</span>';
                                     }
                                 }
                             }

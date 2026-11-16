@@ -13,6 +13,9 @@ class UserNotification extends BaseModel
         'notification_id', 'user_id', 'is_read',
     ];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<Notification, $this>
+     */
     public function notification()
     {
         $related = \App\Model\helpdesk\Notification\Notification::class;
@@ -21,6 +24,9 @@ class UserNotification extends BaseModel
         return $this->belongsTo($related, $id);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\User, $this>
+     */
     public function users()
     {
         $related = \App\User::class;

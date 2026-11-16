@@ -29,6 +29,16 @@ class UserController extends Controller
     }
 
     /**
+     * Guests and customers only see published, public knowledge base content.
+     */
+    private function viewerIsGuestOrCustomer(): bool
+    {
+        $viewer = Auth::user();
+
+        return !$viewer instanceof \App\User || $viewer->role == 'user';
+    }
+
+    /**
      * @param
      *
      * @return response
@@ -37,7 +47,7 @@ class UserController extends Controller
     {
         $setting = $settings->first();
         $pagination = $setting->pagination;
-        if (!Auth::check() || \Auth::user()->role == 'user') {
+        if ($this->viewerIsGuestOrCustomer()) {
             $article = $article->where('status', '1');
         }
         $article = $article->where('type', '1');
@@ -94,7 +104,7 @@ class UserController extends Controller
                 ->orWhere('description', 'LIKE', '%'.$search.'%');
         })->where('type', '1');
         // same visibility as the article list: guests and users only see public articles
-        if (!Auth::check() || \Auth::user()->role == 'user') {
+        if ($this->viewerIsGuestOrCustomer()) {
             $result = $result->where('status', '1');
         }
         $result = $result->orderBy('publish_time', 'desc')->paginate($pagination);
@@ -118,7 +128,7 @@ class UserController extends Controller
         $date = \Carbon\Carbon::now()->toDateTimeString();
         $arti = $article->where('slug', $slug);
 
-        if (!Auth::check() || \Auth::user()->role == 'user') {
+        if ($this->viewerIsGuestOrCustomer()) {
             $arti = $arti->where('status', '1');
             $arti = $arti->where('publish_time', '<', $date);
         }
@@ -272,7 +282,7 @@ class UserController extends Controller
     {
         $page = $page->where('slug', $name);
 
-        if (!Auth::check() || \Auth::user()->role == 'user') {
+        if ($this->viewerIsGuestOrCustomer()) {
             $page = $page
                     ->where(['status' => 1, 'visibility'=>1])
                     ->first();

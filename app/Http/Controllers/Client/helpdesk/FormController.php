@@ -236,7 +236,8 @@ class FormController extends Controller
                     }
                 }
             }
-            if (User::isBannedEmail($email) || (\Auth::check() && \Auth::user()->isBanned())) {
+            $authUser = \Auth::user();
+            if (User::isBannedEmail($email) || ($authUser instanceof User && $authUser->isBanned())) {
                 return Redirect::back()->withInput($request->except('password'))->with('fails', Lang::get('lang.email-is-banned'));
             }
             event(new \App\Events\ClientTicketFormPost($form_extras, $email, $source));
@@ -277,9 +278,9 @@ class FormController extends Controller
     /**
      * reply.
      *
-     * @param type $value
+     * @param int|string $id
      *
-     * @return type view
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function post_ticket_reply($id, Request $request)
     {

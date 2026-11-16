@@ -297,7 +297,7 @@ class AuthController extends Controller
      *
      * @param type LoginRequest $request
      *
-     * @return type Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function postLogin(LoginRequest $request)
     {
@@ -429,7 +429,8 @@ class AuthController extends Controller
                         clearAttemptLock('account_login', $usernameinput);
                         // checked only after the password matched, so the message does not reveal to
                         // others that an address is banned
-                        if (Auth::user()->isBanned()) {
+                        $loggedIn = Auth::user();
+                        if ($loggedIn instanceof User && $loggedIn->isBanned()) {
                             Auth::logout();
                             $request->session()->invalidate();
                             $request->session()->regenerateToken();

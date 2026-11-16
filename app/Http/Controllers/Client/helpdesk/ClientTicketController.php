@@ -64,7 +64,7 @@ class ClientTicketController extends Controller
         // request is unambiguous; a missing ticket gets the same answer so ticket
         // ids cannot be probed.
         if (!$tickets || !$this->canAuthenticatedUserProceedToReply($tickets)) {
-            abort(403, Lang::get('lang.unauthorized_access'));
+            abort(403, langText('lang.unauthorized_access'));
         }
 
         $thread = Ticket_Thread::where('ticket_id', '=', $tickets->id)->first();
@@ -76,6 +76,9 @@ class ClientTicketController extends Controller
         // owns the ticket id in the URL. (Equal after the check above, but the
         // identity must come from the session, not from the target object.)
         $user_cred = Auth::user();
+        if (!$user_cred instanceof User) {
+            abort(403, langText('lang.unauthorized_access'));
+        }
         if ($user_cred->isBanned()) {
             return \Redirect::back()->with('fails1', Lang::get('lang.email-is-banned'));
         }

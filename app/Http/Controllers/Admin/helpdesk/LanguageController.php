@@ -133,7 +133,7 @@ class LanguageController extends Controller
     /**
      * handle language file uploading.
      *
-     * @return response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function postForm()
     {
@@ -172,11 +172,13 @@ class LanguageController extends Controller
                     return Redirect::back()->withInput();
                 } else {
                     // checking file is valid.
-                    if (Request::file('File')->isValid()) {
+                    $upload = Request::file('File');
+                    if ($upload instanceof \Illuminate\Http\UploadedFile && $upload->isValid()) {
                         $extractpath = base_path('lang').'/'.strtolower(Request::get('iso-code')); //defining extracting path
                         // reading the zip straight from the temporary upload, so nothing is left behind in public/uploads
                         $zip = new \ZipArchive();
-                        if ($zip->open(Request::file('File')->getRealPath()) !== true) {
+                        $uploadPath = $upload->getRealPath();
+                        if ($uploadPath === false || $zip->open($uploadPath) !== true) {
                             Session::flash('fails', Lang::get('lang.file-error'));
 
                             return Redirect::back()->withInput();
@@ -184,7 +186,8 @@ class LanguageController extends Controller
                         //check if Zip contains any subfolder before extracting (this also rejects "../" paths)
                         for ($i = 0; $i < $zip->numFiles; $i++) {
                             $entry = $zip->getNameIndex($i);
-                            if (str_contains($entry, '/') || str_contains($entry, '\\')) {
+                            // an unreadable entry name means a corrupt archive: reject it too
+                            if ($entry === false || str_contains($entry, '/') || str_contains($entry, '\\')) {
                                 $zip->close();
                                 //sending back with error message
                                 Session::flash('fails', Lang::get('lang.zipp-error'));

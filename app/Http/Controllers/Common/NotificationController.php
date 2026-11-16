@@ -72,7 +72,7 @@ class NotificationController extends Controller
      *
      * @param type $id
      *
-     * @return int
+     * @return \Illuminate\Http\JsonResponse
      */
     public function markAllRead($id)
     {
@@ -165,7 +165,7 @@ class NotificationController extends Controller
     /**
      * get the page to list the notifications.
      *
-     * @return response
+     * @return \Illuminate\Database\Eloquent\Builder<UserNotification>
      */
     public static function getNotifications()
     {

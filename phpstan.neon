@@ -38,6 +38,11 @@ parameters:
         # public/ contains vendored third-party PHP (CKEditor samples, probe.php)
         - public/*
         - tests (?)
+        # Old copies of the notification models. They declare the same class names
+        # as app/Model/helpdesk/Notification but sit outside the PSR-4 path, so PHP
+        # never loads them; PHPStan would otherwise pick these relation-less
+        # duplicates and report the real relations as missing.
+        - app/Model/helpdesk/NotificationOld/*
         # Blade templates: *.blade.php matches *.php and would otherwise be parsed
         - resources/views (?)
         # Plain array-return translation files — nothing to type-check

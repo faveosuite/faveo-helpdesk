@@ -28,6 +28,8 @@ class DatabaseSeeder extends Seeder
      * cache key, so a cache clear reset it to English. It is now stored in
      * settings_system.content. Copy the language an existing install is using
      * today into that column, so upgrading does not change what users see.
+     *
+     * @return void
      */
     private function persistSystemLanguage()
     {

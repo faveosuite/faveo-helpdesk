@@ -151,9 +151,9 @@ class SettingsController extends Controller
                         ->addColumn('status', function ($model) {
                             $status = $model->status;
                             if ($status == 1) {
-                                return '<span class="text-primary">'.\Lang::get('lang.published').'</span>';
+                                return '<span class="text-primary">'.langText('lang.published').'</span>';
                             } else {
-                                return '<span class="text-danger">'.\Lang::get('lang.not_published').'</span>';
+                                return '<span class="text-danger">'.langText('lang.not_published').'</span>';
                             }
                         })
 

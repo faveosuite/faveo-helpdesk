@@ -113,6 +113,10 @@ class Ticket_Thread extends Model
      * and the image would be lost). Swap each one for a file name here instead,
      * the same way inline images of fetched emails are stored, so
      * inlineAttachment() puts it back when the thread is shown.
+     *
+     * @param mixed $value
+     *
+     * @return mixed the body with data: images swapped for file names; non-strings unchanged
      */
     protected function extractInlineImages($value)
     {
@@ -128,6 +132,11 @@ class Ticket_Thread extends Model
         });
     }
 
+    /**
+     * Saves the images collected by extractInlineImages() against this thread.
+     *
+     * @return void
+     */
     public function storePendingInlineImages()
     {
         if (!$this->pendingInlineImages) {

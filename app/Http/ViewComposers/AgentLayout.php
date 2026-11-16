@@ -14,9 +14,9 @@ use Illuminate\View\View;
 class AgentLayout
 {
     /**
-     * The user repository implementation.
+     * The company settings model.
      *
-     * @var UserRepository
+     * @var Company
      */
     protected $company;
 
@@ -166,6 +166,10 @@ class AgentLayout
 
     /**
      * Matches the "assigned = 0" filter of the ticket table: no team and no agent.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder<Tickets> $ticket
+     *
+     * @return \Illuminate\Database\Eloquent\Builder<Tickets>
      */
     protected function whereUnassigned($ticket)
     {

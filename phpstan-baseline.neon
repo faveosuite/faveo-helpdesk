@@ -7,24 +7,6 @@ parameters:
 			path: app/Api/v1/ApiController.php
 
 		-
-			message: '#^Call to method getFile\(\) on an unknown class App\\Api\\v1\\Tymon\\JWTAuth\\Exceptions\\TokenExpiredException\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Api/v1/ApiController.php
-
-		-
-			message: '#^Call to method getLine\(\) on an unknown class App\\Api\\v1\\Tymon\\JWTAuth\\Exceptions\\TokenExpiredException\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Api/v1/ApiController.php
-
-		-
-			message: '#^Call to method getMessage\(\) on an unknown class App\\Api\\v1\\Tymon\\JWTAuth\\Exceptions\\TokenExpiredException\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Api/v1/ApiController.php
-
-		-
 			message: '#^Call to method getMessage\(\) on an unknown class TokenExpiredException\.$#'
 			identifier: class.notFound
 			count: 29
@@ -37,33 +19,15 @@ parameters:
 			path: app/Api/v1/ApiController.php
 
 		-
-			message: '#^Cannot access property \$id on Tymon\\JWTAuth\\Contracts\\JWTSubject\|false\.$#'
-			identifier: property.nonObject
-			count: 8
-			path: app/Api/v1/ApiController.php
-
-		-
 			message: '#^Cannot access property \$last_name on App\\User\|null\.$#'
 			identifier: property.nonObject
 			count: 1
 			path: app/Api/v1/ApiController.php
 
 		-
-			message: '#^Cannot access property \$primary_dpt on Tymon\\JWTAuth\\Contracts\\JWTSubject\|false\.$#'
-			identifier: property.nonObject
-			count: 7
-			path: app/Api/v1/ApiController.php
-
-		-
 			message: '#^Cannot access property \$profile_pic on App\\User\|null\.$#'
 			identifier: property.nonObject
 			count: 2
-			path: app/Api/v1/ApiController.php
-
-		-
-			message: '#^Cannot access property \$role on Tymon\\JWTAuth\\Contracts\\JWTSubject\|false\.$#'
-			identifier: property.nonObject
-			count: 7
 			path: app/Api/v1/ApiController.php
 
 		-
@@ -97,12 +61,6 @@ parameters:
 			path: app/Api/v1/ApiController.php
 
 		-
-			message: '#^Caught class App\\Api\\v1\\Tymon\\JWTAuth\\Exceptions\\TokenExpiredException not found\.$#'
-			identifier: class.notFound
-			count: 3
-			path: app/Api/v1/ApiController.php
-
-		-
 			message: '#^Caught class TokenExpiredException not found\.$#'
 			identifier: class.notFound
 			count: 29
@@ -118,18 +76,6 @@ parameters:
 			message: '#^Method App\\Api\\v1\\ApiController\:\:addCollaboratorForTicket\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
-			path: app/Api/v1/ApiController.php
-
-		-
-			message: '#^Method App\\Api\\v1\\ApiController\:\:assignTicket\(\) has invalid return type App\\Api\\v1\\json\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Api/v1/ApiController.php
-
-		-
-			message: '#^Method App\\Api\\v1\\ApiController\:\:assignTicket\(\) should return App\\Api\\v1\\json but returns Illuminate\\Http\\JsonResponse\.$#'
-			identifier: return.type
-			count: 5
 			path: app/Api/v1/ApiController.php
 
 		-
@@ -181,24 +127,6 @@ parameters:
 			path: app/Api/v1/ApiController.php
 
 		-
-			message: '#^Method App\\Api\\v1\\ApiController\:\:closeTickets\(\) has invalid return type App\\Api\\v1\\json\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Api/v1/ApiController.php
-
-		-
-			message: '#^Method App\\Api\\v1\\ApiController\:\:closeTickets\(\) should return App\\Api\\v1\\json but returns Illuminate\\Http\\JsonResponse\.$#'
-			identifier: return.type
-			count: 2
-			path: app/Api/v1/ApiController.php
-
-		-
-			message: '#^Method App\\Api\\v1\\ApiController\:\:closeTickets\(\) should return App\\Api\\v1\\json but returns Illuminate\\Http\\Response\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Api/v1/ApiController.php
-
-		-
 			message: '#^Method App\\Api\\v1\\ApiController\:\:collaboratorSearch\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -242,24 +170,6 @@ parameters:
 
 		-
 			message: '#^Method App\\Api\\v1\\ApiController\:\:deleteCollaborator\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Api/v1/ApiController.php
-
-		-
-			message: '#^Method App\\Api\\v1\\ApiController\:\:deleteTicket\(\) has invalid return type App\\Api\\v1\\json\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Api/v1/ApiController.php
-
-		-
-			message: '#^Method App\\Api\\v1\\ApiController\:\:deleteTicket\(\) should return App\\Api\\v1\\json but returns Illuminate\\Http\\JsonResponse\.$#'
-			identifier: return.type
-			count: 4
-			path: app/Api/v1/ApiController.php
-
-		-
-			message: '#^Method App\\Api\\v1\\ApiController\:\:dependency\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
 			path: app/Api/v1/ApiController.php
@@ -469,30 +379,6 @@ parameters:
 			path: app/Api/v1/ApiController.php
 
 		-
-			message: '#^Method App\\Api\\v1\\ApiController\:\:getTrash\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Api/v1/ApiController.php
-
-		-
-			message: '#^Method App\\Api\\v1\\ApiController\:\:inbox\(\) has invalid return type App\\Api\\v1\\type\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Api/v1/ApiController.php
-
-		-
-			message: '#^Method App\\Api\\v1\\ApiController\:\:inbox\(\) should return App\\Api\\v1\\type but returns Illuminate\\Http\\JsonResponse\.$#'
-			identifier: return.type
-			count: 2
-			path: app/Api/v1/ApiController.php
-
-		-
-			message: '#^Method App\\Api\\v1\\ApiController\:\:inbox\(\) should return App\\Api\\v1\\type but returns Illuminate\\Http\\Response\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Api/v1/ApiController.php
-
-		-
 			message: '#^Method App\\Api\\v1\\ApiController\:\:internalNote\(\) has invalid return type App\\Api\\v1\\type\.$#'
 			identifier: class.notFound
 			count: 1
@@ -547,18 +433,6 @@ parameters:
 			path: app/Api/v1/ApiController.php
 
 		-
-			message: '#^Method App\\Api\\v1\\ApiController\:\:ticketReply\(\) has invalid return type App\\Api\\v1\\json\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Api/v1/ApiController.php
-
-		-
-			message: '#^Method App\\Api\\v1\\ApiController\:\:ticketReply\(\) should return App\\Api\\v1\\json but returns Illuminate\\Http\\JsonResponse\.$#'
-			identifier: return.type
-			count: 4
-			path: app/Api/v1/ApiController.php
-
-		-
 			message: '#^Method App\\Api\\v1\\ApiController\:\:ticketThreads\(\) has invalid return type App\\Api\\v1\\json\.$#'
 			identifier: class.notFound
 			count: 1
@@ -568,24 +442,6 @@ parameters:
 			message: '#^Method App\\Api\\v1\\ApiController\:\:ticketThreads\(\) should return App\\Api\\v1\\json but returns Illuminate\\Http\\JsonResponse\.$#'
 			identifier: return.type
 			count: 4
-			path: app/Api/v1/ApiController.php
-
-		-
-			message: '#^Method App\\Api\\v1\\ApiController\:\:unassignedTickets\(\) has invalid return type App\\Api\\v1\\json\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Api/v1/ApiController.php
-
-		-
-			message: '#^Method App\\Api\\v1\\ApiController\:\:unassignedTickets\(\) should return App\\Api\\v1\\json but returns Illuminate\\Http\\JsonResponse\.$#'
-			identifier: return.type
-			count: 2
-			path: app/Api/v1/ApiController.php
-
-		-
-			message: '#^Method App\\Api\\v1\\ApiController\:\:unassignedTickets\(\) should return App\\Api\\v1\\json but returns Illuminate\\Http\\Response\.$#'
-			identifier: return.type
-			count: 1
 			path: app/Api/v1/ApiController.php
 
 		-
@@ -759,7 +615,7 @@ parameters:
 		-
 			message: '#^Undefined variable\: \$e$#'
 			identifier: variable.undefined
-			count: 10
+			count: 4
 			path: app/Api/v1/ApiController.php
 
 		-
@@ -1891,43 +1747,7 @@ parameters:
 			path: app/Api/v1/TokenAuthController.php
 
 		-
-			message: '#^Call to method getStatusCode\(\) on an unknown class App\\Api\\v1\\Tymon\\JWTAuth\\Exceptions\\JWTException\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Api/v1/TokenAuthController.php
-
-		-
-			message: '#^Call to method getStatusCode\(\) on an unknown class App\\Api\\v1\\Tymon\\JWTAuth\\Exceptions\\TokenExpiredException\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Api/v1/TokenAuthController.php
-
-		-
-			message: '#^Call to method getStatusCode\(\) on an unknown class App\\Api\\v1\\Tymon\\JWTAuth\\Exceptions\\TokenInvalidException\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Api/v1/TokenAuthController.php
-
-		-
 			message: '#^Caught class App\\Api\\v1\\Exception not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Api/v1/TokenAuthController.php
-
-		-
-			message: '#^Caught class App\\Api\\v1\\Tymon\\JWTAuth\\Exceptions\\JWTException not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Api/v1/TokenAuthController.php
-
-		-
-			message: '#^Caught class App\\Api\\v1\\Tymon\\JWTAuth\\Exceptions\\TokenExpiredException not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Api/v1/TokenAuthController.php
-
-		-
-			message: '#^Caught class App\\Api\\v1\\Tymon\\JWTAuth\\Exceptions\\TokenInvalidException not found\.$#'
 			identifier: class.notFound
 			count: 1
 			path: app/Api/v1/TokenAuthController.php
@@ -1977,7 +1797,7 @@ parameters:
 		-
 			message: '#^Method App\\Api\\v1\\TokenAuthController\:\:getAuthenticatedUser\(\) should return App\\Api\\v1\\type but returns Illuminate\\Http\\JsonResponse\.$#'
 			identifier: return.type
-			count: 6
+			count: 3
 			path: app/Api/v1/TokenAuthController.php
 
 		-
@@ -1999,27 +1819,9 @@ parameters:
 			path: app/Api/v2/TicketController.php
 
 		-
-			message: '#^Caught class TokenExpiredException not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Api/v2/TicketController.php
-
-		-
 			message: '#^Method App\\Api\\v2\\TicketController\:\:getTickets\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
-			path: app/Api/v2/TicketController.php
-
-		-
-			message: '#^Undefined variable\: \$e$#'
-			identifier: variable.undefined
-			count: 1
-			path: app/Api/v2/TicketController.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 2
 			path: app/Api/v2/TicketController.php
 
 		-
@@ -2987,18 +2789,6 @@ parameters:
 			identifier: missingType.property
 			count: 1
 			path: app/Events/Timeline.php
-
-		-
-			message: '#^Call to an undefined method Tymon\\JWTAuth\\Exceptions\\TokenExpiredException\:\:getStatusCode\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Exceptions/Handler.php
-
-		-
-			message: '#^Call to an undefined method Tymon\\JWTAuth\\Exceptions\\TokenInvalidException\:\:getStatusCode\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Exceptions/Handler.php
 
 		-
 			message: '#^Call to method getMessage\(\) on an unknown class App\\Exceptions\\PDOException\.$#'
@@ -5509,12 +5299,6 @@ parameters:
 			path: app/Http/Controllers/Admin/helpdesk/EmailsController.php
 
 		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 1
-			path: app/Http/Controllers/Admin/helpdesk/EmailsController.php
-
-		-
 			message: '#^Variable \$return might not be defined\.$#'
 			identifier: variable.undefined
 			count: 1
@@ -6703,24 +6487,6 @@ parameters:
 			path: app/Http/Controllers/Admin/helpdesk/LanguageController.php
 
 		-
-			message: '#^Cannot call method getClientOriginalName\(\) on array\<Illuminate\\Http\\UploadedFile\>\|Illuminate\\Http\\UploadedFile\|null\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: app/Http/Controllers/Admin/helpdesk/LanguageController.php
-
-		-
-			message: '#^Cannot call method isValid\(\) on array\<Illuminate\\Http\\UploadedFile\>\|Illuminate\\Http\\UploadedFile\|null\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: app/Http/Controllers/Admin/helpdesk/LanguageController.php
-
-		-
-			message: '#^Cannot call method move\(\) on array\<Illuminate\\Http\\UploadedFile\>\|Illuminate\\Http\\UploadedFile\|null\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: app/Http/Controllers/Admin/helpdesk/LanguageController.php
-
-		-
 			message: '#^Method App\\Http\\Controllers\\Admin\\helpdesk\\LanguageController\:\:__construct\(\) has invalid return type App\\Http\\Controllers\\Admin\\helpdesk\\type\.$#'
 			identifier: class.notFound
 			count: 1
@@ -6784,24 +6550,6 @@ parameters:
 			message: '#^Method App\\Http\\Controllers\\Admin\\helpdesk\\LanguageController\:\:index\(\) should return App\\Http\\Controllers\\Admin\\helpdesk\\type but returns Illuminate\\View\\View\.$#'
 			identifier: return.type
 			count: 1
-			path: app/Http/Controllers/Admin/helpdesk/LanguageController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Admin\\helpdesk\\LanguageController\:\:postForm\(\) has invalid return type App\\Http\\Controllers\\Admin\\helpdesk\\response\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Admin/helpdesk/LanguageController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Admin\\helpdesk\\LanguageController\:\:postForm\(\) should return App\\Http\\Controllers\\Admin\\helpdesk\\response but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: app/Http/Controllers/Admin/helpdesk/LanguageController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Admin\\helpdesk\\LanguageController\:\:postForm\(\) should return App\\Http\\Controllers\\Admin\\helpdesk\\response but returns Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: return.type
-			count: 6
 			path: app/Http/Controllers/Admin/helpdesk/LanguageController.php
 
 		-
@@ -7537,12 +7285,6 @@ parameters:
 			path: app/Http/Controllers/Admin/helpdesk/SettingsController.php
 
 		-
-			message: '#^Cannot access property \$email_user on App\\Model\\helpdesk\\Ticket\\Ticket_Status\|null\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Http/Controllers/Admin/helpdesk/SettingsController.php
-
-		-
 			message: '#^Cannot access property \$excessive_failure on App\\Model\\helpdesk\\Settings\\Alert\|null\.$#'
 			identifier: property.nonObject
 			count: 1
@@ -7556,12 +7298,6 @@ parameters:
 
 		-
 			message: '#^Cannot access property \$html on App\\Model\\helpdesk\\Settings\\Ticket\|null\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Http/Controllers/Admin/helpdesk/SettingsController.php
-
-		-
-			message: '#^Cannot access property \$icon_class on App\\Model\\helpdesk\\Ticket\\Ticket_Status\|null\.$#'
 			identifier: property.nonObject
 			count: 1
 			path: app/Http/Controllers/Admin/helpdesk/SettingsController.php
@@ -7639,12 +7375,6 @@ parameters:
 			path: app/Http/Controllers/Admin/helpdesk/SettingsController.php
 
 		-
-			message: '#^Cannot access property \$name on App\\Model\\helpdesk\\Ticket\\Ticket_Status\|null\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Http/Controllers/Admin/helpdesk/SettingsController.php
-
-		-
 			message: '#^Cannot access property \$new_ticket on App\\Model\\helpdesk\\Settings\\Responder\|null\.$#'
 			identifier: property.nonObject
 			count: 1
@@ -7717,21 +7447,9 @@ parameters:
 			path: app/Http/Controllers/Admin/helpdesk/SettingsController.php
 
 		-
-			message: '#^Cannot access property \$sort on App\\Model\\helpdesk\\Ticket\\Ticket_Status\|null\.$#'
-			identifier: property.nonObject
-			count: 2
-			path: app/Http/Controllers/Admin/helpdesk/SettingsController.php
-
-		-
 			message: '#^Cannot access property \$sql_error on App\\Model\\helpdesk\\Settings\\Alert\|null\.$#'
 			identifier: property.nonObject
 			count: 1
-			path: app/Http/Controllers/Admin/helpdesk/SettingsController.php
-
-		-
-			message: '#^Cannot access property \$state on App\\Model\\helpdesk\\Ticket\\Ticket_Status\|null\.$#'
-			identifier: property.nonObject
-			count: 2
 			path: app/Http/Controllers/Admin/helpdesk/SettingsController.php
 
 		-
@@ -7910,12 +7628,6 @@ parameters:
 
 		-
 			message: '#^Cannot call method save\(\) on App\\Model\\helpdesk\\Settings\\Ticket\|null\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: app/Http/Controllers/Admin/helpdesk/SettingsController.php
-
-		-
-			message: '#^Cannot call method save\(\) on App\\Model\\helpdesk\\Ticket\\Ticket_Status\|null\.$#'
 			identifier: method.nonObject
 			count: 1
 			path: app/Http/Controllers/Admin/helpdesk/SettingsController.php
@@ -13612,13 +13324,13 @@ parameters:
 		-
 			message: '#^Access to offset 0 on an unknown class App\\Http\\Controllers\\Agent\\helpdesk\\type\.$#'
 			identifier: class.notFound
-			count: 2
+			count: 1
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
 
 		-
 			message: '#^Access to offset 1 on an unknown class App\\Http\\Controllers\\Agent\\helpdesk\\type\.$#'
 			identifier: class.notFound
-			count: 2
+			count: 1
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
 
 		-
@@ -13647,12 +13359,6 @@ parameters:
 
 		-
 			message: '#^Binary operation "\." between ''&nbsp;\<span style\="…'' and array\|string results in an error\.$#'
-			identifier: binaryOp.invalid
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Binary operation "\." between ''&nbsp;\<span style\=…'' and array\|string results in an error\.$#'
 			identifier: binaryOp.invalid
 			count: 1
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
@@ -13708,13 +13414,7 @@ parameters:
 		-
 			message: '#^Binary operation "\." between non\-falsy\-string and array\|string results in an error\.$#'
 			identifier: binaryOp.invalid
-			count: 20
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Call to an undefined method App\\Model\\helpdesk\\Ticket\\Tickets\|Illuminate\\Database\\Eloquent\\Collection\<\(int\|string\), App\\Model\\helpdesk\\Ticket\\Tickets\>\:\:thread\(\)\.$#'
-			identifier: method.notFound
-			count: 1
+			count: 19
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
 
 		-
@@ -13768,23 +13468,11 @@ parameters:
 		-
 			message: '#^Cannot access property \$assigned_to on App\\Model\\helpdesk\\Ticket\\Tickets\|null\.$#'
 			identifier: property.nonObject
-			count: 7
+			count: 5
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
 
 		-
 			message: '#^Cannot access property \$ban on App\\User\|null\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Cannot access property \$closed on App\\Model\\helpdesk\\Ticket\\Tickets\|null\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Cannot access property \$closed_at on App\\Model\\helpdesk\\Ticket\\Tickets\|null\.$#'
 			identifier: property.nonObject
 			count: 1
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
@@ -13846,7 +13534,7 @@ parameters:
 		-
 			message: '#^Cannot access property \$dept_id on App\\Model\\helpdesk\\Ticket\\Tickets\|null\.$#'
 			identifier: property.nonObject
-			count: 10
+			count: 8
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
 
 		-
@@ -13898,15 +13586,9 @@ parameters:
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
 
 		-
-			message: '#^Cannot access property \$help_topic_id on App\\Model\\helpdesk\\Ticket\\Tickets\|null\.$#'
-			identifier: property.nonObject
-			count: 2
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
 			message: '#^Cannot access property \$id on App\\Model\\helpdesk\\Agent\\Department\|null\.$#'
 			identifier: property.nonObject
-			count: 4
+			count: 3
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
 
 		-
@@ -13930,7 +13612,7 @@ parameters:
 		-
 			message: '#^Cannot access property \$id on Illuminate\\Contracts\\Auth\\Authenticatable\|null\.$#'
 			identifier: property.nonObject
-			count: 26
+			count: 24
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
 
 		-
@@ -14050,29 +13732,11 @@ parameters:
 		-
 			message: '#^Cannot access property \$primary_dpt on Illuminate\\Contracts\\Auth\\Authenticatable\|null\.$#'
 			identifier: property.nonObject
-			count: 6
+			count: 4
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
 
 		-
 			message: '#^Cannot access property \$priority on App\\Model\\helpdesk\\Settings\\Ticket\|null\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Cannot access property \$priority_id on App\\Model\\helpdesk\\Ticket\\Tickets\|null\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Cannot access property \$reopened on App\\Model\\helpdesk\\Ticket\\Tickets\|null\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Cannot access property \$reopened_at on App\\Model\\helpdesk\\Ticket\\Tickets\|null\.$#'
 			identifier: property.nonObject
 			count: 1
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
@@ -14086,7 +13750,7 @@ parameters:
 		-
 			message: '#^Cannot access property \$role on Illuminate\\Contracts\\Auth\\Authenticatable\|null\.$#'
 			identifier: property.nonObject
-			count: 15
+			count: 14
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
 
 		-
@@ -14096,19 +13760,7 @@ parameters:
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
 
 		-
-			message: '#^Cannot access property \$sla on App\\Model\\helpdesk\\Ticket\\Tickets\|null\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
 			message: '#^Cannot access property \$source on App\\Model\\helpdesk\\Ticket\\Ticket_Thread\|null\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Cannot access property \$source on App\\Model\\helpdesk\\Ticket\\Tickets\|null\.$#'
 			identifier: property.nonObject
 			count: 1
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
@@ -14158,7 +13810,7 @@ parameters:
 		-
 			message: '#^Cannot access property \$title on App\\Model\\helpdesk\\Ticket\\Ticket_Thread\|null\.$#'
 			identifier: property.nonObject
-			count: 15
+			count: 11
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
 
 		-
@@ -14176,7 +13828,7 @@ parameters:
 		-
 			message: '#^Cannot access property \$user_id on App\\Model\\helpdesk\\Ticket\\Tickets\|null\.$#'
 			identifier: property.nonObject
-			count: 9
+			count: 7
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
 
 		-
@@ -14199,12 +13851,6 @@ parameters:
 
 		-
 			message: '#^Cannot call method add\(\) on Carbon\\Carbon\|null\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Cannot call method count\(\) on App\\Model\\helpdesk\\Ticket\\Tickets\|null\.$#'
 			identifier: method.nonObject
 			count: 1
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
@@ -14254,7 +13900,7 @@ parameters:
 		-
 			message: '#^Cannot call method save\(\) on App\\Model\\helpdesk\\Ticket\\Tickets\|null\.$#'
 			identifier: method.nonObject
-			count: 11
+			count: 9
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
 
 		-
@@ -14267,12 +13913,6 @@ parameters:
 			message: '#^Cannot call method update\(\) on App\\Model\\helpdesk\\Ticket\\Ticket_Thread\|null\.$#'
 			identifier: method.nonObject
 			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Cannot call method where\(\) on App\\Model\\helpdesk\\Ticket\\Tickets\|null\.$#'
-			identifier: method.nonObject
-			count: 2
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
 
 		-
@@ -14661,30 +14301,6 @@ parameters:
 
 		-
 			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:cleanMe\(\) should return App\\Http\\Controllers\\Agent\\helpdesk\\type but returns string\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:close\(\) has invalid return type App\\Http\\Controllers\\Agent\\helpdesk\\type\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:close\(\) should return App\\Http\\Controllers\\Agent\\helpdesk\\type but returns Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:close\(\) should return App\\Http\\Controllers\\Agent\\helpdesk\\type but returns int\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:close\(\) should return App\\Http\\Controllers\\Agent\\helpdesk\\type but returns string\.$#'
 			identifier: return.type
 			count: 1
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
@@ -15308,24 +14924,6 @@ parameters:
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
 
 		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:open\(\) has invalid return type App\\Http\\Controllers\\Agent\\helpdesk\\type\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:open\(\) should return App\\Http\\Controllers\\Agent\\helpdesk\\type but returns Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:open\(\) should return App\\Http\\Controllers\\Agent\\helpdesk\\type but returns string\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
 			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:open_ticket_list\(\) has invalid return type App\\Http\\Controllers\\Agent\\helpdesk\\type\.$#'
 			identifier: class.notFound
 			count: 1
@@ -15362,33 +14960,9 @@ parameters:
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
 
 		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:post_newticket\(\) has invalid return type App\\Http\\Controllers\\Agent\\helpdesk\\type\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
 			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:post_newticket\(\) has parameter \$api with no type specified\.$#'
 			identifier: missingType.parameter
 			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:post_newticket\(\) should return App\\Http\\Controllers\\Agent\\helpdesk\\type but returns Illuminate\\Http\\JsonResponse\.$#'
-			identifier: return.type
-			count: 3
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:post_newticket\(\) should return App\\Http\\Controllers\\Agent\\helpdesk\\type but returns Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: return.type
-			count: 6
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:post_newticket\(\) should return App\\Http\\Controllers\\Agent\\helpdesk\\type but returns array\<string, array\|int\|string\>\.$#'
-			identifier: return.type
-			count: 3
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
 
 		-
@@ -15482,24 +15056,6 @@ parameters:
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
 
 		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:resolve\(\) has invalid return type App\\Http\\Controllers\\Agent\\helpdesk\\type\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:resolve\(\) should return App\\Http\\Controllers\\Agent\\helpdesk\\type but returns Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:resolve\(\) should return App\\Http\\Controllers\\Agent\\helpdesk\\type but returns string\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
 			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:search\(\) has invalid return type App\\Http\\Controllers\\Agent\\helpdesk\\type\.$#'
 			identifier: class.notFound
 			count: 1
@@ -15515,18 +15071,6 @@ parameters:
 			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:search\(\) should return App\\Http\\Controllers\\Agent\\helpdesk\\type but returns string\.$#'
 			identifier: return.type
 			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:select_all\(\) has invalid return type App\\Http\\Controllers\\Agent\\helpdesk\\type\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:select_all\(\) should return App\\Http\\Controllers\\Agent\\helpdesk\\type but returns Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: return.type
-			count: 5
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
 
 		-
@@ -15590,18 +15134,6 @@ parameters:
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
 
 		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:surrender\(\) has invalid return type App\\Http\\Controllers\\Agent\\helpdesk\\type\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:surrender\(\) should return App\\Http\\Controllers\\Agent\\helpdesk\\type but returns int\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
 			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:system\(\) has invalid return type App\\Http\\Controllers\\Agent\\helpdesk\\type\.$#'
 			identifier: class.notFound
 			count: 1
@@ -15635,18 +15167,6 @@ parameters:
 			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:thread\(\) should return App\\Http\\Controllers\\Agent\\helpdesk\\type but returns Illuminate\\View\\View\.$#'
 			identifier: return.type
 			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:ticketEditPost\(\) has invalid return type App\\Http\\Controllers\\Agent\\helpdesk\\type\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:ticketEditPost\(\) should return App\\Http\\Controllers\\Agent\\helpdesk\\type but returns int\.$#'
-			identifier: return.type
-			count: 6
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
 
 		-
@@ -15749,48 +15269,6 @@ parameters:
 			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:unassigned\(\) should return App\\Http\\Controllers\\Agent\\helpdesk\\type but returns Illuminate\\View\\View\.$#'
 			identifier: return.type
 			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:useradd\(\) has invalid return type App\\Http\\Controllers\\Agent\\helpdesk\\type\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:useradd\(\) should return App\\Http\\Controllers\\Agent\\helpdesk\\type but returns array\<string\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:useradd\(\) should return App\\Http\\Controllers\\Agent\\helpdesk\\type but returns string\.$#'
-			identifier: return.type
-			count: 2
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:userremove\(\) has invalid return type App\\Http\\Controllers\\Agent\\helpdesk\\type\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:userremove\(\) should return App\\Http\\Controllers\\Agent\\helpdesk\\type but returns int\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:usersearch\(\) has invalid return type App\\Http\\Controllers\\Agent\\helpdesk\\type\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:usersearch\(\) should return App\\Http\\Controllers\\Agent\\helpdesk\\type but returns string\.$#'
-			identifier: return.type
-			count: 3
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
 
 		-
@@ -16001,12 +15479,6 @@ parameters:
 			message: '#^Parameter \#2 \$timestamp of function date expects int\|null, int\|false given\.$#'
 			identifier: argument.type
 			count: 2
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Parameter \#2 \$username of method App\\Http\\Controllers\\Agent\\helpdesk\\TicketController\:\:create_user\(\) expects App\\Http\\Controllers\\Agent\\helpdesk\\type, string given\.$#'
-			identifier: argument.type
-			count: 1
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
 
 		-
@@ -16324,7 +15796,7 @@ parameters:
 		-
 			message: '#^Property App\\Model\\helpdesk\\Ticket\\Ticket_Thread\:\:\$ticket_id \(int\<0, max\>\|null\) does not accept int\.$#'
 			identifier: assign.propertyType
-			count: 7
+			count: 4
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
 
 		-
@@ -16436,18 +15908,6 @@ parameters:
 			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
 
 		-
-			message: '#^Variable \$success might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
-			message: '#^Variable \$ticket_data in isset\(\) always exists and is not nullable\.$#'
-			identifier: isset.variable
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketController.php
-
-		-
 			message: '#^Variable \$tickets might not be defined\.$#'
 			identifier: variable.undefined
 			count: 1
@@ -16520,15 +15980,9 @@ parameters:
 			path: app/Http/Controllers/Agent/helpdesk/TicketWorkflowController.php
 
 		-
-			message: '#^If condition is always true\.$#'
-			identifier: if.alwaysTrue
-			count: 19
-			path: app/Http/Controllers/Agent/helpdesk/TicketWorkflowController.php
-
-		-
 			message: '#^Loose comparison using \=\= between App\\Http\\Controllers\\Agent\\helpdesk\\type and true will always evaluate to true\.$#'
 			identifier: equal.alwaysTrue
-			count: 16
+			count: 1
 			path: app/Http/Controllers/Agent/helpdesk/TicketWorkflowController.php
 
 		-
@@ -16606,12 +16060,6 @@ parameters:
 		-
 			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketWorkflowController\:\:rejectTicket\(\) should return App\\Http\\Controllers\\Agent\\helpdesk\\type but returns array\.$#'
 			identifier: return.type
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketWorkflowController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketWorkflowController\:\:workflow\(\) has invalid return type App\\Http\\Controllers\\Agent\\helpdesk\\type\.$#'
-			identifier: class.notFound
 			count: 1
 			path: app/Http/Controllers/Agent/helpdesk/TicketWorkflowController.php
 
@@ -16724,12 +16172,6 @@ parameters:
 			path: app/Http/Controllers/Agent/helpdesk/TicketWorkflowController.php
 
 		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\helpdesk\\TicketWorkflowController\:\:workflow\(\) should return App\\Http\\Controllers\\Agent\\helpdesk\\type but returns array\<int, false\>\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketWorkflowController.php
-
-		-
 			message: '#^PHPDoc tag @param has invalid value \(type TicketController \$TicketController\)\: Unexpected token "TicketController", expected variable at offset 90 on line 5$#'
 			identifier: phpDoc.parseError
 			count: 1
@@ -16810,13 +16252,13 @@ parameters:
 		-
 			message: '#^Parameter \#1 \$workflow_id of method App\\Http\\Controllers\\Agent\\helpdesk\\TicketWorkflowController\:\:applyActionCondition\(\) expects App\\Http\\Controllers\\Agent\\helpdesk\\type, int given\.$#'
 			identifier: argument.type
-			count: 16
+			count: 1
 			path: app/Http/Controllers/Agent/helpdesk/TicketWorkflowController.php
 
 		-
 			message: '#^Parameter \#2 \$condition of method App\\Http\\Controllers\\Agent\\helpdesk\\TicketWorkflowController\:\:checkRuleCondition\(\) expects App\\Http\\Controllers\\Agent\\helpdesk\\type, string given\.$#'
 			identifier: argument.type
-			count: 16
+			count: 1
 			path: app/Http/Controllers/Agent/helpdesk/TicketWorkflowController.php
 
 		-
@@ -16828,13 +16270,13 @@ parameters:
 		-
 			message: '#^Parameter \#2 \$ticket_settings_details of method App\\Http\\Controllers\\Agent\\helpdesk\\TicketWorkflowController\:\:applyActionCondition\(\) expects App\\Http\\Controllers\\Agent\\helpdesk\\type, App\\Http\\Controllers\\Agent\\helpdesk\\type\|array\<string, mixed\> given\.$#'
 			identifier: argument.type
-			count: 16
+			count: 1
 			path: app/Http/Controllers/Agent/helpdesk/TicketWorkflowController.php
 
 		-
 			message: '#^Parameter \#3 \$statement of method App\\Http\\Controllers\\Agent\\helpdesk\\TicketWorkflowController\:\:checkRuleCondition\(\) expects App\\Http\\Controllers\\Agent\\helpdesk\\type, string given\.$#'
 			identifier: argument.type
-			count: 16
+			count: 1
 			path: app/Http/Controllers/Agent/helpdesk/TicketWorkflowController.php
 
 		-
@@ -17020,12 +16462,6 @@ parameters:
 		-
 			message: '#^Parameter \$workflow_id of method App\\Http\\Controllers\\Agent\\helpdesk\\TicketWorkflowController\:\:applyActionCondition\(\) has invalid type App\\Http\\Controllers\\Agent\\helpdesk\\type\.$#'
 			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Agent/helpdesk/TicketWorkflowController.php
-
-		-
-			message: '#^Variable \$return might not be defined\.$#'
-			identifier: variable.undefined
 			count: 1
 			path: app/Http/Controllers/Agent/helpdesk/TicketWorkflowController.php
 
@@ -18548,18 +17984,6 @@ parameters:
 			path: app/Http/Controllers/Agent/kb/PageController.php
 
 		-
-			message: '#^Binary operation "\." between ''\<p style\="color\:red…'' and array\|string results in an error\.$#'
-			identifier: binaryOp.invalid
-			count: 1
-			path: app/Http/Controllers/Agent/kb/SettingsController.php
-
-		-
-			message: '#^Binary operation "\." between ''\<p style\="color…'' and array\|string results in an error\.$#'
-			identifier: binaryOp.invalid
-			count: 1
-			path: app/Http/Controllers/Agent/kb/SettingsController.php
-
-		-
 			message: '#^Binary operation "\." between non\-falsy\-string and array\|string results in an error\.$#'
 			identifier: binaryOp.invalid
 			count: 4
@@ -19082,18 +18506,6 @@ parameters:
 			path: app/Http/Controllers/Auth/AuthController.php
 
 		-
-			message: '#^Method App\\Http\\Controllers\\Auth\\AuthController\:\:postLogin\(\) has invalid return type App\\Http\\Controllers\\Auth\\type\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Auth/AuthController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Auth\\AuthController\:\:postLogin\(\) should return App\\Http\\Controllers\\Auth\\type but returns Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: return.type
-			count: 11
-			path: app/Http/Controllers/Auth/AuthController.php
-
-		-
 			message: '#^Method App\\Http\\Controllers\\Auth\\AuthController\:\:postRegister\(\) has invalid return type App\\Http\\Controllers\\Auth\\type\.$#'
 			identifier: class.notFound
 			count: 1
@@ -19162,12 +18574,6 @@ parameters:
 		-
 			message: '#^Method App\\Http\\Controllers\\Auth\\AuthController\:\:setSession\(\) has parameter \$redirect with no type specified\.$#'
 			identifier: missingType.parameter
-			count: 1
-			path: app/Http/Controllers/Auth/AuthController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Auth\\AuthController\:\:verifyOTP\(\) should return int\|string but returns App\\Http\\Controllers\\Auth\\type\.$#'
-			identifier: return.type
 			count: 1
 			path: app/Http/Controllers/Auth/AuthController.php
 
@@ -19628,19 +19034,7 @@ parameters:
 			path: app/Http/Controllers/Client/helpdesk/ClientTicketController.php
 
 		-
-			message: '#^Cannot access property \$email on App\\User\|null\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Http/Controllers/Client/helpdesk/ClientTicketController.php
-
-		-
 			message: '#^Cannot access property \$title on App\\Model\\helpdesk\\Ticket\\Ticket_Thread\|null\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Http/Controllers/Client/helpdesk/ClientTicketController.php
-
-		-
-			message: '#^Cannot access property \$user_name on App\\User\|null\.$#'
 			identifier: property.nonObject
 			count: 1
 			path: app/Http/Controllers/Client/helpdesk/ClientTicketController.php
@@ -19868,24 +19262,6 @@ parameters:
 			path: app/Http/Controllers/Client/helpdesk/FormController.php
 
 		-
-			message: '#^Method App\\Http\\Controllers\\Client\\helpdesk\\FormController\:\:post_ticket_reply\(\) has invalid return type App\\Http\\Controllers\\Client\\helpdesk\\type\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Client/helpdesk/FormController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Client\\helpdesk\\FormController\:\:post_ticket_reply\(\) has parameter \$id with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Http/Controllers/Client/helpdesk/FormController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Client\\helpdesk\\FormController\:\:post_ticket_reply\(\) should return App\\Http\\Controllers\\Client\\helpdesk\\type but returns Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: return.type
-			count: 5
-			path: app/Http/Controllers/Client/helpdesk/FormController.php
-
-		-
 			message: '#^Method App\\Http\\Controllers\\Client\\helpdesk\\FormController\:\:postedForm\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -19924,12 +19300,6 @@ parameters:
 		-
 			message: '#^PHPDoc tag @param has invalid value \(type User    \$user\)\: Unexpected token "User", expected variable at offset 86 on line 5$#'
 			identifier: phpDoc.parseError
-			count: 1
-			path: app/Http/Controllers/Client/helpdesk/FormController.php
-
-		-
-			message: '#^PHPDoc tag @param references unknown parameter\: \$value$#'
-			identifier: parameter.notFound
 			count: 1
 			path: app/Http/Controllers/Client/helpdesk/FormController.php
 
@@ -21182,12 +20552,6 @@ parameters:
 			path: app/Http/Controllers/Client/kb/UserController.php
 
 		-
-			message: '#^Cannot access property \$role on Illuminate\\Contracts\\Auth\\Authenticatable\|null\.$#'
-			identifier: property.nonObject
-			count: 3
-			path: app/Http/Controllers/Client/kb/UserController.php
-
-		-
 			message: '#^Cannot access property \$time_zone on App\\Model\\helpdesk\\Settings\\System\|null\.$#'
 			identifier: property.nonObject
 			count: 1
@@ -21584,12 +20948,6 @@ parameters:
 			path: app/Http/Controllers/Common/FileuploadController.php
 
 		-
-			message: '#^Call to an undefined method App\\Model\\helpdesk\\Notification\\Notification\:\:dummyDelete\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Http/Controllers/Common/NotificationController.php
-
-		-
 			message: '#^Cannot access property \$dept_id on App\\Model\\helpdesk\\Ticket\\Tickets\|null\.$#'
 			identifier: property.nonObject
 			count: 1
@@ -21622,18 +20980,6 @@ parameters:
 		-
 			message: '#^Method App\\Http\\Controllers\\Common\\NotificationController\:\:deleteAll\(\) has no return type specified\.$#'
 			identifier: missingType.return
-			count: 1
-			path: app/Http/Controllers/Common/NotificationController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Common\\NotificationController\:\:getNotifications\(\) has invalid return type App\\Http\\Controllers\\Common\\response\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Common/NotificationController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Common\\NotificationController\:\:getNotifications\(\) should return App\\Http\\Controllers\\Common\\response but returns Illuminate\\Database\\Eloquent\\Builder\<App\\Model\\helpdesk\\Notification\\UserNotification\>\.$#'
-			identifier: return.type
 			count: 1
 			path: app/Http/Controllers/Common/NotificationController.php
 
@@ -21700,18 +21046,6 @@ parameters:
 		-
 			message: '#^Property App\\Model\\helpdesk\\Notification\\UserNotification\:\:\$is_read \(int\) does not accept string\.$#'
 			identifier: assign.propertyType
-			count: 2
-			path: app/Http/Controllers/Common/NotificationController.php
-
-		-
-			message: '#^Relation ''notification'' is not found in App\\Model\\helpdesk\\Notification\\UserNotification model\.$#'
-			identifier: larastan.relationExistence
-			count: 1
-			path: app/Http/Controllers/Common/NotificationController.php
-
-		-
-			message: '#^Relation ''users'' is not found in App\\Model\\helpdesk\\Notification\\UserNotification model\.$#'
-			identifier: larastan.relationExistence
 			count: 1
 			path: app/Http/Controllers/Common/NotificationController.php
 
@@ -23156,36 +22490,6 @@ parameters:
 			path: app/Http/Controllers/Installer/helpdesk/InstallController.php
 
 		-
-			message: '#^Method App\\Http\\Controllers\\Installer\\helpdesk\\InstallController\:\:prerequisites\(\) has invalid return type App\\Http\\Controllers\\Installer\\helpdesk\\type\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Installer/helpdesk/InstallController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Installer\\helpdesk\\InstallController\:\:prerequisites\(\) should return App\\Http\\Controllers\\Installer\\helpdesk\\type but returns Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Http/Controllers/Installer/helpdesk/InstallController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Installer\\helpdesk\\InstallController\:\:prerequisites\(\) should return App\\Http\\Controllers\\Installer\\helpdesk\\type but returns Illuminate\\View\\View\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Http/Controllers/Installer/helpdesk/InstallController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Installer\\helpdesk\\InstallController\:\:prerequisitescheck\(\) has invalid return type App\\Http\\Controllers\\Installer\\helpdesk\\type\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Installer/helpdesk/InstallController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Installer\\helpdesk\\InstallController\:\:prerequisitescheck\(\) should return App\\Http\\Controllers\\Installer\\helpdesk\\type but returns Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: return.type
-			count: 1
-			path: app/Http/Controllers/Installer/helpdesk/InstallController.php
-
-		-
 			message: '#^Method App\\Http\\Controllers\\Installer\\helpdesk\\InstallController\:\:rollBackMigration\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -23744,24 +23048,6 @@ parameters:
 			path: app/Http/Middleware/CheckBoard.php
 
 		-
-			message: '#^Cannot access property \$role on App\\User\|null\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Http/Middleware/CheckRole.php
-
-		-
-			message: '#^Cannot access property \$role on App\\User\|null\.$#'
-			identifier: property.nonObject
-			count: 2
-			path: app/Http/Middleware/CheckRoleAgent.php
-
-		-
-			message: '#^Cannot access property \$role on App\\User\|null\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Http/Middleware/CheckRoleUser.php
-
-		-
 			message: '#^PHPDoc type array of property App\\Http\\Middleware\\EncryptCookies\:\:\$except is not covariant with PHPDoc type array\<int, string\> of overridden property Illuminate\\Cookie\\Middleware\\EncryptCookies\:\:\$except\.$#'
 			identifier: property.phpDocType
 			count: 1
@@ -23772,12 +23058,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: app/Http/Middleware/EncryptCookies.php
-
-		-
-			message: '#^Call to an undefined method Exception\:\:getStatusCode\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: app/Http/Middleware/JwtAuthenticate.php
 
 		-
 			message: '#^Cannot access property \$user_language on Illuminate\\Contracts\\Auth\\Authenticatable\|null\.$#'
@@ -24580,7 +23860,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property App\\Http\\ViewComposers\\AgentLayout\:\:\$auth\.$#'
 			identifier: property.notFound
-			count: 19
+			count: 18
 			path: app/Http/ViewComposers/AgentLayout.php
 
 		-
@@ -24700,18 +23980,6 @@ parameters:
 		-
 			message: '#^PHPDoc tag @var has invalid value \(\)\: Unexpected token "\\n     \*", expected type at offset 74 on line 4$#'
 			identifier: phpDoc.parseError
-			count: 1
-			path: app/Http/ViewComposers/AgentLayout.php
-
-		-
-			message: '#^Property App\\Http\\ViewComposers\\AgentLayout\:\:\$company \(App\\Http\\ViewComposers\\UserRepository\) does not accept App\\Model\\helpdesk\\Settings\\Company\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: app/Http/ViewComposers/AgentLayout.php
-
-		-
-			message: '#^Property App\\Http\\ViewComposers\\AgentLayout\:\:\$company has unknown class App\\Http\\ViewComposers\\UserRepository as its type\.$#'
-			identifier: class.notFound
 			count: 1
 			path: app/Http/ViewComposers/AgentLayout.php
 
@@ -25634,34 +24902,10 @@ parameters:
 			path: app/Model/helpdesk/Notification/Notification.php
 
 		-
-			message: '#^Method App\\Model\\helpdesk\\Notification\\Notification\:\:model\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Model/helpdesk/Notification/Notification.php
-
-		-
-			message: '#^Method App\\Model\\helpdesk\\Notification\\Notification\:\:type\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Model/helpdesk/Notification/Notification.php
-
-		-
 			message: '#^Method App\\Model\\helpdesk\\Notification\\Notification\:\:userNotification\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
 			path: app/Model/helpdesk/Notification/Notification.php
-
-		-
-			message: '#^Method App\\Model\\helpdesk\\Notification\\UserNotification\:\:notification\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Model/helpdesk/Notification/UserNotification.php
-
-		-
-			message: '#^Method App\\Model\\helpdesk\\Notification\\UserNotification\:\:users\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Model/helpdesk/Notification/UserNotification.php
 
 		-
 			message: '#^Method App\\Model\\helpdesk\\Settings\\CommonSettings\:\:getOptionValue\(\) has no return type specified\.$#'
@@ -26446,12 +25690,6 @@ parameters:
 		-
 			message: '#^Method App\\User\:\:getFullNameAttribute\(\) has no return type specified\.$#'
 			identifier: missingType.return
-			count: 1
-			path: app/User.php
-
-		-
-			message: '#^Method App\\User\:\:getJWTCustomClaims\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
 			count: 1
 			path: app/User.php
 

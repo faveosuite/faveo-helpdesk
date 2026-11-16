@@ -60,6 +60,10 @@ class TokenAuthController extends Controller
             }
 
             $user = \Auth::user();
+            if (!$user instanceof \App\User) {
+                // Auth::once() succeeded, so the provider returned a user; guard anyway
+                return response()->json(['error' => 'invalid_credentials', 'status_code' => 401]);
+            }
             // Passport personal access token - preserves the pre-existing API
             // contract: clients keep posting username/password here and keep
             // sending the returned string as `Authorization: Bearer <token>`.

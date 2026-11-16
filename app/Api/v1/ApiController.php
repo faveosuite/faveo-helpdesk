@@ -328,7 +328,7 @@ class ApiController extends Controller
      *
      * @param TicketRequest $request
      *
-     * @return json
+     * @return \Illuminate\Http\JsonResponse
      */
     public function ticketReply()
     {
@@ -412,7 +412,7 @@ class ApiController extends Controller
     /**
      * Delete The Ticket.
      *
-     * @return json
+     * @return \Illuminate\Http\JsonResponse
      */
     public function deleteTicket()
     {
@@ -502,7 +502,7 @@ class ApiController extends Controller
     /**
      * Get Unsigned Tickets.
      *
-     * @return json
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      */
     public function unassignedTickets()
     {
@@ -510,7 +510,11 @@ class ApiController extends Controller
             //dd('sdhjbc');
 //            $result = $this->model->where('assigned_to', '=', null)->where('status', '1')->orderBy('id', 'DESC')->get();
 //            return response()->json(compact('result'));
-            $user = auth('api')->user();
+            // the staff-only gate in the constructor already refused anyone else
+            $user = $this->authenticatedApiUser();
+            if (!$user) {
+                return $this->forbidden();
+            }
             $unassigned = $this->user->join('tickets', function ($join) {
                 $join->on('users.id', '=', 'tickets.user_id')
                         ->whereNull('assigned_to')->where('status', '=', 1);
@@ -556,14 +560,18 @@ class ApiController extends Controller
     /**
      * Get closed Tickets.
      *
-     * @return json
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      */
     public function closeTickets()
     {
         try {
             //            $result = $this->model->where('status', '>', 1)->where('status', '<', 4)->orderBy('id', 'DESC')->get();
 //            return response()->json(compact('result'));
-            $user = auth('api')->user();
+            // the staff-only gate in the constructor already refused anyone else
+            $user = $this->authenticatedApiUser();
+            if (!$user) {
+                return $this->forbidden();
+            }
             $result = $this->user->join('tickets', function ($join) {
                 $join->on('users.id', '=', 'tickets.user_id')
                         ->where('status', '=', 3)->orWhere('status', '=', 2);
@@ -657,7 +665,7 @@ class ApiController extends Controller
     /**
      * To assign a ticket.
      *
-     * @return json
+     * @return \Illuminate\Http\JsonResponse
      */
     public function assignTicket()
     {
@@ -1161,12 +1169,16 @@ class ApiController extends Controller
     /**
      * Fetching the Inbox details.
      *
-     * @return type json
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      */
     public function inbox()
     {
         try {
-            $user = auth('api')->user();
+            // the staff-only gate in the constructor already refused anyone else
+            $user = $this->authenticatedApiUser();
+            if (!$user) {
+                return $this->forbidden();
+            }
             $inbox = $this->user->join('tickets', function ($join) {
                 $join->on('users.id', '=', 'tickets.user_id')
                         ->where('status', '=', 1);
@@ -1267,10 +1279,17 @@ class ApiController extends Controller
         }
     }
 
+    /**
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
+     */
     public function getTrash()
     {
         try {
-            $user = auth('api')->user();
+            // the staff-only gate in the constructor already refused anyone else
+            $user = $this->authenticatedApiUser();
+            if (!$user) {
+                return $this->forbidden();
+            }
             $trash = $this->user->join('tickets', function ($join) {
                 $join->on('users.id', '=', 'tickets.user_id')
                         ->where('status', '=', 5);
@@ -1740,10 +1759,17 @@ class ApiController extends Controller
         }
     }
 
+    /**
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
+     */
     public function dependency()
     {
         try {
-            $user = auth('api')->user();
+            // the staff-only gate in the constructor already refused anyone else
+            $user = $this->authenticatedApiUser();
+            if (!$user) {
+                return $this->forbidden();
+            }
             $tickets = \DB::table('tickets');
             if ($user->role == 'agent') {
                 $id = $user->id;

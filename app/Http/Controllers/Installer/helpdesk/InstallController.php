@@ -97,7 +97,7 @@ class InstallController extends Controller
      * Checking the extensions enabled required for installing the faveo
      * without which the project cannot be executed properly
      *
-     * @return type view
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function prerequisites(Request $request)
     {
@@ -105,25 +105,27 @@ class InstallController extends Controller
         $directory = base_path();
         if (file_exists($directory.DIRECTORY_SEPARATOR.'.env')) {
             return redirect('/auth/login');
-        } else {
-            Cache::flush();
-            Artisan::call('config:clear');
-
-            return view('themes/default1/installer/helpdesk/view2');
         }
+
+        // The server requirements check now lives in the standalone public/probe.php
+        // (it must run before Laravel's own requirements are known to be met). This
+        // legacy route used to render the old in-app copy (view2) and flush the
+        // installer cache, so the License page's "Previous" button landed on a
+        // different, outdated requirements page. Send everyone to the real probe.
+        return redirect('/probe.php');
     }
 
     /**
      * Post Prerequisitescheck
      * checking prerequisites.
      *
-     * @return type view
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function prerequisitescheck(Request $request)
     {
-        Cache::forever('step1', 'step1');
-
-        return Redirect::route('licence');
+        // Only probe.php -> pre-license (licAgreement) may unlock the License step,
+        // after the requirements check passed; this legacy POST must not skip it.
+        return redirect('/probe.php');
     }
 
     /**

@@ -70,7 +70,7 @@ class Authenticate
      * original behaviour. When one or more guards are named (e.g. 'api'), the
      * first that authenticates becomes the default guard for this request.
      *
-     * @param array $guards
+     * @param array<array-key, string> $guards
      *
      * @return bool
      */

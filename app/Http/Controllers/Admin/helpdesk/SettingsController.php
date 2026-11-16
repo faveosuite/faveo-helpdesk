@@ -681,7 +681,7 @@ class SettingsController extends Controller
     {
         try {
             /* fetch the values of company from company table */
-            $statuss = \App\Model\helpdesk\Ticket\Ticket_Status::whereId($id)->first();
+            $statuss = \App\Model\helpdesk\Ticket\Ticket_Status::whereId($id)->firstOrFail();
             $statuss->name = $request->input('name');
             $statuss->icon_class = $request->input('icon_class');
             // email_user is an int column, the form posts 1 or 0

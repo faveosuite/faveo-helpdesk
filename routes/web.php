@@ -767,7 +767,7 @@ Route::middleware('web')->group(function () {
      * authentication and admin authorization — never expose them in the bare
      * `web` group.
      */
-    Route::middleware('install', 'auth', 'roles', 'update')->group(function () {
+    Route::middleware(['install', 'auth', 'roles', 'update'])->group(function () {
         Route::get('database-update', [Update\UpgradeController::class, 'databaseUpdate'])->name('database.update');
         Route::get('database-upgrade', [Update\UpgradeController::class, 'databaseUpgrade'])->name('database.upgrade');
         Route::get('file-update', [Update\UpgradeController::class, 'fileUpdate'])->name('file.update');
