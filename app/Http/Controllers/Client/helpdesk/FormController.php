@@ -167,7 +167,13 @@ class FormController extends Controller
             } else {
                 $email = null;
             }
-            $subject = $request->input('Subject');
+            // This form only ever opens a NEW ticket. The workflow treats a "[#<ticket number>]"
+            // in a subject as "reply to that ticket" (that is how e-mail replies are threaded),
+            // and the subject here is entirely user-supplied, so leaving the marker in let anyone,
+            // logged in or not, post into any ticket whose number they knew, as whatever e-mail
+            // address they typed. Neutralise the marker so it is kept as text only, and so it
+            // cannot survive into the stored title and hijack later e-mail replies either.
+            $subject = str_replace('[#', '[', (string) $request->input('Subject'));
             $details = $request->input('Details');
             $phonecode = $request->input('Code');
             if ($request->input('mobile')) {
@@ -283,8 +289,7 @@ class FormController extends Controller
         }
         $authed = \Auth::check() && \Auth::user()->id === $tickets->user_id;
         if (!$authed) {
-            $check_token = TicketToken::where('ticket_id', '=', $id)->first();
-            if (!$check_token || !\Hash::check($request->input('tid_token', ''), $check_token->token)) {
+            if (!TicketToken::isValidFor($id, $request->input('tid_token'))) {
                 return \Redirect::back()->with('fails1', Lang::get('lang.sorry_you_are_not_allowed_token_expired'));
             }
         }
