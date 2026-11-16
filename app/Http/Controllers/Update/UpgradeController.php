@@ -22,6 +22,22 @@ class UpgradeController extends Controller
     public function __construct(
         protected GitHubUpdateService $github
     ) {
+        // Defence in depth: every action here is privileged (shells out for backups,
+        // overwrites application files, runs migrations, toggles maintenance mode).
+        // The routes are already in an auth+admin group; enforcing it here too means
+        // a future route moved out of that group cannot silently expose them again.
+        $this->middleware(['auth', 'roles']);
+    }
+
+    /**
+     * Where backups are written. Fixed server-side: the destination is never taken
+     * from the request, so no client can choose where a ZIP of the whole application
+     * (including .env) and a full database dump are written, nor make the directory
+     * world-writable, nor smuggle anything into the shell command built from it.
+     */
+    protected function backupDirectory(): string
+    {
+        return storage_path('backups');
     }
 
     /**
@@ -32,7 +48,7 @@ class UpgradeController extends Controller
         try {
             $release = $this->github->getLatestRelease();
 
-            $backupPath = BackupPath::value('backup_path') ?: storage_path('backups');
+            $backupPath = $this->backupDirectory();
 
             return successResponse('', [
                 'current_version'  => $this->getCurrentVersion(),
@@ -64,7 +80,7 @@ class UpgradeController extends Controller
                 ->values()
                 ->all();
 
-            $backupPath = BackupPath::value('backup_path') ?: storage_path('backups');
+            $backupPath = $this->backupDirectory();
 
             return view('themes.default1.update.update', compact(
                 'currentVersion',
@@ -106,10 +122,13 @@ class UpgradeController extends Controller
     public function backup(Request $request)
     {
         try {
-            $backupPath = $request->input('path', storage_path('backups'));
+            // Never from the request (any 'path' the page still sends is ignored).
+            // Persisting it below also overwrites a path planted in backup_path by
+            // an earlier unauthenticated request against v2.0.4.RC.1.
+            $backupPath = $this->backupDirectory();
 
             if (!is_dir($backupPath)) {
-                File::makeDirectory($backupPath, 0777, true, true);
+                File::makeDirectory($backupPath, 0775, true, true);
             }
 
             if (!is_readable($backupPath) || !is_writable($backupPath)) {
@@ -135,14 +154,20 @@ class UpgradeController extends Controller
             }
 
             $folderPath = base_path();
-            $sanitizedPass = str_replace("'", "'\\''", $dbPass);
             $autoUpdate = $request->input('autoUpdate');
 
-            if ($dbPass == '') {
-                exec("(mysqldump -h{$host} -u{$dbUser} {$database} | zip {$dbZip} - ; zip -r {$filesystemZip} {$folderPath}) > /dev/null 2>&1 &");
-            } else {
-                exec("(mysqldump -h{$host} -u{$dbUser} -p'{$sanitizedPass}' {$database} | zip {$dbZip} - ; zip -r {$filesystemZip} {$folderPath}) > /dev/null 2>&1 &");
-            }
+            // Escape every argument that reaches the shell. The backup path is
+            // user-supplied and flows into $dbZip/$filesystemZip, so without this
+            // a value like "/tmp/x;id;" would inject arbitrary OS commands.
+            $hostArg = escapeshellarg($host);
+            $userArg = escapeshellarg($dbUser);
+            $dbArg = escapeshellarg($database);
+            $dbZipArg = escapeshellarg($dbZip);
+            $filesystemZipArg = escapeshellarg($filesystemZip);
+            $folderArg = escapeshellarg($folderPath);
+            $passPart = ($dbPass === '' || $dbPass === null) ? '' : ' -p'.escapeshellarg($dbPass);
+
+            exec("(mysqldump -h{$hostArg} -u{$userArg}{$passPart} {$dbArg} | zip {$dbZipArg} - ; zip -r {$filesystemZipArg} {$folderArg}) > /dev/null 2>&1 &");
 
             Backup::create([
                 'filename'  => "Filesystem_{$currentVersion}",
