@@ -1837,6 +1837,11 @@ class TicketController extends Controller
     {
         $email = Input::get('search');
         $ticket_id = Input::get('ticket_id');
+        // A collaborator receives the ticket's notifications, so adding one is an
+        // action on the ticket: same rule as every other per-ticket handler.
+        if (!$this->authorizeTicketAccess($ticket_id)) {
+            return response('Unauthorized', 403);
+        }
         $data = User::where('email', '=', $email)->first();
         if ($data == null) {
             return '<div id="alert11" class="alert alert-warning alert-dismissable">'
@@ -1872,6 +1877,12 @@ class TicketController extends Controller
     {
         $name = Input::get('name');
         $email = Input::get('email');
+        $ticket_id = Input::get('ticket_id');
+        // Checked before anything is written: a refused request must not create
+        // the user account either.
+        if (!$this->authorizeTicketAccess($ticket_id)) {
+            return response('Unauthorized', 403);
+        }
         $validator = \Validator::make(
             ['email' => $email, 'name' => $name],
             ['email' => 'required|email']
@@ -1879,7 +1890,6 @@ class TicketController extends Controller
         if ($validator->fails()) {
             return $validator->messages()->all();
         }
-        $ticket_id = Input::get('ticket_id');
         $user_search = User::where('email', '=', $email)->first();
         if (isset($user_search)) {
             return '<div id="alert11" class="alert alert-warning alert-dismissable" ><button id="dismiss11" type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button><h4><i class="icon fa fa-alert"></i>'.Lang::get('lang.alert').'!</h4><div id="message-success1">'.Lang::get('lang.user_already_exist').'</div></div>';
@@ -1917,7 +1927,13 @@ class TicketController extends Controller
     public function userremove()
     {
         $id = Input::get('data1');
-        $ticket_collaborator = Ticket_Collaborator::where('id', '=', $id)->delete();
+        // The request names a collaborator row, not a ticket: authorize against
+        // the ticket that row belongs to.
+        $ticket_collaborator = Ticket_Collaborator::where('id', '=', $id)->first();
+        if (!$ticket_collaborator || !$this->authorizeTicketAccess((string) $ticket_collaborator->ticket_id)) {
+            return response('Unauthorized', 403);
+        }
+        $ticket_collaborator->delete();
 
         return 1;
     }
@@ -2617,8 +2633,12 @@ class TicketController extends Controller
 
     public function getTooltip(Request $request)
     {
-        $ticketid = $request->input('ticketid');
-        $ticket = Tickets::find($ticketid);
+        // The tooltip renders every thread of the ticket, so it is subject to the
+        // same department/assignment rule as thread() and ticket_print().
+        $ticket = $this->authorizeTicketAccess($request->input('ticketid'));
+        if (!$ticket) {
+            return response('Unauthorized', 403);
+        }
         if ($ticket) {
             $threads = $ticket->thread()->select('user_id', 'poster', 'body')->get();
             $numThreads = $threads->count();

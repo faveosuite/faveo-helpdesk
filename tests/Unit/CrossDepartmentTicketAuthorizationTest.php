@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Model\helpdesk\Ticket\Ticket_Collaborator;
 use App\Model\helpdesk\Ticket\Ticket_Thread;
 use App\Model\helpdesk\Ticket\Tickets;
 use App\User;
@@ -586,6 +587,98 @@ class CrossDepartmentTicketAuthorizationTest extends TestCase
         $this->get('check/lock/'.$victim->id)->assertStatus(403);
 
         $this->assertSame($before, Tickets::find($victim->id)->only(['lock_by', 'lock_at']));
+    }
+
+    // ── tooltip / collaborators ──────────────────────────────────────────────
+    // Same rule, on the remaining per-ticket agent endpoints: the inbox hover
+    // tooltip returns every thread body, and the collaborator endpoints decide
+    // who receives a ticket's future notifications.
+
+    public function test_tooltip_of_another_departments_ticket_is_refused()
+    {
+        $victim = $this->makeTicket(2);
+        $this->actingAs($this->agentA());
+
+        $response = $this->get(route('ticket.tooltip', ['ticketid' => $victim->id]));
+
+        $this->assertSame(403, $response->status());
+        $this->assertStringNotContainsString('Authz body', (string) $response->getContent());
+    }
+
+    public function test_tooltip_of_own_department_ticket_is_allowed()
+    {
+        $ticket = $this->makeTicket(1);
+        $this->actingAs($this->agentA());
+
+        $response = $this->get(route('ticket.tooltip', ['ticketid' => $ticket->id]));
+
+        $response->assertStatus(200);
+        $this->assertStringContainsString('Authz body', (string) $response->getContent());
+    }
+
+    private function collaboratorCount(Tickets $ticket): int
+    {
+        return Ticket_Collaborator::where('ticket_id', $ticket->id)->count();
+    }
+
+    public function test_adding_an_existing_user_as_collaborator_on_another_departments_ticket_is_refused()
+    {
+        $victim = $this->makeTicket(2);
+        $attacker = $this->agentA();
+        $this->actingAs($attacker);
+
+        $response = $this->patch('search-user', ['search' => $attacker->email, 'ticket_id' => $victim->id]);
+
+        $this->assertSame(403, $response->status());
+        $this->assertSame(0, $this->collaboratorCount($victim), 'agent subscribed to a foreign ticket');
+    }
+
+    public function test_adding_a_new_user_as_collaborator_on_another_departments_ticket_is_refused()
+    {
+        $victim = $this->makeTicket(2);
+        $email = 'authz-outsider-'.Str::random(8).'@example.test';
+        $this->actingAs($this->agentA());
+
+        $response = $this->patch('add-user', ['name' => 'Outsider', 'email' => $email, 'ticket_id' => $victim->id]);
+
+        $this->assertSame(403, $response->status());
+        $this->assertSame(0, $this->collaboratorCount($victim));
+        $this->assertNull(User::where('email', $email)->first(), 'refused request still created a user');
+    }
+
+    public function test_removing_a_collaborator_from_another_departments_ticket_is_refused()
+    {
+        $victim = $this->makeTicket(2);
+        $collaborator = new Ticket_Collaborator();
+        $collaborator->isactive = 1;
+        $collaborator->ticket_id = $victim->id;
+        $collaborator->user_id = $victim->user_id;
+        $collaborator->role = 'ccc';
+        $collaborator->save();
+        $this->actingAs($this->agentA());
+
+        $response = $this->post('remove-user', ['data1' => $collaborator->id]);
+
+        $this->assertSame(403, $response->status());
+        $this->assertSame(1, $this->collaboratorCount($victim));
+    }
+
+    public function test_collaborator_add_and_remove_on_own_department_ticket_is_allowed()
+    {
+        $ticket = $this->makeTicket(1);
+        $agent = $this->agentA();
+        $this->actingAs($agent);
+
+        $this->patch('search-user', ['search' => $agent->email, 'ticket_id' => $ticket->id])->assertStatus(200);
+        $this->assertSame(1, $this->collaboratorCount($ticket));
+
+        $email = 'authz-new-'.Str::random(8).'@example.test';
+        $this->patch('add-user', ['name' => 'New', 'email' => $email, 'ticket_id' => $ticket->id])->assertStatus(200);
+        $this->assertSame(2, $this->collaboratorCount($ticket));
+
+        $row = Ticket_Collaborator::where('ticket_id', $ticket->id)->first();
+        $this->post('remove-user', ['data1' => $row->id])->assertStatus(200);
+        $this->assertSame(1, $this->collaboratorCount($ticket));
     }
 
     // ── API v1 (one request per test: see ApiV1ControllerTest) ───────────────

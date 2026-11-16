@@ -98,10 +98,13 @@ class TicketControllerTest extends TestCase
         $ticket_thread->save();
 
         // Make a GET request to the getTooltip
-        $response = $this->get(route('ticket.tooltip', ['ticket_id' => $ticket->id]));
+        // getTooltip() reads 'ticketid'. This used to send 'ticket_id', so it only
+        // ever exercised the "no such ticket" path.
+        $response = $this->get(route('ticket.tooltip', ['ticketid' => $ticket->id]));
 
-        // Assert that the response status is 200 (OK).
+        // Assert that the response status is 200 (OK) and the thread is rendered.
         $response->assertStatus(200);
+        $this->assertStringContainsString('Testing2', (string) $response->getContent());
     }
 
     //Testing Reply Alert and Last Activity filed
