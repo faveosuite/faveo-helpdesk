@@ -58,7 +58,7 @@ return new class() extends Migration {
         file_put_contents($publicKey, (string) $key->getPublicKey());
         file_put_contents($privateKey, (string) $key);
 
-        if (! windows_os()) {
+        if (!windows_os()) {
             @chmod($publicKey, 0660);
             @chmod($privateKey, 0600);
         }
@@ -70,7 +70,7 @@ return new class() extends Migration {
      */
     private function ensurePersonalAccessClient(): void
     {
-        if (! Schema::hasTable('oauth_clients')) {
+        if (!Schema::hasTable('oauth_clients')) {
             return;
         }
 
