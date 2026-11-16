@@ -3,8 +3,8 @@
 namespace Tests\Unit;
 
 use App\Model\helpdesk\Ticket\Ticket_Thread;
-use App\Model\helpdesk\Ticket\TicketToken;
 use App\Model\helpdesk\Ticket\Tickets;
+use App\Model\helpdesk\Ticket\TicketToken;
 use App\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
