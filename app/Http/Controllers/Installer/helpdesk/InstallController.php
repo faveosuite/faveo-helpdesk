@@ -599,9 +599,8 @@ class InstallController extends Controller
         } else {
             throw new Exception('.env not found');
         }
-        // Passport replaces JWT: generate the OAuth signing keys and a personal
-        // access client so /api/v1/authenticate can mint bearer tokens.
-        Artisan::call('passport:keys', ['--force' => true]);
-        Artisan::call('passport:client', ['--personal' => true, '--name' => 'Faveo Helpdesk', '--no-interaction' => true]);
+        // Passport (which replaces JWT) is provisioned by the
+        // 2026_11_16_000001_install_passport_personal_access_client migration that
+        // runs during the migrate step, so nothing is needed here.
     }
 }

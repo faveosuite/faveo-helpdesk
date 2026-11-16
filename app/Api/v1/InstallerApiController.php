@@ -172,10 +172,9 @@ class InstallerApiController extends Controller
             // Migrate database
             (new \App\Http\Controllers\Update\SyncFaveoToLatestVersion())->sync();
             Artisan::call('key:generate', ['--force' => true]);
-            // Passport replaces JWT: generate the OAuth signing keys and a personal
-            // access client so /api/v1/authenticate can mint bearer tokens.
-            Artisan::call('passport:keys', ['--force' => true]);
-            Artisan::call('passport:client', ['--personal' => true, '--name' => 'Faveo Helpdesk', '--no-interaction' => true]);
+            // Passport (which replaces JWT) is provisioned by the
+            // 2026_11_16_000001_install_passport_personal_access_client migration
+            // run by sync() above, so nothing is needed here.
             // checking requested timezone for the admin and system
             $timezones = Timezones::where('name', '=', $timezone)->first();
             if ($timezones == null) {
