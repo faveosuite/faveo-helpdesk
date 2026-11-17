@@ -262,8 +262,10 @@ class InstallController extends Controller
             'Lastname'        => 'required|max:20',
             'email'           => 'required|max:50|email',
             'username'        => 'required|max:50|min:3',
-            'password'        => 'required|min:6',
+            'password'        => ['required', 'min:9', 'max:16', 'regex:/[a-z]/', 'regex:/[A-Z]/', 'regex:/[0-9]/', 'regex:/[~!@#$%^&*()_+|;:,.<>?]/'],
             'confirmpassword' => 'required|same:password',
+        ], [
+            'password.regex' => 'Password must contain at least one lowercase letter, one uppercase letter, one number and one special character.',
         ]);
 
         if ($validator->fails()) {

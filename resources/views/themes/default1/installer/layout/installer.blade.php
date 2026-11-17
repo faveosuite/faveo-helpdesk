@@ -24,7 +24,7 @@
         <li class="@yield('environment')">Server Requirements</li>
         <li class="@yield('license')">License Agreement</li>
         <li class="@yield('database')">Database Setup</li>
-        <li class="@yield('locale')">Locale Information</li>
+        <li class="@yield('locale')">Getting Started</li>
         <li class="@yield('ready')">Ready</li>
     </ol>
     <div class="setup-content">

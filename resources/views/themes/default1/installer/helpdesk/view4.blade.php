@@ -177,7 +177,7 @@ try {
         <div style="border-bottom: 1px solid #eee;">
             <p class="setup-actions step" id="retry">
                 <a href="{{ URL::route('account') }}" class="pull-right" id="next" style="text-color:black"><input type="submit" id="submitme" class="button-primary button button-large button-next" value="Continue"> </a>
-                <a href="{{ URL::route('configuration') }}" class="button button-large button-next" style="float: left">Previous</a>
+                <a href="{{ URL::route('configuration') }}" class="button button-large button-next" style="float: left" id="previous">Previous</a>
             </p>
         </div>
 
@@ -194,9 +194,10 @@ try {
                 type: "GET",
                 url: "{!! url('create/env') !!}",
                 dataType: "json",
-                data: $(this).serialize(),
+                data: $('#form').serialize(),
                 beforeSend: function () {
                     $("#conn").hide();
+                    $("#previous").hide();
                     $("#show").show();
                     $("#wait").show();
                 },
@@ -216,6 +217,7 @@ try {
                     $('#loader').hide();
                     $('#next').find('#submitme').hide();
                     $('#retry').append('<input type="button" id="submitm" class="button-primary button button-large button-next" value="Retry" onclick="reload()">');
+                    $("#previous").show();
                     
                 }
             })
@@ -241,6 +243,7 @@ try {
                         $('#next').find('#submitme').show();
                         $('#submitme').removeAttr('disabled');
                         $('.seco').hide();
+                        $("#previous").show();
                     } else {
                         callApi(api);
                     }
@@ -252,6 +255,7 @@ try {
                     $('#loader').hide();
                     $('#next').find('#submitme').hide();
                     $('#retry').append('<input type="button" id="submitm" class="button-primary button button-large button-next" value="Retry" onclick="reload()">');
+                    $("#previous").show();
                 }
             });
         }
@@ -263,9 +267,10 @@ try {
                 type: "GET",
                 url: "{!! url('create/env') !!}",
                 dataType: "json",
-                data: $(this).serialize(),
+                data: $('#form').serialize(),
                 beforeSend: function () {
                     $("#conn").hide();
+                    $("#previous").hide();
                     $("#show").show();
                     $("#wait").show();
                 },
@@ -285,6 +290,7 @@ try {
                     $('#loader').hide();
                     $('#next').find('#submitme').hide();
                     $('#retry').append('<input type="button" id="submitm" class="button-primary button button-large button-next" value="Retry" onclick="reload()">');
+                    $("#previous").show();
                     
                 }
             })
