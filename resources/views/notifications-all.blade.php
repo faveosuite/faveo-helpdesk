@@ -43,7 +43,7 @@ class="nav-link active"
         <button type="button" id="notification-read-all" class="btn btn-sm btn-outline-secondary">
             <i class="fa-solid fa-check-double"></i> {{ Lang::get('lang.mark_all_as_read') }}
         </button>
-        <a href="{{ url('notifications-list/delete') }}" id="notification-delete-all" class="btn btn-sm btn-danger">
+        <a href="{{ url('notifications-list/delete') }}" id="notification-delete-all" data-confirm="{{ Lang::get('lang.delete_all_notifications_confirm') }}" class="btn btn-sm btn-danger">
             <i class="fa-solid fa-trash-can"></i> {{ Lang::get('lang.delete_all_notifications') }}
         </a>
         @endif
@@ -156,12 +156,6 @@ class="nav-link active"
                     $button.prop('disabled', false);
                 }
             });
-        });
-
-        $('#notification-delete-all').on('click', function(e) {
-            if (!confirm("{{ Lang::get('lang.delete_all_notifications_confirm') }}")) {
-                e.preventDefault();
-            }
         });
     });
 </script>

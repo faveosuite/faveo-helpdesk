@@ -93,7 +93,7 @@ class PriorityController extends Controller
                                 if ($model->is_default > 0) {
                                     return '<button class="btn btn-primary btn-xs" disabled> Edit </button>&nbsp;<button class="btn btn-danger btn-xs" disabled> Delete </button>';
                                 } else {
-                                    return '<a href='.url('ticket/priority/'.$model->priority_id.'/edit')." class='btn btn-primary btn-xs'>Edit</a>&nbsp;<a class='btn btn-danger btn-xs' onclick='confirmDelete(".$model->priority_id.")' href='javascript:;'>Delete </a>";
+                                    return '<a href='.url('ticket/priority/'.$model->priority_id.'/edit')." class='btn btn-primary btn-xs'>Edit</a>&nbsp;<a class='btn btn-danger btn-xs' data-confirm='".e(\Lang::get('lang.confirm'))."' href='".url('ticket/priority/'.$model->priority_id.'/destroy')."'>Delete </a>";
                                 }
                             })
                             ->rawColumns(['priority_color', 'status', 'action'])

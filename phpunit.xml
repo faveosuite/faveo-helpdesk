@@ -28,7 +28,7 @@
     <env name="CACHE_DRIVER" value="array"/>
     <env name="SESSION_DRIVER" value="array"/>
     <env name="QUEUE_CONNECTION" value="sync"/>
-    <env name="MAIL_MAILER" value="mail"/>
+    <env name="MAIL_MAILER" value="array"/>
     <env name="APP_URL" value="http://localhost:8000"/>
     <env name="DB_INSTALL" value="1"/>
     <!--

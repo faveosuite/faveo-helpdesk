@@ -938,6 +938,7 @@ return [
     'knowledge_base'     => '基本知识',
     'kb-settings'        => '基础知识设置',
     'loading'            => '加载',
+    'please_wait'        => '请稍候...',
     'ratings'            => '评级',
     'please_rate'        => '请估价:',
     'ticket_ratings'     => '工单等级',

@@ -30,7 +30,9 @@ class KbArticlePagesTest extends TestCase
 
         $html = $this->page('article-list');
 
-        $this->assertStringContainsString('class="page-item', $html);
+        // The shared pager (vendor/pagination/datatables) puts its own class first:
+        // class="dt-paging-button page-item ...".
+        $this->assertMatchesRegularExpression('/class="[^"]*\bpage-item\b/', $html);
         $this->assertStringNotContainsString('relative inline-flex', $html);
     }
 
@@ -40,7 +42,9 @@ class KbArticlePagesTest extends TestCase
 
         $html = $this->page('search?s='.$this->tag);
 
-        $this->assertStringContainsString('class="page-item', $html);
+        // The shared pager (vendor/pagination/datatables) puts its own class first:
+        // class="dt-paging-button page-item ...".
+        $this->assertMatchesRegularExpression('/class="[^"]*\bpage-item\b/', $html);
         $this->assertStringContainsString('search?s='.$this->tag.'&amp;page=2', $html);
     }
 

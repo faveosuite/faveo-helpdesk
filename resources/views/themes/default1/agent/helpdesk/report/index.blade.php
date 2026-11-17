@@ -234,7 +234,7 @@ class="active"
     </div>
 </div>
 
-<form action="{!! route('help.topic.pdf') !!}" method="POST" id="form_pdf">
+<form action="{!! route('help.topic.pdf') !!}" method="POST" id="form_pdf" data-submit-guard-timeout="4000">
     <input type="hidden" name="pdf_form" value="" id="pdf_form">
     <input type="hidden" name="pdf_form_help_topic" value="" id="pdf_form_help_topic">
     <input type="hidden" name="_token" value="{{ csrf_token() }}" />

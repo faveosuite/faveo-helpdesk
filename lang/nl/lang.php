@@ -961,6 +961,7 @@ return [
     'knowledge_base'     => 'Kennisbank',
     'kb-settings'        => 'Kennisbank instellingen',
     'loading'            => 'Laden',
+    'please_wait'        => 'Even geduld...',
     'ratings'            => 'Beoordelingen',
     'please_rate'        => 'Beoordeel alsjeblieft:',
     'ticket_ratings'     => 'TICKET BEOORDELING',

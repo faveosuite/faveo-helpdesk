@@ -877,6 +877,8 @@
 </script>
 <?php \Illuminate\Support\Facades\Event::dispatch('show.calendar.script', []); ?>
 <?php \Illuminate\Support\Facades\Event::dispatch('load-calendar-scripts', []); ?>
+        @include('themes.default1.common.confirm-modal')
+        @include('themes.default1.common.submit-guard')
         @yield('FooterInclude')
     </body>
 </html>

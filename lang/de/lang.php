@@ -655,6 +655,7 @@ return [
     'canned'            => 'Vorformulierte',
     'knowledge_base'    => 'Wissensdatenbank',
     'loading'           => 'Wird geladen',
+    'please_wait'       => 'Bitte warten...',
     'ratings'           => 'Bewertungen',
     'please_rate'       => 'Bitte bewerten:',
     'ticket_ratings'    => 'TICKET-BEWERTUNG',

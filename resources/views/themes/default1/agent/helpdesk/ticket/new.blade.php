@@ -275,7 +275,7 @@ class="active"
     <div class="card-footer">
         <div class="row">
             <div class="col-md-3">
-                <input type="submit" value="{!! Lang::get('lang.create_ticket') !!}" class="btn btn-primary" onclick="this.disabled=true;this.value='Sending, please wait...';this.form.submit();">
+                <input type="submit" value="{!! Lang::get('lang.create_ticket') !!}" class="btn btn-primary">
             </div>
         </div>
     </div>

@@ -27,7 +27,7 @@ foreach($segments as $seg){
             return jQuery('#chumper').dataTable({
                 "sDom": "<'row'<'col-sm-6'l><'col-sm-6'f>r>"+
                         "t"+
-                        "<'row'<'col-sm-6'i><'col-sm-6'p>>",
+                        "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7 d-flex justify-content-end'p>>",
                 "sPaginationType": "full_numbers",
                 "bProcessing": true,
                 "lengthMenu": [[10, 25, 50, 100, 500], [10, 25, 50, 100, 500]],

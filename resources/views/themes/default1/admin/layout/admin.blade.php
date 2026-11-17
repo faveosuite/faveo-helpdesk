@@ -926,6 +926,8 @@
          falls back to a relative path which 404s on nested routes. -->
     <script>window.faveoBaseUrl = @json(url('/'));</script>
     <script src="{{asset("lb-faveo/js/languagechanger.js")}}" type="text/javascript"></script>
+    @include('themes.default1.common.confirm-modal')
+    @include('themes.default1.common.submit-guard')
     @yield('FooterInclude')
 </body>
 </html>

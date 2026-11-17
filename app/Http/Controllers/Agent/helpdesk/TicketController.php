@@ -655,7 +655,69 @@ class TicketController extends Controller
          * @see https://github.com/dompdf/dompdf/issues/1272
          * For time bieng we are silencing the error using "@" operator in front of it
          */
-        return PdfFacade::load($html1)->show(false, false, false);
+        return PdfFacade::load($this->repairTableRowsForPdf($html1))->show(false, false, false);
+    }
+
+    /**
+     * Makes stray table rows safe for Dompdf.
+     *
+     * Marketing e-mails routinely contain invalid table markup such as
+     * <table><div><tr>...</tr></div></table>. Browsers quietly repair it; Dompdf
+     * does not and aborts the whole document with "Min/max width is undefined for
+     * table rows", so printing a ticket that holds such a mail returned HTTP 500.
+     *
+     * A wrapper sitting between a table and its rows is removed, and rows that have
+     * no table at all are given one. Valid markup is returned untouched.
+     *
+     * @param string $html
+     *
+     * @return string
+     */
+    protected function repairTableRowsForPdf($html)
+    {
+        if (stripos($html, '<tr') === false) {
+            return $html;
+        }
+
+        $doc = new \DOMDocument();
+        $previous = libxml_use_internal_errors(true);
+        $loaded = $doc->loadHTML($html);
+        libxml_clear_errors();
+        libxml_use_internal_errors($previous);
+        if (!$loaded) {
+            return $html;
+        }
+
+        $sections = ['table', 'tbody', 'thead', 'tfoot'];
+        $xpath = new \DOMXPath($doc);
+        $changed = false;
+        do {
+            $again = false;
+            foreach ($xpath->query('//tr') as $row) {
+                $parent = $row->parentNode;
+                if (!$parent instanceof \DOMElement || in_array($parent->nodeName, $sections, true)) {
+                    continue;
+                }
+                $grand = $parent->parentNode;
+                if ($grand instanceof \DOMElement && in_array($grand->nodeName, $sections, true)) {
+                    while ($parent->firstChild) {
+                        $grand->insertBefore($parent->firstChild, $parent);
+                    }
+                    $grand->removeChild($parent);
+                } else {
+                    $table = $doc->createElement('table');
+                    $parent->insertBefore($table, $row);
+                    while ($table->nextSibling && ($table->nextSibling->nodeName === 'tr'
+                        || ($table->nextSibling->nodeType === XML_TEXT_NODE && trim($table->nextSibling->nodeValue) === ''))) {
+                        $table->appendChild($table->nextSibling);
+                    }
+                }
+                $again = $changed = true;
+                break;
+            }
+        } while ($again);
+
+        return $changed ? $doc->saveHTML() : $html;
     }
 
     /**

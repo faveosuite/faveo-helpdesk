@@ -897,6 +897,7 @@ return [
     'knowledge_base'     => 'Base de connaissances',
     'kb-settings'        => 'Paramètres de la Base de connaissances',
     'loading'            => 'Chargement',
+    'please_wait'        => 'Veuillez patienter...',
     'ratings'            => 'Avis',
     'please_rate'        => 'Donnez un avis:',
     'ticket_ratings'     => 'AVIS TICKET',

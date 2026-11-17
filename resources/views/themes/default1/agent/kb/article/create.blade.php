@@ -117,6 +117,9 @@ class="nav-item menu-open"
                     </div>
                 </div>
             </div>
+            <div class="card-footer">
+                {!! html()->submit(Lang::get('lang.publish'))->class('btn btn-primary') !!}
+            </div>
         </div>
     </div>
 
@@ -188,10 +191,6 @@ class="nav-item menu-open"
                         </span>
                     </div>
                 </div>
-            </div>
-            
-            <div class="card-footer">
-                {!! html()->submit(Lang::get('lang.publish'))->class('btn btn-primary') !!}
             </div>
         </div>
 

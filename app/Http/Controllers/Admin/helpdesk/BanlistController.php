@@ -72,7 +72,7 @@ class BanlistController extends Controller
                 })
                 ->addColumn('action', function ($model) {
                     $edit = '<a href="'.route('banlist.edit', $model->id).'" class="btn btn-primary btn-xs"><i class="fa-solid fa-edit"></i> '.Lang::get('lang.edit').'</a> ';
-                    $delete = '<a href="'.route('banlist.delete', $model->id).'" class="btn btn-danger btn-xs"><i class="fa-solid fa-trash"></i> '.Lang::get('lang.delete').'</a>';
+                    $delete = '<a href="'.route('banlist.delete', $model->id).'" class="btn btn-danger btn-xs" data-confirm="'.e(Lang::get('lang.confirm')).'"><i class="fa-solid fa-trash"></i> '.Lang::get('lang.delete').'</a>';
 
                     return $edit.$delete;
                 })

@@ -127,18 +127,6 @@ class="nav-link active"
 </script>
 
 <script>
-    function confirmDelete(priority_id) {
-        var r = confirm('Are you sure?');
-        if (r == true) {
-            // alert('{!! url("ticket_priority") !!}/' + priority_id + '/destroy');
-            window.location = '{!! url("ticket/priority") !!}/' + priority_id + '/destroy';
-            //    $url('ticket_priority/' . $model->priority_id . '/destroy')
-        } else {
-            return false;
-        }
-    }
-</script>
-<script>
     $('#toggle_event_editing button').click(function () {
 
         var user_settings_priority=1;
@@ -164,8 +152,11 @@ class="nav-link active"
             success: function (result) {
                 // with('success', Lang::get('lang.approval_settings-created-successfully'));
                 // alert("Hi, testing");
-                alert(result);
-                location.reload(); 
+                // in-app dialog (same one the Delete buttons use) instead of the browser alert()
+                FaveoDialog.alert(result, {
+                    title: @json(Lang::get('lang.user_priority_status')),
+                    onClose: function () { location.reload(); }
+                });
             }
         });
     });

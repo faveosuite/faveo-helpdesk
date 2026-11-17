@@ -26,7 +26,7 @@ foreach($segments as $seg){
             return jQuery('#chumper').dataTable({
                 "sDom": "<'row'<'col-sm-6'l><'col-sm-6'f>r>"+
                         "t"+
-                        "<'row'<'col-sm-6'i><'col-sm-6'p>>",
+                        "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7 d-flex justify-content-end'p>>",
                 "sPaginationType": "full_numbers",
                 "bProcessing": true,
                 "lengthMenu": [[10, 25, 50, 100, 500], [10, 25, 50, 100, 500]],
@@ -42,11 +42,12 @@ foreach($segments as $seg){
                     "sProcessing": "{!! Lang::get('datatables.sProcessing') !!}",
                     "sSearch": "{!! Lang::get('datatables.sSearch') !!}",
                     "sZeroRecords": "{!! Lang::get('datatables.sZeroRecords') !!}",
+                    // same pager as every other list: « ‹ 1 2 › » (see tickets-javascript / the layout defaults)
                     "oPaginate": {
-                        "sFirst": "{!! Lang::get('datatables.oPaginate.sFirst') !!}",
-                        "sLast": "{!! Lang::get('datatables.oPaginate.sLast') !!}",
-                        "sNext": "{!! Lang::get('datatables.oPaginate.sNext') !!}",
-                        "sPrevious": "{!! Lang::get('datatables.oPaginate.sPrevious') !!}"
+                        "sFirst":    "&laquo;",
+                        "sPrevious": "&lsaquo;",
+                        "sNext":     "&rsaquo;",
+                        "sLast":     "&raquo;"
                     },
                     "oAria": {
                         "sSortAscending": "{!! Lang::get('datatables.oAria.sSortAscending') !!}",

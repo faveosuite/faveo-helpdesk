@@ -935,6 +935,7 @@ return [
     'knowledge_base'     => 'База знаний',
     'kb-settings'        => 'Настройки базы знаний',
     'loading'            => 'Загрузить',
+    'please_wait'        => 'Пожалуйста, подождите...',
     'ratings'            => 'Оценки',
     'please_rate'        => 'Оцените пожалуйста:',
     'ticket_ratings'     => 'РЕЙТИНГ ЗАЯВОК',

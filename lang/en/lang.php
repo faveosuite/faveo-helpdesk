@@ -937,6 +937,7 @@ return [
     'knowledge_base'     => 'Knowledge base',
     'kb-settings'        => 'Knowledge base settings',
     'loading'            => 'Loading',
+    'please_wait'        => 'Please wait...',
     'ratings'            => 'Ratings',
     'please_rate'        => 'Please rate:',
     'ticket_ratings'     => 'TICKET RATING',

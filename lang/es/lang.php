@@ -953,6 +953,7 @@ return [
     'knowledge_base'     => 'Base de conocimiento',
     'kb-settings'        => 'Configuración de la base de conocimientos',
     'loading'            => 'Cargando',
+    'please_wait'        => 'Por favor, espere...',
     'ratings'            => 'Calificaciones',
     'please_rate'        => 'Por favor, valora:',
     'ticket_ratings'     => 'Calificación de ticket',

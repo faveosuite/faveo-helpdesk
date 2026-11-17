@@ -563,5 +563,6 @@
     </script>
 
 </div><!-- #page -->
+@include('themes.default1.common.submit-guard')
 </body>
 </html>

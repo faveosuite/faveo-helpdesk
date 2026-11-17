@@ -943,6 +943,7 @@ return [
     'knowledge_base'     => 'Knowledge Base',
     'kb-settings'        => 'Impostazioni Knowledge base',
     'loading'            => 'Caricamento',
+    'please_wait'        => 'Attendere prego...',
     'ratings'            => 'Valutazioni',
     'please_rate'        => 'Valuta:',
     'ticket_ratings'     => 'VALUTAZIONE TICKET',

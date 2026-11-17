@@ -46,10 +46,14 @@ class LaravelLogViewer
      */
     public static function setFile($file)
     {
-        $file = self::pathToLogFile($file);
-
-        if (File::exists($file)) {
-            self::$file = $file;
+        // The selected file comes from the page URL (?l=...). A bookmarked or
+        // still-open Logs page keeps pointing at a file after it was rotated,
+        // deleted or archived; that is not an error, so fall back to the newest
+        // log instead of failing the whole page with "No such log file".
+        try {
+            self::$file = self::pathToLogFile($file);
+        } catch (\Exception $e) {
+            self::$file = null;
         }
     }
 
@@ -77,7 +81,7 @@ class LaravelLogViewer
      */
     public static function getFileName()
     {
-        return basename(self::$file);
+        return self::$file ? basename(self::$file) : '';
     }
 
     /**
@@ -92,7 +96,9 @@ class LaravelLogViewer
         $pattern = '/\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\].*/';
 
         if (!self::$file) {
-            $log_file = self::getFiles();
+            // array_values(): getFiles() filters out directories and keeps the
+            // original keys, so index 0 is not guaranteed to exist.
+            $log_file = array_values(self::getFiles());
             if (!count($log_file)) {
                 return [];
             }
