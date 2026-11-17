@@ -17986,7 +17986,7 @@ parameters:
 		-
 			message: '#^Binary operation "\." between non\-falsy\-string and array\|string results in an error\.$#'
 			identifier: binaryOp.invalid
-			count: 4
+			count: 2
 			path: app/Http/Controllers/Agent/kb/SettingsController.php
 
 		-

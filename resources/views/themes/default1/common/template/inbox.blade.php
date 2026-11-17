@@ -25,7 +25,7 @@
     @if(Session::has('success'))
     <div class="alert alert-success alert-dismissible">
         <i class="fa-solid fa-ban"></i>
-        <b>{{Lang::get('message.alert')}}!</b> {{Lang::get('message.success')}}.
+        <b>{{Lang::get('lang.success')}}!</b>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         {{Session::get('success')}}
     </div>
@@ -34,7 +34,7 @@
     @if(Session::has('fails'))
     <div class="alert alert-danger alert-dismissible">
         <i class="fa-solid fa-ban"></i>
-        <b>{{Lang::get('message.alert')}}!</b> {{Lang::get('message.failed')}}.
+        <b>{{Lang::get('lang.alert')}}!</b>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
         {{Session::get('fails')}}
     </div>

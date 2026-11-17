@@ -99,6 +99,74 @@
         .tooltip1:hover .tooltiptext {
             visibility: visible;
         }
+
+        /* Hover preview of a ticket's messages (subject column).
+           Replaces the old inline 300x200 box with overflow:scroll, which always
+           showed scrollbars and let wide mail content (fixed-width images/tables)
+           break the text. Only scrolls vertically; content wraps to the box. */
+        .tooltip1 .tooltiptext.ticket-preview {
+            top: 100%;
+            left: 0;
+            margin-top: 4px;
+            width: 420px;
+            max-width: 80vw;
+            max-height: 260px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 10px 12px;
+            text-align: start;
+            white-space: normal;
+            overflow-wrap: anywhere;
+            font-weight: normal;
+            font-size: 0.875rem;
+            line-height: 1.4;
+            color: var(--bs-body-color, #212529);
+            background-color: var(--bs-body-bg, #fff);
+            border: 1px solid var(--bs-border-color, #dee2e6);
+            border-radius: 6px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+            z-index: 1060;
+        }
+        .ticket-preview .ticket-preview-item {
+            padding-bottom: 8px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid var(--bs-border-color, #dee2e6);
+        }
+        .ticket-preview .ticket-preview-author {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+        .ticket-preview .ticket-preview-poster {
+            font-weight: normal;
+            color: var(--bs-secondary-color, #6c757d);
+        }
+        .ticket-preview .ticket-preview-body p {
+            margin: 0 0 4px;
+        }
+        /* Mail bodies carry inline widths (e.g. width:1248px); keep them inside the box */
+        .ticket-preview img,
+        .ticket-preview video,
+        .ticket-preview iframe {
+            max-width: 100% !important;
+            height: auto !important;
+        }
+        .ticket-preview table {
+            max-width: 100% !important;
+            width: auto !important;
+            table-layout: fixed;
+        }
+        .ticket-preview pre {
+            white-space: pre-wrap;
+        }
+        .ticket-preview .ticket-preview-footer {
+            color: var(--bs-secondary-color, #6c757d);
+            font-size: 0.8rem;
+        }
+        /* RTL: open the box from the right edge of the subject */
+        [dir="rtl"] .tooltip1 .tooltiptext.ticket-preview {
+            left: auto;
+            right: 0;
+        }
     </style>
     @stop
     @section('content')

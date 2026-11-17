@@ -134,33 +134,71 @@ class SettingsController extends Controller
      */
     public function getData()
     {
-        return DataTables::of(Comment::All())
-                        ->addColumn('details', function ($model) {
-                            $name = "<p>$model->name</p><br>";
-                            $email = "<p>$model->email</p><br>";
-                            $website = "<p>$model->website</p><br>";
+        // Query builder (not Comment::all()) so paging, search and sort run in SQL.
+        $comments = Comment::query()
+            ->leftJoin('kb_article', 'kb_article.id', '=', 'kb_comment.article_id')
+            ->select(
+                'kb_comment.id',
+                'kb_comment.name',
+                'kb_comment.email',
+                'kb_comment.website',
+                'kb_comment.comment',
+                'kb_comment.status',
+                'kb_comment.created_at',
+                'kb_article.name as article_name',
+                'kb_article.slug as article_slug'
+            );
 
-                            return $name.$email.$website;
+        return DataTables::eloquent($comments)
+                        // Author column searches both name and email
+                        ->filterColumn('kb_comment.name', function ($query, $keyword) {
+                            $query->where(function ($q) use ($keyword) {
+                                $q->where('kb_comment.name', 'like', "%{$keyword}%")
+                                  ->orWhere('kb_comment.email', 'like', "%{$keyword}%");
+                            });
                         })
+                        ->addColumn('details', function ($model) {
+                            $html = '<div class="fw-semibold">'.e($model->name).'</div>';
+                            if ($model->email) {
+                                $html .= '<div class="text-muted small text-break">'.e($model->email).'</div>';
+                            }
+                            if ($model->website) {
+                                $html .= '<div class="text-muted small text-break">'.e($model->website).'</div>';
+                            }
 
-                        ->addColumn('comment', function ($model) {
+                            return $html;
+                        })
+                        ->addColumn('article', function ($model) {
+                            if (!$model->article_slug) {
+                                return '<span class="text-muted">-</span>';
+                            }
+
+                            return '<a href="'.url('show/'.$model->article_slug).'" target="_blank" rel="noopener">'.e($model->article_name).'</a>';
+                        })
+                        ->editColumn('comment', function ($model) {
                             $created = TicketController::usertimezone(date($model->created_at));
 
-                            return $model->comment."<p>$created</p>";
+                            return '<div class="text-break" style="white-space:pre-line">'.e($model->comment).'</div>'
+                                ."<div class=\"text-muted small mt-1\"><i class=\"fa-regular fa-clock\"></i> {$created}</div>";
                         })
-                        ->addColumn('status', function ($model) {
-                            $status = $model->status;
-                            if ($status == 1) {
-                                return '<span class="text-primary">'.langText('lang.published').'</span>';
-                            } else {
-                                return '<span class="text-danger">'.langText('lang.not_published').'</span>';
-                            }
+                        ->editColumn('status', function ($model) {
+                            return $model->status == 1
+                                ? '<span class="badge text-bg-success">'.e(langText('lang.published')).'</span>'
+                                : '<span class="badge text-bg-warning">'.e(langText('lang.not_published')).'</span>';
                         })
-
                         ->addColumn('Actions', function ($model) {
-                            return '<a href="'.url('comment/delete/'.$model->id).'" class="btn btn-danger btn-xs" data-confirm="'.e(langText('lang.confirm')).'">'.\Lang::get('lang.delete').'</a>&nbsp;<a href="'.url('published/'.$model->id).'" class="btn btn-warning btn-xs">'.\Lang::get('lang.publish').'</a>';
+                            $buttons = '';
+                            if ($model->status != 1) {
+                                $buttons .= '<a href="'.url('published/'.$model->id).'" class="btn btn-success btn-xs me-1">'
+                                    .'<i class="fa-solid fa-check"></i> '.e(langText('lang.publish')).'</a>';
+                            }
+                            $buttons .= '<a href="'.url('comment/delete/'.$model->id).'" class="btn btn-danger btn-xs" data-confirm="'
+                                .e(langText('lang.are_you_sure_you_want_to_delete')).'">'
+                                .'<i class="fa-solid fa-trash"></i> '.e(langText('lang.delete')).'</a>';
+
+                            return '<div class="text-nowrap">'.$buttons.'</div>';
                         })
-                        ->rawColumns(['details', 'comment', 'status', 'Actions'])
+                        ->rawColumns(['details', 'article', 'comment', 'status', 'Actions'])
                         ->make(true);
     }
 

@@ -2724,11 +2724,17 @@ class TicketController extends Controller
         $tooltip = '';
 
         foreach ($threads as $thread) {
-            $tooltip .= '<b>'.$thread->user->user_name.' ('.$thread->poster.')</b></br>'
-                .$thread->purify().'<br><hr>';
+            // System notes have no poster (and may have no user): show "name" rather than "name ()".
+            $author = e($thread->user->user_name ?? '');
+            if ($thread->poster) {
+                $author .= ' <span class="ticket-preview-poster">('.e($thread->poster).')</span>';
+            }
+            // Message HTML is purified as before; .ticket-preview CSS keeps wide images/tables inside the box.
+            $tooltip .= '<div class="ticket-preview-item"><div class="ticket-preview-author">'.$author.'</div>'
+                .'<div class="ticket-preview-body">'.$thread->purify().'</div></div>';
         }
 
-        $tooltip .= 'This ticket has '.$numThreads.' threads.';
+        $tooltip .= '<div class="ticket-preview-footer">This ticket has '.$numThreads.' threads.</div>';
 
         return $tooltip;
     }
@@ -2820,6 +2826,9 @@ class TicketController extends Controller
             $ticket = Tickets::where('id', $thread->ticket_id)->first();
             $html = view('themes.default1.agent.helpdesk.ticket.thread-pdf', compact('thread', 'system', 'company', 'ticket'))->render();
             $html1 = mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8');
+            // Same table-row repair as ticket_print(): mail bodies with <tr> outside a
+            // <table> make dompdf throw "Min/max width is undefined for table rows".
+            $html1 = $this->repairTableRowsForPdf($html1);
 
             /**
              * This statement throws error with php7.1.
@@ -3156,7 +3165,8 @@ class TicketController extends Controller
                             return "<div class='tooltip1' id='tool".$tickets->id."'>
                             <a href='".route('ticket.thread', [$tickets->id])."'>".$string."&nbsp;<span style='color:green'>".$thread_count."</span>
                             </a> <span><i style='color:green' title='".Lang::get('lang.ticket_created_source', ['source' => $source])."' class='".$css."'></i></span>".$collabString.$attachString.$due.$tooltip_script.
-                                    "<span class='tooltiptext' id='tooltip".$tickets->id."' style='height:auto;width:300px;height:200px;overflow:scroll;background-color:#fff;color:black;border-radius:3px;border:2px solid gainsboro;position:absolute;z-index:1;top:150%;left:50%;margin-left:-23px;word-wrap:break-word;padding:10px;'>".Lang::get('lang.loading').'</span></div>';
+                                    // Hover preview box; styled by .ticket-preview in ticket/tickets.blade.php
+                                    "<span class='tooltiptext ticket-preview' id='tooltip".$tickets->id."'>".Lang::get('lang.loading').'</span></div>';
                         })
                         ->editColumn('ticket_number', function ($tickets) {
                             return "<a href='".route('ticket.thread', [$tickets->id])."' class='$".ucfirst($tickets->priority)."*' title='".Lang::get('lang.click-here-to-see-more-details')."'>#".$tickets->ticket_number.'</a>';

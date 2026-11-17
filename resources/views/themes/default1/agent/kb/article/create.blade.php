@@ -54,8 +54,8 @@ class="nav-item menu-open"
     {{Session::get('fails')}}
 </div>
 @endif
-@if(!$category)
-<div class="alert alert-warning alert-dismissible">
+@if($category->isEmpty())
+<div class="alert alert-warning alert-dismissible" id="no-category-warning">
     <i class="fa-solid fa-info"></i>
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-hidden="true"></button>
     {!! Lang::get('lang.create_a_category') !!}
@@ -88,6 +88,8 @@ class="nav-item menu-open"
     @endif
 </div>
 @endif
+
+<div id="article-category-flash"></div>
 
 <div class="row">
 
@@ -205,7 +207,7 @@ class="nav-item menu-open"
             
             <div class="card-body" style="height:166px; overflow-y:auto;">
             
-                <div class="mb-3 {{ $errors->has('category_id') ? 'has-error' : '' }}">
+                <div class="mb-3 {{ $errors->has('category_id') ? 'has-error' : '' }}" id="article-category-list">
             
                     {{-- {!! html()->label('Category', 'category_id') !!} --}}
 
@@ -220,32 +222,7 @@ class="nav-item menu-open"
 
             <div class="card-footer">
 
-                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#j">{{Lang::get('lang.addcategory')}}</button>
-
-                <div class="modal" id="j">
-                    
-                    <div class="modal-dialog">
-                    
-                        <div class="modal-content">
-                            {!! html()->form('POST', route('category.store'))->open() !!}
-                            
-                            <div class="modal-header">          
-                                <h5 class="modal-title">{{Lang::get('lang.addcategory')}}</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-
-                            <div class="modal-body">
-                                @include('themes.default1.agent.kb.category.form')
-                            </div>
-                            
-                            <div class="modal-footer justify-content-between">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{!! Lang::get('lang.close') !!}</button>
-                                {!! html()->submit(Lang::get('lang.add'))->class('btn btn-primary') !!}
-                            </div>
-                            {!! html()->closeModelForm() !!}
-                        </div>
-                    </div>
-                </div>
+                @include('themes.default1.agent.kb.article.category-modal')
             </div>
         </div>
     </div>

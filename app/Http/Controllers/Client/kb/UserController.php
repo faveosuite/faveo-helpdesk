@@ -258,20 +258,25 @@ class UserController extends Controller
             return response()->json(['success' => false, 'message' => Lang::get('lang.sorry_not_processed')]);
         }
 
-        $comment->article_id = $article->id;
-
-        if (Auth::check()) {
-            // Associate the comment with the authenticated user
-            $comment->article_id = Auth::id();
-            $comment->name = Auth::user()->first_name.' '.Auth::user()->last_name;
+        $user = Auth::user();
+        if ($user instanceof \App\User) {
+            // Commenter details come from the logged-in user, not the form
+            $comment->name = $user->first_name.' '.$user->last_name;
+            $comment->email = $user->email;
+            $comment->website = '';
         } else {
-            // Set default values for non-authenticated user
             $comment->name = $request->input('name');
             $comment->email = $request->input('email');
-            $comment->website = $request->input('website');
+            $comment->website = $request->input('website', '');
         }
 
-        if ($comment->fill($request->input())->save()) {
+        // Only the comment text is taken from the request; article and
+        // moderation status are set server-side (status 0 = awaiting approval).
+        $comment->comment = $request->input('comment');
+        $comment->article_id = $article->id;
+        $comment->status = false;
+
+        if ($comment->save()) {
             return Redirect::back()->with('success', Lang::get('lang.your_comment_posted'));
         } else {
             return Redirect::back()->with('fails', Lang::get('lang.sorry_not_processed'));

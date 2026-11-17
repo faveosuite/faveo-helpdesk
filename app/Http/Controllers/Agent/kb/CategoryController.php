@@ -136,7 +136,7 @@ class CategoryController extends Controller
      * @param type Category        $category
      * @param type CategoryRequest $request
      *
-     * @return type Redirect
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse JSON when called from the article page's "Add category" pop-up
      */
     public function store(Category $category, CategoryRequest $request)
     {
@@ -149,8 +149,21 @@ class CategoryController extends Controller
         try {
             $category->fill($request->input())->save();
 
+            // "Add category" pop-up on the article pages saves over AJAX so the
+            // article being written is not lost; it needs the new id back.
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message'  => Lang::get('lang.category_inserted_successfully'),
+                    'category' => ['id' => $category->id, 'name' => $category->name],
+                ]);
+            }
+
             return redirect('category')->with('success', Lang::get('lang.category_inserted_successfully'));
         } catch (Exception $e) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => Lang::get('lang.category_not_inserted')], 500);
+            }
+
             return redirect('category')->with('fails', Lang::get('lang.category_not_inserted').'<li>'.$e->getMessage().'</li>');
         }
     }
