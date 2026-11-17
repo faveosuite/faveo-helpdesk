@@ -769,10 +769,12 @@ Route::middleware('web')->group(function () {
      */
     Route::middleware(['install', 'auth', 'roles', 'update'])->group(function () {
         Route::get('database-update', [Update\UpgradeController::class, 'databaseUpdate'])->name('database.update');
-        Route::get('database-upgrade', [Update\UpgradeController::class, 'databaseUpgrade'])->name('database.upgrade');
+        // POST: runs migrations, so it must not be triggerable by a link or <img> on another site.
+        Route::post('database-upgrade', [Update\UpgradeController::class, 'databaseUpgrade'])->name('database.upgrade');
         Route::get('file-update', [Update\UpgradeController::class, 'fileUpdate'])->name('file.update');
         Route::get('file-upgrade', [Update\UpgradeController::class, 'fileUpgrading'])->name('file.upgrade');
         Route::post('upgrade/backup', [Update\UpgradeController::class, 'backup'])->name('upgrade.backup');
+        Route::get('upgrade/backup/{id}/status', [Update\UpgradeController::class, 'backupStatus'])->whereNumber('id')->name('upgrade.backup.status');
         Route::post('upgrade/download', [Update\UpgradeController::class, 'download'])->name('upgrade.download');
         Route::post('upgrade/apply', [Update\UpgradeController::class, 'install'])->name('upgrade.apply');
         Route::post('upgrade/database', [Update\UpgradeController::class, 'ajaxDatabaseSync'])->name('upgrade.database');

@@ -77,3 +77,7 @@ qa-health-*.log
 
 storage/oauth-private.key
 storage/oauth-public.key
+
+# Auto-update: backups and the update scratch directory
+/storage/backups/
+/UPDATES/

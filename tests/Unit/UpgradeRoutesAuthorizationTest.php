@@ -75,10 +75,11 @@ namespace Tests\Unit {
         {
             return [
                 'GET database-update'   => ['get', 'database-update'],
-                'GET database-upgrade'  => ['get', 'database-upgrade'],
+                'POST database-upgrade' => ['post', 'database-upgrade'],
                 'GET file-update'       => ['get', 'file-update'],
                 'GET file-upgrade'      => ['get', 'file-upgrade'],
                 'POST upgrade/backup'   => ['post', 'upgrade/backup'],
+                'GET backup status'     => ['get', 'upgrade/backup/1/status'],
                 'POST upgrade/download' => ['post', 'upgrade/download'],
                 'POST upgrade/apply'    => ['post', 'upgrade/apply'],
                 'POST upgrade/database' => ['post', 'upgrade/database'],
@@ -154,6 +155,11 @@ namespace Tests\Unit {
             $this->assertStringNotContainsString('/tmp/bk', $command);
             $this->assertStringContainsString("'".storage_path('backups').DIRECTORY_SEPARATOR, $command, 'backup must go to storage/backups, single-quoted');
             $this->assertStringContainsString("zip -r '", $command);
+            // The DB password must never be on the command line (visible in `ps`).
+            $this->assertStringContainsString('--defaults-extra-file=', $command);
+            $this->assertStringNotContainsString(' -p', $command);
+            // Earlier backups are not zipped into the new one.
+            $this->assertStringContainsString("-x '".storage_path('backups')."/*'", $command);
             $this->assertFileDoesNotExist($this->marker);
             $this->assertFalse(File::isDirectory('/tmp/bk$(touch '.$this->marker.')'), 'request path was still used to create a directory');
             $this->assertSame(storage_path('backups'), BackupPath::value('backup_path'));

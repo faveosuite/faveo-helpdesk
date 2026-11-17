@@ -26,6 +26,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\SetupTestEnv::class,
         \App\Console\Commands\SecureFaveoAPPKey::class,
         SyncFaveoToLatestVersion::class,
+        \App\Console\Commands\FinalizeStaleUpdate::class,
     ];
 
     /**
@@ -38,6 +39,10 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         if (isInstall()) {
+            // Finishes a core update whose browser tab was closed mid-way. Must run
+            // during maintenance mode, which is exactly when it is needed.
+            $schedule->command('update:finalize')->everyFiveMinutes()->evenInMaintenanceMode()->withoutOverlapping();
+
             $this->execute($schedule, 'fetching');
             $this->execute($schedule, 'notification');
             $this->execute($schedule, 'work');

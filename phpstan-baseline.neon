@@ -22814,24 +22814,6 @@ parameters:
 			path: app/Http/Controllers/Update/SyncFaveoToLatestVersion.php
 
 		-
-			message: '#^Method App\\Http\\Controllers\\Update\\SyncFaveoToLatestVersion\:\:updateToLatestVersion\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Http/Controllers/Update/SyncFaveoToLatestVersion.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Update\\SyncFaveoToLatestVersion\:\:updateToLatestVersion\(\) has parameter \$olderVersion with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: app/Http/Controllers/Update/SyncFaveoToLatestVersion.php
-
-		-
-			message: '#^Argument of an invalid type list\<string\>\|false supplied for foreach, only iterables are supported\.$#'
-			identifier: foreach.nonIterable
-			count: 1
-			path: app/Http/Controllers/Update/UpgradeController.php
-
-		-
 			message: '#^Method App\\Http\\Controllers\\Update\\UpgradeController\:\:ajaxDatabaseSync\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -22869,18 +22851,6 @@ parameters:
 
 		-
 			message: '#^Parameter \#1 \$haystack of function str_contains expects string, string\|false given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/Update/UpgradeController.php
-
-		-
-			message: '#^Parameter \#1 \$haystack of function str_ends_with expects string, string\|false given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/Http/Controllers/Update/UpgradeController.php
-
-		-
-			message: '#^Parameter \#1 \$path of method App\\Http\\Controllers\\Update\\UpgradeController\:\:stripPrefix\(\) expects string, string\|false given\.$#'
 			identifier: argument.type
 			count: 1
 			path: app/Http/Controllers/Update/UpgradeController.php

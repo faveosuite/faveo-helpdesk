@@ -312,10 +312,9 @@ class InstallController extends Controller
         $system->department = 1;
         $system->date_time_format = $date_time_format->id;
         $system->time_zone = $timezones->id;
-        $version = \Config::get('app.tags');
-        // $version = explode(' ', $version);
-        // $version = $version[1];
-        $system->version = $version;
+        // 'app.version' (not 'app.tags', which only exists in favMer): a null here is
+        // saved as '' and makes the first database:sync re-run every seeder.
+        $system->version = \Config::get('app.version');
         $system->save();
 
         $admin_tzone = $timezones->id;
