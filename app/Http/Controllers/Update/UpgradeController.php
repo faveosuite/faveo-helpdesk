@@ -461,6 +461,7 @@ class UpgradeController extends Controller
             return trim($log);
         } finally {
             UpdateVersion::forgetDatabase();
+
             try {
                 Artisan::call('up');
             } finally {
@@ -570,7 +571,7 @@ class UpgradeController extends Controller
      */
     protected function mysqlOptionFile(array $connection): string
     {
-        $quote = fn ($value) => '"'.addcslashes((string) $value, "\\\"").'"';
+        $quote = fn ($value) => '"'.addcslashes((string) $value, '\\"').'"';
 
         $lines = ['[client]', 'user='.$quote($connection['username'] ?? '')];
         if (($connection['password'] ?? '') !== '') {
