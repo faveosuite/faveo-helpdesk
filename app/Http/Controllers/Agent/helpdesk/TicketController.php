@@ -693,14 +693,21 @@ class TicketController extends Controller
         $changed = false;
         do {
             $again = false;
-            foreach ($xpath->query('//tr') as $row) {
+            $rows = $xpath->query('//tr');
+            if ($rows === false) {
+                break;
+            }
+            foreach ($rows as $row) {
+                if (!$row instanceof \DOMElement) {
+                    continue;
+                }
                 $parent = $row->parentNode;
                 if (!$parent instanceof \DOMElement || in_array($parent->nodeName, $sections, true)) {
                     continue;
                 }
                 $grand = $parent->parentNode;
                 if ($grand instanceof \DOMElement && in_array($grand->nodeName, $sections, true)) {
-                    while ($parent->firstChild) {
+                    while ($parent->firstChild instanceof \DOMNode) {
                         $grand->insertBefore($parent->firstChild, $parent);
                     }
                     $grand->removeChild($parent);
@@ -708,7 +715,7 @@ class TicketController extends Controller
                     $table = $doc->createElement('table');
                     $parent->insertBefore($table, $row);
                     while ($table->nextSibling && ($table->nextSibling->nodeName === 'tr'
-                        || ($table->nextSibling->nodeType === XML_TEXT_NODE && trim($table->nextSibling->nodeValue) === ''))) {
+                        || ($table->nextSibling->nodeType === XML_TEXT_NODE && trim((string) $table->nextSibling->nodeValue) === ''))) {
                         $table->appendChild($table->nextSibling);
                     }
                 }
@@ -717,7 +724,9 @@ class TicketController extends Controller
             }
         } while ($again);
 
-        return $changed ? $doc->saveHTML() : $html;
+        $repaired = $changed ? $doc->saveHTML() : false;
+
+        return $repaired === false ? $html : $repaired;
     }
 
     /**

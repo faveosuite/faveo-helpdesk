@@ -53,7 +53,7 @@ class LaravelLogViewer
         try {
             self::$file = self::pathToLogFile($file);
         } catch (\Exception $e) {
-            self::$file = null;
+            self::$file = '';
         }
     }
 

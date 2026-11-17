@@ -111,7 +111,7 @@ class EmailsController extends Controller
                             .'<input type="hidden" name="_method" value="DELETE">'
                             .'<input type="hidden" name="_token" value="'.csrf_token().'">';
                         $delete = $form_open
-                            .'<button type="submit" class="btn btn-danger btn-xs" data-confirm="'.e(\Lang::get('lang.confirm')).'"><i class="fa-solid fa-trash"></i> '.\Lang::get('lang.delete').'</button>'
+                            .'<button type="submit" class="btn btn-danger btn-xs" data-confirm="'.e(langText('lang.confirm')).'"><i class="fa-solid fa-trash"></i> '.\Lang::get('lang.delete').'</button>'
                             .'</form>';
                     }
 

@@ -73,7 +73,7 @@ class CannedController extends Controller
                 $edit = '<a href="'.route('canned.edit', $model->id).'" class="btn btn-primary btn-sm">'.Lang::get('lang.edit').'</a>';
                 $delete = '<form method="POST" action="'.route('canned.destroy', $model->id).'" style="display:inline;">
                     '.csrf_field().'<input type="hidden" name="_method" value="DELETE">
-                    <button type="submit" class="btn btn-warning btn-sm" data-confirm="'.e(\Lang::get('lang.confirm')).'">'.Lang::get('lang.delete').'</button>
+                    <button type="submit" class="btn btn-warning btn-sm" data-confirm="'.e(langText('lang.confirm')).'">'.Lang::get('lang.delete').'</button>
                 </form>';
                 $modal = '<div class="modal fade" id="view'.$model->id.'">
                     <div class="modal-dialog"><div class="modal-content">

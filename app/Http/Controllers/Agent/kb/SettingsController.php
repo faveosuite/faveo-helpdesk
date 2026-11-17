@@ -158,7 +158,7 @@ class SettingsController extends Controller
                         })
 
                         ->addColumn('Actions', function ($model) {
-                            return '<a href="'.url('comment/delete/'.$model->id).'" class="btn btn-danger btn-xs" data-confirm="'.e(\Lang::get('lang.confirm')).'">'.\Lang::get('lang.delete').'</a>&nbsp;<a href="'.url('published/'.$model->id).'" class="btn btn-warning btn-xs">'.\Lang::get('lang.publish').'</a>';
+                            return '<a href="'.url('comment/delete/'.$model->id).'" class="btn btn-danger btn-xs" data-confirm="'.e(langText('lang.confirm')).'">'.\Lang::get('lang.delete').'</a>&nbsp;<a href="'.url('published/'.$model->id).'" class="btn btn-warning btn-xs">'.\Lang::get('lang.publish').'</a>';
                         })
                         ->rawColumns(['details', 'comment', 'status', 'Actions'])
                         ->make(true);

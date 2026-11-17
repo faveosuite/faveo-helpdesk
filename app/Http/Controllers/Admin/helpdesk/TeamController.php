@@ -172,12 +172,12 @@ class TeamController extends Controller
             ->addColumn('assign_group', function ($model) {
                 $group = Groups::whereId($model->assign_group)->first();
 
-                return $group?->name ?? '-';
+                return $group->name ?? '-';
             })
             ->addColumn('primary_dpt', function ($model) {
                 $dept = Department::whereId($model->primary_dpt)->first();
 
-                return $dept?->name ?? '-';
+                return $dept->name ?? '-';
             })
             ->addColumn('role', function ($model) {
                 if ($model->role == 'admin') {

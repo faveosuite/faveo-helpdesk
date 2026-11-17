@@ -123,7 +123,7 @@ class LanguageController extends Controller
                 <button disabled class='btn btn-danger btn-xs'><i class='fas fa-trash'> </i> ".Lang::get('lang.delete').'</button>';
                             } else {
                                 return "<a href='change-language/".$locale."'><input type='button' class='btn btn-primary btn-xs' value='".Lang::get('lang.set_as_sys_lang')."'/></a>
-                <a href='delete-language/".$locale."' class='btn btn-danger btn-xs' data-confirm='".e(Lang::get('lang.confirm'))."'><i class='fas fa-trash'> </i> ".Lang::get('lang.delete').'</a>';
+                <a href='delete-language/".$locale."' class='btn btn-danger btn-xs' data-confirm='".e(langText('lang.confirm'))."'><i class='fas fa-trash'> </i> ".Lang::get('lang.delete').'</a>';
                             }
                         })
                         ->rawColumns(['language', 'status', 'Action'])

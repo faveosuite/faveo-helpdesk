@@ -350,7 +350,7 @@ class GuestController extends Controller
     /**
      * get ticket email.
      *
-     * @param type $id
+     * @param string $id encrypted ticket id from the URL
      *
      * @return type
      */
