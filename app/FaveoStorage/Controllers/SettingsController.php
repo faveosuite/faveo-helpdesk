@@ -23,7 +23,7 @@ class SettingsController extends Controller
         return ' <div class="col-md-2 col-sm-6">
                     <div class="settingiconblue">
                         <div class="settingdivblue">
-                            <a href="'.url('storage').'">
+                            <a href="'.route('storage').'">
                                 <span class="fa-stack fa-2x">
                                     <i class="fas fa-save fa-stack-1x"></i>
                                 </span>

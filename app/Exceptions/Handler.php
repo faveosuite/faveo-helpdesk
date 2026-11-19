@@ -34,6 +34,19 @@ class Handler extends ExceptionHandler
     ];
 
     /**
+     * Inputs never put back into the session when validation fails.
+     * "change_password" is the admin/agent "Change password" field on a user profile.
+     *
+     * @var array<int, string>
+     */
+    protected $dontFlash = [
+        'current_password',
+        'password',
+        'password_confirmation',
+        'change_password',
+    ];
+
+    /**
      * @param \Throwable $e
      *
      * @throws \Throwable

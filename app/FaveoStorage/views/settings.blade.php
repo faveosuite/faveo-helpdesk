@@ -57,7 +57,7 @@ class="nav-link active"
     <div class="card-header">
         <h3 class="card-title"> {{Lang::get('storage::lang.storage')}} </h3>
 
-        {!! html()->form('POST', url('storage'))->open() !!}
+        {!! html()->form('POST', route('post.storage'))->open() !!}
     </div><!-- /.box-header -->
     <!-- /.box-header -->
     <div class="card-body">

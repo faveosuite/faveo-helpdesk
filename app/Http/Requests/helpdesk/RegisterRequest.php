@@ -4,6 +4,7 @@ namespace App\Http\Requests\helpdesk;
 
 use App\Http\Requests\Request;
 use App\Model\helpdesk\Settings\CommonSettings;
+use App\Rules\StrongPassword;
 
 /**
  * RegisterRequest.
@@ -37,7 +38,7 @@ class RegisterRequest extends Request
         return [
             'email'                 => 'required|max:50|email|unique:users',
             'full_name'             => 'required',
-            'password'              => 'required|min:6',
+            'password'              => ['required', new StrongPassword()],
             'password_confirmation' => 'required|same:password',
         ];
     }
@@ -62,7 +63,7 @@ class RegisterRequest extends Request
             return [
                 'email'                 => 'required|max:50|email|unique:users',
                 'full_name'             => 'required',
-                'password'              => 'required|min:6',
+                'password'              => ['required', new StrongPassword()],
                 'password_confirmation' => 'required|same:password',
                 'code'                  => 'required',
                 'mobile'                => 'required|unique:users',
@@ -71,7 +72,7 @@ class RegisterRequest extends Request
             return [
                 'email'                 => 'max:50|email|unique:users',
                 'full_name'             => 'required',
-                'password'              => 'required|min:6',
+                'password'              => ['required', new StrongPassword()],
                 'password_confirmation' => 'required|same:password',
                 'code'                  => 'required',
                 'mobile'                => 'required|unique:users',

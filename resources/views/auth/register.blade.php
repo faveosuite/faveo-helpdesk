@@ -167,6 +167,7 @@
                             <i class="fa-solid fa-eye-slash"></i>
                         </button>
                     </div>
+                    @include('partials.password-rules', ['input' => 'reg-password'])
                     @if($errors->has('password'))
                         <div class="invalid-feedback d-block">{{ $errors->first('password') }}</div>
                     @endif
@@ -186,7 +187,7 @@
 
                 <div >
 
-                    <button type="submit" class="btn btn-primary w-100">{!! Lang::get('lang.register') !!}</button>
+                    <button type="submit" class="btn btn-primary w-100" id="reg-submit">{!! Lang::get('lang.register') !!}</button>
                 </div>
 
                 <div>
@@ -220,6 +221,30 @@ document.addEventListener('click', function (e) {
         });
     }
 }, true);
+
+// Check the password policy before sending, then block a second click.
+(function () {
+    var password = document.getElementById('reg-password');
+    var submit = document.getElementById('reg-submit');
+    if (!password || !password.form || !submit) {
+        return;
+    }
+    var label = submit.innerHTML;
+    password.form.addEventListener('submit', function (e) {
+        if (!FaveoPasswordRules.check('reg-password')) {
+            e.preventDefault();
+            password.focus();
+            return;
+        }
+        submit.disabled = true;
+        submit.textContent = @json(Lang::get('lang.please_wait'));
+    });
+    // Back button can restore the page from cache with the button still disabled.
+    window.addEventListener('pageshow', function () {
+        submit.disabled = false;
+        submit.innerHTML = label;
+    });
+})();
 
 function togglePwd(id, btn) {
     var input = document.getElementById(id);

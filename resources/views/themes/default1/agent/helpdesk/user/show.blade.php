@@ -170,7 +170,7 @@ class="nav-link active"
                     @endif
 
                     <li class="list-group-item mb-0">
-                        <b>{{Lang::get('lang.role')}}</b> <a class="float-end text-success"> {!! $users->role !!}</a>
+                        <b>{{Lang::get('lang.role')}}</b> <a class="float-end text-success"> {{ in_array($users->role, ['user', 'agent', 'admin'], true) ? Lang::get('lang.'.$users->role) : $users->role }}</a>
                     </li>
 
                     <li class="list-group-item mb-0">
@@ -1507,9 +1507,15 @@ class="nav-link active"
 
                             <!-- <div class="mb-3 {{ $errors->has('change_password') ? 'has-error' : '' }}"> -->
                             {!! html()->label(Lang::get('lang.new_password'), 'New password') !!} <span class="text-red"> *</span>
-                            <input type="text" class="form-control" name="change_password" id="changepassword1" >
+                            <div class="input-group">
+                                <input type="password" class="form-control" name="change_password" id="changepassword1" autocomplete="new-password">
+                                <button class="input-group-text" type="button" id="changepassword1-toggle" onclick="toggleChangePassword()" tabindex="-1" aria-label="Show password">
+                                    <i class="fa-solid fa-eye-slash"></i>
+                                </button>
+                            </div>
+                            @include('partials.password-rules', ['input' => 'changepassword1'])
 
-                            <p id="demo" style="color:red"></p>
+                            <p id="demo" style="color:red">{{ $errors->first('change_password') }}</p>
 
                             <!-- </div> -->
 
@@ -1572,7 +1578,33 @@ $(document).ready(function(){
                 document.getElementById("demo").innerHTML = "Enter Password";
                 return false;
             }
+            document.getElementById("demo").innerHTML = "";
+            if (!FaveoPasswordRules.check('changepassword1')) {
+                return false;
+            }
+            // block a second click while the request is on its way
+            var submit = document.getElementById('savepassword');
+            submit.disabled = true;
+            submit.value = @json(Lang::get('lang.please_wait'));
+            return true;
         }
+
+        // Back button can restore the page from cache with the button still disabled.
+        window.addEventListener('pageshow', function () {
+            var submit = document.getElementById('savepassword');
+            if (submit) {
+                submit.disabled = false;
+                submit.value = @json(Lang::get('lang.submit'));
+            }
+        });
+
+        // The server rejected the password (e.g. JavaScript was off): reopen the modal
+        // so the message under the field is seen.
+        @if($errors->has('change_password'))
+        document.addEventListener('DOMContentLoaded', function () {
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('addNewCategoryModal')).show();
+        });
+        @endif
     </script>
     <script>
 
@@ -1588,10 +1620,33 @@ $(document).ready(function(){
                     var sum = result;
 
                     document.getElementById("changepassword1").value = sum;
+                    // show the generated password so it can be copied and shared
+                    toggleChangePassword(true);
+                    FaveoPasswordRules.check('changepassword1');
+                    document.getElementById("demo").innerHTML = "";
 
                 }
             });
 
+        });
+
+        // Show/hide the new password; the eye icon follows the current state.
+        // force: true = show, false = hide, omitted = toggle.
+        function toggleChangePassword(force) {
+            var input = document.getElementById('changepassword1');
+            var btn = document.getElementById('changepassword1-toggle');
+            var show = typeof force === 'boolean' ? force : input.type === 'password';
+            input.type = show ? 'text' : 'password';
+            btn.querySelector('i').className = show ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash';
+            btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+        }
+
+        // every time the modal opens, start hidden again
+        $('#addNewCategoryModal').on('show.bs.modal', function () {
+            toggleChangePassword(false);
+            if (!document.getElementById('changepassword1').value) {
+                FaveoPasswordRules.reset('changepassword1');
+            }
         });
 
     </script>

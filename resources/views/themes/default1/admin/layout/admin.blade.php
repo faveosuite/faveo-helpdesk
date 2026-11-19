@@ -670,7 +670,7 @@
                                     </li>
 
                                     <li class="nav-item">
-                                        <a href="{{url('storage')}}" @yield('storage') class="nav-link">
+                                        <a href="{{route('storage')}}" @yield('storage') class="nav-link">
                                             <i class="nav-icon fa-solid fa-floppy-disk"></i>
                                             <p>{!! Lang::get('storage::lang.storage') !!}</p>
                                         </a>
