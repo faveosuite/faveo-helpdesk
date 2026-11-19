@@ -26,11 +26,11 @@ class UpgradeVersionCompareTest extends TestCase
             'underscore tag'          => ['v2_0_4', '2.0.5', true],
             // v2.0.4.B.1: an uppercase "B" is not PHP's "beta" label, but it still
             // sorts below RC and the final release, which is the order relied on.
-            'B build to its final release' => ['v2.0.4.B.1', '2.0.4', true],
-            'B build to RC'                => ['v2.0.4.B.1', '2.0.4.RC.1', true],
-            'same B build'                 => ['v2.0.4.B.1', '2.0.4.B.1', false],
+            'B build to its final release'  => ['v2.0.4.B.1', '2.0.4', true],
+            'B build to RC'                 => ['v2.0.4.B.1', '2.0.4.RC.1', true],
+            'same B build'                  => ['v2.0.4.B.1', '2.0.4.B.1', false],
             'RC is not offered the B build' => ['v2.0.4.RC.1', '2.0.4.B.1', false],
-            'older release to B build'     => ['v2.0.3', '2.0.4.B.1', true],
+            'older release to B build'      => ['v2.0.3', '2.0.4.B.1', true],
         ];
     }
 
