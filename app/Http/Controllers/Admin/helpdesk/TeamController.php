@@ -182,10 +182,11 @@ class TeamController extends Controller
             ->addColumn('role', function ($model) {
                 $role = '';
                 // Show the translated label ("Agent"), not the raw stored value ("agent").
+                // langText(): Lang::get() is typed string|array; a single line is always a string.
                 if ($model->role == 'admin') {
-                    $role = "<a class='btn btn-success btn-xs'>".e(Lang::get('lang.admin')).'</a>';
+                    $role = "<a class='btn btn-success btn-xs'>".e(langText('lang.admin')).'</a>';
                 } elseif ($model->role == 'agent') {
-                    $role = "<a class='btn btn-primary btn-xs'>".e(Lang::get('lang.agent')).'</a>';
+                    $role = "<a class='btn btn-primary btn-xs'>".e(langText('lang.agent')).'</a>';
                 }
 
                 return $role;

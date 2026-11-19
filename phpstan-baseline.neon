@@ -2791,18 +2791,6 @@ parameters:
 			path: app/Events/Timeline.php
 
 		-
-			message: '#^Call to method getMessage\(\) on an unknown class App\\Exceptions\\PDOException\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Exceptions/Handler.php
-
-		-
-			message: '#^Class App\\Exceptions\\PDOException not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Exceptions/Handler.php
-
-		-
 			message: '#^Method App\\Exceptions\\Handler\:\:render\(\) has invalid return type App\\Exceptions\\type\.$#'
 			identifier: class.notFound
 			count: 1
