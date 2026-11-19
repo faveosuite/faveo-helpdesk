@@ -258,9 +258,9 @@ class Handler extends ExceptionHandler
                 return $e->getStatusCode() === 404
                     ? $this->render404($request, $e)
                     : parent::render($request, $e);
-            // Was `$e instanceof PDOException` (never imported, so it named the
-            // non-existent App\Exceptions\PDOException) with strpos()'s arguments
-            // reversed: connection failures never reached renderDB().
+                // Was `$e instanceof PDOException` (never imported, so it named the
+                // non-existent App\Exceptions\PDOException) with strpos()'s arguments
+                // reversed: connection failures never reached renderDB().
             case $this->isDatabaseConnectionError($e):
                 return $this->renderDB($request, $e);
 //            case $e instanceof ErrorException:
