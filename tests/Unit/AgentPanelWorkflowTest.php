@@ -13,7 +13,7 @@ use App\Model\helpdesk\Workflow\WorkflowAction;
 use App\Model\helpdesk\Workflow\WorkflowName;
 use App\Model\helpdesk\Workflow\WorkflowRules;
 use App\User;
-use Database\Seeders\v_2_0_4_RC_1\DatabaseSeeder as ApiSourceSeeder;
+use Database\Seeders\v_2_0_4_B_1\DatabaseSeeder as ApiSourceSeeder;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -30,7 +30,7 @@ class AgentPanelWorkflowTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        // testing-setup only runs the v_2_0_0 seeder, the API source comes from the v_2_0_4_RC_1 one
+        // testing-setup only runs the v_2_0_0 seeder, the API source comes from the v_2_0_4_B_1 one
         $this->seed(ApiSourceSeeder::class);
     }
 

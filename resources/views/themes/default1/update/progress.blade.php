@@ -1,7 +1,7 @@
 @extends('themes.default1.admin.layout.admin')
 
 @section('PageHeader')
-Updating Application
+<h3>Updating Application</h3>
 @stop
 
 @section('content')

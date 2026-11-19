@@ -10,7 +10,7 @@ use App\Model\helpdesk\Ticket\Ticket_Thread;
 use App\Model\helpdesk\Ticket\Tickets;
 use App\Model\helpdesk\Utility\CountryCode;
 use App\User;
-use Database\Seeders\v_2_0_4_RC_1\DatabaseSeeder as ApiSourceSeeder;
+use Database\Seeders\v_2_0_4_B_1\DatabaseSeeder as ApiSourceSeeder;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;

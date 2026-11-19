@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders\v_2_0_4_RC_1;
+namespace Database\Seeders\v_2_0_4_B_1;
 
 use App\Model\helpdesk\Settings\System;
 use App\Model\helpdesk\Ticket\Ticket_source;

@@ -5,7 +5,7 @@ namespace Tests\Unit;
 use App\Http\Controllers\Client\helpdesk\UnAuthController;
 use App\Http\Middleware\LanguageMiddleware;
 use App\Model\helpdesk\Settings\System;
-use Database\Seeders\v_2_0_4_RC_1\DatabaseSeeder;
+use Database\Seeders\v_2_0_4_B_1\DatabaseSeeder;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;

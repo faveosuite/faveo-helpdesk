@@ -51,6 +51,13 @@ class="nav-link active"
             @endif
         </div>
         <div class="card-body">
+            {{-- the logs folder is empty (files deleted on the server, or nothing logged yet) --}}
+            @if(!count($files))
+            <div class="text-center text-muted py-4">
+                <i class="fas fa-file-alt fa-2x mb-2"></i>
+                <p class="mb-0">{{ Lang::get('log::lang.no_log_files') }}</p>
+            </div>
+            @else
             <div class="row">
                 <div class="col-md-2">
                     <div class="list-group">
@@ -97,6 +104,7 @@ class="nav-link active"
                     @endif
                 </div>
             </div>
+            @endif
         </div>
     </div>
 </div>

@@ -35,7 +35,7 @@ return array(
     'Database\\Seeders\\v_2_0_0\\OutboundMailSeeder' => $baseDir . '/database/seeders/v_2_0_0/OutboundMailSeeder.php',
     'Database\\Seeders\\v_2_0_0\\TicketSourceSeeder' => $baseDir . '/database/seeders/v_2_0_0/TicketSourceSeeder.php',
     'Database\\Seeders\\v_2_0_0\\UserSeeder' => $baseDir . '/database/seeders/v_2_0_0/UserSeeder.php',
-    'Database\\Seeders\\v_2_0_4_RC_1\\DatabaseSeeder' => $baseDir . '/database/seeders/v_2_0_4_RC_1/DatabaseSeeder.php',
+    'Database\\Seeders\\v_2_0_4_B_1\\DatabaseSeeder' => $baseDir . '/database/seeders/v_2_0_4_B_1/DatabaseSeeder.php',
     'DateError' => $vendorDir . '/symfony/polyfill-php83/Resources/stubs/DateError.php',
     'DateException' => $vendorDir . '/symfony/polyfill-php83/Resources/stubs/DateException.php',
     'DateInvalidOperationException' => $vendorDir . '/symfony/polyfill-php83/Resources/stubs/DateInvalidOperationException.php',

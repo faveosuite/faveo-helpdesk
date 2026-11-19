@@ -48,7 +48,7 @@ class SyncFaveoToLatestVersion extends Controller
      * Run every versioned seeder newer than $olderVersion, oldest first.
      *
      * Sorted by version, not by name: natsort() puts "v_2_0_4" before
-     * "v_2_0_4_RC_1", but the RC is the earlier release and its seeder must run
+     * "v_2_0_4_B_1", but the B build is the earlier release and its seeder must run
      * first when an update crosses both.
      */
     private function runSeeders(string $olderVersion): void

@@ -6,8 +6,16 @@
          processIsolation="false"
          stopOnFailure="false">
   <testsuites>
+    <!--
+      tests/Unit is excluded here because the "unit" suite below already owns it.
+      PHPUnit 10+ refuses to put one file in two suites: it warned "Cannot add file
+      ... as it was already added to test suite all" for every Unit test and exited
+      non-zero. Running with no suite still runs every test exactly once;
+      Jenkins runs `testsuite unit`, which is unchanged.
+    -->
     <testsuite name="all">
       <directory>./tests/</directory>
+      <exclude>./tests/Unit</exclude>
     </testsuite>
     <testsuite name="unit">
       <directory>./tests/Unit</directory>
