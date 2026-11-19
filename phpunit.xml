@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit backupGlobals="false"
-         backupStaticAttributes="false"
+         backupStaticProperties="false"
          bootstrap="bootstrap/autoload.php"
          colors="true"
-         convertErrorsToExceptions="true"
-         convertNoticesToExceptions="true"
-         convertWarningsToExceptions="true"
          processIsolation="false"
          stopOnFailure="false">
   <testsuites>
@@ -16,11 +13,16 @@
       <directory>./tests/Unit</directory>
     </testsuite>
   </testsuites>
-  <filter>
-    <whitelist addUncoveredFilesFromWhitelist="true">
+  <!--
+    PHPUnit 10+ format. The old <filter><whitelist> block is ignored by PHPUnit 12,
+    which then warns "No filter is configured, code coverage will not be processed"
+    and exits 1 even when every test passes; it also meant no clover.xml for Sonar.
+  -->
+  <source>
+    <include>
       <directory suffix=".php">app/</directory>
-    </whitelist>
-  </filter>
+    </include>
+  </source>
   <php>
     <env name="APP_ENV" value="testing"/>
     <env name="DB_CONNECTION" value="testing"/>

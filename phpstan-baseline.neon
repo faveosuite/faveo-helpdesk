@@ -9958,18 +9958,6 @@ parameters:
 			path: app/Http/Controllers/Admin/helpdesk/TeamController.php
 
 		-
-			message: '#^Cannot access property \$name on App\\Model\\helpdesk\\Agent\\Department\|null\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Http/Controllers/Admin/helpdesk/TeamController.php
-
-		-
-			message: '#^Cannot access property \$name on App\\Model\\helpdesk\\Agent\\Groups\|null\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Http/Controllers/Admin/helpdesk/TeamController.php
-
-		-
 			message: '#^Cannot access property \$team_lead on App\\Model\\helpdesk\\Agent\\Teams\|null\.$#'
 			identifier: property.nonObject
 			count: 1
@@ -10231,12 +10219,6 @@ parameters:
 			message: '#^Parameter \$id of method App\\Http\\Controllers\\Admin\\helpdesk\\TeamController\:\:show\(\) has invalid type App\\Http\\Controllers\\Admin\\helpdesk\\type\.$#'
 			identifier: class.notFound
 			count: 1
-			path: app/Http/Controllers/Admin/helpdesk/TeamController.php
-
-		-
-			message: '#^Variable \$role might not be defined\.$#'
-			identifier: variable.undefined
-			count: 2
 			path: app/Http/Controllers/Admin/helpdesk/TeamController.php
 
 		-
@@ -17750,18 +17732,6 @@ parameters:
 			path: app/Http/Controllers/Agent/kb/CategoryController.php
 
 		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\kb\\CategoryController\:\:store\(\) has invalid return type App\\Http\\Controllers\\Agent\\kb\\type\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Agent/kb/CategoryController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Agent\\kb\\CategoryController\:\:store\(\) should return App\\Http\\Controllers\\Agent\\kb\\type but returns Illuminate\\Http\\RedirectResponse\.$#'
-			identifier: return.type
-			count: 2
-			path: app/Http/Controllers/Agent/kb/CategoryController.php
-
-		-
 			message: '#^Method App\\Http\\Controllers\\Agent\\kb\\CategoryController\:\:update\(\) has invalid return type App\\Http\\Controllers\\Agent\\kb\\type\.$#'
 			identifier: class.notFound
 			count: 1
@@ -19958,12 +19928,6 @@ parameters:
 			path: app/Http/Controllers/Client/helpdesk/GuestController.php
 
 		-
-			message: '#^Parameter \$id of method App\\Http\\Controllers\\Client\\helpdesk\\GuestController\:\:get_ticket_email\(\) has invalid type App\\Http\\Controllers\\Client\\helpdesk\\type\.$#'
-			identifier: class.notFound
-			count: 1
-			path: app/Http/Controllers/Client/helpdesk/GuestController.php
-
-		-
 			message: '#^Unreachable statement \- code above always terminates\.$#'
 			identifier: deadCode.unreachable
 			count: 1
@@ -20510,19 +20474,7 @@ parameters:
 			path: app/Http/Controllers/Client/kb/UserController.php
 
 		-
-			message: '#^Cannot access property \$first_name on Illuminate\\Contracts\\Auth\\Authenticatable\|null\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Http/Controllers/Client/kb/UserController.php
-
-		-
 			message: '#^Cannot access property \$host on App\\Model\\kb\\Settings\|null\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: app/Http/Controllers/Client/kb/UserController.php
-
-		-
-			message: '#^Cannot access property \$last_name on Illuminate\\Contracts\\Auth\\Authenticatable\|null\.$#'
 			identifier: property.nonObject
 			count: 1
 			path: app/Http/Controllers/Client/kb/UserController.php
@@ -20769,12 +20721,6 @@ parameters:
 
 		-
 			message: '#^Property App\\Model\\kb\\Comment\:\:\$article_id \(int\<0, max\>\) does not accept int\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: app/Http/Controllers/Client/kb/UserController.php
-
-		-
-			message: '#^Property App\\Model\\kb\\Comment\:\:\$article_id \(int\<0, max\>\) does not accept int\|string\|null\.$#'
 			identifier: assign.propertyType
 			count: 1
 			path: app/Http/Controllers/Client/kb/UserController.php

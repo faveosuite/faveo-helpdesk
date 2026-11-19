@@ -180,6 +180,7 @@ class TeamController extends Controller
                 return $dept->name ?? '-';
             })
             ->addColumn('role', function ($model) {
+                $role = '';
                 if ($model->role == 'admin') {
                     $role = "<a class='btn btn-success btn-xs'>".$model->role.'</a>';
                 } elseif ($model->role == 'agent') {
