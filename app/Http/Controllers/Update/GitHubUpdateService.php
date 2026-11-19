@@ -58,7 +58,17 @@ class GitHubUpdateService
         $response = $this->github("/repos/{$this->owner}/{$this->repo}/releases/latest");
 
         if ($response->failed()) {
-            Log::warning('GitHub Update: failed to fetch latest release', [
+            // A rate limit is expected, not a fault: unauthenticated calls get 60/hour
+            // per IP, and servers behind a VPN, NAT or shared cloud IP share that quota
+            // with strangers. The check simply retries tomorrow, so record it at info.
+            // Anything else (bad repo/config, GitHub outage) stays a warning.
+            $rateLimited = $response->status() === 429
+                || ($response->status() === 403 && (
+                    $response->header('X-RateLimit-Remaining') === '0'
+                    || stripos($response->body(), 'rate limit') !== false
+                ));
+
+            Log::log($rateLimited ? 'info' : 'warning', 'GitHub Update: failed to fetch latest release', [
                 'status' => $response->status(),
                 'body'   => $response->body(),
             ]);

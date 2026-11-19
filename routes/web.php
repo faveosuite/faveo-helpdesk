@@ -650,16 +650,19 @@ Route::middleware('web')->group(function () {
       |  Error Routes
       |=============================================================
      */
+    // The branded error pages extend the client layout, which reads the database.
+    // Before installation there is none, so serve the self-contained page instead.
     Route::get('500', function () {
-        return view('errors.500');
+        return isInstall() ? view('errors.500') : response()->view('errors.standalone', ['status' => 500], 500);
     })->name('error500');
 
     Route::get('404', function () {
-        return view('errors.404');
+        return isInstall() ? view('errors.404') : response()->view('errors.standalone', ['status' => 404], 404);
     })->name('error404');
 
+    // Shown when the database is unreachable, so it must never need the database.
     Route::get('error-in-database-connection', function () {
-        return view('errors.db');
+        return response()->view('errors.standalone', ['status' => 503], 503);
     })->name('errordb');
 
     Route::get('unauthorized', function () {
