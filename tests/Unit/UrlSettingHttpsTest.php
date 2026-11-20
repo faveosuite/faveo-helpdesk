@@ -149,6 +149,7 @@ class UrlSettingHttpsTest extends TestCase
     {
         file_put_contents($this->file, "# hand written\n");
         $this->expectExceptionMessage('RewriteEngine On');
+
         try {
             $this->controller()->writeHtaccess('x');
         } finally {
