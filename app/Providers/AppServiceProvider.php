@@ -49,9 +49,35 @@ class AppServiceProvider extends ServiceProvider
         Paginator::defaultView('vendor.pagination.datatables');
         Paginator::defaultSimpleView('vendor.pagination.datatables');
         $this->composer();
-        URL::forceScheme('https');
+        if ($this->shouldForceHttps()) {
+            URL::forceScheme('https');
+        }
 
         require base_path('app/Http/breadcrumbs.php');
+    }
+
+    /**
+     * Whether every generated URL (links, forms, assets, email links) must use https://.
+     *
+     * This used to be forced unconditionally, which broke sites that run over plain HTTP: every link
+     * and asset pointed to an https:// address that does not load, and the installer even saved an
+     * https APP_URL for them. HTTPS is still forced in every case where it was working before (APP_URL
+     * is https, or the page was opened over HTTPS directly or through an SSL proxy); it is only left
+     * off when the site is both configured for and reached over plain HTTP.
+     */
+    public function shouldForceHttps(): bool
+    {
+        if (stripos((string) config('app.url'), 'http://') !== 0) {
+            return true;
+        }
+
+        if ($this->app->runningInConsole()) {
+            return false;
+        }
+
+        $request = $this->app->make('request');
+
+        return $request->isSecure() || strtolower((string) $request->header('X-Forwarded-Proto')) === 'https';
     }
 
     public function composer()

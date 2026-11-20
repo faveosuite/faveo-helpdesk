@@ -58,6 +58,19 @@ return [
     'url' => env('APP_URL', 'http://localhost'),
     /*
       |--------------------------------------------------------------------------
+      | Trusted proxies
+      |--------------------------------------------------------------------------
+      |
+      | Only needed when Faveo runs behind a reverse proxy or load balancer that
+      | handles SSL (Cloudflare, AWS ELB, nginx in front of Apache, ...). Set
+      | TRUSTED_PROXIES in .env to the proxy IPs / CIDR ranges (comma separated),
+      | or "*" to trust the server that is calling Faveo. Empty = no proxy is
+      | trusted, which is the default and changes nothing.
+      |
+     */
+    'trusted_proxies' => env('TRUSTED_PROXIES'),
+    /*
+      |--------------------------------------------------------------------------
       | Application Timezone
       |--------------------------------------------------------------------------
       |

@@ -25,4 +25,15 @@ class TrustProxies extends Middleware
         Request::HEADER_X_FORWARDED_PORT |
         Request::HEADER_X_FORWARDED_PROTO |
         Request::HEADER_X_FORWARDED_AWS_ELB;
+
+    /**
+     * Proxies come from TRUSTED_PROXIES in .env (config app.trusted_proxies). When it is not set,
+     * no proxy is trusted and requests are handled exactly as before.
+     *
+     * @return array<int, string>|string|null
+     */
+    protected function proxies()
+    {
+        return $this->proxies ?: config('app.trusted_proxies');
+    }
 }
